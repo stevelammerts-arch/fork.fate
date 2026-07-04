@@ -19,8 +19,15 @@ export function RestaurantCard({ r, onDelete }) {
           alt={r.name}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <div className="absolute top-3 left-3 rounded-full bg-white/90 backdrop-blur px-3 py-1 text-xs font-bold tracking-wide text-[#0E0E0E]">
-          {r.cuisine}
+        <div className="absolute top-3 left-3 flex gap-2">
+          <span className="rounded-full bg-white/90 backdrop-blur px-3 py-1 text-xs font-bold tracking-wide text-[#0E0E0E]">
+            {r.cuisine}
+          </span>
+          {r.sponsored && (
+            <span data-testid={`sponsored-badge-${r.id}`} className="rounded-full bg-[#E01E26] px-3 py-1 text-xs font-bold tracking-wide text-white">
+              Sponsored
+            </span>
+          )}
         </div>
         {onDelete && (
           <button

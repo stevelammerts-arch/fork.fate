@@ -14,6 +14,7 @@ import {
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
+import { Switch } from "./ui/switch";
 import {
   Select,
   SelectContent,
@@ -49,6 +50,7 @@ export default function AddRestaurantDialog({ onAdded }) {
     distance: 1.0,
     description: "",
     address: "",
+    sponsored: false,
   });
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
@@ -71,7 +73,7 @@ export default function AddRestaurantDialog({ onAdded }) {
       toast.success(`${data.name} added to the pool`);
       onAdded?.(data);
       setOpen(false);
-      setForm({ name: "", cuisine: "", price: "$$", rating: 4.5, distance: 1.0, description: "", address: "" });
+      setForm({ name: "", cuisine: "", price: "$$", rating: 4.5, distance: 1.0, description: "", address: "", sponsored: false });
     } catch (e) {
       toast.error("Could not add restaurant");
     } finally {
@@ -170,6 +172,18 @@ export default function AddRestaurantDialog({ onAdded }) {
               onChange={(e) => set("description", e.target.value)}
               placeholder="What makes it special?"
               className={`${fieldCls} min-h-[80px]`}
+            />
+          </div>
+
+          <div className="flex items-center justify-between rounded-xl border border-[#E2E4E7] bg-[#F5F6F7] px-4 py-3">
+            <div>
+              <p className="font-sans text-sm font-semibold text-[#0E0E0E]">Sponsored listing</p>
+              <p className="font-sans text-xs text-[#6B7075]">Pin to the top with a Sponsored badge</p>
+            </div>
+            <Switch
+              data-testid="add-sponsored-switch"
+              checked={form.sponsored}
+              onCheckedChange={(v) => set("sponsored", v)}
             />
           </div>
         </div>

@@ -75,6 +75,7 @@ class Restaurant(BaseModel):
     description: str = ""
     address: str = ""
     image: str = ""
+    sponsored: bool = False
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
@@ -87,6 +88,7 @@ class RestaurantCreate(BaseModel):
     description: str = ""
     address: str = ""
     image: str = ""
+    sponsored: bool = False
 
 
 class SpinRequest(BaseModel):
@@ -103,7 +105,7 @@ class PlacesSearchRequest(BaseModel):
 
 # ---------- Seed data ----------
 SEED = [
-    {"name": "Olive & Ember", "cuisine": "Italian", "price": "$$", "rating": 4.7, "distance": 0.8,
+    {"name": "Olive & Ember", "cuisine": "Italian", "price": "$$", "rating": 4.7, "distance": 0.8, "sponsored": True,
      "description": "Wood-fired pizzas and hand-rolled pasta in a warm, candle-lit room.", "address": "12 Maple Ave",
      "image": "https://images.unsplash.com/photo-1564759296729-771e78c26df7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODd8MHwxfHNlYXJjaHw0fHxnb3VybWV0JTIwcmVzdGF1cmFudCUyMGZvb2QlMjBkaXNoJTIwcGxhdGVkfGVufDB8fHx8MTc4MzIwNDE1Nnww&ixlib=rb-4.1.0&q=85"},
     {"name": "The Copper Grill", "cuisine": "Steakhouse", "price": "$$$", "rating": 4.8, "distance": 2.3,
@@ -127,7 +129,7 @@ SEED = [
     {"name": "The Green Fork", "cuisine": "Vegan", "price": "$$", "rating": 4.6, "distance": 0.9,
      "description": "Plant-forward bowls, house ferments and cold-pressed juices.", "address": "17 Garden Pl",
      "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3MHx8fGVufDB8fHx8&ixlib=rb-4.1.0&q=85"},
-    {"name": "Harborline", "cuisine": "Seafood", "price": "$$$", "rating": 4.9, "distance": 3.4,
+    {"name": "Harborline", "cuisine": "Seafood", "price": "$$$", "rating": 4.9, "distance": 3.4, "sponsored": True,
      "description": "Daily catch, chilled towers and coastal white wines.", "address": "1 Pier View",
      "image": "https://images.unsplash.com/photo-1559737558-2f5a35f4523b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3MHx8fGVufDB8fHx8&ixlib=rb-4.1.0&q=85"},
     {"name": "Smoke & Stack", "cuisine": "Burgers", "price": "$", "rating": 4.4, "distance": 1.3,
@@ -154,7 +156,7 @@ SEED = [
     {"name": "Pho Saigon", "cuisine": "Vietnamese", "price": "$", "rating": 4.6, "distance": 7.8,
      "description": "Steaming pho, crisp banh mi and iced coffee.", "address": "23 Mekong Ln",
      "image": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?crop=entropy&cs=srgb&fm=jpg&q=85"},
-    {"name": "Ember & Oak BBQ", "cuisine": "BBQ", "price": "$$", "rating": 4.8, "distance": 12.4,
+    {"name": "Ember & Oak BBQ", "cuisine": "BBQ", "price": "$$", "rating": 4.8, "distance": 12.4, "sponsored": True,
      "description": "Low-and-slow brisket, ribs and burnt ends.", "address": "40 Smokehouse Rd",
      "image": "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?crop=entropy&cs=srgb&fm=jpg&q=85"},
     {"name": "Santorini Blue", "cuisine": "Greek", "price": "$$", "rating": 4.7, "distance": 9.3,
@@ -320,7 +322,7 @@ async def places_search(req: PlacesSearchRequest):
         for lvl in req.price_levels:
             allowed |= {s for s, enums in SYMBOL_ENUMS.items() if lvl in enums}
         items = [r for r in items if r['price'] in allowed]
-    items.sort(key=lambda r: r['distance'])
+    items.sort(key=lambda r: (not r.get('sponsored', False), r['distance']))
     return {"source": "curated", "restaurants": items}
 
 

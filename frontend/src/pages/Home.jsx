@@ -6,6 +6,7 @@ import { Dices, Star, MapPin, Utensils, RotateCcw, Search } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
+import AdUnit from "../components/AdUnit";
 import { Input } from "../components/ui/input";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -111,7 +112,7 @@ export default function Home() {
               Fork·Fate
             </span>
           </div>
-          <AddRestaurantDialog onAdded={() => {}} />
+          <AddRestaurantDialog onAdded={(r) => setResults((p) => [r, ...p])} />
         </div>
       </header>
 
@@ -206,6 +207,7 @@ export default function Home() {
               {results.length} within 50 mi
             </span>
           </div>
+          <AdUnit className="mt-8" label="Sponsored" />
           <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3" data-testid="restaurant-grid">
             {results.map((r) => (
               <RestaurantCard key={r.id} r={r} />
@@ -251,9 +253,16 @@ function RevealStage({ spinning, flash, result, onReset, onReSpin }) {
           <img src={card.image} alt={card.name} className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute bottom-4 left-4 right-4">
-            <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#0E0E0E]">
-              {card.cuisine} · {card.price}
-            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#0E0E0E]">
+                {card.cuisine} · {card.price}
+              </span>
+              {card.sponsored && (
+                <span className="rounded-full bg-[#E01E26] px-3 py-1 text-xs font-bold text-white">
+                  Sponsored
+                </span>
+              )}
+            </div>
             <h3 className="mt-2 font-serif text-4xl font-medium leading-none text-white drop-shadow">
               {card.name}
             </h3>

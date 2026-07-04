@@ -23,9 +23,9 @@ class TestPlacesSearchFallback:
         assert d["source"] == "curated"
         assert isinstance(d["restaurants"], list)
         assert len(d["restaurants"]) == 23
-        # sorted by distance ascending
-        dists = [r["distance"] for r in d["restaurants"]]
-        assert dists == sorted(dists)
+        # sorted by (sponsored desc, distance asc)
+        keys = [(not r.get("sponsored", False), r["distance"]) for r in d["restaurants"]]
+        assert keys == sorted(keys)
 
     def test_no_zip_code_key_ok(self, client):
         # zip_code omitted entirely

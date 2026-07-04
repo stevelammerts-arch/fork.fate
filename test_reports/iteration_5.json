@@ -1,0 +1,27 @@
+{
+  "summary": "Verified sponsored spots + AdSense scaffold. Backend: sponsored bool present on all restaurants; POST /api/places/search (curated) returns the 3 sponsored seeds (Olive & Ember, Harborline, Ember & Oak BBQ) first (ordered by distance within group), then non-sponsored by distance; POST /api/restaurants accepts and persists sponsored=true; regression on /cuisines, /spin, /restaurants delete all pass. Frontend: keyless spin renders result card + Nearby grid with 3 sponsored badges at top in the expected order; AdUnit renders null while REACT_APP_ADSENSE_PUB_ID is empty (no crash, no console errors beyond harmless ResizeObserver noise); Add spot dialog with Sponsored toggle creates a new restaurant that is immediately prepended to the grid with a Sponsored badge; respin and Clear still work. 20/20 pytest backend tests pass.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_sponsored.py",
+    "/app/backend/tests/test_places_search.py",
+    "/app/backend/tests/test_restaurants.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "AdUnit.jsx: 'Sponsored' label above the grid (label='Sponsored') could be confusing next to sponsored restaurant badges — consider label='Advertisement' when it becomes visible, to avoid conflating ads with sponsored restaurant listings.",
+    "Home.jsx: onAdded prepends new items to results, but if a non-sponsored spot is added while sponsored items already lead the list, sort ordering (sponsored-first) is not preserved on the client. Minor UX inconsistency.",
+    "Backend seed uses 3 sponsored items but places_search sorts them purely by distance within the sponsored group, so pinned order can shift if their distances change. If a stable pinned order is desired, add an explicit priority field.",
+    "Prior comment carries: CUISINES list in Home.jsx no longer includes 'Sushi' (already fixed / aligned)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_sponsored.py",
+    "/app/backend/tests/test_places_search.py"
+  ],
+  "success_rate": {"backend": "100% (20/20)", "frontend": "100%"},
+  "seed_data_creation": "None; used seeded 23 restaurants. Test-added rows are cleaned up.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "GOOGLE_API_KEY and REACT_APP_ADSENSE_PUB_ID are intentionally empty. AdUnit must render null unless PUB_ID is set — confirmed. When testing Radix Select inside a modal, click the trigger then use page.get_by_role('option', name=...) — plain text= selectors can hit the CUISINE filter chips behind the dialog. Sponsored badge testids: sponsored-badge-{restaurant.id}. Grid testid: restaurant-grid."
+}
