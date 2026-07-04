@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
   DialogFooter,
 } from "./ui/dialog";
@@ -93,6 +94,9 @@ export default function AddRestaurantDialog({ onAdded }) {
           <DialogTitle className="font-serif text-3xl font-medium text-[#2C2A29]">
             Add a restaurant
           </DialogTitle>
+          <DialogDescription className="font-sans text-sm text-[#7A7571]">
+            Add a local spot to your roulette pool.
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
