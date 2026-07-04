@@ -23,8 +23,8 @@ const DETAIL_TRANSITION = { delay: 0.2 };
 const SPIN_TAP = { scale: 0.96 };
 
 const CUISINES = [
-  "Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "American",
-  "Mediterranean", "Seafood", "Pizza", "Sushi", "Vegan", "BBQ", "Cafe",
+  "Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Korean",
+  "American", "Mediterranean", "Seafood", "Pizza", "Vegan", "BBQ", "Greek", "Cafe",
 ];
 const PRICE_OPTIONS = [
   { symbol: "$", value: "PRICE_LEVEL_INEXPENSIVE" },
