@@ -29,6 +29,7 @@ const Group = ({ label, children }) => (
 
 export default function Filters({
   cuisines,
+  cuisineLabel = "Cuisine",
   selectedCuisines,
   toggleCuisine,
   priceOptions,
@@ -37,7 +38,7 @@ export default function Filters({
 }) {
   return (
     <div className="space-y-6" data-testid="filters-panel">
-      <Group label="Cuisine">
+      <Group label={cuisineLabel}>
         {cuisines.map((c) => (
           <Pill
             key={c}

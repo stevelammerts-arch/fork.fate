@@ -19,7 +19,10 @@ class TestRestaurantsAPI:
         assert r.status_code == 200
         data = r.json()
         assert isinstance(data, list)
-        assert len(data) == 23
+        # 23 food + 8 drinks
+        assert len(data) == 31
+        assert sum(1 for x in data if x.get('category', 'food') == 'food') == 23
+        assert sum(1 for x in data if x.get('category') == 'drinks') == 8
         first = data[0]
         for k in ("id", "name", "cuisine", "price", "rating", "distance"):
             assert k in first

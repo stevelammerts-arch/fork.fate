@@ -81,6 +81,8 @@ class Restaurant(BaseModel):
     address: str = ""
     image: str = ""
     sponsored: bool = False
+    category: str = "food"  # "food" | "drinks"
+    google_url: str = ""
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
@@ -94,6 +96,7 @@ class RestaurantCreate(BaseModel):
     address: str = ""
     image: str = ""
     sponsored: bool = False
+    category: str = "food"
 
 
 class SpinRequest(BaseModel):
@@ -106,6 +109,7 @@ class PlacesSearchRequest(BaseModel):
     zip_code: Optional[str] = None
     cuisines: List[str] = []
     price_levels: List[str] = []
+    category: str = "food"
 
 
 # ---------- Seed data ----------
@@ -179,6 +183,30 @@ SEED = [
     {"name": "Verde Cantina", "cuisine": "Vegan", "price": "$", "rating": 4.4, "distance": 34.5,
      "description": "Jackfruit tacos, cashew queso and kombucha on tap.", "address": "90 Fern Hill",
      "image": "https://images.unsplash.com/photo-1540914124281-342587941389?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Cloud Nine Coffee", "cuisine": "Coffee", "price": "$", "rating": 4.7, "distance": 0.6, "category": "drinks", "sponsored": True,
+     "description": "Single-origin pour-overs, flat whites and flaky croissants.", "address": "6 Bean St",
+     "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Roast & Co", "cuisine": "Coffee", "price": "$$", "rating": 4.6, "distance": 2.1, "category": "drinks",
+     "description": "Small-batch roasters with nitro cold brew on tap.", "address": "19 Ember Ave",
+     "image": "https://images.unsplash.com/photo-1447933601403-0c6688de566e?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Pearl & Pour", "cuisine": "Boba Tea", "price": "$", "rating": 4.8, "distance": 1.4, "category": "drinks", "sponsored": True,
+     "description": "Brown-sugar boba, fruit teas and cheese foam.", "address": "8 Tapioca Ln",
+     "image": "https://images.unsplash.com/photo-1558857563-b371033873b8?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Boba Lab", "cuisine": "Boba Tea", "price": "$", "rating": 4.5, "distance": 3.7, "category": "drinks",
+     "description": "Build-your-own milk teas with popping pearls.", "address": "27 Pearl Rd",
+     "image": "https://images.unsplash.com/photo-1525803377221-4f6ccf6f0d1a?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Sip Society", "cuisine": "Smoothie", "price": "$$", "rating": 4.6, "distance": 2.8, "category": "drinks",
+     "description": "Cold-pressed juices and protein-packed smoothie bowls.", "address": "51 Blend Blvd",
+     "image": "https://images.unsplash.com/photo-1502741224143-90386d7f8c82?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Green Blend", "cuisine": "Smoothie", "price": "$", "rating": 4.4, "distance": 5.9, "category": "drinks",
+     "description": "Acai bowls, green smoothies and chia parfaits.", "address": "3 Kale Ct",
+     "image": "https://images.unsplash.com/photo-1610970881699-44a5587cabec?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Daily Grind", "cuisine": "Coffee", "price": "$", "rating": 4.5, "distance": 8.2, "category": "drinks",
+     "description": "Neighborhood espresso bar with house oat milk.", "address": "72 Roast Row",
+     "image": "https://images.unsplash.com/photo-1442512595331-e89e73853f31?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Tapioca Town", "cuisine": "Boba Tea", "price": "$", "rating": 4.3, "distance": 11.5, "category": "drinks",
+     "description": "Classic milk teas, taro slushies and mochi bites.", "address": "14 Chew St",
+     "image": "https://images.unsplash.com/photo-1571091718767-18b5b1457add?crop=entropy&cs=srgb&fm=jpg&q=85"},
 ]
 
 
@@ -221,6 +249,7 @@ async def get_restaurants():
 @api_router.post("/restaurants", response_model=Restaurant)
 async def create_restaurant(payload: RestaurantCreate):
     r = Restaurant(**payload.model_dump())
+    r.google_url = maps_url(r.name, r.address)
     doc = r.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     await db.restaurants.insert_one(doc)
@@ -262,7 +291,11 @@ async def google_places_search(req: "PlacesSearchRequest"):
         loc = gd["results"][0]["geometry"]["location"]
         lat, lng = loc["lat"], loc["lng"]
 
-        query = (" ".join(req.cuisines) + " restaurant").strip()
+        if req.category == "drinks":
+            base = " ".join(req.cuisines) if req.cuisines else "coffee boba tea smoothie"
+            query = (base + " cafe drinks").strip()
+        else:
+            query = (" ".join(req.cuisines) + " restaurant").strip()
         headers = {
             "X-Goog-Api-Key": GOOGLE_API_KEY,
             "X-Goog-FieldMask": "places.displayName,places.rating,places.priceLevel,places.primaryType,places.formattedAddress,places.location,places.photos,places.googleMapsUri",
@@ -324,6 +357,7 @@ async def places_search(req: PlacesSearchRequest):
 
     # Fallback to curated seed data
     items = await db.restaurants.find({}, {"_id": 0}).to_list(1000)
+    items = [r for r in items if r.get('category', 'food') == req.category]
     if req.cuisines:
         items = [r for r in items if r['cuisine'] in req.cuisines]
     if req.price_levels:

@@ -35,13 +35,15 @@ const CUISINES = [
   "Italian", "Japanese", "Mexican", "Indian", "Chinese", "French",
   "Mediterranean", "Steakhouse", "Seafood", "Burgers", "Vegan", "Cafe", "Thai", "Korean",
 ];
+const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];
 
 const fieldCls =
   "rounded-xl border-[#E2E4E7] bg-[#F5F6F7] px-4 py-2.5 text-[#0E0E0E] focus:ring-2 focus:ring-[#E01E26] focus:ring-offset-1 focus-visible:ring-[#E01E26]";
 
-export default function AddRestaurantDialog({ onAdded }) {
+export default function AddRestaurantDialog({ onAdded, mode = "food" }) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const cuisineOptions = mode === "food" ? CUISINES : DRINK_CUISINES;
   const [form, setForm] = useState({
     name: "",
     cuisine: "",
@@ -68,6 +70,7 @@ export default function AddRestaurantDialog({ onAdded }) {
         rating: parseFloat(form.rating) || 4.5,
         distance: parseFloat(form.distance) || 1.0,
         image,
+        category: mode,
       };
       const { data } = await axios.post(`${API}/restaurants`, payload);
       toast.success(`${data.name} added to the pool`);
@@ -120,7 +123,7 @@ export default function AddRestaurantDialog({ onAdded }) {
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
-                  {CUISINES.map((c) => (
+                  {cuisineOptions.map((c) => (
                     <SelectItem key={c} value={c}>{c}</SelectItem>
                   ))}
                 </SelectContent>

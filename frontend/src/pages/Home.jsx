@@ -23,10 +23,11 @@ const DETAIL_ANIMATE = { opacity: 1, y: 0 };
 const DETAIL_TRANSITION = { delay: 0.2 };
 const SPIN_TAP = { scale: 0.96 };
 
-const CUISINES = [
+const FOOD_CUISINES = [
   "Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Korean",
   "American", "Mediterranean", "Seafood", "Pizza", "Vegan", "BBQ", "Greek", "Cafe",
 ];
+const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];
 const PRICE_OPTIONS = [
   { symbol: "$", value: "PRICE_LEVEL_INEXPENSIVE" },
   { symbol: "$$", value: "PRICE_LEVEL_MODERATE" },
@@ -35,6 +36,7 @@ const PRICE_OPTIONS = [
 ];
 
 export default function Home() {
+  const [mode, setMode] = useState("food");
   const [zip, setZip] = useState("");
   const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [selectedPrices, setSelectedPrices] = useState([]);
@@ -49,6 +51,16 @@ export default function Home() {
 
   const toggle = (setter, arr, val) =>
     setter(arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val]);
+
+  const switchMode = (m) => {
+    if (m === mode) return;
+    setMode(m);
+    setSelectedCuisines([]);
+    setResults([]);
+    setResult(null);
+  };
+
+  const cuisineList = mode === "food" ? FOOD_CUISINES : DRINK_CUISINES;
 
   const runShuffle = (pool) => {
     setResult(null);
@@ -80,6 +92,7 @@ export default function Home() {
         zip_code: z || null,
         cuisines: selectedCuisines,
         price_levels: selectedPrices,
+        category: mode,
       });
       setResults(data.restaurants);
       setSource(data.source);
@@ -112,7 +125,7 @@ export default function Home() {
               Fork·Fate
             </span>
           </div>
-          <AddRestaurantDialog onAdded={(r) => setResults((p) => [r, ...p])} />
+          <AddRestaurantDialog mode={mode} onAdded={(r) => setResults((p) => [r, ...p])} />
         </div>
       </header>
 
@@ -125,20 +138,38 @@ export default function Home() {
           className="max-w-2xl"
         >
           <p className="font-sans text-xs font-bold tracking-[0.25em] uppercase text-[#E01E26]">
-            Can't decide where to eat?
+            {mode === "food" ? "Can't decide where to eat?" : "Can't decide what to sip?"}
           </p>
           <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl">
-            Let fate pick tonight's table.
+            {mode === "food" ? "Let fate pick tonight's table." : "Let fate pick your next sip."}
           </h1>
           <p className="mt-4 font-sans text-base leading-relaxed text-[#6B7075]">
-            Set the mood with a few filters and hit spin. We'll shuffle great
-            local restaurants — up to 50 miles out — and land on your next meal.
+            {mode === "food"
+              ? "Set the mood with a few filters and hit spin. We'll shuffle great local restaurants — up to 50 miles out — and land on your next meal."
+              : "Coffee, boba tea or a smoothie? Set your filters and spin — we'll shuffle nearby drink spots and pick one for you."}
           </p>
         </motion.div>
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
           {/* left: search + filters + spin */}
           <div className="min-w-0 space-y-7">
+            <div className="inline-flex rounded-full border border-[#E2E4E7] bg-[#EDEEF0] p-1" data-testid="mode-toggle">
+              <button
+                data-testid="mode-food"
+                onClick={() => switchMode("food")}
+                className={`rounded-full px-6 py-2 text-sm font-bold transition-colors ${mode === "food" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+              >
+                Food
+              </button>
+              <button
+                data-testid="mode-drinks"
+                onClick={() => switchMode("drinks")}
+                className={`rounded-full px-6 py-2 text-sm font-bold transition-colors ${mode === "drinks" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+              >
+                Drinks
+              </button>
+            </div>
+
             <div className="space-y-2">
               <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#6B7075]">
                 Your ZIP code <span className="text-[#B8BCC2]">(optional)</span>
@@ -161,7 +192,8 @@ export default function Home() {
             </div>
 
             <Filters
-              cuisines={CUISINES}
+              cuisines={cuisineList}
+              cuisineLabel={mode === "food" ? "Cuisine" : "Drink type"}
               selectedCuisines={selectedCuisines}
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
               priceOptions={PRICE_OPTIONS}
