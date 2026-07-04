@@ -1,0 +1,84 @@
+{
+  "theme": "Light",
+  "archetype": "1 (Organic & Earthy)",
+  "vibe": "High-End Editorial Food Magazine meets Playful Serendipity",
+  "color_palette": {
+    "background": "bg-[#FAF8F5]",
+    "surface": "bg-[#FFFFFF]",
+    "surface_glass": "bg-white/80 backdrop-blur-2xl border border-white/40 shadow-sm",
+    "primary": "bg-[#C84B31] text-white",
+    "primary_hover": "hover:bg-[#A33B24] hover:text-white",
+    "secondary": "bg-[#EAE4D9] text-[#2C2A29]",
+    "accent": "bg-[#6B8E23] text-white",
+    "text_main": "text-[#2C2A29]",
+    "text_muted": "text-[#7A7571]",
+    "border": "border-[#EAE4D9]",
+    "focus_ring": "focus:ring-2 focus:ring-[#C84B31] focus:ring-offset-2 focus:ring-offset-[#FAF8F5]"
+  },
+  "typography": {
+    "heading_font": "Cormorant Garamond, serif",
+    "body_font": "Manrope, sans-serif",
+    "h1": "font-serif text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tighter leading-none text-[#2C2A29]",
+    "h2": "font-serif text-2xl sm:text-3xl lg:text-4xl font-medium tracking-tight text-[#2C2A29]",
+    "h3": "font-serif text-xl sm:text-2xl font-medium text-[#2C2A29]",
+    "body": "font-sans text-base font-normal leading-relaxed text-[#2C2A29]",
+    "label": "font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#7A7571]"
+  },
+  "spacing_and_layout": {
+    "container_padding": "p-6 md:p-12 lg:p-16",
+    "grid_gap": "gap-8 lg:gap-12",
+    "card_padding": "p-6 sm:p-8",
+    "border_radius": "rounded-3xl",
+    "layout_strategy": "Asymmetric editorial. The main app container should utilize generous white space. For the roulette screen, avoid standard centered modals. Use a dynamic card stack layout taking up 70% of the screen height, with massive typographic hierarchy for the restaurant name."
+  },
+  "components": {
+    "spin_button": "Massive, organic pill shape. Deep terracotta (#C84B31). Hover triggers a scale-up. Must use Framer Motion for tap effect. Add data-testid='spin-roulette-button'.",
+    "restaurant_card": "Editorial vertical layout. Hero image takes top 60% of the card, with a max height of 60vh. Image must be crisp. Bottom 40% has white background, left-aligned text. No heavy drop shadows; use a delicate 1px border (#EAE4D9) and a very soft ambient shadow (shadow-xl shadow-black/5).",
+    "filters": "Horizontal scrollable row of pill-toggles. Active: terracotta background, white text. Inactive: #EAE4D9 background, muted text.",
+    "add_form": "Shadcn Form elements. Strip 'Vercel' styling: use organic soft borders (rounded-xl), generous padding, Manrope font, and earthy focus rings.",
+    "bottom_nav": "If implemented, use Glassmorphism 2.0: high opacity white (bg-white/80), heavy blur (backdrop-blur-2xl), delicate 1px top border."
+  },
+  "motion_and_interaction": {
+    "card_reveal": "Framer Motion staggered entry. When 'Spin' is tapped, cards should visually shuffle (e.g., quickly cycle z-index and slight rotations), then fly off-screen to leave the final chosen restaurant card. Add a slight bounce to the final card landing.",
+    "hover_states": "Interactive cards lift up -translate-y-2 and increase shadow to shadow-2xl. Buttons must explicitly set text color on hover.",
+    "page_transition": "Fade in with a slight upward translation (y: 20 to 0) using Framer Motion."
+  },
+  "media": {
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1564759296729-771e78c26df7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODd8MHwxfHNlYXJjaHw0fHxnb3VybWV0JTIwcmVzdGF1cmFudCUyMGZvb2QlMjBkaXNoJTIwcGxhdGVkfGVufDB8fHx8MTc4MzIwNDE1Nnww&ixlib=rb-4.1.0&q=85",
+        "category": "restaurant_food_1",
+        "description": "White plate with beautifully plated gourmet food"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1663530761401-15eefb544889?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODd8MHwxfHNlYXJjaHwyfHxnb3VybWV0JTIwcmVzdGF1cmFudCUyMGZvb2QlMjBkaXNoJTIwcGxhdGVkfGVufDB8fHx8MTc4MzIwNDE1Nnww&ixlib=rb-4.1.0&q=85",
+        "category": "restaurant_food_2",
+        "description": "Chef pouring sauce over plated steak"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1467003909585-2f8a72700288?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODd8MHwxfHNlYXJjaHwxfHxnb3VybWV0JTIwcmVzdGF1cmFudCUyMGZvb2QlMjBkaXNoJTIwcGxhdGVkfGVufDB8fHx8MTc4MzIwNDE1Nnww&ixlib=rb-4.1.0&q=85",
+        "category": "restaurant_food_3",
+        "description": "Salmon fillet with salsa"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzV8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwaW50ZXJpb3IlMjBhbWJpYW5jZXxlbnwwfHx8fDE3ODMyMDQxNTZ8MA&ixlib=rb-4.1.0&q=85",
+        "category": "restaurant_interior_1",
+        "description": "Pub/restaurant set in room during daytime"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzV8MHwxfHNlYXJjaHwzfHxyZXN0YXVyYW50JTIwaW50ZXJpb3IlMjBhbWJpYW5jZXxlbnwwfHx8fDE3ODMyMDQxNTZ8MA&ixlib=rb-4.1.0&q=85",
+        "category": "restaurant_interior_2",
+        "description": "People sitting on chairs inside restaurant"
+      }
+    ],
+    "icons_library": "lucide-react"
+  },
+  "instructions_to_main_agent": [
+    "IMPLEMENTATION REQUIREMENT: Use 'Cormorant Garamond' for headings and 'Manrope' for body. Import them via Google Fonts in index.css.",
+    "IMPLEMENTATION REQUIREMENT: Build the roulette interaction using Framer Motion. Create a visual 'deck shuffle' effect of cards, resolving to a single card.",
+    "IMPLEMENTATION REQUIREMENT: All interactive elements MUST have a 'data-testid' attribute using kebab-case, role-based naming (e.g., data-testid='add-restaurant-button', data-testid='cuisine-filter-button').",
+    "IMPLEMENTATION REQUIREMENT: Adopt fluid tailwind typography and extreme generous paddings. Avoid Bootstrap-style center-everything layouts.",
+    "IMPLEMENTATION REQUIREMENT: For the 'Add Restaurant' form, heavily customize Shadcn UI components. Use our defined earthy focus rings and organic soft borders instead of default Vercel styles.",
+    "IMPLEMENTATION REQUIREMENT: Overlays on images should be subtle. Never use pure black overlays; use gradient to transparent (e.g., bg-gradient-to-t from-black/60 to-transparent) on the bottom of restaurant images only if text contrast is needed."
+  ]
+}
