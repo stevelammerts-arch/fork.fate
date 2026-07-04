@@ -1,14 +1,18 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Depends
+from fastapi.responses import Response
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+import re
+import time
 import secrets
 import math
 import httpx
 import logging
+from collections import defaultdict, deque
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import List, Optional
 import uuid
 from urllib.parse import quote_plus
@@ -32,6 +36,22 @@ api_router = APIRouter(prefix="/api")
 GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
 FALLBACK_IMG = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?crop=entropy&cs=srgb&fm=jpg&q=85"
 MAX_RADIUS_MILES = 50.0
+
+# Simple in-memory per-IP rate limiter (coarse abuse/cost protection)
+_RL_BUCKETS = defaultdict(deque)
+
+
+def rate_limit(max_requests: int, window_seconds: int = 60):
+    def _dep(request: Request):
+        ip = request.client.host if request.client else "unknown"
+        now = time.time()
+        bucket = _RL_BUCKETS[ip]
+        while bucket and bucket[0] < now - window_seconds:
+            bucket.popleft()
+        if len(bucket) >= max_requests:
+            raise HTTPException(status_code=429, detail="Too many requests, please slow down")
+        bucket.append(now)
+    return _dep
 
 PRICE_ENUM_TO_SYMBOL = {
     "PRICE_LEVEL_FREE": "$",
@@ -87,16 +107,21 @@ class Restaurant(BaseModel):
 
 
 class RestaurantCreate(BaseModel):
-    name: str
-    cuisine: str
-    price: str
-    rating: float = 4.5
-    distance: float = 1.0
-    description: str = ""
-    address: str = ""
-    image: str = ""
+    name: str = Field(min_length=1, max_length=120)
+    cuisine: str = Field(min_length=1, max_length=60)
+    price: str = Field(default="$$", max_length=4)
+    rating: float = Field(default=4.5, ge=0, le=5)
+    distance: float = Field(default=1.0, ge=0, le=100)
+    description: str = Field(default="", max_length=1000)
+    address: str = Field(default="", max_length=300)
+    image: str = Field(default="", max_length=1000)
     sponsored: bool = False
     category: str = "food"
+
+    @field_validator("category")
+    @classmethod
+    def _valid_category(cls, v):
+        return v if v in ("food", "drinks") else "food"
 
 
 class SpinRequest(BaseModel):
@@ -107,9 +132,23 @@ class SpinRequest(BaseModel):
 
 class PlacesSearchRequest(BaseModel):
     zip_code: Optional[str] = None
-    cuisines: List[str] = []
-    price_levels: List[str] = []
+    cuisines: List[str] = Field(default_factory=list, max_length=25)
+    price_levels: List[str] = Field(default_factory=list, max_length=6)
     category: str = "food"
+
+    @field_validator("zip_code")
+    @classmethod
+    def _valid_zip(cls, v):
+        if v in (None, ""):
+            return None
+        if not re.fullmatch(r"\d{5}", v.strip()):
+            raise ValueError("zip_code must be a 5-digit US ZIP")
+        return v.strip()
+
+    @field_validator("category")
+    @classmethod
+    def _valid_category(cls, v):
+        return v if v in ("food", "drinks") else "food"
 
 
 # ---------- Seed data ----------
@@ -246,7 +285,7 @@ async def get_restaurants():
     return items
 
 
-@api_router.post("/restaurants", response_model=Restaurant)
+@api_router.post("/restaurants", response_model=Restaurant, dependencies=[Depends(rate_limit(20))])
 async def create_restaurant(payload: RestaurantCreate):
     r = Restaurant(**payload.model_dump())
     r.google_url = maps_url(r.name, r.address)
@@ -256,7 +295,7 @@ async def create_restaurant(payload: RestaurantCreate):
     return r
 
 
-@api_router.delete("/restaurants/{restaurant_id}")
+@api_router.delete("/restaurants/{restaurant_id}", dependencies=[Depends(rate_limit(20))])
 async def delete_restaurant(restaurant_id: str):
     res = await db.restaurants.delete_one({"id": restaurant_id})
     if res.deleted_count == 0:
@@ -323,7 +362,7 @@ async def google_places_search(req: "PlacesSearchRequest"):
             photos = p.get("photos") or []
             image = ""
             if photos:
-                image = f"https://places.googleapis.com/v1/{photos[0]['name']}/media?maxWidthPx=800&key={GOOGLE_API_KEY}"
+                image = f"/api/places/photo?name={quote_plus(photos[0]['name'])}"
             name = p.get("displayName", {}).get("text", "Unknown")
             address = p.get("formattedAddress", "")
             out.append({
@@ -343,7 +382,24 @@ async def google_places_search(req: "PlacesSearchRequest"):
         return out
 
 
-@api_router.post("/places/search")
+@api_router.get("/places/photo")
+async def places_photo(name: str):
+    """Proxy Google Places photo bytes so the API key is never exposed to the client."""
+    if not GOOGLE_API_KEY or not name.startswith("places/"):
+        raise HTTPException(status_code=404, detail="Not found")
+    url = f"https://places.googleapis.com/v1/{name}/media?maxWidthPx=800&key={GOOGLE_API_KEY}"
+    async with httpx.AsyncClient(timeout=15, follow_redirects=True) as http:
+        r = await http.get(url)
+        if r.status_code != 200:
+            raise HTTPException(status_code=404, detail="Photo unavailable")
+        return Response(
+            content=r.content,
+            media_type=r.headers.get("content-type", "image/jpeg"),
+            headers={"Cache-Control": "public, max-age=86400"},
+        )
+
+
+@api_router.post("/places/search", dependencies=[Depends(rate_limit(60))])
 async def places_search(req: PlacesSearchRequest):
     if GOOGLE_API_KEY and req.zip_code:
         try:
@@ -373,10 +429,11 @@ async def places_search(req: PlacesSearchRequest):
 
 app.include_router(api_router)
 
+_cors_origins = os.environ.get('CORS_ORIGINS', '*').split(',')
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_credentials=False,
+    allow_origins=_cors_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
