@@ -11,6 +11,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 import uuid
+from urllib.parse import quote_plus
 from datetime import datetime, timezone
 
 
@@ -60,6 +61,10 @@ def prettify_type(t):
     if not t:
         return "Restaurant"
     return t.replace("_restaurant", "").replace("_", " ").title()
+
+
+def maps_url(name, address=""):
+    return f"https://www.google.com/maps/search/?api=1&query={quote_plus((name + ' ' + address).strip())}"
 
 
 # ---------- Models ----------
@@ -260,7 +265,7 @@ async def google_places_search(req: "PlacesSearchRequest"):
         query = (" ".join(req.cuisines) + " restaurant").strip()
         headers = {
             "X-Goog-Api-Key": GOOGLE_API_KEY,
-            "X-Goog-FieldMask": "places.displayName,places.rating,places.priceLevel,places.primaryType,places.formattedAddress,places.location,places.photos",
+            "X-Goog-FieldMask": "places.displayName,places.rating,places.priceLevel,places.primaryType,places.formattedAddress,places.location,places.photos,places.googleMapsUri",
             "Content-Type": "application/json",
         }
         payload = {
@@ -286,16 +291,20 @@ async def google_places_search(req: "PlacesSearchRequest"):
             image = ""
             if photos:
                 image = f"https://places.googleapis.com/v1/{photos[0]['name']}/media?maxWidthPx=800&key={GOOGLE_API_KEY}"
+            name = p.get("displayName", {}).get("text", "Unknown")
+            address = p.get("formattedAddress", "")
             out.append({
                 "id": str(uuid.uuid4()),
-                "name": p.get("displayName", {}).get("text", "Unknown"),
+                "name": name,
                 "cuisine": prettify_type(p.get("primaryType")),
                 "price": PRICE_ENUM_TO_SYMBOL.get(p.get("priceLevel"), "$$"),
                 "rating": float(p.get("rating") or 0.0),
                 "distance": round(dist, 1),
-                "address": p.get("formattedAddress", ""),
-                "description": p.get("formattedAddress", ""),
+                "address": address,
+                "description": address,
                 "image": image or FALLBACK_IMG,
+                "sponsored": False,
+                "google_url": p.get("googleMapsUri") or maps_url(name, address),
             })
         out.sort(key=lambda r: r["distance"])
         return out
@@ -323,6 +332,8 @@ async def places_search(req: PlacesSearchRequest):
             allowed |= {s for s, enums in SYMBOL_ENUMS.items() if lvl in enums}
         items = [r for r in items if r['price'] in allowed]
     items.sort(key=lambda r: (not r.get('sponsored', False), r['distance']))
+    for r in items:
+        r['google_url'] = maps_url(r['name'], r.get('address', ''))
     return {"source": "curated", "restaurants": items}
 
 

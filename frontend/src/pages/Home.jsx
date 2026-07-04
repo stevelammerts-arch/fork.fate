@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, Utensils, RotateCcw, Search } from "lucide-react";
+import { Dices, Star, MapPin, Utensils, RotateCcw, Search, ExternalLink } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -339,6 +339,18 @@ function RevealStage({ spinning, flash, deck, result, onReset, onReSpin }) {
               </p>
             )}
             <div className="flex flex-wrap gap-3">
+              {card.google_url && (
+                <a
+                  href={card.google_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="rate-on-google-button"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#0E0E0E] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]"
+                >
+                  <Star className="h-4 w-4 fill-[#E01E26] text-[#E01E26]" /> Reviews & ratings
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              )}
               <button
                 onClick={onReSpin}
                 data-testid="respin-button"

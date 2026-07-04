@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Star, MapPin, Trash2 } from "lucide-react";
+import { Star, MapPin, Trash2, ExternalLink } from "lucide-react";
 
 const CARD_HOVER = { y: -8 };
 const CARD_SPRING = { type: "spring", stiffness: 300, damping: 22 };
@@ -62,6 +62,19 @@ export function RestaurantCard({ r, onDelete }) {
             {r.distance} mi
           </span>
         </div>
+        {r.google_url && (
+          <a
+            href={r.google_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-testid={`rate-on-google-${r.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#0E0E0E] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]"
+          >
+            <Star className="h-4 w-4 fill-[#E01E26] text-[#E01E26]" /> Reviews & ratings
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        )}
       </div>
     </motion.div>
   );
