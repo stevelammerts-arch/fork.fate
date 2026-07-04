@@ -191,7 +191,7 @@ export default function Home() {
 
           {/* right: reveal stage */}
           <div className="relative min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
-            <RevealStage spinning={spinning} flash={flash} result={result} onReset={() => setResult(null)} onReSpin={reSpin} />
+            <RevealStage spinning={spinning} flash={flash} deck={results} result={result} onReset={() => setResult(null)} onReSpin={reSpin} />
           </div>
         </div>
       </section>
@@ -207,7 +207,7 @@ export default function Home() {
               {results.length} within 50 mi
             </span>
           </div>
-          <AdUnit className="mt-8" label="Sponsored" />
+          <AdUnit className="mt-8" label="Advertisement" />
           <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3" data-testid="restaurant-grid">
             {results.map((r) => (
               <RestaurantCard key={r.id} r={r} />
@@ -219,10 +219,57 @@ export default function Home() {
   );
 }
 
-function RevealStage({ spinning, flash, result, onReset, onReSpin }) {
-  const card = result || flash;
+const DECK_SIZE = 5;
 
-  if (!card) {
+function ShufflingDeck({ cards, flash }) {
+  const deck = (cards.length ? cards : [flash]).slice(0, DECK_SIZE);
+  const label = flash?.name;
+  return (
+    <div className="grid h-full min-h-[400px] place-items-center" data-testid="shuffling-deck">
+      <div className="flex flex-col items-center gap-8">
+        <div className="relative h-60 w-44">
+          {deck.map((c, i) => (
+            <motion.div
+              key={(c?.id || "c") + i}
+              className="absolute inset-0 overflow-hidden rounded-2xl border-2 border-white bg-[#0E0E0E] shadow-2xl shadow-black/30"
+              style={{ zIndex: DECK_SIZE - i }}
+              animate={{
+                x: [0, i % 2 === 0 ? -96 : 96, 0],
+                y: [0, -26, 0],
+                rotate: [(i - 2) * 4, i % 2 === 0 ? -17 : 17, (i - 2) * 4],
+                scale: [1, 0.97, 1],
+              }}
+              transition={{
+                duration: 0.72,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: i * 0.1,
+              }}
+            >
+              {c?.image && (
+                <img src={c.image} alt="" className="h-full w-full object-cover opacity-90" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            </motion.div>
+          ))}
+        </div>
+        <div className="text-center">
+          <p className="font-sans text-xs font-bold uppercase tracking-[0.25em] text-[#E01E26]">
+            Shuffling the deck
+          </p>
+          <p className="mt-1 h-7 font-serif text-2xl text-[#0E0E0E]">{label}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RevealStage({ spinning, flash, deck, result, onReset, onReSpin }) {
+  if (!result && spinning) {
+    return <ShufflingDeck cards={deck} flash={flash} />;
+  }
+
+  if (!result) {
     return (
       <div className="grid h-full min-h-[400px] place-items-center text-center">
         <div className="space-y-3">
@@ -238,16 +285,17 @@ function RevealStage({ spinning, flash, result, onReset, onReSpin }) {
     );
   }
 
+  const card = result;
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key={result ? `res-${card.id}` : "flash"}
-        initial={{ opacity: 0, scale: 0.96, rotate: result ? -2 : 0 }}
+        key={`res-${card.id}`}
+        initial={{ opacity: 0, scale: 0.96, rotate: -2 }}
         animate={{ opacity: 1, scale: 1, rotate: 0 }}
         exit={{ opacity: 0, scale: 0.98 }}
-        transition={result ? RESULT_SPRING : FLASH_TRANSITION}
+        transition={RESULT_SPRING}
         className="overflow-hidden rounded-2xl"
-        data-testid={result ? "spin-result-card" : "spin-flash-card"}
+        data-testid="spin-result-card"
       >
         <div className="relative h-64 overflow-hidden rounded-2xl">
           <img src={card.image} alt={card.name} className="h-full w-full object-cover" />
