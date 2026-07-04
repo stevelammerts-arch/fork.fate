@@ -2,11 +2,14 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Star, MapPin, Trash2 } from "lucide-react";
 
+const CARD_HOVER = { y: -8 };
+const CARD_SPRING = { type: "spring", stiffness: 300, damping: 22 };
+
 export function RestaurantCard({ r, onDelete }) {
   return (
     <motion.div
-      whileHover={{ y: -8 }}
-      transition={{ type: "spring", stiffness: 300, damping: 22 }}
+      whileHover={CARD_HOVER}
+      transition={CARD_SPRING}
       data-testid={`restaurant-card-${r.id}`}
       className="group relative rounded-3xl overflow-hidden bg-white border border-[#EAE4D9] shadow-xl shadow-black/5 hover:shadow-2xl"
     >

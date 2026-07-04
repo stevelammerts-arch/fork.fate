@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
-import random
+import secrets
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
@@ -162,7 +162,7 @@ async def spin(req: SpinRequest):
     filtered = apply_filters(items, req.cuisines, req.prices, req.max_distance)
     if not filtered:
         raise HTTPException(status_code=404, detail="No restaurants match your filters")
-    return random.choice(filtered)
+    return secrets.choice(filtered)
 
 
 app.include_router(api_router)

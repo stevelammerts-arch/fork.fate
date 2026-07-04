@@ -9,6 +9,18 @@ import AddRestaurantDialog from "../components/AddRestaurantDialog";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+const SHUFFLE_INTERVAL_MS = 90;
+const SHUFFLE_DURATION_MS = 1500;
+const RESULT_SPRING = { type: "spring", stiffness: 260, damping: 16 };
+const FLASH_TRANSITION = { duration: 0.08 };
+const HERO_INITIAL = { opacity: 0, y: 20 };
+const HERO_ANIMATE = { opacity: 1, y: 0 };
+const HERO_TRANSITION = { duration: 0.6 };
+const DETAIL_INITIAL = { opacity: 0, y: 10 };
+const DETAIL_ANIMATE = { opacity: 1, y: 0 };
+const DETAIL_TRANSITION = { delay: 0.2 };
+const SPIN_TAP = { scale: 0.96 };
+
 export default function Home() {
   const [restaurants, setRestaurants] = useState([]);
   const [cuisines, setCuisines] = useState([]);
@@ -63,7 +75,7 @@ export default function Home() {
     shuffleRef.current = setInterval(() => {
       setFlash(localPool[i % localPool.length]);
       i++;
-    }, 90);
+    }, SHUFFLE_INTERVAL_MS);
 
     try {
       const { data } = await axios.post(`${API}/spin`, {
@@ -76,7 +88,7 @@ export default function Home() {
         setFlash(null);
         setResult(data);
         setSpinning(false);
-      }, 1500);
+      }, SHUFFLE_DURATION_MS);
     } catch (e) {
       clearInterval(shuffleRef.current);
       setFlash(null);
@@ -116,9 +128,9 @@ export default function Home() {
       {/* Hero / Roulette */}
       <section className="mx-auto max-w-6xl px-6 pt-12 pb-8 md:px-12 md:pt-16">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial={HERO_INITIAL}
+          animate={HERO_ANIMATE}
+          transition={HERO_TRANSITION}
           className="max-w-2xl"
         >
           <p className="font-sans text-xs font-bold tracking-[0.25em] uppercase text-[#C84B31]">
@@ -152,7 +164,7 @@ export default function Home() {
                 onClick={spin}
                 disabled={spinning}
                 whileHover={{ scale: spinning ? 1 : 1.03 }}
-                whileTap={{ scale: 0.96 }}
+                whileTap={SPIN_TAP}
                 className="inline-flex items-center gap-3 rounded-full bg-[#C84B31] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#C84B31]/25 transition-colors hover:bg-[#A33B24] disabled:opacity-70"
               >
                 <Dices className={`h-6 w-6 ${spinning ? "animate-spin" : ""}`} />
@@ -217,7 +229,7 @@ function RevealStage({ spinning, flash, result, onReset }) {
         initial={{ opacity: 0, scale: 0.96, rotate: result ? -2 : 0 }}
         animate={{ opacity: 1, scale: 1, rotate: 0 }}
         exit={{ opacity: 0, scale: 0.98 }}
-        transition={result ? { type: "spring", stiffness: 260, damping: 16 } : { duration: 0.08 }}
+        transition={result ? RESULT_SPRING : FLASH_TRANSITION}
         className="overflow-hidden rounded-2xl"
         data-testid={result ? "spin-result-card" : "spin-flash-card"}
       >
@@ -236,9 +248,9 @@ function RevealStage({ spinning, flash, result, onReset }) {
 
         {result && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            initial={DETAIL_INITIAL}
+            animate={DETAIL_ANIMATE}
+            transition={DETAIL_TRANSITION}
             className="space-y-4 p-5"
           >
             <p className="font-sans text-sm leading-relaxed text-[#7A7571]">

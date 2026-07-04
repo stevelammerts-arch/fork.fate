@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const PRICES = ["$", "$$", "$$$"];
+const PILL_TAP = { scale: 0.94 };
 const DISTANCES = [
   { label: "Any", value: null },
   { label: "< 1 km", value: 1 },
@@ -11,7 +12,7 @@ const DISTANCES = [
 
 const Pill = ({ active, onClick, children, testid }) => (
   <motion.button
-    whileTap={{ scale: 0.94 }}
+    whileTap={PILL_TAP}
     onClick={onClick}
     data-testid={testid}
     className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold tracking-wide transition-colors duration-200 border ${
