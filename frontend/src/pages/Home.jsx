@@ -68,25 +68,23 @@ export default function Home() {
 
   const spin = async () => {
     if (spinning || loading) return;
-    if (!/^\d{5}$/.test(zip.trim())) {
-      toast.error("Enter a valid 5-digit ZIP code");
+    const z = zip.trim();
+    if (z && !/^\d{5}$/.test(z)) {
+      toast.error("ZIP code should be 5 digits (or leave it blank)");
       return;
     }
     setLoading(true);
     try {
       const { data } = await axios.post(`${API}/places/search`, {
-        zip_code: zip.trim(),
+        zip_code: z || null,
         cuisines: selectedCuisines,
         price_levels: selectedPrices,
       });
       setResults(data.restaurants);
       setSource(data.source);
       if (!data.restaurants.length) {
-        toast.error("No spots found within 50 miles — try loosening filters");
+        toast.error("No spots match those filters — try loosening them");
         return;
-      }
-      if (data.source === "curated") {
-        toast.info("Showing demo spots (live data unavailable)");
       }
       runShuffle(data.restaurants);
     } catch (e) {
@@ -132,9 +130,8 @@ export default function Home() {
             Let fate pick tonight's table.
           </h1>
           <p className="mt-4 font-sans text-base leading-relaxed text-[#6B7075]">
-            Drop in your ZIP code, set the mood, and spin. We'll shuffle real
-            restaurants within 50 miles and land on your next meal — Google
-            ratings and all.
+            Set the mood with a few filters and hit spin. We'll shuffle great
+            local restaurants — up to 50 miles out — and land on your next meal.
           </p>
         </motion.div>
 
@@ -143,7 +140,7 @@ export default function Home() {
           <div className="min-w-0 space-y-7">
             <div className="space-y-2">
               <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#6B7075]">
-                Your ZIP code
+                Your ZIP code <span className="text-[#B8BCC2]">(optional)</span>
               </p>
               <div className="flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-1.5 focus-within:border-[#E01E26]">
                 <Search className="h-5 w-5 text-[#6B7075]" />
@@ -203,7 +200,7 @@ export default function Home() {
         <section className="mx-auto max-w-6xl px-6 pb-24 pt-8 md:px-12">
           <div className="flex items-end justify-between border-b border-[#E2E4E7] pb-4">
             <h2 className="font-serif text-2xl font-medium tracking-tight text-[#0E0E0E] sm:text-3xl">
-              {source === "google" ? "Nearby spots" : "Demo spots"}
+              Nearby spots
             </h2>
             <span className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#6B7075]">
               {results.length} within 50 mi
@@ -232,7 +229,7 @@ function RevealStage({ spinning, flash, result, onReset, onReSpin }) {
           </span>
           <p className="font-serif text-2xl text-[#0E0E0E]">Your table awaits</p>
           <p className="mx-auto max-w-xs font-sans text-sm text-[#6B7075]">
-            Enter a ZIP code and hit spin — fate decides where you're eating.
+            Set your filters and hit spin — fate decides where you're eating.
           </p>
         </div>
       </div>

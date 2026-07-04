@@ -19,7 +19,7 @@ class TestRestaurantsAPI:
         assert r.status_code == 200
         data = r.json()
         assert isinstance(data, list)
-        assert len(data) >= 12
+        assert len(data) == 23
         first = data[0]
         for k in ("id", "name", "cuisine", "price", "rating", "distance"):
             assert k in first

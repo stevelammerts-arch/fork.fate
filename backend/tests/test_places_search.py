@@ -22,10 +22,23 @@ class TestPlacesSearchFallback:
         d = r.json()
         assert d["source"] == "curated"
         assert isinstance(d["restaurants"], list)
-        assert len(d["restaurants"]) >= 12
+        assert len(d["restaurants"]) == 23
         # sorted by distance ascending
         dists = [r["distance"] for r in d["restaurants"]]
         assert dists == sorted(dists)
+
+    def test_no_zip_code_key_ok(self, client):
+        # zip_code omitted entirely
+        r = client.post(f"{API}/places/search", json={"cuisines": [], "price_levels": []})
+        assert r.status_code == 200, r.text
+        d = r.json()
+        assert d["source"] == "curated"
+        assert len(d["restaurants"]) == 23
+
+    def test_null_zip_code_ok(self, client):
+        r = client.post(f"{API}/places/search", json={"zip_code": None, "cuisines": [], "price_levels": []})
+        assert r.status_code == 200
+        assert r.json()["source"] == "curated"
 
     def test_cuisine_filter_italian(self, client):
         r = client.post(f"{API}/places/search", json={"zip_code": "10001", "cuisines": ["Italian"], "price_levels": []})

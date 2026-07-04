@@ -96,7 +96,7 @@ class SpinRequest(BaseModel):
 
 
 class PlacesSearchRequest(BaseModel):
-    zip_code: str
+    zip_code: Optional[str] = None
     cuisines: List[str] = []
     price_levels: List[str] = []
 
@@ -139,6 +139,39 @@ SEED = [
     {"name": "Mezze Lane", "cuisine": "Mediterranean", "price": "$$", "rating": 4.6, "distance": 1.6,
      "description": "Charred flatbreads, dips and slow-roasted lamb.", "address": "58 Cedar Ct",
      "image": "https://images.unsplash.com/photo-1544025162-d76694265947?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3MHx8fGVufDB8fHx8&ixlib=rb-4.1.0&q=85"},
+    {"name": "Bangkok Orchid", "cuisine": "Thai", "price": "$$", "rating": 4.7, "distance": 4.2,
+     "description": "Fiery green curry, pad thai and mango sticky rice.", "address": "62 Lotus St",
+     "image": "https://images.unsplash.com/photo-1559314809-0d155014e29e?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Seoul Kitchen", "cuisine": "Korean", "price": "$$", "rating": 4.6, "distance": 6.5,
+     "description": "Sizzling bibimbap, tabletop BBQ and kimchi stews.", "address": "9 Hangang Rd",
+     "image": "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Slice District", "cuisine": "Pizza", "price": "$", "rating": 4.5, "distance": 2.7,
+     "description": "Blistered Neapolitan pies from a 900° oven.", "address": "14 Dough Ave",
+     "image": "https://images.unsplash.com/photo-1513104890138-7c749659a591?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Diner on 5th", "cuisine": "American", "price": "$", "rating": 4.3, "distance": 3.1,
+     "description": "All-day pancakes, milkshakes and bottomless coffee.", "address": "5th & Main",
+     "image": "https://images.unsplash.com/photo-1550547660-d9450f859349?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Pho Saigon", "cuisine": "Vietnamese", "price": "$", "rating": 4.6, "distance": 7.8,
+     "description": "Steaming pho, crisp banh mi and iced coffee.", "address": "23 Mekong Ln",
+     "image": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Ember & Oak BBQ", "cuisine": "BBQ", "price": "$$", "rating": 4.8, "distance": 12.4,
+     "description": "Low-and-slow brisket, ribs and burnt ends.", "address": "40 Smokehouse Rd",
+     "image": "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Santorini Blue", "cuisine": "Greek", "price": "$$", "rating": 4.7, "distance": 9.3,
+     "description": "Grilled octopus, souvlaki and honey-drizzled baklava.", "address": "11 Aegean Way",
+     "image": "https://images.unsplash.com/photo-1600335895229-6e75511892c8?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Tokyo Ramen Bar", "cuisine": "Japanese", "price": "$", "rating": 4.7, "distance": 5.6,
+     "description": "Rich tonkotsu broth and springy hand-cut noodles.", "address": "8 Shinjuku St",
+     "image": "https://images.unsplash.com/photo-1557872943-16a5ac26437e?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "El Pastor", "cuisine": "Mexican", "price": "$$", "rating": 4.6, "distance": 15.2,
+     "description": "Al pastor off the trompo, elote and mezcal flights.", "address": "77 Agave Blvd",
+     "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Oyster Club", "cuisine": "Seafood", "price": "$$$", "rating": 4.9, "distance": 22.0,
+     "description": "Raw bar, lobster rolls and crisp muscadet.", "address": "2 Wharf Rd",
+     "image": "https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Verde Cantina", "cuisine": "Vegan", "price": "$", "rating": 4.4, "distance": 34.5,
+     "description": "Jackfruit tacos, cashew queso and kombucha on tap.", "address": "90 Fern Hill",
+     "image": "https://images.unsplash.com/photo-1540914124281-342587941389?crop=entropy&cs=srgb&fm=jpg&q=85"},
 ]
 
 
@@ -268,7 +301,7 @@ async def google_places_search(req: "PlacesSearchRequest"):
 
 @api_router.post("/places/search")
 async def places_search(req: PlacesSearchRequest):
-    if GOOGLE_API_KEY:
+    if GOOGLE_API_KEY and req.zip_code:
         try:
             results = await google_places_search(req)
             if results:
