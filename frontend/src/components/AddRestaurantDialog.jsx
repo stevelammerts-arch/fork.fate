@@ -31,6 +31,12 @@ const FOOD_IMAGES = [
   "https://images.unsplash.com/photo-1552611052-33e04de081de?crop=entropy&cs=srgb&fm=jpg&q=85",
 ];
 
+const DRINK_IMAGES = [
+  "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?crop=entropy&cs=srgb&fm=jpg&q=85",
+  "https://images.unsplash.com/photo-1558857563-b371033873b8?crop=entropy&cs=srgb&fm=jpg&q=85",
+  "https://images.unsplash.com/photo-1502741224143-90386d7f8c82?crop=entropy&cs=srgb&fm=jpg&q=85",
+];
+
 const CUISINES = [
   "Italian", "Japanese", "Mexican", "Indian", "Chinese", "French",
   "Mediterranean", "Steakhouse", "Seafood", "Burgers", "Vegan", "Cafe", "Thai", "Korean",
@@ -64,7 +70,8 @@ export default function AddRestaurantDialog({ onAdded, mode = "food" }) {
     }
     setSaving(true);
     try {
-      const image = FOOD_IMAGES[Math.floor(Math.random() * FOOD_IMAGES.length)];
+      const pool = mode === "food" ? FOOD_IMAGES : DRINK_IMAGES;
+      const image = pool[Math.floor(Math.random() * pool.length)];
       const payload = {
         ...form,
         rating: parseFloat(form.rating) || 4.5,

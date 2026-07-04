@@ -223,7 +223,7 @@ export default function Home() {
 
           {/* right: reveal stage */}
           <div className="relative min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
-            <RevealStage spinning={spinning} flash={flash} deck={results} result={result} onReset={() => setResult(null)} onReSpin={reSpin} />
+            <RevealStage spinning={spinning} flash={flash} deck={results} result={result} mode={mode} onReset={() => setResult(null)} onReSpin={reSpin} />
           </div>
         </div>
       </section>
@@ -296,7 +296,7 @@ function ShufflingDeck({ cards, flash }) {
   );
 }
 
-function RevealStage({ spinning, flash, deck, result, onReset, onReSpin }) {
+function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin }) {
   if (!result && spinning) {
     return <ShufflingDeck cards={deck} flash={flash} />;
   }
@@ -310,7 +310,9 @@ function RevealStage({ spinning, flash, deck, result, onReset, onReSpin }) {
           </span>
           <p className="font-serif text-2xl text-[#0E0E0E]">Your table awaits</p>
           <p className="mx-auto max-w-xs font-sans text-sm text-[#6B7075]">
-            Set your filters and hit spin — fate decides where you're eating.
+            {mode === "food"
+              ? "Set your filters and hit spin — fate decides where you're eating."
+              : "Set your filters and hit spin — fate decides what you're sipping."}
           </p>
         </div>
       </div>

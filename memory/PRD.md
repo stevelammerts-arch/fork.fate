@@ -1,36 +1,31 @@
-# Fork·Fate — Local Restaurant Roulette
+# Fork·Fate — Local Restaurant & Drinks Roulette
 
 ## Original Problem Statement
 Local Restaurant roulette app.
 
-## User Choices / Evolution
-- v1: Pre-seeded + manually curated restaurants; shuffle-to-reveal roulette; filters cuisine/price/distance; no auth.
-- v2: Limit to within 50 miles of a user's ZIP code; randomize by cuisine, price, and show Google star ratings.
-- Data source: Live Google Places API (New) primary + curated seed list as automatic fallback.
-- Color theme: black / silver / red / white.
-- Spin picks fully random; rating shown (not filtered); distances in miles.
-
 ## Architecture
-- Backend: FastAPI + MongoDB. `/api` prefix. Seeds 12 curated restaurants on startup.
-- Google Places (New) Text Search + Geocoding for ZIP → lat/lng → nearby restaurants; haversine filter to ≤ 50 miles; real Google ratings, price level, photo.
-- Frontend: React 19 + Tailwind + shadcn/ui + Framer Motion. Single ZIP-driven page.
+- Backend: FastAPI + MongoDB (`/api` prefix). Seeds 31 spots on startup (23 food + 8 drinks).
+- Google Places (New) + Geocoding for ZIP → nearby (≤50 mi via haversine). Falls back to curated seed when GOOGLE_API_KEY unset/fails/empty — curated is the intended primary experience.
+- Frontend: React 19 + Tailwind + shadcn/ui + Framer Motion. Single ZIP-driven page. Theme: black / silver / red / white.
 
 ## Integrations
-- Google Places API (New) + Geocoding API. Requires `GOOGLE_API_KEY` in backend/.env.
-  - STATUS: KEY NOT YET PROVIDED — app currently runs on the curated fallback path.
-  - When key is added + backend restarted, live path activates automatically (source='google').
+- Google Places API (New) + Geocoding — needs GOOGLE_API_KEY (backend/.env). NOT SET → curated fallback active.
+- Google AdSense — AdUnit component gated on REACT_APP_ADSENSE_PUB_ID (frontend/.env, currently EMPTY → renders nothing). Needs publisher ID + ad slot ID + site approval.
 
-## Implemented (2026-06)
-- Backend: POST /api/places/search {zip_code, cuisines[], price_levels[]} → {source, restaurants[]}; Google primary, curated fallback; 50-mile haversine filter; price-enum→symbol + cuisine filtering on fallback.
-- Existing: GET /api/restaurants, POST/DELETE /api/restaurants, GET /api/cuisines, POST /api/spin.
-- Frontend: ZIP input (digits only, 5-cap), cuisine + price filter pills, red "Spin the deck" with shuffle→reveal, result card (Google rating, miles, address), Spin again / Clear, nearby-spots grid. Black/silver/red/white theme.
-- Tested: iteration_3 → 14/14 backend, 100% frontend E2E (curated fallback path).
+## Implemented (2026-06/07)
+- ZIP (optional) + 50-mile radius; filters: cuisine + price; distances in miles.
+- Shuffle-to-reveal roulette with an animated **shuffling deck** (riffle) before landing.
+- **Food / Drinks toggle** — Drinks section covers Coffee, Boba Tea, Smoothie (own chips, hero copy, add-form options, images).
+- **Sponsored spots** — `sponsored` flag pins to top + badge (food: Olive & Ember, Harborline, Ember & Oak BBQ; drinks: Cloud Nine Coffee, Pearl & Pour).
+- **Google AdSense scaffold** — responsive ad unit above the grid (lights up when PUB_ID set).
+- **Reviews & ratings portal** — button on result card + each grid card linking to the restaurant's Google Maps page (real googleMapsUri for live, maps search URL for curated).
+- Add / delete spots; added spots appear immediately and respect current mode/category.
+- Tested through iteration_7: backend 30/30, frontend E2E 100%.
 
 ## Backlog
-- P1: Add GOOGLE_API_KEY and validate live path (real restaurants + Google photos/ratings).
-- P2: Live-path cuisine post-filter by primaryType for tighter matches.
-- P2: Favorites / spin history; shareable result link.
-- P2: Browser geolocation as ZIP alternative.
+- P1: Add GOOGLE_API_KEY → validate live Places path (real photos/ratings). Add REACT_APP_ADSENSE_PUB_ID → validate ads.
+- P2: Affiliate "Order/Reserve" buttons; favorites/spin history; shareable result link.
+- P2: Live-path cuisine post-filter by primaryType.
 
 ## Next Tasks
-- Obtain GOOGLE_API_KEY from user → enable + test live Google Places flow.
+- Awaiting Google Places key + AdSense publisher ID to go from demo → live.
