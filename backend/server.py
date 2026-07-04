@@ -4,6 +4,8 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import secrets
+import math
+import httpx
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
@@ -21,6 +23,39 @@ db = client[os.environ['DB_NAME']]
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
+
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
+FALLBACK_IMG = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?crop=entropy&cs=srgb&fm=jpg&q=85"
+MAX_RADIUS_MILES = 50.0
+
+PRICE_ENUM_TO_SYMBOL = {
+    "PRICE_LEVEL_FREE": "$",
+    "PRICE_LEVEL_INEXPENSIVE": "$",
+    "PRICE_LEVEL_MODERATE": "$$",
+    "PRICE_LEVEL_EXPENSIVE": "$$$",
+    "PRICE_LEVEL_VERY_EXPENSIVE": "$$$$",
+}
+SYMBOL_ENUMS = {
+    "$": {"PRICE_LEVEL_FREE", "PRICE_LEVEL_INEXPENSIVE"},
+    "$$": {"PRICE_LEVEL_MODERATE"},
+    "$$$": {"PRICE_LEVEL_EXPENSIVE"},
+    "$$$$": {"PRICE_LEVEL_VERY_EXPENSIVE"},
+}
+
+
+def haversine_miles(lat1, lon1, lat2, lon2):
+    R = 3958.8
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlmb = math.radians(lon2 - lon1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dlmb / 2) ** 2
+    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+
+def prettify_type(t):
+    if not t:
+        return "Restaurant"
+    return t.replace("_restaurant", "").replace("_", " ").title()
 
 
 # ---------- Models ----------
@@ -54,6 +89,12 @@ class SpinRequest(BaseModel):
     cuisines: List[str] = []
     prices: List[str] = []
     max_distance: Optional[float] = None
+
+
+class PlacesSearchRequest(BaseModel):
+    zip_code: str
+    cuisines: List[str] = []
+    price_levels: List[str] = []
 
 
 # ---------- Seed data ----------
@@ -163,6 +204,87 @@ async def spin(req: SpinRequest):
     if not filtered:
         raise HTTPException(status_code=404, detail="No restaurants match your filters")
     return secrets.choice(filtered)
+
+
+async def google_places_search(req: "PlacesSearchRequest"):
+    async with httpx.AsyncClient(timeout=15) as http:
+        geo = await http.get("https://maps.googleapis.com/maps/api/geocode/json", params={
+            "components": f"postal_code:{req.zip_code}|country:US",
+            "key": GOOGLE_API_KEY,
+        })
+        gd = geo.json()
+        if gd.get("status") != "OK" or not gd.get("results"):
+            raise HTTPException(status_code=400, detail="Could not find that ZIP code")
+        loc = gd["results"][0]["geometry"]["location"]
+        lat, lng = loc["lat"], loc["lng"]
+
+        query = (" ".join(req.cuisines) + " restaurant").strip()
+        headers = {
+            "X-Goog-Api-Key": GOOGLE_API_KEY,
+            "X-Goog-FieldMask": "places.displayName,places.rating,places.priceLevel,places.primaryType,places.formattedAddress,places.location,places.photos",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "textQuery": query,
+            "locationBias": {"circle": {"center": {"latitude": lat, "longitude": lng}, "radius": 50000.0}},
+            "maxResultCount": 20,
+        }
+        if req.price_levels:
+            payload["priceLevels"] = req.price_levels
+        pres = await http.post("https://places.googleapis.com/v1/places:searchText", headers=headers, json=payload)
+        pd = pres.json()
+        if "error" in pd:
+            raise HTTPException(status_code=502, detail=pd["error"].get("message", "Places API error"))
+
+        out = []
+        for p in pd.get("places", []):
+            ploc = p.get("location") or {}
+            plat, plng = ploc.get("latitude"), ploc.get("longitude")
+            dist = haversine_miles(lat, lng, plat, plng) if plat is not None and plng is not None else 0.0
+            if dist > MAX_RADIUS_MILES:
+                continue
+            photos = p.get("photos") or []
+            image = ""
+            if photos:
+                image = f"https://places.googleapis.com/v1/{photos[0]['name']}/media?maxWidthPx=800&key={GOOGLE_API_KEY}"
+            out.append({
+                "id": str(uuid.uuid4()),
+                "name": p.get("displayName", {}).get("text", "Unknown"),
+                "cuisine": prettify_type(p.get("primaryType")),
+                "price": PRICE_ENUM_TO_SYMBOL.get(p.get("priceLevel"), "$$"),
+                "rating": float(p.get("rating") or 0.0),
+                "distance": round(dist, 1),
+                "address": p.get("formattedAddress", ""),
+                "description": p.get("formattedAddress", ""),
+                "image": image or FALLBACK_IMG,
+            })
+        out.sort(key=lambda r: r["distance"])
+        return out
+
+
+@api_router.post("/places/search")
+async def places_search(req: PlacesSearchRequest):
+    if GOOGLE_API_KEY:
+        try:
+            results = await google_places_search(req)
+            if results:
+                return {"source": "google", "restaurants": results}
+        except HTTPException as e:
+            if e.status_code == 400:
+                raise
+            logger.warning(f"Places search fell back to curated: {e.detail}")
+
+    # Fallback to curated seed data
+    items = await db.restaurants.find({}, {"_id": 0}).to_list(1000)
+    if req.cuisines:
+        items = [r for r in items if r['cuisine'] in req.cuisines]
+    if req.price_levels:
+        allowed = set()
+        for lvl in req.price_levels:
+            allowed |= {s for s, enums in SYMBOL_ENUMS.items() if lvl in enums}
+        items = [r for r in items if r['price'] in allowed]
+    items.sort(key=lambda r: r['distance'])
+    return {"source": "curated", "restaurants": items}
 
 
 app.include_router(api_router)

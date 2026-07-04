@@ -8,12 +8,12 @@ body {
     font-family: 'Manrope', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #FAF8F5;
-    color: #2C2A29;
+    background-color: #FFFFFF;
+    color: #0E0E0E;
 }
 
 ::selection {
-    background: #C84B31;
+    background: #E01E26;
     color: #fff;
 }
 
@@ -40,25 +40,25 @@ body {
 
 @layer base {
     :root {
-        --background: 36 33% 97%;
-        --foreground: 20 4% 16%;
+        --background: 0 0% 100%;
+        --foreground: 0 0% 5%;
         --card: 0 0% 100%;
-        --card-foreground: 20 4% 16%;
+        --card-foreground: 0 0% 5%;
         --popover: 0 0% 100%;
-        --popover-foreground: 20 4% 16%;
-        --primary: 11 61% 49%;
+        --popover-foreground: 0 0% 5%;
+        --primary: 358 76% 49%;
         --primary-foreground: 0 0% 100%;
-        --secondary: 40 25% 88%;
-        --secondary-foreground: 20 4% 16%;
-        --muted: 40 25% 90%;
-        --muted-foreground: 30 4% 46%;
-        --accent: 80 61% 35%;
+        --secondary: 220 13% 94%;
+        --secondary-foreground: 0 0% 5%;
+        --muted: 220 13% 95%;
+        --muted-foreground: 210 4% 44%;
+        --accent: 0 0% 7%;
         --accent-foreground: 0 0% 100%;
-        --destructive: 0 72% 51%;
+        --destructive: 358 76% 49%;
         --destructive-foreground: 0 0% 98%;
-        --border: 40 25% 88%;
-        --input: 40 25% 88%;
-        --ring: 11 61% 49%;
+        --border: 220 9% 90%;
+        --input: 220 9% 90%;
+        --ring: 358 76% 49%;
         --radius: 1rem;
     }
 }

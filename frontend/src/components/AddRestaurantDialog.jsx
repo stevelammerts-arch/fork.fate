@@ -36,7 +36,7 @@ const CUISINES = [
 ];
 
 const fieldCls =
-  "rounded-xl border-[#EAE4D9] bg-[#FAF8F5] px-4 py-2.5 text-[#2C2A29] focus:ring-2 focus:ring-[#C84B31] focus:ring-offset-1 focus-visible:ring-[#C84B31]";
+  "rounded-xl border-[#E2E4E7] bg-[#F5F6F7] px-4 py-2.5 text-[#0E0E0E] focus:ring-2 focus:ring-[#E01E26] focus:ring-offset-1 focus-visible:ring-[#E01E26]";
 
 export default function AddRestaurantDialog({ onAdded }) {
   const [open, setOpen] = useState(false);
@@ -84,23 +84,23 @@ export default function AddRestaurantDialog({ onAdded }) {
       <DialogTrigger asChild>
         <button
           data-testid="open-add-restaurant-button"
-          className="inline-flex items-center gap-2 rounded-full border border-[#EAE4D9] bg-white px-5 py-2.5 text-sm font-semibold text-[#2C2A29] transition-colors hover:bg-[#EAE4D9]"
+          className="inline-flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-5 py-2.5 text-sm font-semibold text-[#0E0E0E] transition-colors hover:bg-[#E2E4E7]"
         >
           <Plus className="h-4 w-4" /> Add spot
         </button>
       </DialogTrigger>
-      <DialogContent className="rounded-3xl border-[#EAE4D9] bg-white sm:max-w-lg">
+      <DialogContent className="rounded-3xl border-[#E2E4E7] bg-white sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-serif text-3xl font-medium text-[#2C2A29]">
+          <DialogTitle className="font-serif text-3xl font-medium text-[#0E0E0E]">
             Add a restaurant
           </DialogTitle>
-          <DialogDescription className="font-sans text-sm text-[#7A7571]">
+          <DialogDescription className="font-sans text-sm text-[#6B7075]">
             Add a local spot to your roulette pool.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#7A7571]">Name</Label>
+            <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">Name</Label>
             <Input
               data-testid="add-name-input"
               value={form.name}
@@ -112,7 +112,7 @@ export default function AddRestaurantDialog({ onAdded }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#7A7571]">Cuisine</Label>
+              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">Cuisine</Label>
               <Select value={form.cuisine} onValueChange={(v) => set("cuisine", v)}>
                 <SelectTrigger data-testid="add-cuisine-select" className={fieldCls}>
                   <SelectValue placeholder="Select" />
@@ -125,7 +125,7 @@ export default function AddRestaurantDialog({ onAdded }) {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#7A7571]">Price</Label>
+              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">Price</Label>
               <Select value={form.price} onValueChange={(v) => set("price", v)}>
                 <SelectTrigger data-testid="add-price-select" className={fieldCls}>
                   <SelectValue />
@@ -141,7 +141,7 @@ export default function AddRestaurantDialog({ onAdded }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#7A7571]">Rating</Label>
+              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">Rating</Label>
               <Input
                 data-testid="add-rating-input"
                 type="number" step="0.1" min="0" max="5"
@@ -151,7 +151,7 @@ export default function AddRestaurantDialog({ onAdded }) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#7A7571]">Distance (km)</Label>
+              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">Distance (km)</Label>
               <Input
                 data-testid="add-distance-input"
                 type="number" step="0.1" min="0"
@@ -163,7 +163,7 @@ export default function AddRestaurantDialog({ onAdded }) {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#7A7571]">Description</Label>
+            <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">Description</Label>
             <Textarea
               data-testid="add-description-input"
               value={form.description}
@@ -178,7 +178,7 @@ export default function AddRestaurantDialog({ onAdded }) {
             data-testid="submit-add-restaurant-button"
             onClick={submit}
             disabled={saving}
-            className="w-full rounded-full bg-[#C84B31] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#A33B24] disabled:opacity-60"
+            className="w-full rounded-full bg-[#E01E26] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#B3141A] disabled:opacity-60"
           >
             {saving ? "Adding…" : "Add to the pool"}
           </button>

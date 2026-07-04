@@ -1,14 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-const PRICES = ["$", "$$", "$$$"];
 const PILL_TAP = { scale: 0.94 };
-const DISTANCES = [
-  { label: "Any", value: null },
-  { label: "< 1 km", value: 1 },
-  { label: "< 2 km", value: 2 },
-  { label: "< 3 km", value: 3 },
-];
 
 const Pill = ({ active, onClick, children, testid }) => (
   <motion.button
@@ -17,8 +10,8 @@ const Pill = ({ active, onClick, children, testid }) => (
     data-testid={testid}
     className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold tracking-wide transition-colors duration-200 border ${
       active
-        ? "bg-[#C84B31] text-white border-[#C84B31]"
-        : "bg-[#EAE4D9] text-[#7A7571] border-transparent hover:bg-[#e0d8c8]"
+        ? "bg-[#E01E26] text-white border-[#E01E26]"
+        : "bg-[#EDEEF0] text-[#6B7075] border-transparent hover:bg-[#E2E4E7]"
     }`}
   >
     {children}
@@ -27,10 +20,10 @@ const Pill = ({ active, onClick, children, testid }) => (
 
 const Group = ({ label, children }) => (
   <div className="space-y-3">
-    <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#7A7571]">
+    <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#6B7075]">
       {label}
     </p>
-    <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">{children}</div>
+    <div className="flex flex-wrap gap-3">{children}</div>
   </div>
 );
 
@@ -38,10 +31,9 @@ export default function Filters({
   cuisines,
   selectedCuisines,
   toggleCuisine,
+  priceOptions,
   selectedPrices,
   togglePrice,
-  maxDistance,
-  setMaxDistance,
 }) {
   return (
     <div className="space-y-6" data-testid="filters-panel">
@@ -58,33 +50,18 @@ export default function Filters({
         ))}
       </Group>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Group label="Price">
-          {PRICES.map((p) => (
-            <Pill
-              key={p}
-              active={selectedPrices.includes(p)}
-              onClick={() => togglePrice(p)}
-              testid={`price-filter-${p.length}`}
-            >
-              {p}
-            </Pill>
-          ))}
-        </Group>
-
-        <Group label="Distance">
-          {DISTANCES.map((d) => (
-            <Pill
-              key={d.label}
-              active={maxDistance === d.value}
-              onClick={() => setMaxDistance(d.value)}
-              testid={`distance-filter-${d.label.replace(/[^a-z0-9]/gi, "").toLowerCase()}`}
-            >
-              {d.label}
-            </Pill>
-          ))}
-        </Group>
-      </div>
+      <Group label="Price">
+        {priceOptions.map((p) => (
+          <Pill
+            key={p.value}
+            active={selectedPrices.includes(p.value)}
+            onClick={() => togglePrice(p.value)}
+            testid={`price-filter-${p.symbol.length}`}
+          >
+            {p.symbol}
+          </Pill>
+        ))}
+      </Group>
     </div>
   );
 }

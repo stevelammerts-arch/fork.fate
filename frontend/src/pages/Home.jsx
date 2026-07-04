@@ -1,11 +1,12 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, Utensils, RotateCcw } from "lucide-react";
+import { Dices, Star, MapPin, Utensils, RotateCcw, Search } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
+import { Input } from "../components/ui/input";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -21,107 +22,98 @@ const DETAIL_ANIMATE = { opacity: 1, y: 0 };
 const DETAIL_TRANSITION = { delay: 0.2 };
 const SPIN_TAP = { scale: 0.96 };
 
+const CUISINES = [
+  "Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "American",
+  "Mediterranean", "Seafood", "Pizza", "Sushi", "Vegan", "BBQ", "Cafe",
+];
+const PRICE_OPTIONS = [
+  { symbol: "$", value: "PRICE_LEVEL_INEXPENSIVE" },
+  { symbol: "$$", value: "PRICE_LEVEL_MODERATE" },
+  { symbol: "$$$", value: "PRICE_LEVEL_EXPENSIVE" },
+  { symbol: "$$$$", value: "PRICE_LEVEL_VERY_EXPENSIVE" },
+];
+
 export default function Home() {
-  const [restaurants, setRestaurants] = useState([]);
-  const [cuisines, setCuisines] = useState([]);
+  const [zip, setZip] = useState("");
   const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [selectedPrices, setSelectedPrices] = useState([]);
-  const [maxDistance, setMaxDistance] = useState(null);
+  const [results, setResults] = useState([]);
+  const [source, setSource] = useState(null);
 
+  const [loading, setLoading] = useState(false);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
-  const [flash, setFlash] = useState(null); // card shown during shuffle
+  const [flash, setFlash] = useState(null);
   const shuffleRef = useRef(null);
-
-  const load = useCallback(async () => {
-    try {
-      const [rRes, cRes] = await Promise.all([
-        axios.get(`${API}/restaurants`),
-        axios.get(`${API}/cuisines`),
-      ]);
-      setRestaurants(rRes.data);
-      setCuisines(cRes.data);
-    } catch (e) {
-      toast.error("Failed to load restaurants");
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-    return () => clearInterval(shuffleRef.current);
-  }, [load]);
-
-  const localPool = restaurants.filter((r) => {
-    if (selectedCuisines.length && !selectedCuisines.includes(r.cuisine)) return false;
-    if (selectedPrices.length && !selectedPrices.includes(r.price)) return false;
-    if (maxDistance != null && r.distance > maxDistance) return false;
-    return true;
-  });
 
   const toggle = (setter, arr, val) =>
     setter(arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val]);
 
-  const spin = async () => {
-    if (spinning) return;
-    if (localPool.length === 0) {
-      toast.error("No spots match these filters — loosen them up!");
-      return;
-    }
-    setSpinning(true);
+  const runShuffle = (pool) => {
     setResult(null);
-
-    // visual shuffle
+    setSpinning(true);
     let i = 0;
     shuffleRef.current = setInterval(() => {
-      setFlash(localPool[i % localPool.length]);
+      setFlash(pool[i % pool.length]);
       i++;
     }, SHUFFLE_INTERVAL_MS);
-
-    try {
-      const { data } = await axios.post(`${API}/spin`, {
-        cuisines: selectedCuisines,
-        prices: selectedPrices,
-        max_distance: maxDistance,
-      });
-      setTimeout(() => {
-        clearInterval(shuffleRef.current);
-        setFlash(null);
-        setResult(data);
-        setSpinning(false);
-      }, SHUFFLE_DURATION_MS);
-    } catch (e) {
+    const chosen = pool[Math.floor(Math.random() * pool.length)];
+    setTimeout(() => {
       clearInterval(shuffleRef.current);
       setFlash(null);
+      setResult(chosen);
       setSpinning(false);
-      toast.error(e.response?.data?.detail || "Spin failed");
+    }, SHUFFLE_DURATION_MS);
+  };
+
+  const spin = async () => {
+    if (spinning || loading) return;
+    if (!/^\d{5}$/.test(zip.trim())) {
+      toast.error("Enter a valid 5-digit ZIP code");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data } = await axios.post(`${API}/places/search`, {
+        zip_code: zip.trim(),
+        cuisines: selectedCuisines,
+        price_levels: selectedPrices,
+      });
+      setResults(data.restaurants);
+      setSource(data.source);
+      if (!data.restaurants.length) {
+        toast.error("No spots found within 50 miles — try loosening filters");
+        return;
+      }
+      if (data.source === "curated") {
+        toast.info("Showing demo spots (live data unavailable)");
+      }
+      runShuffle(data.restaurants);
+    } catch (e) {
+      toast.error(e.response?.data?.detail || "Search failed");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = async (r) => {
-    try {
-      await axios.delete(`${API}/restaurants/${r.id}`);
-      setRestaurants((prev) => prev.filter((x) => x.id !== r.id));
-      if (result?.id === r.id) setResult(null);
-      toast.success(`${r.name} removed`);
-    } catch (e) {
-      toast.error("Could not delete");
-    }
+  const reSpin = () => {
+    if (results.length) runShuffle(results);
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5]">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-[#EAE4D9] bg-white/80 backdrop-blur-2xl">
+      <header className="sticky top-0 z-30 border-b border-[#E2E4E7] bg-[#0E0E0E]">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:px-12">
           <div className="flex items-center gap-2.5">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-[#C84B31] text-white">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-[#E01E26] text-white">
               <Utensils className="h-4 w-4" />
             </span>
-            <span className="font-serif text-2xl font-semibold tracking-tight text-[#2C2A29]">
+            <span className="font-serif text-2xl font-semibold tracking-tight text-white">
               Fork·Fate
             </span>
           </div>
-          <AddRestaurantDialog onAdded={(r) => { setRestaurants((p) => [...p, r]); load(); }} />
+          <AddRestaurantDialog onAdded={() => {}} />
         </div>
       </header>
 
@@ -133,89 +125,114 @@ export default function Home() {
           transition={HERO_TRANSITION}
           className="max-w-2xl"
         >
-          <p className="font-sans text-xs font-bold tracking-[0.25em] uppercase text-[#C84B31]">
+          <p className="font-sans text-xs font-bold tracking-[0.25em] uppercase text-[#E01E26]">
             Can't decide where to eat?
           </p>
-          <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#2C2A29] sm:text-5xl lg:text-6xl">
+          <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl">
             Let fate pick tonight's table.
           </h1>
-          <p className="mt-4 font-sans text-base leading-relaxed text-[#7A7571]">
-            Set your mood with a few filters, then hit spin. We'll shuffle the deck
-            of local spots and land on your next meal.
+          <p className="mt-4 font-sans text-base leading-relaxed text-[#6B7075]">
+            Drop in your ZIP code, set the mood, and spin. We'll shuffle real
+            restaurants within 50 miles and land on your next meal — Google
+            ratings and all.
           </p>
         </motion.div>
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
-          {/* left: filters + spin */}
-          <div className="min-w-0 space-y-8">
+          {/* left: search + filters + spin */}
+          <div className="min-w-0 space-y-7">
+            <div className="space-y-2">
+              <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#6B7075]">
+                Your ZIP code
+              </p>
+              <div className="flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-1.5 focus-within:border-[#E01E26]">
+                <Search className="h-5 w-5 text-[#6B7075]" />
+                <Input
+                  data-testid="zip-input"
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value.replace(/[^\d]/g, "").slice(0, 5))}
+                  onKeyDown={(e) => e.key === "Enter" && spin()}
+                  placeholder="e.g. 10001"
+                  inputMode="numeric"
+                  className="border-0 bg-transparent px-1 text-lg font-semibold text-[#0E0E0E] shadow-none focus-visible:ring-0"
+                />
+                <span className="shrink-0 rounded-full bg-[#EDEEF0] px-3 py-1 text-xs font-bold text-[#6B7075]">
+                  within 50 mi
+                </span>
+              </div>
+            </div>
+
             <Filters
-              cuisines={cuisines}
+              cuisines={CUISINES}
               selectedCuisines={selectedCuisines}
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
+              priceOptions={PRICE_OPTIONS}
               selectedPrices={selectedPrices}
               togglePrice={(p) => toggle(setSelectedPrices, selectedPrices, p)}
-              maxDistance={maxDistance}
-              setMaxDistance={setMaxDistance}
             />
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <motion.button
                 data-testid="spin-roulette-button"
                 onClick={spin}
-                disabled={spinning}
-                whileHover={{ scale: spinning ? 1 : 1.03 }}
+                disabled={spinning || loading}
+                whileHover={{ scale: spinning || loading ? 1 : 1.03 }}
                 whileTap={SPIN_TAP}
-                className="inline-flex items-center gap-3 rounded-full bg-[#C84B31] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#C84B31]/25 transition-colors hover:bg-[#A33B24] disabled:opacity-70"
+                className="inline-flex items-center gap-3 rounded-full bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
               >
-                <Dices className={`h-6 w-6 ${spinning ? "animate-spin" : ""}`} />
-                {spinning ? "Shuffling…" : "Spin the deck"}
+                <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
+                {loading ? "Finding spots…" : spinning ? "Shuffling…" : "Spin the deck"}
               </motion.button>
-              <span className="font-sans text-sm text-[#7A7571]">
-                {localPool.length} spot{localPool.length !== 1 && "s"} in play
-              </span>
+              {results.length > 0 && (
+                <span className="font-sans text-sm text-[#6B7075]">
+                  {results.length} spot{results.length !== 1 && "s"} nearby
+                </span>
+              )}
             </div>
           </div>
 
           {/* right: reveal stage */}
-          <div className="relative min-h-[420px] rounded-3xl border border-[#EAE4D9] bg-white p-4 shadow-xl shadow-black/5">
-            <RevealStage spinning={spinning} flash={flash} result={result} onReset={() => setResult(null)} />
+          <div className="relative min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
+            <RevealStage spinning={spinning} flash={flash} result={result} onReset={() => setResult(null)} onReSpin={reSpin} />
           </div>
         </div>
       </section>
 
-      {/* All restaurants */}
-      <section className="mx-auto max-w-6xl px-6 pb-24 pt-8 md:px-12">
-        <div className="flex items-end justify-between border-b border-[#EAE4D9] pb-4">
-          <h2 className="font-serif text-2xl font-medium tracking-tight text-[#2C2A29] sm:text-3xl">
-            The full deck
-          </h2>
-          <span className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#7A7571]">
-            {restaurants.length} spots
-          </span>
-        </div>
-        <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3" data-testid="restaurant-grid">
-          {restaurants.map((r) => (
-            <RestaurantCard key={r.id} r={r} onDelete={handleDelete} />
-          ))}
-        </div>
-      </section>
+      {/* Nearby results */}
+      {results.length > 0 && (
+        <section className="mx-auto max-w-6xl px-6 pb-24 pt-8 md:px-12">
+          <div className="flex items-end justify-between border-b border-[#E2E4E7] pb-4">
+            <h2 className="font-serif text-2xl font-medium tracking-tight text-[#0E0E0E] sm:text-3xl">
+              {source === "google" ? "Nearby spots" : "Demo spots"}
+            </h2>
+            <span className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#6B7075]">
+              {results.length} within 50 mi
+            </span>
+          </div>
+          <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3" data-testid="restaurant-grid">
+            {results.map((r) => (
+              <RestaurantCard key={r.id} r={r} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
 
-function RevealStage({ spinning, flash, result, onReset }) {
+function RevealStage({ spinning, flash, result, onReset, onReSpin }) {
   const card = result || flash;
 
   if (!card) {
     return (
       <div className="grid h-full min-h-[400px] place-items-center text-center">
         <div className="space-y-3">
-          <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#EAE4D9] text-[#C84B31]">
+          <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#0E0E0E] text-[#E01E26]">
             <Dices className="h-7 w-7" />
           </span>
-          <p className="font-serif text-2xl text-[#2C2A29]">Your table awaits</p>
-          <p className="mx-auto max-w-xs font-sans text-sm text-[#7A7571]">
-            Hit spin and let the deck decide where you're eating.
+          <p className="font-serif text-2xl text-[#0E0E0E]">Your table awaits</p>
+          <p className="mx-auto max-w-xs font-sans text-sm text-[#6B7075]">
+            Enter a ZIP code and hit spin — fate decides where you're eating.
           </p>
         </div>
       </div>
@@ -235,9 +252,9 @@ function RevealStage({ spinning, flash, result, onReset }) {
       >
         <div className="relative h-64 overflow-hidden rounded-2xl">
           <img src={card.image} alt={card.name} className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute bottom-4 left-4 right-4">
-            <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#2C2A29]">
+            <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#0E0E0E]">
               {card.cuisine} · {card.price}
             </span>
             <h3 className="mt-2 font-serif text-4xl font-medium leading-none text-white drop-shadow">
@@ -253,28 +270,36 @@ function RevealStage({ spinning, flash, result, onReset }) {
             transition={DETAIL_TRANSITION}
             className="space-y-4 p-5"
           >
-            <p className="font-sans text-sm leading-relaxed text-[#7A7571]">
-              {card.description}
-            </p>
-            <div className="flex items-center gap-5 text-sm text-[#2C2A29]">
+            <div className="flex items-center gap-5 text-sm text-[#0E0E0E]">
               <span className="flex items-center gap-1.5 font-semibold">
-                <Star className="h-4 w-4 fill-[#C84B31] text-[#C84B31]" />
-                {card.rating.toFixed(1)}
+                <Star className="h-4 w-4 fill-[#E01E26] text-[#E01E26]" />
+                {card.rating > 0 ? card.rating.toFixed(1) : "New"}
               </span>
-              <span className="flex items-center gap-1.5 text-[#7A7571]">
-                <MapPin className="h-4 w-4" /> {card.distance} km away
+              <span className="flex items-center gap-1.5 text-[#6B7075]">
+                <MapPin className="h-4 w-4" /> {card.distance} mi away
               </span>
-              {card.address && (
-                <span className="text-[#7A7571]">{card.address}</span>
-              )}
             </div>
-            <button
-              onClick={onReset}
-              data-testid="reset-spin-button"
-              className="inline-flex items-center gap-2 rounded-full border border-[#EAE4D9] bg-[#FAF8F5] px-4 py-2 text-sm font-semibold text-[#2C2A29] transition-colors hover:bg-[#EAE4D9]"
-            >
-              <RotateCcw className="h-4 w-4" /> Clear
-            </button>
+            {card.address && (
+              <p className="font-sans text-sm leading-relaxed text-[#6B7075]">
+                {card.address}
+              </p>
+            )}
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={onReSpin}
+                data-testid="respin-button"
+                className="inline-flex items-center gap-2 rounded-full bg-[#E01E26] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
+              >
+                <Dices className="h-4 w-4" /> Spin again
+              </button>
+              <button
+                onClick={onReset}
+                data-testid="reset-spin-button"
+                className="inline-flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-2 text-sm font-semibold text-[#0E0E0E] transition-colors hover:bg-[#EDEEF0]"
+              >
+                <RotateCcw className="h-4 w-4" /> Clear
+              </button>
+            </div>
           </motion.div>
         )}
       </motion.div>
