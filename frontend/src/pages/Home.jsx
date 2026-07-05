@@ -136,7 +136,7 @@ export default function Home() {
         alt=""
         aria-hidden="true"
         data-testid="reaper-bg"
-        className="pointer-events-none fixed left-1/2 top-1/2 z-0 hidden h-[85vh] max-w-none -translate-x-1/2 -translate-y-1/2 select-none opacity-[0.12] md:block"
+        className="pointer-events-none fixed left-1/2 top-1/2 z-0 h-[70vh] max-w-none -translate-x-1/2 -translate-y-1/2 select-none opacity-[0.12] md:h-[85vh]"
       />
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-[#E2E4E7] bg-[#0E0E0E]">
