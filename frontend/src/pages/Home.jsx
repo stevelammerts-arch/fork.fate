@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2 } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -38,6 +38,8 @@ const BAR_CUISINES = [
 export default function Home() {
   const [mode, setMode] = useState("food");
   const [zip, setZip] = useState("");
+  const [coords, setCoords] = useState(null);
+  const [geoLoading, setGeoLoading] = useState(false);
   const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [openNow, setOpenNow] = useState(false);
   const [results, setResults] = useState([]);
@@ -79,17 +81,19 @@ export default function Home() {
     }, SHUFFLE_DURATION_MS);
   };
 
-  const doSearch = async (cuisinesArg, pricesArg, categoryArg) => {
+  const doSearch = async (cuisinesArg, pricesArg, categoryArg, coordsArg = coords) => {
     if (spinning || loading) return;
     const z = zip.trim();
-    if (z && !/^\d{5}$/.test(z)) {
+    if (!coordsArg && z && !/^\d{5}$/.test(z)) {
       toast.error("ZIP code should be 5 digits (or leave it blank)");
       return;
     }
     setLoading(true);
     try {
       const { data } = await axios.post(`${API}/places/search`, {
-        zip_code: z || null,
+        zip_code: coordsArg ? null : z || null,
+        lat: coordsArg?.lat ?? null,
+        lng: coordsArg?.lng ?? null,
         cuisines: cuisinesArg,
         price_levels: pricesArg,
         category: categoryArg,
@@ -110,6 +114,33 @@ export default function Home() {
   };
 
   const spin = () => doSearch(selectedCuisines, [], mode);
+
+  const useMyLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Location isn't supported on this device");
+      return;
+    }
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setCoords(c);
+        setZip("");
+        setGeoLoading(false);
+        toast.success("Using your location");
+        doSearch(selectedCuisines, [], mode, c);
+      },
+      (err) => {
+        setGeoLoading(false);
+        toast.error(
+          err.code === err.PERMISSION_DENIED
+            ? "Location permission denied — enter a ZIP instead"
+            : "Couldn't get your location — enter a ZIP instead"
+        );
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+    );
+  };
 
   const reportClosed = async (r) => {
     try {
@@ -222,7 +253,7 @@ export default function Home() {
                 <Input
                   data-testid="zip-input"
                   value={zip}
-                  onChange={(e) => setZip(e.target.value.replace(/[^\d]/g, "").slice(0, 5))}
+                  onChange={(e) => { setZip(e.target.value.replace(/[^\d]/g, "").slice(0, 5)); setCoords(null); }}
                   onKeyDown={(e) => e.key === "Enter" && spin()}
                   placeholder="e.g. 10001"
                   inputMode="numeric"
@@ -232,6 +263,16 @@ export default function Home() {
                   within 50 mi
                 </span>
               </div>
+              <button
+                type="button"
+                onClick={useMyLocation}
+                disabled={geoLoading || loading || spinning}
+                data-testid="use-my-location-button"
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors disabled:opacity-70 ${coords ? "bg-[#E01E26] text-white hover:bg-[#B3141A]" : "border border-[#E2E4E7] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
+              >
+                <LocateFixed className={`h-4 w-4 ${geoLoading ? "animate-pulse" : ""}`} />
+                {geoLoading ? "Locating…" : coords ? "Using your location" : "Use my location"}
+              </button>
             </div>
 
             <Filters

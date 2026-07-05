@@ -152,6 +152,8 @@ class ReportCreate(BaseModel):
 
 class PlacesSearchRequest(BaseModel):
     zip_code: Optional[str] = None
+    lat: Optional[float] = Field(default=None, ge=-90, le=90)
+    lng: Optional[float] = Field(default=None, ge=-180, le=180)
     cuisines: List[str] = Field(default_factory=list, max_length=25)
     price_levels: List[str] = Field(default_factory=list, max_length=6)
     category: str = "food"
@@ -444,20 +446,23 @@ async def spin(req: SpinRequest):
 
 async def google_places_search(req: "PlacesSearchRequest"):
     async with httpx.AsyncClient(timeout=15) as http:
-        cached = _ZIP_GEO_CACHE.get(req.zip_code)
-        if cached:
-            lat, lng = cached
+        if req.lat is not None and req.lng is not None:
+            lat, lng = req.lat, req.lng
         else:
-            geo = await http.get("https://maps.googleapis.com/maps/api/geocode/json", params={
-                "components": f"postal_code:{req.zip_code}|country:US",
-                "key": GOOGLE_API_KEY,
-            })
-            gd = geo.json()
-            if gd.get("status") != "OK" or not gd.get("results"):
-                raise HTTPException(status_code=400, detail="Could not find that ZIP code")
-            loc = gd["results"][0]["geometry"]["location"]
-            lat, lng = loc["lat"], loc["lng"]
-            _ZIP_GEO_CACHE[req.zip_code] = (lat, lng)
+            cached = _ZIP_GEO_CACHE.get(req.zip_code)
+            if cached:
+                lat, lng = cached
+            else:
+                geo = await http.get("https://maps.googleapis.com/maps/api/geocode/json", params={
+                    "components": f"postal_code:{req.zip_code}|country:US",
+                    "key": GOOGLE_API_KEY,
+                })
+                gd = geo.json()
+                if gd.get("status") != "OK" or not gd.get("results"):
+                    raise HTTPException(status_code=400, detail="Could not find that ZIP code")
+                loc = gd["results"][0]["geometry"]["location"]
+                lat, lng = loc["lat"], loc["lng"]
+                _ZIP_GEO_CACHE[req.zip_code] = (lat, lng)
 
         if req.category == "drinks":
             base = " ".join(req.cuisines) if req.cuisines else "coffee boba tea smoothie"
@@ -541,7 +546,7 @@ async def places_photo(name: str):
 
 @api_router.post("/places/search", dependencies=[Depends(rate_limit(60))])
 async def places_search(req: PlacesSearchRequest):
-    if GOOGLE_API_KEY and req.zip_code:
+    if GOOGLE_API_KEY and (req.zip_code or (req.lat is not None and req.lng is not None)):
         try:
             results = await google_places_search(req)
             if results:
