@@ -1,31 +1,44 @@
-# Fork·Fate — Local Restaurant & Drinks Roulette
+# Fork·Fate — Restaurant Roulette (PRD)
 
 ## Original Problem Statement
-Local Restaurant roulette app.
+Local restaurant roulette app with a pre-seeded demo list of restaurants. Users manually curate/add restaurants. Simple randomized shuffling-deck card reveal experience with filters. No login required.
+
+Follow-up requirements delivered:
+- Black/silver/red/white theme
+- Monetization via Google AdSense + Sponsored spots
+- Dedicated tabs: Food, Drinks, Bars, Desserts
+- Optional Google Places integration (fallback to curated MongoDB data)
+- Shuffling deck animation
+- Portal buttons for DoorDash / Order online / Google Reviews
+- "Open now" hours filter toggle
+- Dessert-specific card actions ("Order treats" + dessert vibe icons)
+
+Primary language: English.
 
 ## Architecture
-- Backend: FastAPI + MongoDB (`/api` prefix). Seeds 31 spots on startup (23 food + 8 drinks).
-- Google Places (New) + Geocoding for ZIP → nearby (≤50 mi via haversine). Falls back to curated seed when GOOGLE_API_KEY unset/fails/empty — curated is the intended primary experience.
-- Frontend: React 19 + Tailwind + shadcn/ui + Framer Motion. Single ZIP-driven page. Theme: black / silver / red / white.
+- Backend: FastAPI (`/app/backend/server.py`), Motor/MongoDB. All routes prefixed `/api`.
+- Frontend: React + Tailwind + Framer Motion + lucide-react. `Home.jsx`, `RestaurantCard.jsx`, `Filters.jsx`, `AddRestaurantDialog.jsx`, `AdUnit.jsx`.
+- Data: dual-mode — Google Places (if GOOGLE_API_KEY set + ZIP) else curated MongoDB seed (~55 spots). Currently running on curated fallback (no Google key).
 
-## Integrations
-- Google Places API (New) + Geocoding — needs GOOGLE_API_KEY (backend/.env). NOT SET → curated fallback active.
-- Google AdSense — AdUnit component gated on REACT_APP_ADSENSE_PUB_ID (frontend/.env, currently EMPTY → renders nothing). Needs publisher ID + ad slot ID + site approval.
+## Key Endpoints
+- GET /api/restaurants, GET /api/cuisines
+- POST /api/places/search (category + cuisine + price + open_now, curated fallback)
+- POST /api/spin, POST /api/restaurants, POST /api/reports
+- GET /api/places/photo (proxies Google photos to hide key)
 
-## Implemented (2026-06/07)
-- ZIP (optional) + 50-mile radius; filters: cuisine + price; distances in miles.
-- Shuffle-to-reveal roulette with an animated **shuffling deck** (riffle) before landing.
-- **Food / Drinks toggle** — Drinks section covers Coffee, Boba Tea, Smoothie (own chips, hero copy, add-form options, images).
-- **Sponsored spots** — `sponsored` flag pins to top + badge (food: Olive & Ember, Harborline, Ember & Oak BBQ; drinks: Cloud Nine Coffee, Pearl & Pour).
-- **Google AdSense scaffold** — responsive ad unit above the grid (lights up when PUB_ID set).
-- **Reviews & ratings portal** — button on result card + each grid card linking to the restaurant's Google Maps page (real googleMapsUri for live, maps search URL for curated).
-- Add / delete spots; added spots appear immediately and respect current mode/category.
-- Tested through iteration_7: backend 30/30, frontend E2E 100%.
+## Implemented (as of 2026-07-05)
+- Full 4-tab roulette app, shuffling deck animation, sponsored pinning — DONE
+- Open-now filter + dessert card actions — DONE, E2E tested 100% (iteration_12)
+- Removed "Chicken Wings" quick button; renamed spin CTA to "Shuffle your fate" — DONE (screenshot verified)
+- Deployment readiness check — PASS
+- Deployed to production: https://lucky-bite-1.emergent.host
+- AdSense wired: REACT_APP_ADSENSE_PUB_ID=ca-pub-7078042401291684, REACT_APP_ADSENSE_SLOT_ID=2465443431 (AdUnit renders in Nearby spots; live ads only on approved prod domain) — DONE in preview; NEEDS REDEPLOY to go live.
 
-## Backlog
-- P1: Add GOOGLE_API_KEY → validate live Places path (real photos/ratings). Add REACT_APP_ADSENSE_PUB_ID → validate ads.
-- P2: Affiliate "Order/Reserve" buttons; favorites/spin history; shareable result link.
-- P2: Live-path cuisine post-filter by primaryType.
+## Backlog / Roadmap
+- P1: Light moderation/auth for user-submitted restaurants (POST /api/restaurants + /api/reports are unauthenticated — spam risk).
+- P2: Refactor server.py (>580 lines) and Home.jsx (~500 lines) into modules; centralize cuisine constants + category enum.
+- P2: Use real open_now from Google Places when a key is configured (currently idx%4 seed heuristic).
 
-## Next Tasks
-- Awaiting Google Places key + AdSense publisher ID to go from demo → live.
+## Notes
+- No auth in app (no test credentials).
+- Preview REACT_APP_BACKEND_URL: set in frontend/.env (do not trust older forks).
