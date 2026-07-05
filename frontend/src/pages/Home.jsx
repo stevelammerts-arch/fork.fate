@@ -7,6 +7,7 @@ import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
 import AdUnit from "../components/AdUnit";
+import InstallAppButton from "../components/InstallAppButton";
 import { Input } from "../components/ui/input";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -138,7 +139,10 @@ export default function Home() {
               Fork·Fate
             </span>
           </div>
-          <AddRestaurantDialog mode={mode} onAdded={(r) => setResults((p) => [r, ...p])} />
+          <div className="flex items-center gap-3">
+            <InstallAppButton />
+            <AddRestaurantDialog mode={mode} onAdded={(r) => setResults((p) => [r, ...p])} />
+          </div>
         </div>
       </header>
 
