@@ -25,9 +25,10 @@ const SPIN_TAP = { scale: 0.96 };
 
 const FOOD_CUISINES = [
   "Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Korean", "Chicken Wings",
-  "American", "Mediterranean", "Seafood", "Pizza", "Deli", "Breakfast", "Ice Cream", "Candy Shops", "Vegan", "BBQ", "Greek", "Cafe",
+  "American", "Mediterranean", "Seafood", "Pizza", "Deli", "Breakfast", "Vegan", "BBQ", "Greek", "Cafe",
 ];
 const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];
+const DESSERT_CUISINES = ["Ice Cream", "Candy Shops", "Bakery", "Frozen Yogurt"];
 const BAR_CUISINES = [
   "Beer", "Wine", "Cocktails", "Liquor", "Spirits", "Whiskey", "Margaritas", "Tiki", "Sports Bar", "Irish Bar", "Bars",
   "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Games", "Bowling",
@@ -57,7 +58,7 @@ export default function Home() {
     setResult(null);
   };
 
-  const cuisineList = mode === "food" ? FOOD_CUISINES : mode === "drinks" ? DRINK_CUISINES : BAR_CUISINES;
+  const cuisineList = mode === "food" ? FOOD_CUISINES : mode === "drinks" ? DRINK_CUISINES : mode === "bars" ? BAR_CUISINES : DESSERT_CUISINES;
 
   const runShuffle = (pool) => {
     setResult(null);
@@ -154,17 +155,19 @@ export default function Home() {
           className="max-w-2xl"
         >
           <p className="font-sans text-xs font-bold tracking-[0.25em] uppercase text-[#E01E26]">
-            {mode === "food" ? "Can't decide where to eat?" : mode === "drinks" ? "Can't decide what to sip?" : "Can't decide where to drink?"}
+            {mode === "food" ? "Can't decide where to eat?" : mode === "drinks" ? "Can't decide what to sip?" : mode === "bars" ? "Can't decide where to drink?" : "Craving something sweet?"}
           </p>
           <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl">
-            {mode === "food" ? "Let fate pick tonight's table." : mode === "drinks" ? "Let fate pick your next sip." : "Let fate pick tonight's bar."}
+            {mode === "food" ? "Let fate pick tonight's table." : mode === "drinks" ? "Let fate pick your next sip." : mode === "bars" ? "Let fate pick tonight's bar." : "Let fate pick your sweet treat."}
           </h1>
           <p className="mt-4 font-sans text-base leading-relaxed text-[#6B7075]">
             {mode === "food"
               ? "Set the mood with a few filters and hit spin. We'll shuffle great local restaurants — up to 50 miles out — and land on your next meal."
               : mode === "drinks"
               ? "Coffee, boba tea or a smoothie? Set your filters and spin — we'll shuffle nearby drink spots and pick one for you."
-              : "Beer, whiskey, margaritas or a Tiki bar? Set your filters and spin — we'll shuffle nearby bars and pick tonight's spot."}
+              : mode === "bars"
+              ? "Beer, whiskey, margaritas or a Tiki bar? Set your filters and spin — we'll shuffle nearby bars and pick tonight's spot."
+              : "Ice cream, bakery, candy or froyo? Set your filters and spin — we'll shuffle nearby dessert spots and pick your treat."}
           </p>
         </motion.div>
 
@@ -175,23 +178,30 @@ export default function Home() {
               <button
                 data-testid="mode-food"
                 onClick={() => switchMode("food")}
-                className={`rounded-full px-6 py-2 text-sm font-bold transition-colors ${mode === "food" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "food" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
               >
                 Food
               </button>
               <button
                 data-testid="mode-drinks"
                 onClick={() => switchMode("drinks")}
-                className={`rounded-full px-6 py-2 text-sm font-bold transition-colors ${mode === "drinks" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "drinks" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
               >
                 Drinks
               </button>
               <button
                 data-testid="mode-bars"
                 onClick={() => switchMode("bars")}
-                className={`rounded-full px-6 py-2 text-sm font-bold transition-colors ${mode === "bars" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "bars" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
               >
                 Bars
+              </button>
+              <button
+                data-testid="mode-desserts"
+                onClick={() => switchMode("desserts")}
+                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "desserts" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+              >
+                Desserts
               </button>
             </div>
 
@@ -218,7 +228,7 @@ export default function Home() {
 
             <Filters
               cuisines={cuisineList}
-              cuisineLabel={mode === "food" ? "Cuisine" : mode === "drinks" ? "Drink type" : "Bar type"}
+              cuisineLabel={mode === "food" ? "Cuisine" : mode === "drinks" ? "Drink type" : mode === "bars" ? "Bar type" : "Dessert type"}
               selectedCuisines={selectedCuisines}
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
             />
@@ -347,7 +357,9 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
               ? "Set your filters and hit spin — fate decides where you're eating."
               : mode === "drinks"
               ? "Set your filters and hit spin — fate decides what you're sipping."
-              : "Set your filters and hit spin — fate decides where you're drinking."}
+              : mode === "bars"
+              ? "Set your filters and hit spin — fate decides where you're drinking."
+              : "Set your filters and hit spin — fate decides your sweet treat."}
           </p>
         </div>
       </div>

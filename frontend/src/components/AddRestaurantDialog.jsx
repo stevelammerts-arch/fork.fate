@@ -43,11 +43,18 @@ const BAR_IMAGES = [
   "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?crop=entropy&cs=srgb&fm=jpg&q=85",
 ];
 
+const DESSERT_IMAGES = [
+  "https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?crop=entropy&cs=srgb&fm=jpg&q=85",
+  "https://images.unsplash.com/photo-1509440159596-0249088772ff?crop=entropy&cs=srgb&fm=jpg&q=85",
+  "https://images.unsplash.com/photo-1488900128323-21503983a07e?crop=entropy&cs=srgb&fm=jpg&q=85",
+];
+
 const CUISINES = [
-  "Italian", "Japanese", "Mexican", "Indian", "Chinese", "French", "Chicken Wings", "Deli", "Breakfast", "Ice Cream", "Candy Shops",
+  "Italian", "Japanese", "Mexican", "Indian", "Chinese", "French", "Chicken Wings", "Deli", "Breakfast",
   "Mediterranean", "Steakhouse", "Seafood", "Burgers", "Vegan", "Cafe", "Thai", "Korean",
 ];
 const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];
+const DESSERT_CUISINES = ["Ice Cream", "Candy Shops", "Bakery", "Frozen Yogurt"];
 const BAR_CUISINES = [
   "Beer", "Wine", "Cocktails", "Liquor", "Spirits", "Whiskey", "Margaritas", "Tiki", "Sports Bar", "Irish Bar", "Bars",
   "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Games", "Bowling",
@@ -59,7 +66,7 @@ const fieldCls =
 export default function AddRestaurantDialog({ onAdded, mode = "food" }) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const cuisineOptions = mode === "food" ? CUISINES : mode === "drinks" ? DRINK_CUISINES : BAR_CUISINES;
+  const cuisineOptions = mode === "food" ? CUISINES : mode === "drinks" ? DRINK_CUISINES : mode === "bars" ? BAR_CUISINES : DESSERT_CUISINES;
   const [form, setForm] = useState({
     name: "",
     cuisine: "",
@@ -80,7 +87,7 @@ export default function AddRestaurantDialog({ onAdded, mode = "food" }) {
     }
     setSaving(true);
     try {
-      const pool = mode === "food" ? FOOD_IMAGES : mode === "drinks" ? DRINK_IMAGES : BAR_IMAGES;
+      const pool = mode === "food" ? FOOD_IMAGES : mode === "drinks" ? DRINK_IMAGES : mode === "bars" ? BAR_IMAGES : DESSERT_IMAGES;
       const image = pool[Math.floor(Math.random() * pool.length)];
       const payload = {
         ...form,

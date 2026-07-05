@@ -131,7 +131,7 @@ class RestaurantCreate(BaseModel):
     @field_validator("category")
     @classmethod
     def _valid_category(cls, v):
-        return v if v in ("food", "drinks", "bars") else "food"
+        return v if v in ("food", "drinks", "bars", "desserts") else "food"
 
 
 class SpinRequest(BaseModel):
@@ -164,7 +164,7 @@ class PlacesSearchRequest(BaseModel):
     @field_validator("category")
     @classmethod
     def _valid_category(cls, v):
-        return v if v in ("food", "drinks", "bars") else "food"
+        return v if v in ("food", "drinks", "bars", "desserts") else "food"
 
 
 # ---------- Seed data ----------
@@ -256,18 +256,30 @@ SEED = [
     {"name": "The Morning Table", "cuisine": "Breakfast", "price": "$$", "rating": 4.7, "distance": 5.3,
      "description": "Avocado toast, shakshuka and fresh-pressed juices.", "address": "22 Brunch Ave",
      "image": "https://images.unsplash.com/photo-1525351484163-7529414344d8?crop=entropy&cs=srgb&fm=jpg&q=85"},
-    {"name": "Scoops & Swirls", "cuisine": "Ice Cream", "price": "$", "rating": 4.8, "distance": 1.5, "sponsored": True,
+    {"name": "Scoops & Swirls", "cuisine": "Ice Cream", "price": "$", "rating": 4.8, "distance": 1.5, "category": "desserts", "sponsored": True,
      "description": "Small-batch gelato, waffle cones and sundae bar.", "address": "5 Sugar Ln",
      "image": "https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?crop=entropy&cs=srgb&fm=jpg&q=85"},
-    {"name": "Frostbite Creamery", "cuisine": "Ice Cream", "price": "$", "rating": 4.6, "distance": 4.7,
+    {"name": "Frostbite Creamery", "cuisine": "Ice Cream", "price": "$", "rating": 4.6, "distance": 4.7, "category": "desserts",
      "description": "Rolled ice cream, milkshakes and vegan scoops.", "address": "40 Frost St",
      "image": "https://images.unsplash.com/photo-1501443762994-82bd5dace89a?crop=entropy&cs=srgb&fm=jpg&q=85"},
-    {"name": "Sweet Tooth Co", "cuisine": "Candy Shops", "price": "$", "rating": 4.7, "distance": 2.2, "sponsored": True,
+    {"name": "Sweet Tooth Co", "cuisine": "Candy Shops", "price": "$", "rating": 4.7, "distance": 2.2, "category": "desserts", "sponsored": True,
      "description": "Bulk candy walls, chocolate truffles and nostalgic sweets.", "address": "18 Confection Ct",
      "image": "https://images.unsplash.com/photo-1499195333224-3ce974eecb47?crop=entropy&cs=srgb&fm=jpg&q=85"},
-    {"name": "The Candy Jar", "cuisine": "Candy Shops", "price": "$", "rating": 4.5, "distance": 6.9,
+    {"name": "The Candy Jar", "cuisine": "Candy Shops", "price": "$", "rating": 4.5, "distance": 6.9, "category": "desserts",
      "description": "Handmade fudge, taffy and old-fashioned lollipops.", "address": "3 Toffee Way",
      "image": "https://images.unsplash.com/photo-1582058091505-f87a2e55a40f?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Flour & Butter Bakery", "cuisine": "Bakery", "price": "$$", "rating": 4.8, "distance": 2.0, "category": "desserts", "sponsored": True,
+     "description": "Croissants, layer cakes and fresh-from-the-oven pastries.", "address": "11 Baker St",
+     "image": "https://images.unsplash.com/photo-1509440159596-0249088772ff?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Rise & Crumb", "cuisine": "Bakery", "price": "$", "rating": 4.6, "distance": 5.8, "category": "desserts",
+     "description": "Sourdough loaves, cookies and cinnamon rolls.", "address": "27 Dough Ave",
+     "image": "https://images.unsplash.com/photo-1486427944299-d1955d23e34d?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Berry Swirl", "cuisine": "Frozen Yogurt", "price": "$", "rating": 4.5, "distance": 3.4, "category": "desserts",
+     "description": "Self-serve froyo with 40 toppings and fresh fruit.", "address": "9 Tart Ln",
+     "image": "https://images.unsplash.com/photo-1488900128323-21503983a07e?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Chill Yo", "cuisine": "Frozen Yogurt", "price": "$", "rating": 4.4, "distance": 7.1, "category": "desserts",
+     "description": "Tart froyo swirls, boba toppings and sorbet.", "address": "52 Swirl Rd",
+     "image": "https://images.unsplash.com/photo-1560008581-09826d1de69e?crop=entropy&cs=srgb&fm=jpg&q=85"},
     {"name": "Cloud Nine Coffee", "cuisine": "Coffee", "price": "$", "rating": 4.7, "distance": 0.6, "category": "drinks", "sponsored": True,
      "description": "Single-origin pour-overs, flat whites and flaky croissants.", "address": "6 Bean St",
      "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?crop=entropy&cs=srgb&fm=jpg&q=85"},
@@ -442,6 +454,9 @@ async def google_places_search(req: "PlacesSearchRequest"):
         elif req.category == "bars":
             base = " ".join(req.cuisines) if req.cuisines else "bar pub"
             query = (base + " bar pub").strip()
+        elif req.category == "desserts":
+            base = " ".join(req.cuisines) if req.cuisines else "dessert ice cream bakery"
+            query = (base + " dessert shop").strip()
         else:
             query = (" ".join(req.cuisines) + " restaurant").strip()
         headers = {
