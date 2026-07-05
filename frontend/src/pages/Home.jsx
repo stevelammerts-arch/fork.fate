@@ -28,18 +28,11 @@ const FOOD_CUISINES = [
   "American", "Mediterranean", "Seafood", "Pizza", "Deli", "Vegan", "BBQ", "Greek", "Cafe",
 ];
 const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];
-const PRICE_OPTIONS = [
-  { symbol: "$", value: "PRICE_LEVEL_INEXPENSIVE" },
-  { symbol: "$$", value: "PRICE_LEVEL_MODERATE" },
-  { symbol: "$$$", value: "PRICE_LEVEL_EXPENSIVE" },
-  { symbol: "$$$$", value: "PRICE_LEVEL_VERY_EXPENSIVE" },
-];
 
 export default function Home() {
   const [mode, setMode] = useState("food");
   const [zip, setZip] = useState("");
   const [selectedCuisines, setSelectedCuisines] = useState([]);
-  const [selectedPrices, setSelectedPrices] = useState([]);
   const [results, setResults] = useState([]);
   const [source, setSource] = useState(null);
 
@@ -108,12 +101,12 @@ export default function Home() {
     }
   };
 
-  const spin = () => doSearch(selectedCuisines, selectedPrices, mode);
+  const spin = () => doSearch(selectedCuisines, [], mode);
 
   const searchChickenWings = () => {
     if (mode !== "food") setMode("food");
     setSelectedCuisines(["Chicken Wings"]);
-    doSearch(["Chicken Wings"], selectedPrices, "food");
+    doSearch(["Chicken Wings"], [], "food");
   };
 
   const reportClosed = async (r) => {
@@ -139,7 +132,7 @@ export default function Home() {
       <header className="sticky top-0 z-30 border-b border-[#E2E4E7] bg-[#0E0E0E]">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:px-12">
           <div className="flex items-center gap-2.5">
-            <img src="/logo-v2.png" alt="Fork·Fate logo" className="h-10 w-10 rounded-full" />
+            <img src="/logo-v4.png" alt="Fork·Fate logo" className="h-10 w-10 rounded-full" />
             <span className="font-serif text-2xl font-semibold tracking-tight text-white">
               Fork·Fate
             </span>
@@ -215,9 +208,6 @@ export default function Home() {
               cuisineLabel={mode === "food" ? "Cuisine" : "Drink type"}
               selectedCuisines={selectedCuisines}
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
-              priceOptions={PRICE_OPTIONS}
-              selectedPrices={selectedPrices}
-              togglePrice={(p) => toggle(setSelectedPrices, selectedPrices, p)}
             />
 
             <div className="flex flex-wrap items-center gap-4">

@@ -32,9 +32,6 @@ export default function Filters({
   cuisineLabel = "Cuisine",
   selectedCuisines,
   toggleCuisine,
-  priceOptions,
-  selectedPrices,
-  togglePrice,
 }) {
   return (
     <div className="space-y-6" data-testid="filters-panel">
@@ -47,19 +44,6 @@ export default function Filters({
             testid={`cuisine-filter-${c.toLowerCase()}`}
           >
             {c}
-          </Pill>
-        ))}
-      </Group>
-
-      <Group label="Price">
-        {priceOptions.map((p) => (
-          <Pill
-            key={p.value}
-            active={selectedPrices.includes(p.value)}
-            onClick={() => togglePrice(p.value)}
-            testid={`price-filter-${p.symbol.length}`}
-          >
-            {p.symbol}
           </Pill>
         ))}
       </Group>
