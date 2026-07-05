@@ -87,6 +87,14 @@ def maps_url(name, address=""):
     return f"https://www.google.com/maps/search/?api=1&query={quote_plus((name + ' ' + address).strip())}"
 
 
+def doordash_url(name, address=""):
+    return f"https://www.doordash.com/search/store/{quote_plus(name)}"
+
+
+def order_url(name, address=""):
+    return f"https://www.google.com/search?q={quote_plus((name + ' ' + address + ' order online delivery').strip())}"
+
+
 # ---------- Models ----------
 class Restaurant(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -103,6 +111,8 @@ class Restaurant(BaseModel):
     sponsored: bool = False
     category: str = "food"  # "food" | "drinks"
     google_url: str = ""
+    doordash_url: str = ""
+    order_url: str = ""
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
@@ -128,6 +138,12 @@ class SpinRequest(BaseModel):
     cuisines: List[str] = []
     prices: List[str] = []
     max_distance: Optional[float] = None
+
+
+class ReportCreate(BaseModel):
+    restaurant_id: str = Field(min_length=1, max_length=100)
+    restaurant_name: str = Field(default="", max_length=160)
+    reason: str = Field(default="No longer in service", max_length=300)
 
 
 class PlacesSearchRequest(BaseModel):
@@ -222,6 +238,12 @@ SEED = [
     {"name": "Verde Cantina", "cuisine": "Vegan", "price": "$", "rating": 4.4, "distance": 34.5,
      "description": "Jackfruit tacos, cashew queso and kombucha on tap.", "address": "90 Fern Hill",
      "image": "https://images.unsplash.com/photo-1540914124281-342587941389?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Buffalo Junction", "cuisine": "Chicken Wings", "price": "$$", "rating": 4.6, "distance": 3.2, "sponsored": True,
+     "description": "Crispy buffalo wings, dry rubs and blue-cheese dip.", "address": "48 Coop Ave",
+     "image": "https://images.unsplash.com/photo-1608039755401-742074f0548d?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Cluck & Fire", "cuisine": "Chicken Wings", "price": "$", "rating": 4.5, "distance": 6.7,
+     "description": "Nashville-hot wings and loaded fries.", "address": "12 Flame St",
+     "image": "https://images.unsplash.com/photo-1527477396000-e27163b481c2?crop=entropy&cs=srgb&fm=jpg&q=85"},
     {"name": "Cloud Nine Coffee", "cuisine": "Coffee", "price": "$", "rating": 4.7, "distance": 0.6, "category": "drinks", "sponsored": True,
      "description": "Single-origin pour-overs, flat whites and flaky croissants.", "address": "6 Bean St",
      "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?crop=entropy&cs=srgb&fm=jpg&q=85"},
@@ -289,18 +311,24 @@ async def get_restaurants():
 async def create_restaurant(payload: RestaurantCreate):
     r = Restaurant(**payload.model_dump())
     r.google_url = maps_url(r.name, r.address)
+    r.doordash_url = doordash_url(r.name, r.address)
+    r.order_url = order_url(r.name, r.address)
     doc = r.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     await db.restaurants.insert_one(doc)
     return r
 
 
-@api_router.delete("/restaurants/{restaurant_id}", dependencies=[Depends(rate_limit(20))])
-async def delete_restaurant(restaurant_id: str):
-    res = await db.restaurants.delete_one({"id": restaurant_id})
-    if res.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Restaurant not found")
-    return {"deleted": restaurant_id}
+@api_router.post("/reports", dependencies=[Depends(rate_limit(30))])
+async def create_report(payload: ReportCreate):
+    """Users can suggest a spot be removed (e.g. closed / no longer in service).
+    Recorded for review instead of allowing direct deletion."""
+    doc = payload.model_dump()
+    doc['id'] = str(uuid.uuid4())
+    doc['status'] = "open"
+    doc['created_at'] = datetime.now(timezone.utc).isoformat()
+    await db.reports.insert_one(doc)
+    return {"ok": True, "id": doc['id']}
 
 
 @api_router.get("/cuisines", response_model=List[str])
@@ -377,6 +405,8 @@ async def google_places_search(req: "PlacesSearchRequest"):
                 "image": image or FALLBACK_IMG,
                 "sponsored": False,
                 "google_url": p.get("googleMapsUri") or maps_url(name, address),
+                "doordash_url": doordash_url(name, address),
+                "order_url": order_url(name, address),
             })
         out.sort(key=lambda r: r["distance"])
         return out
@@ -424,6 +454,8 @@ async def places_search(req: PlacesSearchRequest):
     items.sort(key=lambda r: (not r.get('sponsored', False), r['distance']))
     for r in items:
         r['google_url'] = maps_url(r['name'], r.get('address', ''))
+        r['doordash_url'] = doordash_url(r['name'], r.get('address', ''))
+        r['order_url'] = order_url(r['name'], r.get('address', ''))
     return {"source": "curated", "restaurants": items}
 
 

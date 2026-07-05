@@ -1,11 +1,11 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Star, MapPin, Trash2, ExternalLink } from "lucide-react";
+import { Star, MapPin, ExternalLink, ShoppingBag, Flag } from "lucide-react";
 
 const CARD_HOVER = { y: -8 };
 const CARD_SPRING = { type: "spring", stiffness: 300, damping: 22 };
 
-export function RestaurantCard({ r, onDelete }) {
+export function RestaurantCard({ r, onReport }) {
   return (
     <motion.div
       whileHover={CARD_HOVER}
@@ -29,16 +29,6 @@ export function RestaurantCard({ r, onDelete }) {
             </span>
           )}
         </div>
-        {onDelete && (
-          <button
-            onClick={() => onDelete(r)}
-            data-testid={`delete-restaurant-${r.id}`}
-            className="absolute top-3 right-3 rounded-full bg-white/90 backdrop-blur p-2 text-[#E01E26] opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
-            aria-label="Delete restaurant"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-        )}
       </div>
       <div className="p-5 space-y-2">
         <div className="flex items-start justify-between gap-2">
@@ -62,18 +52,43 @@ export function RestaurantCard({ r, onDelete }) {
             {r.distance} mi
           </span>
         </div>
-        {r.google_url && (
-          <a
-            href={r.google_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-testid={`rate-on-google-${r.id}`}
-            onClick={(e) => e.stopPropagation()}
-            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#0E0E0E] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]"
+
+        <div className="grid grid-cols-2 gap-2 pt-3">
+          {r.doordash_url && (
+            <a
+              href={r.doordash_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid={`doordash-${r.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
+            >
+              <ShoppingBag className="h-4 w-4" /> DoorDash
+            </a>
+          )}
+          {r.google_url && (
+            <a
+              href={r.google_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid={`rate-on-google-${r.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0E0E0E] px-3 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]"
+            >
+              <Star className="h-4 w-4 fill-[#E01E26] text-[#E01E26]" /> Reviews
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+        </div>
+
+        {onReport && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onReport(r); }}
+            data-testid={`report-closed-${r.id}`}
+            className="mt-2 inline-flex items-center gap-1.5 font-sans text-xs font-semibold text-[#6B7075] underline-offset-2 transition-colors hover:text-[#E01E26] hover:underline"
           >
-            <Star className="h-4 w-4 fill-[#E01E26] text-[#E01E26]" /> Reviews & ratings
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
+            <Flag className="h-3.5 w-3.5" /> No longer here? Suggest removal
+          </button>
         )}
       </div>
     </motion.div>

@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, Utensils, RotateCcw, Search, ExternalLink } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -24,7 +24,7 @@ const DETAIL_TRANSITION = { delay: 0.2 };
 const SPIN_TAP = { scale: 0.96 };
 
 const FOOD_CUISINES = [
-  "Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Korean",
+  "Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Korean", "Chicken Wings",
   "American", "Mediterranean", "Seafood", "Pizza", "Vegan", "BBQ", "Greek", "Cafe",
 ];
 const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];
@@ -79,7 +79,7 @@ export default function Home() {
     }, SHUFFLE_DURATION_MS);
   };
 
-  const spin = async () => {
+  const doSearch = async (cuisinesArg, pricesArg, categoryArg) => {
     if (spinning || loading) return;
     const z = zip.trim();
     if (z && !/^\d{5}$/.test(z)) {
@@ -90,9 +90,9 @@ export default function Home() {
     try {
       const { data } = await axios.post(`${API}/places/search`, {
         zip_code: z || null,
-        cuisines: selectedCuisines,
-        price_levels: selectedPrices,
-        category: mode,
+        cuisines: cuisinesArg,
+        price_levels: pricesArg,
+        category: categoryArg,
       });
       setResults(data.restaurants);
       setSource(data.source);
@@ -108,6 +108,27 @@ export default function Home() {
     }
   };
 
+  const spin = () => doSearch(selectedCuisines, selectedPrices, mode);
+
+  const searchChickenWings = () => {
+    if (mode !== "food") setMode("food");
+    setSelectedCuisines(["Chicken Wings"]);
+    doSearch(["Chicken Wings"], selectedPrices, "food");
+  };
+
+  const reportClosed = async (r) => {
+    try {
+      await axios.post(`${API}/reports`, {
+        restaurant_id: r.id,
+        restaurant_name: r.name,
+        reason: "No longer in service",
+      });
+      toast.success("Thanks! We'll review this spot.");
+    } catch (e) {
+      toast.error("Could not submit your report");
+    }
+  };
+
   const reSpin = () => {
     if (results.length) runShuffle(results);
   };
@@ -118,9 +139,7 @@ export default function Home() {
       <header className="sticky top-0 z-30 border-b border-[#E2E4E7] bg-[#0E0E0E]">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:px-12">
           <div className="flex items-center gap-2.5">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-[#E01E26] text-white">
-              <Utensils className="h-4 w-4" />
-            </span>
+            <img src="/logo.png" alt="Fork·Fate logo" className="h-10 w-10 rounded-full" />
             <span className="font-serif text-2xl font-semibold tracking-tight text-white">
               Fork·Fate
             </span>
@@ -213,6 +232,17 @@ export default function Home() {
                 <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
                 {loading ? "Finding spots…" : spinning ? "Shuffling…" : "Spin the deck"}
               </motion.button>
+              {mode === "food" && (
+                <motion.button
+                  data-testid="chicken-wings-search-button"
+                  onClick={searchChickenWings}
+                  disabled={spinning || loading}
+                  whileTap={SPIN_TAP}
+                  className="inline-flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-5 py-3 font-sans text-sm font-bold text-[#0E0E0E] transition-colors hover:bg-[#EDEEF0] disabled:opacity-70"
+                >
+                  🍗 Chicken Wings
+                </motion.button>
+              )}
               {results.length > 0 && (
                 <span className="font-sans text-sm text-[#6B7075]">
                   {results.length} spot{results.length !== 1 && "s"} nearby
@@ -223,7 +253,7 @@ export default function Home() {
 
           {/* right: reveal stage */}
           <div className="relative min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
-            <RevealStage spinning={spinning} flash={flash} deck={results} result={result} mode={mode} onReset={() => setResult(null)} onReSpin={reSpin} />
+            <RevealStage spinning={spinning} flash={flash} deck={results} result={result} mode={mode} onReset={() => setResult(null)} onReSpin={reSpin} onReport={reportClosed} />
           </div>
         </div>
       </section>
@@ -242,7 +272,7 @@ export default function Home() {
           <AdUnit className="mt-8" label="Advertisement" />
           <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3" data-testid="restaurant-grid">
             {results.map((r) => (
-              <RestaurantCard key={r.id} r={r} />
+              <RestaurantCard key={r.id} r={r} onReport={reportClosed} />
             ))}
           </div>
         </section>
@@ -296,7 +326,7 @@ function ShufflingDeck({ cards, flash }) {
   );
 }
 
-function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin }) {
+function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, onReport }) {
   if (!result && spinning) {
     return <ShufflingDeck cards={deck} flash={flash} />;
   }
@@ -373,6 +403,29 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin })
               </p>
             )}
             <div className="flex flex-wrap gap-3">
+              {card.doordash_url && (
+                <a
+                  href={card.doordash_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="doordash-button"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#E01E26] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
+                >
+                  <ShoppingBag className="h-4 w-4" /> Order on DoorDash
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              )}
+              {card.order_url && (
+                <a
+                  href={card.order_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="order-online-button"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-2 text-sm font-semibold text-[#0E0E0E] transition-colors hover:bg-[#EDEEF0]"
+                >
+                  <ShoppingBag className="h-4 w-4" /> Order online
+                </a>
+              )}
               {card.google_url && (
                 <a
                   href={card.google_url}
@@ -400,6 +453,13 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin })
                 <RotateCcw className="h-4 w-4" /> Clear
               </button>
             </div>
+            <button
+              onClick={() => onReport?.(card)}
+              data-testid="report-closed-button"
+              className="inline-flex items-center gap-1.5 pt-1 font-sans text-xs font-semibold text-[#6B7075] underline-offset-2 transition-colors hover:text-[#E01E26] hover:underline"
+            >
+              <Flag className="h-3.5 w-3.5" /> No longer here? Suggest removal
+            </button>
           </motion.div>
         )}
       </motion.div>
