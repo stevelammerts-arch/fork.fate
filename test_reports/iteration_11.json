@@ -1,0 +1,24 @@
+{
+  "summary": "Iteration 11 - Breakfast (food) + Wine/Cocktails (bars) seeds and Bars activity-tag icon. Backend 12/12 pytest passed: /api/restaurants total 55 (29 food + 8 drinks + 18 bars); breakfast returns Sunrise Diner (sponsored, first) + The Morning Table (both category=food, cuisine=Breakfast); Wine returns The Wine Cellar (sponsored, category=bars, google/doordash/order urls); Cocktails returns Shaker & Spoon; bars w/o cuisine returns 18 items covering all 18 bar chips with sponsored-first ordering and google/doordash/order urls; food/drinks isolated from bars; /cuisines, /spin (POST), /reports, /places/photo(404), invalid zip 422 all OK. Frontend verified: FOOD shows cuisine-filter-breakfast chip; BARS shows cuisine-filter-wine and cuisine-filter-cocktails chips; Wine spin -> spin-result-card 'The Wine Cellar' + Cocktails spin -> 'Shaker & Spoon' + Breakfast spin -> 'Sunrise Diner' all with DoorDash/Order/Reviews/Suggest-removal buttons; nearby bar cards render activity-tag-{id} (icon+label), while FOOD & DRINKS nearby cards do NOT show activity-tag; Add-spot dialog Food options include Breakfast, Bars options include Wine and Cocktails.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iteration11.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home.jsx (~470 lines) still bundles Home/ShufflingDeck/RevealStage — consider splitting into files for maintainability.",
+    "AddRestaurantDialog now has BAR_IMAGES (good), but its CUISINES list still differs from Home.jsx FOOD_CUISINES (dialog has French/Steakhouse/Burgers which are not selectable as filter chips; Home has Pizza/BBQ/Greek/American/Mediterranean/Seafood not in dialog). Consider centralizing cuisine lists.",
+    "BAR_ICONS map in RestaurantCard falls back to Trophy for any unknown bar cuisine; explicit mapping for all 18 chips would be safer.",
+    "Category validator duplicated in RestaurantCreate + PlacesSearchRequest; refactor to shared enum."
+  ],
+  "updated_files": ["/app/backend/tests/test_iteration11.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "None (no auth).",
+  "seed_data_creation": "One POST /api/reports doc (restaurant_id=TEST_iter11) created for regression assertion. No restaurant docs added.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Seed totals: 55 = 29 food + 8 drinks + 18 bars. New seeds: Sunrise Diner (sponsored) + The Morning Table under Breakfast/food; The Wine Cellar (sponsored) under Wine/bars; Shaker & Spoon under Cocktails/bars. Activity-tag renders ONLY when r.category==='bars' via BAR_ICONS map in RestaurantCard.jsx (data-testid=activity-tag-{id}). Chip testids lower-case with spaces (cuisine-filter-cocktails, cuisine-filter-wine, cuisine-filter-breakfast). Backend URL: https://lucky-bite-1.preview.emergentagent.com. /api/spin is POST not GET; /api/places/photo requires 'name' query param (not 'ref').",
+  "rca of the issue": "N/A"
+}

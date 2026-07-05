@@ -44,12 +44,12 @@ const BAR_IMAGES = [
 ];
 
 const CUISINES = [
-  "Italian", "Japanese", "Mexican", "Indian", "Chinese", "French", "Chicken Wings", "Deli",
+  "Italian", "Japanese", "Mexican", "Indian", "Chinese", "French", "Chicken Wings", "Deli", "Breakfast",
   "Mediterranean", "Steakhouse", "Seafood", "Burgers", "Vegan", "Cafe", "Thai", "Korean",
 ];
 const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];
 const BAR_CUISINES = [
-  "Beer", "Liquor", "Spirits", "Whiskey", "Margaritas", "Tiki", "Sports Bar", "Irish Bar", "Bars",
+  "Beer", "Wine", "Cocktails", "Liquor", "Spirits", "Whiskey", "Margaritas", "Tiki", "Sports Bar", "Irish Bar", "Bars",
   "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Games", "Bowling",
 ];
 

@@ -1,11 +1,28 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Star, MapPin, ExternalLink, ShoppingBag, Flag } from "lucide-react";
+import {
+  Star, MapPin, ExternalLink, ShoppingBag, Flag,
+  Beer, Wine, Martini, Target, Music, Gamepad2, CircleDot, Tv, Trophy,
+} from "lucide-react";
 
 const CARD_HOVER = { y: -8 };
 const CARD_SPRING = { type: "spring", stiffness: 300, damping: 22 };
 
+const BAR_ICONS = {
+  "Beer": Beer, "Irish Bar": Beer,
+  "Wine": Wine,
+  "Cocktails": Martini, "Liquor": Martini, "Spirits": Martini, "Whiskey": Martini,
+  "Margaritas": Martini, "Tiki": Martini, "Bars": Martini,
+  "Sports Bar": Tv,
+  "Pool": CircleDot, "Bowling": CircleDot, "Pickle Ball": CircleDot,
+  "Volleyball": Trophy,
+  "Darts": Target,
+  "Music": Music,
+  "Games": Gamepad2,
+};
+
 export function RestaurantCard({ r, onReport }) {
+  const ActivityIcon = r.category === "bars" ? (BAR_ICONS[r.cuisine] || Trophy) : null;
   return (
     <motion.div
       whileHover={CARD_HOVER}
@@ -42,6 +59,14 @@ export function RestaurantCard({ r, onReport }) {
         <p className="font-sans text-sm text-[#6B7075] line-clamp-2">
           {r.description}
         </p>
+        {ActivityIcon && (
+          <span
+            data-testid={`activity-tag-${r.id}`}
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#0E0E0E] px-3 py-1 text-xs font-bold text-white"
+          >
+            <ActivityIcon className="h-3.5 w-3.5 text-[#E01E26]" /> {r.cuisine}
+          </span>
+        )}
         <div className="flex items-center gap-4 pt-1 text-sm text-[#6B7075]">
           <span className="flex items-center gap-1 font-semibold text-[#0E0E0E]">
             <Star className="h-4 w-4 fill-[#E01E26] text-[#E01E26]" />

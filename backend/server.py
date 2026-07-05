@@ -250,6 +250,12 @@ SEED = [
     {"name": "Rye & Slice", "cuisine": "Deli", "price": "$$", "rating": 4.5, "distance": 4.4,
      "description": "Classic reubens, matzo ball soup and egg creams.", "address": "7 Rye Ln",
      "image": "https://images.unsplash.com/photo-1553909489-cd47e0ef937f?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Sunrise Diner", "cuisine": "Breakfast", "price": "$", "rating": 4.6, "distance": 1.7, "sponsored": True,
+     "description": "Fluffy pancakes, skillets and bottomless coffee all morning.", "address": "6 Dawn St",
+     "image": "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Morning Table", "cuisine": "Breakfast", "price": "$$", "rating": 4.7, "distance": 5.3,
+     "description": "Avocado toast, shakshuka and fresh-pressed juices.", "address": "22 Brunch Ave",
+     "image": "https://images.unsplash.com/photo-1525351484163-7529414344d8?crop=entropy&cs=srgb&fm=jpg&q=85"},
     {"name": "Cloud Nine Coffee", "cuisine": "Coffee", "price": "$", "rating": 4.7, "distance": 0.6, "category": "drinks", "sponsored": True,
      "description": "Single-origin pour-overs, flat whites and flaky croissants.", "address": "6 Bean St",
      "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?crop=entropy&cs=srgb&fm=jpg&q=85"},
@@ -322,6 +328,12 @@ SEED = [
     {"name": "Strike & Spare", "cuisine": "Bowling", "price": "$$", "rating": 4.5, "distance": 10.2, "category": "bars",
      "description": "Boutique bowling lanes, cocktails and shareable plates.", "address": "77 Lane Ave",
      "image": "https://images.unsplash.com/photo-1538511246516-427062a4e9e6?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Wine Cellar", "cuisine": "Wine", "price": "$$$", "rating": 4.8, "distance": 2.4, "category": "bars", "sponsored": True,
+     "description": "300 labels by the glass and a candle-lit tasting room.", "address": "14 Vine St",
+     "image": "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Shaker & Spoon", "cuisine": "Cocktails", "price": "$$$", "rating": 4.7, "distance": 3.6, "category": "bars",
+     "description": "Craft cocktails and seasonal infusions by master mixologists.", "address": "29 Bitters Blvd",
+     "image": "https://images.unsplash.com/photo-1470337458703-46ad1756a187?crop=entropy&cs=srgb&fm=jpg&q=85"},
 ]
 
 
