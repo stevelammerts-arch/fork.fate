@@ -43,11 +43,21 @@ export function RestaurantCard({ r, onReport }) {
       className="group relative rounded-3xl overflow-hidden bg-white border border-[#E2E4E7] shadow-xl shadow-black/5 hover:shadow-2xl"
     >
       <div className="relative h-52 overflow-hidden">
-        <img
-          src={r.image}
-          alt={r.name}
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+        <a
+          href={r.google_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-testid={`photo-link-${r.id}`}
+          title={`View ${r.name} on Google`}
+          onClick={(e) => e.stopPropagation()}
+          className="block h-full w-full"
+        >
+          <img
+            src={r.image}
+            alt={r.name}
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        </a>
         <div className="absolute top-3 left-3 flex gap-2">
           <span className="rounded-full bg-white/90 backdrop-blur px-3 py-1 text-xs font-bold tracking-wide text-[#0E0E0E]">
             {r.cuisine}

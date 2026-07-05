@@ -391,9 +391,18 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
         data-testid="spin-result-card"
       >
         <div className="relative h-64 overflow-hidden rounded-2xl">
-          <img src={card.image} alt={card.name} className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-          <div className="absolute bottom-4 left-4 right-4">
+          <a
+            href={card.google_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-testid="result-photo-link"
+            title={`View ${card.name} on Google`}
+            className="block h-full w-full"
+          >
+            <img src={card.image} alt={card.name} className="h-full w-full object-cover transition-transform duration-500 hover:scale-105" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+          </a>
+          <div className="pointer-events-none absolute bottom-4 left-4 right-4">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#0E0E0E]">
                 {card.cuisine} · {card.price}
