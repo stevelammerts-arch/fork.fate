@@ -264,7 +264,7 @@ export default function Home() {
 
           {/* right: reveal stage */}
           <div className="relative min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
-            <RevealStage spinning={spinning} flash={flash} deck={results} result={result} mode={mode} onReset={() => setResult(null)} onReSpin={reSpin} onReport={reportClosed} />
+            <RevealStage spinning={spinning} flash={flash} deck={results} result={result} mode={mode} onReset={() => setResult(null)} onReSpin={reSpin} onReport={reportClosed} onPick={setResult} />
           </div>
         </div>
       </section>
@@ -337,7 +337,7 @@ function ShufflingDeck({ cards, flash }) {
   );
 }
 
-function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, onReport }) {
+function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, onReport, onPick }) {
   if (!result && spinning) {
     return <ShufflingDeck cards={deck} flash={flash} />;
   }
@@ -365,6 +365,7 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
   }
 
   const card = result;
+  const alternatives = deck.filter((d) => d.id !== card.id).slice(0, 5);
   const shareFate = async () => {
     const text = `Fate picked ${card.name} (${card.cuisine} · ${card.price})${card.distance ? ` — ${card.distance} mi away` : ""}. Shuffle your own fate on Fork·Fate!`;
     const url = window.location.origin;
@@ -505,6 +506,46 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
             >
               <Flag className="h-3.5 w-3.5" /> No longer here? Suggest removal
             </button>
+
+            {alternatives.length > 0 && (
+              <div className="border-t border-[#E2E4E7] pt-4" data-testid="alternatives-section">
+                <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#6B7075]">
+                  5 more to consider
+                </p>
+                <div className="mt-3 space-y-2">
+                  {alternatives.map((alt) => (
+                    <button
+                      key={alt.id}
+                      onClick={() => onPick?.(alt)}
+                      data-testid={`alternative-${alt.id}`}
+                      className="group flex w-full items-center gap-3 rounded-2xl border border-[#E2E4E7] bg-white p-2 text-left transition-colors hover:border-[#E01E26] hover:bg-[#FCF4F4]"
+                    >
+                      <img
+                        src={alt.image}
+                        alt={alt.name}
+                        className="h-12 w-12 shrink-0 rounded-xl object-cover"
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-serif text-base font-medium leading-tight text-[#0E0E0E]">
+                          {alt.name}
+                        </span>
+                        <span className="mt-0.5 flex items-center gap-2 font-sans text-xs text-[#6B7075]">
+                          <span>{alt.cuisine} · {alt.price}</span>
+                          <span className="flex items-center gap-1">
+                            <Star className="h-3 w-3 fill-[#E01E26] text-[#E01E26]" />
+                            {alt.rating > 0 ? alt.rating.toFixed(1) : "New"}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" /> {alt.distance} mi
+                          </span>
+                        </span>
+                      </span>
+                      <Dices className="h-4 w-4 shrink-0 text-[#B8BCC2] transition-colors group-hover:text-[#E01E26]" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
       </motion.div>
