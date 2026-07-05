@@ -110,12 +110,6 @@ export default function Home() {
 
   const spin = () => doSearch(selectedCuisines, [], mode);
 
-  const searchChickenWings = () => {
-    if (mode !== "food") setMode("food");
-    setSelectedCuisines(["Chicken Wings"]);
-    doSearch(["Chicken Wings"], [], "food");
-  };
-
   const reportClosed = async (r) => {
     try {
       await axios.post(`${API}/reports`, {
@@ -258,19 +252,8 @@ export default function Home() {
                 className="inline-flex items-center gap-3 rounded-full bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
               >
                 <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
-                {loading ? "Finding spots…" : spinning ? "Shuffling…" : "Spin the deck"}
+                {loading ? "Finding spots…" : spinning ? "Shuffling…" : "Shuffle your fate"}
               </motion.button>
-              {mode === "food" && (
-                <motion.button
-                  data-testid="chicken-wings-search-button"
-                  onClick={searchChickenWings}
-                  disabled={spinning || loading}
-                  whileTap={SPIN_TAP}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-5 py-3 font-sans text-sm font-bold text-[#0E0E0E] transition-colors hover:bg-[#EDEEF0] disabled:opacity-70"
-                >
-                  🍗 Chicken Wings
-                </motion.button>
-              )}
               {results.length > 0 && (
                 <span className="font-sans text-sm text-[#6B7075]">
                   {results.length} spot{results.length !== 1 && "s"} nearby
