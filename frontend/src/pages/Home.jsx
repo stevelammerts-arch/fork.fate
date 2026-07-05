@@ -322,6 +322,11 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Always-on ad banner */}
+      <div className="relative z-10 mx-auto max-w-6xl px-6 pb-4 md:px-12">
+        <AdUnit label="Advertisement" />
+      </div>
+
       {/* Nearby results */}
       {results.length > 0 && (
         <section className="relative z-10 mx-auto max-w-6xl px-6 pb-24 pt-8 md:px-12">
