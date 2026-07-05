@@ -42,6 +42,10 @@ const CUISINES = [
   "Mediterranean", "Steakhouse", "Seafood", "Burgers", "Vegan", "Cafe", "Thai", "Korean",
 ];
 const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];
+const BAR_CUISINES = [
+  "Beer", "Liquor", "Spirits", "Whiskey", "Margaritas", "Tiki", "Sports Bar", "Irish Bar", "Bars",
+  "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Games", "Bowling",
+];
 
 const fieldCls =
   "rounded-xl border-[#E2E4E7] bg-[#F5F6F7] px-4 py-2.5 text-[#0E0E0E] focus:ring-2 focus:ring-[#E01E26] focus:ring-offset-1 focus-visible:ring-[#E01E26]";
@@ -49,7 +53,7 @@ const fieldCls =
 export default function AddRestaurantDialog({ onAdded, mode = "food" }) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const cuisineOptions = mode === "food" ? CUISINES : DRINK_CUISINES;
+  const cuisineOptions = mode === "food" ? CUISINES : mode === "drinks" ? DRINK_CUISINES : BAR_CUISINES;
   const [form, setForm] = useState({
     name: "",
     cuisine: "",

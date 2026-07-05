@@ -1,0 +1,25 @@
+{
+  "summary": "Iteration 10 - Fork·Fate Bars category. Backend: 20/20 pytest passed (total=51 = 27 food + 8 drinks + 16 bars; bars category returns all 16 chips with 4 sponsored first; per-cuisine bar lookups verified for Bowling→Strike & Spare, Pool→Rack 'Em Billiards, Pickle Ball→Dill Dinkers, Music→The Encore, Beer→The Tap House, Irish Bar→O'Malley's, Darts→Bullseye Tavern, Volleyball→Sand Bar, Games→Player One; food/drinks isolated from bars; invalid category coerces to food; invalid zip 422; POST /api/restaurants with category='bars' persists with google/doordash/order URLs; /spin, /reports, /places/photo, /cuisines regress OK). Frontend: 3-mode toggle (Food/Drinks/Bars) visible; Bars eyebrow 'Can't decide where to drink?' + hero 'Let fate pick tonight's bar.'; all 16 bar chips render; Chicken Wings quick button HIDDEN in Drinks & Bars, shown only in Food; Spin in Bars mode with Bowling chip -> shuffling-deck -> spin-result-card containing 'Bowling'; DoorDash/Order online/Reviews & ratings/Suggest removal/Respin buttons all present on result card; nearby restaurant-grid shows; mode switching clears chips + results; Add-spot dialog in Bars mode exposes bar cuisines (Beer/Whiskey/Bowling verified in dropdown).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iteration10_bars.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home.jsx (~470 lines) still bundles Home + ShufflingDeck + RevealStage; extracting the two subcomponents would improve maintainability.",
+    "AddRestaurantDialog uses FOOD_IMAGES for food and DRINK_IMAGES for both drinks and bars (fallback: mode==='food' ? FOOD_IMAGES : DRINK_IMAGES). Consider a BAR_IMAGES set so user-added bars don't get coffee/boba stock photos.",
+    "Backend category validator is duplicated in RestaurantCreate and PlacesSearchRequest — extract to a module-level helper/enum.",
+    "Rate-limit buckets remain per-pod in-memory; acceptable for MVP.",
+    "reports collection has no index; add index on created_at/status if usage grows."
+  ],
+  "updated_files": ["/app/backend/tests/test_iteration10_bars.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "None (no auth).",
+  "seed_data_creation": "One TEST_Bar_Iter10 restaurant created via POST /api/restaurants (category=bars, cuisine=Whiskey). Left in DB, non-conflicting. One report doc also created via POST /api/reports.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Fork·Fate seed now 51 = 27 food + 8 drinks + 16 bars. Bars sponsored (4): The Tap House, O'Malley's, The Encore, Rack 'Em Billiards. Bar 'Pool' spot is 'Rack 'Em Billiards' (with apostrophe). BAR_CUISINES chips testids are lower-cased with spaces (e.g. cuisine-filter-sports bar, cuisine-filter-pickle ball). Chicken Wings quick-search shown only in Food mode. Backend URL: https://lucky-bite-1.preview.emergentagent.com.",
+  "rca of the issue": "N/A - no bugs found."
+}

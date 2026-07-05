@@ -28,6 +28,10 @@ const FOOD_CUISINES = [
   "American", "Mediterranean", "Seafood", "Pizza", "Deli", "Vegan", "BBQ", "Greek", "Cafe",
 ];
 const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];
+const BAR_CUISINES = [
+  "Beer", "Liquor", "Spirits", "Whiskey", "Margaritas", "Tiki", "Sports Bar", "Irish Bar", "Bars",
+  "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Games", "Bowling",
+];
 
 export default function Home() {
   const [mode, setMode] = useState("food");
@@ -53,7 +57,7 @@ export default function Home() {
     setResult(null);
   };
 
-  const cuisineList = mode === "food" ? FOOD_CUISINES : DRINK_CUISINES;
+  const cuisineList = mode === "food" ? FOOD_CUISINES : mode === "drinks" ? DRINK_CUISINES : BAR_CUISINES;
 
   const runShuffle = (pool) => {
     setResult(null);
@@ -150,15 +154,17 @@ export default function Home() {
           className="max-w-2xl"
         >
           <p className="font-sans text-xs font-bold tracking-[0.25em] uppercase text-[#E01E26]">
-            {mode === "food" ? "Can't decide where to eat?" : "Can't decide what to sip?"}
+            {mode === "food" ? "Can't decide where to eat?" : mode === "drinks" ? "Can't decide what to sip?" : "Can't decide where to drink?"}
           </p>
           <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl">
-            {mode === "food" ? "Let fate pick tonight's table." : "Let fate pick your next sip."}
+            {mode === "food" ? "Let fate pick tonight's table." : mode === "drinks" ? "Let fate pick your next sip." : "Let fate pick tonight's bar."}
           </h1>
           <p className="mt-4 font-sans text-base leading-relaxed text-[#6B7075]">
             {mode === "food"
               ? "Set the mood with a few filters and hit spin. We'll shuffle great local restaurants — up to 50 miles out — and land on your next meal."
-              : "Coffee, boba tea or a smoothie? Set your filters and spin — we'll shuffle nearby drink spots and pick one for you."}
+              : mode === "drinks"
+              ? "Coffee, boba tea or a smoothie? Set your filters and spin — we'll shuffle nearby drink spots and pick one for you."
+              : "Beer, whiskey, margaritas or a Tiki bar? Set your filters and spin — we'll shuffle nearby bars and pick tonight's spot."}
           </p>
         </motion.div>
 
@@ -179,6 +185,13 @@ export default function Home() {
                 className={`rounded-full px-6 py-2 text-sm font-bold transition-colors ${mode === "drinks" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
               >
                 Drinks
+              </button>
+              <button
+                data-testid="mode-bars"
+                onClick={() => switchMode("bars")}
+                className={`rounded-full px-6 py-2 text-sm font-bold transition-colors ${mode === "bars" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+              >
+                Bars
               </button>
             </div>
 
@@ -205,7 +218,7 @@ export default function Home() {
 
             <Filters
               cuisines={cuisineList}
-              cuisineLabel={mode === "food" ? "Cuisine" : "Drink type"}
+              cuisineLabel={mode === "food" ? "Cuisine" : mode === "drinks" ? "Drink type" : "Bar type"}
               selectedCuisines={selectedCuisines}
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
             />
@@ -332,7 +345,9 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
           <p className="mx-auto max-w-xs font-sans text-sm text-[#6B7075]">
             {mode === "food"
               ? "Set your filters and hit spin — fate decides where you're eating."
-              : "Set your filters and hit spin — fate decides what you're sipping."}
+              : mode === "drinks"
+              ? "Set your filters and hit spin — fate decides what you're sipping."
+              : "Set your filters and hit spin — fate decides where you're drinking."}
           </p>
         </div>
       </div>

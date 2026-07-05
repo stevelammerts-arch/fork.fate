@@ -131,7 +131,7 @@ class RestaurantCreate(BaseModel):
     @field_validator("category")
     @classmethod
     def _valid_category(cls, v):
-        return v if v in ("food", "drinks") else "food"
+        return v if v in ("food", "drinks", "bars") else "food"
 
 
 class SpinRequest(BaseModel):
@@ -164,7 +164,7 @@ class PlacesSearchRequest(BaseModel):
     @field_validator("category")
     @classmethod
     def _valid_category(cls, v):
-        return v if v in ("food", "drinks") else "food"
+        return v if v in ("food", "drinks", "bars") else "food"
 
 
 # ---------- Seed data ----------
@@ -274,6 +274,54 @@ SEED = [
     {"name": "Tapioca Town", "cuisine": "Boba Tea", "price": "$", "rating": 4.3, "distance": 11.5, "category": "drinks",
      "description": "Classic milk teas, taro slushies and mochi bites.", "address": "14 Chew St",
      "image": "https://images.unsplash.com/photo-1571091718767-18b5b1457add?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Tap House", "cuisine": "Beer", "price": "$$", "rating": 4.7, "distance": 1.2, "category": "bars", "sponsored": True,
+     "description": "40 rotating craft taps and wood-fired pretzels.", "address": "5 Hops Ave",
+     "image": "https://images.unsplash.com/photo-1436076863939-06870fe779c2?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Barrel & Bourbon", "cuisine": "Whiskey", "price": "$$$", "rating": 4.8, "distance": 2.6, "category": "bars",
+     "description": "200-bottle whiskey library and craft old fashioneds.", "address": "88 Rye Rd",
+     "image": "https://images.unsplash.com/photo-1569924995012-c4c706bfcd51?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "O'Malley's", "cuisine": "Irish Bar", "price": "$$", "rating": 4.6, "distance": 3.9, "category": "bars", "sponsored": True,
+     "description": "Perfectly poured stout, live trad music and pub grub.", "address": "17 Shamrock St",
+     "image": "https://images.unsplash.com/photo-1514933651103-005eec06c04b?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The End Zone", "cuisine": "Sports Bar", "price": "$$", "rating": 4.4, "distance": 5.1, "category": "bars",
+     "description": "30 screens, wings and ice-cold buckets on game day.", "address": "42 Stadium Way",
+     "image": "https://images.unsplash.com/photo-1543007630-9710e4a00a20?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Agave Nights", "cuisine": "Margaritas", "price": "$$", "rating": 4.7, "distance": 4.3, "category": "bars",
+     "description": "Frozen and fresh-lime margaritas with 60 tequilas.", "address": "9 Lime Blvd",
+     "image": "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Tiki Lagoon", "cuisine": "Tiki", "price": "$$$", "rating": 4.6, "distance": 7.2, "category": "bars",
+     "description": "Flaming mai tais and rum flights under bamboo.", "address": "3 Palm Cove",
+     "image": "https://images.unsplash.com/photo-1470337458703-46ad1756a187?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Liquor Room", "cuisine": "Liquor", "price": "$$$", "rating": 4.5, "distance": 6.4, "category": "bars",
+     "description": "Speakeasy cocktails and a top-shelf back bar.", "address": "21 Vault Ln",
+     "image": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Copper Still", "cuisine": "Spirits", "price": "$$$", "rating": 4.7, "distance": 8.8, "category": "bars",
+     "description": "Small-batch spirits tastings and craft cocktails.", "address": "60 Distillery Rd",
+     "image": "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Last Call", "cuisine": "Bars", "price": "$", "rating": 4.3, "distance": 9.5, "category": "bars",
+     "description": "Neighborhood dive with cheap drafts and a jukebox.", "address": "1 Corner Tap",
+     "image": "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Rack 'Em Billiards", "cuisine": "Pool", "price": "$$", "rating": 4.5, "distance": 3.3, "category": "bars", "sponsored": True,
+     "description": "A dozen pro pool tables, craft beer and late-night eats.", "address": "24 Cue St",
+     "image": "https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Bullseye Tavern", "cuisine": "Darts", "price": "$", "rating": 4.4, "distance": 4.8, "category": "bars",
+     "description": "Electronic and steel-tip dart leagues nightly.", "address": "18 Oche Rd",
+     "image": "https://images.unsplash.com/photo-1595265677860-9a3ca5c8e5c0?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Sand Bar", "cuisine": "Volleyball", "price": "$$", "rating": 4.6, "distance": 7.9, "category": "bars",
+     "description": "Sand volleyball courts, frozen drinks and beach vibes.", "address": "9 Dune Way",
+     "image": "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Encore", "cuisine": "Music", "price": "$$", "rating": 4.7, "distance": 5.5, "category": "bars", "sponsored": True,
+     "description": "Live bands every night and a stacked cocktail list.", "address": "31 Stage Ln",
+     "image": "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Dill Dinkers", "cuisine": "Pickle Ball", "price": "$$", "rating": 4.6, "distance": 6.1, "category": "bars",
+     "description": "Indoor pickleball courts with a full bar and food.", "address": "12 Paddle Ct",
+     "image": "https://images.unsplash.com/photo-1687204209659-3bded6aecd79?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Player One", "cuisine": "Games", "price": "$", "rating": 4.5, "distance": 8.4, "category": "bars",
+     "description": "Retro arcade barcade with pinball and craft brews.", "address": "1 Arcade Alley",
+     "image": "https://images.unsplash.com/photo-1511512578047-dfb367046420?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Strike & Spare", "cuisine": "Bowling", "price": "$$", "rating": 4.5, "distance": 10.2, "category": "bars",
+     "description": "Boutique bowling lanes, cocktails and shareable plates.", "address": "77 Lane Ave",
+     "image": "https://images.unsplash.com/photo-1538511246516-427062a4e9e6?crop=entropy&cs=srgb&fm=jpg&q=85"},
 ]
 
 
@@ -367,6 +415,9 @@ async def google_places_search(req: "PlacesSearchRequest"):
         if req.category == "drinks":
             base = " ".join(req.cuisines) if req.cuisines else "coffee boba tea smoothie"
             query = (base + " cafe drinks").strip()
+        elif req.category == "bars":
+            base = " ".join(req.cuisines) if req.cuisines else "bar pub"
+            query = (base + " bar pub").strip()
         else:
             query = (" ".join(req.cuisines) + " restaurant").strip()
         headers = {
