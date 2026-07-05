@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import {
   Star, MapPin, ExternalLink, ShoppingBag, Flag,
   Beer, Wine, Martini, Target, Music, Gamepad2, CircleDot, Tv, Trophy,
+  IceCream, Candy, Croissant, Donut, Clock,
 } from "lucide-react";
 
 const CARD_HOVER = { y: -8 };
@@ -21,8 +22,19 @@ const BAR_ICONS = {
   "Games": Gamepad2,
 };
 
+const DESSERT_ICONS = {
+  "Ice Cream": IceCream,
+  "Candy Shops": Candy,
+  "Bakery": Croissant,
+  "Frozen Yogurt": Donut,
+};
+
 export function RestaurantCard({ r, onReport }) {
-  const ActivityIcon = r.category === "bars" ? (BAR_ICONS[r.cuisine] || Trophy) : null;
+  const VibeIcon = r.category === "bars" ? (BAR_ICONS[r.cuisine] || Trophy)
+    : r.category === "desserts" ? (DESSERT_ICONS[r.cuisine] || IceCream)
+    : null;
+  const isDessert = r.category === "desserts";
+  const orderLabel = isDessert ? "Order treats" : "DoorDash";
   return (
     <motion.div
       whileHover={CARD_HOVER}
@@ -46,6 +58,12 @@ export function RestaurantCard({ r, onReport }) {
             </span>
           )}
         </div>
+        <span
+          data-testid={`open-status-${r.id}`}
+          className={`absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${r.open_now ? "bg-[#0E0E0E] text-white" : "bg-white/90 text-[#6B7075]"}`}
+        >
+          <Clock className="h-3 w-3" /> {r.open_now ? "Open now" : "Closed"}
+        </span>
       </div>
       <div className="p-5 space-y-2">
         <div className="flex items-start justify-between gap-2">
@@ -59,12 +77,12 @@ export function RestaurantCard({ r, onReport }) {
         <p className="font-sans text-sm text-[#6B7075] line-clamp-2">
           {r.description}
         </p>
-        {ActivityIcon && (
+        {VibeIcon && (
           <span
             data-testid={`activity-tag-${r.id}`}
             className="inline-flex items-center gap-1.5 rounded-full bg-[#0E0E0E] px-3 py-1 text-xs font-bold text-white"
           >
-            <ActivityIcon className="h-3.5 w-3.5 text-[#E01E26]" /> {r.cuisine}
+            <VibeIcon className="h-3.5 w-3.5 text-[#E01E26]" /> {r.cuisine}
           </span>
         )}
         <div className="flex items-center gap-4 pt-1 text-sm text-[#6B7075]">
@@ -88,7 +106,7 @@ export function RestaurantCard({ r, onReport }) {
               onClick={(e) => e.stopPropagation()}
               className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
             >
-              <ShoppingBag className="h-4 w-4" /> DoorDash
+              <ShoppingBag className="h-4 w-4" /> {orderLabel}
             </a>
           )}
           {r.google_url && (

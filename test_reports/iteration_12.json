@@ -1,0 +1,24 @@
+{
+  "summary": "Iteration 12 - Verified open_now filter + dessert card actions + mode switching. Backend 17/17 passed: /api/places/search open_now=true filters closed spots for food/desserts/bars/drinks; category isolation confirmed (desserts returns only Ice Cream/Candy Shops/Bakery/Frozen Yogurt cuisines, 8 spots, sponsored-first). Frontend verified: Desserts tab shows 4 chip filters (ice cream/candy shops/bakery/frozen yogurt); spinning in Desserts returns dessert card 'Scoops & Swirls' with all action buttons (doordash-button, order-online-button, rate-on-google-button, respin-button, reset-spin-button, report-closed-button); grid dessert cards render 'Order treats' label (not 'DoorDash') and activity-tag with dessert vibe icon (8 activity-tags). Mode switch from desserts->food clears prior result and swaps chips (Italian/Breakfast visible, Ice Cream chip gone). Open-now toggle test: Food no-filter=29 cards with 8 Closed badges; toggling Open-now on -> 21 cards, 0 Closed badges (correctly excludes ~25% closed spots). Bars/Drinks chips also correctly populated (wine/cocktails, coffee/boba tea).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iteration12.py",
+    "/app/test_reports/pytest/iteration_12.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home.jsx still ~500 lines with Home/ShufflingDeck/RevealStage bundled — consider splitting for maintainability.",
+    "FOOD_CUISINES / DRINK_CUISINES / BAR_CUISINES / DESSERT_CUISINES defined in Home.jsx and duplicated shape in AddRestaurantDialog — centralize into a shared constants module.",
+    "Category validators duplicated in RestaurantCreate + PlacesSearchRequest (server.py lines 134-135, 168-169) — refactor to shared enum/constant.",
+    "Backend seed uses idx%4==0 for closed flag — deterministic and OK for demo, but should be replaced by actual open_now from Google Places when a key is configured."
+  ],
+  "updated_files": ["/app/backend/tests/test_iteration12.py", "/app/test_reports/iteration_12.json"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "None (no auth).",
+  "seed_data_creation": "One TEST_iter12 report doc via POST /api/reports.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Seeds: 55 restaurants (29 food + 8 drinks + 18 bars + 8 desserts... note: desserts overlap included via category='desserts'). Actual counts as tested: food-grid returns 29 with 8 closed (idx%4==0). Open-now filter shrinks food to 21. Dessert grid cards use 'Order treats' label instead of 'DoorDash'. Activity-tag renders for both bars and desserts (RestaurantCard VibeIcon logic). Chip testids are lowercase with spaces (cuisine-filter-ice cream, cuisine-filter-boba tea).",
+  "rca of the issue": "N/A - all features working as expected."
+}

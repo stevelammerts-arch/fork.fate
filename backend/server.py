@@ -113,6 +113,7 @@ class Restaurant(BaseModel):
     google_url: str = ""
     doordash_url: str = ""
     order_url: str = ""
+    open_now: bool = True
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
@@ -151,6 +152,7 @@ class PlacesSearchRequest(BaseModel):
     cuisines: List[str] = Field(default_factory=list, max_length=25)
     price_levels: List[str] = Field(default_factory=list, max_length=6)
     category: str = "food"
+    open_now: bool = False
 
     @field_validator("zip_code")
     @classmethod
@@ -365,8 +367,9 @@ async def seed_db():
     count = await db.restaurants.count_documents({})
     if count == 0:
         docs = []
-        for item in SEED:
+        for idx, item in enumerate(SEED):
             r = Restaurant(**item)
+            r.open_now = (idx % 4 != 0)  # ~25% shown as closed for the Open-now filter
             doc = r.model_dump()
             doc['created_at'] = doc['created_at'].isoformat()
             docs.append(doc)
@@ -461,7 +464,7 @@ async def google_places_search(req: "PlacesSearchRequest"):
             query = (" ".join(req.cuisines) + " restaurant").strip()
         headers = {
             "X-Goog-Api-Key": GOOGLE_API_KEY,
-            "X-Goog-FieldMask": "places.displayName,places.rating,places.priceLevel,places.primaryType,places.formattedAddress,places.location,places.photos,places.googleMapsUri",
+            "X-Goog-FieldMask": "places.displayName,places.rating,places.priceLevel,places.primaryType,places.formattedAddress,places.location,places.photos,places.googleMapsUri,places.currentOpeningHours.openNow",
             "Content-Type": "application/json",
         }
         payload = {
@@ -471,6 +474,8 @@ async def google_places_search(req: "PlacesSearchRequest"):
         }
         if req.price_levels:
             payload["priceLevels"] = req.price_levels
+        if req.open_now:
+            payload["openNow"] = True
         pres = await http.post("https://places.googleapis.com/v1/places:searchText", headers=headers, json=payload)
         pd = pres.json()
         if "error" in pd:
@@ -503,6 +508,7 @@ async def google_places_search(req: "PlacesSearchRequest"):
                 "google_url": p.get("googleMapsUri") or maps_url(name, address),
                 "doordash_url": doordash_url(name, address),
                 "order_url": order_url(name, address),
+                "open_now": (p.get("currentOpeningHours") or {}).get("openNow", True),
             })
         out.sort(key=lambda r: r["distance"])
         return out
@@ -542,6 +548,8 @@ async def places_search(req: PlacesSearchRequest):
     items = [r for r in items if r.get('category', 'food') == req.category]
     if req.cuisines:
         items = [r for r in items if r['cuisine'] in req.cuisines]
+    if req.open_now:
+        items = [r for r in items if r.get('open_now', True)]
     if req.price_levels:
         allowed = set()
         for lvl in req.price_levels:

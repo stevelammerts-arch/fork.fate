@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -38,6 +38,7 @@ export default function Home() {
   const [mode, setMode] = useState("food");
   const [zip, setZip] = useState("");
   const [selectedCuisines, setSelectedCuisines] = useState([]);
+  const [openNow, setOpenNow] = useState(false);
   const [results, setResults] = useState([]);
   const [source, setSource] = useState(null);
 
@@ -91,6 +92,7 @@ export default function Home() {
         cuisines: cuisinesArg,
         price_levels: pricesArg,
         category: categoryArg,
+        open_now: openNow,
       });
       setResults(data.restaurants);
       setSource(data.source);
@@ -232,6 +234,19 @@ export default function Home() {
               selectedCuisines={selectedCuisines}
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
             />
+
+            <button
+              type="button"
+              data-testid="open-now-toggle"
+              onClick={() => setOpenNow((v) => !v)}
+              className={`inline-flex items-center gap-2.5 rounded-full border px-4 py-2.5 text-sm font-bold transition-colors ${openNow ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E2E4E7] bg-white text-[#6B7075] hover:bg-[#EDEEF0]"}`}
+            >
+              <Clock className="h-4 w-4" />
+              Open now only
+              <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${openNow ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
+                <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${openNow ? "translate-x-3" : ""}`} />
+              </span>
+            </button>
 
             <div className="flex flex-wrap items-center gap-4">
               <motion.button
