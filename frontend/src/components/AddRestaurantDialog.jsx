@@ -44,7 +44,7 @@ const BAR_IMAGES = [
 ];
 
 const CUISINES = [
-  "Italian", "Japanese", "Mexican", "Indian", "Chinese", "French", "Chicken Wings", "Deli", "Breakfast",
+  "Italian", "Japanese", "Mexican", "Indian", "Chinese", "French", "Chicken Wings", "Deli", "Breakfast", "Ice Cream", "Candy Shops",
   "Mediterranean", "Steakhouse", "Seafood", "Burgers", "Vegan", "Cafe", "Thai", "Korean",
 ];
 const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];
