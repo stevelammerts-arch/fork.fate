@@ -37,6 +37,12 @@ const DRINK_IMAGES = [
   "https://images.unsplash.com/photo-1502741224143-90386d7f8c82?crop=entropy&cs=srgb&fm=jpg&q=85",
 ];
 
+const BAR_IMAGES = [
+  "https://images.unsplash.com/photo-1436076863939-06870fe779c2?crop=entropy&cs=srgb&fm=jpg&q=85",
+  "https://images.unsplash.com/photo-1514933651103-005eec06c04b?crop=entropy&cs=srgb&fm=jpg&q=85",
+  "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?crop=entropy&cs=srgb&fm=jpg&q=85",
+];
+
 const CUISINES = [
   "Italian", "Japanese", "Mexican", "Indian", "Chinese", "French", "Chicken Wings", "Deli",
   "Mediterranean", "Steakhouse", "Seafood", "Burgers", "Vegan", "Cafe", "Thai", "Korean",
@@ -74,7 +80,7 @@ export default function AddRestaurantDialog({ onAdded, mode = "food" }) {
     }
     setSaving(true);
     try {
-      const pool = mode === "food" ? FOOD_IMAGES : DRINK_IMAGES;
+      const pool = mode === "food" ? FOOD_IMAGES : mode === "drinks" ? DRINK_IMAGES : BAR_IMAGES;
       const image = pool[Math.floor(Math.random() * pool.length)];
       const payload = {
         ...form,
