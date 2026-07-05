@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2 } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -365,6 +365,20 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
   }
 
   const card = result;
+  const shareFate = async () => {
+    const text = `Fate picked ${card.name} (${card.cuisine} · ${card.price})${card.distance ? ` — ${card.distance} mi away` : ""}. Shuffle your own fate on Fork·Fate!`;
+    const url = window.location.origin;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Fork·Fate", text, url });
+      } else {
+        await navigator.clipboard.writeText(`${text} ${url}`);
+        toast.success("Copied to clipboard — share your fate!");
+      }
+    } catch (e) {
+      // user cancelled share sheet — ignore
+    }
+  };
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -459,6 +473,13 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
                 className="inline-flex items-center gap-2 rounded-full bg-[#E01E26] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
               >
                 <Dices className="h-4 w-4" /> Spin again
+              </button>
+              <button
+                onClick={shareFate}
+                data-testid="share-fate-button"
+                className="inline-flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-2 text-sm font-semibold text-[#0E0E0E] transition-colors hover:bg-[#EDEEF0]"
+              >
+                <Share2 className="h-4 w-4" /> Share your fate
               </button>
               <button
                 onClick={onReset}
