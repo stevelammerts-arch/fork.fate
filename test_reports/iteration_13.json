@@ -1,0 +1,30 @@
+{
+  "summary": "Iteration 13 - Verified Google Places integration (ZIP + lat/lng), photo proxy, curated fallback, and full spin flow with alternatives. Backend 16/16 passed: ZIP 10001 search returns source='google' with 20 real NYC spots for all 4 categories (food/drinks/bars/desserts), distances sorted asc, photo-proxy image paths, google_url, doordash_url. Lat/lng (40.7536,-73.9991) also returns google source. Open-now filter returns only spots with open_now=true. No-location returns curated. /api/places/photo proxies real image bytes (content-type image/*, >1KB). Invalid ZIP -> 422. Sanity endpoints /api/restaurants, /api/cuisines, /api/spin, /api/reports, POST /api/restaurants all working. Frontend verified: ZIP spin flow -> shuffling deck -> spin-result-card with real spot (e.g. 'Capizzi', 'Ci Siamo'), result-photo-link points to https://maps.google.com/..., share-fate-button present, alternatives-section shows 5 clickable alternatives; clicking alternative swaps result (verified Capizzi -> Ci Siamo). Grid shows 20 restaurant-card items; photo-link hrefs point to google. Mode switching (food->desserts) clears prior result and swaps cuisine chips (ice-cream chip appears, italian gone). Header buttons download-app-button and open-add-restaurant-button present; Add spot dialog opens. Open-now toggle works. Reaper-bg present.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iteration13.py",
+    "/app/test_reports/pytest/iteration_13.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home.jsx is ~608 lines with Home + ShufflingDeck + RevealStage bundled — should be split into separate files for maintainability.",
+    "FOOD_CUISINES/DRINK_CUISINES/BAR_CUISINES/DESSERT_CUISINES duplicated between Home.jsx and AddRestaurantDialog — centralize to shared constants.",
+    "Category validators duplicated in RestaurantCreate + PlacesSearchRequest (server.py) — extract shared enum.",
+    "_ZIP_GEO_CACHE is unbounded in-memory dict — could grow indefinitely; consider LRU cap or TTL.",
+    "google_places_search does not verify http response.status_code before .json() — a 5xx from Google would raise a JSONDecodeError instead of a clean 502.",
+    "Rate limiter uses in-memory buckets keyed by request.client.host — if multiple workers or behind proxy, limits are per-worker/incorrect; consider trusting X-Forwarded-For and/or moving to Redis.",
+    "Frontend axios calls do not set a timeout — a slow/dead backend can hang the spin UI indefinitely."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration13.py",
+    "/app/test_reports/iteration_13.json"
+  ],
+  "success_rate": {"backend": "100% (16/16)", "frontend": "100%"},
+  "test_credentials": "None (no auth).",
+  "seed_data_creation": "1 TEST_iter13 report + 1 TEST_iter13_spot restaurant via POST endpoints.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Google Places integration is live and returning ~20 real NYC results for ZIP 10001 across all 4 categories. Photo proxy /api/places/photo?name=places/... works and streams image bytes with cache header. Frontend RevealStage renders alternatives-section (5 items) and clicking any [data-testid='alternative-<id>'] correctly calls setResult and swaps the visible spin-result-card h3. When testing the swap flow, re-query the h3 element AFTER the click (do not reuse a stale element handle) and wait ~600ms for animation. Browser geolocation prompt could not be exercised in iframe (documented in prior iteration) but backend lat/lng path is verified via API test.",
+  "rca of the issue": "N/A - all features working as expected."
+}
