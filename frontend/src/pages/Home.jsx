@@ -199,7 +199,7 @@ export default function Home() {
           <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl">
             {mode === "food" ? "Let fate pick tonight's table." : mode === "drinks" ? "Let fate pick your next sip." : mode === "bars" ? "Let fate pick tonight's bar." : "Let fate pick your sweet treat."}
           </h1>
-          <p className="mt-4 font-sans text-base leading-relaxed text-[#6B7075]">
+          <p className="mt-4 font-sans text-base leading-relaxed text-[#0E0E0E]">
             {mode === "food"
               ? "Set the mood with a few filters and hit spin. We'll shuffle great local restaurants — up to 50 miles out — and land on your next meal."
               : mode === "drinks"
@@ -245,7 +245,7 @@ export default function Home() {
             </div>
 
             <div className="space-y-2">
-              <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#6B7075]">
+              <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]">
                 Your ZIP code <span className="text-[#B8BCC2]">(optional)</span>
               </p>
               <div className="flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-1.5 focus-within:border-[#E01E26]">

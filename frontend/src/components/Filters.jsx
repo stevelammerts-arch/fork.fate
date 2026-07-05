@@ -20,7 +20,7 @@ const Pill = ({ active, onClick, children, testid }) => (
 
 const Group = ({ label, children }) => (
   <div className="space-y-3">
-    <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#6B7075]">
+    <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]">
       {label}
     </p>
     <div className="flex flex-wrap gap-3">{children}</div>
