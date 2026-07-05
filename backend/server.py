@@ -40,6 +40,9 @@ MAX_RADIUS_MILES = 50.0
 # Simple in-memory per-IP rate limiter (coarse abuse/cost protection)
 _RL_BUCKETS = defaultdict(deque)
 
+# Cache ZIP -> (lat, lng) to cut repeat geocoding calls
+_ZIP_GEO_CACHE = {}
+
 
 def rate_limit(max_requests: int, window_seconds: int = 60):
     def _dep(request: Request):
@@ -441,15 +444,20 @@ async def spin(req: SpinRequest):
 
 async def google_places_search(req: "PlacesSearchRequest"):
     async with httpx.AsyncClient(timeout=15) as http:
-        geo = await http.get("https://maps.googleapis.com/maps/api/geocode/json", params={
-            "components": f"postal_code:{req.zip_code}|country:US",
-            "key": GOOGLE_API_KEY,
-        })
-        gd = geo.json()
-        if gd.get("status") != "OK" or not gd.get("results"):
-            raise HTTPException(status_code=400, detail="Could not find that ZIP code")
-        loc = gd["results"][0]["geometry"]["location"]
-        lat, lng = loc["lat"], loc["lng"]
+        cached = _ZIP_GEO_CACHE.get(req.zip_code)
+        if cached:
+            lat, lng = cached
+        else:
+            geo = await http.get("https://maps.googleapis.com/maps/api/geocode/json", params={
+                "components": f"postal_code:{req.zip_code}|country:US",
+                "key": GOOGLE_API_KEY,
+            })
+            gd = geo.json()
+            if gd.get("status") != "OK" or not gd.get("results"):
+                raise HTTPException(status_code=400, detail="Could not find that ZIP code")
+            loc = gd["results"][0]["geometry"]["location"]
+            lat, lng = loc["lat"], loc["lng"]
+            _ZIP_GEO_CACHE[req.zip_code] = (lat, lng)
 
         if req.category == "drinks":
             base = " ".join(req.cuisines) if req.cuisines else "coffee boba tea smoothie"
