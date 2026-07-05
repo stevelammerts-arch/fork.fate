@@ -38,7 +38,7 @@ const DRINK_IMAGES = [
 ];
 
 const CUISINES = [
-  "Italian", "Japanese", "Mexican", "Indian", "Chinese", "French", "Chicken Wings",
+  "Italian", "Japanese", "Mexican", "Indian", "Chinese", "French", "Chicken Wings", "Deli",
   "Mediterranean", "Steakhouse", "Seafood", "Burgers", "Vegan", "Cafe", "Thai", "Korean",
 ];
 const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];

@@ -25,7 +25,7 @@ const SPIN_TAP = { scale: 0.96 };
 
 const FOOD_CUISINES = [
   "Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Korean", "Chicken Wings",
-  "American", "Mediterranean", "Seafood", "Pizza", "Vegan", "BBQ", "Greek", "Cafe",
+  "American", "Mediterranean", "Seafood", "Pizza", "Deli", "Vegan", "BBQ", "Greek", "Cafe",
 ];
 const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];
 const PRICE_OPTIONS = [
