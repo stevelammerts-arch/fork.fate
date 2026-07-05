@@ -256,7 +256,7 @@ export default function Home() {
                 className="inline-flex items-center gap-3 rounded-full bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
               >
                 <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
-                {loading ? "Finding spots…" : spinning ? "Shuffling…" : "Shuffle your fate"}
+                {loading ? "Finding spots…" : spinning ? "Shuffling…" : "Deal Your Fate!"}
               </motion.button>
               {results.length > 0 && (
                 <span className="font-sans text-sm text-[#6B7075]">
