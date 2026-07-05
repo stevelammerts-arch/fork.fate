@@ -139,7 +139,7 @@ export default function Home() {
       <header className="sticky top-0 z-30 border-b border-[#E2E4E7] bg-[#0E0E0E]">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:px-12">
           <div className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="Fork·Fate logo" className="h-10 w-10 rounded-full" />
+            <img src="/logo-v2.png" alt="Fork·Fate logo" className="h-10 w-10 rounded-full" />
             <span className="font-serif text-2xl font-semibold tracking-tight text-white">
               Fork·Fate
             </span>
