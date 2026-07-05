@@ -129,7 +129,15 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="relative min-h-screen overflow-hidden bg-white">
+      {/* Decorative reaper background */}
+      <img
+        src="/reaper.png"
+        alt=""
+        aria-hidden="true"
+        data-testid="reaper-bg"
+        className="pointer-events-none fixed -right-16 bottom-0 z-0 hidden w-[380px] select-none opacity-[0.06] md:block lg:w-[460px]"
+      />
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-[#E2E4E7] bg-[#0E0E0E]">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 md:px-12">
@@ -147,7 +155,7 @@ export default function Home() {
       </header>
 
       {/* Hero / Roulette */}
-      <section className="mx-auto max-w-6xl px-6 pt-12 pb-8 md:px-12 md:pt-16">
+      <section className="relative z-10 mx-auto max-w-6xl px-6 pt-12 pb-8 md:px-12 md:pt-16">
         <motion.div
           initial={HERO_INITIAL}
           animate={HERO_ANIMATE}
@@ -275,7 +283,7 @@ export default function Home() {
 
       {/* Nearby results */}
       {results.length > 0 && (
-        <section className="mx-auto max-w-6xl px-6 pb-24 pt-8 md:px-12">
+        <section className="relative z-10 mx-auto max-w-6xl px-6 pb-24 pt-8 md:px-12">
           <div className="flex items-end justify-between border-b border-[#E2E4E7] pb-4">
             <h2 className="font-serif text-2xl font-medium tracking-tight text-[#0E0E0E] sm:text-3xl">
               Nearby spots
