@@ -267,7 +267,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 md:px-12">
           <div className="flex items-center gap-2.5">
             <div className="relative h-11 w-11 overflow-hidden rounded-full">
-              <img src="/logo-v9.png" alt="Fork·Fate logo" className="h-11 w-11 object-contain" />
+              <img src="/logo-v10.png" alt="Fork·Fate logo" className="h-11 w-11 object-contain" />
               <motion.div
                 className="pointer-events-none absolute inset-0"
                 initial={{ x: "-130%" }}
@@ -508,7 +508,7 @@ export default function Home() {
       <footer className="relative z-10 border-t border-[#E2E4E7] bg-[#0E0E0E]">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 pb-28 pt-8 md:flex-row md:px-12 md:pb-20">
           <div className="flex items-center gap-2.5">
-            <img src="/logo-v9.png" alt="" className="h-8 w-8 object-contain" />
+            <img src="/logo-v10.png" alt="" className="h-8 w-8 object-contain" />
             <span className="font-serif text-lg font-semibold text-white">Fork·Fate</span>
           </div>
           <div className="order-3 flex flex-col items-center gap-1.5 md:order-2">
