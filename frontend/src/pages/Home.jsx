@@ -8,6 +8,7 @@ import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
 import AdUnit from "../components/AdUnit";
 import InstallAppButton from "../components/InstallAppButton";
+import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
 import { Input } from "../components/ui/input";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -375,19 +376,10 @@ export default function Home() {
               <MessageSquarePlus className="h-3.5 w-3.5" /> Suggest an improvement
             </a>
           </div>
-          <div className="order-2 text-center md:order-3 md:text-right" data-testid="sponsorship-cta">
-            <p className="font-sans text-sm font-bold text-white">
-              Want your establishment sponsored on Fork·Fate?{" "}
-              <a
-                href="mailto:stevelammerts@gmail.com?subject=Fork%C2%B7Fate%20Sponsorship%20Request&body=Hi%2C%20I%27d%20like%20my%20establishment%20featured%20as%20a%20sponsored%20spot%20on%20Fork%C2%B7Fate.%20I%20understand%20it%27s%20%2429%2Fmonth%20with%20the%20first%20month%20free."
-                data-testid="request-sponsorship-link"
-                className="text-[#E01E26] underline underline-offset-4 transition-colors hover:text-white"
-              >
-                Click Here
-              </a>
-            </p>
-            <p className="mt-1 font-sans text-xs font-bold text-[#E01E26]">
-              Just $29/month — <span className="text-white">first month FREE</span>
+          <div className="order-2 flex flex-col items-center gap-2 md:order-3 md:items-end" data-testid="sponsorship-cta">
+            <BecomeSponsorDialog />
+            <p className="font-sans text-xs font-bold text-[#E01E26]">
+              $29/month — <span className="text-white">first month FREE</span>
             </p>
           </div>
         </div>
