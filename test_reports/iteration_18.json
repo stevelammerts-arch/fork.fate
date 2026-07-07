@@ -1,0 +1,30 @@
+{
+  "summary": "Frontend-only verification of new shuffle pop-up overlay. Clicked spin-roulette-button with ZIP 10001 on both desktop (1920x1080) and mobile (390x844). shuffle-popup renders as a fixed full-screen overlay (bounding box matches viewport on both), contains shuffling-deck, and is fully dismissed once spin-result-card appears. Result card contains all required affordances (DoorDash/Order/Reviews links, Spin again, Share your fate, SHARE row with facebook/x/whatsapp/instagram/copy testids, alternatives '5 more to consider'). Respin from the result card correctly re-triggers the shuffle-popup and produces a new result. Mode switching partially clears results (see minor issue).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Mode switching clears result", "issue": "Switching from Food -> Drinks did NOT clear the existing spin-result-card (previous restaurant remained). Switching Drinks -> Bars DID clear it. Behavior inconsistent between modes.", "affected_selectors": ["mode-drinks", "spin-result-card"]}
+    ],
+    "design_issues": [
+      {"screen": "Shuffle popup (mobile)", "issues": ["Fanning card images inside the deck appear as solid black rectangles on the very first render (photos not loaded/fallback). SHUFFLING THE DECK label and flickering restaurant name render correctly."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Investigate mode-switch clearing logic: switching to certain modes (e.g., Drinks) does not clear the existing spin-result-card from the previous mode. Ensure any mode change resets result state.",
+    "Consider preloading or providing a lighter placeholder for the fanning restaurant photos inside the shuffle-popup deck on mobile (currently briefly renders as black rectangles)."
+  ],
+  "critical_code_review_comments": [
+    "Home.jsx AnimatePresence overlay correctly conditions on (spinning && !result) with data-testid shuffle-popup, z-[60], bg-black/75 backdrop-blur — verified in DOM.",
+    "The shuffle finishes fast (~1-2s in tests). Consider waiting for the shuffle-popup via wait_for_selector rather than fixed sleeps in future tests (fixed sleep of 400ms occasionally misses the popup)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "95%"},
+  "test_credentials": "None required",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "shuffle-popup overlay feature confirmed working on desktop + mobile. Only outstanding item is a possible regression in mode-switch result clearing (food->drinks did not clear result). Use race-style wait_for_selector('[data-testid=shuffle-popup]') immediately after click rather than fixed sleep because shuffle can complete in ~1s.",
+  "rca of the issue": "Mode-switch not clearing: likely the mode change handler only resets result for certain modes or the effect is skipped when the new mode's data is not yet fetched. Inspect the onModeChange / setMode handler in Home.jsx to ensure setResult(null) runs unconditionally."
+}
