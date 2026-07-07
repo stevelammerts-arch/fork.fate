@@ -504,6 +504,101 @@ export default function Home() {
         </section>
       )}
 
+      {/* How it works + FAQ (SEO + first-time visitor context) */}
+      <section className="relative z-10 mx-auto max-w-6xl px-6 pb-24 pt-4 md:px-12" data-testid="how-it-works-section">
+        <div className="border-t border-[#E2E4E7] pt-14">
+          <p className="font-sans text-xs font-bold uppercase tracking-[0.25em] text-[#E01E26]">How it works</p>
+          <h2 className="mt-2 font-serif text-3xl font-medium tracking-tight text-[#0E0E0E] sm:text-4xl">
+            Let fate settle the "where should we eat?" debate.
+          </h2>
+          <p className="mt-3 max-w-2xl font-sans text-base text-[#6B7075]">
+            Fork·Fate is a restaurant roulette for anyone who's ever stared blankly at a food app, unable to decide.
+            Set a couple of filters, spin the deck, and land on a real local place to eat, drink, or grab dessert —
+            no endless scrolling, no group-chat deadlock.
+          </p>
+
+          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6" data-testid="step-1">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0E0E0E]">
+                <Search className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">1. Pick your craving</h3>
+              <p className="mt-2 font-sans text-sm text-[#6B7075]">
+                Choose Food, Drinks, Bars, or Desserts, then narrow it down with cuisine chips and toggles like
+                "Open now" and "Gluten free" to match the mood.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6" data-testid="step-2">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0E0E0E]">
+                <MapPin className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">2. Set your location</h3>
+              <p className="mt-2 font-sans text-sm text-[#6B7075]">
+                Enter a ZIP code or tap "Use my location" and Fork·Fate pulls real, nearby restaurants within
+                50 miles using live Google data.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6" data-testid="step-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E01E26]">
+                <Dices className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">3. Deal your fate</h3>
+              <p className="mt-2 font-sans text-sm text-[#6B7075]">
+                Hit the button and watch the deck shuffle to reveal tonight's pick — with directions, reviews,
+                delivery links, and five more spots to consider if you want a re-roll.
+              </p>
+            </div>
+          </div>
+
+          <h2 className="mt-16 font-serif text-2xl font-medium tracking-tight text-[#0E0E0E] sm:text-3xl">
+            Frequently asked questions
+          </h2>
+          <div className="mt-6 grid grid-cols-1 gap-x-10 gap-y-7 md:grid-cols-2" data-testid="faq-section">
+            <div>
+              <h3 className="font-serif text-lg text-[#0E0E0E]">How does Fork·Fate pick a restaurant?</h3>
+              <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
+                After you set your filters, Fork·Fate gathers matching local spots and randomly deals one from the
+                deck. Every spin is a fresh shuffle, so you'll discover places you might never have chosen yourself.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-serif text-lg text-[#0E0E0E]">Is Fork·Fate free to use?</h3>
+              <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
+                Yes — Fork·Fate is completely free. There's no account, no signup, and no paywall. Just open it,
+                spin, and go eat.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-serif text-lg text-[#0E0E0E]">Do I need to create an account?</h3>
+              <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
+                No login required. You can start spinning the moment the page loads, on your phone or desktop.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-serif text-lg text-[#0E0E0E]">How do you find nearby places?</h3>
+              <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
+                Fork·Fate uses live Google Places data based on your ZIP code or device location, so results reflect
+                real, currently-listed restaurants, bars, and dessert shops around you.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-serif text-lg text-[#0E0E0E]">Can I add my favorite local spot?</h3>
+              <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
+                Absolutely. Tap "Add spot" to submit a place you love. Community submissions are quickly reviewed
+                before they join the roulette pool.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-serif text-lg text-[#0E0E0E]">Can I install Fork·Fate as an app?</h3>
+              <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
+                Yes — tap "Download app" to install Fork·Fate as a PWA on your home screen for one-tap access
+                whenever hunger strikes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="relative z-10 border-t border-[#E2E4E7] bg-[#0E0E0E]">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 pb-28 pt-8 md:flex-row md:px-12 md:pb-20">
