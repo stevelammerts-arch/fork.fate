@@ -208,28 +208,31 @@ export default function Home() {
           aria-hidden="true"
           data-testid="reaper-bg"
           className="h-[70vh] max-w-none md:h-[85vh]"
-          style={{ transformOrigin: "50% 100%" }}
+          style={{ transformOrigin: "50% 12%" }}
           initial={{ opacity: 0, y: 50, scale: 1.06 }}
-          animate={{ opacity: 0.38, y: 0, scale: 1, rotate: [0, 1.3, 0, -1.3, 0] }}
+          animate={{ opacity: 0.38, y: 0, scale: 1, skewX: [0, 4.5, 0, -4.5, 0] }}
           transition={{
             opacity: { duration: 1.6, ease: "easeOut" },
             y: { duration: 1.6, ease: "easeOut" },
             scale: { duration: 1.6, ease: "easeOut" },
-            rotate: { duration: 9, repeat: Infinity, ease: "easeInOut", delay: 1.6 },
+            skewX: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1.4 },
           }}
         />
         <motion.div
           aria-hidden="true"
           data-testid="reaper-lantern"
-          className="absolute left-1/2 top-1/2 h-28 w-28 rounded-full"
+          className="absolute h-24 w-24 rounded-full"
           style={{
-            background: "radial-gradient(circle, rgba(224,30,38,0.55), rgba(224,30,38,0) 70%)",
-            filter: "blur(14px)",
-            transform: "translate(-175%, 15%)",
+            left: "49.8%",
+            top: "19.7%",
+            marginLeft: "-48px",
+            marginTop: "-48px",
+            background: "radial-gradient(circle, rgba(255,150,50,0.75), rgba(224,30,38,0.3) 45%, rgba(224,30,38,0) 72%)",
+            filter: "blur(11px)",
           }}
           initial={{ opacity: 0 }}
-          animate={{ opacity: [0.25, 0.75, 0.4, 0.9, 0.3, 0.65, 0.35] }}
-          transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut", delay: 1.6 }}
+          animate={{ opacity: [0.3, 0.9, 0.45, 1, 0.35, 0.75, 0.4] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 1.4 }}
         />
       </div>
       {/* Header */}
