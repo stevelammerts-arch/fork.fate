@@ -52,6 +52,7 @@ export default function Home() {
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
   const [flash, setFlash] = useState(null);
+  const [flashHit, setFlashHit] = useState(false);
   const shuffleRef = useRef(null);
 
   const toggle = (setter, arr, val) =>
@@ -70,18 +71,32 @@ export default function Home() {
   const runShuffle = (pool) => {
     setResult(null);
     setSpinning(true);
+    setFlashHit(false);
+    const chosen = pool[Math.floor(Math.random() * pool.length)];
     let i = 0;
-    shuffleRef.current = setInterval(() => {
+    let delay = 55; // fast start
+    const maxDelay = 300; // slow end
+    const step = () => {
       setFlash(pool[i % pool.length]);
       i++;
-    }, SHUFFLE_INTERVAL_MS);
-    const chosen = pool[Math.floor(Math.random() * pool.length)];
-    setTimeout(() => {
-      clearInterval(shuffleRef.current);
-      setFlash(null);
-      setResult(chosen);
-      setSpinning(false);
-    }, SHUFFLE_DURATION_MS);
+      delay = delay * 1.16 + 4; // ease-out: each flick a bit slower
+      if (delay < maxDelay) {
+        shuffleRef.current = setTimeout(step, delay);
+      } else {
+        // land on the chosen spot, hold, quick flash, then reveal
+        setFlash(chosen);
+        shuffleRef.current = setTimeout(() => {
+          setFlashHit(true);
+          shuffleRef.current = setTimeout(() => {
+            setResult(chosen);
+            setSpinning(false);
+            setFlash(null);
+            setFlashHit(false);
+          }, 240);
+        }, 300);
+      }
+    };
+    step();
   };
 
   const doSearch = async (cuisinesArg, pricesArg, categoryArg, coordsArg = coords) => {
@@ -214,10 +229,19 @@ export default function Home() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 24 }}
-              className="w-full max-w-sm rounded-3xl bg-white p-8 shadow-2xl"
+              className="w-full max-w-sm p-8"
             >
-              <ShufflingDeck cards={results} flash={flash} />
+              <ShufflingDeck cards={results} flash={flash} landed={flashHit} />
             </motion.div>
+            {flashHit && (
+              <motion.div
+                className="pointer-events-none absolute inset-0 bg-white"
+                data-testid="shuffle-flash"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 0.95, 0] }}
+                transition={{ duration: 0.32, times: [0, 0.35, 1], ease: "easeOut" }}
+              />
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -418,8 +442,12 @@ export default function Home() {
 
 const DECK_SIZE = 5;
 
-function ShufflingDeck({ cards, flash }) {
-  const deck = (cards.length ? cards : [flash]).slice(0, DECK_SIZE);
+function ShufflingDeck({ cards, flash, landed }) {
+  const base = cards.length ? cards : [flash];
+  const deck = (landed && flash
+    ? [flash, ...base.filter((c) => c?.id !== flash?.id)]
+    : base
+  ).slice(0, DECK_SIZE);
   const label = flash?.name;
   return (
     <div className="grid h-full min-h-[400px] place-items-center" data-testid="shuffling-deck">
@@ -430,18 +458,26 @@ function ShufflingDeck({ cards, flash }) {
               key={(c?.id || "c") + i}
               className="absolute inset-0 overflow-hidden rounded-2xl border-2 border-white bg-[#0E0E0E] shadow-2xl shadow-black/30"
               style={{ zIndex: DECK_SIZE - i }}
-              animate={{
-                x: [0, i % 2 === 0 ? -96 : 96, 0],
-                y: [0, -26, 0],
-                rotate: [(i - 2) * 4, i % 2 === 0 ? -17 : 17, (i - 2) * 4],
-                scale: [1, 0.97, 1],
-              }}
-              transition={{
-                duration: 0.72,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: i * 0.1,
-              }}
+              animate={
+                landed
+                  ? {
+                      x: 0,
+                      y: i === 0 ? 0 : -i * 3,
+                      rotate: 0,
+                      scale: i === 0 ? 1.05 : 0.96,
+                    }
+                  : {
+                      x: [0, i % 2 === 0 ? -96 : 96, 0],
+                      y: [0, -26, 0],
+                      rotate: [(i - 2) * 4, i % 2 === 0 ? -17 : 17, (i - 2) * 4],
+                      scale: [1, 0.97, 1],
+                    }
+              }
+              transition={
+                landed
+                  ? { type: "spring", stiffness: 320, damping: 22 }
+                  : { duration: 0.72, repeat: Infinity, ease: "easeInOut", delay: i * 0.1 }
+              }
             >
               {c?.image && (
                 <img src={c.image} alt="" className="h-full w-full object-cover opacity-90" />
@@ -452,9 +488,9 @@ function ShufflingDeck({ cards, flash }) {
         </div>
         <div className="text-center">
           <p className="font-sans text-xs font-bold uppercase tracking-[0.25em] text-[#E01E26]">
-            Shuffling the deck
+            {landed ? "Fate has chosen" : "Shuffling the deck"}
           </p>
-          <p className="mt-1 h-7 font-serif text-2xl text-[#0E0E0E]">{label}</p>
+          <p className="mt-1 h-7 font-serif text-2xl text-white drop-shadow">{label}</p>
         </div>
       </div>
     </div>
