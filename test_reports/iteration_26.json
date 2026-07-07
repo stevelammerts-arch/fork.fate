@@ -1,0 +1,32 @@
+{
+  "summary": "Frontend-only regression on Fork·Fate for two recent changes: 3D parallax mouse-tilt + drop shadow on reaper bg, and bolder/larger reaper-line. All checks pass with no console errors.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verifications": {
+    "reaper_bg_present": true,
+    "reaper_lantern_present": true,
+    "parent_transform_matrix3d": "matrix3d(...) with transformStyle: preserve-3d applied to motion.div wrapper",
+    "reaper_drop_shadow": "drop-shadow(rgba(0,0,0,0.45) 24px 34px 30px)",
+    "tabs_render": ["Food", "Drinks", "Bars", "Desserts"],
+    "spin_flow": "ZIP 10001 -> Deal Your Fate -> result card rendered with reaper-line",
+    "reaper_line_classes": "flex items-center gap-2 font-serif text-xl font-bold italic text-[#E01E26]",
+    "reaper_line_computed": {"fontSize": "20px", "fontWeight": "700"},
+    "console_errors": "none"
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Global window mousemove listener on every render is fine but consider passive listener option for perf on low-end devices.",
+    "Home.jsx is 812 lines — consider splitting into hero/filters/result subcomponents for maintainability."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Only the reaper tilt + reaper-line style changes were validated. Full regression across admin/PWA/AdSense/PayPal was not re-run this iteration (unchanged since iteration_25)."
+}
