@@ -1,0 +1,20 @@
+{
+  "summary": "Frontend-only test of Fork·Fate app-level social share bar and regressions. All 5 share buttons (facebook/x/whatsapp/instagram/copy) render inside data-testid='app-social-share' below header on both desktop 1440x900 and mobile 390x844, with transparent background (rgba(0,0,0,0)). Facebook/X/WhatsApp buttons open share popups with app origin URL. Copy and Instagram copy generic app text to clipboard and show success toast. Regression: spin flow with ZIP 10001 produces result card containing its own social-share row with all 5 buttons. No console errors. Header/logo render fine.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Both app-level and result-card SocialShare use the same inner data-testid='social-share' on the wrapper. Fine because outer 'app-social-share' scopes queries, but tests must scope by parent to avoid selecting share-<platform> from wrong instance."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "seed_data_creation": "",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "app-social-share (below header, always visible, transparent bg) and social-share (result card after spin) both contain share-facebook/x/whatsapp/instagram/copy. Scope queries within parent. Grant clipboard permissions for copy/instagram tests. ZIP 10001 works with real Google Places data."
+}

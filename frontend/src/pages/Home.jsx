@@ -207,8 +207,8 @@ export default function Home() {
               <motion.div
                 className="pointer-events-none absolute inset-0"
                 initial={{ x: "-130%" }}
-                animate={{ x: "130%" }}
-                transition={{ duration: 1.4641, delay: 0.5, ease: "easeInOut" }}
+                animate={{ x: ["-130%", "130%"] }}
+                transition={{ duration: 1.4641, delay: 0.5, repeat: Infinity, repeatDelay: 6.536, ease: "easeInOut" }}
                 style={{ background: "linear-gradient(115deg, transparent 42%, rgba(255,255,255,0.85) 50%, transparent 58%)" }}
               />
             </div>
@@ -222,6 +222,11 @@ export default function Home() {
           </div>
         </div>
       </header>
+
+      {/* Social share bar (transparent) */}
+      <div className="relative z-10 mx-auto flex max-w-6xl items-center justify-center gap-2 bg-transparent px-4 pt-5 md:justify-end md:px-12" data-testid="app-social-share">
+        <SocialShare />
+      </div>
 
       {/* Full-screen shuffle pop-up */}
       <AnimatePresence>
