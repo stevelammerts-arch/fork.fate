@@ -69,12 +69,12 @@ export default function SocialShare({ card }) {
           data-testid={`share-${key}`}
           title={`Share on ${label}`}
           aria-label={`Share on ${label}`}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E2E4E7] bg-white transition-transform hover:scale-110 hover:border-transparent hover:text-white"
+          className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[#E2E4E7] bg-white transition-transform hover:scale-110 hover:border-transparent hover:text-white"
           style={{ "--hover": color }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = color)}
           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
         >
-          <Icon className="h-4 w-4" style={{ color: "inherit" }} />
+          <Icon className="h-2.5 w-2.5" style={{ color: "inherit" }} />
         </button>
       ))}
     </div>
