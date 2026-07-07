@@ -272,8 +272,8 @@ export default function Home() {
                 className="pointer-events-none absolute inset-0"
                 initial={{ x: "-130%" }}
                 animate={{ x: ["-130%", "130%"] }}
-                transition={{ duration: 1.4641, delay: 0.5, repeat: Infinity, repeatDelay: 6.536, ease: "easeInOut" }}
-                style={{ background: "linear-gradient(115deg, transparent 42%, rgba(255,255,255,0.85) 50%, transparent 58%)" }}
+                transition={{ duration: 2.6, delay: 0.5, repeat: Infinity, repeatDelay: 8, ease: "easeInOut" }}
+                style={{ background: "linear-gradient(115deg, transparent 46%, rgba(255,255,255,0.85) 50%, transparent 54%)" }}
               />
             </div>
             <span className="font-serif text-2xl font-semibold tracking-tight text-white">
