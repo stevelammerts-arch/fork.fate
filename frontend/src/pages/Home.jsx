@@ -180,7 +180,7 @@ export default function Home() {
                 className="pointer-events-none absolute inset-0"
                 initial={{ x: "-130%" }}
                 animate={{ x: "130%" }}
-                transition={{ duration: 1.21, delay: 0.5, ease: "easeInOut" }}
+                transition={{ duration: 1.331, delay: 0.5, ease: "easeInOut" }}
                 style={{ background: "linear-gradient(115deg, transparent 42%, rgba(255,255,255,0.85) 50%, transparent 58%)" }}
               />
             </div>
