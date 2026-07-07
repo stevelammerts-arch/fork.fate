@@ -96,8 +96,7 @@ export default function AddRestaurantDialog({ onAdded, mode = "food" }) {
         category: mode,
       };
       const { data } = await axios.post(`${API}/restaurants`, payload);
-      toast.success(`${data.name} added to the pool`);
-      onAdded?.(data);
+      toast.success(`Thanks! "${data.name}" was submitted for review and will appear once approved.`);
       setOpen(false);
       setForm({ name: "", cuisine: "", price: "$$", rating: 4.5, distance: 1.0, description: "", address: "", sponsored: false });
     } catch (e) {
@@ -123,7 +122,7 @@ export default function AddRestaurantDialog({ onAdded, mode = "food" }) {
             Add a restaurant
           </DialogTitle>
           <DialogDescription className="font-sans text-sm text-[#6B7075]">
-            Add a local spot to your roulette pool.
+            Suggest a local spot. New submissions are quickly reviewed before joining the roulette pool.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
@@ -208,7 +207,7 @@ export default function AddRestaurantDialog({ onAdded, mode = "food" }) {
             disabled={saving}
             className="w-full rounded-full bg-[#E01E26] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#B3141A] disabled:opacity-60"
           >
-            {saving ? "Adding…" : "Add to the pool"}
+            {saving ? "Submitting…" : "Submit for review"}
           </button>
         </DialogFooter>
       </DialogContent>

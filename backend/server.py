@@ -144,6 +144,7 @@ class Restaurant(BaseModel):
     doordash_url: str = ""
     order_url: str = ""
     open_now: bool = True
+    status: str = "approved"  # "approved" | "pending" (community submissions await review)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
@@ -477,7 +478,7 @@ async def root():
 
 @api_router.get("/restaurants", response_model=List[Restaurant])
 async def get_restaurants():
-    items = await db.restaurants.find({}, {"_id": 0}).sort("name", 1).to_list(1000)
+    items = await db.restaurants.find({"status": {"$ne": "pending"}}, {"_id": 0}).sort("name", 1).to_list(1000)
     return items
 
 
@@ -487,6 +488,8 @@ async def create_restaurant(payload: RestaurantCreate):
     r.google_url = maps_url(r.name, r.address)
     r.doordash_url = doordash_url(r.name, r.address)
     r.order_url = order_url(r.name, r.address)
+    r.sponsored = False
+    r.status = "pending"  # community submissions await admin review
     doc = r.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     await db.restaurants.insert_one(doc)
@@ -564,6 +567,28 @@ async def delete_sponsor(sponsor_id: str):
     return {"ok": True}
 
 
+@api_router.get("/admin/submissions", response_model=List[Restaurant], dependencies=[Depends(require_admin)])
+async def list_submissions():
+    """Community-submitted spots awaiting review."""
+    return await db.restaurants.find({"status": "pending"}, {"_id": 0}).sort("created_at", -1).to_list(500)
+
+
+@api_router.post("/admin/submissions/{restaurant_id}/approve", dependencies=[Depends(require_admin)])
+async def approve_submission(restaurant_id: str):
+    res = await db.restaurants.update_one({"id": restaurant_id}, {"$set": {"status": "approved"}})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    return {"ok": True}
+
+
+@api_router.delete("/admin/submissions/{restaurant_id}", dependencies=[Depends(require_admin)])
+async def reject_submission(restaurant_id: str):
+    res = await db.restaurants.delete_one({"id": restaurant_id, "status": "pending"})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    return {"ok": True}
+
+
 async def fetch_active_sponsors(req: "PlacesSearchRequest"):
     docs = await db.sponsors.find({"active": True, "category": req.category}, {"_id": 0}).sort("created_at", -1).to_list(100)
     out = []
@@ -600,7 +625,7 @@ async def get_cuisines():
 
 @api_router.post("/spin", response_model=Restaurant)
 async def spin(req: SpinRequest):
-    items = await db.restaurants.find({}, {"_id": 0}).to_list(1000)
+    items = await db.restaurants.find({"status": {"$ne": "pending"}}, {"_id": 0}).to_list(1000)
     filtered = apply_filters(items, req.cuisines, req.prices, req.max_distance)
     if not filtered:
         raise HTTPException(status_code=404, detail="No restaurants match your filters")
@@ -721,7 +746,7 @@ async def places_search(req: PlacesSearchRequest):
             logger.warning(f"Places search fell back to curated: {e.detail}")
 
     # Fallback to curated seed data
-    items = await db.restaurants.find({}, {"_id": 0}).to_list(1000)
+    items = await db.restaurants.find({"status": {"$ne": "pending"}}, {"_id": 0}).to_list(1000)
     items = [r for r in items if r.get('category', 'food') == req.category]
     if req.cuisines:
         items = [r for r in items if r['cuisine'] in req.cuisines]
