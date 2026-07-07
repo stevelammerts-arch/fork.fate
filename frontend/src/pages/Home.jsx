@@ -221,20 +221,25 @@ export default function Home() {
         <motion.div
           style={{ rotateX: rotX, rotateY: rotY, x: shiftX, y: shiftY, transformStyle: "preserve-3d" }}
         >
+        <motion.div
+          className="relative"
+          style={{ transformOrigin: "50% 4%", transformStyle: "preserve-3d" }}
+          animate={{ skewX: [0, 1.5, 0.4, 1.4, 0] }}
+          transition={{ skewX: { duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1.4 } }}
+        >
         <motion.img
           src="/reaper.png"
           alt=""
           aria-hidden="true"
           data-testid="reaper-bg"
           className="h-[70vh] max-w-none md:h-[85vh]"
-          style={{ transformOrigin: "50% 4%", filter: "drop-shadow(24px 34px 30px rgba(0,0,0,0.45))" }}
+          style={{ filter: "drop-shadow(24px 34px 30px rgba(0,0,0,0.45))" }}
           initial={{ opacity: 0, y: 50, scale: 1.06 }}
-          animate={{ opacity: 0.38, y: 0, scale: 1, skewX: [0, 1.5, 0.4, 1.4, 0] }}
+          animate={{ opacity: 0.38, y: 0, scale: 1 }}
           transition={{
             opacity: { duration: 1.6, ease: "easeOut" },
             y: { duration: 1.6, ease: "easeOut" },
             scale: { duration: 1.6, ease: "easeOut" },
-            skewX: { duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1.4 },
           }}
         />
         <motion.div
@@ -254,6 +259,7 @@ export default function Home() {
           animate={{ opacity: [0.35, 0.95, 0.5, 1, 0.4, 0.8, 0.45] }}
           transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 1.4 }}
         />
+        </motion.div>
         </motion.div>
       </div>
       {/* Header */}
