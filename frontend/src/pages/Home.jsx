@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -363,9 +363,18 @@ export default function Home() {
             <img src="/logo-v8.png" alt="" className="h-8 w-8 object-contain" />
             <span className="font-serif text-lg font-semibold text-white">Fork·Fate</span>
           </div>
-          <p className="order-3 font-sans text-xs text-[#8A8F95] md:order-2">
-            © {new Date().getFullYear()} Fork·Fate — let fate decide.
-          </p>
+          <div className="order-3 flex flex-col items-center gap-1.5 md:order-2">
+            <p className="font-sans text-xs text-[#8A8F95]">
+              © {new Date().getFullYear()} Fork·Fate — let fate decide.
+            </p>
+            <a
+              href="mailto:stevelammerts@gmail.com?subject=Fork%C2%B7Fate%20App%20Improvement%20Idea&body=Hi%2C%20here%27s%20an%20idea%20to%20improve%20Fork%C2%B7Fate%3A%0A%0A"
+              data-testid="feedback-link"
+              className="inline-flex items-center gap-1.5 font-sans text-xs font-bold text-white underline-offset-4 transition-colors hover:text-[#E01E26] hover:underline"
+            >
+              <MessageSquarePlus className="h-3.5 w-3.5" /> Suggest an improvement
+            </a>
+          </div>
           <p className="order-2 font-sans text-sm font-bold text-white md:order-3" data-testid="sponsorship-cta">
             Want your establishment to be sponsored on Fork·Fate?{" "}
             <a
