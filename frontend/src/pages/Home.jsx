@@ -197,6 +197,31 @@ export default function Home() {
         </div>
       </header>
 
+      {/* Full-screen shuffle pop-up */}
+      <AnimatePresence>
+        {spinning && !result && (
+          <motion.div
+            key="shuffle-popup"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 px-6 backdrop-blur-sm"
+            data-testid="shuffle-popup"
+          >
+            <motion.div
+              initial={{ scale: 0.8, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 24 }}
+              className="w-full max-w-sm rounded-3xl bg-white p-8 shadow-2xl"
+            >
+              <ShufflingDeck cards={results} flash={flash} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hero / Roulette */}
       <section className="relative z-10 mx-auto max-w-6xl px-6 pt-12 pb-8 md:px-12 md:pt-16">
         <motion.div
@@ -437,10 +462,6 @@ function ShufflingDeck({ cards, flash }) {
 }
 
 function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, onReport, onPick }) {
-  if (!result && spinning) {
-    return <ShufflingDeck cards={deck} flash={flash} />;
-  }
-
   if (!result) {
     return (
       <div className="grid h-full min-h-[400px] place-items-center text-center">
