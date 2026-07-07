@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -27,6 +27,15 @@ const DETAIL_ANIMATE = { opacity: 1, y: 0 };
 const DETAIL_TRANSITION = { delay: 0.2 };
 const SPIN_TAP = { scale: 0.96 };
 
+const REAPER_LINES = [
+  "The reaper has spoken.",
+  "Fate has been sealed.",
+  "The cards have chosen.",
+  "Destiny points here.",
+  "Your fate is written.",
+];
+const reaperLineFor = (r) => REAPER_LINES[(r?.name?.length || 0) % REAPER_LINES.length];
+
 const FOOD_CUISINES = [
   "Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Korean", "Chicken Wings",
   "American", "Mediterranean", "Seafood", "Pizza", "Deli", "Breakfast", "Vegan", "Gluten Free", "BBQ", "Greek", "Cafe",
@@ -47,6 +56,7 @@ export default function Home() {
   const [openNow, setOpenNow] = useState(false);
   const [results, setResults] = useState([]);
   const [source, setSource] = useState(null);
+  const [sortBy, setSortBy] = useState("default");
 
   const [loading, setLoading] = useState(false);
   const [spinning, setSpinning] = useState(false);
@@ -411,13 +421,29 @@ export default function Home() {
             <h2 className="font-serif text-2xl font-medium tracking-tight text-[#0E0E0E] sm:text-3xl">
               Nearby spots
             </h2>
-            <span className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#6B7075]">
-              {results.length} within 50 mi
-            </span>
+            <label className="flex items-center gap-2 font-sans text-xs font-bold text-[#6B7075]">
+              <ArrowDownWideNarrow className="h-4 w-4" />
+              <select
+                data-testid="sort-select"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="rounded-full border border-[#E2E4E7] bg-white px-3 py-1.5 font-bold text-[#0E0E0E] focus:outline-none"
+              >
+                <option value="default">Featured</option>
+                <option value="distance">Closest</option>
+                <option value="rating">Top rated</option>
+                <option value="price">Cheapest</option>
+              </select>
+            </label>
           </div>
           <AdUnit className="mt-8" label="Advertisement" />
           <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3" data-testid="restaurant-grid">
-            {results.map((r) => (
+            {[...results].sort((a, b) => {
+              if (sortBy === "distance") return a.distance - b.distance;
+              if (sortBy === "rating") return b.rating - a.rating;
+              if (sortBy === "price") return a.price.length - b.price.length;
+              return (b.sponsored ? 1 : 0) - (a.sponsored ? 1 : 0);
+            }).map((r) => (
               <RestaurantCard key={r.id} r={r} onReport={reportClosed} />
             ))}
           </div>
@@ -599,6 +625,14 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
             transition={DETAIL_TRANSITION}
             className="space-y-4 p-5"
           >
+            <p className="flex items-center gap-2 font-serif text-lg italic text-[#E01E26]" data-testid="reaper-line">
+              <Skull className="h-4 w-4" /> {reaperLineFor(card)}
+            </p>
+            {!card.open_now && (
+              <p data-testid="closed-reroll-hint" className="rounded-xl bg-[#FCF4F4] px-3 py-2 font-sans text-xs font-bold text-[#E01E26]">
+                Closed right now — spin again for an open spot.
+              </p>
+            )}
             <div className="flex items-center gap-5 text-sm text-[#0E0E0E]">
               <span className="flex items-center gap-1.5 font-semibold">
                 <Star className="h-4 w-4 fill-[#E01E26] text-[#E01E26]" />

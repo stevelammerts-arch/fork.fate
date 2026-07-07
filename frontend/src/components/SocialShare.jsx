@@ -5,8 +5,8 @@ import { Facebook, Twitter, Instagram, MessageCircle, Link2 } from "lucide-react
 export default function SocialShare({ card }) {
   const url = window.location.origin;
   const text = card
-    ? `Fate picked ${card.name} (${card.cuisine} · ${card.price})${card.distance ? ` — ${card.distance} mi away` : ""} on Fork·Fate! Shuffle your own fate:`
-    : `Let fate pick your next meal, drink or dessert — spin the deck on Fork·Fate!`;
+    ? `\u2620 The reaper has spoken: ${card.name} (${card.cuisine} \u00b7 ${card.price})${card.distance ? ` — ${card.distance} mi away` : ""}! Deal your own fate on Fork\u00b7Fate:`
+    : `Let fate pick your next meal, drink or dessert — spin the deck on Fork\u00b7Fate!`;
   const full = `${text} ${url}`;
 
   const openShare = (shareUrl) =>
