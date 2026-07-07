@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Megaphone, ExternalLink, Mail, Check } from "lucide-react";
+import { Megaphone, ExternalLink, Check } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -56,7 +56,7 @@ export default function BecomeSponsorDialog() {
           {/* QR */}
           <div className="flex flex-col items-center gap-2 rounded-2xl border border-[#E2E4E7] p-4">
             <p className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-[#6B7075]">Or scan to pay</p>
-            <img src="/paypal-qr.jpg" alt="Scan to pay steven lammerts on PayPal" data-testid="paypal-qr" className="h-44 w-auto rounded-xl" />
+            <img src="/paypal-qr.jpg" alt="Scan to pay steven lammerts on PayPal" data-testid="paypal-qr" className="h-32 w-auto rounded-xl" />
             <p className="font-sans text-xs text-[#6B7075]">PayPal: @stevelammerts</p>
           </div>
 
@@ -64,22 +64,15 @@ export default function BecomeSponsorDialog() {
           <div className="rounded-2xl bg-[#0E0E0E] p-4 text-white">
             <p className="font-sans text-sm font-bold">After you pay</p>
             <p className="mt-1 font-sans text-xs text-[#B8BCC2]">
-              Email your business details and we'll get your spot listed within 24 hours.
+              Email your business details and we'll get your spot listed within 24 hours — click{" "}
+              <a
+                href={MAILTO}
+                data-testid="sponsor-email-link"
+                className="font-bold text-[#E01E26] underline underline-offset-4 transition-colors hover:text-white"
+              >
+                here
+              </a>.
             </p>
-            <a
-              href={`mailto:${EMAIL}`}
-              data-testid="sponsor-email-address"
-              className="mt-2 inline-flex items-center gap-2 font-sans text-sm font-bold text-[#E01E26] underline underline-offset-4 transition-colors hover:text-white"
-            >
-              <Mail className="h-4 w-4" /> {EMAIL}
-            </a>
-            <a
-              href={MAILTO}
-              data-testid="sponsor-email-link"
-              className="mt-3 flex items-center justify-center gap-2 rounded-full border border-white/25 px-4 py-2 font-sans text-xs font-bold text-white transition-colors hover:bg-white/10"
-            >
-              <Mail className="h-3.5 w-3.5" /> Email my business details
-            </a>
           </div>
         </div>
       </DialogContent>
