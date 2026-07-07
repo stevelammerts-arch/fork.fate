@@ -9,6 +9,7 @@ import AddRestaurantDialog from "../components/AddRestaurantDialog";
 import AdUnit from "../components/AdUnit";
 import InstallAppButton from "../components/InstallAppButton";
 import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
+import SocialShare from "../components/SocialShare";
 import { Input } from "../components/ui/input";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -594,6 +595,9 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
               >
                 <RotateCcw className="h-4 w-4" /> Clear
               </button>
+            </div>
+            <div className="border-t border-[#E2E4E7] pt-3">
+              <SocialShare card={card} />
             </div>
             <button
               onClick={() => onReport?.(card)}
