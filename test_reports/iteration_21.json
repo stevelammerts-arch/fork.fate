@@ -1,0 +1,28 @@
+{
+  "summary": "Final pre-deploy regression of Fork·Fate PASSED end-to-end. Backend: 11/11 pytest tests green (cuisines, restaurants list clean of TEST_ data, places/search google via ZIP 10001, places/search via lat/lng, curated fallback, all 4 modes food/drinks/bars/desserts, spin, admin wrong/correct login, sponsor CRUD + pinning + inactivation + cleanup, reports, sponsorship-requests). Frontend desktop 1440x900 + mobile 390x844: spin flow ZIP 10001 -> shuffle-popup -> spin-result-card revealed with real Google spot (Mercado Little Spain, Chi Restaurant & Bar), result image + h3 fully in viewport (card/img/h3 top=105px). Respin works, mode-switch clears result, Gluten Free chip present under food, all social share testids present (facebook/x/whatsapp/instagram/copy), 5-more-alternatives click swaps result (Friedman's -> Ci Siamo). Become-sponsor dialog shows $29 & 'First month FREE', paypal-pay-link href = https://www.paypal.com/paypalme/stevelammerts/29, paypal-qr present. Feedback opens mailto. 'Made with Emergent' badge is fixed bottom-right and does not overlap actual footer content (footerTop=5503, badge at y=844 fixed). Admin at /admin: wrong password rejected with 401 + 'Incorrect password' toast, correct password loads sponsor manager with 0 leftover sponsors.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration21_final.py",
+    "/app/test_reports/pytest/iter21.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py is 763 lines — approaching the 700-line guideline. Consider splitting sponsors/admin, places, and models into separate modules on next refactor pass (non-blocking for deploy).",
+    "open-now-toggle Radix Switch does not expose data-state on the root wrapper testid (visual toggling works but automation can't easily assert on/off). Consider adding aria-checked assertion helper or a data-checked attribute for tests."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration21_final.py (new)"
+  ],
+  "success_rate": {"backend": "100% (11/11)", "frontend": "100%"},
+  "test_credentials": "Admin password: GrimReaper!2026 (from backend/.env)",
+  "seed_data_creation": "Created 1 sponsor 'TEST_SponsorPin' + 1 sponsorship-request 'TEST_biz' + 1 report during pytest run; sponsor deleted in test teardown (verified 0 sponsors in Admin UI post-run). sponsorship-requests + reports collections retain the TEST_ rows but they are internal-only (never surfaced to user-facing curated/google feed — verified via test_restaurants_list_no_test_prefix pass).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All 8 requested regression items pass. App is deploy-ready. Backend: sponsors endpoints are /api/admin/sponsors (POST/GET/PATCH/DELETE) — not /api/sponsors. places/search payload uses zip_code (not zip) and category (not mode). Response uses key 'restaurants' (not 'results'). SponsorshipRequest requires contact_email (not email).",
+  "rca of the issue": "N/A — no bugs found this iteration."
+}
