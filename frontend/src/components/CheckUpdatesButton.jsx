@@ -10,6 +10,24 @@ const currentBundle = () => {
   return m ? m[0] : null;
 };
 
+const purgeAndReload = async () => {
+  try {
+    if ("serviceWorker" in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map((r) => r.unregister()));
+    }
+    if (window.caches) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    }
+  } catch {
+    /* ignore */
+  }
+  const url = new URL(window.location.href);
+  url.searchParams.set("_v", Date.now().toString());
+  window.location.replace(url.toString());
+};
+
 export default function CheckUpdatesButton() {
   const [checking, setChecking] = useState(false);
 
@@ -22,12 +40,14 @@ export default function CheckUpdatesButton() {
       const current = currentBundle();
       if (latest && current && latest !== current) {
         toast.success("New version available — updating…");
-        setTimeout(() => window.location.reload(), 1200);
+        setTimeout(purgeAndReload, 1000);
       } else {
-        toast.success("You're on the latest version!");
+        toast.success("Refreshing to the newest version…");
+        setTimeout(purgeAndReload, 800);
       }
     } catch {
-      toast("Couldn't check right now — pull to refresh the page.");
+      toast("Couldn't check right now — refreshing…");
+      setTimeout(purgeAndReload, 800);
     } finally {
       setChecking(false);
     }
