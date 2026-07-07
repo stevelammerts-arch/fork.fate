@@ -8,6 +8,7 @@ import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
 import AdUnit from "../components/AdUnit";
 import InstallAppButton from "../components/InstallAppButton";
+import RequestSponsorshipDialog from "../components/RequestSponsorshipDialog";
 import { Input } from "../components/ui/input";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -26,7 +27,7 @@ const SPIN_TAP = { scale: 0.96 };
 
 const FOOD_CUISINES = [
   "Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Korean", "Chicken Wings",
-  "American", "Mediterranean", "Seafood", "Pizza", "Deli", "Breakfast", "Vegan", "BBQ", "Greek", "Cafe",
+  "American", "Mediterranean", "Seafood", "Pizza", "Deli", "Breakfast", "Vegan", "Gluten Free", "BBQ", "Greek", "Cafe",
 ];
 const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];
 const DESSERT_CUISINES = ["Ice Cream", "Candy Shops", "Bakery", "Frozen Yogurt"];
@@ -355,6 +356,22 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-[#E2E4E7] bg-[#0E0E0E]">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 md:flex-row md:px-12">
+          <div className="flex items-center gap-2.5">
+            <img src="/logo-v8.png" alt="" className="h-8 w-8 object-contain" />
+            <span className="font-serif text-lg font-semibold text-white">Fork·Fate</span>
+          </div>
+          <p className="order-3 font-sans text-xs text-[#8A8F95] md:order-2">
+            © {new Date().getFullYear()} Fork·Fate — let fate decide.
+          </p>
+          <div className="order-2 md:order-3">
+            <RequestSponsorshipDialog />
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

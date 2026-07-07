@@ -150,6 +150,20 @@ class ReportCreate(BaseModel):
     reason: str = Field(default="No longer in service", max_length=300)
 
 
+class SponsorshipRequest(BaseModel):
+    business_name: str = Field(min_length=1, max_length=160)
+    contact_email: str = Field(min_length=3, max_length=160)
+    category: str = Field(default="food", max_length=20)
+    message: str = Field(default="", max_length=1000)
+
+    @field_validator("contact_email")
+    @classmethod
+    def _valid_email(cls, v):
+        if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", v.strip()):
+            raise ValueError("Please enter a valid email address")
+        return v.strip()
+
+
 class PlacesSearchRequest(BaseModel):
     zip_code: Optional[str] = None
     lat: Optional[float] = Field(default=None, ge=-90, le=90)
@@ -426,6 +440,17 @@ async def create_report(payload: ReportCreate):
     doc['status'] = "open"
     doc['created_at'] = datetime.now(timezone.utc).isoformat()
     await db.reports.insert_one(doc)
+    return {"ok": True, "id": doc['id']}
+
+
+@api_router.post("/sponsorship-requests", dependencies=[Depends(rate_limit(10))])
+async def create_sponsorship_request(payload: SponsorshipRequest):
+    """Businesses can request a sponsored spot. Stored for review/follow-up."""
+    doc = payload.model_dump()
+    doc['id'] = str(uuid.uuid4())
+    doc['status'] = "new"
+    doc['created_at'] = datetime.now(timezone.utc).isoformat()
+    await db.sponsorship_requests.insert_one(doc)
     return {"ok": True, "id": doc['id']}
 
 
