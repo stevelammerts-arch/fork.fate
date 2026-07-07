@@ -1,0 +1,21 @@
+{
+  "summary": "Verified scroll fix for Fork·Fate result reveal. On both mobile (390x844) and desktop (1440x900), after spin the spin-result-card top settles at y=105px (just below sticky header), and the image region (top photo with restaurant name h3) is fully visible in the viewport (childTop=105, childBottom=361). No negative top / no scroll-past-image regression. Respin re-triggers with same top alignment. Shuffle popup appears during spin and dismisses on reveal. social-share row and alternatives-section still present.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Result reveal", "issues": ["Card top lands at 105px vs stated ~88px target — 17px above stated offset. Image is still fully visible so no functional issue, but if the header actually renders ~88px the offset could be tightened. Non-blocking."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": ["Scroll offset of 88px in Home.jsx useEffect produces effective card top of 105px — consider measuring actual header height dynamically if pixel-perfect alignment is desired, but current behavior fully solves the reported bug."],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Primary bug (scroll past image) is FIXED. Verified on mobile 390x844 and desktop 1440x900 with ZIP 10001. cardTop=105px in both cases, restaurant image and h3 visible on-screen. Respin verified. shuffle-popup lifecycle correct.",
+  "rca of the issue": "Previous scrollIntoView block:'center' centered the tall mobile result card, pushing top above viewport. New window.scrollTo({top: rectTop + scrollY - 88}) aligns card top to ~88px below viewport top, keeping the image visible."
+}

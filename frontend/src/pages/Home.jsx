@@ -58,7 +58,11 @@ export default function Home() {
 
   useEffect(() => {
     if (result && resultRef.current) {
-      resultRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => {
+        if (!resultRef.current) return;
+        const y = resultRef.current.getBoundingClientRect().top + window.scrollY - 88;
+        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+      }, 120);
     }
   }, [result]);
 
