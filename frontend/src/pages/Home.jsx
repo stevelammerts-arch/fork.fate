@@ -173,7 +173,16 @@ export default function Home() {
       <header className="sticky top-0 z-30 border-b border-[#E2E4E7] bg-[#0E0E0E]">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 md:px-12">
           <div className="flex items-center gap-2.5">
-            <img src="/logo-v8.png" alt="Fork·Fate logo" className="h-11 w-11 object-contain" />
+            <div className="relative h-11 w-11 overflow-hidden rounded-full">
+              <img src="/logo-v8.png" alt="Fork·Fate logo" className="h-11 w-11 object-contain" />
+              <motion.div
+                className="pointer-events-none absolute inset-0"
+                initial={{ x: "-130%" }}
+                animate={{ x: "130%" }}
+                transition={{ duration: 1.1, delay: 0.5, ease: "easeInOut" }}
+                style={{ background: "linear-gradient(115deg, transparent 42%, rgba(255,255,255,0.85) 50%, transparent 58%)" }}
+              />
+            </div>
             <span className="font-serif text-2xl font-semibold tracking-tight text-white">
               Fork·Fate
             </span>
