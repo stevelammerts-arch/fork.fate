@@ -7,8 +7,10 @@ import os
 import re
 import time
 import secrets
+import hmac
 import math
 import httpx
+import jwt
 import logging
 from collections import defaultdict, deque
 from pathlib import Path
@@ -16,7 +18,7 @@ from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import List, Optional
 import uuid
 from urllib.parse import quote_plus
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 
 ROOT_DIR = Path(__file__).parent
@@ -34,8 +36,33 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
+JWT_SECRET = os.environ.get('JWT_SECRET')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+JWT_ALG = "HS256"
 FALLBACK_IMG = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?crop=entropy&cs=srgb&fm=jpg&q=85"
 MAX_RADIUS_MILES = 50.0
+
+
+def create_admin_token():
+    payload = {"sub": "admin", "role": "admin", "type": "admin",
+               "exp": datetime.now(timezone.utc) + timedelta(hours=12)}
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
+
+
+def require_admin(request: Request):
+    auth = request.headers.get("Authorization", "")
+    token = auth[7:] if auth.startswith("Bearer ") else None
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG])
+        if payload.get("role") != "admin":
+            raise HTTPException(status_code=403, detail="Forbidden")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Session expired, please log in again")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return True
 
 # Simple in-memory per-IP rate limiter (coarse abuse/cost protection)
 _RL_BUCKETS = defaultdict(deque)
@@ -186,6 +213,41 @@ class PlacesSearchRequest(BaseModel):
     @classmethod
     def _valid_category(cls, v):
         return v if v in ("food", "drinks", "bars", "desserts") else "food"
+
+
+class AdminLogin(BaseModel):
+    password: str = Field(min_length=1, max_length=200)
+
+
+class SponsorCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=160)
+    cuisine: str = Field(min_length=1, max_length=60)
+    price: str = Field(default="$$", max_length=4)
+    category: str = "food"
+    address: str = Field(default="", max_length=300)
+    description: str = Field(default="", max_length=1000)
+    image: str = Field(default="", max_length=1000)
+    rating: float = Field(default=4.7, ge=0, le=5)
+    distance: float = Field(default=0.5, ge=0, le=100)
+    active: bool = True
+
+    @field_validator("category")
+    @classmethod
+    def _valid_category_sc(cls, v):
+        return v if v in ("food", "drinks", "bars", "desserts") else "food"
+
+
+class SponsorUpdate(BaseModel):
+    name: Optional[str] = Field(default=None, max_length=160)
+    cuisine: Optional[str] = Field(default=None, max_length=60)
+    price: Optional[str] = Field(default=None, max_length=4)
+    category: Optional[str] = None
+    address: Optional[str] = Field(default=None, max_length=300)
+    description: Optional[str] = Field(default=None, max_length=1000)
+    image: Optional[str] = Field(default=None, max_length=1000)
+    rating: Optional[float] = Field(default=None, ge=0, le=5)
+    distance: Optional[float] = Field(default=None, ge=0, le=100)
+    active: Optional[bool] = None
 
 
 # ---------- Seed data ----------
@@ -454,6 +516,82 @@ async def create_sponsorship_request(payload: SponsorshipRequest):
     return {"ok": True, "id": doc['id']}
 
 
+@api_router.post("/admin/login", dependencies=[Depends(rate_limit(10))])
+async def admin_login(payload: AdminLogin):
+    if not ADMIN_PASSWORD or not hmac.compare_digest(payload.password, ADMIN_PASSWORD):
+        raise HTTPException(status_code=401, detail="Incorrect password")
+    return {"token": create_admin_token()}
+
+
+@api_router.get("/admin/verify", dependencies=[Depends(require_admin)])
+async def admin_verify():
+    return {"ok": True}
+
+
+@api_router.get("/admin/sponsors", dependencies=[Depends(require_admin)])
+async def list_sponsors():
+    return await db.sponsors.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
+
+
+@api_router.post("/admin/sponsors", dependencies=[Depends(require_admin)])
+async def create_sponsor(payload: SponsorCreate):
+    doc = payload.model_dump()
+    doc['id'] = str(uuid.uuid4())
+    doc['image'] = doc['image'] or FALLBACK_IMG
+    doc['open_now'] = True
+    doc['created_at'] = datetime.now(timezone.utc).isoformat()
+    await db.sponsors.insert_one(doc)
+    doc.pop('_id', None)
+    return doc
+
+
+@api_router.patch("/admin/sponsors/{sponsor_id}", dependencies=[Depends(require_admin)])
+async def update_sponsor(sponsor_id: str, payload: SponsorUpdate):
+    updates = {k: v for k, v in payload.model_dump().items() if v is not None}
+    if not updates:
+        raise HTTPException(status_code=400, detail="No fields to update")
+    res = await db.sponsors.update_one({"id": sponsor_id}, {"$set": updates})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Sponsor not found")
+    return await db.sponsors.find_one({"id": sponsor_id}, {"_id": 0})
+
+
+@api_router.delete("/admin/sponsors/{sponsor_id}", dependencies=[Depends(require_admin)])
+async def delete_sponsor(sponsor_id: str):
+    res = await db.sponsors.delete_one({"id": sponsor_id})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Sponsor not found")
+    return {"ok": True}
+
+
+async def fetch_active_sponsors(req: "PlacesSearchRequest"):
+    docs = await db.sponsors.find({"active": True, "category": req.category}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    out = []
+    for s in docs:
+        if req.cuisines and s['cuisine'] not in req.cuisines:
+            continue
+        if req.price_levels:
+            allowed = set()
+            for lvl in req.price_levels:
+                allowed |= {sym for sym, enums in SYMBOL_ENUMS.items() if lvl in enums}
+            if s['price'] not in allowed:
+                continue
+        s = dict(s)
+        s['sponsored'] = True
+        s['open_now'] = s.get('open_now', True)
+        s['image'] = s.get('image') or FALLBACK_IMG
+        s['google_url'] = maps_url(s['name'], s.get('address', ''))
+        s['doordash_url'] = doordash_url(s['name'], s.get('address', ''))
+        s['order_url'] = order_url(s['name'], s.get('address', ''))
+        out.append(s)
+    return out
+
+
+def merge_sponsors(sponsors, items):
+    names = {sp['name'].lower() for sp in sponsors}
+    return sponsors + [r for r in items if r.get('name', '').lower() not in names]
+
+
 @api_router.get("/cuisines", response_model=List[str])
 async def get_cuisines():
     items = await db.restaurants.find({}, {"_id": 0, "cuisine": 1}).to_list(1000)
@@ -571,11 +709,12 @@ async def places_photo(name: str):
 
 @api_router.post("/places/search", dependencies=[Depends(rate_limit(60))])
 async def places_search(req: PlacesSearchRequest):
+    sponsors = await fetch_active_sponsors(req)
     if GOOGLE_API_KEY and (req.zip_code or (req.lat is not None and req.lng is not None)):
         try:
             results = await google_places_search(req)
             if results:
-                return {"source": "google", "restaurants": results}
+                return {"source": "google", "restaurants": merge_sponsors(sponsors, results)}
         except HTTPException as e:
             if e.status_code == 400:
                 raise
@@ -598,7 +737,7 @@ async def places_search(req: PlacesSearchRequest):
         r['google_url'] = maps_url(r['name'], r.get('address', ''))
         r['doordash_url'] = doordash_url(r['name'], r.get('address', ''))
         r['order_url'] = order_url(r['name'], r.get('address', ''))
-    return {"source": "curated", "restaurants": items}
+    return {"source": "curated", "restaurants": merge_sponsors(sponsors, items)}
 
 
 app.include_router(api_router)
