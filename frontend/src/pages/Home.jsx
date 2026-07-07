@@ -200,14 +200,38 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-white">
-      {/* Decorative reaper background */}
-      <img
-        src="/reaper.png"
-        alt=""
-        aria-hidden="true"
-        data-testid="reaper-bg"
-        className="pointer-events-none fixed left-1/2 top-1/2 z-0 h-[70vh] max-w-none -translate-x-1/2 -translate-y-1/2 select-none opacity-[0.38] md:h-[85vh]"
-      />
+      {/* Decorative reaper background with load animation */}
+      <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none">
+        <motion.img
+          src="/reaper.png"
+          alt=""
+          aria-hidden="true"
+          data-testid="reaper-bg"
+          className="h-[70vh] max-w-none md:h-[85vh]"
+          style={{ transformOrigin: "50% 100%" }}
+          initial={{ opacity: 0, y: 50, scale: 1.06 }}
+          animate={{ opacity: 0.38, y: 0, scale: 1, rotate: [0, 1.3, 0, -1.3, 0] }}
+          transition={{
+            opacity: { duration: 1.6, ease: "easeOut" },
+            y: { duration: 1.6, ease: "easeOut" },
+            scale: { duration: 1.6, ease: "easeOut" },
+            rotate: { duration: 9, repeat: Infinity, ease: "easeInOut", delay: 1.6 },
+          }}
+        />
+        <motion.div
+          aria-hidden="true"
+          data-testid="reaper-lantern"
+          className="absolute left-1/2 top-1/2 h-28 w-28 rounded-full"
+          style={{
+            background: "radial-gradient(circle, rgba(224,30,38,0.55), rgba(224,30,38,0) 70%)",
+            filter: "blur(14px)",
+            transform: "translate(-175%, 15%)",
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0.25, 0.75, 0.4, 0.9, 0.3, 0.65, 0.35] }}
+          transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut", delay: 1.6 }}
+        />
+      </div>
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-[#E2E4E7] bg-[#0E0E0E]">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 md:px-12">
