@@ -8,7 +8,6 @@ import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
 import AdUnit from "../components/AdUnit";
 import InstallAppButton from "../components/InstallAppButton";
-import RequestSponsorshipDialog from "../components/RequestSponsorshipDialog";
 import { Input } from "../components/ui/input";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -367,9 +366,16 @@ export default function Home() {
           <p className="order-3 font-sans text-xs text-[#8A8F95] md:order-2">
             © {new Date().getFullYear()} Fork·Fate — let fate decide.
           </p>
-          <div className="order-2 md:order-3">
-            <RequestSponsorshipDialog />
-          </div>
+          <p className="order-2 font-sans text-sm font-bold text-white md:order-3" data-testid="sponsorship-cta">
+            Want your establishment to be sponsored on Fork·Fate?{" "}
+            <a
+              href="mailto:stevelammerts@gmail.com?subject=Fork%C2%B7Fate%20Sponsorship%20Request&body=Hi%2C%20I%27d%20like%20my%20establishment%20featured%20as%20a%20sponsored%20spot%20on%20Fork%C2%B7Fate."
+              data-testid="request-sponsorship-link"
+              className="text-[#E01E26] underline underline-offset-4 transition-colors hover:text-white"
+            >
+              Click Here
+            </a>
+          </p>
         </div>
       </footer>
     </div>
