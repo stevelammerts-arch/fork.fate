@@ -10,6 +10,7 @@ import AdUnit from "../components/AdUnit";
 import InstallAppButton from "../components/InstallAppButton";
 import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
 import SocialShare from "../components/SocialShare";
+import CheckUpdatesButton from "../components/CheckUpdatesButton";
 import { Input } from "../components/ui/input";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -376,6 +377,7 @@ export default function Home() {
             >
               <MessageSquarePlus className="h-3.5 w-3.5" /> Suggest an improvement
             </a>
+            <CheckUpdatesButton />
           </div>
           <div className="order-2 flex flex-col items-center gap-2 md:order-3 md:items-end" data-testid="sponsorship-cta">
             <BecomeSponsorDialog />
