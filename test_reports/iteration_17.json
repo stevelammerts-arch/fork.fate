@@ -1,0 +1,40 @@
+{
+  "summary": "Verified footer overlap fix for 'Made with Emergent' badge on desktop (1440x900) and mobile (390x844). No footer testids overlap the badge. Regression checks passed: sponsor dialog opens, check-updates toast shows, spin flow with ZIP 10001 produces spin-result-card and full social-share row.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "bounding_box_measurements": {
+    "desktop_1440x900": {
+      "badge": {"x": 1246, "y": 844, "right": 1424, "bottom": 884},
+      "feedback-link": {"x": 596.5, "y": 780, "right": 762.5, "bottom": 796, "overlap": false},
+      "check-updates-button": {"x": 616.5, "y": 802, "right": 742.5, "bottom": 818, "overlap": false},
+      "become-sponsor-button": {"x": 1057, "y": 756, "right": 1248, "bottom": 796, "overlap": false},
+      "sponsorship-cta": {"x": 1057, "y": 756, "right": 1248, "bottom": 820, "overlap": false}
+    },
+    "mobile_390x844": {
+      "badge": {"x": 196, "y": 788, "right": 374, "bottom": 828},
+      "feedback-link": {"x": 112, "y": 694, "right": 278, "bottom": 710, "overlap": false},
+      "check-updates-button": {"x": 132, "y": 716, "right": 258, "bottom": 732, "overlap": false},
+      "become-sponsor-button": {"x": 99.5, "y": 592, "right": 290.5, "bottom": 632, "overlap": false},
+      "sponsorship-cta": {"x": 99.5, "y": 592, "right": 290.5, "bottom": 656, "overlap": false}
+    }
+  },
+  "regression_checks": {
+    "sponsor_dialog_opens": true,
+    "check_updates_toast": "You're on the latest version!",
+    "spin_result_card": true,
+    "social_share_buttons": ["share-facebook", "share-x", "share-whatsapp", "share-instagram", "share-copy"]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Footer bottom padding fix (pb-28 mobile, md:pb-20 desktop) verified. On mobile the footer content stacks vertically above the badge (badge sits below the last footer row). On desktop the badge occupies the bottom-right area clear of the footer inner container (footer bottom edge at y=820, badge top at y=844)."
+}
