@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
 import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow } from "lucide-react";
 import Filters from "../components/Filters";
@@ -65,6 +65,22 @@ export default function Home() {
   const [flashHit, setFlashHit] = useState(false);
   const shuffleRef = useRef(null);
   const resultRef = useRef(null);
+
+  // 3D parallax tilt for the reaper — follows the cursor for a sense of depth
+  const tiltX = useMotionValue(0);
+  const tiltY = useMotionValue(0);
+  const rotX = useSpring(useTransform(tiltY, [-0.5, 0.5], [8, -8]), { stiffness: 60, damping: 18 });
+  const rotY = useSpring(useTransform(tiltX, [-0.5, 0.5], [-12, 12]), { stiffness: 60, damping: 18 });
+  const shiftX = useSpring(useTransform(tiltX, [-0.5, 0.5], [-18, 18]), { stiffness: 60, damping: 18 });
+  const shiftY = useSpring(useTransform(tiltY, [-0.5, 0.5], [-12, 12]), { stiffness: 60, damping: 18 });
+  useEffect(() => {
+    const onMove = (e) => {
+      tiltX.set(e.clientX / window.innerWidth - 0.5);
+      tiltY.set(e.clientY / window.innerHeight - 0.5);
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, [tiltX, tiltY]);
 
   useEffect(() => {
     if (result && resultRef.current) {
@@ -201,14 +217,17 @@ export default function Home() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-white">
       {/* Decorative reaper background with load animation */}
-      <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none">
+      <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>
+        <motion.div
+          style={{ rotateX: rotX, rotateY: rotY, x: shiftX, y: shiftY, transformStyle: "preserve-3d" }}
+        >
         <motion.img
           src="/reaper.png"
           alt=""
           aria-hidden="true"
           data-testid="reaper-bg"
           className="h-[70vh] max-w-none md:h-[85vh]"
-          style={{ transformOrigin: "50% 4%" }}
+          style={{ transformOrigin: "50% 4%", filter: "drop-shadow(24px 34px 30px rgba(0,0,0,0.45))" }}
           initial={{ opacity: 0, y: 50, scale: 1.06 }}
           animate={{ opacity: 0.38, y: 0, scale: 1, skewX: [0, 1.5, 0.4, 1.4, 0] }}
           transition={{
@@ -227,6 +246,7 @@ export default function Home() {
             top: "27.5%",
             marginLeft: "-32px",
             marginTop: "-32px",
+            transform: "translateZ(60px)",
             background: "radial-gradient(circle, rgba(255,225,110,0.95), rgba(255,196,60,0.45) 45%, rgba(255,196,60,0) 72%)",
             filter: "blur(8px)",
           }}
@@ -234,6 +254,7 @@ export default function Home() {
           animate={{ opacity: [0.35, 0.95, 0.5, 1, 0.4, 0.8, 0.45] }}
           transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 1.4 }}
         />
+        </motion.div>
       </div>
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-[#E2E4E7] bg-[#0E0E0E]">
@@ -652,7 +673,7 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
             transition={DETAIL_TRANSITION}
             className="space-y-4 p-5"
           >
-            <p className="flex items-center gap-2 font-serif text-lg italic text-[#E01E26]" data-testid="reaper-line">
+            <p className="flex items-center gap-2 font-serif text-xl font-bold italic text-[#E01E26]" data-testid="reaper-line">
               <Skull className="h-4 w-4" /> {reaperLineFor(card)}
             </p>
             {!card.open_now && (
