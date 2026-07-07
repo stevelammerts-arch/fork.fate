@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -54,6 +54,13 @@ export default function Home() {
   const [flash, setFlash] = useState(null);
   const [flashHit, setFlashHit] = useState(false);
   const shuffleRef = useRef(null);
+  const resultRef = useRef(null);
+
+  useEffect(() => {
+    if (result && resultRef.current) {
+      resultRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [result]);
 
   const toggle = (setter, arr, val) =>
     setter(arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val]);
@@ -377,7 +384,7 @@ export default function Home() {
           </div>
 
           {/* right: reveal stage */}
-          <div className="relative min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
+          <div ref={resultRef} className="relative min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
             <RevealStage spinning={spinning} flash={flash} deck={results} result={result} mode={mode} onReset={() => setResult(null)} onReSpin={reSpin} onReport={reportClosed} onPick={setResult} />
           </div>
         </div>
