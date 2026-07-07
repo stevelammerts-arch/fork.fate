@@ -103,7 +103,7 @@ export default function Home() {
             setSpinning(false);
             setFlash(null);
             setFlashHit(false);
-          }, 240);
+          }, 336);
         }, 300);
       }
     };
@@ -250,7 +250,7 @@ export default function Home() {
                 data-testid="shuffle-flash"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: [0, 0.95, 0] }}
-                transition={{ duration: 0.32, times: [0, 0.35, 1], ease: "easeOut" }}
+                transition={{ duration: 0.448, times: [0, 0.35, 1], ease: "easeOut" }}
               />
             )}
           </motion.div>
