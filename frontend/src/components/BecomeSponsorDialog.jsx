@@ -67,9 +67,16 @@ export default function BecomeSponsorDialog() {
               Email your business details and we'll get your spot listed within 24 hours.
             </p>
             <a
+              href={`mailto:${EMAIL}`}
+              data-testid="sponsor-email-address"
+              className="mt-2 inline-flex items-center gap-2 font-sans text-sm font-bold text-[#E01E26] underline underline-offset-4 transition-colors hover:text-white"
+            >
+              <Mail className="h-4 w-4" /> {EMAIL}
+            </a>
+            <a
               href={MAILTO}
               data-testid="sponsor-email-link"
-              className="mt-3 inline-flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 font-sans text-xs font-bold text-white transition-colors hover:bg-white/10"
+              className="mt-3 flex items-center justify-center gap-2 rounded-full border border-white/25 px-4 py-2 font-sans text-xs font-bold text-white transition-colors hover:bg-white/10"
             >
               <Mail className="h-3.5 w-3.5" /> Email my business details
             </a>
