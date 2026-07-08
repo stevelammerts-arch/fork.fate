@@ -501,7 +501,7 @@ export default function Home() {
                   className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-70 ${coords ? "bg-[#E01E26] text-white hover:bg-[#B3141A]" : "border border-[#E2E4E7] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
                 >
                   <LocateFixed className={`h-4 w-4 ${geoLoading ? "animate-pulse" : ""}`} />
-                  <span className="hidden sm:inline">{geoLoading ? "Locating…" : coords ? "Using your location" : "Use my location"}</span>
+                  {geoLoading ? "Locating…" : coords ? "Using your location" : "Use my location"}
                 </button>
               </div>
 
