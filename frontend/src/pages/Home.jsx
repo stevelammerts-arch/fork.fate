@@ -381,14 +381,14 @@ export default function Home() {
           <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl">
             {mode === "food" ? "Let fate pick tonight's table." : mode === "drinks" ? "Let fate pick your next sip." : mode === "bars" ? "Let fate pick tonight's bar." : "Let fate pick your sweet treat."}
           </h1>
-          <p className="mt-4 font-sans text-base leading-relaxed text-[#0E0E0E]">
+          <p className="mt-4 font-sans text-base font-semibold leading-relaxed text-[#0E0E0E]">
             {mode === "food"
-              ? "Set the mood with a few filters and hit spin. We'll shuffle great local restaurants — up to 50 miles out — and land on your next meal."
+              ? "Set the mood with a few filters and hit Deal. We'll shuffle great local restaurants — up to 50 miles out — and land on your next meal."
               : mode === "drinks"
-              ? "Coffee, boba tea or a smoothie? Set your filters and spin — we'll shuffle nearby drink spots and pick one for you."
+              ? "Coffee, boba tea or a smoothie? Set your filters and hit Deal — we'll shuffle nearby drink spots and pick one for you."
               : mode === "bars"
-              ? "Beer, whiskey, margaritas or a Tiki bar? Set your filters and spin — we'll shuffle nearby bars and pick tonight's spot."
-              : "Ice cream, bakery, candy or froyo? Set your filters and spin — we'll shuffle nearby dessert spots and pick your treat."}
+              ? "Beer, whiskey, margaritas or a Tiki bar? Set your filters and hit Deal — we'll shuffle nearby bars and pick tonight's spot."
+              : "Ice cream, bakery, candy or froyo? Set your filters and hit Deal — we'll shuffle nearby dessert spots and pick your treat."}
           </p>
         </motion.div>
 
@@ -554,15 +554,17 @@ export default function Home() {
       {/* How it works + FAQ (SEO + first-time visitor context) */}
       <section className="relative z-10 mx-auto max-w-6xl px-6 pb-24 pt-4 md:px-12" data-testid="how-it-works-section">
         <div className="border-t border-[#E2E4E7] pt-14">
-          <p className="font-sans text-xs font-bold uppercase tracking-[0.25em] text-[#E01E26]">How it works</p>
-          <h2 className="mt-2 font-serif text-3xl font-medium tracking-tight text-[#0E0E0E] sm:text-4xl">
-            Let fate settle the "where should we eat?" debate.
-          </h2>
-          <p className="mt-3 max-w-2xl font-sans text-base text-[#6B7075]">
-            Fork·Fate is a restaurant roulette for anyone who's ever stared blankly at a food app, unable to decide.
-            Set a couple of filters, spin the deck, and land on a real local place to eat, drink, or grab dessert —
-            no endless scrolling, no group-chat deadlock.
-          </p>
+          <div className="rounded-3xl border border-[#E2E4E7] bg-white/95 p-8 shadow-sm backdrop-blur-sm md:p-10">
+            <p className="font-sans text-xs font-bold uppercase tracking-[0.25em] text-[#E01E26]">How it works</p>
+            <h2 className="mt-2 font-serif text-3xl font-medium tracking-tight text-[#0E0E0E] sm:text-4xl">
+              Let fate settle the "where should we eat?" debate.
+            </h2>
+            <p className="mt-3 max-w-2xl font-sans text-base text-[#6B7075]">
+              Fork·Fate is a restaurant roulette for anyone who's ever stared blankly at a food app, unable to decide.
+              Set a couple of filters, spin the deck, and land on a real local place to eat, drink, or grab dessert —
+              no endless scrolling, no group-chat deadlock.
+            </p>
+          </div>
 
           <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
             <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6" data-testid="step-1">
@@ -597,7 +599,8 @@ export default function Home() {
             </div>
           </div>
 
-          <h2 className="mt-16 font-serif text-2xl font-medium tracking-tight text-[#0E0E0E] sm:text-3xl">
+          <div className="mt-16 rounded-3xl border border-[#E2E4E7] bg-white/95 p-8 shadow-sm backdrop-blur-sm md:p-10">
+          <h2 className="font-serif text-2xl font-medium tracking-tight text-[#0E0E0E] sm:text-3xl">
             Frequently asked questions
           </h2>
           <div className="mt-6 grid grid-cols-1 gap-x-10 gap-y-7 md:grid-cols-2" data-testid="faq-section">
@@ -642,6 +645,7 @@ export default function Home() {
                 whenever hunger strikes.
               </p>
             </div>
+          </div>
           </div>
         </div>
       </section>
@@ -835,12 +839,12 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
           <p className="font-serif text-2xl text-[#0E0E0E]">Your table awaits</p>
           <p className="mx-auto max-w-xs font-sans text-sm text-[#6B7075]">
             {mode === "food"
-              ? "Set your filters and hit spin — fate decides where you're eating."
+              ? "Set your filters and hit Deal — fate decides where you're eating."
               : mode === "drinks"
-              ? "Set your filters and hit spin — fate decides what you're sipping."
+              ? "Set your filters and hit Deal — fate decides what you're sipping."
               : mode === "bars"
-              ? "Set your filters and hit spin — fate decides where you're drinking."
-              : "Set your filters and hit spin — fate decides your sweet treat."}
+              ? "Set your filters and hit Deal — fate decides where you're drinking."
+              : "Set your filters and hit Deal — fate decides your sweet treat."}
           </p>
         </div>
       </div>
