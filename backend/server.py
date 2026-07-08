@@ -3,6 +3,7 @@ from fastapi.responses import Response
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import ReturnDocument
 import os
 import re
 import time
@@ -457,6 +458,9 @@ async def seed_db():
             docs.append(doc)
         await db.restaurants.insert_many(docs)
         logging.info(f"Seeded {len(docs)} restaurants")
+    # Seed the global "fates dealt" social-proof counter
+    if await db.stats.count_documents({"key": "fates_dealt"}) == 0:
+        await db.stats.insert_one({"key": "fates_dealt", "count": 1042})
 
 
 def apply_filters(items, cuisines, prices, max_distance):
@@ -578,6 +582,23 @@ async def track_sponsor_click(payload: SponsorClick):
     """Public: record a click on a sponsored spot's outbound link."""
     await db.sponsors.update_one({"id": payload.sponsor_id}, {"$inc": {"clicks": 1}})
     return {"ok": True}
+
+
+@api_router.get("/stats/fates")
+async def get_fates_dealt():
+    doc = await db.stats.find_one({"key": "fates_dealt"})
+    return {"count": doc["count"] if doc else 1042}
+
+
+@api_router.post("/stats/fate-dealt", dependencies=[Depends(rate_limit(120))])
+async def increment_fates_dealt():
+    doc = await db.stats.find_one_and_update(
+        {"key": "fates_dealt"},
+        {"$inc": {"count": 1}},
+        upsert=True,
+        return_document=ReturnDocument.AFTER,
+    )
+    return {"count": doc.get("count", 1)}
 
 
 @api_router.get("/admin/submissions", response_model=List[Restaurant], dependencies=[Depends(require_admin)])

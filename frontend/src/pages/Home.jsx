@@ -61,6 +61,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
+  const [fatesDealt, setFatesDealt] = useState(null);
   const [flash, setFlash] = useState(null);
   const [flashHit, setFlashHit] = useState(false);
   const shuffleRef = useRef(null);
@@ -91,6 +92,10 @@ export default function Home() {
       }, 120);
     }
   }, [result]);
+
+  useEffect(() => {
+    axios.get(`${API}/stats/fates`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
+  }, []);
 
   const toggle = (setter, arr, val) =>
     setter(arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val]);
@@ -129,6 +134,7 @@ export default function Home() {
             setSpinning(false);
             setFlash(null);
             setFlashHit(false);
+            axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
           }, 336);
         }, 300);
       }
@@ -462,6 +468,12 @@ export default function Home() {
                 </span>
               )}
             </div>
+            {fatesDealt !== null && (
+              <div className="mt-4 inline-flex items-center gap-2 font-sans text-sm text-[#6B7075]" data-testid="fates-dealt-counter">
+                <Dices className="h-4 w-4 text-[#E01E26]" />
+                <span><span className="font-bold text-[#0E0E0E]">{fatesDealt.toLocaleString()}</span> fates dealt</span>
+              </div>
+            )}
           </div>
 
           {/* right: reveal stage */}

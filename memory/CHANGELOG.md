@@ -16,6 +16,9 @@
 ## 2026-07-08 (shareable fate card)
 - **Shareable result image**: new "Share as image" button on the result card generates a branded 1080x1080 PNG (canvas-based `buildFateCard` in Home.jsx) — dark bg + red glow, FF logo badge, "THE REAPER HAS SPOKEN", restaurant name, meta (cuisine/price/rating/distance), and "fork-fate.com" CTA footer. Mobile uses Web Share API with the image file; desktop downloads the PNG. Uses same-origin /logo-app.png (no CORS taint). Verified: downloads correctly, no console errors.
 
+## 2026-07-08 (fates dealt counter)
+- **Social-proof counter**: homepage shows "N fates dealt" (data-testid=fates-dealt-counter) under the Deal button with a red dice icon. Backend: `stats` collection doc {key:"fates_dealt"}, seeded at 1042 on startup (independent of restaurant seed). Endpoints `GET /api/stats/fates` (read) and `POST /api/stats/fate-dealt` (increment, rate-limited, upsert + ReturnDocument.AFTER). Frontend fetches on mount and increments in runShuffle when the result is revealed. Verified: 1044 -> 1045 on spin, no console errors. NOTE: base seed of 1042 is a chosen social-proof starting number (adjustable).
+
 ## Deployment notes
 - Production: https://fork-fate.com (custom domain, user-owned, connected via Entri).
 - All logo/header/glow changes are in PREVIEW; require Save to GitHub → Deploy to reach production.
