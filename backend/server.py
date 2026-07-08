@@ -989,10 +989,30 @@ async def paypal_webhook(request: Request):
 
 @api_router.get("/sponsors/subscription-status")
 async def sponsor_subscription_status(subscription_id: str):
-    s = await db.sponsors.find_one({"subscription_id": subscription_id}, {"_id": 0, "name": 1, "active": 1, "sub_status": 1})
+    s = await db.sponsors.find_one({"subscription_id": subscription_id})
     if not s:
         return {"found": False}
-    return {"found": True, **s}
+    # Webhook-independent activation: if not yet active, confirm status directly with PayPal.
+    if not s.get("active") and paypal_configured():
+        try:
+            async with httpx.AsyncClient(timeout=20) as http:
+                token = await paypal_token(http)
+                r = await http.get(f"{PAYPAL_BASE}/v1/billing/subscriptions/{subscription_id}",
+                                   headers={"Authorization": f"Bearer {token}"})
+            if r.status_code == 200:
+                status = r.json().get("status", "")
+                if status == "ACTIVE":
+                    await db.sponsors.update_one({"subscription_id": subscription_id},
+                                                 {"$set": {"active": True, "sub_status": "active"}})
+                    s["active"] = True
+                    s["sub_status"] = "active"
+                elif status in ("CANCELLED", "SUSPENDED", "EXPIRED"):
+                    await db.sponsors.update_one({"subscription_id": subscription_id},
+                                                 {"$set": {"active": False, "sub_status": status.lower()}})
+                    s["sub_status"] = status.lower()
+        except Exception as e:
+            logger.warning(f"PayPal status check failed: {e}")
+    return {"found": True, "name": s.get("name"), "active": s.get("active"), "sub_status": s.get("sub_status")}
 
 
 app.include_router(api_router)

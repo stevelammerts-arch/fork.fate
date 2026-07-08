@@ -54,3 +54,10 @@
 - Env: PAYPAL_ENV (sandbox|live), PAYPAL_CLIENT_ID (public, set to user's sandbox id), PAYPAL_SECRET (user adds), PAYPAL_WEBHOOK_ID (user adds after creating webhook). Endpoint returns 503 gracefully when secret unset.
 - Verified iter31 (frontend): dialog/form/validation/graceful-503/status-pages/admin-regression all pass. NOTE: full PayPal E2E (real approval URL + webhook activation) PENDING user adding sandbox secret + creating webhook. User is SANDBOX-only until they upgrade to PayPal Business for live creds.
 - Webhook URL: {backend}/api/paypal/webhook — preview: https://lucky-bite-1.preview.emergentagent.com/api/paypal/webhook ; prod: https://fork-fate.com/api/paypal/webhook. Events: BILLING.SUBSCRIPTION.ACTIVATED/CANCELLED/SUSPENDED/EXPIRED.
+
+## 2026-06 (PayPal sandbox live + resilient activation)
+- PayPal sandbox credentials now VALID and working (token 200). Full flow verified end-to-end: POST /api/sponsors/subscribe creates product+plan (cached in db.config: plan_id P-8NL45177PG907673CNJG7IYA) + subscription and returns a real sandbox approval_url + subscription_id. Cleaned up test records.
+- RESILIENCE: /api/sponsors/subscription-status now confirms status DIRECTLY with PayPal (GET /v1/billing/subscriptions/{id}) and activates the sponsor if ACTIVE — webhook-INDEPENDENT. This is critical because the Cloudflare edge (same one that blocks the AdSense crawler) may block PayPal's server-to-server webhook. So sponsors auto-activate on the return page even if the webhook never arrives.
+- Webhook (PAYPAL_WEBHOOK_ID) still empty/optional — recommended for ongoing events (cancel/suspend/expire/payment-failure -> auto-pause). Activation no longer depends on it.
+- MINOR future cleanup: abandoned checkouts leave active=False pending_payment sponsor docs (harmless, never shown). Could add a TTL/cleanup job later.
+- Env now set: PAYPAL_CLIENT_ID (correct 80-char id), PAYPAL_SECRET (valid), PAYPAL_ENV=sandbox. Live requires PayPal Business upgrade -> live creds + PAYPAL_ENV=live + prod webhook.
