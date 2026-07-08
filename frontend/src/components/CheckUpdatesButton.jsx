@@ -20,8 +20,8 @@ const purgeAndReload = async () => {
       const keys = await caches.keys();
       await Promise.all(keys.map((k) => caches.delete(k)));
     }
-  } catch {
-    /* ignore */
+  } catch (e) {
+    console.debug("Cache/SW purge skipped:", e);
   }
   const url = new URL(window.location.href);
   url.searchParams.set("_v", Date.now().toString());
@@ -45,7 +45,8 @@ export default function CheckUpdatesButton() {
         toast.success("Refreshing to the newest version…");
         setTimeout(purgeAndReload, 800);
       }
-    } catch {
+    } catch (e) {
+      console.debug("Update check failed, forcing refresh:", e);
       toast("Couldn't check right now — refreshing…");
       setTimeout(purgeAndReload, 800);
     } finally {

@@ -28,6 +28,7 @@ export default function AdUnit({ slotId, className = "", label = "Advertisement"
         pushed.current = true;
       } catch (e) {
         // AdSense not ready / blocked — safe to ignore
+        console.debug("AdSense push skipped:", e);
       }
     }
   }, []);

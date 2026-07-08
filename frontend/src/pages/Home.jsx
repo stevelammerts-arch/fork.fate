@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
@@ -213,6 +213,15 @@ export default function Home() {
   const reSpin = () => {
     if (results.length) runShuffle(results);
   };
+
+  const sortedResults = useMemo(() => {
+    return [...results].sort((a, b) => {
+      if (sortBy === "distance") return a.distance - b.distance;
+      if (sortBy === "rating") return b.rating - a.rating;
+      if (sortBy === "price") return a.price.length - b.price.length;
+      return (b.sponsored ? 1 : 0) - (a.sponsored ? 1 : 0);
+    });
+  }, [results, sortBy]);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-white">
@@ -492,12 +501,7 @@ export default function Home() {
           </div>
           <AdUnit className="mt-8" label="Advertisement" />
           <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3" data-testid="restaurant-grid">
-            {[...results].sort((a, b) => {
-              if (sortBy === "distance") return a.distance - b.distance;
-              if (sortBy === "rating") return b.rating - a.rating;
-              if (sortBy === "price") return a.price.length - b.price.length;
-              return (b.sponsored ? 1 : 0) - (a.sponsored ? 1 : 0);
-            }).map((r) => (
+            {sortedResults.map((r) => (
               <RestaurantCard key={r.id} r={r} onReport={reportClosed} />
             ))}
           </div>
@@ -724,7 +728,8 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
         toast.success("Copied to clipboard — share your fate!");
       }
     } catch (e) {
-      // user cancelled share sheet — ignore
+      // Share sheet cancelled or unavailable — non-critical
+      console.debug("Share dismissed:", e);
     }
   };
   return (
