@@ -65,3 +65,8 @@
 ## 2026-06 (PayPal LIVE)
 - Switched to LIVE: PAYPAL_ENV="live", live Client ID + Secret (validated against api-m.paypal.com, token 200). Live subscribe verified -> returns real www.paypal.com approval_url. Live plan cached in db.config: plan P-76Y23062VD544251HNJG7OLQ, product PROD-95555227G0136450S. Cleaned up verification docs.
 - REMINDER: real charges now active. Must Deploy (Save to GitHub) so fork-fate.com uses live. Live webhook (https://fork-fate.com/api/paypal/webhook) still optional (activation is webhook-independent via subscription-status PayPal check). First month free means a real test subscription charges $0 upfront.
+
+## 2026-06 (sponsor CTA prominence + copy)
+- Sponsor acquisition CTAs made more prevalent (user request A+C): BecomeSponsorDialog now takes a `variant` prop. (a) subtle 'Sponsor your spot' link in the HEADER; (c) 'Own a spot like this?' featured card at the bottom of each deal result (hidden when the result itself is sponsored). Footer 'Become a sponsor' kept. Verified iter33.
+- Hero kicker 'Can't decide where to eat?' made bolder (font-bold->font-extrabold, text-xs->text-sm).
+- Deployment health check: PASS (no blockers; .env not gitignored, routes /api-prefixed, env-only secrets).

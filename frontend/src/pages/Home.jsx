@@ -422,7 +422,7 @@ export default function Home() {
           transition={HERO_TRANSITION}
           className="max-w-2xl"
         >
-          <p className="font-sans text-xs font-bold tracking-[0.25em] uppercase text-[#E01E26]">
+          <p className="font-sans text-sm font-extrabold tracking-[0.25em] uppercase text-[#E01E26]">
             {mode === "food" ? "Can't decide where to eat?" : mode === "drinks" ? "Can't decide what to sip?" : mode === "bars" ? "Can't decide where to drink?" : "Craving something sweet?"}
           </p>
           <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl">
