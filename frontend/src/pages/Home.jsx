@@ -606,7 +606,7 @@ export default function Home() {
       <footer className="relative z-10 border-t border-[#E2E4E7] bg-[#0E0E0E]">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 pb-28 pt-8 md:flex-row md:px-12 md:pb-20">
           <div className="flex items-center gap-2.5">
-            <span className="relative block h-8 w-8 overflow-hidden rounded-full">
+            <span className="relative block h-8 w-8 overflow-hidden rounded-full bg-black">
               <img src="/logo-v11.png" alt="" className="h-8 w-8 scale-110 object-contain" />
             </span>
             <span className="font-serif text-lg font-semibold text-white">Fork·Fate</span>
