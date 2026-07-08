@@ -17,3 +17,6 @@
 ## Deferred (needs input / dedicated pass)
 - Auto-activate sponsors on PayPal payment: requires PayPal REST API Client ID + Secret (currently manual PayPal.Me/QR). ASK USER for keys to build.
 - Refactor: Home.jsx is ~1146 lines (extract RevealStage, ShufflingDeck, buildFateCard, GroupVote already split out); server.py ~826 lines into route/service modules. Dedicated low-risk pass, test after.
+
+## Update 2026-06
+- PayPal self-serve sponsor subscriptions: CODE-COMPLETE (frontend verified iter31). Pending user setup: add PAYPAL_SECRET + PAYPAL_WEBHOOK_ID to backend/.env, create PayPal webhook. Then full E2E test. Live requires PayPal Business account (currently sandbox-only).
