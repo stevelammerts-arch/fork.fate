@@ -480,28 +480,30 @@ export default function Home() {
               <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]">
                 Your ZIP code <span className="text-[#B8BCC2]">(optional)</span>
               </p>
-              <div className="flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-1.5 focus-within:border-[#E01E26]">
-                <Search className="h-5 w-5 text-[#6B7075]" />
-                <Input
-                  data-testid="zip-input"
-                  value={zip}
-                  onChange={(e) => { setZip(e.target.value.replace(/[^\d]/g, "").slice(0, 5)); setCoords(null); }}
-                  onKeyDown={(e) => e.key === "Enter" && spin()}
-                  placeholder="e.g. 10001"
-                  inputMode="numeric"
-                  className="border-0 bg-transparent px-1 text-lg font-semibold text-[#0E0E0E] shadow-none focus-visible:ring-0"
-                />
+              <div className="flex items-center gap-2">
+                <div className="flex flex-1 items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-1.5 focus-within:border-[#E01E26]">
+                  <Search className="h-5 w-5 shrink-0 text-[#6B7075]" />
+                  <Input
+                    data-testid="zip-input"
+                    value={zip}
+                    onChange={(e) => { setZip(e.target.value.replace(/[^\d]/g, "").slice(0, 5)); setCoords(null); }}
+                    onKeyDown={(e) => e.key === "Enter" && spin()}
+                    placeholder="e.g. 10001"
+                    inputMode="numeric"
+                    className="border-0 bg-transparent px-1 text-lg font-semibold text-[#0E0E0E] shadow-none focus-visible:ring-0"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={useMyLocation}
+                  disabled={geoLoading || loading || spinning}
+                  data-testid="use-my-location-button"
+                  className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-70 ${coords ? "bg-[#E01E26] text-white hover:bg-[#B3141A]" : "border border-[#E2E4E7] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
+                >
+                  <LocateFixed className={`h-4 w-4 ${geoLoading ? "animate-pulse" : ""}`} />
+                  <span className="hidden sm:inline">{geoLoading ? "Locating…" : coords ? "Using your location" : "Use my location"}</span>
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={useMyLocation}
-                disabled={geoLoading || loading || spinning}
-                data-testid="use-my-location-button"
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors disabled:opacity-70 ${coords ? "bg-[#E01E26] text-white hover:bg-[#B3141A]" : "border border-[#E2E4E7] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
-              >
-                <LocateFixed className={`h-4 w-4 ${geoLoading ? "animate-pulse" : ""}`} />
-                {geoLoading ? "Locating…" : coords ? "Using your location" : "Use my location"}
-              </button>
 
               <div className="rounded-2xl border border-[#E2E4E7] bg-white px-4 py-3" data-testid="radius-control">
                 <div className="mb-2 flex items-center justify-between">
