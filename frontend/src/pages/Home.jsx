@@ -15,6 +15,7 @@ import FavoritesDrawer from "../components/FavoritesDrawer";
 import GroupVote from "../components/GroupVote";
 import { useFavorites } from "../hooks/useFavorites";
 import { Input } from "../components/ui/input";
+import { Slider } from "../components/ui/slider";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -65,7 +66,7 @@ const REAPER_LINES = [
 const reaperLineFor = (r) => REAPER_LINES[(r?.name?.length || 0) % REAPER_LINES.length];
 
 const FOOD_CUISINES = [
-  "Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Korean", "Chicken Wings",
+  "Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Korean", "Chicken Wings", "Fried Chicken",
   "American", "Mediterranean", "Seafood", "Pizza", "Deli", "Breakfast", "Vegan", "Gluten Free", "BBQ", "Greek", "Cafe",
 ];
 const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];
@@ -82,6 +83,7 @@ export default function Home() {
   const [geoLoading, setGeoLoading] = useState(false);
   const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [openNow, setOpenNow] = useState(false);
+  const [radius, setRadius] = useState(50);
   const [results, setResults] = useState([]);
   const [source, setSource] = useState(null);
   const [sortBy, setSortBy] = useState("default");
@@ -222,6 +224,7 @@ export default function Home() {
         price_levels: pricesArg,
         category: categoryArg,
         open_now: openNow,
+        radius_miles: radius,
       });
       setResults(data.restaurants);
       setSource(data.source);
@@ -488,8 +491,8 @@ export default function Home() {
                   inputMode="numeric"
                   className="border-0 bg-transparent px-1 text-lg font-semibold text-[#0E0E0E] shadow-none focus-visible:ring-0"
                 />
-                <span className="shrink-0 rounded-full bg-[#EDEEF0] px-3 py-1 text-xs font-bold text-[#6B7075]">
-                  within 50 mi
+                <span className="shrink-0 rounded-full bg-[#EDEEF0] px-2 py-0.5 text-[10px] font-bold text-[#6B7075]" data-testid="radius-chip">
+                  within {radius} mi
                 </span>
               </div>
               <button
@@ -502,6 +505,28 @@ export default function Home() {
                 <LocateFixed className={`h-4 w-4 ${geoLoading ? "animate-pulse" : ""}`} />
                 {geoLoading ? "Locating…" : coords ? "Using your location" : "Use my location"}
               </button>
+
+              <div className="rounded-2xl border border-[#E2E4E7] bg-white px-4 py-3" data-testid="radius-control">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]">Search radius</p>
+                  <span data-testid="radius-value" className="font-serif text-lg font-semibold text-[#E01E26]">
+                    {radius} <span className="text-sm text-[#6B7075]">mi</span>
+                  </span>
+                </div>
+                <Slider
+                  data-testid="radius-slider"
+                  value={[radius]}
+                  min={1}
+                  max={50}
+                  step={1}
+                  onValueChange={(v) => setRadius(v[0])}
+                  aria-label="Search radius in miles"
+                />
+                <div className="mt-1.5 flex justify-between font-sans text-[10px] font-bold uppercase tracking-wider text-[#B8BCC2]">
+                  <span>1 mi</span>
+                  <span>50 mi</span>
+                </div>
+              </div>
             </div>
 
             <Filters

@@ -212,6 +212,7 @@ class PlacesSearchRequest(BaseModel):
     price_levels: List[str] = Field(default_factory=list, max_length=6)
     category: str = "food"
     open_now: bool = False
+    radius_miles: float = Field(default=50.0, ge=1, le=50)
 
     @field_validator("zip_code")
     @classmethod
@@ -719,7 +720,7 @@ async def google_places_search(req: "PlacesSearchRequest"):
         }
         payload = {
             "textQuery": query,
-            "locationBias": {"circle": {"center": {"latitude": lat, "longitude": lng}, "radius": 50000.0}},
+            "locationBias": {"circle": {"center": {"latitude": lat, "longitude": lng}, "radius": min(req.radius_miles * 1609.34, 50000.0)}},
             "maxResultCount": 20,
         }
         if req.price_levels:
@@ -736,7 +737,7 @@ async def google_places_search(req: "PlacesSearchRequest"):
             ploc = p.get("location") or {}
             plat, plng = ploc.get("latitude"), ploc.get("longitude")
             dist = haversine_miles(lat, lng, plat, plng) if plat is not None and plng is not None else 0.0
-            if dist > MAX_RADIUS_MILES:
+            if dist > req.radius_miles:
                 continue
             photos = p.get("photos") or []
             image = ""
@@ -802,6 +803,7 @@ async def places_search(req: PlacesSearchRequest):
         items = [r for r in items if r['cuisine'] in req.cuisines]
     if req.open_now:
         items = [r for r in items if r.get('open_now', True)]
+    items = [r for r in items if r.get('distance', 0) <= req.radius_miles]
     if req.price_levels:
         allowed = set()
         for lvl in req.price_levels:
