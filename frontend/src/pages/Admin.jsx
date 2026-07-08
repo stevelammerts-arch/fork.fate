@@ -184,7 +184,9 @@ export default function Admin() {
       <header className="border-b border-[#E2E4E7] bg-[#0E0E0E]">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <img src="/logo-v10.png" alt="" className="h-9 w-9 object-contain" />
+            <span className="relative block h-9 w-9 overflow-hidden rounded-full">
+              <img src="/logo-v11.png" alt="" className="h-9 w-9 scale-110 object-contain" />
+            </span>
             <span className="font-serif text-xl font-semibold text-white">Fork·Fate Admin</span>
           </div>
           <button
