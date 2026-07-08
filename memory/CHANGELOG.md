@@ -41,3 +41,9 @@
 
 ## 2026-06 (Deal from my favorites)
 - **Deal from my favorites**: one-tap shuffle limited to hearted spots. `dealFromFavorites()` in Home.jsx sets results=favorites and runs runShuffle(favorites). Red CTA in the Favorites drawer (`deal-from-favorites-button`), shown only when favorites>0; label becomes "Deal 3 from favorites" in group mode. Verified iter30 (3/3: empty state, single deal lands on a favorite, group variant drives vote panel).
+
+## 2026-06 (security hardening + AdSense verify)
+- **SEC-004**: /api/places/photo now validates `name` against strict regex `places/[A-Za-z0-9_-]+/photos/[A-Za-z0-9_-]+` (was `startswith("places/")`). Blocks path/query tampering. Verified: malformed=404 "Not found", well-formed passes gate, real Google photos still load (200 image/jpeg).
+- **SEC-002**: rate limiter now purges empty buckets once `_RL_BUCKETS` exceeds 10k keys (bounds in-memory growth). Note: per-IP accuracy behind ingress + CORS scoping (CORS_ORIGINS) + strong ADMIN_PASSWORD/JWT_SECRET are DEPLOY-TIME concerns on the user's side (not code).
+- Security audit verdict: CONDITIONAL PASS — no critical/high; 4 LOW (defense-in-depth). No secrets in source/bundle; admin gated by JWT; React escapes Google text (no XSS).
+- **AdSense**: added `<meta name="google-adsense-account" content="ca-pub-7078042401291684">` to index.html <head> (verification). Loader script + ads.txt already correct. Requires DEPLOY to fork-fate.com to verify (account-specific, done from AdSense dashboard). If AdSense provides a unique google-site-verification tag, user must supply the content string.

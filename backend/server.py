@@ -67,6 +67,7 @@ def require_admin(request: Request):
 
 # Simple in-memory per-IP rate limiter (coarse abuse/cost protection)
 _RL_BUCKETS = defaultdict(deque)
+_RL_MAX_KEYS = 10000  # bound memory: purge empty buckets once the map grows large
 
 # Cache ZIP -> (lat, lng) to cut repeat geocoding calls
 _ZIP_GEO_CACHE = {}
@@ -82,6 +83,10 @@ def rate_limit(max_requests: int, window_seconds: int = 60):
         if len(bucket) >= max_requests:
             raise HTTPException(status_code=429, detail="Too many requests, please slow down")
         bucket.append(now)
+        # Bound memory: drop empty buckets once the map grows large (prevents unbounded key growth).
+        if len(_RL_BUCKETS) > _RL_MAX_KEYS:
+            for k in [k for k, v in list(_RL_BUCKETS.items()) if not v]:
+                _RL_BUCKETS.pop(k, None)
     return _dep
 
 PRICE_ENUM_TO_SYMBOL = {
@@ -756,7 +761,8 @@ async def google_places_search(req: "PlacesSearchRequest"):
 @api_router.get("/places/photo", dependencies=[Depends(rate_limit(300))])
 async def places_photo(name: str):
     """Proxy Google Places photo bytes so the API key is never exposed to the client."""
-    if not GOOGLE_API_KEY or not name.startswith("places/"):
+    # Strict allowlist: only a well-formed Places photo resource path (no path/query tampering).
+    if not GOOGLE_API_KEY or not re.fullmatch(r"places/[A-Za-z0-9_-]+/photos/[A-Za-z0-9_-]+", name):
         raise HTTPException(status_code=404, detail="Not found")
     url = f"https://places.googleapis.com/v1/{name}/media?maxWidthPx=800&key={GOOGLE_API_KEY}"
     async with httpx.AsyncClient(timeout=15, follow_redirects=True) as http:
