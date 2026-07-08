@@ -607,7 +607,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 pb-28 pt-8 md:flex-row md:px-12 md:pb-20">
           <div className="flex items-center gap-2.5">
             <span className="relative block h-8 w-8 overflow-hidden rounded-full bg-black">
-              <img src="/logo-icon.png" alt="" className="h-8 w-8 scale-110 object-contain" />
+              <img src="/logo-icon.png" alt="" className="h-8 w-8 scale-[1.6] object-contain" />
             </span>
             <span className="font-serif text-lg font-semibold text-white">Fork·Fate</span>
           </div>
