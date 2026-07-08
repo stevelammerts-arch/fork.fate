@@ -61,3 +61,7 @@
 - Webhook (PAYPAL_WEBHOOK_ID) still empty/optional — recommended for ongoing events (cancel/suspend/expire/payment-failure -> auto-pause). Activation no longer depends on it.
 - MINOR future cleanup: abandoned checkouts leave active=False pending_payment sponsor docs (harmless, never shown). Could add a TTL/cleanup job later.
 - Env now set: PAYPAL_CLIENT_ID (correct 80-char id), PAYPAL_SECRET (valid), PAYPAL_ENV=sandbox. Live requires PayPal Business upgrade -> live creds + PAYPAL_ENV=live + prod webhook.
+
+## 2026-06 (PayPal LIVE)
+- Switched to LIVE: PAYPAL_ENV="live", live Client ID + Secret (validated against api-m.paypal.com, token 200). Live subscribe verified -> returns real www.paypal.com approval_url. Live plan cached in db.config: plan P-76Y23062VD544251HNJG7OLQ, product PROD-95555227G0136450S. Cleaned up verification docs.
+- REMINDER: real charges now active. Must Deploy (Save to GitHub) so fork-fate.com uses live. Live webhook (https://fork-fate.com/api/paypal/webhook) still optional (activation is webhook-independent via subscription-status PayPal check). First month free means a real test subscription charges $0 upfront.
