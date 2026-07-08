@@ -254,8 +254,7 @@ export default function Home() {
         setCoords(c);
         setZip("");
         setGeoLoading(false);
-        toast.success("Using your location");
-        doSearch(selectedCuisines, [], mode, c);
+        toast.success("Location set — pick your radius, then hit Deal");
       },
       (err) => {
         setGeoLoading(false);
