@@ -339,7 +339,7 @@ export default function Home() {
                 className="pointer-events-none absolute inset-0"
                 initial={{ x: "-130%" }}
                 animate={{ x: ["-130%", "130%"] }}
-                transition={{ duration: 2.6, delay: 0.5, repeat: Infinity, repeatDelay: 8, ease: "easeInOut" }}
+                transition={{ duration: 2.6, delay: 0.5, repeat: Infinity, repeatDelay: 5, ease: "easeInOut" }}
                 style={{ background: "linear-gradient(115deg, transparent 46%, rgba(255,255,255,0.85) 50%, transparent 54%)" }}
               />
             </div>
@@ -371,6 +371,7 @@ export default function Home() {
             transition={{ duration: 0.25 }}
             className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-6 backdrop-blur-sm"
             data-testid="shuffle-popup"
+            style={{ pointerEvents: flashHit ? "none" : "auto" }}
           >
             <motion.div
               initial={{ scale: 0.8, y: 20 }}
@@ -601,7 +602,7 @@ export default function Home() {
             </h2>
             <p className="mt-3 max-w-2xl font-sans text-base text-[#6B7075]">
               Fork·Fate is a restaurant roulette for anyone who's ever stared blankly at a food app, unable to decide.
-              Set a couple of filters, spin the deck, and land on a real local place to eat, drink, or grab dessert —
+              Set a couple of filters, shuffle the deck, and land on a real local place to eat, drink, or grab dessert —
               no endless scrolling, no group-chat deadlock.
             </p>
           </div>
@@ -648,14 +649,14 @@ export default function Home() {
               <h3 className="font-serif text-lg text-[#0E0E0E]">How does Fork·Fate pick a restaurant?</h3>
               <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
                 After you set your filters, Fork·Fate gathers matching local spots and randomly deals one from the
-                deck. Every spin is a fresh shuffle, so you'll discover places you might never have chosen yourself.
+                deck. Every deal is a fresh shuffle, so you'll discover places you might never have chosen yourself.
               </p>
             </div>
             <div>
               <h3 className="font-serif text-lg text-[#0E0E0E]">Is Fork·Fate free to use?</h3>
               <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
                 Yes — Fork·Fate is completely free. There's no account, no signup, and no paywall. Just open it,
-                spin, and go eat.
+                shuffle, and go eat.
               </p>
             </div>
             <div>
@@ -862,7 +863,7 @@ async function buildFateCard(card) {
   ctx.fillText("Fork·Fate", W / 2, H - 150);
   ctx.fillStyle = "#8A8F95";
   ctx.font = "400 34px Arial, sans-serif";
-  ctx.fillText("Spin your own fate at fork-fate.com", W / 2, H - 95);
+  ctx.fillText("Shuffle your own fate at fork-fate.com", W / 2, H - 95);
 
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
@@ -916,7 +917,7 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, onReset,
       const blob = await buildFateCard(card);
       if (!blob) throw new Error("no blob");
       const file = new File([blob], `forkfate-${(card.name || "pick").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.png`, { type: "image/png" });
-      const text = `Fate picked ${card.name}! Spin your own on Fork·Fate.`;
+      const text = `Fate picked ${card.name}! Shuffle your own on Fork·Fate.`;
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: "Fork·Fate", text });
       } else {
@@ -956,7 +957,7 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, onReset,
           </a>
           {onToggleFavorite && (
             <button
-              onClick={() => onToggleFavorite(card)}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); onToggleFavorite(card); }}
               data-testid="result-favorite-toggle"
               title={isFavorite?.(card) ? "Remove from favorites" : "Save to favorites"}
               aria-pressed={isFavorite?.(card)}
@@ -994,7 +995,7 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, onReset,
             </p>
             {!card.open_now && (
               <p data-testid="closed-reroll-hint" className="rounded-xl bg-[#FCF4F4] px-3 py-2 font-sans text-xs font-bold text-[#E01E26]">
-                Closed right now — spin again for an open spot.
+                Closed right now — shuffle again for an open spot.
               </p>
             )}
             <div className="flex items-center gap-5 text-sm text-[#0E0E0E]">
@@ -1052,7 +1053,7 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, onReset,
                 data-testid="respin-button"
                 className="inline-flex items-center gap-2 rounded-full bg-[#E01E26] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
               >
-                <Dices className="h-4 w-4" /> Spin again
+                <Dices className="h-4 w-4" /> Shuffle again
               </button>
               <button
                 onClick={shareFate}

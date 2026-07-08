@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Heart, Star, MapPin, X, ExternalLink, Dices } from "lucide-react";
 import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger,
 } from "./ui/sheet";
 
 export default function FavoritesDrawer({ favorites, onRemove }) {
@@ -31,6 +31,9 @@ export default function FavoritesDrawer({ favorites, onRemove }) {
           <SheetTitle className="flex items-center gap-2 font-serif text-2xl text-white">
             <Heart className="h-5 w-5 fill-[#E01E26] text-[#E01E26]" /> Saved spots
           </SheetTitle>
+          <SheetDescription className="text-[#8A8F95]">
+            Spots you've hearted, saved on this device.
+          </SheetDescription>
         </SheetHeader>
 
         {count === 0 ? (

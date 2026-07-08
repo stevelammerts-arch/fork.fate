@@ -29,7 +29,7 @@ export default function BecomeSponsorDialog() {
         <DialogHeader>
           <DialogTitle className="font-serif text-2xl text-[#0E0E0E]">Sponsor your spot on Fork·Fate</DialogTitle>
           <DialogDescription className="text-[#6B7075]">
-            Get pinned to the top of every matching spin with a Sponsored badge.
+            Get pinned to the top of every matching shuffle with a Sponsored badge.
           </DialogDescription>
         </DialogHeader>
 

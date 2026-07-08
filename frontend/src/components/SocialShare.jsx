@@ -6,7 +6,7 @@ export default function SocialShare({ card }) {
   const url = window.location.origin;
   const text = card
     ? `\u2620 The reaper has spoken: ${card.name} (${card.cuisine} \u00b7 ${card.price})${card.distance ? ` — ${card.distance} mi away` : ""}! Deal your own fate on Fork\u00b7Fate:`
-    : `Let fate pick your next meal, drink or dessert — spin the deck on Fork\u00b7Fate!`;
+    : `Let fate pick your next meal, drink or dessert — shuffle the deck on Fork\u00b7Fate!`;
   const full = `${text} ${url}`;
 
   const openShare = (shareUrl) =>
