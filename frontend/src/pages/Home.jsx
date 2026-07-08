@@ -260,7 +260,6 @@ export default function Home() {
             top: "27.5%",
             marginLeft: "-32px",
             marginTop: "-32px",
-            transform: "translateZ(60px)",
             background: "radial-gradient(circle, rgba(255,225,110,0.95), rgba(255,196,60,0.45) 45%, rgba(255,196,60,0) 72%)",
             filter: "blur(8px)",
           }}
