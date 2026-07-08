@@ -7,6 +7,7 @@ from pymongo import ReturnDocument
 import os
 import re
 import time
+import asyncio
 import secrets
 import hmac
 import math
@@ -1017,6 +1018,46 @@ async def sponsor_subscription_status(subscription_id: str):
     return {"found": True, "name": s.get("name"), "active": s.get("active"), "sub_status": s.get("sub_status")}
 
 
+async def reconcile_sponsors():
+    """Re-check active PayPal-backed sponsors and auto-pause any that lapsed/cancelled.
+    Comped/manual sponsors (no subscription_id) are left untouched."""
+    if not paypal_configured():
+        return {"checked": 0, "paused": 0, "skipped": "paypal_not_configured"}
+    active = await db.sponsors.find(
+        {"active": True, "subscription_id": {"$ne": None}},
+        {"_id": 0, "id": 1, "subscription_id": 1, "name": 1},
+    ).to_list(1000)
+    if not active:
+        return {"checked": 0, "paused": 0}
+    checked = 0
+    paused = 0
+    async with httpx.AsyncClient(timeout=20) as http:
+        token = await paypal_token(http)
+        for s in active:
+            sid = s.get("subscription_id")
+            if not sid:
+                continue
+            try:
+                r = await http.get(f"{PAYPAL_BASE}/v1/billing/subscriptions/{sid}",
+                                   headers={"Authorization": f"Bearer {token}"})
+                checked += 1
+                if r.status_code == 200:
+                    status = r.json().get("status", "")
+                    if status != "ACTIVE":
+                        await db.sponsors.update_one({"id": s["id"]},
+                                                     {"$set": {"active": False, "sub_status": status.lower()}})
+                        paused += 1
+                        logger.info(f"Reconcile: paused sponsor '{s.get('name')}' (PayPal status {status})")
+            except Exception as e:
+                logger.warning(f"Reconcile check failed for {sid}: {e}")
+    return {"checked": checked, "paused": paused}
+
+
+@api_router.post("/admin/sponsors/reconcile", dependencies=[Depends(require_admin)])
+async def admin_reconcile_sponsors():
+    return await reconcile_sponsors()
+
+
 app.include_router(api_router)
 _cors_origins = os.environ.get('CORS_ORIGINS', '*').split(',')
 app.add_middleware(
@@ -1028,9 +1069,22 @@ app.add_middleware(
 )
 
 
+async def _reconcile_loop():
+    """Daily background job: auto-pause lapsed/cancelled sponsors (webhook alternative)."""
+    while True:
+        try:
+            res = await reconcile_sponsors()
+            if res.get("checked"):
+                logger.info(f"Daily sponsor reconcile: {res}")
+        except Exception as e:
+            logger.warning(f"Reconcile loop error: {e}")
+        await asyncio.sleep(24 * 60 * 60)
+
+
 @app.on_event("startup")
 async def startup_event():
     await seed_db()
+    asyncio.create_task(_reconcile_loop())
 
 
 @app.on_event("shutdown")

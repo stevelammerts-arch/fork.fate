@@ -70,3 +70,10 @@
 - Sponsor acquisition CTAs made more prevalent (user request A+C): BecomeSponsorDialog now takes a `variant` prop. (a) subtle 'Sponsor your spot' link in the HEADER; (c) 'Own a spot like this?' featured card at the bottom of each deal result (hidden when the result itself is sponsored). Footer 'Become a sponsor' kept. Verified iter33.
 - Hero kicker 'Can't decide where to eat?' made bolder (font-bold->font-extrabold, text-xs->text-sm).
 - Deployment health check: PASS (no blockers; .env not gitignored, routes /api-prefixed, env-only secrets).
+
+## 2026-06 (radius slider, fried chicken, daily reconcile, secret rotation)
+- Search RADIUS slider (1-50 mi): frontend Slider + `radius` state -> radius_miles in /api/places/search. Backend PlacesSearchRequest.radius_miles (ge1 le50); applied to Google locationBias radius (min miles*1609.34, 50000) + post-filter dist>radius, and curated fallback distance filter. Verified: rural zip radius=1 -> 2 spots vs radius=50 -> 20 spots.
+- Added 'Fried Chicken' cuisine chip (FOOD_CUISINES). Verified returns hot-chicken spots.
+- UI polish: removed redundant within-mi chip from ZIP field; ZIP input + Use-my-location now side-by-side; location label restored.
+- DAILY AUTO-RECONCILE (webhook alternative): reconcile_sponsors() re-checks active PayPal-backed sponsors (subscription_id != None) against PayPal GET /v1/billing/subscriptions/{id}; auto-pauses any not ACTIVE (active=false, sub_status). Comped/manual sponsors untouched. Runs on startup + every 24h (_reconcile_loop via asyncio.create_task). Manual trigger: POST /api/admin/sponsors/reconcile (require_admin). So webhook is now OPTIONAL for lifecycle events too.
+- Rotated LIVE PayPal secret (old one exposed in chat now invalid; new one validated token 200).
