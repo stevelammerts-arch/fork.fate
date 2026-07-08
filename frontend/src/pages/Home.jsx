@@ -283,6 +283,14 @@ export default function Home() {
     if (results.length) runShuffle(results);
   };
 
+  const dealFromFavorites = () => {
+    if (spinning || loading || !favorites.length) return;
+    setSource("favorites");
+    setResults(favorites);
+    lastPickRef.current = null;
+    runShuffle(favorites);
+  };
+
   const sortedResults = useMemo(() => {
     return [...results].sort((a, b) => {
       if (sortBy === "distance") return a.distance - b.distance;
@@ -358,7 +366,7 @@ export default function Home() {
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <FavoritesDrawer favorites={favorites} onRemove={removeFavorite} />
+            <FavoritesDrawer favorites={favorites} onRemove={removeFavorite} onDeal={dealFromFavorites} groupMode={groupMode} />
             <InstallAppButton />
             <AddRestaurantDialog mode={mode} onAdded={(r) => setResults((p) => [r, ...p])} />
           </div>

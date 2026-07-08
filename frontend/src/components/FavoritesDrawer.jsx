@@ -4,7 +4,7 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger,
 } from "./ui/sheet";
 
-export default function FavoritesDrawer({ favorites, onRemove }) {
+export default function FavoritesDrawer({ favorites, onRemove, onDeal, groupMode }) {
   const [open, setOpen] = useState(false);
   const count = favorites.length;
   return (
@@ -48,6 +48,16 @@ export default function FavoritesDrawer({ favorites, onRemove }) {
           </div>
         ) : (
           <div className="mt-6 space-y-3">
+            {onDeal && (
+              <button
+                onClick={() => { onDeal(); setOpen(false); }}
+                data-testid="deal-from-favorites-button"
+                className="mb-2 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#E01E26] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
+              >
+                <Dices className="h-4 w-4" />
+                {groupMode ? "Deal 3 from favorites" : "Deal from my favorites"}
+              </button>
+            )}
             {favorites.map((r) => (
               <div
                 key={`${r.name}-${r.address}`}
