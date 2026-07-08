@@ -274,8 +274,8 @@ export default function Home() {
       <header className="sticky top-0 z-30 border-b border-[#E2E4E7] bg-[#0E0E0E]">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-6 md:px-12">
           <div className="flex items-center gap-3">
-            <div className="relative h-14 w-14 overflow-hidden rounded-full">
-              <img src="/logo-v11.png" alt="Fork·Fate logo" className="h-14 w-14 scale-110 object-contain" />
+            <div className="relative h-16 w-16 overflow-hidden rounded-full bg-black">
+              <img src="/logo-v11.png" alt="Fork·Fate logo" className="h-16 w-16 scale-110 object-contain" />
               <motion.div
                 className="pointer-events-none absolute inset-0"
                 initial={{ x: "-130%" }}
