@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -693,6 +693,93 @@ function ShufflingDeck({ cards, flash, landed }) {
   );
 }
 
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+function wrapLines(ctx, text, maxWidth) {
+  const words = (text || "").split(" ");
+  const lines = [];
+  let line = "";
+  for (const w of words) {
+    const test = line ? `${line} ${w}` : w;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line);
+      line = w;
+    } else {
+      line = test;
+    }
+  }
+  if (line) lines.push(line);
+  return lines.slice(0, 3);
+}
+
+async function buildFateCard(card) {
+  const W = 1080, H = 1080;
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#0B0B0B";
+  ctx.fillRect(0, 0, W, H);
+  const glow = ctx.createRadialGradient(W / 2, 430, 30, W / 2, 430, 640);
+  glow.addColorStop(0, "rgba(224,30,38,0.30)");
+  glow.addColorStop(1, "rgba(224,30,38,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = "center";
+
+  // Logo badge
+  try {
+    const logo = await loadImage("/logo-app.png");
+    const s = 170, lx = (W - s) / 2, ly = 120, cx = W / 2, cy = ly + s / 2;
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, s / 2, 0, Math.PI * 2); ctx.clip();
+    ctx.drawImage(logo, lx, ly, s, s);
+    ctx.restore();
+    ctx.strokeStyle = "rgba(255,255,255,0.35)"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(cx, cy, s / 2, 0, Math.PI * 2); ctx.stroke();
+  } catch (e) { console.debug("logo draw skipped", e); }
+
+  // Kicker
+  ctx.fillStyle = "#E01E26";
+  ctx.font = "700 30px Georgia, 'Times New Roman', serif";
+  ctx.fillText("T H E   R E A P E R   H A S   S P O K E N", W / 2, 380);
+
+  // Restaurant name (wrapped)
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "700 82px Georgia, 'Times New Roman', serif";
+  const lines = wrapLines(ctx, card.name || "Your pick", W - 160);
+  let y = 500;
+  for (const ln of lines) { ctx.fillText(ln, W / 2, y); y += 96; }
+
+  // Meta
+  ctx.fillStyle = "#B9BEC4";
+  ctx.font = "400 40px Arial, sans-serif";
+  const meta = [card.cuisine, card.price, card.rating ? `★ ${Number(card.rating).toFixed(1)}` : null, card.distance ? `${card.distance} mi` : null].filter(Boolean).join("   ·   ");
+  ctx.fillText(meta, W / 2, y + 20);
+
+  // Divider
+  ctx.strokeStyle = "rgba(224,30,38,0.8)"; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(W / 2 - 90, y + 90); ctx.lineTo(W / 2 + 90, y + 90); ctx.stroke();
+
+  // Footer CTA
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "700 44px Georgia, serif";
+  ctx.fillText("Fork·Fate", W / 2, H - 150);
+  ctx.fillStyle = "#8A8F95";
+  ctx.font = "400 34px Arial, sans-serif";
+  ctx.fillText("Spin your own fate at fork-fate.com", W / 2, H - 95);
+
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+}
+
+
 function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, onReport, onPick }) {
   if (!result) {
     return (
@@ -731,6 +818,26 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
     } catch (e) {
       // Share sheet cancelled or unavailable — non-critical
       console.debug("Share dismissed:", e);
+    }
+  };
+  const shareFateImage = async () => {
+    try {
+      const blob = await buildFateCard(card);
+      if (!blob) throw new Error("no blob");
+      const file = new File([blob], `forkfate-${(card.name || "pick").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.png`, { type: "image/png" });
+      const text = `Fate picked ${card.name}! Spin your own on Fork·Fate.`;
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: "Fork·Fate", text });
+      } else {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = file.name;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        toast.success("Fate card saved — share it anywhere!");
+      }
+    } catch (e) {
+      console.debug("Image share dismissed:", e);
     }
   };
   return (
@@ -851,6 +958,13 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
                 className="inline-flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-2 text-sm font-semibold text-[#0E0E0E] transition-colors hover:bg-[#EDEEF0]"
               >
                 <Share2 className="h-4 w-4" /> Share your fate
+              </button>
+              <button
+                onClick={shareFateImage}
+                data-testid="share-fate-image-button"
+                className="inline-flex items-center gap-2 rounded-full bg-[#0E0E0E] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]"
+              >
+                <ImageDown className="h-4 w-4" /> Share as image
               </button>
               <button
                 onClick={onReset}

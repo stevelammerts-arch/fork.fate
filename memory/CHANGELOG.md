@@ -13,6 +13,9 @@
 - **Sponsor Analytics (P1 done)**: tracks impressions (incremented in `fetch_active_sponsors` when a sponsor is shown in a search) and clicks (public `POST /api/track/sponsor-click`, fired from RestaurantCard outbound links when `r.sponsored`). Admin `/admin` shows a totals summary (impressions/clicks/CTR) + per-sponsor stats row. Counters init on `create_sponsor`. Verified end-to-end (curl + UI).
 - **PWA icon root-cause fix**: previous logo PNGs had the transparency **checkerboard baked into the pixels** (AI-generated), which showed on the home icon + splash. Regenerated `logo-app.png` (red circle on SOLID black square, no checker) + opaque `logo-app-192/512.png`. Updated manifest icons, favicon, apple-touch-icon, header/footer/admin (scale-110). New filenames force Android WebAPK re-mint. Requires deploy + phone: remove app, Chrome→Site settings→fork-fate.com→Clear & reset, reinstall.
 
+## 2026-07-08 (shareable fate card)
+- **Shareable result image**: new "Share as image" button on the result card generates a branded 1080x1080 PNG (canvas-based `buildFateCard` in Home.jsx) — dark bg + red glow, FF logo badge, "THE REAPER HAS SPOKEN", restaurant name, meta (cuisine/price/rating/distance), and "fork-fate.com" CTA footer. Mobile uses Web Share API with the image file; desktop downloads the PNG. Uses same-origin /logo-app.png (no CORS taint). Verified: downloads correctly, no console errors.
+
 ## Deployment notes
 - Production: https://fork-fate.com (custom domain, user-owned, connected via Entri).
 - All logo/header/glow changes are in PREVIEW; require Save to GitHub → Deploy to reach production.
