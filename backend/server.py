@@ -753,7 +753,7 @@ async def google_places_search(req: "PlacesSearchRequest"):
         return out
 
 
-@api_router.get("/places/photo")
+@api_router.get("/places/photo", dependencies=[Depends(rate_limit(300))])
 async def places_photo(name: str):
     """Proxy Google Places photo bytes so the API key is never exposed to the client."""
     if not GOOGLE_API_KEY or not name.startswith("places/"):
