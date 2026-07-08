@@ -284,7 +284,7 @@ export default function Home() {
                 style={{ background: "linear-gradient(115deg, transparent 46%, rgba(255,255,255,0.85) 50%, transparent 54%)" }}
               />
             </div>
-            <span className="font-serif text-2xl font-semibold tracking-tight text-white">
+            <span className="font-serif text-3xl font-semibold tracking-tight text-white">
               Fork·Fate
             </span>
           </div>
