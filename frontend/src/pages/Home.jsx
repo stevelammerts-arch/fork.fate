@@ -755,6 +755,13 @@ export default function Home() {
               <MessageSquarePlus className="h-3.5 w-3.5" /> Suggest an improvement
             </a>
             <CheckUpdatesButton />
+            <a
+              href="/admin"
+              data-testid="admin-link"
+              className="mt-1 font-sans text-[11px] font-semibold text-[#6B7075] underline-offset-4 transition-colors hover:text-white hover:underline"
+            >
+              Admin
+            </a>
           </div>
           <div className="order-2 flex flex-col items-center gap-2 md:order-3 md:items-end" data-testid="sponsorship-cta">
             <BecomeSponsorDialog />
