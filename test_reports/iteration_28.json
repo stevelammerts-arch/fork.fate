@@ -1,0 +1,46 @@
+{
+  "summary": "Frontend-only regression + new-feature testing for Fork·Fate (Favorites, Group Mode, Reroll-if-closed). Ran via preview URL against live Google Places (ZIP 10001). Found 1 critical bug (result-favorite-toggle does not save) and 1 timing issue (clicks racing with shuffle-popup exit animation). Group Mode voting/lock-in works when timing permits. Favorites drawer, persistence, and reroll-if-closed all pass. Admin login endpoint returned 429 (rate limited) from prior test iterations so admin auth flow could not be verified this run.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Home.jsx RevealStage → result-favorite-toggle",
+        "issue": "Clicking the heart button on the single-spin result card does NOT save the restaurant to favorites. LocalStorage stays empty ([]), count badge does not appear, and the drawer stays empty. Root cause: the button is nested inside an <a href={card.google_url}> anchor (lines 946-967 in Home.jsx). Its onClick handler is `() => onToggleFavorite(card)` with NO e.stopPropagation() or e.preventDefault(), so the click bubbles up to the anchor tag which is treated as a navigation link and prevents/short-circuits the state update. Compare with RestaurantCard.jsx line 94 where the equivalent heart button correctly does `e.stopPropagation(); e.preventDefault();`.",
+        "selector": "[data-testid=\"result-favorite-toggle\"]",
+        "priority": "HIGH"
+      },
+      {
+        "component": "Home.jsx shuffle-popup exit animation",
+        "issue": "Immediately after the shuffle completes and the group-vote panel is rendered, the shuffle-popup overlay is still executing its 250ms exit animation (fixed inset-0 z-[60]). During that window, clicks on group-vote-button-* and group-lock-in-button are silently absorbed by the outgoing overlay. In automated testing, two rapid `page.click(force=True)` calls on group-vote-button-1 registered 0 increments; the same clicks after a 500ms delay register correctly. Real users clicking quickly can miss their first vote/lock-in.",
+        "selector": "[data-testid=\"shuffle-popup\"]",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Favorites drawer (Sheet)", "issues": ["React accessibility warning: 'Missing Description or aria-describedby={undefined} for {DialogContent}'. Add SheetDescription or aria-describedby to the SheetContent for a11y."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "FIX (HIGH): In /app/frontend/src/pages/Home.jsx RevealStage result-favorite-toggle button (~line 958-966), change onClick to `onClick={(e) => { e.stopPropagation(); e.preventDefault(); onToggleFavorite(card); }}` to prevent the click from bubbling to the parent <a href={card.google_url}> anchor. This mirrors the working pattern in RestaurantCard.jsx line 94.",
+    "FIX (MEDIUM): Make the shuffle-popup non-interactive during its exit animation (add `pointer-events-none` to the exiting motion.div, or unmount the overlay synchronously once `spinning` becomes false so its exit animation doesn't cover the group-vote/result panel).",
+    "MINOR (a11y): Add a SheetDescription (or aria-describedby) inside FavoritesDrawer's SheetContent to silence the Radix DialogContent warning.",
+    "RETEST admin /admin login with password 'GrimReaper!2026' — this run hit a 429 rate-limit response ('Too many requests, please slow down') so the auth path could not be confirmed. Backend rate limiter appears to be working, but a clean run should confirm login still succeeds and the sponsor manager loads."
+  ],
+  "critical_code_review_comments": [
+    "Home.jsx is 1135 lines — over the 700-line guideline. RevealStage, ShufflingDeck, buildFateCard, and the reaper background all belong in their own files.",
+    "In Home.jsx RevealStage, wrapping the heart button inside the Google <a> link is fragile — even after adding stopPropagation, the nested <button> inside <a> is invalid HTML. Prefer making the image an absolutely positioned <a> sibling and stacking the heart button separately (both as z-indexed siblings), matching RestaurantCard's structure.",
+    "useFavorites.keyOf uses name+address but favorites are stored with a slim object that also carries id. Live Google Places search returns different random ids per search, but different addresses can be blank — favoriting a spot with an empty address collides with any other spot that also has an empty address. Consider falling back to google_url or google place_id.",
+    "GroupVote.lockIn uses setTimeout(650) + setResult without cancelling on unmount. If the RevealStage swaps (user hits Deal again) during the 650ms, onWinner could fire on a stale component. Guard with an isMounted ref or clear the timeout on unmount.",
+    "The 'reroll-if-closed' logic in Home.jsx runShuffle filters the shuffle pool to open spots ONLY for the landing pick — the visual shuffle deck still cycles through the full pool. That's fine, but the 'closed-reroll-hint' will never appear when any open spot exists in the pool, making the hint essentially dead code for well-populated cities. Acceptable per spec ('preference, not guarantee'), but worth documenting."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not-tested", "frontend": "80%"},
+  "test_credentials": "Admin /admin password: GrimReaper!2026 (not verified this run due to 429 rate limit)",
+  "seed_data_creation": "none",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Feature coverage this run against preview URL: (1) FAVORITES — nearby-card heart toggle WORKS, favorites drawer opens/lists/removes correctly, localStorage persistence across reload WORKS. Result-card heart FAILS to save (see bug 1). (2) GROUP MODE — toggle changes Deal button label to 'Deal 3 Fates!', shuffle → group-vote panel with 3 picks renders, vote + increments work (after ~500ms grace), lock-in reveals the winner as a normal result card, 'Deal 3 again' respins correctly — provided you WAIT ~500ms after group-vote appears before clicking, otherwise clicks are absorbed by the shuffle-popup exit animation. (3) REROLL-IF-CLOSED — closed-reroll-hint appeared 0/3 attempts in ZIP 10001 (expected). Admin login: preview endpoint currently returns 'Too many requests, please slow down' (429), so retest after rate-limit window resets. Use ZIP 10001 for reproducible NYC results. Reset localStorage.ff_favorites before favorites tests.",
+  "rca of the issue": "Bug 1 (result-favorite-toggle): the heart <button> is a child of the wrapping <a href={card.google_url}> anchor in RevealStage. Its onClick lacks stopPropagation/preventDefault, so the click bubbles to the anchor and browsers treat the interaction as a link activation (navigation intent) — the state update to useFavorites is preempted / discarded and localStorage never receives the write. Confirmed: repro is 100% via `data-testid=\"result-favorite-toggle\"` click; localStorage.ff_favorites remains '[]' and no favorites-count-badge is rendered. Mitigation: add stopPropagation+preventDefault (see action item) OR restructure so the button is a sibling of the anchor, not a descendant. Bug 2 (group-vote click race): the shuffle-popup uses AnimatePresence with a 250ms exit; while exiting it remains z-[60] fixed inset-0 and swallows pointer events on the group-vote panel underneath. Mitigation: add pointer-events-none to the exit variant of the popup, or set spinning=false only after the exit completes."
+}

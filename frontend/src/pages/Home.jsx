@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -11,6 +11,9 @@ import InstallAppButton from "../components/InstallAppButton";
 import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
 import SocialShare from "../components/SocialShare";
 import CheckUpdatesButton from "../components/CheckUpdatesButton";
+import FavoritesDrawer from "../components/FavoritesDrawer";
+import GroupVote from "../components/GroupVote";
+import { useFavorites } from "../hooks/useFavorites";
 import { Input } from "../components/ui/input";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -86,12 +89,15 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
+  const [groupMode, setGroupMode] = useState(false);
+  const [groupPicks, setGroupPicks] = useState(null);
   const [fatesDealt, setFatesDealt] = useState(null);
   const [streak, setStreak] = useState(() => readStreak());
   const [flash, setFlash] = useState(null);
   const [flashHit, setFlashHit] = useState(false);
   const shuffleRef = useRef(null);
   const resultRef = useRef(null);
+  const { favorites, isFavorite, toggleFavorite, removeFavorite } = useFavorites();
 
   // 3D parallax tilt for the reaper — follows the cursor for a sense of depth
   const tiltX = useMotionValue(0);
@@ -110,14 +116,14 @@ export default function Home() {
   }, [tiltX, tiltY]);
 
   useEffect(() => {
-    if (result && resultRef.current) {
+    if ((result || groupPicks) && resultRef.current) {
       setTimeout(() => {
         if (!resultRef.current) return;
         const y = resultRef.current.getBoundingClientRect().top + window.scrollY - 88;
         window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
       }, 120);
     }
-  }, [result]);
+  }, [result, groupPicks]);
 
   useEffect(() => {
     axios.get(`${API}/stats/fates`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
@@ -132,15 +138,34 @@ export default function Home() {
     setSelectedCuisines([]);
     setResults([]);
     setResult(null);
+    setGroupPicks(null);
   };
 
   const cuisineList = mode === "food" ? FOOD_CUISINES : mode === "drinks" ? DRINK_CUISINES : mode === "bars" ? BAR_CUISINES : DESSERT_CUISINES;
 
   const runShuffle = (pool) => {
     setResult(null);
+    setGroupPicks(null);
     setSpinning(true);
     setFlashHit(false);
-    const chosen = pool[Math.floor(Math.random() * pool.length)];
+    // Reroll-if-closed: prefer spots that are open right now (unless none are).
+    const openPool = pool.filter((p) => p.open_now);
+    const pickPool = openPool.length ? openPool : pool;
+    const pick = () => pickPool[Math.floor(Math.random() * pickPool.length)];
+    // Group mode deals 3 distinct candidates to vote on; single mode deals one.
+    let chosen;
+    let picks = null;
+    if (groupMode) {
+      const seen = new Set();
+      picks = [];
+      for (let g = 0; g < pickPool.length && picks.length < 3; g++) {
+        const c = pick();
+        if (!seen.has(c.id)) { seen.add(c.id); picks.push(c); }
+      }
+      chosen = picks[0];
+    } else {
+      chosen = pick();
+    }
     let i = 0;
     let delay = 55; // fast start
     const maxDelay = 300; // slow end
@@ -156,7 +181,8 @@ export default function Home() {
         shuffleRef.current = setTimeout(() => {
           setFlashHit(true);
           shuffleRef.current = setTimeout(() => {
-            setResult(chosen);
+            if (groupMode) setGroupPicks(picks);
+            else setResult(chosen);
             setSpinning(false);
             setFlash(null);
             setFlashHit(false);
@@ -322,6 +348,7 @@ export default function Home() {
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <FavoritesDrawer favorites={favorites} onRemove={removeFavorite} />
             <InstallAppButton />
             <AddRestaurantDialog mode={mode} onAdded={(r) => setResults((p) => [r, ...p])} />
           </div>
@@ -477,6 +504,19 @@ export default function Home() {
               </span>
             </button>
 
+            <button
+              type="button"
+              data-testid="group-mode-toggle"
+              onClick={() => { setGroupMode((v) => !v); setResult(null); setGroupPicks(null); }}
+              className={`ml-3 inline-flex items-center gap-2.5 rounded-full border px-4 py-2.5 text-sm font-bold transition-colors ${groupMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E2E4E7] bg-white text-[#6B7075] hover:bg-[#EDEEF0]"}`}
+            >
+              <Users className="h-4 w-4" />
+              Group mode
+              <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${groupMode ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
+                <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${groupMode ? "translate-x-3" : ""}`} />
+              </span>
+            </button>
+
             <div className="flex flex-wrap items-center gap-4">
               <motion.button
                 data-testid="spin-roulette-button"
@@ -487,7 +527,7 @@ export default function Home() {
                 className="inline-flex items-center gap-3 rounded-full bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
               >
                 <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
-                {loading ? "Finding spots…" : spinning ? "Shuffling…" : "Deal Your Fate!"}
+                {loading ? "Finding spots…" : spinning ? "Shuffling…" : groupMode ? "Deal 3 Fates!" : "Deal Your Fate!"}
               </motion.button>
               {results.length > 0 && (
                 <span className="font-sans text-sm text-[#6B7075]">
@@ -510,7 +550,7 @@ export default function Home() {
 
           {/* right: reveal stage */}
           <div ref={resultRef} className="relative min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
-            <RevealStage spinning={spinning} flash={flash} deck={results} result={result} mode={mode} onReset={() => setResult(null)} onReSpin={reSpin} onReport={reportClosed} onPick={setResult} />
+            <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} onReset={() => { setResult(null); setGroupPicks(null); }} onReSpin={reSpin} onReport={reportClosed} onPick={setResult} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} />
           </div>
         </div>
       </section>
@@ -544,8 +584,8 @@ export default function Home() {
           </div>
           <AdUnit className="mt-8" label="Advertisement" />
           <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3" data-testid="restaurant-grid">
-            {sortedResults.map((r) => (
-              <RestaurantCard key={r.id} r={r} onReport={reportClosed} />
+            {sortedResults.slice(0, 6).map((r) => (
+              <RestaurantCard key={r.id} r={r} onReport={reportClosed} isFavorite={isFavorite(r)} onToggleFavorite={toggleFavorite} />
             ))}
           </div>
         </section>
@@ -594,7 +634,7 @@ export default function Home() {
               <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">3. Deal your fate</h3>
               <p className="mt-2 font-sans text-sm text-[#6B7075]">
                 Hit the button and watch the deck shuffle to reveal tonight's pick — with directions, reviews,
-                delivery links, and five more spots to consider if you want a re-roll.
+                delivery links, and a few more spots to consider if you want a re-roll.
               </p>
             </div>
           </div>
@@ -828,7 +868,10 @@ async function buildFateCard(card) {
 }
 
 
-function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, onReport, onPick }) {
+function RevealStage({ spinning, flash, deck, result, groupPicks, mode, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite }) {
+  if (!result && groupPicks && groupPicks.length > 0) {
+    return <GroupVote picks={groupPicks} onReSpin={onReSpin} onWinner={onPick} />;
+  }
   if (!result) {
     return (
       <div className="grid h-full min-h-[400px] place-items-center text-center">
@@ -852,7 +895,7 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
   }
 
   const card = result;
-  const alternatives = deck.filter((d) => d.id !== card.id).slice(0, 5);
+  const alternatives = deck.filter((d) => d.id !== card.id).slice(0, 3);
   const shareFate = async () => {
     const text = `Fate picked ${card.name} (${card.cuisine} · ${card.price})${card.distance ? ` — ${card.distance} mi away` : ""}. Shuffle your own fate on Fork·Fate!`;
     const url = window.location.origin;
@@ -911,6 +954,17 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
             <img src={card.image} alt={card.name} className="h-full w-full object-cover transition-transform duration-500 hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           </a>
+          {onToggleFavorite && (
+            <button
+              onClick={() => onToggleFavorite(card)}
+              data-testid="result-favorite-toggle"
+              title={isFavorite?.(card) ? "Remove from favorites" : "Save to favorites"}
+              aria-pressed={isFavorite?.(card)}
+              className="absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-full bg-white/90 backdrop-blur transition-transform hover:scale-110 active:scale-95"
+            >
+              <Heart className={`h-5 w-5 transition-colors ${isFavorite?.(card) ? "fill-[#E01E26] text-[#E01E26]" : "text-[#6B7075]"}`} />
+            </button>
+          )}
           <div className="pointer-events-none absolute bottom-4 left-4 right-4">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#0E0E0E]">
@@ -1036,7 +1090,7 @@ function RevealStage({ spinning, flash, deck, result, mode, onReset, onReSpin, o
             {alternatives.length > 0 && (
               <div className="border-t border-[#E2E4E7] pt-4" data-testid="alternatives-section">
                 <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#6B7075]">
-                  5 more to consider
+                  3 more to consider
                 </p>
                 <div className="mt-3 space-y-2">
                   {alternatives.map((alt) => (

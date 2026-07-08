@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import {
-  Star, MapPin, ExternalLink, ShoppingBag, Flag,
+  Star, MapPin, ExternalLink, ShoppingBag, Flag, Heart,
   Beer, Wine, Martini, Target, Music, Gamepad2, CircleDot, Tv, Trophy,
   IceCream, Candy, Croissant, Donut, Clock,
 } from "lucide-react";
@@ -44,7 +44,7 @@ const DESSERT_ICONS = {
   "Frozen Yogurt": Donut,
 };
 
-export function RestaurantCard({ r, onReport }) {
+export function RestaurantCard({ r, onReport, isFavorite, onToggleFavorite }) {
   const VibeIcon = r.category === "bars" ? (BAR_ICONS[r.cuisine] || Trophy)
     : r.category === "desserts" ? (DESSERT_ICONS[r.cuisine] || IceCream)
     : null;
@@ -89,6 +89,17 @@ export function RestaurantCard({ r, onReport }) {
         >
           <Clock className="h-3 w-3" /> {r.open_now ? "Open now" : "Closed"}
         </span>
+        {onToggleFavorite && (
+          <button
+            onClick={(e) => { e.stopPropagation(); e.preventDefault(); onToggleFavorite(r); }}
+            data-testid={`favorite-toggle-${r.id}`}
+            title={isFavorite ? "Remove from favorites" : "Save to favorites"}
+            aria-pressed={isFavorite}
+            className="absolute bottom-3 right-3 grid h-10 w-10 place-items-center rounded-full bg-white/90 backdrop-blur transition-transform hover:scale-110 active:scale-95"
+          >
+            <Heart className={`h-5 w-5 transition-colors ${isFavorite ? "fill-[#E01E26] text-[#E01E26]" : "text-[#6B7075]"}`} />
+          </button>
+        )}
       </div>
       <div className="p-5 space-y-2">
         <div className="flex items-start justify-between gap-2">
