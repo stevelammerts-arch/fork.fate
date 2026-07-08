@@ -1,0 +1,31 @@
+{
+  "summary": "Tested guided-flow mystical aura + relaunch button (desktop & mobile) + classic-deal regression. All flows work EXCEPT: the mystical aura DOM element does not disappear after 3s — it remains in the DOM with opacity=0 (framer-motion AnimatePresence never removes it), which fails the test spec that requires the element to be absent 3.5s after the result appears.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Home.jsx mystical aura",
+        "issue": "[data-testid=mystical-aura] persists in the DOM after the 3-second window. Computed opacity correctly transitions to 0 by ~t=3.5s (state setMysticalReveal(false) fires as expected around t=3.0s), but the motion.div is never unmounted by AnimatePresence. Verified opacity samples: t=0.2s -> 0.30, t=3.2s -> 0.33 (fade in progress), t=4.0s/6.0s/10.0s -> 0.0 (invisible but element still in DOM). Visually the aura DOES disappear, so end-user impact is minimal, but the test spec explicitly requires the element to be GONE from the DOM 3.5s later — this fails.",
+        "selector": "[data-testid=mystical-aura]",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix AnimatePresence exit for the [data-testid=mystical-aura] motion.div in /app/frontend/src/pages/Home.jsx (around lines 642-664). The infinite rotate transition (`rotate: { repeat: Infinity, duration: 5 }`) is likely preventing framer-motion from completing the exit and unmounting the element. Suggested fixes: (a) move the infinite rotate onto an inner child so the wrapper's exit is not blocked, or (b) add an explicit `exit={{ opacity: 0, transition: { duration: 0.5 } }}` and ensure `AnimatePresence mode='wait'` or use a stable `key` prop, or (c) conditionally render (unmount) via a simple state-driven ternary without AnimatePresence and rely on CSS transition. The state timer already fires correctly at ~3s; only the unmount is missing."
+  ],
+  "critical_code_review_comments": [
+    "Home.jsx is 1263 lines — should be split into smaller focused modules (RevealStage / RouletteControls / RitualHeader).",
+    "The mystical aura's useEffect deps [result, mysticalReveal] is fine, but note that any external setResult (e.g., onPick from RevealStage) will restart the 3s timer — consider using a dedicated one-shot trigger state instead of tying to result changes."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "80% (4/5 checks pass)"},
+  "seed_data_creation": "None",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Passed: (1) aura present immediately after guided seal, (2) relaunch-guided-button visible & functional on desktop, (3) relaunch-guided-button visible & functional on mobile (390x844) with icon-only, (4) classic deal does NOT show the aura (regression clean). FAILED: aura DOM element persists past 3.5s (opacity animates to 0 but AnimatePresence doesn't remove it). To reproduce: run guided flow with ZIP 10001 -> Food -> Surprise me -> Seal -> after result card appears, query [data-testid=mystical-aura] at t=4s, still present.",
+  "rca_of_the_issue": "State timer works (setMysticalReveal(false) fires ~3s after result). Element's opacity animates to 0 by ~t=3.5s. However, framer-motion AnimatePresence fails to unmount the motion.div — element remains in DOM with computed opacity 0 indefinitely. Root cause likely the `transition={{ rotate: { repeat: Infinity, duration: 5, ... } ... }}` applied on the aura motion.div: an infinite animation on the wrapper can prevent AnimatePresence from marking the exit as complete, so React never removes the node. Fix by isolating the infinite rotate to a child element, or by rendering the aura via a plain conditional (mysticalReveal && result) with a CSS fade-out instead of AnimatePresence."
+}

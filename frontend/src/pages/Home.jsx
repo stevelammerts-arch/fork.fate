@@ -105,6 +105,7 @@ export default function Home() {
   const [showGuided, setShowGuided] = useState(() => {
     try { return localStorage.getItem("ff_ritual_done") !== "1"; } catch { return false; }
   });
+  const [mysticalReveal, setMysticalReveal] = useState(false);
 
   const finishGuided = () => {
     try { localStorage.setItem("ff_ritual_done", "1"); } catch (e) { /* ignore */ }
@@ -117,6 +118,7 @@ export default function Home() {
     setCoords(c || null);
     setRadius(r);
     setSelectedCuisines(cuisines);
+    setMysticalReveal(true);
     finishGuided();
     doSearch(cuisines, [], m, c || null, { zipArg: z || "", radiusArg: r });
   };
@@ -136,6 +138,13 @@ export default function Home() {
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
   }, [tiltX, tiltY]);
+
+  useEffect(() => {
+    if (result && mysticalReveal) {
+      const t = setTimeout(() => setMysticalReveal(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [result, mysticalReveal]);
 
   useEffect(() => {
     if ((result || groupPicks) && resultRef.current) {
@@ -629,8 +638,34 @@ export default function Home() {
           </div>
 
           {/* right: reveal stage */}
-          <div ref={resultRef} className="relative min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
-            <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} onReset={() => { setResult(null); setGroupPicks(null); }} onReSpin={reSpin} onReport={reportClosed} onPick={setResult} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} />
+          <div className="relative">
+            <AnimatePresence>
+              {mysticalReveal && result && (
+                <>
+                  <motion.div
+                    aria-hidden
+                    data-testid="mystical-aura"
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1, rotate: 360 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ rotate: { repeat: Infinity, duration: 5, ease: "linear" }, opacity: { duration: 0.5 }, scale: { duration: 0.5 } }}
+                    className="pointer-events-none absolute -inset-3 rounded-[32px]"
+                    style={{ background: "conic-gradient(from 0deg, #E01E26, #0b0b0b, #7a0c10, #000000, #E01E26)", filter: "blur(16px)" }}
+                  />
+                  <motion.div
+                    aria-hidden
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0.35, 0.95, 0.35], boxShadow: ["0 0 22px rgba(224,30,38,0.4)", "0 0 55px rgba(224,30,38,0.95)", "0 0 22px rgba(224,30,38,0.4)"] }}
+                    exit={{ opacity: 0 }}
+                    transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+                    className="pointer-events-none absolute -inset-0.5 rounded-[26px] border-2 border-[#E01E26]"
+                  />
+                </>
+              )}
+            </AnimatePresence>
+            <div ref={resultRef} className="relative z-10 min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
+              <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} onReset={() => { setResult(null); setGroupPicks(null); }} onReSpin={reSpin} onReport={reportClosed} onPick={setResult} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} />
+            </div>
           </div>
         </div>
       </section>
