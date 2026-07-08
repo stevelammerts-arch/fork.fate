@@ -97,6 +97,7 @@ export default function Home() {
   const [flashHit, setFlashHit] = useState(false);
   const shuffleRef = useRef(null);
   const resultRef = useRef(null);
+  const lastPickRef = useRef(null);
   const { favorites, isFavorite, toggleFavorite, removeFavorite } = useFavorites();
 
   // 3D parallax tilt for the reaper — follows the cursor for a sense of depth
@@ -148,24 +149,33 @@ export default function Home() {
     setGroupPicks(null);
     setSpinning(true);
     setFlashHit(false);
-    // Reroll-if-closed: prefer spots that are open right now (unless none are).
+    // Reroll-if-closed: gently prefer open spots, but only when enough are open
+    // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
-    const pickPool = openPool.length ? openPool : pool;
-    const pick = () => pickPool[Math.floor(Math.random() * pickPool.length)];
+    const varietyPool = openPool.length >= 3 ? openPool : pool;
+    const avoidId = lastPickRef.current;
+    const noRepeat = varietyPool.filter((p) => p.id !== avoidId);
+    const candidates = noRepeat.length ? noRepeat : varietyPool;
+    const pick = (exclude = new Set()) => {
+      const avail = candidates.filter((c) => !exclude.has(c.id));
+      const from = avail.length ? avail : candidates;
+      return from[Math.floor(Math.random() * from.length)];
+    };
     // Group mode deals 3 distinct candidates to vote on; single mode deals one.
     let chosen;
     let picks = null;
     if (groupMode) {
       const seen = new Set();
       picks = [];
-      for (let g = 0; g < pickPool.length && picks.length < 3; g++) {
-        const c = pick();
+      for (let g = 0; g < candidates.length && picks.length < 3; g++) {
+        const c = pick(seen);
         if (!seen.has(c.id)) { seen.add(c.id); picks.push(c); }
       }
       chosen = picks[0];
     } else {
       chosen = pick();
     }
+    lastPickRef.current = chosen?.id ?? null;
     let i = 0;
     let delay = 55; // fast start
     const maxDelay = 300; // slow end
