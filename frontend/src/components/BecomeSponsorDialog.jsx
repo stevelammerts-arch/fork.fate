@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { Megaphone, Check, Loader2 } from "lucide-react";
+import { Megaphone, Check, Loader2, Store, ArrowRight } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger,
 } from "./ui/dialog";
@@ -17,7 +17,7 @@ const CATEGORIES = ["food", "drinks", "bars", "desserts"];
 const PRICES = ["$", "$$", "$$$", "$$$$"];
 const EMPTY = { name: "", category: "food", cuisine: "", price: "$$", address: "", website: "", image: "", contact_email: "" };
 
-export default function BecomeSponsorDialog() {
+export default function BecomeSponsorDialog({ variant = "primary" }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [loading, setLoading] = useState(false);
@@ -42,15 +42,44 @@ export default function BecomeSponsorDialog() {
     }
   };
 
+  const triggers = {
+    primary: (
+      <button
+        data-testid="become-sponsor-button"
+        className="inline-flex items-center gap-2 rounded-full bg-[#E01E26] px-5 py-2.5 font-sans text-sm font-bold text-white shadow-lg shadow-[#E01E26]/30 transition-colors hover:bg-[#B3141A]"
+      >
+        <Megaphone className="h-4 w-4" /> Become a sponsor
+      </button>
+    ),
+    link: (
+      <button
+        data-testid="header-sponsor-link"
+        className="hidden items-center gap-2 rounded-full border border-white/25 bg-transparent px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10 sm:inline-flex"
+      >
+        <Store className="h-4 w-4 text-[#E01E26]" /> Sponsor your spot
+      </button>
+    ),
+    card: (
+      <button
+        data-testid="featured-sponsor-cta"
+        className="group flex w-full items-center gap-4 rounded-2xl border border-dashed border-[#E01E26]/40 bg-[#FCF4F4] p-4 text-left transition-colors hover:bg-[#F9E9E9]"
+      >
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#E01E26] text-white">
+          <Store className="h-5 w-5" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-serif text-lg font-medium leading-tight text-[#0E0E0E]">Own a spot like this?</span>
+          <span className="block font-sans text-sm text-[#6B7075]">Get featured on every matching shuffle — first month free.</span>
+        </span>
+        <ArrowRight className="h-5 w-5 shrink-0 text-[#E01E26] transition-transform group-hover:translate-x-1" />
+      </button>
+    ),
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button
-          data-testid="become-sponsor-button"
-          className="inline-flex items-center gap-2 rounded-full bg-[#E01E26] px-5 py-2.5 font-sans text-sm font-bold text-white shadow-lg shadow-[#E01E26]/30 transition-colors hover:bg-[#B3141A]"
-        >
-          <Megaphone className="h-4 w-4" /> Become a sponsor
-        </button>
+        {triggers[variant] || triggers.primary}
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl border-[#E2E4E7] bg-white sm:max-w-md" data-testid="sponsor-dialog">
         <DialogHeader>

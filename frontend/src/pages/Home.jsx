@@ -366,6 +366,7 @@ export default function Home() {
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <BecomeSponsorDialog variant="link" />
             <FavoritesDrawer favorites={favorites} onRemove={removeFavorite} onDeal={dealFromFavorites} groupMode={groupMode} />
             <InstallAppButton />
             <AddRestaurantDialog mode={mode} onAdded={(r) => setResults((p) => [r, ...p])} />
@@ -1143,6 +1144,12 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, onReset,
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {!card.sponsored && (
+              <div className="border-t border-[#E2E4E7] pt-4">
+                <BecomeSponsorDialog variant="card" />
               </div>
             )}
           </motion.div>
