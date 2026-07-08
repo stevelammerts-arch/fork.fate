@@ -1,84 +1,88 @@
 {
-  "theme": "Light",
-  "archetype": "1 (Organic & Earthy)",
-  "vibe": "High-End Editorial Food Magazine meets Playful Serendipity",
+  "theme": "Dark Occult / Mysterious",
+  "archetype": "5 (Luxury / Deep / Mystery)",
+  "vibe": "Suspenseful, occult, atmospheric, 'seal your fate' ritual",
   "color_palette": {
-    "background": "bg-[#FAF8F5]",
-    "surface": "bg-[#FFFFFF]",
-    "surface_glass": "bg-white/80 backdrop-blur-2xl border border-white/40 shadow-sm",
-    "primary": "bg-[#C84B31] text-white",
-    "primary_hover": "hover:bg-[#A33B24] hover:text-white",
-    "secondary": "bg-[#EAE4D9] text-[#2C2A29]",
-    "accent": "bg-[#6B8E23] text-white",
-    "text_main": "text-[#2C2A29]",
-    "text_muted": "text-[#7A7571]",
-    "border": "border-[#EAE4D9]",
-    "focus_ring": "focus:ring-2 focus:ring-[#C84B31] focus:ring-offset-2 focus:ring-offset-[#FAF8F5]"
+    "background": "bg-[#0E0E0E]",
+    "surface": "bg-[#161616]",
+    "surface_glass": "bg-black/80 backdrop-blur-2xl border border-white/10",
+    "primary": "bg-[#E01E26] text-white",
+    "primary_hover": "hover:bg-[#FF2E38] hover:text-white",
+    "primary_glow": "shadow-[0_0_20px_rgba(224,30,38,0.5)]",
+    "secondary": "bg-[#1C1C1C] text-[#C0C0C0]",
+    "accent": "bg-[#C0C0C0] text-[#0E0E0E]",
+    "text_main": "text-white",
+    "text_muted": "text-[#A0A0A0]",
+    "text_silver": "text-[#C0C0C0]",
+    "border": "border-[#2A2A2A]",
+    "focus_ring": "focus:ring-2 focus:ring-[#E01E26] focus:outline-none"
   },
   "typography": {
-    "heading_font": "Cormorant Garamond, serif",
-    "body_font": "Manrope, sans-serif",
-    "h1": "font-serif text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tighter leading-none text-[#2C2A29]",
-    "h2": "font-serif text-2xl sm:text-3xl lg:text-4xl font-medium tracking-tight text-[#2C2A29]",
-    "h3": "font-serif text-xl sm:text-2xl font-medium text-[#2C2A29]",
-    "body": "font-sans text-base font-normal leading-relaxed text-[#2C2A29]",
-    "label": "font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#7A7571]"
+    "heading_font": "Playfair Display, serif",
+    "body_font": "Inter, sans-serif",
+    "h1": "font-serif text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-white drop-shadow-md",
+    "h2": "font-serif text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white",
+    "h3": "font-serif text-xl sm:text-2xl font-semibold text-[#C0C0C0]",
+    "body": "font-sans text-base font-normal leading-relaxed text-[#A0A0A0]",
+    "label": "font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#E01E26]"
   },
   "spacing_and_layout": {
-    "container_padding": "p-6 md:p-12 lg:p-16",
-    "grid_gap": "gap-8 lg:gap-12",
-    "card_padding": "p-6 sm:p-8",
-    "border_radius": "rounded-3xl",
-    "layout_strategy": "Asymmetric editorial. The main app container should utilize generous white space. For the roulette screen, avoid standard centered modals. Use a dynamic card stack layout taking up 70% of the screen height, with massive typographic hierarchy for the restaurant name."
+    "ritual_overlay": "Fixed inset-0 z-[100] flex flex-col items-center justify-center p-4 bg-black/60 backdrop-blur-md",
+    "card_container": "w-full max-w-md bg-[#0E0E0E]/95 backdrop-blur-3xl border border-[#2A2A2A] rounded-2xl p-8 shadow-2xl relative overflow-hidden",
+    "grid_chips": "grid grid-cols-2 gap-6",
+    "sub_chips": "flex flex-wrap gap-3 mt-6"
   },
   "components": {
-    "spin_button": "Massive, organic pill shape. Deep terracotta (#C84B31). Hover triggers a scale-up. Must use Framer Motion for tap effect. Add data-testid='spin-roulette-button'.",
-    "restaurant_card": "Editorial vertical layout. Hero image takes top 60% of the card, with a max height of 60vh. Image must be crisp. Bottom 40% has white background, left-aligned text. No heavy drop shadows; use a delicate 1px border (#EAE4D9) and a very soft ambient shadow (shadow-xl shadow-black/5).",
-    "filters": "Horizontal scrollable row of pill-toggles. Active: terracotta background, white text. Inactive: #EAE4D9 background, muted text.",
-    "add_form": "Shadcn Form elements. Strip 'Vercel' styling: use organic soft borders (rounded-xl), generous padding, Manrope font, and earthy focus rings.",
-    "bottom_nav": "If implemented, use Glassmorphism 2.0: high opacity white (bg-white/80), heavy blur (backdrop-blur-2xl), delicate 1px top border."
+    "progress_indicator": "Subtle UI at the top of the card container. Use a thin silver/grey track (h-1 bg-[#2A2A2A]) with a red (#E01E26) fill that animates width per step. Include a 'Back' affordance (text-sm text-silver hover:text-white flex items-center gap-1 cursor-pointer) on the top left if step > 1.",
+    "interest_chip": "Large, square-ish buttons (aspect-square) with an icon and text. className='bg-[#161616] border border-[#2A2A2A] rounded-xl hover:border-[#E01E26] hover:bg-[#E01E26]/10 transition-colors flex flex-col items-center justify-center gap-4 cursor-pointer'.",
+    "location_input": "Shadcn Input, customized: border-b-2 border-[#2A2A2A] rounded-none focus-visible:border-[#E01E26] focus-visible:ring-0 bg-[#161616] text-white text-center text-3xl placeholder:text-[#4A4A4A] py-6 mb-6",
+    "slider": "Shadcn Slider. Track: bg-[#2A2A2A]. Fill: bg-[#E01E26]. Thumb: bg-[#C0C0C0] border-2 border-[#0E0E0E].",
+    "sub_chip": "Pill-shaped toggle (rounded-full px-5 py-2.5 text-sm font-medium transition-colors cursor-pointer). Inactive: bg-[#1C1C1C] border border-[#2A2A2A] text-[#A0A0A0]. Active: bg-[#E01E26] text-white border-transparent.",
+    "tarot_button_container": "relative aspect-[2/3] w-48 mx-auto cursor-pointer perspective-[1000px] mt-8",
+    "tarot_button": "3D Flip card. Front: intricate silver border, dark texture bg, red glowing text 'Fate Sealed'. Back: Occult symbol or Reaper icon. Below the card: a stylized serif phrase 'Once chosen, your fate is sealed.'",
+    "action_button": "Pill-shaped or slightly rounded solid button for 'Next', 'Use my location', or 'Surprise me'. bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white px-6 py-3 border border-[#2A2A2A] transition-colors"
   },
   "motion_and_interaction": {
-    "card_reveal": "Framer Motion staggered entry. When 'Spin' is tapped, cards should visually shuffle (e.g., quickly cycle z-index and slight rotations), then fly off-screen to leave the final chosen restaurant card. Add a slight bounce to the final card landing.",
-    "hover_states": "Interactive cards lift up -translate-y-2 and increase shadow to shadow-2xl. Buttons must explicitly set text color on hover.",
-    "page_transition": "Fade in with a slight upward translation (y: 20 to 0) using Framer Motion."
+    "ritual_step_transition": "Use Framer Motion 'AnimatePresence' with mode='wait'. Exit: { y: -40, opacity: 0, filter: 'blur(4px)' }. Initial: { y: 40, opacity: 0, filter: 'blur(4px)' }, Animate: { y: 0, opacity: 1, filter: 'blur(0px)' }. Transition: duration 0.4, ease 'easeOut'.",
+    "tarot_flip": "Framer Motion 3D transform. initial: { rotateY: 0 }, animate (on click): { rotateY: 180, scale: 1.1, boxShadow: '0 0 50px rgba(224,30,38,0.8)' }. Transition: spring, stiffness 60, damping 15.",
+    "overlay_dismiss": "When the ritual is complete, animate the entire overlay opacity to 0 with a duration of 1s to dramatically reveal the classic app.",
+    "hover_states": "Hover states must use specific transitions (e.g., transition-colors duration-200, scale-105 for chips) instead of generic `transition-all`."
+  },
+  "flow_logic": {
+    "first_visit_check": "On mount in App.js, check localStorage for 'hasCompletedRitual'. If false, show the Ritual Overlay wizard over the main app. If true, hide it.",
+    "completion": "After Step 4 (Tarot button clicked) -> trigger flip animation -> wait 1.5s -> set localStorage 'hasCompletedRitual' to true -> trigger overlay dismiss animation."
   },
   "media": {
     "images": [
       {
-        "url": "https://images.unsplash.com/photo-1564759296729-771e78c26df7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODd8MHwxfHNlYXJjaHw0fHxnb3VybWV0JTIwcmVzdGF1cmFudCUyMGZvb2QlMjBkaXNoJTIwcGxhdGVkfGVufDB8fHx8MTc4MzIwNDE1Nnww&ixlib=rb-4.1.0&q=85",
-        "category": "restaurant_food_1",
-        "description": "White plate with beautifully plated gourmet food"
-      },
-      {
-        "url": "https://images.unsplash.com/photo-1663530761401-15eefb544889?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODd8MHwxfHNlYXJjaHwyfHxnb3VybWV0JTIwcmVzdGF1cmFudCUyMGZvb2QlMjBkaXNoJTIwcGxhdGVkfGVufDB8fHx8MTc4MzIwNDE1Nnww&ixlib=rb-4.1.0&q=85",
-        "category": "restaurant_food_2",
-        "description": "Chef pouring sauce over plated steak"
-      },
-      {
-        "url": "https://images.unsplash.com/photo-1467003909585-2f8a72700288?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODd8MHwxfHNlYXJjaHwxfHxnb3VybWV0JTIwcmVzdGF1cmFudCUyMGZvb2QlMjBkaXNoJTIwcGxhdGVkfGVufDB8fHx8MTc4MzIwNDE1Nnww&ixlib=rb-4.1.0&q=85",
-        "category": "restaurant_food_3",
-        "description": "Salmon fillet with salsa"
-      },
-      {
-        "url": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzV8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwaW50ZXJpb3IlMjBhbWJpYW5jZXxlbnwwfHx8fDE3ODMyMDQxNTZ8MA&ixlib=rb-4.1.0&q=85",
-        "category": "restaurant_interior_1",
-        "description": "Pub/restaurant set in room during daytime"
-      },
-      {
-        "url": "https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzV8MHwxfHNlYXJjaHwzfHxyZXN0YXVyYW50JTIwaW50ZXJpb3IlMjBhbWJpYW5jZXxlbnwwfHx8fDE3ODMyMDQxNTZ8MA&ixlib=rb-4.1.0&q=85",
-        "category": "restaurant_interior_2",
-        "description": "People sitting on chairs inside restaurant"
+        "url": "https://images.unsplash.com/photo-1690983320828-c01b88baacb0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODF8MHwxfHNlYXJjaHwyfHxkYXJrJTIwb2NjdWx0JTIwdGV4dHVyZXxlbnwwfHx8fDE3ODM1NDgxNDB8MA&ixlib=rb-4.1.0&q=85",
+        "category": "tarot_card_texture",
+        "description": "Dark occult texture for the tarot card background."
       }
     ],
     "icons_library": "lucide-react"
   },
   "instructions_to_main_agent": [
-    "IMPLEMENTATION REQUIREMENT: Use 'Cormorant Garamond' for headings and 'Manrope' for body. Import them via Google Fonts in index.css.",
-    "IMPLEMENTATION REQUIREMENT: Build the roulette interaction using Framer Motion. Create a visual 'deck shuffle' effect of cards, resolving to a single card.",
-    "IMPLEMENTATION REQUIREMENT: All interactive elements MUST have a 'data-testid' attribute using kebab-case, role-based naming (e.g., data-testid='add-restaurant-button', data-testid='cuisine-filter-button').",
-    "IMPLEMENTATION REQUIREMENT: Adopt fluid tailwind typography and extreme generous paddings. Avoid Bootstrap-style center-everything layouts.",
-    "IMPLEMENTATION REQUIREMENT: For the 'Add Restaurant' form, heavily customize Shadcn UI components. Use our defined earthy focus rings and organic soft borders instead of default Vercel styles.",
-    "IMPLEMENTATION REQUIREMENT: Overlays on images should be subtle. Never use pure black overlays; use gradient to transparent (e.g., bg-gradient-to-t from-black/60 to-transparent) on the bottom of restaurant images only if text contrast is needed."
+    "IMPLEMENTATION REQUIREMENT: Use 'Playfair Display' for headings (tarot card text, step titles) and 'Inter' for body. Add them to index.html or import via CSS.",
+    "IMPLEMENTATION REQUIREMENT: Work with .js and .jsx files. Do NOT use .tsx. Ensure all React components are valid JSX.",
+    "IMPLEMENTATION REQUIREMENT: Wrap the multi-step ritual inside an AnimatePresence block from Framer Motion. Only ONE step renders at a time to create the window replacement effect requested by the user.",
+    "IMPLEMENTATION REQUIREMENT: Maintain a state 'currentStep' (1 to 4). Step 1 auto-advances onClick. Step 2 has a 'Next' button or 'Use my location'. Step 3 has 'Next' or 'Surprise me'. Step 4 has the Tarot Card.",
+    "IMPLEMENTATION REQUIREMENT: The Tarot Card must use 3D CSS transforms via Framer Motion (<motion.div style={{ transformStyle: 'preserve-3d' }}>). Make sure the backface is hidden using standard CSS classes.",
+    "IMPLEMENTATION REQUIREMENT: All interactive and key informational elements MUST include a 'data-testid' attribute (e.g., data-testid='ritual-step-1', data-testid='interest-food', data-testid='zip-input', data-testid='tarot-button', data-testid='back-button').",
+    "IMPLEMENTATION REQUIREMENT: Do NOT break the existing classic layout! Render this 'Ritual Overlay' conditionally as a fixed z-[100] layer on top of the existing app.",
+    "IMPLEMENTATION REQUIREMENT: Do NOT use a fully transparent background for the card containers (e.g., no bg-transparent). Use bg-[#0E0E0E]/95 backdrop-blur-3xl to ensure content is legible over the background.",
+    "IMPLEMENTATION REQUIREMENT: Implement the Progress indicator as a subtle UI (e.g., 'Step 1 of 4' text or a progress bar) and provide a 'Back' button to return to the previous step (except on step 1)."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "You tend to converge toward generic, 'on distribution' outputs. Avoid this: make creative, distinctive frontends that surprise and delight.",
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur).",
+    "You MUST NOT apply universal transition. Eg: `transition: all`. Always add transitions for specific interactive elements like button, input excluding transforms.",
+    "You MUST NOT center align the app container, ie do not add `.App { text-align: center; }` in the css file.",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style.",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, and entrance animations. Static = dead.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap."
   ]
 }
