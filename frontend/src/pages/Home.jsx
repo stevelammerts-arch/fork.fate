@@ -14,6 +14,7 @@ import CheckUpdatesButton from "../components/CheckUpdatesButton";
 import FavoritesDrawer from "../components/FavoritesDrawer";
 import GroupVote from "../components/GroupVote";
 import { useFavorites } from "../hooks/useFavorites";
+import GuidedFlow from "../components/GuidedFlow";
 import { Input } from "../components/ui/input";
 import { Slider } from "../components/ui/slider";
 
@@ -101,6 +102,24 @@ export default function Home() {
   const resultRef = useRef(null);
   const lastPickRef = useRef(null);
   const { favorites, isFavorite, toggleFavorite, removeFavorite } = useFavorites();
+  const [showGuided, setShowGuided] = useState(() => {
+    try { return localStorage.getItem("ff_ritual_done") !== "1"; } catch { return false; }
+  });
+
+  const finishGuided = () => {
+    try { localStorage.setItem("ff_ritual_done", "1"); } catch (e) { /* ignore */ }
+    setShowGuided(false);
+  };
+
+  const sealFate = ({ mode: m, zip: z, coords: c, radius: r, cuisines }) => {
+    setMode(m);
+    setZip(z || "");
+    setCoords(c || null);
+    setRadius(r);
+    setSelectedCuisines(cuisines);
+    finishGuided();
+    doSearch(cuisines, [], m, c || null, { zipArg: z || "", radiusArg: r });
+  };
 
   // 3D parallax tilt for the reaper — follows the cursor for a sense of depth
   const tiltX = useMotionValue(0);
@@ -207,9 +226,10 @@ export default function Home() {
     step();
   };
 
-  const doSearch = async (cuisinesArg, pricesArg, categoryArg, coordsArg = coords) => {
+  const doSearch = async (cuisinesArg, pricesArg, categoryArg, coordsArg = coords, opts = {}) => {
     if (spinning || loading) return;
-    const z = zip.trim();
+    const z = (opts.zipArg !== undefined ? opts.zipArg : zip).trim();
+    const rad = opts.radiusArg !== undefined ? opts.radiusArg : radius;
     if (!coordsArg && z && !/^\d{5}$/.test(z)) {
       toast.error("ZIP code should be 5 digits (or leave it blank)");
       return;
@@ -224,7 +244,7 @@ export default function Home() {
         price_levels: pricesArg,
         category: categoryArg,
         open_now: openNow,
-        radius_miles: radius,
+        radius_miles: rad,
       });
       setResults(data.restaurants);
       setSource(data.source);
@@ -304,6 +324,15 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-white">
+      <AnimatePresence>
+        {showGuided && (
+          <GuidedFlow
+            cuisineMap={{ food: FOOD_CUISINES, drinks: DRINK_CUISINES, bars: BAR_CUISINES, desserts: DESSERT_CUISINES }}
+            onSeal={sealFate}
+            onSkip={finishGuided}
+          />
+        )}
+      </AnimatePresence>
       {/* Decorative reaper background with load animation */}
       <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>
         <motion.div
