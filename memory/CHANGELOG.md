@@ -77,3 +77,9 @@
 - UI polish: removed redundant within-mi chip from ZIP field; ZIP input + Use-my-location now side-by-side; location label restored.
 - DAILY AUTO-RECONCILE (webhook alternative): reconcile_sponsors() re-checks active PayPal-backed sponsors (subscription_id != None) against PayPal GET /v1/billing/subscriptions/{id}; auto-pauses any not ACTIVE (active=false, sub_status). Comped/manual sponsors untouched. Runs on startup + every 24h (_reconcile_loop via asyncio.create_task). Manual trigger: POST /api/admin/sponsors/reconcile (require_admin). So webhook is now OPTIONAL for lifecycle events too.
 - Rotated LIVE PayPal secret (old one exposed in chat now invalid; new one validated token 200).
+
+## 2026-06 (Guided 'seal your fate' ritual)
+- First-visit GUIDED multi-step ritual (localStorage 'ff_ritual_done'): Step1 interest -> Step2 location(ZIP/geo)+radius slider -> Step3 optional cuisine chips (+Surprise me) -> Step4 gothic tarot 'Seal your fate' card (flip -> triggers deal). Page-turn transitions over blurred reaper. Component: components/GuidedFlow.jsx. Home.jsx: showGuided state, sealFate() (sets state + doSearch with {zipArg,radiusArg} overrides), finishGuided(). doSearch() now takes opts overrides. Verified iter34.
+- 'Guided' relaunch button in header (setShowGuided(true)); visible on mobile (icon-only) + desktop. Verified iter35.
+- Gothic tarot: ornate double silver frame, corner flourishes, skull+cross motifs, floating bob; on seal step the overlay backdrop clears so the reaper 'presents' the card ('The reaper offers your fate'). 
+- MYSTICAL AURA: red/black rotating conic smokey border + pulsing red ring around the result card for ~3s after a GUIDED seal, then unmounts (single keyed AnimatePresence child). Not shown on classic deals. Fixed unmount bug (iter35->iter36 PASS).
