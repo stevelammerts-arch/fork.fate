@@ -75,7 +75,7 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
       data-testid="guided-flow"
       style={{ perspective: 1400 }}
     >
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />
+      <div className={`absolute inset-0 transition-all duration-700 ${step === 3 ? "bg-black/40 backdrop-blur-[2px]" : "bg-black/70 backdrop-blur-md"}`} />
 
       <div className="relative w-full max-w-md">
         {/* progress + back */}
@@ -103,7 +103,7 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
             exit="exit"
             transition={{ duration: 0.45, ease: "easeInOut" }}
             style={{ transformOrigin: "left center" }}
-            className="relative overflow-hidden rounded-2xl border border-[#2A2A2A] bg-[#0E0E0E]/95 p-7 shadow-2xl backdrop-blur-3xl"
+            className={`relative overflow-hidden rounded-2xl p-7 ${step === 3 ? "border-0 bg-transparent shadow-none" : "border border-[#2A2A2A] bg-[#0E0E0E]/95 shadow-2xl backdrop-blur-3xl"}`}
           >
             {/* STEP 1 — interest */}
             {step === 0 && (
@@ -212,34 +212,48 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
             {/* STEP 4 — tarot seal */}
             {step === 3 && (
               <div className="text-center" data-testid="guided-step-seal">
-                <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#E01E26]">The final step</p>
-                <h2 className="mt-1 font-serif text-3xl font-bold text-white">Seal your fate</h2>
+                <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#E01E26] drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">The final step</p>
+                <h2 className="mt-1 font-serif text-3xl font-bold text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">The reaper offers your fate</h2>
 
-                <div className="mx-auto mt-6 h-72 w-48" style={{ perspective: 1000 }}>
+                <div className="mx-auto mt-8 h-72 w-48" style={{ perspective: 1000 }}>
                   <motion.button
                     onClick={seal}
                     data-testid="guided-seal-button"
                     className="relative h-full w-full cursor-pointer rounded-2xl"
                     style={{ transformStyle: "preserve-3d" }}
-                    animate={sealed ? { rotateY: 180, scale: 1.08 } : { rotateY: 0, scale: 1 }}
-                    transition={{ type: "spring", stiffness: 60, damping: 15 }}
+                    animate={sealed ? { rotateY: 180, scale: 1.08, y: -10 } : { rotateY: 0, scale: 1, y: [0, -8, 0] }}
+                    transition={sealed ? { type: "spring", stiffness: 60, damping: 15 } : { y: { repeat: Infinity, duration: 3, ease: "easeInOut" } }}
                     whileHover={sealed ? {} : { scale: 1.04 }}
                   >
-                    {/* front */}
-                    <span className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-[#C0C0C0]/40 bg-gradient-to-b from-[#1a1a1a] to-[#0b0b0b] shadow-[0_0_30px_rgba(224,30,38,0.35)]" style={{ backfaceVisibility: "hidden" }}>
-                      <span className="pointer-events-none absolute inset-2 rounded-xl border border-[#C0C0C0]/20" />
-                      <Skull className="h-16 w-16 text-[#E01E26] drop-shadow-[0_0_10px_rgba(224,30,38,0.7)]" />
-                      <span className="px-4 font-serif text-lg font-bold uppercase tracking-widest text-[#C0C0C0]">Seal your fate</span>
+                    {/* front — gothic tarot */}
+                    <span className="absolute inset-0 overflow-hidden rounded-2xl border-2 border-[#C0C0C0]/50 bg-[radial-gradient(circle_at_50%_32%,#2a1519_0%,#0b0b0b_72%)] shadow-[0_0_40px_rgba(224,30,38,0.45)]" style={{ backfaceVisibility: "hidden" }}>
+                      <span className="pointer-events-none absolute inset-[6px] rounded-xl border border-[#C0C0C0]/25" />
+                      <span className="pointer-events-none absolute inset-[10px] rounded-lg border border-[#C0C0C0]/10" />
+                      {/* corner flourishes */}
+                      <span className="pointer-events-none absolute left-2 top-2 h-2.5 w-2.5 rotate-45 border-l border-t border-[#C0C0C0]/60" />
+                      <span className="pointer-events-none absolute right-2 top-2 h-2.5 w-2.5 rotate-45 border-r border-t border-[#C0C0C0]/60" />
+                      <span className="pointer-events-none absolute bottom-2 left-2 h-2.5 w-2.5 rotate-45 border-b border-l border-[#C0C0C0]/60" />
+                      <span className="pointer-events-none absolute bottom-2 right-2 h-2.5 w-2.5 rotate-45 border-b border-r border-[#C0C0C0]/60" />
+                      <span className="flex h-full flex-col items-center justify-center gap-2.5 px-4">
+                        <span className="font-serif text-[10px] tracking-[0.35em] text-[#C0C0C0]/70">✦ FORK·FATE ✦</span>
+                        <span className="h-px w-16 bg-gradient-to-r from-transparent via-[#C0C0C0]/50 to-transparent" />
+                        <span className="relative">
+                          <Skull className="h-16 w-16 text-[#E01E26] drop-shadow-[0_0_14px_rgba(224,30,38,0.85)]" />
+                        </span>
+                        <span className="h-px w-16 bg-gradient-to-r from-transparent via-[#C0C0C0]/50 to-transparent" />
+                        <span className="font-serif text-base font-bold uppercase leading-tight tracking-[0.25em] text-[#C0C0C0]">Seal your<br />fate</span>
+                        <span className="font-serif text-lg text-[#C0C0C0]/50">☩</span>
+                      </span>
                     </span>
                     {/* back */}
-                    <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-[#E01E26] bg-gradient-to-b from-[#2a0b0d] to-[#0b0b0b] shadow-[0_0_50px_rgba(224,30,38,0.8)]" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
+                    <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-[#E01E26] bg-gradient-to-b from-[#2a0b0d] to-[#0b0b0b] shadow-[0_0_55px_rgba(224,30,38,0.85)]" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
                       <Sparkles className="h-12 w-12 text-[#E01E26]" />
                       <span className="font-serif text-xl font-bold uppercase tracking-widest text-white">Fate Sealed</span>
                     </span>
                   </motion.button>
                 </div>
 
-                <p className="mt-6 font-serif text-base italic text-[#A0A0A0]">
+                <p className="mt-6 font-serif text-base italic text-[#C0C0C0] drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
                   {sealed ? "The deck decides…" : "Once chosen, your fate is sealed."}
                 </p>
               </div>
