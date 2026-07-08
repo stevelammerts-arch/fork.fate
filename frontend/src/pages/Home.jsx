@@ -641,26 +641,28 @@ export default function Home() {
           <div className="relative">
             <AnimatePresence>
               {mysticalReveal && result && (
-                <>
+                <motion.div
+                  key="mystical"
+                  aria-hidden
+                  data-testid="mystical-aura"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="pointer-events-none absolute -inset-3"
+                >
                   <motion.div
-                    aria-hidden
-                    data-testid="mystical-aura"
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1, rotate: 360 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ rotate: { repeat: Infinity, duration: 5, ease: "linear" }, opacity: { duration: 0.5 }, scale: { duration: 0.5 } }}
-                    className="pointer-events-none absolute -inset-3 rounded-[32px]"
+                    className="absolute inset-0 rounded-[32px]"
                     style={{ background: "conic-gradient(from 0deg, #E01E26, #0b0b0b, #7a0c10, #000000, #E01E26)", filter: "blur(16px)" }}
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 5, ease: "linear" }}
                   />
                   <motion.div
-                    aria-hidden
-                    initial={{ opacity: 0 }}
+                    className="absolute inset-[9px] rounded-[26px] border-2 border-[#E01E26]"
                     animate={{ opacity: [0.35, 0.95, 0.35], boxShadow: ["0 0 22px rgba(224,30,38,0.4)", "0 0 55px rgba(224,30,38,0.95)", "0 0 22px rgba(224,30,38,0.4)"] }}
-                    exit={{ opacity: 0 }}
                     transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
-                    className="pointer-events-none absolute -inset-0.5 rounded-[26px] border-2 border-[#E01E26]"
                   />
-                </>
+                </motion.div>
               )}
             </AnimatePresence>
             <div ref={resultRef} className="relative z-10 min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
