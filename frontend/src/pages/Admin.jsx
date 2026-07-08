@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { Lock, Plus, Trash2, LogOut, Star, Eye, EyeOff, Check, X, Clock } from "lucide-react";
+import { Lock, Plus, Trash2, LogOut, Star, Eye, EyeOff, Check, X, Clock, MousePointerClick } from "lucide-react";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
@@ -308,6 +308,27 @@ export default function Admin() {
         {/* Sponsor list */}
         <section>
           <h2 className="font-serif text-xl text-[#0E0E0E]">Current sponsors ({sponsors.length})</h2>
+          {sponsors.length > 0 && (() => {
+            const imp = sponsors.reduce((a, s) => a + (s.impressions || 0), 0);
+            const clk = sponsors.reduce((a, s) => a + (s.clicks || 0), 0);
+            const ctr = imp > 0 ? ((clk / imp) * 100).toFixed(1) : "0.0";
+            return (
+              <div data-testid="sponsor-analytics-summary" className="mt-3 grid grid-cols-3 gap-2">
+                <div className="rounded-xl border border-[#E2E4E7] bg-white px-3 py-2 text-center">
+                  <p className="font-serif text-2xl text-[#0E0E0E]" data-testid="total-impressions">{imp.toLocaleString()}</p>
+                  <p className="font-sans text-[11px] font-semibold uppercase tracking-wide text-[#6B7075]">Impressions</p>
+                </div>
+                <div className="rounded-xl border border-[#E2E4E7] bg-white px-3 py-2 text-center">
+                  <p className="font-serif text-2xl text-[#0E0E0E]" data-testid="total-clicks">{clk.toLocaleString()}</p>
+                  <p className="font-sans text-[11px] font-semibold uppercase tracking-wide text-[#6B7075]">Clicks</p>
+                </div>
+                <div className="rounded-xl border border-[#E2E4E7] bg-white px-3 py-2 text-center">
+                  <p className="font-serif text-2xl text-[#E01E26]" data-testid="total-ctr">{ctr}%</p>
+                  <p className="font-sans text-[11px] font-semibold uppercase tracking-wide text-[#6B7075]">CTR</p>
+                </div>
+              </div>
+            );
+          })()}
           <div className="mt-4 space-y-3" data-testid="sponsor-list">
             {sponsors.length === 0 && (
               <div className="rounded-2xl border border-dashed border-[#D5D8DC] bg-white p-8 text-center font-sans text-sm text-[#6B7075]">
@@ -326,6 +347,11 @@ export default function Admin() {
                     {s.category} · {s.cuisine} · {s.price}
                     <span className="ml-2 inline-flex items-center gap-1"><Star className="h-3 w-3 fill-[#E01E26] text-[#E01E26]" />{Number(s.rating).toFixed(1)}</span>
                   </p>
+                  <div className="mt-1 flex items-center gap-3 font-sans text-xs text-[#6B7075]" data-testid={`sponsor-stats-${s.id}`}>
+                    <span className="inline-flex items-center gap-1" title="Impressions"><Eye className="h-3.5 w-3.5" />{(s.impressions || 0).toLocaleString()}</span>
+                    <span className="inline-flex items-center gap-1" title="Clicks"><MousePointerClick className="h-3.5 w-3.5" />{(s.clicks || 0).toLocaleString()}</span>
+                    <span className="font-semibold text-[#E01E26]" title="Click-through rate">{(s.impressions || 0) > 0 ? (((s.clicks || 0) / s.impressions) * 100).toFixed(1) : "0.0"}% CTR</span>
+                  </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-1.5">

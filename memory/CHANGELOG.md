@@ -9,6 +9,10 @@
 - **SEO**: added `robots.txt` (Disallow /admin + sitemap ref) and `sitemap.xml`; re-added canonical/OG/Twitter meta tags for fork-fate.com. Added "How it works" + FAQ section to homepage (fixes thin-content warning). SEO health score 89.
 - **Code review fixes (safe subset)**: `useMemo` for results sort; logging added to previously-empty catch blocks (Home shareFate, CheckUpdatesButton, AdUnit); converted 24 `is True/False` → `== True/False` in backend test files. Deferred (documented): localStorage→httpOnly auth, large component splits — flagged as separate testing-heavy refactors; most "missing hook deps" and server.py `is not None` flags were false positives.
 
+## 2026-07-08 (analytics + icon)
+- **Sponsor Analytics (P1 done)**: tracks impressions (incremented in `fetch_active_sponsors` when a sponsor is shown in a search) and clicks (public `POST /api/track/sponsor-click`, fired from RestaurantCard outbound links when `r.sponsored`). Admin `/admin` shows a totals summary (impressions/clicks/CTR) + per-sponsor stats row. Counters init on `create_sponsor`. Verified end-to-end (curl + UI).
+- **PWA icon root-cause fix**: previous logo PNGs had the transparency **checkerboard baked into the pixels** (AI-generated), which showed on the home icon + splash. Regenerated `logo-app.png` (red circle on SOLID black square, no checker) + opaque `logo-app-192/512.png`. Updated manifest icons, favicon, apple-touch-icon, header/footer/admin (scale-110). New filenames force Android WebAPK re-mint. Requires deploy + phone: remove app, Chrome→Site settings→fork-fate.com→Clear & reset, reinstall.
+
 ## Deployment notes
 - Production: https://fork-fate.com (custom domain, user-owned, connected via Entri).
 - All logo/header/glow changes are in PREVIEW; require Save to GitHub → Deploy to reach production.

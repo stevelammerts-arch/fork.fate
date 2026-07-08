@@ -9,6 +9,21 @@ import {
 const CARD_HOVER = { y: -8 };
 const CARD_SPRING = { type: "spring", stiffness: 300, damping: 22 };
 
+const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const trackSponsorClick = (r) => {
+  if (!r.sponsored || !r.id) return;
+  try {
+    fetch(`${API}/track/sponsor-click`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sponsor_id: r.id }),
+      keepalive: true,
+    });
+  } catch (e) {
+    console.debug("sponsor click track failed:", e);
+  }
+};
+
 const BAR_ICONS = {
   "Beer": Beer, "Irish Bar": Beer,
   "Wine": Wine,
@@ -49,7 +64,7 @@ export function RestaurantCard({ r, onReport }) {
           rel="noopener noreferrer"
           data-testid={`photo-link-${r.id}`}
           title={`View ${r.name} on Google`}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); trackSponsorClick(r); }}
           className="block h-full w-full"
         >
           <img
@@ -113,7 +128,7 @@ export function RestaurantCard({ r, onReport }) {
               target="_blank"
               rel="noopener noreferrer"
               data-testid={`doordash-${r.id}`}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); trackSponsorClick(r); }}
               className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
             >
               <ShoppingBag className="h-4 w-4" /> {orderLabel}
@@ -125,7 +140,7 @@ export function RestaurantCard({ r, onReport }) {
               target="_blank"
               rel="noopener noreferrer"
               data-testid={`rate-on-google-${r.id}`}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); trackSponsorClick(r); }}
               className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#0E0E0E] px-3 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]"
             >
               <Star className="h-4 w-4 fill-[#E01E26] text-[#E01E26]" /> Reviews

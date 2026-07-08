@@ -542,6 +542,8 @@ async def create_sponsor(payload: SponsorCreate):
     doc['id'] = str(uuid.uuid4())
     doc['image'] = doc['image'] or FALLBACK_IMG
     doc['open_now'] = True
+    doc['impressions'] = 0
+    doc['clicks'] = 0
     doc['created_at'] = datetime.now(timezone.utc).isoformat()
     await db.sponsors.insert_one(doc)
     doc.pop('_id', None)
@@ -564,6 +566,17 @@ async def delete_sponsor(sponsor_id: str):
     res = await db.sponsors.delete_one({"id": sponsor_id})
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Sponsor not found")
+    return {"ok": True}
+
+
+class SponsorClick(BaseModel):
+    sponsor_id: str
+
+
+@api_router.post("/track/sponsor-click", dependencies=[Depends(rate_limit(120))])
+async def track_sponsor_click(payload: SponsorClick):
+    """Public: record a click on a sponsored spot's outbound link."""
+    await db.sponsors.update_one({"id": payload.sponsor_id}, {"$inc": {"clicks": 1}})
     return {"ok": True}
 
 
@@ -609,6 +622,10 @@ async def fetch_active_sponsors(req: "PlacesSearchRequest"):
         s['doordash_url'] = doordash_url(s['name'], s.get('address', ''))
         s['order_url'] = order_url(s['name'], s.get('address', ''))
         out.append(s)
+    # Count one impression per sponsor shown in this search
+    ids = [s['id'] for s in out if s.get('id')]
+    if ids:
+        await db.sponsors.update_many({"id": {"$in": ids}}, {"$inc": {"impressions": 1}})
     return out
 
 
