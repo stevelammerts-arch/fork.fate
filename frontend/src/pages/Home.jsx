@@ -375,7 +375,7 @@ export default function Home() {
       </header>
 
       {/* Social share bar (transparent) */}
-      <div className="relative z-10 mx-auto flex max-w-6xl items-center justify-end gap-2 bg-transparent px-4 pt-5 md:px-12" data-testid="app-social-share">
+      <div className="relative z-10 mx-auto flex max-w-6xl items-center justify-end gap-2 bg-transparent px-4 pt-2 md:px-12" data-testid="app-social-share">
         <SocialShare />
       </div>
 
