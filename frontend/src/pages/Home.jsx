@@ -401,9 +401,9 @@ export default function Home() {
               onClick={() => setShowGuided(true)}
               data-testid="relaunch-guided-button"
               title="Start the guided ritual"
-              className="hidden items-center gap-2 rounded-full border border-white/25 bg-transparent px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10 sm:inline-flex"
+              className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-transparent px-3 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10 sm:px-4"
             >
-              <Sparkles className="h-4 w-4 text-[#E01E26]" /> Guided
+              <Sparkles className="h-4 w-4 text-[#E01E26]" /> <span className="hidden sm:inline">Guided</span>
             </button>
             <BecomeSponsorDialog variant="link" />
             <FavoritesDrawer favorites={favorites} onRemove={removeFavorite} onDeal={dealFromFavorites} groupMode={groupMode} />
