@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -14,6 +14,31 @@ import CheckUpdatesButton from "../components/CheckUpdatesButton";
 import { Input } from "../components/ui/input";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+const STREAK_KEY = "ff_streak";
+const midnight = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+function readStreak() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STREAK_KEY) || "null");
+    if (!raw) return 0;
+    const days = Math.round((midnight(new Date()) - midnight(raw.date)) / 86400000);
+    return days === 0 || days === 1 ? raw.count : 0;
+  } catch { return 0; }
+}
+function bumpStreak() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STREAK_KEY) || "null");
+    let count = 1;
+    if (raw) {
+      const days = Math.round((midnight(new Date()) - midnight(raw.date)) / 86400000);
+      if (days === 0) count = raw.count;
+      else if (days === 1) count = raw.count + 1;
+    }
+    localStorage.setItem(STREAK_KEY, JSON.stringify({ date: new Date().toISOString(), count }));
+    return count;
+  } catch { return 1; }
+}
+
 
 const SHUFFLE_INTERVAL_MS = 90;
 const SHUFFLE_DURATION_MS = 1500;
@@ -62,6 +87,7 @@ export default function Home() {
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
   const [fatesDealt, setFatesDealt] = useState(null);
+  const [streak, setStreak] = useState(() => readStreak());
   const [flash, setFlash] = useState(null);
   const [flashHit, setFlashHit] = useState(false);
   const shuffleRef = useRef(null);
@@ -135,6 +161,7 @@ export default function Home() {
             setFlash(null);
             setFlashHit(false);
             axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
+            setStreak(bumpStreak());
           }, 336);
         }, 300);
       }
@@ -472,6 +499,11 @@ export default function Home() {
               <div className="mt-4 inline-flex items-center gap-2 font-sans text-sm text-[#6B7075]" data-testid="fates-dealt-counter">
                 <Dices className="h-4 w-4 text-[#E01E26]" />
                 <span><span className="font-bold text-[#0E0E0E]">{fatesDealt.toLocaleString()}</span> fates dealt</span>
+                {streak >= 2 && (
+                  <span className="ml-3 inline-flex items-center gap-1.5 rounded-full bg-[#FCF4F4] px-3 py-1 text-[#E01E26]" data-testid="streak-badge">
+                    <Flame className="h-4 w-4" /><span className="font-bold">{streak}-day streak</span>
+                  </span>
+                )}
               </div>
             )}
           </div>

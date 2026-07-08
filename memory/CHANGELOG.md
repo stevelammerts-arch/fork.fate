@@ -19,6 +19,9 @@
 ## 2026-07-08 (fates dealt counter)
 - **Social-proof counter**: homepage shows "N fates dealt" (data-testid=fates-dealt-counter) under the Deal button with a red dice icon. Backend: `stats` collection doc {key:"fates_dealt"}, seeded at 1042 on startup (independent of restaurant seed). Endpoints `GET /api/stats/fates` (read) and `POST /api/stats/fate-dealt` (increment, rate-limited, upsert + ReturnDocument.AFTER). Frontend fetches on mount and increments in runShuffle when the result is revealed. Verified: 1044 -> 1045 on spin, no console errors. NOTE: base seed of 1042 is a chosen social-proof starting number (adjustable).
 
+## 2026-07-08 (daily streak)
+- **Daily streak**: localStorage-based (`ff_streak` = {date, count}). Homepage shows a "🔥 N-day streak" pill (data-testid=streak-badge, Flame icon) next to the fates counter when streak >= 2. `readStreak()` shows current active streak on load (today/yesterday), `bumpStreak()` runs on each completed spin (same-day = no change, consecutive day = +1, gap = reset to 1). Verified: 2-day on load -> 3-day after spin, no console errors. No backend needed (per-device).
+
 ## Deployment notes
 - Production: https://fork-fate.com (custom domain, user-owned, connected via Entri).
 - All logo/header/glow changes are in PREVIEW; require Save to GitHub → Deploy to reach production.
