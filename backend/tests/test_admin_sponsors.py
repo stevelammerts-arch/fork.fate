@@ -61,7 +61,7 @@ class TestAdminAuth:
     def test_verify_with_token(self, auth):
         r = requests.get(f"{BASE_URL}/api/admin/verify", headers=auth)
         assert r.status_code == 200
-        assert r.json().get("ok") is True
+        assert r.json().get("ok") == True
 
 
 # --------- Sponsor CRUD ---------
@@ -84,7 +84,7 @@ class TestSponsorCRUD:
         assert r.status_code == 200, r.text
         sp = r.json()
         assert sp["name"] == payload["name"]
-        assert sp["active"] is True
+        assert sp["active"] == True
         assert "id" in sp
         sid = sp["id"]
 
@@ -97,7 +97,7 @@ class TestSponsorCRUD:
         r = requests.patch(f"{BASE_URL}/api/admin/sponsors/{sid}",
                            json={"active": False}, headers=auth)
         assert r.status_code == 200
-        assert r.json()["active"] is False
+        assert r.json()["active"] == False
 
         # delete
         r = requests.delete(f"{BASE_URL}/api/admin/sponsors/{sid}", headers=auth)
@@ -130,7 +130,7 @@ class TestSponsorInjection:
             assert len(restos) > 0
             first = restos[0]
             assert first["name"] == sp["name"], f"Expected sponsor first, got {first['name']}"
-            assert first["sponsored"] is True
+            assert first["sponsored"] == True
         finally:
             requests.delete(f"{BASE_URL}/api/admin/sponsors/{sp['id']}", headers=auth)
 

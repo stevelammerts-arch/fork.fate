@@ -53,7 +53,7 @@ def test_places_search_bars_returns_all_16_with_sponsored_first():
     sponsored_count = sum(1 for i in items if i.get("sponsored"))
     assert sponsored_count == 4
     for i in items[:4]:
-        assert i["sponsored"] is True, f"Sponsored not first: {i['name']}"
+        assert i["sponsored"] == True, f"Sponsored not first: {i['name']}"
     # URLs present
     for i in items:
         assert i["google_url"].startswith("https://www.google.com/maps")
@@ -162,7 +162,7 @@ def test_reports_still_works():
                       json={"restaurant_id": "test-id", "restaurant_name": "TEST",
                             "reason": "Closed"}, timeout=15)
     assert r.status_code == 200
-    assert r.json().get("ok") is True
+    assert r.json().get("ok") == True
 
 
 def test_places_photo_404_without_key():

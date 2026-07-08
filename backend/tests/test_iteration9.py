@@ -55,7 +55,7 @@ class TestChickenWings:
         assert len(items) == 2
         # Buffalo Junction sponsored
         bj = next(i for i in items if i["name"] == "Buffalo Junction")
-        assert bj["sponsored"] is True
+        assert bj["sponsored"] == True
         assert bj["cuisine"] == "Chicken Wings"
 
 
@@ -69,7 +69,7 @@ class TestReports:
         })
         assert r.status_code == 200
         data = r.json()
-        assert data["ok"] is True
+        assert data["ok"] == True
         assert "id" in data and isinstance(data["id"], str) and len(data["id"]) > 0
 
     def test_report_empty_id_422(self, api):

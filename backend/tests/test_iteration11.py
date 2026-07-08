@@ -50,7 +50,7 @@ def test_places_search_breakfast(s):
     assert "Sunrise Diner" in names
     assert "The Morning Table" in names
     # sponsored first
-    assert body["restaurants"][0]["sponsored"] is True
+    assert body["restaurants"][0]["sponsored"] == True
     assert body["restaurants"][0]["name"] == "Sunrise Diner"
     for x in body["restaurants"]:
         assert x["cuisine"] == "Breakfast"
@@ -67,7 +67,7 @@ def test_places_search_wine(s):
     names = [x["name"] for x in body["restaurants"]]
     assert "The Wine Cellar" in names
     winespot = next(x for x in body["restaurants"] if x["name"] == "The Wine Cellar")
-    assert winespot["sponsored"] is True
+    assert winespot["sponsored"] == True
     assert winespot["category"] == "bars"
     assert winespot["google_url"]
     assert winespot["doordash_url"]

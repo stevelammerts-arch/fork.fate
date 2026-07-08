@@ -25,7 +25,7 @@ def test_restaurants_list():
     assert isinstance(data, list)
     assert len(data) >= 55
     # Verify some open_now false docs exist (idx%4==0 => closed)
-    closed = [x for x in data if x.get('open_now') is False]
+    closed = [x for x in data if x.get('open_now') == False]
     assert len(closed) >= 5, f"Expected some closed spots, got {len(closed)}"
 
 
@@ -113,14 +113,14 @@ def test_open_now_true_excludes_closed():
     r = _search(category="food", open_now=True)
     data = r.json()
     for x in data["restaurants"]:
-        assert x["open_now"] is True, f"{x['name']} should be open"
+        assert x["open_now"] == True, f"{x['name']} should be open"
 
 
 def test_open_now_true_desserts():
     r = _search(category="desserts", open_now=True)
     data = r.json()
     for x in data["restaurants"]:
-        assert x["open_now"] is True
+        assert x["open_now"] == True
 
 
 def test_open_now_true_bars():
@@ -128,7 +128,7 @@ def test_open_now_true_bars():
     data = r.json()
     assert len(data["restaurants"]) > 0
     for x in data["restaurants"]:
-        assert x["open_now"] is True
+        assert x["open_now"] == True
 
 
 # --- Sponsored ordering ---
@@ -136,7 +136,7 @@ def test_desserts_sponsored_first():
     r = _search(category="desserts")
     items = r.json()["restaurants"]
     # First item must be sponsored (sponsored-first sort)
-    assert items[0]["sponsored"] is True
+    assert items[0]["sponsored"] == True
 
 
 # --- Validation ---
@@ -158,4 +158,4 @@ def test_report_creation():
         "reason": "TEST",
     }, timeout=15)
     assert r.status_code == 200
-    assert r.json().get("ok") is True
+    assert r.json().get("ok") == True

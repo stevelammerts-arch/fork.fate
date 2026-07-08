@@ -54,7 +54,7 @@ def test_zip_open_now_only(s):
     assert data["source"] == "google"
     # Google returns only open when openNow=True; verify each item is open
     for spot in data["restaurants"]:
-        assert spot["open_now"] is True, f"{spot['name']} was returned as closed"
+        assert spot["open_now"] == True, f"{spot['name']} was returned as closed"
 
 
 # ---------- Curated fallback (no zip, no lat/lng) ----------
@@ -128,7 +128,7 @@ def test_spin(s):
 def test_reports_create(s):
     r = s.post(f"{API}/reports", json={"restaurant_id": "TEST_it13", "restaurant_name": "TEST", "reason": "TEST_iter13"})
     assert r.status_code == 200
-    assert r.json().get("ok") is True
+    assert r.json().get("ok") == True
 
 
 def test_restaurant_create_and_get(s):

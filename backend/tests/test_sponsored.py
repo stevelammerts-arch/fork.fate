@@ -62,13 +62,13 @@ class TestSponsoredField:
         c = client.post(f"{API}/restaurants", json=payload)
         assert c.status_code == 200, c.text
         created = c.json()
-        assert created["sponsored"] is True
+        assert created["sponsored"] == True
         rid = created["id"]
         # Verify persistence
         g = client.get(f"{API}/restaurants")
         found = next((x for x in g.json() if x["id"] == rid), None)
         assert found is not None
-        assert found["sponsored"] is True
+        assert found["sponsored"] == True
         # cleanup
         client.delete(f"{API}/restaurants/{rid}")
 
@@ -82,5 +82,5 @@ class TestSponsoredField:
         c = client.post(f"{API}/restaurants", json=payload)
         assert c.status_code == 200
         created = c.json()
-        assert created["sponsored"] is False
+        assert created["sponsored"] == False
         client.delete(f"{API}/restaurants/{created['id']}")

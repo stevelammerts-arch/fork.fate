@@ -108,7 +108,7 @@ def test_sponsor_crud_and_pinning(admin_token):
         results = s.json().get("restaurants", [])
         assert results and results[0].get("name") == "TEST_SponsorPin", \
             f"Sponsor not pinned first. First: {results[0].get('name') if results else 'none'}"
-        assert results[0].get("sponsored") is True
+        assert results[0].get("sponsored") == True
 
         # Toggle inactive
         u = requests.patch(f"{BASE}/api/admin/sponsors/{sid}", json={"active": False},

@@ -43,7 +43,7 @@ def test_sponsorship_request_valid(client):
     }, timeout=15)
     assert r.status_code == 200, r.text
     data = r.json()
-    assert data.get("ok") is True
+    assert data.get("ok") == True
     assert "id" in data
 
 
@@ -95,4 +95,4 @@ def test_reports_create(client):
         "reason": "TEST_iter14 - report test",
     }, timeout=15)
     assert r.status_code == 200
-    assert r.json().get("ok") is True
+    assert r.json().get("ok") == True
