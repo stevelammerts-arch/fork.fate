@@ -491,9 +491,6 @@ export default function Home() {
                   inputMode="numeric"
                   className="border-0 bg-transparent px-1 text-lg font-semibold text-[#0E0E0E] shadow-none focus-visible:ring-0"
                 />
-                <span className="shrink-0 rounded-full bg-[#EDEEF0] px-2 py-0.5 text-[10px] font-bold text-[#6B7075]" data-testid="radius-chip">
-                  within {radius} mi
-                </span>
               </div>
               <button
                 type="button"
