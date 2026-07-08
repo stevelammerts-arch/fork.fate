@@ -38,3 +38,6 @@
 - **Fixes from iter28**: result-favorite-toggle now `e.stopPropagation()+preventDefault()` (was not saving); shuffle-popup `pointer-events:none` while flashHit (was absorbing early clicks); FavoritesDrawer SheetDescription added (a11y).
 - **Logo shine cadence**: header logo sheen `repeatDelay` 8s -> 5s.
 - NOTE: All in PREVIEW; require Save to GitHub -> Deploy for production. Social platforms cache OG previews — re-scrape via platform debugger after deploy (new og-image.png filename helps force refetch).
+
+## 2026-06 (Deal from my favorites)
+- **Deal from my favorites**: one-tap shuffle limited to hearted spots. `dealFromFavorites()` in Home.jsx sets results=favorites and runs runShuffle(favorites). Red CTA in the Favorites drawer (`deal-from-favorites-button`), shown only when favorites>0; label becomes "Deal 3 from favorites" in group mode. Verified iter30 (3/3: empty state, single deal lands on a favorite, group variant drives vote panel).
