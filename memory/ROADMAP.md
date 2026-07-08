@@ -9,11 +9,11 @@
 - Sponsor analytics: track impressions (increment when sponsor shown in fetch_active_sponsors) + click endpoint; show stats in /admin sponsor rows.
 - Light moderation for public "Add spot": user submissions saved as approved=false, hidden from search until admin approves; add admin pending-approval list + approve/reject endpoints & UI.
 
-## Phase 3 — QUEUED (engagement/discovery, frontend)
-- Favorites: heart on result + grid cards, saved to localStorage, a "Favorites" viewer + count.
-- Spin history + daily streak (localStorage) shown near spin button/footer.
-- Group mode: spin and present 3 picks to vote on.
+## Phase 3 — DONE (2026-06, testing-agent verified iter28/29)
+- Favorites: heart on result + grid cards, localStorage, "Favorites" drawer + count. ✅
+- Daily streak (localStorage) near Deal button. ✅ (streak done earlier; favorites this session)
+- Group mode: deal 3 picks to vote on, lock in winner. ✅
 
-## Deferred (needs input)
-- Auto-activate sponsors on PayPal payment: requires PayPal REST API Client ID + Secret (currently manual PayPal.Me/QR). Ask user for keys to build.
-- Refactor server.py (~790 lines) into route/service modules — dedicated low-risk pass, test after.
+## Deferred (needs input / dedicated pass)
+- Auto-activate sponsors on PayPal payment: requires PayPal REST API Client ID + Secret (currently manual PayPal.Me/QR). ASK USER for keys to build.
+- Refactor: Home.jsx is ~1146 lines (extract RevealStage, ShufflingDeck, buildFateCard, GroupVote already split out); server.py ~826 lines into route/service modules. Dedicated low-risk pass, test after.

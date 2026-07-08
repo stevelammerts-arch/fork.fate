@@ -28,3 +28,13 @@
 - After deploy, hard-refresh live site once; SW kill-switch handles future cache automatically.
 - Admin password: GrimReaper!2026.
 - Health check: PASS (no deployment blockers).
+
+## 2026-06 (backlog features + fixes — fork session)
+- **Save Favorites**: localStorage hook `useFavorites` (keyed by name+address). Heart toggle on result card (`result-favorite-toggle`) and each nearby card (`favorite-toggle-<id>`). Header "Favorites" button (`open-favorites-button`) opens a right Sheet drawer (`favorites-drawer`) with count badge, remove, and open-on-Google. Persists across reloads. Verified via testing agent iter28/29.
+- **Group Mode**: toggle (`group-mode-toggle`); Deal button becomes "Deal 3 Fates!". After shuffle, `GroupVote` panel shows 3 distinct picks with +vote counters and "Lock in winner" -> reveals standard result card. Component: `components/GroupVote.jsx`.
+- **Reroll-if-closed** (runShuffle in Home.jsx): gently prefers open spots but ONLY when >=5 are open (else full pool) to preserve variety; `lastPickRef` prevents back-to-back repeats. FIXES user bug "every deal lands on the same spot (the deli sponsor)" caused by an earlier strict open-only pool that collapsed to always-open sponsors. Verified iter29 (no back-to-back repeats, rotates across spots).
+- **Share-link OG image fixed**: old `og:image` = logo-icon.png had a checkerboard baked in (flattened transparency). New branded opaque `public/og-image.png` (1200x630, circular logo on black + red glow + wordmark/tagline/URL). index.html og:image/twitter:image now point to it with width/height/alt meta.
+- **Copy: "spin" -> "shuffle"**: all user-facing "spin" wording changed to the deck metaphor ("shuffle"/"shuffle the deck"/"Shuffle again") across Home.jsx (FAQ, closed hint, respin button, canvas card, share text), SocialShare.jsx, BecomeSponsorDialog.jsx, index.html meta, manifest.json, and the OG image.
+- **Fixes from iter28**: result-favorite-toggle now `e.stopPropagation()+preventDefault()` (was not saving); shuffle-popup `pointer-events:none` while flashHit (was absorbing early clicks); FavoritesDrawer SheetDescription added (a11y).
+- **Logo shine cadence**: header logo sheen `repeatDelay` 8s -> 5s.
+- NOTE: All in PREVIEW; require Save to GitHub -> Deploy for production. Social platforms cache OG previews — re-scrape via platform debugger after deploy (new og-image.png filename helps force refetch).

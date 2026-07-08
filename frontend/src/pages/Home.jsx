@@ -152,7 +152,7 @@ export default function Home() {
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
     // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
-    const varietyPool = openPool.length >= 3 ? openPool : pool;
+    const varietyPool = openPool.length >= 5 ? openPool : pool;
     const avoidId = lastPickRef.current;
     const noRepeat = varietyPool.filter((p) => p.id !== avoidId);
     const candidates = noRepeat.length ? noRepeat : varietyPool;
