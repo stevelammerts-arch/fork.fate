@@ -4,13 +4,13 @@
   "description": "Spin the deck for a nearby restaurant, drink spot, bar or dessert.",
   "icons": [
     {
-      "src": "logo-v11.png",
+      "src": "logo-icon.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     },
     {
-      "src": "logo-v11.png",
+      "src": "logo-icon.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any"
