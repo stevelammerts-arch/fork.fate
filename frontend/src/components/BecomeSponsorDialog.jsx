@@ -1,20 +1,47 @@
 import React, { useState } from "react";
-import { Megaphone, ExternalLink, Check } from "lucide-react";
+import axios from "axios";
+import { toast } from "sonner";
+import { Megaphone, Check, Loader2 } from "lucide-react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger,
 } from "./ui/dialog";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "./ui/select";
 
-const PAYPAL_ME = "https://www.paypal.com/paypalme/stevelammerts/29";
+const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const EMAIL = "stevelammerts@gmail.com";
-const MAILTO = `mailto:${EMAIL}?subject=Fork%C2%B7Fate%20Sponsorship%20%E2%80%94%20I%20paid&body=Hi%2C%20I%27ve%20paid%20for%20a%20Fork%C2%B7Fate%20sponsorship.%0A%0ABusiness%20name%3A%0ACategory%20(food%2Fdrinks%2Fbars%2Fdesserts)%3A%0ACuisine%2Ftype%3A%0AAddress%3A%0AWebsite%2FInstagram%3A%0A`;
+const CATEGORIES = ["food", "drinks", "bars", "desserts"];
+const PRICES = ["$", "$$", "$$$", "$$$$"];
+const EMPTY = { name: "", category: "food", cuisine: "", price: "$$", address: "", website: "", image: "", contact_email: "" };
 
 export default function BecomeSponsorDialog() {
   const [open, setOpen] = useState(false);
+  const [form, setForm] = useState(EMPTY);
+  const [loading, setLoading] = useState(false);
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const subscribe = async () => {
+    if (!form.name.trim() || !form.cuisine.trim() || !form.contact_email.trim()) {
+      toast.error("Business name, cuisine/type and email are required");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data } = await axios.post(`${API}/sponsors/subscribe`, {
+        ...form,
+        origin: window.location.origin,
+      });
+      window.location.href = data.approval_url;
+    } catch (e) {
+      const detail = e.response?.data?.detail || "Could not start checkout";
+      toast.error(detail);
+      setLoading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -25,7 +52,7 @@ export default function BecomeSponsorDialog() {
           <Megaphone className="h-4 w-4" /> Become a sponsor
         </button>
       </DialogTrigger>
-      <DialogContent className="rounded-3xl border-[#E2E4E7] bg-white sm:max-w-md">
+      <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl border-[#E2E4E7] bg-white sm:max-w-md" data-testid="sponsor-dialog">
         <DialogHeader>
           <DialogTitle className="font-serif text-2xl text-[#0E0E0E]">Sponsor your spot on Fork·Fate</DialogTitle>
           <DialogDescription className="text-[#6B7075]">
@@ -33,47 +60,71 @@ export default function BecomeSponsorDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-1">
-          {/* Price */}
-          <div className="rounded-2xl border border-[#E2E4E7] bg-[#F5F6F7] p-4 text-center">
-            <p className="font-serif text-3xl font-semibold text-[#0E0E0E]">$29<span className="text-lg text-[#6B7075]">/month</span></p>
-            <p className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-[#E01E26]/10 px-3 py-1 font-sans text-xs font-bold text-[#E01E26]">
-              <Check className="h-3.5 w-3.5" /> First month FREE
-            </p>
+        <div className="rounded-2xl border border-[#E2E4E7] bg-[#F5F6F7] p-4 text-center">
+          <p className="font-serif text-3xl font-semibold text-[#0E0E0E]">$29<span className="text-lg text-[#6B7075]">/month</span></p>
+          <p className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-[#E01E26]/10 px-3 py-1 font-sans text-xs font-bold text-[#E01E26]">
+            <Check className="h-3.5 w-3.5" /> First month FREE · cancel anytime
+          </p>
+        </div>
+
+        <div className="space-y-3 py-1">
+          <div className="space-y-1.5">
+            <Label htmlFor="sp-name">Business name *</Label>
+            <Input id="sp-name" data-testid="sponsor-form-name" value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="e.g. Olive & Ember" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Category</Label>
+              <Select value={form.category} onValueChange={(v) => set("category", v)}>
+                <SelectTrigger data-testid="sponsor-form-category"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c[0].toUpperCase() + c.slice(1)}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Price</Label>
+              <Select value={form.price} onValueChange={(v) => set("price", v)}>
+                <SelectTrigger data-testid="sponsor-form-price"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {PRICES.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="sp-cuisine">Cuisine / type *</Label>
+            <Input id="sp-cuisine" data-testid="sponsor-form-cuisine" value={form.cuisine} onChange={(e) => set("cuisine", e.target.value)} placeholder="e.g. Italian, Cocktails, Ice Cream" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="sp-addr">Address</Label>
+            <Input id="sp-addr" data-testid="sponsor-form-address" value={form.address} onChange={(e) => set("address", e.target.value)} placeholder="123 Main St, City" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="sp-web">Website / Instagram <span className="text-[#B8BCC2]">(optional)</span></Label>
+            <Input id="sp-web" data-testid="sponsor-form-website" value={form.website} onChange={(e) => set("website", e.target.value)} placeholder="https://…" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="sp-img">Image URL <span className="text-[#B8BCC2]">(optional)</span></Label>
+            <Input id="sp-img" data-testid="sponsor-form-image" value={form.image} onChange={(e) => set("image", e.target.value)} placeholder="https://… (a great photo of your spot)" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="sp-email">Contact email *</Label>
+            <Input id="sp-email" type="email" data-testid="sponsor-form-email" value={form.contact_email} onChange={(e) => set("contact_email", e.target.value)} placeholder="you@business.com" />
           </div>
 
-          {/* Pay button */}
-          <a
-            href={PAYPAL_ME}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-testid="paypal-pay-link"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#0070BA] px-5 py-3 font-sans text-sm font-bold text-white transition-colors hover:bg-[#005a99]"
+          <button
+            onClick={subscribe}
+            disabled={loading}
+            data-testid="sponsor-subscribe-button"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#0070BA] px-5 py-3 font-sans text-sm font-bold text-white transition-colors hover:bg-[#005a99] disabled:opacity-70"
           >
-            Pay $29 with PayPal <ExternalLink className="h-4 w-4" />
-          </a>
-
-          {/* QR */}
-          <div className="flex flex-col items-center gap-2 rounded-2xl border border-[#E2E4E7] p-4">
-            <p className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-[#6B7075]">Or scan to pay</p>
-            <img src="/paypal-qr.jpg" alt="Scan to pay steven lammerts on PayPal" data-testid="paypal-qr" className="h-32 w-auto rounded-xl" />
-            <p className="font-sans text-xs text-[#6B7075]">PayPal: @stevelammerts</p>
-          </div>
-
-          {/* After payment */}
-          <div className="rounded-2xl bg-[#0E0E0E] p-4 text-white">
-            <p className="font-sans text-sm font-bold">After you pay</p>
-            <p className="mt-1 font-sans text-xs text-[#B8BCC2]">
-              Email your business details and we'll get your spot listed within 24 hours — click{" "}
-              <a
-                href={MAILTO}
-                data-testid="sponsor-email-link"
-                className="font-bold text-[#E01E26] underline underline-offset-4 transition-colors hover:text-white"
-              >
-                here
-              </a>.
-            </p>
-          </div>
+            {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Redirecting to PayPal…</> : <>Subscribe with PayPal</>}
+          </button>
+          <p className="text-center font-sans text-xs text-[#8A8F95]">
+            Secure checkout on PayPal. Your spot goes live automatically once your subscription is confirmed.
+            Prefer to talk first? <a href={`mailto:${EMAIL}?subject=Fork%C2%B7Fate%20Sponsorship`} data-testid="sponsor-email-fallback" className="font-bold text-[#E01E26] underline underline-offset-2 hover:text-[#0E0E0E]">Email us</a>.
+          </p>
         </div>
       </DialogContent>
     </Dialog>

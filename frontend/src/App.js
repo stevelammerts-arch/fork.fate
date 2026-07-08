@@ -2,6 +2,7 @@ import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Admin from "./pages/Admin";
+import SponsorStatus from "./pages/SponsorStatus";
 import { Toaster } from "./components/ui/sonner";
 
 function App() {
@@ -11,6 +12,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/sponsor/success" element={<SponsorStatus />} />
+          <Route path="/sponsor/cancelled" element={<SponsorStatus cancelled />} />
         </Routes>
       </BrowserRouter>
       <Toaster position="top-center" richColors />

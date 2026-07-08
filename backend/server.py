@@ -39,6 +39,12 @@ api_router = APIRouter(prefix="/api")
 GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
 JWT_SECRET = os.environ.get('JWT_SECRET')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+PAYPAL_ENV = os.environ.get('PAYPAL_ENV', 'sandbox')
+PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID')
+PAYPAL_SECRET = os.environ.get('PAYPAL_SECRET')
+PAYPAL_WEBHOOK_ID = os.environ.get('PAYPAL_WEBHOOK_ID')
+PAYPAL_BASE = "https://api-m.paypal.com" if PAYPAL_ENV == "live" else "https://api-m.sandbox.paypal.com"
+SPONSOR_PRICE = "29.00"
 JWT_ALG = "HS256"
 FALLBACK_IMG = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?crop=entropy&cs=srgb&fm=jpg&q=85"
 MAX_RADIUS_MILES = 50.0
@@ -809,8 +815,187 @@ async def places_search(req: PlacesSearchRequest):
     return {"source": "curated", "restaurants": merge_sponsors(sponsors, items)}
 
 
-app.include_router(api_router)
+# ---------- PayPal sponsor subscriptions ----------
+class SponsorSubscribe(BaseModel):
+    name: str = Field(min_length=1, max_length=160)
+    cuisine: str = Field(min_length=1, max_length=60)
+    price: str = Field(default="$$", max_length=4)
+    category: str = "food"
+    address: str = Field(default="", max_length=300)
+    description: str = Field(default="", max_length=1000)
+    image: str = Field(default="", max_length=1000)
+    website: str = Field(default="", max_length=300)
+    contact_email: str = Field(min_length=3, max_length=160)
+    origin: str = Field(min_length=1, max_length=300)
 
+    @field_validator("category")
+    @classmethod
+    def _valid_cat_sub(cls, v):
+        return v if v in ("food", "drinks", "bars", "desserts") else "food"
+
+    @field_validator("contact_email")
+    @classmethod
+    def _valid_email_sub(cls, v):
+        if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", v.strip()):
+            raise ValueError("Please enter a valid email address")
+        return v.strip()
+
+
+def paypal_configured():
+    return bool(PAYPAL_CLIENT_ID and PAYPAL_SECRET)
+
+
+async def paypal_token(http: httpx.AsyncClient):
+    r = await http.post(
+        f"{PAYPAL_BASE}/v1/oauth2/token",
+        auth=(PAYPAL_CLIENT_ID, PAYPAL_SECRET),
+        data={"grant_type": "client_credentials"},
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+    if r.status_code != 200:
+        logger.error(f"PayPal token error: {r.status_code} {r.text[:300]}")
+        raise HTTPException(status_code=502, detail="PayPal auth failed")
+    return r.json()["access_token"]
+
+
+async def ensure_paypal_plan(http: httpx.AsyncClient, token: str):
+    """Create (once) and cache a $29/mo plan with a free first-month trial."""
+    cfg = await db.config.find_one({"key": "paypal_plan"})
+    if cfg and cfg.get("plan_id") and cfg.get("env") == PAYPAL_ENV:
+        return cfg["plan_id"]
+    h = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    prod = await http.post(f"{PAYPAL_BASE}/v1/catalogs/products", headers=h, json={
+        "name": "Fork·Fate Sponsorship", "type": "SERVICE", "category": "ADVERTISING",
+    })
+    if prod.status_code not in (200, 201):
+        logger.error(f"PayPal product error: {prod.text[:300]}")
+        raise HTTPException(status_code=502, detail="Could not create PayPal product")
+    product_id = prod.json()["id"]
+    plan = await http.post(f"{PAYPAL_BASE}/v1/billing/plans", headers=h, json={
+        "product_id": product_id,
+        "name": "Fork·Fate Sponsor — $29/mo",
+        "description": "Sponsored placement on Fork·Fate. First month free, then $29/month.",
+        "billing_cycles": [
+            {"frequency": {"interval_unit": "MONTH", "interval_count": 1}, "tenure_type": "TRIAL",
+             "sequence": 1, "total_cycles": 1,
+             "pricing_scheme": {"fixed_price": {"value": "0", "currency_code": "USD"}}},
+            {"frequency": {"interval_unit": "MONTH", "interval_count": 1}, "tenure_type": "REGULAR",
+             "sequence": 2, "total_cycles": 0,
+             "pricing_scheme": {"fixed_price": {"value": SPONSOR_PRICE, "currency_code": "USD"}}},
+        ],
+        "payment_preferences": {
+            "auto_bill_outstanding": True,
+            "setup_fee": {"value": "0", "currency_code": "USD"},
+            "setup_fee_failure_action": "CONTINUE",
+            "payment_failure_threshold": 2,
+        },
+    })
+    if plan.status_code not in (200, 201):
+        logger.error(f"PayPal plan error: {plan.text[:300]}")
+        raise HTTPException(status_code=502, detail="Could not create PayPal plan")
+    plan_id = plan.json()["id"]
+    await db.config.update_one({"key": "paypal_plan"},
+                               {"$set": {"plan_id": plan_id, "product_id": product_id, "env": PAYPAL_ENV}},
+                               upsert=True)
+    return plan_id
+
+
+@api_router.post("/sponsors/subscribe", dependencies=[Depends(rate_limit(10))])
+async def sponsors_subscribe(payload: SponsorSubscribe):
+    """Self-serve: create a pending sponsor + a PayPal subscription; returns the approval URL."""
+    if not paypal_configured():
+        raise HTTPException(status_code=503, detail="Online sponsorship isn't available yet — please email us.")
+    sponsor_id = str(uuid.uuid4())
+    doc = {
+        "id": sponsor_id,
+        "name": payload.name, "cuisine": payload.cuisine, "price": payload.price,
+        "category": payload.category, "address": payload.address,
+        "description": payload.description, "image": payload.image or FALLBACK_IMG,
+        "website": payload.website, "contact_email": payload.contact_email,
+        "rating": 4.7, "distance": 0.5, "open_now": True,
+        "active": False, "sub_status": "pending_payment", "subscription_id": None,
+        "impressions": 0, "clicks": 0,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.sponsors.insert_one(doc)
+    origin = payload.origin.rstrip("/")
+    async with httpx.AsyncClient(timeout=20) as http:
+        token = await paypal_token(http)
+        plan_id = await ensure_paypal_plan(http, token)
+        sub = await http.post(f"{PAYPAL_BASE}/v1/billing/subscriptions",
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            json={
+                "plan_id": plan_id,
+                "custom_id": sponsor_id,
+                "subscriber": {"email_address": payload.contact_email},
+                "application_context": {
+                    "brand_name": "Fork·Fate",
+                    "user_action": "SUBSCRIBE_NOW",
+                    "shipping_preference": "NO_SHIPPING",
+                    "return_url": f"{origin}/sponsor/success",
+                    "cancel_url": f"{origin}/sponsor/cancelled",
+                },
+            })
+    if sub.status_code not in (200, 201):
+        logger.error(f"PayPal subscription error: {sub.text[:300]}")
+        await db.sponsors.delete_one({"id": sponsor_id})
+        raise HTTPException(status_code=502, detail="Could not start PayPal subscription")
+    data = sub.json()
+    approve = next((l["href"] for l in data.get("links", []) if l.get("rel") == "approve"), None)
+    if not approve:
+        raise HTTPException(status_code=502, detail="PayPal did not return an approval link")
+    await db.sponsors.update_one({"id": sponsor_id}, {"$set": {"subscription_id": data.get("id")}})
+    return {"approval_url": approve, "subscription_id": data.get("id")}
+
+
+async def _verify_paypal_webhook(headers, body_json):
+    if not PAYPAL_WEBHOOK_ID:
+        return False
+    async with httpx.AsyncClient(timeout=20) as http:
+        token = await paypal_token(http)
+        r = await http.post(f"{PAYPAL_BASE}/v1/notifications/verify-webhook-signature",
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            json={
+                "auth_algo": headers.get("paypal-auth-algo"),
+                "cert_url": headers.get("paypal-cert-url"),
+                "transmission_id": headers.get("paypal-transmission-id"),
+                "transmission_sig": headers.get("paypal-transmission-sig"),
+                "transmission_time": headers.get("paypal-transmission-time"),
+                "webhook_id": PAYPAL_WEBHOOK_ID,
+                "webhook_event": body_json,
+            })
+    return r.status_code == 200 and r.json().get("verification_status") == "SUCCESS"
+
+
+@api_router.post("/paypal/webhook")
+async def paypal_webhook(request: Request):
+    event = await request.json()
+    if not await _verify_paypal_webhook(request.headers, event):
+        raise HTTPException(status_code=400, detail="Invalid webhook signature")
+    etype = event.get("event_type", "")
+    resource = event.get("resource", {}) or {}
+    sub_id = resource.get("id")
+    custom_id = resource.get("custom_id")
+    query = {"subscription_id": sub_id} if sub_id else {"id": custom_id}
+    if custom_id:
+        query = {"id": custom_id}
+    if etype == "BILLING.SUBSCRIPTION.ACTIVATED":
+        await db.sponsors.update_one(query, {"$set": {"active": True, "sub_status": "active", "subscription_id": sub_id}})
+    elif etype in ("BILLING.SUBSCRIPTION.CANCELLED", "BILLING.SUBSCRIPTION.SUSPENDED", "BILLING.SUBSCRIPTION.EXPIRED"):
+        status = etype.split(".")[-1].lower()
+        await db.sponsors.update_one(query, {"$set": {"active": False, "sub_status": status}})
+    return {"ok": True}
+
+
+@api_router.get("/sponsors/subscription-status")
+async def sponsor_subscription_status(subscription_id: str):
+    s = await db.sponsors.find_one({"subscription_id": subscription_id}, {"_id": 0, "name": 1, "active": 1, "sub_status": 1})
+    if not s:
+        return {"found": False}
+    return {"found": True, **s}
+
+
+app.include_router(api_router)
 _cors_origins = os.environ.get('CORS_ORIGINS', '*').split(',')
 app.add_middleware(
     CORSMiddleware,
