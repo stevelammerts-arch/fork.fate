@@ -138,12 +138,14 @@ def _google_record_call():
 
 
 def client_ip(request: Request) -> str:
-    """Real client IP behind the ingress/CDN proxy (first hop in X-Forwarded-For)."""
-    xff = request.headers.get("x-forwarded-for")
-    if xff:
-        first = xff.split(",")[0].strip()
-        if first:
-            return first
+    """Trusted client IP. Behind Cloudflare, CF-Connecting-IP is set by the CDN and
+    cannot be spoofed by the client. Do NOT trust the client-supplied leftmost
+    X-Forwarded-For value (forgeable -> rate-limit bypass). Fall back to the direct
+    TCP peer when no trusted CDN header is present."""
+    for h in ("cf-connecting-ip", "true-client-ip"):
+        v = request.headers.get(h)
+        if v and v.strip():
+            return v.strip()
     return request.client.host if request.client else "unknown"
 
 
@@ -737,13 +739,22 @@ async def fetch_active_sponsors(req: "PlacesSearchRequest"):
             if s['price'] not in allowed:
                 continue
         s = dict(s)
-        s['sponsored'] = True
-        s['open_now'] = s.get('open_now', True)
-        s['image'] = s.get('image') or FALLBACK_IMG
-        s['google_url'] = maps_url(s['name'], s.get('address', ''))
-        s['doordash_url'] = doordash_url(s['name'], s.get('address', ''))
-        s['order_url'] = order_url(s['name'], s.get('address', ''))
-        out.append(s)
+        # Public allowlist — never expose internal/PII fields (contact_email, created_ip,
+        # subscription_id, billing/analytics) in the public search response.
+        pub = {
+            "id": s.get("id"), "name": s.get("name"), "cuisine": s.get("cuisine"),
+            "price": s.get("price"), "category": s.get("category"),
+            "address": s.get("address", ""), "description": s.get("description", ""),
+            "rating": s.get("rating", 4.7), "distance": s.get("distance", 0.5),
+            "website": s.get("website", ""),
+            "sponsored": True,
+            "open_now": s.get("open_now", True),
+            "image": s.get("image") or FALLBACK_IMG,
+        }
+        pub["google_url"] = maps_url(pub["name"], pub["address"])
+        pub["doordash_url"] = doordash_url(pub["name"], pub["address"])
+        pub["order_url"] = order_url(pub["name"], pub["address"])
+        out.append(pub)
     # Count one impression per sponsor shown in this search
     ids = [s['id'] for s in out if s.get('id')]
     if ids:
