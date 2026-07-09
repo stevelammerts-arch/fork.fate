@@ -101,6 +101,7 @@ export default function Home() {
   const shuffleRef = useRef(null);
   const resultRef = useRef(null);
   const lastPickRef = useRef(null);
+  const thunderRef = useRef(null);
   const { favorites, isFavorite, toggleFavorite, removeFavorite } = useFavorites();
   const [showGuided, setShowGuided] = useState(true);
   const [muted, setMuted] = useState(() => {
@@ -195,8 +196,18 @@ export default function Home() {
     setSpinning(true);
     setFlashHit(false);
     setRevealFlash(false);
+    // Preload thunder now (inside the click gesture) so it reliably plays on reveal
+    try {
+      if (localStorage.getItem("ff_muted") !== "1") {
+        thunderRef.current = new Audio("/reveal-thunder-v2.mp3");
+        thunderRef.current.volume = 1.0;
+        thunderRef.current.load();
+      } else {
+        thunderRef.current = null;
+      }
+    } catch (e) { thunderRef.current = null; }
     // Voice cue plays on the card before the shuffle begins
-    playSound("/reveal-voice-preview.mp3", 1.0);
+    playSound("/reveal-voice-v2.mp3", 1.0);
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
     // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
@@ -245,7 +256,10 @@ export default function Home() {
             setFlash(null);
             setFlashHit(false);
             // Thunder boom + screen flash hit together on the reveal
-            playSound("/reveal-thunder-preview.mp3", 1.0);
+            try {
+              if (thunderRef.current) { thunderRef.current.currentTime = 0; thunderRef.current.play().catch(() => {}); }
+              else playSound("/reveal-thunder-v2.mp3", 1.0);
+            } catch (e) { /* audio unavailable */ }
             setRevealFlash(true);
             setTimeout(() => setRevealFlash(false), 1400);
             axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
@@ -532,12 +546,12 @@ export default function Home() {
               animate={{ opacity: [0, 0.9, 0.4, 0] }}
               transition={{ duration: 1.4, times: [0, 0.12, 0.55, 1], ease: "easeOut" }}
             />
-            {/* quick white flash */}
+            {/* quick white flash — strobes 3 times */}
             <motion.div
               className="absolute inset-0 bg-white"
               initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 1, 0] }}
-              transition={{ duration: 0.45, times: [0, 0.28, 1], ease: "easeOut" }}
+              animate={{ opacity: [0, 1, 0, 1, 0, 1, 0] }}
+              transition={{ duration: 1.0, times: [0, 0.08, 0.2, 0.34, 0.46, 0.6, 0.75], ease: "easeOut" }}
             />
           </motion.div>
         )}
