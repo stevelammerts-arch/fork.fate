@@ -1,20 +1,34 @@
 # Fork·Fate — Changelog
 
-## 2026-06 (reveal cinematic audio + flash — USER APPROVED "Perfect")
-Final reveal sequence in `Home.jsx` (`runShuffle`):
-1. Tap "Deal Your Fate!" → **voice** "Behold your fate" plays immediately (`/public/reveal-voice-v5.mp3`).
-2. ~1.2s lead-in, then the deck shuffles (fast→slow).
-3. Deck **lands on the winner** → ~1.2s later, as the skeleton hand presents the card:
-   - ⚡ **thunder boom** fires instantly (`/public/reveal-thunder-v4.mp3`, preloaded during the tap gesture to avoid autoplay blocking; re-cut so the big boom is at t=0; 2s fade-out).
-   - ⚪ **white screen flash strobes 3×** over a lingering red radial glow (`data-testid="reveal-flash"`, fixed full-screen z-70).
-4. Card holds 5.5s, then transitions silently into the result panel.
+## 2026-06 — Reveal cinematic, card back, mobile layout, cache-buster
 
-Audio processing notes (ffmpeg in-container):
-- Voice: from user's original upload (`20260709_102118.m4a`, 16kHz). Pitched DOWN ~5 semitones (asetrate 0.749 + atempo 1.3351), light aecho reverb, loudnorm. v5 = tighter leading-silence trim (silenceremove threshold -33dB) to remove the ~0.4s start delay.
-- Thunder: real recording from Wikimedia Commons "Thunder Claps.ogg". v4 = cut from 4.18s (loudest clap onset) so the boom is immediate; compressed + loudnorm; 2s fade-out.
-- Removed the old reaper-laugh cue and the old single camera-flash at landing. All cues respect the `ff_muted` localStorage toggle.
+### Reveal cinematic audio + flash (USER APPROVED)
+Final sequence in `Home.jsx` `runShuffle`:
+1. Tap "Deal Your Fate!" → voice "Behold your fate" plays first (`/public/reveal-voice-v5.mp3`, pitched down ~5 semitones from the user's original upload, leading silence trimmed).
+2. ~1.2s lead-in, then the deck shuffles.
+3. Deck lands on winner → thunder boom (`/public/reveal-thunder-v4.mp3`, real Wikimedia recording, boom at t=0, 2s fade, preloaded during tap) + white flash strobing 3× over a red glow (`data-testid="reveal-flash"`).
+4. 5.5s hold, then result panel. All cues respect `ff_muted`.
 
-### Notes / guardrails (unchanged this session)
-- LIVE PAYPAL + PRODUCTION at fork-fate.com. Preview changes are preview-only until the user deploys.
-- Google Places capped at 160 searches/day; only the winning card uses a billed Google photo (shuffle deck + suggestions use free Unsplash placeholders). Do NOT revert.
-- Rate-limiter IP detection uses CF-Connecting-IP; sponsor PII stripped from public endpoints. Do NOT revert.
+### Shuffle deck branded card back (USER APPROVED)
+- `CardBack` component: black card, red double-border, skull + "FORK · FATE". Shown on all shuffling cards; the winning photo appears only on the landed card.
+- Nearby-spots grid kept as free Unsplash stock (confirmed no Google billing) per user (option A).
+
+### Reveal card "lines" regression — fixed & forensically verified
+- Root cause: backing card-backs peeking behind the landed winner.
+- Fix: `if (landed && i !== 0) return null;` in `ShufflingDeck` — backing cards fully unmount when landed. Forensic DOM audit (iteration_42) confirmed exactly ONE bordered element remains (the white-bordered winner card); no stray outlines in the current build.
+- If lines still appear on production: it's an older deployed build (needs redeploy) or a Tor Browser fingerprint-resist letterbox artifact (verify in a mainstream browser).
+
+### Mobile header + result card
+- Header: `flex-col` on mobile so action buttons wrap into a full-width row below the logo (`flex-wrap`), no clipping. All button labels shown on mobile. Desktop unchanged.
+- Result card right-overflow fixed: added `min-w-0` to the right reveal-stage grid column (`Home.jsx` ~L728). QA (iteration_41) confirmed no horizontal overflow at 412×915.
+
+### Cache-buster (index.html)
+- Added a `FF_BUILD` version stamp script that clears caches + does one guarded reload when the version changes. Current: `2026.06-3`. Bump this on each UI ship so returning users get the fresh bundle.
+
+### Test reports
+- iteration_39 (desktop reveal clean), 40 (mobile reveal clean), 41 (mobile result-card no overflow), 42 (forensic border audit — only winner card bordered).
+
+### Guardrails (unchanged)
+- LIVE PAYPAL + PRODUCTION at fork-fate.com. Preview changes are preview-only until redeploy.
+- Google Places capped 160/day; only the winning reveal card uses a billed Google photo.
+- Rate-limit IP via CF-Connecting-IP; sponsor PII stripped from public endpoints.
