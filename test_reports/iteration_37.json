@@ -1,0 +1,24 @@
+{
+  "summary": "Full frontend regression on Fork Fate preview URL. Guided ritual (all 4 steps + skip/back/seal), classic deal, radius slider, Fried Chicken chip, Use my location (does NOT auto-deal), favorites (heart + drawer + deal from favorites + persistence), group mode (3 picks + vote + lock), all 3 sponsor CTAs open sponsor-dialog, footer Admin link + GrimReaper!2026 login, Add spot dialog, mystical aura mount/unmount (present in guided, absent in classic, removed within 4.5s), and mobile relaunch button all PASS.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Admin dashboard", "issues": ["Only 'Pending submissions' (moderation) + 'Add a sponsor' / 'Current sponsors' panels are visible on the default admin view. No dedicated Analytics panel/section was discoverable from the login landing page. If analytics is intentionally out-of-scope, ignore; otherwise it may be missing or hidden behind another route/tab."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Admin /admin login endpoint rate-limits at ~5 attempts (429 'Too many requests') which is good, but during repeated automated flows this can produce a temporarily blocked login. Consider adding a Retry-After header and/or a short-cooldown countdown in the UI."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "test_credentials": "Admin /admin password: GrimReaper!2026 (verified working)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All previously reported behaviours verified. Guided flow requires: step1 click a food-interest button (label starts with 'Food'), step2 fill ZIP + optionally move guided range slider, click 'Continue', step3 click cuisine chip (e.g. 'Fried Chicken') then 'Continue', step4 use force=True on [data-testid=guided-seal-button] because the card has an ongoing animation making Playwright report 'element is not stable'. Mystical aura verified present in guided result and absent in classic result, removed from DOM in ~4.5s. Admin rate-limits aggressively (429 after ~5 login attempts) — wait ~30s if hit. Mobile relaunch icon is a small FF badge next to logo in the mobile header (data-testid=relaunch-guided-button, no mobile menu open needed).",
+  "rca of the issue": "N/A - no regressions."
+}
