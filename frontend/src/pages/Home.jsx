@@ -107,6 +107,16 @@ export default function Home() {
 
   const finishGuided = () => setShowGuided(false);
 
+  const playReaperLaughOnce = () => {
+    try {
+      if (sessionStorage.getItem("ff_laugh_played")) return;
+      sessionStorage.setItem("ff_laugh_played", "1");
+      const a = new Audio("/reaper-laugh.mp3");
+      a.volume = 0.7;
+      a.play().catch(() => {});
+    } catch (e) { /* audio unavailable — non-critical */ }
+  };
+
   const sealFate = ({ mode: m, zip: z, coords: c, radius: r, cuisines }) => {
     setMode(m);
     setZip(z || "");
@@ -215,6 +225,7 @@ export default function Home() {
         setFlash(chosen);
         shuffleRef.current = setTimeout(() => {
           setFlashHit(true);
+          playReaperLaughOnce();
           shuffleRef.current = setTimeout(() => {
             if (groupMode) setGroupPicks(picks);
             else setResult(chosen);
