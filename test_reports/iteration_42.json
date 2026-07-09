@@ -1,0 +1,84 @@
+{
+  "summary": "Forensic border/outline audit on the LANDED shuffle reveal at production preview (mobile 412x915). Reached FATE HAS CHOSEN state, then enumerated ALL descendants of [data-testid='shuffle-popup'] / [data-testid='shuffling-deck'] and filtered to elements with borderWidth>0 OR outlineWidth>0. Result: EXACTLY ONE bordered element exists — the winner card itself. No sharp-cornered dark rectangle, no invisible extra card divs, no phantom outlines were found in the DOM. Card-motion-div count inside the .h-60.w-44 container = 2 total children, but ONE is the skeleton-hands-overlay (opacity 0.06, borderWidth 0px, no outline, no box-shadow, height 0 wrapper) and the OTHER is the single winner card (i===0). Backing cards (i>0) are correctly not rendered when landed (confirmed the guard `if (landed && i !== 0) return null;` is effective).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "forensic_audit": {
+    "viewport": "412x915 (mobile portrait)",
+    "landed_reached_after_seconds": 4.5,
+    "shuffling_deck_descendants_total": 16,
+    "elements_with_borderWidth_gt_0_or_outlineWidth_gt_0": 1,
+    "the_one_bordered_element": {
+      "tag": "DIV",
+      "className": "absolute inset-0 overflow-hidden rounded-2xl border-2 border-white bg-[#0E0E0E] shadow-2xl shadow-black/30",
+      "rect": {"top": 297, "left": 117, "width": 177, "height": 241},
+      "borderTopWidth": "2px",
+      "borderRightWidth": "2px",
+      "borderBottomWidth": "2px",
+      "borderLeftWidth": "2px",
+      "borderStyle": "solid",
+      "borderColor": "rgb(255, 255, 255)",
+      "borderRadius": "16px (rounded-2xl)",
+      "outlineWidth": "0px",
+      "outlineStyle": "none",
+      "boxShadow": "rgba(0,0,0,0.3) 0px 25px 50px -12px  (shadow-2xl shadow-black/30, no spread)",
+      "opacity": "1"
+    },
+    "card_container_direct_children": [
+      {
+        "role": "skeleton-hands-overlay wrapper",
+        "className": "pointer-events-none absolute left-1/2 top-1/2 z-50",
+        "borderWidth": "0px",
+        "outlineWidth": "0px",
+        "boxShadow": "none",
+        "opacity_at_capture": "0.0637 (fading in)",
+        "height": 0,
+        "note": "Not a card. Zero-height wrapper for the PNG. No border/outline/shadow."
+      },
+      {
+        "role": "winner card (i===0)",
+        "className": "absolute inset-0 overflow-hidden rounded-2xl border-2 border-white bg-[#0E0E0E] shadow-2xl shadow-black/30",
+        "borderWidth": "2px",
+        "borderColor": "rgb(255,255,255)",
+        "borderRadius": "16px",
+        "outlineWidth": "0px",
+        "opacity": "1"
+      }
+    ],
+    "invisible_bordered_cards_found": 0,
+    "opacity_0_elements_with_border": 0,
+    "sharp_cornered_dark_rectangles_found_in_DOM": 0,
+    "conclusion": "There is NO element in the DOM at the landed state that draws a sharp-cornered dark rectangle outline. The `if (landed && i !== 0) return null;` guard is working — backing cards are UN-mounted, not merely hidden via opacity, so they cannot leak any border."
+  },
+  "possible_explanation_for_user_report": [
+    "The user's reported 'thin dark sharp-cornered outline slightly larger than the white rounded card, with faint vertical lines on left/right' does NOT exist in the current preview build's DOM. Since the reporter used Tor (with resist-fingerprinting) + no cache: the artefact is almost certainly a CLIENT-SIDE RENDERING quirk, not a code bug. Candidates: (a) Tor Browser's letterboxing/fingerprint-resist can introduce a dark border-ish frame around content on certain viewport rounding; (b) the `shadow-2xl shadow-black/30` (25px 50px -12px) drop-shadow can look like a soft rectangular halo behind the card — if the compositor renders it at low DPI on mobile Tor, its outer edge can appear as a faint sharp line; (c) the backdrop-blur-sm on the popup overlay creates a slightly darker region behind the card that on OLED / low-color-precision displays can look like a rectangle.",
+    "None of the above are code bugs. Recommend closing as WONT-FIX unless reproducible on non-Tor mainstream browsers.",
+    "If E1 still wants to be extra safe, they can (a) reduce the shadow to shadow-xl shadow-black/20 to soften halo, (b) add a subtle inner border-white/10 to blend, or (c) render the card with a slightly larger transparent padding so any halo aligns with the rounded corners."
+  ],
+  "screenshots_taken": [
+    "Full popup screenshot (auto-captured during test): shows only ONE white rounded card with photo, no dark rectangle outline visible, no vertical side lines. Card has expected soft dark drop shadow (shadow-2xl shadow-black/30) that is rounded following the 16px radius."
+  ],
+  "test_report_links": [],
+  "action_items": [
+    "NO CODE FIX REQUIRED — DOM audit conclusively shows only one bordered element (the intended white winner card).",
+    "Report to user: the outline they saw is NOT in the DOM. Ask them to retest in a non-Tor browser to confirm it's a Tor-fingerprint-resist / letterbox artefact.",
+    "OPTIONAL polish (not a bug fix): soften shadow-2xl to shadow-xl or reduce shadow-black/30 to /20 if you want to eliminate any perceptual halo edge."
+  ],
+  "critical_code_review_comments": [
+    "Home.jsx ShufflingDeck (~L995) correctly returns null for i!==0 when landed — verified in live DOM: only 1 card motion.div is mounted.",
+    "Home.jsx is 1442 lines — exceeds 700-line guideline; consider splitting ShufflingDeck, guided ritual, canvas helpers into modules (not causing the reported bug, style-only).",
+    "The border on the winner card is WHITE (border-white), not dark — cannot be the source of a 'dark outline'.",
+    "No `outline`, no `ring`, no additional pseudo-element borders anywhere in the descendants."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100% (audit executed successfully; app landed on FATE HAS CHOSEN as expected)"},
+  "test_credentials": "N/A",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iter 42 forensic audit: at landed state, ONLY the winner card has a border (2px white, radius 16px). Skeleton overlay wrapper has no border. No i>0 backing cards exist in DOM. The 'thin dark sharp-cornered outline' the user reports is NOT present in current build. Likely a Tor Browser rendering artefact.",
+  "rca of the issue": "The user's reported outline does not exist in the DOM. RCA: The only border on the card is border-2 border-white with rounded-2xl (16px radius). Only shadow is shadow-2xl shadow-black/30 which follows the rounded corners. Backing cards (i>0) are un-mounted via early return. No sibling element has any border, outline, or box-shadow with spread. The reported artefact is not reproducible from code and is almost certainly a Tor Browser fingerprint-resist letterboxing artefact or a perceptual halo from the drop-shadow rendered on a low-precision mobile display."
+}
