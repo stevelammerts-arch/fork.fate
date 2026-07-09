@@ -931,6 +931,26 @@ export default function Home() {
 
 const DECK_SIZE = 5;
 
+// Branded card back shown on every shuffling card (photo only appears on the landed winner)
+function CardBack() {
+  return (
+    <div className="absolute inset-0 bg-[#0E0E0E]" data-testid="card-back">
+      <div
+        className="absolute inset-0"
+        style={{ background: "radial-gradient(circle at 50% 42%, rgba(224,30,38,0.20), rgba(0,0,0,0) 62%)" }}
+      />
+      <div className="absolute inset-2 rounded-xl border border-[#E01E26]/70" />
+      <div className="absolute inset-[10px] rounded-lg border border-[#E01E26]/25" />
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+        <Skull className="h-14 w-14 text-[#E01E26]" strokeWidth={1.25} />
+        <span className="font-serif text-[10px] uppercase tracking-[0.4em] text-[#C7CACE]">
+          Fork · Fate
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function ShufflingDeck({ cards, flash, landed }) {
   const source = cards.length ? cards : (flash ? [flash] : []);
   // Always fill a full visual deck so the shuffle never looks like a single card,
@@ -970,10 +990,12 @@ function ShufflingDeck({ cards, flash, landed }) {
               </motion.div>
             )}
           </AnimatePresence>
-          {deck.map((c, i) => (
+          {deck.map((c, i) => {
+            const showPhoto = landed && i === 0 && c?.image;
+            return (
             <motion.div
               key={(c?.id || "c") + i}
-              className="absolute inset-0 overflow-hidden rounded-2xl border-2 border-white bg-[#0E0E0E] shadow-2xl shadow-black/30"
+              className={`absolute inset-0 overflow-hidden rounded-2xl border-2 ${showPhoto ? "border-white" : "border-[#E01E26]"} bg-[#0E0E0E] shadow-2xl shadow-black/30`}
               style={{ zIndex: DECK_SIZE - i }}
               animate={
                 landed
@@ -996,12 +1018,17 @@ function ShufflingDeck({ cards, flash, landed }) {
                   : { duration: 0.72, repeat: Infinity, ease: "easeInOut", delay: i * 0.1 }
               }
             >
-              {c?.image && (
-                <img src={c.image} alt="" className="h-full w-full object-cover opacity-90" />
+              {showPhoto ? (
+                <>
+                  <img src={c.image} alt="" className="h-full w-full object-cover opacity-90" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                </>
+              ) : (
+                <CardBack />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             </motion.div>
-          ))}
+            );
+          })}
         </div>
         <div className="relative z-[60] text-center">
           <p className="font-sans text-xs font-bold uppercase tracking-[0.25em] text-[#E01E26]">
