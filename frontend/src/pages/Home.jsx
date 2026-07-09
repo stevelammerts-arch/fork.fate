@@ -223,7 +223,7 @@ export default function Home() {
             setFlashHit(false);
             axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
             setStreak(bumpStreak());
-          }, 4500);
+          }, 5500);
         }, 300);
       }
     };
