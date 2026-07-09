@@ -82,6 +82,23 @@ _ZIP_GEO_CACHE = {}
 _PLACES_CACHE = {}
 _PLACES_TTL = 300  # seconds
 
+# Hard daily ceiling on billed Google search/geocode calls (abuse safety net).
+# Override with env GOOGLE_SEARCH_DAILY_CAP; when exceeded, app falls back to curated data.
+GOOGLE_SEARCH_DAILY_CAP = int(os.environ.get("GOOGLE_SEARCH_DAILY_CAP", "3000"))
+_GOOGLE_DAY = {"date": None, "searches": 0}
+
+
+def _google_budget_ok() -> bool:
+    today = datetime.now(timezone.utc).date().isoformat()
+    if _GOOGLE_DAY["date"] != today:
+        _GOOGLE_DAY["date"] = today
+        _GOOGLE_DAY["searches"] = 0
+    return _GOOGLE_DAY["searches"] < GOOGLE_SEARCH_DAILY_CAP
+
+
+def _google_record_call():
+    _GOOGLE_DAY["searches"] += 1
+
 
 def client_ip(request: Request) -> str:
     """Real client IP behind the ingress/CDN proxy (first hop in X-Forwarded-For)."""
@@ -835,7 +852,11 @@ async def cached_google_search(req: "PlacesSearchRequest"):
     hit = _PLACES_CACHE.get(key)
     if hit and now - hit[0] < _PLACES_TTL:
         return hit[1]
+    if not _google_budget_ok():
+        logger.warning("Google daily search cap reached — serving curated fallback")
+        raise HTTPException(status_code=503, detail="search-budget-exceeded")
     results = await google_places_search(req)
+    _google_record_call()
     _PLACES_CACHE[key] = (now, results)
     if len(_PLACES_CACHE) > 2000:
         for k in [k for k, v in list(_PLACES_CACHE.items()) if now - v[0] >= _PLACES_TTL]:
