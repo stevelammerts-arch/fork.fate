@@ -917,7 +917,7 @@ function ShufflingDeck({ cards, flash, landed }) {
             </motion.div>
           ))}
         </div>
-        <div className="text-center">
+        <div className="relative z-[60] text-center">
           <p className="font-sans text-xs font-bold uppercase tracking-[0.25em] text-[#E01E26]">
             {landed ? "Fate has chosen" : "Shuffling the deck"}
           </p>
