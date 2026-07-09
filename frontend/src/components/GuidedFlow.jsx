@@ -75,7 +75,10 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
       data-testid="guided-flow"
       style={{ perspective: 1400 }}
     >
-      <div className={`absolute inset-0 transition-all duration-700 ${step === 3 ? "bg-black/40 backdrop-blur-[2px]" : "bg-black/70 backdrop-blur-md"}`} />
+      <div
+        className={`absolute inset-0 transition-all duration-700 ${step === 3 ? "bg-black/40 backdrop-blur-[2px]" : "bg-black/70 backdrop-blur-md"}`}
+        onMouseDown={() => { const el = document.activeElement; if (el && el.tagName === "INPUT") el.blur(); }}
+      />
 
       <div className="relative w-full max-w-md">
         {/* progress + back */}
@@ -141,8 +144,10 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
                     data-testid="guided-zip-input"
                     value={zip}
                     onChange={(e) => { setZip(e.target.value.replace(/[^\d]/g, "").slice(0, 5)); setCoords(null); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.target.blur(); if (/^\d{5}$/.test(zip.trim())) next(); } }}
                     placeholder="Enter ZIP"
                     inputMode="numeric"
+                    enterKeyHint="go"
                     className="border-0 bg-transparent px-1 text-lg font-semibold text-white placeholder:text-[#4A4A4A] shadow-none focus-visible:ring-0"
                   />
                 </div>

@@ -851,7 +851,13 @@ export default function Home() {
 const DECK_SIZE = 5;
 
 function ShufflingDeck({ cards, flash, landed }) {
-  const base = cards.length ? cards : [flash];
+  const source = cards.length ? cards : (flash ? [flash] : []);
+  // Always fill a full visual deck so the shuffle never looks like a single card,
+  // even when the filtered result set is tiny (repeats are visual-only).
+  const base = [];
+  for (let i = 0; source.length && base.length < DECK_SIZE; i++) {
+    base.push(source[i % source.length]);
+  }
   const deck = (landed && flash
     ? [flash, ...base.filter((c) => c?.id !== flash?.id)]
     : base
