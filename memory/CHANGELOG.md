@@ -1,5 +1,12 @@
 # Fork·Fate — Changelog
 
+## 2026-07-09 (batch 4 — security audit fixes)
+- Rate limiter now uses real client IP via X-Forwarded-For (per-user throttling behind ingress/CDN).
+- Places search: 300s TTL result cache (cached_google_search) to curb billed Google calls; limits tightened (search 60→20, photo 300→200/min).
+- /sponsors/subscribe: 10→5/min + per-IP cap of 3 pending/24h (stores created_ip); daily reconcile purges abandoned pending rows >2 days (returns purged count).
+- Generic error on Google 502 (no upstream leak); /sponsors/subscription-status rate-limited (30/min).
+- CORS left permissive (safe, credentials off) to avoid breaking multi-domain deploy. NOTE: restrict Google API key in Google Cloud Console (console-side, not code).
+
 ## 2026-07-09 (batch 3)
 - Sound toggle in header (icon-only, mobile too): permanent mute preference in localStorage `ff_muted`; reaper laugh checks it before playing. data-testid sound-toggle-button.
 - Confirmed sponsor impressions already tracked in backend (fetch_active_sponsors increments per search); surfaced in Admin engagement widget.
