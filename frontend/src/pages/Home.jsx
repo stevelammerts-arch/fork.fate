@@ -206,8 +206,8 @@ export default function Home() {
         thunderRef.current = null;
       }
     } catch (e) { thunderRef.current = null; }
-    // Voice cue starts early in the shuffle so it leads into the reveal
-    setTimeout(() => playSound("/reveal-voice-v2.mp3", 1.0), 500);
+    // Voice cue plays first, before the deck starts shuffling
+    playSound("/reveal-voice-v2.mp3", 1.0);
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
     // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
@@ -268,7 +268,8 @@ export default function Home() {
         }, 1200);
       }
     };
-    step();
+    // Let the voice cue lead in before the deck starts shuffling
+    shuffleRef.current = setTimeout(step, 1200);
   };
 
   const doSearch = async (cuisinesArg, pricesArg, categoryArg, coordsArg = coords, opts = {}) => {
