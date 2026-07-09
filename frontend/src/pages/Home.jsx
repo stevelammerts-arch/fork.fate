@@ -1001,15 +1001,17 @@ function ShufflingDeck({ cards, flash, landed }) {
                 landed
                   ? {
                       x: 0,
-                      y: i === 0 ? 0 : -i * 3,
+                      y: 0,
                       rotate: 0,
                       scale: i === 0 ? 1.05 : 0.96,
+                      opacity: i === 0 ? 1 : 0,
                     }
                   : {
                       x: [0, i % 2 === 0 ? -96 : 96, 0],
                       y: [0, -26, 0],
                       rotate: [(i - 2) * 4, i % 2 === 0 ? -17 : 17, (i - 2) * 4],
                       scale: [1, 0.97, 1],
+                      opacity: 1,
                     }
               }
               transition={
