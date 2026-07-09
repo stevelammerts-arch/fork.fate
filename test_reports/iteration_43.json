@@ -1,0 +1,65 @@
+{
+  "summary": "Forensic audit of HERO RESULT CARD 'lines peeking down each side'. Drove GUIDED wizard (Food -> ZIP 10001 -> Continue -> Surprise me -> Seal Fate). ONE billed Google Places call. Result card (Skylight Diner) appeared. Polled DOM every 200ms and caught mystical-aura at t~10.2s post-seal. Full-frame screenshot captured DURING aura render conclusively shows heavy RED/BLACK bleed extending BEYOND the card's left, right, top, and bottom edges. The 'lines down each side' the user reports ARE the mystical aura — specifically the rotating conic-gradient blur(16px) + pulsing red ring — not any static border/outline on the card itself.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Home.jsx mystical-aura (L730-753)",
+        "issue": "AURA_ROOT (data-testid='mystical-aura') is 'absolute -inset-3' — geometrically extends 12px BEYOND the white card on all 4 sides (measured: card left=715.8/right=1248; aura left=703.8/right=1260 => +12px each side). Its child conic-gradient div (className='absolute inset-0 rounded-[32px]', background='conic-gradient(#E01E26, #0b0b0b, #7a0c10, #000000, #E01E26)', filter='blur(16px)') paints red (#E01E26) + black (#0b0b0b, #000000) + dark red (#7a0c10) plumes, and the blur(16px) filter pushes visible pixels ANOTHER ~16px outward, so total spill ≈ 28px beyond card edges. Because the conic-gradient rotates 360° continuously, the plumes appear as 'lines' that seem to peek down the sides depending on rotation angle. Screenshot confirms very heavy red/black bleed to the RIGHT of the card and a red halo top-left. This is the 'outline of invisible cards' / 'lines peeking down each side' the user is reporting.",
+        "selector": "[data-testid='mystical-aura'] > div:first-child",
+        "priority": "HIGH"
+      },
+      {
+        "component": "Home.jsx pulsing red ring (L747-751)",
+        "issue": "AURA_CHILD_1 (className='absolute inset-[9px] rounded-[26px] border-2 border-[#E01E26]') sits 3px OUTSIDE the card's border on every side (measured: rect left=712.8 vs card 715.8 => +3px each side). It is a solid 2px red (#E01E26) border with a pulsing red boxShadow ('0 0 22px→55px→22px rgba(224,30,38,0.4→0.95→0.4)'). This adds a distinct RED HALO that also extends beyond the card edges — a secondary 'line' contributor.",
+        "selector": "[data-testid='mystical-aura'] > div:nth-child(2)",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Hero result card (right column, desktop 1440x900)",
+        "issues": [
+          "Mystical aura (blur+conic+red ring) visually explodes ~28px BEYOND the card edges on all four sides during the 3s reveal, producing the exact 'red/black lines peeking down each side' phenomenon the user reports. It is intentional per code but the blur radius (16px) combined with -inset-3 offset makes the spill obvious and asymmetric due to rotation.",
+          "AURA_ROOT reported opacity:0 at moment of capture (framer-motion still fading in), while its child conic-gradient div was opacity:1 — briefly this creates an inconsistent state where blur spill is visible via the child before the wrapper reaches opacity 1. Not a bug per se, but worth noting.",
+          "Auto-timeout on aura is 3000ms (Home.jsx L160) but the polled DOM lifespan was long enough that we captured it clearly at t~10s — reveal timing gates its appearance well after card is 'displayed', so users likely see the aura AFTER the card has settled, reinforcing the perception that these are permanent 'lines'."
+        ]
+      }
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "The 'lines peeking down each side of the hero result card' are 100% caused by the mystical-aura element (data-testid='mystical-aura') in /app/frontend/src/pages/Home.jsx L730-753. There is NO stray border/outline on the white card itself.",
+    "Primary offender: the rotating blur(16px) conic-gradient div at Home.jsx L741-746 — its red (#E01E26), black (#0b0b0b, #000000), dark-red (#7a0c10) colors are painted 12px beyond card edges then blurred ~16px further outward, producing red/black plumes that read as 'lines' beside the card.",
+    "Secondary offender: the pulsing red ring at L747-751 — 2px solid #E01E26 border sitting 3px outside the card + red 0 0 22-55px boxShadow.",
+    "To eliminate 'lines': either (a) change wrapper from `-inset-3` to `inset-0`, (b) drop the blur() filter, (c) reduce blur radius from 16px to something like 4-6px, (d) clip the aura with `overflow-hidden` on the same rounded shape as the card, or (e) mask the aura to only appear behind the top portion of the card. Recommend (d) — wrap aura in a container matched to card's rounded-3xl with overflow-hidden so glow stays visually adjacent to the card without bleeding as visible lines.",
+    "Also consider removing auto-dismiss timer conflict — currently the aura only lasts 3s so most users won't associate it with 'permanent lines'; but the user report suggests they see residual paint, possibly a browser compositor/paint issue during the fade. Worth verifying no repaint artifacts remain."
+  ],
+  "critical_code_review_comments": [
+    "Home.jsx: `data-testid=\"spin-result-card\"` is applied to an INNER div (measured rect 732.8→1231 width 498.2), not the outer white card wrapper at L755 (rect 715.8→1248 width 532.2). The p-4 padding shifts the testid element 16-17px inward. If future audits query [data-testid=spin-result-card].getBoundingClientRect() to measure the 'card', they will erroneously conclude that many children extend beyond it. Recommend moving data-testid='spin-result-card' onto the wrapper div at L755, OR renaming the inner one to 'spin-result-content'.",
+    "Aura blur(16px) with -inset-3 offset produces visible spill ~28px beyond card — a UX/design decision to review.",
+    "AnimatePresence fade-in leaves child opacity=1 while parent opacity=0 mid-transition — momentary visual inconsistency."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "audit complete"},
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Confirmed: the 'lines peeking down each side' of the hero result card are the mystical-aura at Home.jsx L730-753 — specifically the rotating conic-gradient blur(16px) inner div and the pulsing red ring. Full geometric proof captured. Screenshot at /app/.screenshots/err_state.png shows the phenomenon clearly (red bleed on right side of card). Note the aura only renders for 3s after seal so any repro needs immediate polling. IMPORTANT: [data-testid='spin-result-card'] is on an INNER div, not the visible white card wrapper — measure the wrapper (className contains 'shadow-xl') for accurate card bounds.",
+  "rca of the issue": {
+    "root_cause": "The mystical-aura element (Home.jsx L730-753) — rendered when mysticalReveal && result — is intentionally positioned 12px beyond the card on all sides via `-inset-3`, and its inner rotating conic-gradient uses filter: blur(16px). Combined, red (#E01E26) and black (#0b0b0b, #000000) pixels bleed ~28px beyond the card's rectangle. As the gradient rotates 360° continuously (5s cycle), the red/black concentration moves around the card and appears as 'lines peeking down each side'. The pulsing red ring at inset-[9px] with a 22-55px red boxShadow adds a secondary red halo also outside the card.",
+    "reproduction_steps": [
+      "Open https://lucky-bite-1.preview.emergentagent.com in Chrome incognito, desktop 1440x900.",
+      "Click Guided -> guided-interest-food -> fill guided-zip-input '10001' -> guided-location-next -> guided-surprise-me -> guided-seal-button.",
+      "Wait ~10-15s for reveal.",
+      "Observe: for ~3s after the card appears, red/black plumes visibly bleed beyond the card's left/right (and top/bottom) edges."
+    ],
+    "mitigation": [
+      "Option A (cleanest): wrap the aura in a container with the same rounded-3xl shape as the card AND overflow-hidden so the blur cannot spill outside — this preserves the glow inside the card silhouette.",
+      "Option B: change `absolute -inset-3` to `absolute inset-0` and reduce `filter: blur(16px)` to `blur(4px)` — keeps the effect but eliminates spill.",
+      "Option C: remove the aura entirely.",
+      "Option D: hide the aura from the DOM entirely once it fades (currently AnimatePresence handles this, but ensure no residual paint layers)."
+    ]
+  }
+}
