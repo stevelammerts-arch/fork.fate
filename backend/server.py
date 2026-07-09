@@ -553,6 +553,27 @@ async def list_sponsors():
     return await db.sponsors.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
 
 
+@api_router.get("/admin/sponsors/stats", dependencies=[Depends(require_admin)])
+async def sponsor_stats():
+    """Aggregate MRR + subscriber counts for the admin dashboard."""
+    sponsors = await db.sponsors.find({}, {"_id": 0}).to_list(500)
+    price = float(SPONSOR_PRICE)
+    active = [s for s in sponsors if s.get("active")]
+    paying = [s for s in sponsors if s.get("sub_status") == "active"]
+    total_impressions = sum(int(s.get("impressions", 0) or 0) for s in sponsors)
+    total_clicks = sum(int(s.get("clicks", 0) or 0) for s in sponsors)
+    return {
+        "total_sponsors": len(sponsors),
+        "active_sponsors": len(active),
+        "paying_subscribers": len(paying),
+        "mrr": round(len(paying) * price, 2),
+        "arr": round(len(paying) * price * 12, 2),
+        "price": price,
+        "total_impressions": total_impressions,
+        "total_clicks": total_clicks,
+    }
+
+
 @api_router.post("/admin/sponsors", dependencies=[Depends(require_admin)])
 async def create_sponsor(payload: SponsorCreate):
     doc = payload.model_dump()

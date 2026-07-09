@@ -435,12 +435,30 @@ export default function Home() {
             data-testid="shuffle-popup"
             style={{ pointerEvents: flashHit ? "none" : "auto" }}
           >
+            {/* Ominous drifting red/black mist */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden" data-testid="shuffle-mist">
+              <motion.div
+                className="absolute left-[10%] top-1/4 h-72 w-72 rounded-full bg-[#E01E26] blur-[90px]"
+                animate={{ x: [0, 70, 0], y: [0, -40, 0], opacity: [0.12, 0.34, 0.12] }}
+                transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <motion.div
+                className="absolute right-[8%] top-1/3 h-96 w-96 rounded-full bg-black blur-[100px]"
+                animate={{ x: [0, -60, 0], y: [0, 50, 0], opacity: [0.35, 0.65, 0.35] }}
+                transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <motion.div
+                className="absolute bottom-[6%] left-1/3 h-80 w-80 rounded-full bg-[#7A0C10] blur-[90px]"
+                animate={{ x: [0, 45, 0], y: [0, -25, 0], opacity: [0.15, 0.4, 0.15] }}
+                transition={{ duration: 8.5, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </div>
             <motion.div
               initial={{ scale: 0.8, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 24 }}
-              className="w-full max-w-sm p-8"
+              className="relative z-10 w-full max-w-sm p-8"
             >
               <ShufflingDeck cards={results} flash={flash} landed={flashHit} />
             </motion.div>
@@ -968,48 +986,85 @@ async function buildFateCard(card) {
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, W, H);
   ctx.textAlign = "center";
+  const cx = W / 2;
 
-  // Logo badge
+  // Logo badge (top)
   try {
     const logo = await loadImage("/logo-mark.png");
-    const s = 170, lx = (W - s) / 2, ly = 120, cx = W / 2, cy = ly + s / 2;
+    const s = 120, lx = cx - s / 2, ly = 64, lcy = ly + s / 2;
     ctx.save();
-    ctx.beginPath(); ctx.arc(cx, cy, s / 2, 0, Math.PI * 2); ctx.clip();
+    ctx.beginPath(); ctx.arc(cx, lcy, s / 2, 0, Math.PI * 2); ctx.clip();
     ctx.drawImage(logo, lx, ly, s, s);
     ctx.restore();
     ctx.strokeStyle = "rgba(255,255,255,0.35)"; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.arc(cx, cy, s / 2, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, lcy, s / 2, 0, Math.PI * 2); ctx.stroke();
   } catch (e) { console.debug("logo draw skipped", e); }
+
+  // Held card (geometry matches the skeleton-hand cutout)
+  const cardX = 392, cardY = 300, cardW = 296, cardH = 504, r = 14;
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(cardX + r, cardY);
+  ctx.arcTo(cardX + cardW, cardY, cardX + cardW, cardY + cardH, r);
+  ctx.arcTo(cardX + cardW, cardY + cardH, cardX, cardY + cardH, r);
+  ctx.arcTo(cardX, cardY + cardH, cardX, cardY, r);
+  ctx.arcTo(cardX, cardY, cardX + cardW, cardY, r);
+  ctx.closePath();
+  const cardGrad = ctx.createLinearGradient(0, cardY, 0, cardY + cardH);
+  cardGrad.addColorStop(0, "#161616");
+  cardGrad.addColorStop(1, "#0C0C0C");
+  ctx.fillStyle = cardGrad; ctx.fill();
+  const innerGlow = ctx.createRadialGradient(cx, cardY + cardH / 2, 20, cx, cardY + cardH / 2, cardH / 1.4);
+  innerGlow.addColorStop(0, "rgba(224,30,38,0.20)");
+  innerGlow.addColorStop(1, "rgba(224,30,38,0)");
+  ctx.fillStyle = innerGlow; ctx.fill();
+  ctx.strokeStyle = "rgba(224,30,38,0.55)"; ctx.lineWidth = 2; ctx.stroke();
+  ctx.restore();
 
   // Kicker
   ctx.fillStyle = "#E01E26";
-  ctx.font = "700 30px Georgia, 'Times New Roman', serif";
-  ctx.fillText("T H E   R E A P E R   H A S   S P O K E N", W / 2, 380);
+  ctx.font = "700 20px Georgia, serif";
+  ctx.fillText("THE REAPER HAS SPOKEN", cx, cardY + 58);
 
-  // Restaurant name (wrapped)
+  // Restaurant name (wrapped inside card)
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = "700 82px Georgia, 'Times New Roman', serif";
-  const lines = wrapLines(ctx, card.name || "Your pick", W - 160);
-  let y = 500;
-  for (const ln of lines) { ctx.fillText(ln, W / 2, y); y += 96; }
-
-  // Meta
-  ctx.fillStyle = "#B9BEC4";
-  ctx.font = "400 40px Arial, sans-serif";
-  const meta = [card.cuisine, card.price, card.rating ? `★ ${Number(card.rating).toFixed(1)}` : null, card.distance ? `${card.distance} mi` : null].filter(Boolean).join("   ·   ");
-  ctx.fillText(meta, W / 2, y + 20);
+  ctx.font = "700 46px Georgia, serif";
+  const lines = wrapLines(ctx, card.name || "Your pick", cardW - 44);
+  let ny = cardY + 152;
+  for (const ln of lines) { ctx.fillText(ln, cx, ny); ny += 54; }
 
   // Divider
-  ctx.strokeStyle = "rgba(224,30,38,0.8)"; ctx.lineWidth = 4;
-  ctx.beginPath(); ctx.moveTo(W / 2 - 90, y + 90); ctx.lineTo(W / 2 + 90, y + 90); ctx.stroke();
+  ctx.strokeStyle = "rgba(224,30,38,0.8)"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(cx - 50, ny + 4); ctx.lineTo(cx + 50, ny + 4); ctx.stroke();
+
+  // Meta (stacked to fit the narrow card)
+  ctx.fillStyle = "#B9BEC4";
+  ctx.font = "400 26px Arial, sans-serif";
+  const metaTop = [card.cuisine, card.price].filter(Boolean).join("   ·   ");
+  const metaBot = [card.rating ? `★ ${Number(card.rating).toFixed(1)}` : null, card.distance ? `${card.distance} mi` : null].filter(Boolean).join("   ·   ");
+  if (metaTop) ctx.fillText(metaTop, cx, ny + 46);
+  if (metaBot) ctx.fillText(metaBot, cx, ny + 82);
+
+  // Skeleton hand gripping the card (drawn on top so fingers grip the edges)
+  try {
+    const hand = await loadImage("/skeleton-hand.png");
+    const hw = 520, hh = 776, hx = cx - hw / 2, hy = 230;
+    ctx.drawImage(hand, hx, hy, hw, hh);
+  } catch (e) { console.debug("hand draw skipped", e); }
+
+  // Bottom scrim for footer legibility over the forearm
+  const scrim = ctx.createLinearGradient(0, H - 180, 0, H);
+  scrim.addColorStop(0, "rgba(11,11,11,0)");
+  scrim.addColorStop(1, "rgba(11,11,11,0.95)");
+  ctx.fillStyle = scrim; ctx.fillRect(0, H - 180, W, 180);
 
   // Footer CTA
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = "700 44px Georgia, serif";
-  ctx.fillText("Fork·Fate", W / 2, H - 150);
+  ctx.font = "700 42px Georgia, serif";
+  ctx.fillText("Fork·Fate", cx, H - 92);
   ctx.fillStyle = "#8A8F95";
-  ctx.font = "400 34px Arial, sans-serif";
-  ctx.fillText("Shuffle your own fate at fork-fate.com", W / 2, H - 95);
+  ctx.font = "400 30px Arial, sans-serif";
+  ctx.fillText("Shuffle your own fate at fork-fate.com", cx, H - 50);
 
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }

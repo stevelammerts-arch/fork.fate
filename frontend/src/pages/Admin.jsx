@@ -22,6 +22,7 @@ export default function Admin() {
   const [showPw, setShowPw] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
   const [sponsors, setSponsors] = useState([]);
+  const [stats, setStats] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
@@ -47,6 +48,15 @@ export default function Admin() {
     }
   }, [token, logout]);
 
+  const loadStats = useCallback(async () => {
+    try {
+      const { data } = await axios.get(`${API}/admin/sponsors/stats`, { headers: { Authorization: `Bearer ${token}` } });
+      setStats(data);
+    } catch (e) {
+      if (e.response?.status === 401) logout();
+    }
+  }, [token, logout]);
+
   const loadSubmissions = useCallback(async () => {
     try {
       const { data } = await axios.get(`${API}/admin/submissions`, { headers: { Authorization: `Bearer ${token}` } });
@@ -57,8 +67,8 @@ export default function Admin() {
   }, [token, logout]);
 
   useEffect(() => {
-    if (token) { loadSponsors(); loadSubmissions(); }
-  }, [token, loadSponsors, loadSubmissions]);
+    if (token) { loadSponsors(); loadSubmissions(); loadStats(); }
+  }, [token, loadSponsors, loadSubmissions, loadStats]);
 
   const login = async () => {
     if (!password) return;
@@ -89,6 +99,7 @@ export default function Admin() {
       toast.success(`${form.name} added as a sponsor`);
       setForm(EMPTY);
       loadSponsors();
+      loadStats();
     } catch (e) {
       toast.error(e.response?.data?.detail || "Could not add sponsor");
     } finally {
@@ -100,6 +111,7 @@ export default function Admin() {
     try {
       await axios.patch(`${API}/admin/sponsors/${s.id}`, { active: !s.active }, authHeaders);
       loadSponsors();
+      loadStats();
     } catch {
       toast.error("Could not update");
     }
@@ -111,6 +123,7 @@ export default function Admin() {
       await axios.delete(`${API}/admin/sponsors/${s.id}`, authHeaders);
       toast.success("Sponsor removed");
       loadSponsors();
+      loadStats();
     } catch {
       toast.error("Could not remove");
     }
@@ -200,6 +213,32 @@ export default function Admin() {
       </header>
 
       <main className="mx-auto grid max-w-5xl gap-8 px-6 pt-8 md:grid-cols-[360px_1fr]">
+        {/* Revenue / subscriber overview */}
+        <section className="md:col-span-2" data-testid="mrr-overview">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div className="rounded-2xl border border-[#E2E4E7] bg-[#0E0E0E] p-5 text-white" data-testid="stat-mrr">
+              <p className="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#E01E26]">MRR</p>
+              <p className="mt-1 font-serif text-3xl font-semibold" data-testid="stat-mrr-value">${(stats?.mrr ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+              <p className="mt-0.5 font-sans text-xs text-[#8A8F95]">${(stats?.arr ?? 0).toLocaleString()} / yr</p>
+            </div>
+            <div className="rounded-2xl border border-[#E2E4E7] bg-white p-5" data-testid="stat-subscribers">
+              <p className="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#6B7075]">Paying subs</p>
+              <p className="mt-1 font-serif text-3xl font-semibold text-[#0E0E0E]" data-testid="stat-subscribers-value">{stats?.paying_subscribers ?? 0}</p>
+              <p className="mt-0.5 font-sans text-xs text-[#8A8F95]">${(stats?.price ?? 29).toFixed(0)}/mo each</p>
+            </div>
+            <div className="rounded-2xl border border-[#E2E4E7] bg-white p-5" data-testid="stat-active">
+              <p className="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#6B7075]">Active spots</p>
+              <p className="mt-1 font-serif text-3xl font-semibold text-[#0E0E0E]" data-testid="stat-active-value">{stats?.active_sponsors ?? 0}</p>
+              <p className="mt-0.5 font-sans text-xs text-[#8A8F95]">of {stats?.total_sponsors ?? 0} total</p>
+            </div>
+            <div className="rounded-2xl border border-[#E2E4E7] bg-white p-5" data-testid="stat-engagement">
+              <p className="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#6B7075]">Engagement</p>
+              <p className="mt-1 font-serif text-3xl font-semibold text-[#0E0E0E]" data-testid="stat-engagement-value">{(stats?.total_clicks ?? 0).toLocaleString()}</p>
+              <p className="mt-0.5 font-sans text-xs text-[#8A8F95]">clicks · {(stats?.total_impressions ?? 0).toLocaleString()} views</p>
+            </div>
+          </div>
+        </section>
+
         {/* Pending community submissions */}
         <section className="md:col-span-2" data-testid="submissions-queue">
           <div className="flex items-center gap-2">
