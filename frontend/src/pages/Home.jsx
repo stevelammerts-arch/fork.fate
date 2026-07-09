@@ -128,6 +128,11 @@ export default function Home() {
     } catch (e) { return null; /* audio unavailable — non-critical */ }
   };
 
+  // Voice cue fires shortly after the "Deal Your Fate" tap
+  const playRevealVoice = () => {
+    setTimeout(() => playSound("/reveal-voice-v2.mp3", 1.0), 350);
+  };
+
   const sealFate = ({ mode: m, zip: z, coords: c, radius: r, cuisines }) => {
     setMode(m);
     setZip(z || "");
@@ -136,6 +141,7 @@ export default function Home() {
     setSelectedCuisines(cuisines);
     setMysticalReveal(true);
     finishGuided();
+    playRevealVoice();
     doSearch(cuisines, [], m, c || null, { zipArg: z || "", radiusArg: r });
   };
 
@@ -199,15 +205,13 @@ export default function Home() {
     // Preload thunder now (inside the click gesture) so it reliably plays on reveal
     try {
       if (localStorage.getItem("ff_muted") !== "1") {
-        thunderRef.current = new Audio("/reveal-thunder-v3.mp3");
+        thunderRef.current = new Audio("/reveal-thunder-v4.mp3");
         thunderRef.current.volume = 1.0;
         thunderRef.current.load();
       } else {
         thunderRef.current = null;
       }
     } catch (e) { thunderRef.current = null; }
-    // Voice cue plays on the card before the shuffle begins
-    playSound("/reveal-voice-v2.mp3", 1.0);
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
     // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
@@ -258,7 +262,7 @@ export default function Home() {
             // Thunder boom + screen flash hit together on the reveal
             try {
               if (thunderRef.current) { thunderRef.current.currentTime = 0; thunderRef.current.play().catch(() => {}); }
-              else playSound("/reveal-thunder-v3.mp3", 1.0);
+              else playSound("/reveal-thunder-v4.mp3", 1.0);
             } catch (e) { /* audio unavailable */ }
             setRevealFlash(true);
             setTimeout(() => setRevealFlash(false), 1400);
@@ -305,7 +309,7 @@ export default function Home() {
     }
   };
 
-  const spin = () => doSearch(selectedCuisines, [], mode);
+  const spin = () => { playRevealVoice(); doSearch(selectedCuisines, [], mode); };
 
   const useMyLocation = () => {
     if (!navigator.geolocation) {
@@ -347,7 +351,7 @@ export default function Home() {
   };
 
   const reSpin = () => {
-    if (results.length) runShuffle(results);
+    if (results.length) { playRevealVoice(); runShuffle(results); }
   };
 
   const dealFromFavorites = () => {
@@ -355,6 +359,7 @@ export default function Home() {
     setSource("favorites");
     setResults(favorites);
     lastPickRef.current = null;
+    playRevealVoice();
     runShuffle(favorites);
   };
 
