@@ -97,6 +97,7 @@ export default function Home() {
   const [streak, setStreak] = useState(() => readStreak());
   const [flash, setFlash] = useState(null);
   const [flashHit, setFlashHit] = useState(false);
+  const [revealFlash, setRevealFlash] = useState(false);
   const shuffleRef = useRef(null);
   const resultRef = useRef(null);
   const lastPickRef = useRef(null);
@@ -116,15 +117,14 @@ export default function Home() {
 
   const finishGuided = () => setShowGuided(false);
 
-  const playReaperLaughOnce = () => {
+  const playSound = (src, volume = 0.9) => {
     try {
-      if (localStorage.getItem("ff_muted") === "1") return;
-      if (sessionStorage.getItem("ff_laugh_played")) return;
-      sessionStorage.setItem("ff_laugh_played", "1");
-      const a = new Audio("/reaper-laugh.mp3");
-      a.volume = 0.8;
+      if (localStorage.getItem("ff_muted") === "1") return null;
+      const a = new Audio(src);
+      a.volume = volume;
       a.play().catch(() => {});
-    } catch (e) { /* audio unavailable — non-critical */ }
+      return a;
+    } catch (e) { return null; /* audio unavailable — non-critical */ }
   };
 
   const sealFate = ({ mode: m, zip: z, coords: c, radius: r, cuisines }) => {
@@ -194,6 +194,9 @@ export default function Home() {
     setGroupPicks(null);
     setSpinning(true);
     setFlashHit(false);
+    setRevealFlash(false);
+    // Voice cue plays on the card before the shuffle begins
+    playSound("/reveal-voice-preview.mp3", 1.0);
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
     // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
@@ -235,13 +238,16 @@ export default function Home() {
         setFlash(chosen);
         shuffleRef.current = setTimeout(() => {
           setFlashHit(true);
-          playReaperLaughOnce();
           shuffleRef.current = setTimeout(() => {
             if (groupMode) setGroupPicks(picks);
             else setResult(chosen);
             setSpinning(false);
             setFlash(null);
             setFlashHit(false);
+            // Thunder boom + screen flash hit together on the reveal
+            playSound("/reveal-thunder-preview.mp3", 1.0);
+            setRevealFlash(true);
+            setTimeout(() => setRevealFlash(false), 1400);
             axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
             setStreak(bumpStreak());
           }, 5500);
@@ -501,6 +507,38 @@ export default function Home() {
                 transition={{ duration: 0.448, times: [0, 0.35, 1], ease: "easeOut" }}
               />
             )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Reveal flash — quick white flash + lingering red glow behind the reveal */}
+      <AnimatePresence>
+        {revealFlash && (
+          <motion.div
+            key="reveal-flash"
+            aria-hidden
+            data-testid="reveal-flash"
+            className="pointer-events-none fixed inset-0 z-[70]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* lingering red glow */}
+            <motion.div
+              className="absolute inset-0"
+              style={{ background: "radial-gradient(circle at 50% 45%, rgba(224,30,38,0.55), rgba(0,0,0,0) 60%)" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0.9, 0.4, 0] }}
+              transition={{ duration: 1.4, times: [0, 0.12, 0.55, 1], ease: "easeOut" }}
+            />
+            {/* quick white flash */}
+            <motion.div
+              className="absolute inset-0 bg-white"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 0.45, times: [0, 0.28, 1], ease: "easeOut" }}
+            />
           </motion.div>
         )}
       </AnimatePresence>
