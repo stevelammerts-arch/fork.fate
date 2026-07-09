@@ -206,6 +206,8 @@ export default function Home() {
         thunderRef.current = null;
       }
     } catch (e) { thunderRef.current = null; }
+    // Voice cue starts early in the shuffle so it leads into the reveal
+    setTimeout(() => playSound("/reveal-voice-v2.mp3", 1.0), 500);
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
     // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
@@ -243,9 +245,8 @@ export default function Home() {
       if (delay < maxDelay) {
         shuffleRef.current = setTimeout(step, delay);
       } else {
-        // Deck lands on the winner: voice cue, then boom + flash as the card is presented
+        // Deck lands on the winner: boom + flash as the card is presented
         setFlash(chosen);
-        playSound("/reveal-voice-v2.mp3", 1.0);
         shuffleRef.current = setTimeout(() => {
           setFlashHit(true);
           // Thunder boom + 3x screen flash hit exactly as the winner is revealed
