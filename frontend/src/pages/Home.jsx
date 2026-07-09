@@ -199,7 +199,7 @@ export default function Home() {
     // Preload thunder now (inside the click gesture) so it reliably plays on reveal
     try {
       if (localStorage.getItem("ff_muted") !== "1") {
-        thunderRef.current = new Audio("/reveal-thunder-v2.mp3");
+        thunderRef.current = new Audio("/reveal-thunder-v3.mp3");
         thunderRef.current.volume = 1.0;
         thunderRef.current.load();
       } else {
@@ -258,7 +258,7 @@ export default function Home() {
             // Thunder boom + screen flash hit together on the reveal
             try {
               if (thunderRef.current) { thunderRef.current.currentTime = 0; thunderRef.current.play().catch(() => {}); }
-              else playSound("/reveal-thunder-v2.mp3", 1.0);
+              else playSound("/reveal-thunder-v3.mp3", 1.0);
             } catch (e) { /* audio unavailable */ }
             setRevealFlash(true);
             setTimeout(() => setRevealFlash(false), 1400);
