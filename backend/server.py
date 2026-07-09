@@ -121,7 +121,7 @@ _PLACES_TTL = 300  # seconds
 
 # Hard daily ceiling on billed Google search/geocode calls (abuse safety net).
 # Override with env GOOGLE_SEARCH_DAILY_CAP; when exceeded, app falls back to curated data.
-GOOGLE_SEARCH_DAILY_CAP = int(os.environ.get("GOOGLE_SEARCH_DAILY_CAP", "500"))
+GOOGLE_SEARCH_DAILY_CAP = int(os.environ.get("GOOGLE_SEARCH_DAILY_CAP", "160"))
 _GOOGLE_DAY = {"date": None, "searches": 0}
 
 
