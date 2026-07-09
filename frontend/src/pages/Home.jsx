@@ -223,7 +223,7 @@ export default function Home() {
             setFlashHit(false);
             axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
             setStreak(bumpStreak());
-          }, 336);
+          }, 1000);
         }, 300);
       }
     };
@@ -862,6 +862,28 @@ function ShufflingDeck({ cards, flash, landed }) {
     <div className="grid h-full min-h-[400px] place-items-center" data-testid="shuffling-deck">
       <div className="flex flex-col items-center gap-8">
         <div className="relative h-60 w-44">
+          <AnimatePresence>
+            {landed && (
+              <motion.div
+                className="pointer-events-none absolute left-1/2 top-1/2 z-50"
+                style={{ transform: "translate(-50%, -44%)" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                data-testid="skeleton-hands-overlay"
+              >
+                <motion.img
+                  src="/skeleton-hands.png"
+                  alt=""
+                  className="w-[272px] max-w-none select-none drop-shadow-2xl"
+                  initial={{ scale: 1.2 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 240, damping: 18 }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
           {deck.map((c, i) => (
             <motion.div
               key={(c?.id || "c") + i}
