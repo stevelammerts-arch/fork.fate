@@ -1,5 +1,15 @@
 # Fork·Fate — Changelog
 
+## 2026-07-09 (batch 5 — monetization/cost control + audio + AdSense removal)
+- Reveal sound changed from laugh to a "DUN DUN DUNNN" sting built from a REAL bowed double-bass recording (University of Iowa MIS, free for any use); low E1, lower held final, reverb. Plays once per app-open, respects mute toggle. File: /public/reaper-laugh.mp3.
+- AdSense fully removed: meta tag + loader script (index.html), both ad slots (Home.jsx), deleted AdUnit.jsx, cleared ADSENSE keys from frontend/.env. (Reason: unusable behind Cloudflare + empty boxes.)
+- Google Maps cost controls:
+  * Hard daily search cap GOOGLE_SEARCH_DAILY_CAP (env-overridable) — currently 160/day to stay under Google's 5,000/mo free text-search tier. When exceeded, app falls back to curated data (no error).
+  * Photo cost fix: real (billed) Google photo now loaded ONLY for the revealed winner (photo_url). Suggestion grid + shuffle deck + "3 more to consider" use free varied placeholder images (PLACEHOLDER_IMGS by category, hashed per spot). Verified: a full deal fires exactly 1 places/photo call (was ~20+).
+  * 300s search result cache + X-Forwarded-For rate limiting (from batch 4) still in place.
+- Monetization guidance given: affiliate links (DoorDash/UberEats/OpenTable), sponsor tiers, Cloudflare-friendly ad networks (Media.net/Ezoic), Pro tier, tip jar. Sponsor model ($29/mo) covers hosting.
+- NOTE: user to set Google Cloud API key restriction (Places API New + Geocoding) + $50 budget alert (console-side). When sponsors land, raise GOOGLE_SEARCH_DAILY_CAP.
+
 ## 2026-07-09 (batch 4 — security audit fixes)
 - Rate limiter now uses real client IP via X-Forwarded-For (per-user throttling behind ingress/CDN).
 - Places search: 300s TTL result cache (cached_google_search) to curb billed Google calls; limits tightened (search 60→20, photo 300→200/min).
