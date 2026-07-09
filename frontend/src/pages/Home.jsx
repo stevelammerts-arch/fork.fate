@@ -526,7 +526,7 @@ export default function Home() {
                   <Input
                     data-testid="zip-input"
                     value={zip}
-                    onChange={(e) => { setZip(e.target.value.replace(/[^\d]/g, "").slice(0, 5)); setCoords(null); }}
+                    onChange={(e) => { const v = e.target.value.replace(/[^\d]/g, "").slice(0, 5); setZip(v); setCoords(null); if (v.length === 5) e.target.blur(); }}
                     onKeyDown={(e) => e.key === "Enter" && spin()}
                     placeholder="e.g. 10001"
                     inputMode="numeric"

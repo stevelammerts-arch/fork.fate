@@ -143,7 +143,7 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
                   <Input
                     data-testid="guided-zip-input"
                     value={zip}
-                    onChange={(e) => { setZip(e.target.value.replace(/[^\d]/g, "").slice(0, 5)); setCoords(null); }}
+                    onChange={(e) => { const v = e.target.value.replace(/[^\d]/g, "").slice(0, 5); setZip(v); setCoords(null); if (v.length === 5) e.target.blur(); }}
                     onKeyDown={(e) => { if (e.key === "Enter") e.target.blur(); }}
                     placeholder="Enter ZIP"
                     inputMode="numeric"
