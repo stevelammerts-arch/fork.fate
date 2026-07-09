@@ -1,0 +1,19 @@
+{
+  "summary": "Verified mobile (412x915) result card fits within viewport with no right-edge clipping and no horizontal page scroll after the min-w-0 fix on the reveal-stage column.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/mobile_result_card.png", "/app/test_reports/mobile_result_card_full.png"],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "seed_data_creation": "None. Ran one live shuffle (1 billed Google Places call) as instructed.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Fix confirmed. Mobile 412x915 metrics: innerWidth=412, clientWidth=412, documentElement.scrollWidth=412, body.scrollWidth=412 (NO horizontal overflow). Result card rect left=41 right=371 width=330 — fully inside viewport. All 7 action buttons (doordash-button, order-online-button, rate-on-google-button, respin-button, share-fate-button, share-fate-image-button, reset-spin-button) present, none clipped; they wrap onto multiple rows (share-fate-image-button and reset-spin-button share row at top=487.75, others stacked). Restaurant returned: 'At Nine Restaurant & Bar', 4.5, 0.5 mi away, 592 9th Ave NY. Screenshot shows card fully rendered within viewport width.",
+  "rca of the issue": "Original bug: right-hand reveal-stage grid column lacked min-w-0, so the CSS grid track expanded to intrinsic content width, pushing the result card past the viewport edge on narrow screens. Fix (adding min-w-0 to the right column div in Home.jsx line ~728) allows the grid track to shrink and constrains the card to the available column width. Verified via document.documentElement.scrollWidth === window.innerWidth (412 === 412) and card bounding rect right (371) < innerWidth (412)."
+}

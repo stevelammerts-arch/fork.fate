@@ -725,7 +725,7 @@ export default function Home() {
           </div>
 
           {/* right: reveal stage */}
-          <div className="relative">
+          <div className="relative min-w-0">
             <AnimatePresence>
               {mysticalReveal && result && (
                 <motion.div
