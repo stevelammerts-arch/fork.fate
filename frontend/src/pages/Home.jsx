@@ -426,10 +426,10 @@ export default function Home() {
       </div>
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-[#E2E4E7] bg-[#0E0E0E]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-6 md:px-12">
-          <div className="flex items-center gap-3">
-            <div className="relative h-16 w-16 overflow-hidden rounded-full bg-black ring-1 ring-white/25">
-              <img src="/logo-mark.png" alt="Fork·Fate logo" className="h-16 w-16 scale-110 object-contain" />
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:gap-3 md:px-12 md:py-6">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-black ring-1 ring-white/25 md:h-16 md:w-16">
+              <img src="/logo-mark.png" alt="Fork·Fate logo" className="h-11 w-11 scale-110 object-contain md:h-16 md:w-16" />
               <motion.div
                 className="pointer-events-none absolute inset-0"
                 initial={{ x: "-130%" }}
@@ -438,16 +438,16 @@ export default function Home() {
                 style={{ background: "linear-gradient(115deg, transparent 46%, rgba(255,255,255,0.85) 50%, transparent 54%)" }}
               />
             </div>
-            <span className="font-serif text-3xl font-semibold tracking-tight text-white">
+            <span className="font-serif text-xl font-semibold tracking-tight text-white md:text-3xl">
               Fork·Fate
             </span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-start gap-2 md:justify-end md:gap-3">
             <button
               onClick={() => setShowGuided(true)}
               data-testid="relaunch-guided-button"
               title="Start the guided ritual"
-              className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-transparent px-3 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10 sm:px-4"
+              className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-transparent px-2.5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10 sm:px-4"
             >
               <Sparkles className="h-4 w-4 text-[#E01E26]" /> <span className="hidden sm:inline">Guided</span>
             </button>
