@@ -78,11 +78,24 @@ _RL_MAX_KEYS = 10000  # bound memory: purge empty buckets once the map grows lar
 
 # Cache ZIP -> (lat, lng) to cut repeat geocoding calls
 _ZIP_GEO_CACHE = {}
+# Cache Places search results to cut repeat billed Google calls (key -> (ts, results))
+_PLACES_CACHE = {}
+_PLACES_TTL = 300  # seconds
+
+
+def client_ip(request: Request) -> str:
+    """Real client IP behind the ingress/CDN proxy (first hop in X-Forwarded-For)."""
+    xff = request.headers.get("x-forwarded-for")
+    if xff:
+        first = xff.split(",")[0].strip()
+        if first:
+            return first
+    return request.client.host if request.client else "unknown"
 
 
 def rate_limit(max_requests: int, window_seconds: int = 60):
     def _dep(request: Request):
-        ip = request.client.host if request.client else "unknown"
+        ip = client_ip(request)
         now = time.time()
         bucket = _RL_BUCKETS[ip]
         while bucket and bucket[0] < now - window_seconds:
@@ -752,7 +765,8 @@ async def google_places_search(req: "PlacesSearchRequest"):
         pres = await http.post("https://places.googleapis.com/v1/places:searchText", headers=headers, json=payload)
         pd = pres.json()
         if "error" in pd:
-            raise HTTPException(status_code=502, detail=pd["error"].get("message", "Places API error"))
+            logger.warning(f"Places API error: {str(pd['error'])[:300]}")
+            raise HTTPException(status_code=502, detail="Places search is temporarily unavailable")
 
         out = []
         for p in pd.get("places", []):
@@ -787,7 +801,7 @@ async def google_places_search(req: "PlacesSearchRequest"):
         return out
 
 
-@api_router.get("/places/photo", dependencies=[Depends(rate_limit(300))])
+@api_router.get("/places/photo", dependencies=[Depends(rate_limit(200))])
 async def places_photo(name: str):
     """Proxy Google Places photo bytes so the API key is never exposed to the client."""
     # Strict allowlist: only a well-formed Places photo resource path (no path/query tampering).
@@ -805,12 +819,36 @@ async def places_photo(name: str):
         )
 
 
-@api_router.post("/places/search", dependencies=[Depends(rate_limit(60))])
+def _places_cache_key(req: "PlacesSearchRequest"):
+    lat = round(req.lat, 3) if req.lat is not None else None
+    lng = round(req.lng, 3) if req.lng is not None else None
+    return (
+        req.category, req.zip_code, lat, lng, round(req.radius_miles, 1),
+        tuple(sorted(req.cuisines or [])), tuple(sorted(req.price_levels or [])), bool(req.open_now),
+    )
+
+
+async def cached_google_search(req: "PlacesSearchRequest"):
+    """Serve billed Google Places results from a short-lived cache to curb cost abuse."""
+    key = _places_cache_key(req)
+    now = time.time()
+    hit = _PLACES_CACHE.get(key)
+    if hit and now - hit[0] < _PLACES_TTL:
+        return hit[1]
+    results = await google_places_search(req)
+    _PLACES_CACHE[key] = (now, results)
+    if len(_PLACES_CACHE) > 2000:
+        for k in [k for k, v in list(_PLACES_CACHE.items()) if now - v[0] >= _PLACES_TTL]:
+            _PLACES_CACHE.pop(k, None)
+    return results
+
+
+@api_router.post("/places/search", dependencies=[Depends(rate_limit(20))])
 async def places_search(req: PlacesSearchRequest):
     sponsors = await fetch_active_sponsors(req)
     if GOOGLE_API_KEY and (req.zip_code or (req.lat is not None and req.lng is not None)):
         try:
-            results = await google_places_search(req)
+            results = await cached_google_search(req)
             if results:
                 return {"source": "google", "restaurants": merge_sponsors(sponsors, results)}
         except HTTPException as e:
@@ -924,11 +962,20 @@ async def ensure_paypal_plan(http: httpx.AsyncClient, token: str):
     return plan_id
 
 
-@api_router.post("/sponsors/subscribe", dependencies=[Depends(rate_limit(10))])
-async def sponsors_subscribe(payload: SponsorSubscribe):
+@api_router.post("/sponsors/subscribe", dependencies=[Depends(rate_limit(5))])
+async def sponsors_subscribe(payload: SponsorSubscribe, request: Request):
     """Self-serve: create a pending sponsor + a PayPal subscription; returns the approval URL."""
     if not paypal_configured():
         raise HTTPException(status_code=503, detail="Online sponsorship isn't available yet — please email us.")
+    ip = client_ip(request)
+    # Abuse cap: limit unapproved pending sponsors per source in the last 24h.
+    day_ago = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+    pending_recent = await db.sponsors.count_documents({
+        "created_ip": ip, "active": False, "sub_status": "pending_payment",
+        "created_at": {"$gt": day_ago},
+    })
+    if pending_recent >= 3:
+        raise HTTPException(status_code=429, detail="Too many pending requests — please complete or wait before trying again.")
     sponsor_id = str(uuid.uuid4())
     doc = {
         "id": sponsor_id,
@@ -939,6 +986,7 @@ async def sponsors_subscribe(payload: SponsorSubscribe):
         "rating": 4.7, "distance": 0.5, "open_now": True,
         "active": False, "sub_status": "pending_payment", "subscription_id": None,
         "impressions": 0, "clicks": 0,
+        "created_ip": ip,
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.sponsors.insert_one(doc)
@@ -1011,7 +1059,7 @@ async def paypal_webhook(request: Request):
     return {"ok": True}
 
 
-@api_router.get("/sponsors/subscription-status")
+@api_router.get("/sponsors/subscription-status", dependencies=[Depends(rate_limit(30))])
 async def sponsor_subscription_status(subscription_id: str):
     s = await db.sponsors.find_one({"subscription_id": subscription_id})
     if not s:
@@ -1041,15 +1089,22 @@ async def sponsor_subscription_status(subscription_id: str):
 
 async def reconcile_sponsors():
     """Re-check active PayPal-backed sponsors and auto-pause any that lapsed/cancelled.
-    Comped/manual sponsors (no subscription_id) are left untouched."""
+    Comped/manual sponsors (no subscription_id) are left untouched.
+    Also purges abandoned pending-payment rows to keep the DB clean."""
+    # Purge stale unapproved pending sponsors (never completed PayPal approval).
+    stale_cutoff = (datetime.now(timezone.utc) - timedelta(days=2)).isoformat()
+    purge = await db.sponsors.delete_many({
+        "active": False, "sub_status": "pending_payment", "created_at": {"$lt": stale_cutoff},
+    })
+    purged = purge.deleted_count
     if not paypal_configured():
-        return {"checked": 0, "paused": 0, "skipped": "paypal_not_configured"}
+        return {"checked": 0, "paused": 0, "purged": purged, "skipped": "paypal_not_configured"}
     active = await db.sponsors.find(
         {"active": True, "subscription_id": {"$ne": None}},
         {"_id": 0, "id": 1, "subscription_id": 1, "name": 1},
     ).to_list(1000)
     if not active:
-        return {"checked": 0, "paused": 0}
+        return {"checked": 0, "paused": 0, "purged": purged}
     checked = 0
     paused = 0
     async with httpx.AsyncClient(timeout=20) as http:
@@ -1071,7 +1126,7 @@ async def reconcile_sponsors():
                         logger.info(f"Reconcile: paused sponsor '{s.get('name')}' (PayPal status {status})")
             except Exception as e:
                 logger.warning(f"Reconcile check failed for {sid}: {e}")
-    return {"checked": checked, "paused": paused}
+    return {"checked": checked, "paused": paused, "purged": purged}
 
 
 @api_router.post("/admin/sponsors/reconcile", dependencies=[Depends(require_admin)])
