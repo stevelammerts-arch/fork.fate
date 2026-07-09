@@ -102,15 +102,10 @@ export default function Home() {
   const resultRef = useRef(null);
   const lastPickRef = useRef(null);
   const { favorites, isFavorite, toggleFavorite, removeFavorite } = useFavorites();
-  const [showGuided, setShowGuided] = useState(() => {
-    try { return localStorage.getItem("ff_ritual_done") !== "1"; } catch { return false; }
-  });
+  const [showGuided, setShowGuided] = useState(true);
   const [mysticalReveal, setMysticalReveal] = useState(false);
 
-  const finishGuided = () => {
-    try { localStorage.setItem("ff_ritual_done", "1"); } catch (e) { /* ignore */ }
-    setShowGuided(false);
-  };
+  const finishGuided = () => setShowGuided(false);
 
   const sealFate = ({ mode: m, zip: z, coords: c, radius: r, cuisines }) => {
     setMode(m);
