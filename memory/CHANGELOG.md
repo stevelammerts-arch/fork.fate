@@ -1,5 +1,9 @@
 # Fork·Fate — Changelog
 
+## 2026-07-09 (batch 3)
+- Sound toggle in header (icon-only, mobile too): permanent mute preference in localStorage `ff_muted`; reaper laugh checks it before playing. data-testid sound-toggle-button.
+- Confirmed sponsor impressions already tracked in backend (fetch_active_sponsors increments per search); surfaced in Admin engagement widget.
+
 ## 2026-07-09 (batch 2)
 - Reveal drama: added drifting red/black mist behind the full-screen shuffle popup (Home.jsx, data-testid shuffle-mist).
 - Shareable Fate Card (`buildFateCard`) redesigned: skeleton hand presents a dark card with logo, "THE REAPER HAS SPOKEN", pick name, meta + Fork·Fate footer. No external photo (avoids canvas CORS taint). Verified via generated PNG.
