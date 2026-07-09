@@ -6,7 +6,6 @@ import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
-import AdUnit from "../components/AdUnit";
 import InstallAppButton from "../components/InstallAppButton";
 import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
 import SocialShare from "../components/SocialShare";
@@ -716,11 +715,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Always-on ad banner */}
-      <div className="relative z-10 mx-auto max-w-6xl px-6 pb-4 md:px-12">
-        <AdUnit label="Advertisement" />
-      </div>
-
       {/* Nearby results */}
       {results.length > 0 && (
         <section className="relative z-10 mx-auto max-w-6xl px-6 pb-24 pt-8 md:px-12">
@@ -743,7 +737,6 @@ export default function Home() {
               </select>
             </label>
           </div>
-          <AdUnit className="mt-8" label="Advertisement" />
           <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3" data-testid="restaurant-grid">
             {sortedResults.slice(0, 6).map((r) => (
               <RestaurantCard key={r.id} r={r} onReport={reportClosed} isFavorite={isFavorite(r)} onToggleFavorite={toggleFavorite} />
