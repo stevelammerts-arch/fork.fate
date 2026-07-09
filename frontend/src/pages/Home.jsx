@@ -991,6 +991,8 @@ function ShufflingDeck({ cards, flash, landed }) {
             )}
           </AnimatePresence>
           {deck.map((c, i) => {
+            // Once landed, render only the winning card — no backing cards to peek out as lines
+            if (landed && i !== 0) return null;
             const showPhoto = landed && i === 0 && c?.image;
             return (
             <motion.div

@@ -1,0 +1,22 @@
+{
+  "summary": "Frontend-only regression test of the shuffle reveal state after fix to remove backing card 'red line / dark rectangle peek'. Ran the guided ritual once on desktop (1440x900) using zip 10001 -> Food -> Surprise Me -> Seal. Shuffle popup appeared, landed on winning restaurant 'Kahlo' at ~3.5s after popup. Captured screenshot of the landed/presented state. VISUAL VERIFICATION: The winning card renders as a single clean rectangle with a white rounded border and the restaurant photo filling it via object-cover. NO dark rectangle behind the card, NO sharp-cornered outline, and NO red line/border peeking from any side. Skeleton hand is properly presenting the card. Label reads 'FATE HAS CHOSEN / Kahlo'. Result panel appeared after the hold as expected. Code review of Home.jsx line ~995 confirms `if (landed && i !== 0) return null;` — backing cards are unmounted once landed, which is the correct root-cause fix. Also verified mobile viewport (414x896) renders guided flow correctly; skipped a second full shuffle run to conserve the Google Places daily quota per instructions.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/reveal_landed.png"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home.jsx is 1442 lines — exceeds the 700-line guideline; consider splitting ShufflingDeck, canvas builders, and other helpers into separate files.",
+    "The winning-card fix is correct and minimal: unmounting backing cards on `landed` guarantees no z-index/opacity artifacts. Good approach."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Google Places API is real/billed with daily cap ~160/day; run shuffle only once per test session. Guided flow selectors: guided-interest-food -> guided-zip-input -> guided-location-next -> guided-surprise-me -> guided-seal-button. Landed state text 'Fate has chosen' appears ~3-4s after shuffle-popup mount. Winning card selector chain: [data-testid=shuffling-deck] > .relative.h-60.w-44 > div.absolute (only 1 card rendered when landed).",
+  "rca of the issue": "Original bug: backing cards (CardBack with border-[#E01E26] red border) were still rendered underneath the winner card with reduced opacity, causing thin red/dark lines to peek out around the winning white-bordered card. Fix applied: `if (landed && i !== 0) return null;` unmounts all non-winner cards after landing, so only the single winning card with white rounded border remains. Verified visually — no peeking artifacts."
+}
