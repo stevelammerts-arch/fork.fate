@@ -48,6 +48,43 @@ PAYPAL_BASE = "https://api-m.paypal.com" if PAYPAL_ENV == "live" else "https://a
 SPONSOR_PRICE = "29.00"
 JWT_ALG = "HS256"
 FALLBACK_IMG = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?crop=entropy&cs=srgb&fm=jpg&q=85"
+
+# Free placeholder images (no Google billing) for suggestion grid + shuffle deck.
+# The real (billed) Google photo is only loaded for the revealed winning card.
+def _u(u):
+    return u + ("&" if "?" in u else "?") + "q=80&w=800&auto=compress&cs=tinysrgb"
+
+PLACEHOLDER_IMGS = {
+    "food": [
+        _u("https://images.unsplash.com/photo-1565895405140-6b9830a88c19"),
+        _u("https://images.unsplash.com/photo-1564759296729-771e78c26df7"),
+        _u("https://images.unsplash.com/photo-1663530761401-15eefb544889"),
+        _u("https://images.unsplash.com/photo-1657053460900-3a12f32b592f"),
+    ],
+    "drinks": [
+        _u("https://images.unsplash.com/photo-1583124688253-60c350bc90d7"),
+        _u("https://images.pexels.com/photos/6747870/pexels-photo-6747870.jpeg"),
+        _u("https://images.pexels.com/photos/244407/pexels-photo-244407.jpeg"),
+    ],
+    "desserts": [
+        _u("https://images.unsplash.com/photo-1565004602745-718e1b0d44f8"),
+        _u("https://images.unsplash.com/photo-1541780171255-b162a3a147e3"),
+        _u("https://images.unsplash.com/photo-1642589077626-95702d0b9322"),
+    ],
+    "bars": [
+        _u("https://images.unsplash.com/photo-1598994671512-395d7a6147e0"),
+        _u("https://images.unsplash.com/photo-1671395276760-959704c6350a"),
+        _u("https://images.unsplash.com/photo-1640902106532-47dd3a2e833e"),
+    ],
+}
+
+
+def pick_placeholder(category: str, key: str) -> str:
+    imgs = PLACEHOLDER_IMGS.get(category, PLACEHOLDER_IMGS["food"])
+    idx = sum(bytearray((key or "x").encode("utf-8"))) % len(imgs)
+    return imgs[idx]
+
+
 MAX_RADIUS_MILES = 50.0
 
 
@@ -84,7 +121,7 @@ _PLACES_TTL = 300  # seconds
 
 # Hard daily ceiling on billed Google search/geocode calls (abuse safety net).
 # Override with env GOOGLE_SEARCH_DAILY_CAP; when exceeded, app falls back to curated data.
-GOOGLE_SEARCH_DAILY_CAP = int(os.environ.get("GOOGLE_SEARCH_DAILY_CAP", "3000"))
+GOOGLE_SEARCH_DAILY_CAP = int(os.environ.get("GOOGLE_SEARCH_DAILY_CAP", "200"))
 _GOOGLE_DAY = {"date": None, "searches": 0}
 
 
@@ -793,13 +830,14 @@ async def google_places_search(req: "PlacesSearchRequest"):
             if dist > req.radius_miles:
                 continue
             photos = p.get("photos") or []
-            image = ""
+            photo_url = ""
             if photos:
-                image = f"/api/places/photo?name={quote_plus(photos[0]['name'])}"
+                photo_url = f"/api/places/photo?name={quote_plus(photos[0]['name'])}"
             name = p.get("displayName", {}).get("text", "Unknown")
             address = p.get("formattedAddress", "")
+            rid = str(uuid.uuid4())
             out.append({
-                "id": str(uuid.uuid4()),
+                "id": rid,
                 "name": name,
                 "cuisine": prettify_type(p.get("primaryType")),
                 "price": PRICE_ENUM_TO_SYMBOL.get(p.get("priceLevel"), "$$"),
@@ -807,7 +845,9 @@ async def google_places_search(req: "PlacesSearchRequest"):
                 "distance": round(dist, 1),
                 "address": address,
                 "description": address,
-                "image": image or FALLBACK_IMG,
+                # Free placeholder for grid/deck; real (billed) Google photo only for the reveal.
+                "image": pick_placeholder(req.category, name),
+                "photo_url": photo_url,
                 "sponsored": False,
                 "google_url": p.get("googleMapsUri") or maps_url(name, address),
                 "doordash_url": doordash_url(name, address),

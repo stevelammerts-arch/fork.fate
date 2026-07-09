@@ -1177,7 +1177,7 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, onReset,
             title={`View ${card.name} on Google`}
             className="block h-full w-full"
           >
-            <img src={card.image} alt={card.name} className="h-full w-full object-cover transition-transform duration-500 hover:scale-105" />
+            <img src={card.photo_url || card.image} alt={card.name} className="h-full w-full object-cover transition-transform duration-500 hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           </a>
           {onToggleFavorite && (
