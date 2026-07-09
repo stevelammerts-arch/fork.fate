@@ -128,11 +128,6 @@ export default function Home() {
     } catch (e) { return null; /* audio unavailable — non-critical */ }
   };
 
-  // Voice cue fires shortly after the "Deal Your Fate" tap
-  const playRevealVoice = () => {
-    setTimeout(() => playSound("/reveal-voice-v2.mp3", 1.0), 350);
-  };
-
   const sealFate = ({ mode: m, zip: z, coords: c, radius: r, cuisines }) => {
     setMode(m);
     setZip(z || "");
@@ -141,7 +136,6 @@ export default function Home() {
     setSelectedCuisines(cuisines);
     setMysticalReveal(true);
     finishGuided();
-    playRevealVoice();
     doSearch(cuisines, [], m, c || null, { zipArg: z || "", radiusArg: r });
   };
 
@@ -249,27 +243,28 @@ export default function Home() {
       if (delay < maxDelay) {
         shuffleRef.current = setTimeout(step, delay);
       } else {
-        // land on the chosen spot, hold, quick flash, then reveal
+        // Deck lands on the winner: voice cue, then boom + flash as the card is presented
         setFlash(chosen);
+        playSound("/reveal-voice-v2.mp3", 1.0);
         shuffleRef.current = setTimeout(() => {
           setFlashHit(true);
+          // Thunder boom + 3x screen flash hit exactly as the winner is revealed
+          try {
+            if (thunderRef.current) { thunderRef.current.currentTime = 0; thunderRef.current.play().catch(() => {}); }
+            else playSound("/reveal-thunder-v4.mp3", 1.0);
+          } catch (e) { /* audio unavailable */ }
+          setRevealFlash(true);
+          setTimeout(() => setRevealFlash(false), 1400);
           shuffleRef.current = setTimeout(() => {
             if (groupMode) setGroupPicks(picks);
             else setResult(chosen);
             setSpinning(false);
             setFlash(null);
             setFlashHit(false);
-            // Thunder boom + screen flash hit together on the reveal
-            try {
-              if (thunderRef.current) { thunderRef.current.currentTime = 0; thunderRef.current.play().catch(() => {}); }
-              else playSound("/reveal-thunder-v4.mp3", 1.0);
-            } catch (e) { /* audio unavailable */ }
-            setRevealFlash(true);
-            setTimeout(() => setRevealFlash(false), 1400);
             axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
             setStreak(bumpStreak());
           }, 5500);
-        }, 300);
+        }, 1200);
       }
     };
     step();
@@ -309,7 +304,7 @@ export default function Home() {
     }
   };
 
-  const spin = () => { playRevealVoice(); doSearch(selectedCuisines, [], mode); };
+  const spin = () => { doSearch(selectedCuisines, [], mode); };
 
   const useMyLocation = () => {
     if (!navigator.geolocation) {
@@ -351,7 +346,7 @@ export default function Home() {
   };
 
   const reSpin = () => {
-    if (results.length) { playRevealVoice(); runShuffle(results); }
+    if (results.length) { runShuffle(results); }
   };
 
   const dealFromFavorites = () => {
@@ -359,7 +354,6 @@ export default function Home() {
     setSource("favorites");
     setResults(favorites);
     lastPickRef.current = null;
-    playRevealVoice();
     runShuffle(favorites);
   };
 
@@ -517,15 +511,6 @@ export default function Home() {
             >
               <ShufflingDeck cards={results} flash={flash} landed={flashHit} />
             </motion.div>
-            {flashHit && (
-              <motion.div
-                className="pointer-events-none absolute inset-0 bg-white"
-                data-testid="shuffle-flash"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: [0, 0.95, 0] }}
-                transition={{ duration: 0.448, times: [0, 0.35, 1], ease: "easeOut" }}
-              />
-            )}
           </motion.div>
         )}
       </AnimatePresence>
