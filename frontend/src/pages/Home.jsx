@@ -207,7 +207,7 @@ export default function Home() {
       }
     } catch (e) { thunderRef.current = null; }
     // Voice cue plays first, before the deck starts shuffling
-    playSound("/reveal-voice-v2.mp3", 1.0);
+    playSound("/reveal-voice-v5.mp3", 1.0);
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
     // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
