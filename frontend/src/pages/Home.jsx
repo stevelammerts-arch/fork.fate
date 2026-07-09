@@ -447,9 +447,9 @@ export default function Home() {
               onClick={() => setShowGuided(true)}
               data-testid="relaunch-guided-button"
               title="Start the guided ritual"
-              className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-transparent px-2.5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10 sm:px-4"
+              className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-transparent px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10"
             >
-              <Sparkles className="h-4 w-4 text-[#E01E26]" /> <span className="hidden sm:inline">Guided</span>
+              <Sparkles className="h-4 w-4 text-[#E01E26]" /> <span>Guided</span>
             </button>
             <button
               onClick={toggleMuted}

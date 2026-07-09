@@ -15,7 +15,7 @@ export default function FavoritesDrawer({ favorites, onRemove, onDeal, groupMode
           className="relative inline-flex items-center gap-2 rounded-full border border-white/25 bg-transparent px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10"
         >
           <Heart className={`h-4 w-4 ${count ? "fill-[#E01E26] text-[#E01E26]" : ""}`} />
-          <span className="hidden sm:inline">Favorites</span>
+          <span>Favorites</span>
           {count > 0 && (
             <span
               data-testid="favorites-count-badge"
