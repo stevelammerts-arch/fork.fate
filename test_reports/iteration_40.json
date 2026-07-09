@@ -1,0 +1,30 @@
+{
+  "summary": "Mobile viewport (412x915) verification of ShufflingDeck landed state. Completed full guided ritual (food → 10001 → surprise-me → seal) and captured landed hold at ~7.5s and ~9.5s. Both DOM inspection and visual screenshots confirm the reported artifacts do NOT appear on the current PREVIEW build at mobile size.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verification_findings": {
+    "dark_sharp_cornered_rectangle_behind_card": "NOT PRESENT. DOM contains exactly one card element in the deck at landed state: div with classes 'absolute inset-0 overflow-hidden rounded-2xl border-2 border-white bg-[#0E0E0E] shadow-2xl' at (114,292) 185x252, borderRadius 16px, borderColor rgb(255,255,255). No secondary card/rectangle siblings render because winner-only guard 'if (landed && i !== 0) return null' works correctly. Screenshots show only the single white rounded-corner card with the Ci Siamo photo filling it.",
+    "red_line_peeking_around_card": "NOT PRESENT. No red border/outline visible around the winning card in either screenshot. The dimmed background overlay behind the shuffle scene shows a red CTA button that is unrelated to the card frame.",
+    "skeleton_wrist_cut_off": "NOT CUT OFF. Skeleton-hand img bounding box: x=51, y=222, w=310, h=462 -> bottom edge at y=684 in a 915px-tall viewport (231px clearance). Screenshots visually confirm the wrist/forearm extends fully below the card through the 'FATE HAS CHOSEN / Ci Siamo' text and further, with no clipping at viewport bottom.",
+    "conclusion": "Preview build is CLEAN on mobile (matches desktop QA in iteration_39). The user's phone-reported artifacts (dark sharp rectangle offset top-right, red line, cut wrist) are NOT reproducible on the current preview at a 412x915 portrait viewport."
+  },
+  "test_report_links": ["/app/test_reports/mobile_landed_1.png", "/app/test_reports/mobile_landed_2.png"],
+  "action_items": [
+    "No code changes needed on preview build. If user still sees artifacts on their phone, likely causes: (a) stale cached build on the phone (ask them to hard-reload / clear site data), (b) different device viewport where reaper backdrop overflow interacts with an old element that has since been removed, or (c) they were viewing a prior deployment. Recommend main agent confirm build hash user is on and consider bumping asset version to bust caches."
+  ],
+  "critical_code_review_comments": [
+    "ShufflingDeck landed guard is correctly gating non-winner cards. Consider adding a light 'key' bump or explicit AnimatePresence exit to guarantee stale card DOM (from shuffling state) is unmounted before the landed hold — currently reliant on Framer Motion re-render which behaves correctly here but could be more defensive.",
+    "Skeleton-hand container 'relative h-60 w-44' is smaller than the 310px-wide/462px-tall image; overflow is intentional. On very short mobile viewports (<720px height) the wrist could theoretically clip — not observed at 412x915 but worth a min-height media query if smaller devices are targeted."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100% for this verification"},
+  "seed_data_creation": "None. Single Google Places call consumed as instructed (ritual run once).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iteration 39 (desktop) and iteration 40 (mobile 412x915) both confirm the landed winning card is clean: single white rounded card, no dark sharp rectangle offset, no red line, skeleton wrist not cut off. If bug reappears, ask user for their exact device viewport, build/version, and a screenshot before spending another Google Places call.",
+  "rca of the issue": "Root cause of the user report is NOT in the current preview code. Winner-only render guard and skeleton-hand positioning are correct at mobile portrait sizes. Most likely the user saw a stale cached build on their phone or a prior deployment. Mitigation: cache-bust static assets and confirm build hash on user device."
+}
