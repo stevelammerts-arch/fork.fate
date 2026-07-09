@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -103,16 +103,27 @@ export default function Home() {
   const lastPickRef = useRef(null);
   const { favorites, isFavorite, toggleFavorite, removeFavorite } = useFavorites();
   const [showGuided, setShowGuided] = useState(true);
+  const [muted, setMuted] = useState(() => {
+    try { return localStorage.getItem("ff_muted") === "1"; } catch { return false; }
+  });
+  const toggleMuted = () => {
+    setMuted((m) => {
+      const next = !m;
+      try { localStorage.setItem("ff_muted", next ? "1" : "0"); } catch (e) { /* storage unavailable */ }
+      return next;
+    });
+  };
   const [mysticalReveal, setMysticalReveal] = useState(false);
 
   const finishGuided = () => setShowGuided(false);
 
   const playReaperLaughOnce = () => {
     try {
+      if (localStorage.getItem("ff_muted") === "1") return;
       if (sessionStorage.getItem("ff_laugh_played")) return;
       sessionStorage.setItem("ff_laugh_played", "1");
       const a = new Audio("/reaper-laugh.mp3");
-      a.volume = 0.7;
+      a.volume = 0.8;
       a.play().catch(() => {});
     } catch (e) { /* audio unavailable — non-critical */ }
   };
@@ -419,6 +430,15 @@ export default function Home() {
               className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-transparent px-3 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10 sm:px-4"
             >
               <Sparkles className="h-4 w-4 text-[#E01E26]" /> <span className="hidden sm:inline">Guided</span>
+            </button>
+            <button
+              onClick={toggleMuted}
+              data-testid="sound-toggle-button"
+              title={muted ? "Sound off — click to enable the reaper's laugh" : "Sound on — click to mute"}
+              aria-label={muted ? "Enable sound" : "Mute sound"}
+              className="inline-flex items-center justify-center rounded-full border border-white/25 bg-transparent p-2.5 text-white transition-colors hover:bg-white/10"
+            >
+              {muted ? <VolumeX className="h-4 w-4 text-[#8A8F95]" /> : <Volume2 className="h-4 w-4 text-[#E01E26]" />}
             </button>
             <BecomeSponsorDialog variant="link" />
             <FavoritesDrawer favorites={favorites} onRemove={removeFavorite} onDeal={dealFromFavorites} groupMode={groupMode} />
