@@ -657,7 +657,7 @@ export default function Home() {
               type="button"
               data-testid="open-now-toggle"
               onClick={() => setOpenNow((v) => !v)}
-              className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${openNow ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
+              className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${openNow ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-transparent bg-[#EDEEF0] text-[#6B7075] hover:bg-[#E2E4E7]"}`}
             >
               <Clock className="h-4 w-4" />
               Open now only
@@ -666,31 +666,52 @@ export default function Home() {
               </span>
             </button>
 
-            <button
-              type="button"
-              data-testid="group-mode-toggle"
-              onClick={() => { setGroupMode((v) => { const n = !v; if (n) setCrawlMode(false); return n; }); setResult(null); setGroupPicks(null); }}
-              className={`ml-3 inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${groupMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
-            >
-              <Users className="h-4 w-4" />
-              Group mode
-              <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${groupMode ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
-                <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${groupMode ? "translate-x-3" : ""}`} />
-              </span>
-            </button>
+            <div className="flex flex-wrap items-center gap-4">
+              <motion.button
+                data-testid="spin-roulette-button"
+                onClick={spin}
+                disabled={spinning || loading}
+                whileHover={{ scale: spinning || loading ? 1 : 1.03 }}
+                whileTap={SPIN_TAP}
+                className="inline-flex items-center gap-3 rounded-full border-2 border-[#0E0E0E] bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
+              >
+                <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
+                {loading ? "Finding spots…" : spinning ? "Shuffling…" : crawlMode ? "Deal a Crawl!" : groupMode ? "Deal 3 Fates!" : "Deal Your Fate!"}
+              </motion.button>
+              {results.length > 0 && (
+                <span className="font-sans text-sm text-[#6B7075]">
+                  {results.length} spot{results.length !== 1 && "s"} nearby
+                </span>
+              )}
+            </div>
 
-            <button
-              type="button"
-              data-testid="crawl-mode-toggle"
-              onClick={() => { setCrawlMode((v) => { const n = !v; if (n) setGroupMode(false); return n; }); if (!crawlMode) applyCrawlType(CRAWL_TYPES[0]); setResult(null); setGroupPicks(null); }}
-              className={`ml-3 inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${crawlMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E01E26] bg-white text-[#E01E26] hover:bg-[#FCECEC]"}`}
-            >
-              <Beer className="h-4 w-4" />
-              Pub Crawls & more
-              <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${crawlMode ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
-                <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${crawlMode ? "translate-x-3" : ""}`} />
-              </span>
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                data-testid="group-mode-toggle"
+                onClick={() => { setGroupMode((v) => { const n = !v; if (n) setCrawlMode(false); return n; }); setResult(null); setGroupPicks(null); }}
+                className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${groupMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
+              >
+                <Users className="h-4 w-4" />
+                Group mode
+                <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${groupMode ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
+                  <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${groupMode ? "translate-x-3" : ""}`} />
+                </span>
+              </button>
+
+              <button
+                type="button"
+                data-testid="crawl-mode-toggle"
+                onClick={() => { setCrawlMode((v) => { const n = !v; if (n) setGroupMode(false); return n; }); if (!crawlMode) applyCrawlType(CRAWL_TYPES[0]); setResult(null); setGroupPicks(null); }}
+                className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${crawlMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E01E26] bg-white text-[#E01E26] hover:bg-[#FCECEC]"}`}
+              >
+                <Beer className="h-4 w-4" />
+                Pub Crawls & more
+                <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${crawlMode ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
+                  <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${crawlMode ? "translate-x-3" : ""}`} />
+                </span>
+              </button>
+            </div>
 
             {crawlMode && (
               <div className="mt-2 w-full basis-full" data-testid="crawl-type-picker">
@@ -711,24 +732,6 @@ export default function Home() {
               </div>
             )}
 
-            <div className="flex flex-wrap items-center gap-4">
-              <motion.button
-                data-testid="spin-roulette-button"
-                onClick={spin}
-                disabled={spinning || loading}
-                whileHover={{ scale: spinning || loading ? 1 : 1.03 }}
-                whileTap={SPIN_TAP}
-                className="inline-flex items-center gap-3 rounded-full border-2 border-[#0E0E0E] bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
-              >
-                <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
-                {loading ? "Finding spots…" : spinning ? "Shuffling…" : crawlMode ? "Deal a Crawl!" : groupMode ? "Deal 3 Fates!" : "Deal Your Fate!"}
-              </motion.button>
-              {results.length > 0 && (
-                <span className="font-sans text-sm text-[#6B7075]">
-                  {results.length} spot{results.length !== 1 && "s"} nearby
-                </span>
-              )}
-            </div>
             {fatesDealt !== null && (
               <div className="mt-4 inline-flex items-center gap-2 font-sans text-sm text-[#6B7075]" data-testid="fates-dealt-counter">
                 <Dices className="h-4 w-4 text-[#E01E26]" />
