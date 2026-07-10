@@ -21,7 +21,7 @@ from webauthn.helpers.structs import (
     AuthenticatorAttachment,
 )
 
-from core import db, rate_limit, require_admin, create_admin_token, rp_id_and_origin
+from core import db, rate_limit, require_admin, create_admin_token, rp_id_and_origin, logger
 
 router = APIRouter()
 
@@ -82,7 +82,8 @@ async def register_verify(payload: VerifyPayload, request: Request):
             expected_origin=origin,
         )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Passkey registration failed: {e}")
+        logger.warning(f"Passkey registration verify failed: {e}")
+        raise HTTPException(status_code=400, detail="Passkey registration failed")
 
     new_passkey = {
         "credential_id": bytes_to_base64url(verification.credential_id),
@@ -161,7 +162,8 @@ async def login_verify(payload: VerifyPayload, request: Request):
             credential_current_sign_count=matched["sign_count"],
         )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Passkey login failed: {e}")
+        logger.warning(f"Passkey login verify failed: {e}")
+        raise HTTPException(status_code=400, detail="Passkey login failed")
 
     await db.admin_auth.update_one(
         {"_id": ADMIN_KEY, "passkeys.credential_id": cred_id},
