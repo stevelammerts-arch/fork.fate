@@ -9,6 +9,7 @@ import AddRestaurantDialog from "../components/AddRestaurantDialog";
 import InstallAppButton from "../components/InstallAppButton";
 import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
 import SocialShare from "../components/SocialShare";
+import QRCode from "qrcode";
 import CheckInButton from "../components/CheckInButton";
 import CheckUpdatesButton from "../components/CheckUpdatesButton";
 import FavoritesDrawer from "../components/FavoritesDrawer";
@@ -1468,18 +1469,43 @@ async function buildFateCard(card) {
   } catch (e) { console.debug("hand draw skipped", e); }
 
   // Bottom scrim for footer legibility over the forearm
-  const scrim = ctx.createLinearGradient(0, H - 180, 0, H);
+  const scrim = ctx.createLinearGradient(0, H - 230, 0, H);
   scrim.addColorStop(0, "rgba(11,11,11,0)");
-  scrim.addColorStop(1, "rgba(11,11,11,0.95)");
-  ctx.fillStyle = scrim; ctx.fillRect(0, H - 180, W, 180);
+  scrim.addColorStop(1, "rgba(11,11,11,0.97)");
+  ctx.fillStyle = scrim; ctx.fillRect(0, H - 230, W, 230);
 
-  // Footer CTA
+  // Scannable QR (bottom-right) — lets anyone who sees the shared image jump straight to the app
+  const shareUrl = (typeof window !== "undefined" && window.location?.origin && !window.location.origin.includes("localhost"))
+    ? window.location.origin
+    : "https://fork-fate.com";
+  try {
+    const qrDataUrl = await QRCode.toDataURL(shareUrl, { margin: 1, width: 300, color: { dark: "#0B0B0B", light: "#FFFFFF" } });
+    const qr = await loadImage(qrDataUrl);
+    const qs = 150, pad = 14, boxS = qs + pad * 2;
+    const qx = W - 56 - boxS, qy = H - 44 - boxS, rr = 16;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(qx + rr, qy);
+    ctx.arcTo(qx + boxS, qy, qx + boxS, qy + boxS, rr);
+    ctx.arcTo(qx + boxS, qy + boxS, qx, qy + boxS, rr);
+    ctx.arcTo(qx, qy + boxS, qx, qy, rr);
+    ctx.arcTo(qx, qy, qx + boxS, qy, rr);
+    ctx.closePath();
+    ctx.fillStyle = "#FFFFFF"; ctx.fill();
+    ctx.drawImage(qr, qx + pad, qy + pad, qs, qs);
+    ctx.restore();
+  } catch (e) { console.debug("qr draw skipped", e); }
+
+  // Footer CTA (left-aligned, beside the QR)
+  ctx.textAlign = "left";
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = "700 42px Georgia, serif";
-  ctx.fillText("Fork·Fate", cx, H - 92);
-  ctx.fillStyle = "#8A8F95";
-  ctx.font = "400 30px Arial, sans-serif";
-  ctx.fillText("Shuffle your own fate at fork-fate.com", cx, H - 50);
+  ctx.font = "700 44px Georgia, serif";
+  ctx.fillText("Fork·Fate", 64, H - 116);
+  ctx.fillStyle = "#B9BEC4";
+  ctx.font = "400 28px Arial, sans-serif";
+  ctx.fillText("Scan the code to", 64, H - 72);
+  ctx.fillText("shuffle your own fate", 64, H - 36);
+  ctx.textAlign = "center";
 
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }

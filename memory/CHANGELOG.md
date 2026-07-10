@@ -28,7 +28,9 @@
 ### Cache-buster
 - FF_BUILD bumped through 2026.06-49. Bump on each UI ship.
 
-### Reveal skeleton-hand — FINAL tuning (user-approved, deployed)
+### Shareable Fate Card — QR upgrade (NEW, verified via generated image)
+- Added `qrcode` lib. `buildFateCard()` in `Home.jsx` now draws a scannable QR (→ window.location.origin, i.e. fork-fate.com in prod) on a white rounded box bottom-right, with a left-aligned "Scan the code to shuffle your own fate" CTA. Drives new diners from screenshot shares. FF_BUILD 2026.06-50.
+- Note: existing share flow (Web Share text, Fate Card image download, SocialShare FB/X/WhatsApp/IG/Copy) was already present — the QR is the additive enhancement.
 - After several iterations the user reverted to the ORIGINAL first version and asked to ONLY drag the wrist down.
 - FINAL values in `Home.jsx` ShufflingDeck: hand `w-[310px]`, overlay transform `translate(-50%, calc(-50% + 48px))`. CardFront is the ORIGINAL (photo `inset-[13px]`, thin red borders `inset-2 /70` + `inset-[10px] /25`, `bg-[#0E0E0E]` class). Card container `bg-[#0E0E0E]` class. DO NOT widen the hand or change the card frame — the user rejected the bolder-frame + wider-hand experiments.
 - Recurring gotcha this session: the user repeatedly saw STALE builds (mobile/PWA + production cache). Always confirm environment (preview vs fork-fate.com) and advise an incognito/fresh load before iterating on visuals.
