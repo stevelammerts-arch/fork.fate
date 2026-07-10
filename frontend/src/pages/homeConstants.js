@@ -48,17 +48,23 @@ export const REAPER_LINES = [
 export const reaperLineFor = (r) => REAPER_LINES[(r?.name?.length || 0) % REAPER_LINES.length];
 
 export const FOOD_CUISINES = [
-  "Italian", "Mexican", "Chinese", "Japanese", "Sushi", "Indian", "Thai", "Korean", "Vietnamese",
-  "Chicken Wings", "Fried Chicken", "Burgers", "Steakhouse", "American", "Diner", "Mediterranean", "Greek",
-  "Seafood", "Pizza", "Tacos", "Sandwiches", "Deli", "Ramen", "Breakfast", "Halal", "Vegan", "Vegetarian",
-  "Gluten Free", "BBQ", "Cafe", "Poke", "Soul Food", "Cajun", "Hot Pot", "Dim Sum", "Buffet", "Food Trucks", "Tapas",
+  "Italian", "Mexican", "Tex-Mex", "Chinese", "Japanese", "Sushi", "Indian", "Thai", "Korean", "Vietnamese",
+  "Filipino", "Malaysian", "Indonesian", "Chicken Wings", "Fried Chicken", "Burgers", "Steakhouse", "American",
+  "Diner", "Comfort Food", "Southern", "Soul Food", "Cajun", "Mediterranean", "Greek", "Spanish", "French",
+  "Middle Eastern", "Lebanese", "Turkish", "Ethiopian", "Caribbean", "Cuban", "Peruvian", "Brazilian", "Hawaiian",
+  "Seafood", "Poke", "Pizza", "Pasta", "Tacos", "Sandwiches", "Deli", "Ramen", "Noodles", "Pho", "Dumplings",
+  "Breakfast", "Brunch", "Salads", "Halal", "Vegan", "Vegetarian", "Gluten Free", "BBQ", "Cafe", "Gastropub",
+  "Fine Dining", "Fusion", "Hot Pot", "Dim Sum", "Buffet", "Food Trucks", "Fast Food", "Tapas",
 ];
-export const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "Smoothie", "Juice Bar", "Milkshakes", "Kombucha", "Cider"];
-export const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Donuts", "Cupcakes", "Candy Shops", "Chocolate", "Crepes", "Cheesecake", "Pie"];
+export const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "Smoothie", "Juice Bar", "Milkshakes", "Kombucha", "Cider", "Hot Chocolate", "Matcha", "Lemonade", "Soda Fountain"];
+export const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Donuts", "Cupcakes", "Candy Shops", "Chocolate", "Crepes", "Cheesecake", "Pie", "Cookies", "Waffles", "Macarons", "Cinnamon Rolls"];
 export const BAR_CUISINES = [
-  "Brewery", "Distillery", "Beer", "Wine", "Wine Bar", "Cocktails", "Whiskey", "Liquor", "Spirits", "Margaritas",
-  "Tiki", "Pub", "Sports Bar", "Irish Bar", "Dive Bar", "Rooftop Bar", "Speakeasy", "Nightclub", "Karaoke", "Bars",
-  "Cigar Bar", "Hookah Lounge", "Live Music", "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Games", "Bowling", "Tapas Bar",
+  "Brewery", "Beer Garden", "Taproom", "Distillery", "Beer", "Wine", "Winery", "Wine Bar", "Wine Tasting",
+  "Champagne Bar", "Cider House", "Cocktails", "Whiskey", "Liquor", "Spirits", "Margaritas", "Tequila Bar",
+  "Mezcal Bar", "Tiki", "Pub", "Gastropub", "Sports Bar", "Irish Bar", "Dive Bar", "Rooftop Bar", "Lounge",
+  "Speakeasy", "Nightclub", "Karaoke", "Bars", "Cigar Bar", "Hookah Lounge", "Live Music", "Jazz Bar",
+  "Piano Bar", "Comedy Club", "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Arcade Bar", "Axe Throwing",
+  "Mini Golf", "Trivia", "Games", "Bowling", "Tapas Bar",
 ];
 export const CRAWL_TYPES = [
   { key: "pubs", label: "Pubs", mode: "bars", cuisine: "Pub", crawl: "Pub Crawl" },

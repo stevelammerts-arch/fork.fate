@@ -36,7 +36,7 @@ export default function Filters({
   return (
     <div className="space-y-6" data-testid="filters-panel">
       <Group label={cuisineLabel}>
-        {cuisines.map((c) => (
+        {[...cuisines].sort((a, b) => a.localeCompare(b)).map((c) => (
           <Pill
             key={c}
             active={selectedCuisines.includes(c)}
