@@ -657,7 +657,7 @@ export default function Home() {
               type="button"
               data-testid="open-now-toggle"
               onClick={() => setOpenNow((v) => !v)}
-              className={`inline-flex items-center gap-2.5 rounded-full border px-4 py-2.5 text-sm font-bold transition-colors ${openNow ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E2E4E7] bg-white text-[#6B7075] hover:bg-[#EDEEF0]"}`}
+              className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${openNow ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
             >
               <Clock className="h-4 w-4" />
               Open now only
@@ -670,7 +670,7 @@ export default function Home() {
               type="button"
               data-testid="group-mode-toggle"
               onClick={() => { setGroupMode((v) => { const n = !v; if (n) setCrawlMode(false); return n; }); setResult(null); setGroupPicks(null); }}
-              className={`ml-3 inline-flex items-center gap-2.5 rounded-full border px-4 py-2.5 text-sm font-bold transition-colors ${groupMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E2E4E7] bg-white text-[#6B7075] hover:bg-[#EDEEF0]"}`}
+              className={`ml-3 inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${groupMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
             >
               <Users className="h-4 w-4" />
               Group mode
@@ -683,7 +683,7 @@ export default function Home() {
               type="button"
               data-testid="crawl-mode-toggle"
               onClick={() => { setCrawlMode((v) => { const n = !v; if (n) setGroupMode(false); return n; }); if (!crawlMode) applyCrawlType(CRAWL_TYPES[0]); setResult(null); setGroupPicks(null); }}
-              className={`ml-3 inline-flex items-center gap-2.5 rounded-full border px-4 py-2.5 text-sm font-bold transition-colors ${crawlMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E2E4E7] bg-white text-[#6B7075] hover:bg-[#EDEEF0]"}`}
+              className={`ml-3 inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${crawlMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E01E26] bg-white text-[#E01E26] hover:bg-[#FCECEC]"}`}
             >
               <Beer className="h-4 w-4" />
               Pub Crawls & more
