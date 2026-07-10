@@ -1,0 +1,44 @@
+{
+  "summary": "Iter51 backend security 6/6 passing (JWT iss/aud enforce, wrong-password 401, per-IP+global login rate-limit 429, passkey origin gating for evil.com→403 and same-origin/fallback→200). Frontend crawl-reveal-lands-on-first-stop VERIFIED (deck landed on 'Break Bar' and PubCrawlDialog crawl-stop-0 == 'Break Bar' on the same run). Admin regression VERIFIED: password login → MRR/subscribers/active/engagement stats, submissions section, add-sponsor form, sponsor list all render; TEST_ sponsor add + delete round-trip works. PASSKEY UI FLOW BLOCKED IN PREVIEW: registration + login through the browser both return 403 'Origin not allowed' because the Emergent preview ingress rewrites the outbound browser Origin header to https://lucky-bite-1.cluster-7.preview.emergentcf.cloud (internal CF hostname, NOT in ALLOWED_ORIGIN_REGEX which only matches fork-fate.com / emergentagent.com). curl/backend tests bypass this by omitting Origin so the server falls back to x-forwarded-host (emergentagent.com) — that path works. Real browser users on preview cannot register or use a passkey right now.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "/api/admin/passkey/* and /api/auth/passkey/*", "issue": "Preview ingress rewrites browser Origin header from 'https://lucky-bite-1.preview.emergentagent.com' to 'https://lucky-bite-1.cluster-7.preview.emergentcf.cloud'. This internal CF hostname is NOT matched by ALLOWED_ORIGIN_REGEX ('...fork-fate.com|emergentagent.com'), so rp_id_and_origin() raises 403 'Origin not allowed'. Passkey register + login are unreachable from the preview browser. Confirmed by adding a temporary log inside rp_id_and_origin — resolved origin printed as the emergentcf.cloud value.", "priority": "CRITICAL"}
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Admin → Add passkey (data-testid=admin-passkey-manage-button) and Unlock with passkey (admin-passkey-login-button)", "issue": "Both fail with backend 403 'Origin not allowed' before the CDP virtual authenticator is even prompted. Root cause is backend origin gating (see backend/critical). Because /api/auth/passkey/available returns available:false when no passkey is registered, the passkey-login-button also never appears on the login screen in the preview.", "affected_selectors": ["admin-passkey-manage-button", "admin-passkey-login-button"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter51_security.py",
+    "/app/test_reports/pytest/iter51.xml"
+  ],
+  "action_items": [
+    "Widen ALLOWED_ORIGIN_REGEX in /app/backend/core.py to also accept the Emergent preview CF hostname (e.g. add 'emergentcf\\.cloud' — pattern like r'https://([a-z0-9-]+\\.)*(fork-fate\\.com|emergentagent\\.com|emergentcf\\.cloud)$'), OR change _request_origin() to prefer x-forwarded-host over an ingress-rewritten Origin (safer for future-proofing since the CF internal host isn't a real user-facing origin). Without this the passkey feature is unreachable via the preview browser.",
+    "After widening the regex, re-verify: (a) same test_iter51_security.py still passes evil.com→403, (b) browser passkey register + login using CDP Virtual Authenticator succeeds end-to-end, (c) button label flips to 'Passkey on' (green) and admin-passkey-login-button appears after logout."
+  ],
+  "critical_code_review_comments": [
+    "core.py origin_allowed uses re.match which only anchors the start — the regex ends with '$' so it is effectively fullmatch, good. Note: the regex should be tolerant to the ingress-rewritten CF preview host (see action items).",
+    "routes/passkey.py: register-verify + login-verify catch any Exception and return 400 with the raw exception in `detail` — that could leak internal state to clients. Consider catching only webauthn-specific exceptions or scrubbing the message before returning.",
+    "admin_login_throttle in core.py is a process-global counter; single-worker preview is fine, but with 2+ uvicorn workers or replicas the cap effectively multiplies. Fine for now, document intent or move to shared store when scaling.",
+    "server.py CORS: allow_credentials=False + allow_origin_regex works, but the Emergent ingress-rewritten Origin will also fail CORS preflight for the same reason. Since the app itself is same-origin no preflight is triggered today, but this compounds the passkey issue.",
+    "core.py: rate_limit falls back to request.client.host when no CF headers — in the preview I observed 2 different ingress peer IPs (10.231.156.5 and 10.231.156.2) alternating, so per-IP buckets are split. The global cap (admin_login_throttle) is what actually enforces the limit; per-IP is essentially advisory in this env."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter51_security.py"
+  ],
+  "success_rate": {
+    "backend": "100% (6/6 pytest)",
+    "frontend": "67% — crawl-reveal + admin regression pass; passkey UI blocked by backend origin gating (RCA above)"
+  },
+  "test_credentials": "Admin password GrimReaper!2026 (from /app/memory/test_credentials.md and problem statement) — used successfully.",
+  "seed_data_creation": "TEST_Iter51 Sponsor added then deleted (round-trip). No leftover DB rows.",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Reuse /app/backend/tests/test_iter51_security.py for regression of JWT iss/aud, wrong-password, disallowed-origin, allowed-origin (via Referer/x-forwarded-host fallback), and login rate-limit. Passkey browser flow requires the ingress-Origin fix (see action_items) before it can be tested end-to-end with CDP Virtual Authenticator. When re-testing passkeys, use browser context CDP: WebAuthn.addVirtualAuthenticator with protocol=ctap2, transport=internal, hasResidentKey=true, isUserVerified=true, automaticPresenceSimulation=true; then click admin-passkey-manage-button (label flips to 'Passkey on'), logout, click admin-passkey-login-button.",
+  "rca of the issue": "Passkey origin gating 403 RCA: (1) Browser sends Origin: https://lucky-bite-1.preview.emergentagent.com. (2) The Emergent preview ingress replaces the Origin header with its internal Cloudflare hostname https://lucky-bite-1.cluster-7.preview.emergentcf.cloud before forwarding to uvicorn. (3) _request_origin() in core.py returns this rewritten value (Origin has precedence over Referer/x-forwarded-host). (4) origin_allowed() regex '(fork-fate.com|emergentagent.com)$' does NOT match 'emergentcf.cloud', so rp_id_and_origin() raises 403. Reproduction: `curl -H 'Authorization: Bearer <admin-token>' -H 'Origin: https://lucky-bite-1.preview.emergentagent.com' https://<preview>/api/admin/passkey/register-options` → 403 (backend logs the rewritten emergentcf.cloud origin). Fix: extend ALLOWED_ORIGIN_REGEX to include emergentcf.cloud, or make _request_origin() prefer x-forwarded-host+x-forwarded-proto over Origin whenever both are present, or trust the ingress-set host as the canonical browser origin."
+}

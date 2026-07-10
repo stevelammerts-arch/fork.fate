@@ -5,7 +5,7 @@ from typing import List
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Depends
 
-from core import db, rate_limit, require_admin, create_admin_token, ADMIN_PASSWORD, SPONSOR_PRICE, FALLBACK_IMG
+from core import db, rate_limit, require_admin, create_admin_token, admin_login_throttle, ADMIN_PASSWORD, SPONSOR_PRICE, FALLBACK_IMG
 from models import AdminLogin, SponsorCreate, SponsorUpdate, SponsorClick, Restaurant
 from routes.sponsors import reconcile_sponsors
 
@@ -14,6 +14,7 @@ router = APIRouter()
 
 @router.post("/admin/login", dependencies=[Depends(rate_limit(10))])
 async def admin_login(payload: AdminLogin):
+    admin_login_throttle()  # global cap across all IPs (anti distributed brute-force)
     if not ADMIN_PASSWORD or not hmac.compare_digest(payload.password, ADMIN_PASSWORD):
         raise HTTPException(status_code=401, detail="Incorrect password")
     return {"token": create_admin_token()}

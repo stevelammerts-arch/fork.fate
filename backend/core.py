@@ -3,13 +3,14 @@ from fastapi import HTTPException, Request
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+import re
 import time
 import math
 import jwt
 import logging
 from collections import defaultdict, deque
 from pathlib import Path
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, urlparse
 from datetime import datetime, timezone, timedelta
 
 ROOT_DIR = Path(__file__).parent
@@ -33,6 +34,11 @@ PAYPAL_WEBHOOK_ID = os.environ.get('PAYPAL_WEBHOOK_ID')
 PAYPAL_BASE = "https://api-m.paypal.com" if PAYPAL_ENV == "live" else "https://api-m.sandbox.paypal.com"
 SPONSOR_PRICE = "29.00"
 JWT_ALG = "HS256"
+JWT_ISS = os.environ.get("JWT_ISS", "fork-fate")
+JWT_AUD = os.environ.get("JWT_AUD", "fork-fate-admin")
+# Origins allowed for CORS + WebAuthn (prod fork-fate.com + Emergent preview subdomains).
+ALLOWED_ORIGIN_REGEX = r"https://([a-z0-9-]+\.)*(fork-fate\.com|emergentagent\.com)$"
+_ORIGIN_RE = re.compile(ALLOWED_ORIGIN_REGEX, re.I)
 FALLBACK_IMG = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?crop=entropy&cs=srgb&fm=jpg&q=85"
 
 
@@ -77,8 +83,10 @@ MAX_RADIUS_MILES = 50.0
 
 
 def create_admin_token():
+    now = datetime.now(timezone.utc)
     payload = {"sub": "admin", "role": "admin", "type": "admin",
-               "exp": datetime.now(timezone.utc) + timedelta(hours=12)}
+               "iss": JWT_ISS, "aud": JWT_AUD,
+               "iat": now, "exp": now + timedelta(hours=12)}
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
 
 
@@ -88,7 +96,11 @@ def require_admin(request: Request):
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
     try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG])
+        payload = jwt.decode(
+            token, JWT_SECRET, algorithms=[JWT_ALG],
+            issuer=JWT_ISS, audience=JWT_AUD,
+            options={"require": ["exp", "iss", "aud"]},
+        )
         if payload.get("role") != "admin":
             raise HTTPException(status_code=403, detail="Forbidden")
     except jwt.ExpiredSignatureError:
@@ -96,6 +108,56 @@ def require_admin(request: Request):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
     return True
+
+
+def origin_allowed(origin: str) -> bool:
+    return bool(origin and _ORIGIN_RE.match(origin.strip()))
+
+
+def _request_origin(request: Request) -> str:
+    """Best-effort origin of the calling page. Same-origin GETs often omit the
+    Origin header, so fall back to Referer, then the forwarded host/proto set by
+    the ingress, then the Host header."""
+    o = (request.headers.get("origin") or "").strip()
+    if o:
+        return o
+    ref = (request.headers.get("referer") or "").strip()
+    if ref:
+        p = urlparse(ref)
+        if p.scheme and p.netloc:
+            return f"{p.scheme}://{p.netloc}"
+    host = request.headers.get("x-forwarded-host") or request.headers.get("host")
+    proto = request.headers.get("x-forwarded-proto") or "https"
+    if host:
+        return f"{proto}://{host}"
+    return ""
+
+
+def rp_id_and_origin(request: Request):
+    """Derive the WebAuthn Relying Party ID + expected origin from the (validated)
+    request. This lets one deployment serve both fork-fate.com and the Emergent
+    preview subdomain without hardcoding a single RP_ID."""
+    origin = _request_origin(request)
+    if not origin_allowed(origin):
+        raise HTTPException(status_code=403, detail="Origin not allowed")
+    host = urlparse(origin).hostname
+    return host, origin
+
+
+# Global admin-login throttle: caps TOTAL login attempts across all IPs per window,
+# defending against distributed / IP-spoofed brute force (complements the per-IP limit).
+_ADMIN_LOGIN_GLOBAL = {"window_start": 0.0, "count": 0}
+
+
+def admin_login_throttle(max_per_window: int = 30, window_seconds: int = 60):
+    now = time.time()
+    g = _ADMIN_LOGIN_GLOBAL
+    if now - g["window_start"] > window_seconds:
+        g["window_start"] = now
+        g["count"] = 0
+    g["count"] += 1
+    if g["count"] > max_per_window:
+        raise HTTPException(status_code=429, detail="Too many login attempts, please try again shortly")
 
 
 # Simple in-memory per-IP rate limiter (coarse abuse/cost protection)

@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { Lock, Plus, Trash2, LogOut, Star, Eye, EyeOff, Check, X, Clock, MousePointerClick } from "lucide-react";
+import { startRegistration, startAuthentication } from "@simplewebauthn/browser";
+import { Lock, Plus, Trash2, LogOut, Star, Eye, EyeOff, Check, X, Clock, MousePointerClick, Fingerprint } from "lucide-react";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
@@ -26,6 +27,9 @@ export default function Admin() {
   const [submissions, setSubmissions] = useState([]);
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
+  const [passkeyAvail, setPasskeyAvail] = useState(false);
+  const [passkeyRegistered, setPasskeyRegistered] = useState(false);
+  const [passkeyBusy, setPasskeyBusy] = useState(false);
 
   const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -69,6 +73,68 @@ export default function Admin() {
   useEffect(() => {
     if (token) { loadSponsors(); loadSubmissions(); loadStats(); }
   }, [token, loadSponsors, loadSubmissions, loadStats]);
+
+  // Show the passkey button on the login screen only when one is registered.
+  useEffect(() => {
+    if (token) return;
+    axios.get(`${API}/auth/passkey/available`)
+      .then(({ data }) => setPasskeyAvail(!!data.available))
+      .catch(() => setPasskeyAvail(false));
+  }, [token]);
+
+  // Load passkey registration status once logged in.
+  useEffect(() => {
+    if (!token) return;
+    axios.get(`${API}/admin/passkey/status`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(({ data }) => setPasskeyRegistered(!!data.registered))
+      .catch(() => {});
+  }, [token]);
+
+  const loginWithPasskey = async () => {
+    if (passkeyBusy) return;
+    setPasskeyBusy(true);
+    try {
+      const { data: optionsJSON } = await axios.get(`${API}/auth/passkey/login-options`);
+      const asseResp = await startAuthentication({ optionsJSON });
+      const { data } = await axios.post(`${API}/auth/passkey/login-verify`, { response: asseResp });
+      localStorage.setItem(TOKEN_KEY, data.token);
+      setToken(data.token);
+      toast.success("Unlocked with passkey");
+    } catch (e) {
+      if (e?.name === "NotAllowedError" || e?.name === "AbortError") return; // user cancelled
+      toast.error(e.response?.data?.detail || "Passkey login failed");
+    } finally {
+      setPasskeyBusy(false);
+    }
+  };
+
+  const registerPasskey = async () => {
+    if (passkeyBusy) return;
+    setPasskeyBusy(true);
+    try {
+      const { data: optionsJSON } = await axios.get(`${API}/admin/passkey/register-options`, { headers: { Authorization: `Bearer ${token}` } });
+      const attResp = await startRegistration({ optionsJSON });
+      await axios.post(`${API}/admin/passkey/register-verify`, { response: attResp }, { headers: { Authorization: `Bearer ${token}` } });
+      setPasskeyRegistered(true);
+      toast.success("Passkey saved — use your fingerprint or Face ID next time");
+    } catch (e) {
+      if (e?.name === "NotAllowedError" || e?.name === "AbortError") return;
+      toast.error(e.response?.data?.detail || "Couldn't register passkey");
+    } finally {
+      setPasskeyBusy(false);
+    }
+  };
+
+  const removePasskey = async () => {
+    if (!window.confirm("Remove the saved passkey from this admin account?")) return;
+    try {
+      await axios.delete(`${API}/admin/passkey`, { headers: { Authorization: `Bearer ${token}` } });
+      setPasskeyRegistered(false);
+      toast.success("Passkey removed");
+    } catch {
+      toast.error("Couldn't remove passkey");
+    }
+  };
 
   const login = async () => {
     if (!password) return;
@@ -187,6 +253,22 @@ export default function Admin() {
           >
             {authLoading ? "Signing in…" : "Sign in"}
           </button>
+          {passkeyAvail && (
+            <>
+              <div className="relative my-5 text-center">
+                <span className="absolute left-0 top-1/2 h-px w-full bg-white/10" />
+                <span className="relative bg-[#141414] px-3 text-xs font-semibold uppercase tracking-widest text-[#6B7075]">or</span>
+              </div>
+              <button
+                onClick={loginWithPasskey}
+                disabled={passkeyBusy}
+                data-testid="admin-passkey-login-button"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/20 py-3 font-sans text-sm font-bold text-white transition-colors hover:bg-white/10 disabled:opacity-60"
+              >
+                <Fingerprint className="h-4 w-4" /> {passkeyBusy ? "Waiting for device…" : "Unlock with fingerprint / Face ID"}
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
@@ -202,13 +284,24 @@ export default function Admin() {
             </span>
             <span className="font-serif text-xl font-semibold text-white">Fork·Fate Admin</span>
           </div>
-          <button
-            onClick={logout}
-            data-testid="admin-logout-button"
-            className="inline-flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/10"
-          >
-            <LogOut className="h-4 w-4" /> Log out
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={passkeyRegistered ? removePasskey : registerPasskey}
+              disabled={passkeyBusy}
+              data-testid="admin-passkey-manage-button"
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-colors disabled:opacity-60 ${passkeyRegistered ? "border-[#4ADE80]/40 text-[#4ADE80] hover:bg-[#4ADE80]/10" : "border-white/25 text-white hover:bg-white/10"}`}
+            >
+              <Fingerprint className="h-4 w-4" />
+              {passkeyBusy ? "Working…" : passkeyRegistered ? "Passkey on" : "Add passkey"}
+            </button>
+            <button
+              onClick={logout}
+              data-testid="admin-logout-button"
+              className="inline-flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/10"
+            >
+              <LogOut className="h-4 w-4" /> Log out
+            </button>
+          </div>
         </div>
       </header>
 
