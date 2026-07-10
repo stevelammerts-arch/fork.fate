@@ -73,62 +73,21 @@ body {
 }
 
 
-/* Flaming "Congratulations" text for the crawl reward reveal */
-.flame-text {
-    background: linear-gradient(180deg, #fff6cf 0%, #ffcf5a 34%, #ff7a18 70%, #e01e26 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-    animation: flameFlicker 1.05s ease-in-out infinite;
+/* "Congratulations" reward reveal — emerges forward out of darkness with a red glow */
+.congrats-reveal {
+    color: #F2F3F5;
+    text-shadow:
+        0 0 10px rgba(224, 30, 38, 0.55),
+        0 0 26px rgba(224, 30, 38, 0.35);
+    animation: congratsGlow 2.4s ease-in-out infinite;
 }
-
-@keyframes flameFlicker {
+@keyframes congratsGlow {
     0%, 100% {
-        filter: drop-shadow(0 -2px 5px rgba(255, 120, 0, 0.85)) drop-shadow(0 -6px 16px rgba(255, 60, 0, 0.6));
+        text-shadow: 0 0 10px rgba(224, 30, 38, 0.5), 0 0 24px rgba(224, 30, 38, 0.3);
     }
     50% {
-        filter: drop-shadow(0 -3px 9px rgba(255, 165, 0, 0.95)) drop-shadow(0 -11px 24px rgba(255, 80, 0, 0.7));
+        text-shadow: 0 0 14px rgba(224, 30, 38, 0.7), 0 0 34px rgba(224, 30, 38, 0.45);
     }
-}
-
-/* Full-width realistic wall of fire on top of the Congratulations text */
-.fire-wall {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    width: 100%;
-    height: 46px;
-    filter: blur(1px) contrast(1.05);
-}
-.fire-wall::after {
-    /* glowing ember base so the flames read as one continuous wall */
-    content: "";
-    position: absolute;
-    left: 5%;
-    right: 5%;
-    bottom: 0;
-    height: 14px;
-    background: linear-gradient(90deg, transparent, #ff5a00 12%, #ff7a18 50%, #ff5a00 88%, transparent);
-    filter: blur(6px);
-    opacity: 0.85;
-    border-radius: 50%;
-}
-.fire-wall .flame {
-    flex: 1 1 auto;
-    min-width: 9px;
-    margin: 0 -5px;
-    background: radial-gradient(ellipse at 50% 100%, #fff6c4 0%, #ffd25a 16%, #ff8a1e 46%, #ef2b12 76%, transparent 100%);
-    clip-path: polygon(50% 0%, 61% 26%, 74% 55%, 66% 82%, 72% 100%, 28% 100%, 34% 82%, 26% 55%, 39% 26%);
-    transform-origin: 50% 100%;
-    mix-blend-mode: screen;
-    animation: fireLick 0.55s ease-in-out infinite alternate;
-}
-@keyframes fireLick {
-    0% { transform: scaleY(0.78) scaleX(1) translateY(3px) rotate(-2deg); opacity: 0.7; }
-    55% { opacity: 1; }
-    100% { transform: scaleY(1.32) scaleX(0.9) translateY(0) rotate(2deg); opacity: 0.95; }
 }
 
 

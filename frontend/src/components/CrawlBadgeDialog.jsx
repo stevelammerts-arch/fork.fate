@@ -257,30 +257,30 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
                 )}
               </AnimatePresence>
               {cinemaDone && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.75, y: 10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
-                  className="mt-8 flex w-full flex-col items-center"
-                  data-testid="crawl-congrats-flame"
-                >
-                  <div className="fire-wall -mb-4" aria-hidden="true">
-                    {Array.from({ length: 26 }).map((_, i) => (
-                      <span
-                        key={i}
-                        className="flame"
-                        style={{
-                          height: `${16 + (Math.sin(i * 1.7) + 1) * 12 + (i % 4) * 5}px`,
-                          animationDuration: `${0.42 + (i % 5) * 0.06}s`,
-                          animationDelay: `${(i % 8) * 0.05}s`,
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <h3 className="flame-text font-serif text-5xl font-semibold tracking-tight sm:text-6xl">
+                <div className="relative flex w-full items-center justify-center" data-testid="crawl-congrats-reveal">
+                  {/* Red burst flash */}
+                  <motion.div
+                    aria-hidden="true"
+                    initial={{ opacity: 0.95, scale: 0.15 }}
+                    animate={{ opacity: 0, scale: 2.6 }}
+                    transition={{ duration: 0.7, ease: "easeOut" }}
+                    className="pointer-events-none absolute h-56 w-56 rounded-full"
+                    style={{
+                      background:
+                        "radial-gradient(circle, rgba(255,90,60,0.95) 0%, rgba(224,30,38,0.7) 35%, rgba(224,30,38,0) 70%)",
+                      mixBlendMode: "screen",
+                    }}
+                  />
+                  {/* "Congratulations" emerges forward out of the darkness */}
+                  <motion.h3
+                    initial={{ opacity: 0, scale: 0.28, filter: "blur(14px)" }}
+                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                    transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.12 }}
+                    className="congrats-reveal font-serif text-5xl font-semibold tracking-tight sm:text-6xl"
+                  >
                     Congratulations
-                  </h3>
-                </motion.div>
+                  </motion.h3>
+                </div>
               )}
             </div>
 
