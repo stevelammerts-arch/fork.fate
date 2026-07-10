@@ -19,9 +19,20 @@ const originIcon = L.divIcon({
   iconAnchor: [8, 8],
 });
 
+const liveIcon = L.divIcon({
+  className: "",
+  html: `<div style="position:relative;width:18px;height:18px">
+    <span class="animate-ping" style="position:absolute;inset:0;border-radius:9999px;background:#4ADE80;opacity:.55"></span>
+    <span style="position:absolute;inset:3px;border-radius:9999px;background:#4ADE80;border:2px solid #0B0B0B"></span>
+  </div>`,
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
+  popupAnchor: [0, -9],
+});
+
 // Interactive, no-cost route map (OpenStreetMap data via CARTO dark tiles).
 // Renders numbered pins + a connecting line for the crawl route.
-export default function CrawlMap({ stops = [], origin = null, visited = {} }) {
+export default function CrawlMap({ stops = [], origin = null, visited = {}, livePos = null }) {
   const pts = useMemo(
     () => stops.filter((s) => s.lat != null && s.lng != null).map((s) => ({ ...s, ll: [Number(s.lat), Number(s.lng)] })),
     [stops]
@@ -62,6 +73,11 @@ export default function CrawlMap({ stops = [], origin = null, visited = {} }) {
             </Popup>
           </Marker>
         ))}
+        {livePos && livePos.lat != null && (
+          <Marker position={[Number(livePos.lat), Number(livePos.lng)]} icon={liveIcon}>
+            <Popup>You are here</Popup>
+          </Marker>
+        )}
       </MapContainer>
     </div>
   );

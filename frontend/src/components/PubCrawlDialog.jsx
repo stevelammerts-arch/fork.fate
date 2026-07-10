@@ -60,6 +60,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, s
   const [dropped, setDropped] = useState({});
   const [visited, setVisited] = useState({});
   const [autoGps, setAutoGps] = useState(false);
+  const [livePos, setLivePos] = useState(null);
   const [crew, setCrew] = useState("");
   const [sharing, setSharing] = useState(false);
   const [badgeOpen, setBadgeOpen] = useState(false);
@@ -112,6 +113,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, s
     watchRef.current = navigator.geolocation.watchPosition(
       (pos) => {
         const p = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setLivePos(p);
         setVisited((v) => {
           let changed = false; const nv = { ...v };
           for (const s of stops) {
@@ -130,6 +132,8 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, s
   }, [autoGps, stops]);
 
   const toggleVisited = (id) => setVisited((v) => ({ ...v, [id]: !v[id] }));
+
+  useEffect(() => { if (!autoGps) setLivePos(null); }, [autoGps]);
 
   const shareCrawl = async () => {
     if (!stops.length || sharing) return;
@@ -184,7 +188,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, s
           {/* Route map */}
           {stops.length > 0 && (
             <div className="mt-2">
-              <CrawlMap stops={stops} origin={origin} visited={visited} />
+              <CrawlMap stops={stops} origin={origin} visited={visited} livePos={livePos} />
             </div>
           )}
 
