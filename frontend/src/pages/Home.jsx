@@ -985,7 +985,7 @@ function ShufflingDeck({ cards, flash, landed }) {
   return (
     <div className="grid h-full min-h-[400px] place-items-center" data-testid="shuffling-deck">
       <div className="flex flex-col items-center gap-8">
-        <div className="relative h-60 w-44">
+        <div className="relative h-72 w-44">
           <AnimatePresence>
             {landed && (
               <motion.div
