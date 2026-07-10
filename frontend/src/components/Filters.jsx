@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
 const PILL_TAP = { scale: 0.94 };
+const COLLAPSE_LIMIT = 12;
 
 const Pill = ({ active, onClick, children, testid }) => (
   <motion.button
@@ -33,10 +34,27 @@ export default function Filters({
   selectedCuisines,
   toggleCuisine,
 }) {
+  const [expanded, setExpanded] = useState(false);
+
+  // Collapse back to the short list whenever the category (chip set) changes.
+  useEffect(() => { setExpanded(false); }, [cuisineLabel]);
+
+  const sorted = [...cuisines].sort((a, b) => a.localeCompare(b));
+  const needsCollapse = sorted.length > COLLAPSE_LIMIT;
+
+  let visible = sorted;
+  if (needsCollapse && !expanded) {
+    const head = sorted.slice(0, COLLAPSE_LIMIT);
+    // Keep any selected chips visible even when they fall past the cut-off.
+    const selectedBeyond = sorted.slice(COLLAPSE_LIMIT).filter((c) => selectedCuisines.includes(c));
+    visible = [...head, ...selectedBeyond];
+  }
+  const hiddenCount = sorted.length - visible.length;
+
   return (
     <div className="space-y-6" data-testid="filters-panel">
       <Group label={cuisineLabel}>
-        {[...cuisines].sort((a, b) => a.localeCompare(b)).map((c) => (
+        {visible.map((c) => (
           <Pill
             key={c}
             active={selectedCuisines.includes(c)}
@@ -46,6 +64,16 @@ export default function Filters({
             {c}
           </Pill>
         ))}
+        {needsCollapse && (
+          <motion.button
+            whileTap={PILL_TAP}
+            onClick={() => setExpanded((e) => !e)}
+            data-testid="cuisine-toggle-more"
+            className="shrink-0 rounded-full border border-dashed border-[#C7CBD1] bg-transparent px-5 py-2.5 text-sm font-bold tracking-wide text-[#0E0E0E] transition-colors duration-200 hover:bg-[#EDEEF0]"
+          >
+            {expanded ? "Show less" : `+ ${hiddenCount} more`}
+          </motion.button>
+        )}
       </Group>
     </div>
   );
