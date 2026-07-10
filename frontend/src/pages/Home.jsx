@@ -66,13 +66,16 @@ const REAPER_LINES = [
 const reaperLineFor = (r) => REAPER_LINES[(r?.name?.length || 0) % REAPER_LINES.length];
 
 const FOOD_CUISINES = [
-  "Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Korean", "Chicken Wings", "Fried Chicken",
-  "American", "Mediterranean", "Seafood", "Pizza", "Deli", "Breakfast", "Vegan", "Gluten Free", "BBQ", "Greek", "Cafe",
+  "Italian", "Mexican", "Chinese", "Japanese", "Sushi", "Indian", "Thai", "Korean", "Vietnamese",
+  "Chicken Wings", "Fried Chicken", "Burgers", "Steakhouse", "American", "Diner", "Mediterranean", "Greek",
+  "Seafood", "Pizza", "Tacos", "Sandwiches", "Deli", "Ramen", "Breakfast", "Halal", "Vegan", "Vegetarian",
+  "Gluten Free", "BBQ", "Cafe",
 ];
-const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];
-const DESSERT_CUISINES = ["Ice Cream", "Candy Shops", "Bakery", "Frozen Yogurt"];
+const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "Smoothie", "Juice Bar", "Milkshakes"];
+const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Donuts", "Cupcakes", "Candy Shops", "Chocolate"];
 const BAR_CUISINES = [
-  "Beer", "Wine", "Cocktails", "Liquor", "Spirits", "Whiskey", "Margaritas", "Tiki", "Sports Bar", "Irish Bar", "Bars",
+  "Beer", "Brewery", "Wine", "Wine Bar", "Cocktails", "Liquor", "Spirits", "Whiskey", "Margaritas", "Tiki",
+  "Pub", "Sports Bar", "Irish Bar", "Dive Bar", "Rooftop Bar", "Speakeasy", "Nightclub", "Karaoke", "Bars",
   "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Games", "Bowling",
 ];
 
