@@ -1255,19 +1255,17 @@ function CardBack() {
 // Tarot-style front: photo centered inside a black card with matching red frame
 function CardFront({ src }) {
   return (
-    <div className="absolute inset-0" style={{ backgroundColor: "#0E0E0E" }} data-testid="card-front">
+    <div className="absolute inset-0 bg-[#0E0E0E]" data-testid="card-front">
       <div
         className="absolute inset-0"
-        style={{ background: "radial-gradient(circle at 50% 42%, rgba(224,30,38,0.22), rgba(0,0,0,0) 62%)" }}
+        style={{ background: "radial-gradient(circle at 50% 42%, rgba(224,30,38,0.20), rgba(0,0,0,0) 62%)" }}
       />
-      {/* red tarot frame */}
-      <div className="absolute inset-2 rounded-xl border-2 border-[#E01E26]" />
-      <div className="absolute inset-[9px] rounded-lg border border-[#E01E26]/40" />
-      {/* photo inset inside the frame so the black tarot card reads clearly around it */}
-      <div className="absolute inset-[18px] overflow-hidden rounded-md border border-[#E01E26]/60">
+      <div className="absolute inset-[13px] overflow-hidden rounded-md">
         <img src={src} alt="" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
       </div>
+      <div className="absolute inset-2 rounded-xl border border-[#E01E26]/70" />
+      <div className="absolute inset-[10px] rounded-lg border border-[#E01E26]/25" />
     </div>
   );
 }
@@ -1293,7 +1291,7 @@ function ShufflingDeck({ cards, flash, landed }) {
             {landed && (
               <motion.div
                 className="pointer-events-none absolute left-1/2 top-1/2 z-50"
-                style={{ transform: "translate(calc(-50% + 5px), calc(-50% + 6px))" }}
+                style={{ transform: "translate(-50%, calc(-50% + 52px))" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -1303,7 +1301,7 @@ function ShufflingDeck({ cards, flash, landed }) {
                 <motion.img
                   src="/skeleton-hand.png"
                   alt=""
-                  className="w-[404px] max-w-none select-none drop-shadow-2xl"
+                  className="w-[310px] max-w-none select-none drop-shadow-2xl"
                   initial={{ scale: 1.15 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 240, damping: 18 }}
@@ -1318,8 +1316,8 @@ function ShufflingDeck({ cards, flash, landed }) {
             return (
             <motion.div
               key={(c?.id || "c") + i}
-              className={`absolute inset-0 overflow-hidden rounded-2xl border-2 border-[#E01E26] shadow-2xl shadow-black/30`}
-              style={{ zIndex: DECK_SIZE - i, backgroundColor: "#0E0E0E" }}
+              className={`absolute inset-0 overflow-hidden rounded-2xl border-2 border-[#E01E26] bg-[#0E0E0E] shadow-2xl shadow-black/30`}
+              style={{ zIndex: DECK_SIZE - i }}
               animate={
                 landed
                   ? {
