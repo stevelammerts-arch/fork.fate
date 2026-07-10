@@ -1291,7 +1291,7 @@ function ShufflingDeck({ cards, flash, landed }) {
             {landed && (
               <motion.div
                 className="pointer-events-none absolute left-1/2 top-1/2 z-50"
-                style={{ transform: "translate(-50%, calc(-50% + 44px))" }}
+                style={{ transform: "translate(-50%, calc(-50% + 48px))" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
