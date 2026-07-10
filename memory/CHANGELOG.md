@@ -61,3 +61,11 @@
 - Slimmed header action buttons (Sponsor, Download, Favorites, Add spot) to text-xs/py-1.5 on mobile, scaling up at sm: breakpoint for consistency with the Guided button.
 - Fork·Fate title confirmed readable at text-2xl on mobile.
 - Bumped FF_BUILD to 2026.06-9 for cache purge.
+
+## 2026-06-10 — Session updates
+- Instagram Story export (1080x1920) added to Crawl Badge ("Share to your Story" button, buildBadge story flag) — tested (iter49).
+- Backend refactor: monolithic server.py split into core.py, models.py, seed_data.py and routes/ (restaurants, stats, crawls, places, sponsors, admin). server.py now a 54-line entrypoint. Verified 22/22 backend tests + full CRUD (iter49).
+- Extracted Home.jsx pure constants/helpers into pages/homeConstants.js.
+- Expanded Food/Drinks/Desserts/Bars cuisine lists; added "Winery" to Bars; chips now render alphabetically (sorted in Filters.jsx).
+- Added reaper-voice liability disclaimer to the footer (data-testid=reaper-disclaimer).
+- FF_BUILD bumped to 2026.06-13.
