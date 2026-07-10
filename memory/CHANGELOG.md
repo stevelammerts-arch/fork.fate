@@ -26,7 +26,12 @@
 - Added 180×180 `apple-touch-icon.png` (black bg composite) + explicit `<link>` in index.html.
 
 ### Cache-buster
-- FF_BUILD bumped through 2026.06-39. Bump on each UI ship.
+- FF_BUILD bumped through 2026.06-49. Bump on each UI ship.
+
+### Reveal skeleton-hand — FINAL tuning (user-approved, deployed)
+- After several iterations the user reverted to the ORIGINAL first version and asked to ONLY drag the wrist down.
+- FINAL values in `Home.jsx` ShufflingDeck: hand `w-[310px]`, overlay transform `translate(-50%, calc(-50% + 48px))`. CardFront is the ORIGINAL (photo `inset-[13px]`, thin red borders `inset-2 /70` + `inset-[10px] /25`, `bg-[#0E0E0E]` class). Card container `bg-[#0E0E0E]` class. DO NOT widen the hand or change the card frame — the user rejected the bolder-frame + wider-hand experiments.
+- Recurring gotcha this session: the user repeatedly saw STALE builds (mobile/PWA + production cache). Always confirm environment (preview vs fork-fate.com) and advise an incognito/fresh load before iterating on visuals.
 
 ### Guardrails
 - LIVE PAYPAL + PRODUCTION at fork-fate.com. Preview changes are preview-only until redeploy.
