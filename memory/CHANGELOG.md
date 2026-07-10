@@ -1,5 +1,25 @@
 # Fork·Fate — Changelog
 
+## 2026-06 — Pub Crawls, shareable links, Crawl Badge (selfie + reaper), congrats audio
+
+### Pub Crawl mode (USER APPROVED, tested iter45/46)
+- `Home.jsx`: `crawlMode`/`showCrawl` state; "Pub Crawls & more" toggle (`data-testid=crawl-mode-toggle`), mutually exclusive with Group mode. In `doSearch`, crawl mode skips the shuffle animation and opens `PubCrawlDialog` directly with the fetched results. Deal button label → "Deal a Crawl!". Works across all categories.
+- `PubCrawlDialog.jsx`: up to 6 random stops (locked/no-shuffle when `shared`), drop-a-stop (hidden when shared), crew input ("Who's with you?"), "Share with group" (short link), "Complete crawl — claim your badge".
+
+### Social check-in (`CheckInButton.jsx`)
+- On the revealed fate card: "Check in here" → native share / clipboard "I'm here now" post mentioning Fork·Fate.
+
+### Shareable crawl links (backend + Mongo)
+- Backend `server.py`: `CrawlCreate`/`CrawlStop` models; `POST /api/crawls` → 5-char code (unambiguous alphabet), `GET /api/crawls/{code}` (case-insensitive, 404 on miss, 422 if <2 stops). `db.crawls`.
+- `PubCrawlDialog.shareCrawl` saves crawl → builds `/c/{code}` link → native share/copy. Group opens the SAME fixed route simultaneously.
+- `SharedCrawl.jsx` at route `/c/:code` (App.js) — locked crawl, keeps Share + Complete buttons; error state on bad code.
+
+### Crawl Badge (`CrawlBadgeDialog.jsx`) — client-side canvas, NO uploads
+- Intro step: "Congratulations! You survived the Fork·Fate {Pub} Crawl…" with selfie CTA / skip. Congrats voice `/public/crawl-congrats.mp3` (user recording, pitched down ~4 semitones via ffmpeg) plays on open, respects `ff_muted`.
+- Builder: grim reaper on red/black backdrop holding a horizontal card = user's SELFIE (in-app camera capture, `capture="user"`), fingers visible below photo; info tarot card below with "I SURVIVED / THE FORK·FATE / {X} CRAWL / name / with crew / fork-fate.com". Name + crew inputs (crew flows from crawl dialog). Share (native, image file) + Download PNG. Privacy note (photo stays on device) + orientation note (use horizontal photo).
+- Art: `/public/reaper-award.png` (Gemini, red/black misty bg). Category labels: bars→PUB, food→FOOD, drinks→DRINKS, desserts→DESSERT.
+
+
 ## 2026-06 — Reveal cinematic, tarot reveal card, cuisines, bubble logo
 
 ### Reveal cinematic audio + flash (USER APPROVED)
