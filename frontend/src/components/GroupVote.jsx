@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Star, MapPin, Users, Trophy, Plus, RotateCcw, Dices } from "lucide-react";
 
-// Group mode: everyone votes on 3 fate-dealt candidates, highest tally wins.
+// Group mode: everyone votes on 3 fate-dealt candidates (up to 10 votes each), highest tally wins.
+const MAX_VOTES = 10;
 export default function GroupVote({ picks, onReSpin, onWinner }) {
   const [votes, setVotes] = useState(() => picks.map(() => 0));
   const [locked, setLocked] = useState(false);
@@ -10,7 +11,8 @@ export default function GroupVote({ picks, onReSpin, onWinner }) {
   const total = votes.reduce((a, b) => a + b, 0);
   const max = Math.max(...votes);
   const leaders = votes.map((v, i) => (v === max && max > 0 ? i : -1)).filter((i) => i >= 0);
-  const addVote = (i) => setVotes((p) => p.map((v, idx) => (idx === i ? v + 1 : v)));
+  const addVote = (i) => setVotes((p) => p.map((v, idx) => (idx === i ? Math.min(v + 1, MAX_VOTES) : v)));
+  const removeVote = (i) => setVotes((p) => p.map((v, idx) => (idx === i ? Math.max(v - 1, 0) : v)));
 
   const lockIn = () => {
     let winnerIdx = leaders.length ? leaders[Math.floor(Math.random() * leaders.length)] : Math.floor(Math.random() * picks.length);
@@ -29,7 +31,7 @@ export default function GroupVote({ picks, onReSpin, onWinner }) {
         </span>
       </div>
       <p className="font-serif text-2xl leading-tight text-[#0E0E0E]">
-        Fate dealt three. Tap to vote, then lock it in.
+        Fate dealt three. Tap to vote (up to 10 each), then lock it in.
       </p>
 
       <div className="mt-1 space-y-3">

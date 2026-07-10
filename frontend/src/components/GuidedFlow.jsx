@@ -63,7 +63,7 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
     setTimeout(() => onSeal({ mode, zip: zip.trim(), coords, radius, cuisines }), 1100);
   };
 
-  const chips = (cuisineMap[mode] || []).slice(0, 12);
+  const chips = cuisineMap[mode] || [];
 
   return (
     <motion.div
@@ -188,7 +188,7 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
                 <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#E01E26]">Step three</p>
                 <h2 className="mt-1 font-serif text-3xl font-bold text-white">Narrow the fates</h2>
                 <p className="mt-1 font-sans text-sm text-[#A0A0A0]">Pick any that tempt you — or let fate surprise you.</p>
-                <div className="mt-6 flex flex-wrap gap-2.5">
+                <div className="mt-6 flex max-h-[42vh] flex-wrap gap-2.5 overflow-y-auto pr-1">
                   {chips.map((c) => {
                     const on = cuisines.includes(c);
                     return (
