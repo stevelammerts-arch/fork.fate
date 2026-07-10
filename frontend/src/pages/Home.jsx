@@ -83,7 +83,7 @@ const BAR_CUISINES = [
 const CRAWL_TYPES = [
   { key: "pubs", label: "Pubs", mode: "bars", cuisine: "Pub", crawl: "Pub Crawl" },
   { key: "wine", label: "Wineries", mode: "bars", cuisine: "Winery", crawl: "Winery Crawl" },
-  { key: "brewery", label: "Brewery", mode: "bars", cuisine: "Brewery", crawl: "Brewery Crawl" },
+  { key: "brewery", label: "Breweries", mode: "bars", cuisine: "Brewery", crawl: "Brewery Crawl" },
   { key: "tacos", label: "Tacos", mode: "food", cuisine: "Tacos", crawl: "Taco Crawl" },
   { key: "tapas", label: "Tapas", mode: "food", cuisine: "Tapas", crawl: "Tapas Crawl" },
   { key: "burgers", label: "Burgers", mode: "food", cuisine: "Burgers", crawl: "Burger Crawl" },
