@@ -31,6 +31,8 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
   const [radius, setRadius] = useState(25);
   const [cuisines, setCuisines] = useState([]);
   const [sealed, setSealed] = useState(false);
+  const [showAllChips, setShowAllChips] = useState(false);
+  const CHIP_PREVIEW = 9;
 
   const total = 4;
   const next = () => setStep((s) => Math.min(s + 1, total - 1));
@@ -189,7 +191,7 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
                 <h2 className="mt-1 font-serif text-3xl font-bold text-white">Narrow the fates</h2>
                 <p className="mt-1 font-sans text-sm text-[#A0A0A0]">Pick any that tempt you — or let fate surprise you.</p>
                 <div className="mt-6 flex max-h-[42vh] flex-wrap gap-2.5 overflow-y-auto pr-1">
-                  {chips.map((c) => {
+                  {(showAllChips ? chips : chips.slice(0, CHIP_PREVIEW)).map((c) => {
                     const on = cuisines.includes(c);
                     return (
                       <button
@@ -202,6 +204,15 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
                       </button>
                     );
                   })}
+                  {chips.length > CHIP_PREVIEW && (
+                    <button
+                      onClick={() => setShowAllChips((s) => !s)}
+                      data-testid="guided-chips-more"
+                      className="rounded-full border border-dashed border-[#E01E26]/60 bg-transparent px-4 py-2 text-sm font-semibold text-[#E01E26] transition-colors hover:bg-[#E01E26]/10"
+                    >
+                      {showAllChips ? "Show less" : `+ ${chips.length - CHIP_PREVIEW} more`}
+                    </button>
+                  )}
                 </div>
                 <div className="mt-7 flex gap-3">
                   <button onClick={next} data-testid="guided-surprise-me" className="flex-1 rounded-full border border-[#2A2A2A] bg-[#1C1C1C] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]">
