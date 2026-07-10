@@ -1,0 +1,31 @@
+{
+  "summary": "Iter50 (Pub Crawl self-contained section) verified end-to-end. Backend: 9/9 pytest cases pass — GET /api/geocode?zip=10001 returns real Google coords {lat:40.75, lng:-73.99 range}, /api/geocode?zip=abc returns 400, /api/geocode with no param returns 422 (unprocessable). POST /api/places/search bars+Pub returns restaurants array (google source in preview) with lat/lng on each item. POST /api/crawls with 2 stops carrying lat/lng persists and GET /api/crawls/{code} returns them intact (approx equality asserted). Regression: GET /api/restaurants (>=50), GET /api/stats/fates, POST /api/spin, admin login (GrimReaper!2026) + GET /api/admin/sponsors/stats all 200. Frontend: intro skipped, crawl-mode-toggle exposes crawl-type-picker with all data-testids (crawl-zip-a/b, crawl-use-location-a/b, crawl-deal-button, crawl-type-pubs). spin-roulette-button correctly disappears when crawl mode is on and returns when toggled off. Typed ZIP 10001 + selected Pubs chip + clicked 'Deal a Crawl!' — shuffle played then pub-crawl-dialog opened with crawl-map (Leaflet), 6 numbered pins routed, progress bar '0/6 conquered', per-stop 'Map' links and Auto check-in. Shared /c/{code} route (created via POST /api/crawls with 2 lat/lng stops) also rendered pub-crawl-dialog + crawl-map + crawl-checkoff-0 successfully. Did NOT touch PayPal. Console shows one React warning: 'Encountered two children with the same key' (3x) — non-blocking but should be fixed.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "console_warnings": [
+      {"component": "PubCrawlDialog (stops or waypoint list)", "issue": "React warning: 'Encountered two children with the same key' logged 3 times when the crawl dialog opens. Likely duplicate key in stops.map() or route/segment render (e.g., stop.id undefined so falls back to name, and two Google results share the same name, or the 'Walk to next' waypoint uses the same key as its stop). Non-blocking but should be resolved to avoid future render bugs.", "priority": "LOW"}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter50_crawl.py",
+    "/app/test_reports/pytest/iter50.xml"
+  ],
+  "action_items": [
+    "Fix duplicate React keys inside PubCrawlDialog stop/waypoint list — ensure each mapped child uses a stable unique key (e.g., stop.id || `${idx}-${stop.name}`)."
+  ],
+  "critical_code_review_comments": [
+    "backend/routes/places.py /geocode: uses a required query param `zip: str` so missing param yields 422 (FastAPI) and invalid returns 400 — matches spec. Good: budget-cap + in-memory cache before hitting Google.",
+    "_ZIP_GEO_CACHE and _GOOGLE_DAY are in-memory only (documented in iter49); ok for preview single-worker but not shared across replicas.",
+    "PubCrawlDialog appears to emit duplicate keys — likely stop.place_id/id missing on curated fallback data. Prefer a composite key that never collides."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter50_crawl.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "Admin password GrimReaper!2026 (from problem statement) — login+bearer verified.",
+  "seed_data_creation": "One TEST_ crawl created via API (label 'TEST_Iter50 Crawl', 2 stops with lat/lng). One additional 'TEST_UI Crawl' created via browser fetch for shared-page verification (code BG83F). Both are lightweight test docs and safe to leave.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Reuse /app/backend/tests/test_iter50_crawl.py for regression of geocode + places lat/lng + crawl lat/lng persistence + core endpoints. Google Places returned real data in this run (source=google gave live pubs). Duplicate-key React warning inside PubCrawlDialog is the only outstanding issue — non-blocking."
+}

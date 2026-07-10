@@ -51,7 +51,11 @@ export default function Home() {
   const [groupPicks, setGroupPicks] = useState(null);
   const [crawlMode, setCrawlMode] = useState(false);
   const [crawlType, setCrawlType] = useState("pubs");
+  const [zipB, setZipB] = useState("");
+  const [coordsB, setCoordsB] = useState(null);
+  const [geoLoadingB, setGeoLoadingB] = useState(false);
   const [showCrawl, setShowCrawl] = useState(false);
+  const [crawlEndpoints, setCrawlEndpoints] = useState({ origin: null, destination: null });
   const [fatesDealt, setFatesDealt] = useState(null);
   const [crawlsCompleted, setCrawlsCompleted] = useState(null);
   const [streak, setStreak] = useState(() => readStreak());
@@ -321,6 +325,121 @@ export default function Home() {
     );
   };
 
+  const useMyLocationB = () => {
+    if (!navigator.geolocation) {
+      toast.error("Location isn't supported on this device");
+      return;
+    }
+    setGeoLoadingB(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCoordsB({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setZipB("");
+        setGeoLoadingB(false);
+        toast.success("2nd location set");
+      },
+      () => { setGeoLoadingB(false); toast.error("Couldn't get that location — enter a ZIP instead"); },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+    );
+  };
+
+  const haversineMi = (a, b) => {
+    if (!a || !b) return 0;
+    const R = 3958.8, toRad = (d) => (d * Math.PI) / 180;
+    const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+    const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+  };
+
+  const resolveCoords = async (coordsVal, zipVal) => {
+    if (coordsVal?.lat != null) return coordsVal;
+    const z = (zipVal || "").trim();
+    if (/^\d{5}$/.test(z)) {
+      const { data } = await axios.get(`${API}/geocode`, { params: { zip: z } });
+      return { lat: data.lat, lng: data.lng };
+    }
+    return null;
+  };
+
+  // Crawl-only shuffle: same deck animation, then opens the crawl route window.
+  const runCrawlShuffle = (pool, onDone) => {
+    setResult(null);
+    setGroupPicks(null);
+    setSpinning(true);
+    setFlashHit(false);
+    setRevealFlash(false);
+    playSound("/reveal-voice-v5.mp3", 1.0);
+    let i = 0;
+    let delay = 55;
+    const maxDelay = 230;
+    const step = () => {
+      setFlash(pool[i % pool.length]);
+      i++;
+      delay = delay * 1.16 + 4;
+      if (delay < maxDelay) {
+        shuffleRef.current = setTimeout(step, delay);
+      } else {
+        setFlashHit(true);
+        try { playSound("/reveal-thunder-v4.mp3", 1.0); } catch (e) { /* audio */ }
+        setRevealFlash(true);
+        setTimeout(() => setRevealFlash(false), 1200);
+        shuffleRef.current = setTimeout(() => {
+          setSpinning(false);
+          setFlash(null);
+          setFlashHit(false);
+          onDone && onDone();
+        }, 1400);
+      }
+    };
+    shuffleRef.current = setTimeout(step, 1000);
+  };
+
+  const dealCrawl = async () => {
+    if (spinning || loading) return;
+    const hasA = coords?.lat != null || /^\d{5}$/.test((zip || "").trim());
+    if (!hasA) { toast.error("Add a starting location (ZIP or use your location) first"); return; }
+    setLoading(true);
+    try {
+      const A = await resolveCoords(coords, zip);
+      const hasB = coordsB?.lat != null || /^\d{5}$/.test((zipB || "").trim());
+      const B = hasB ? await resolveCoords(coordsB, zipB) : null;
+      let center = A, rad = radius;
+      if (A && B) {
+        center = { lat: (A.lat + B.lat) / 2, lng: (A.lng + B.lng) / 2 };
+        rad = Math.min(50, Math.max(radius, haversineMi(A, B) / 2 + 3));
+      }
+      const ct = CRAWL_TYPES.find((t) => t.key === crawlType);
+      const cuisines = ct ? [ct.cuisine] : selectedCuisines;
+      const category = ct ? ct.mode : mode;
+      const { data } = await axios.post(`${API}/places/search`, {
+        zip_code: center ? null : (zip.trim() || null),
+        lat: center?.lat ?? null,
+        lng: center?.lng ?? null,
+        cuisines,
+        price_levels: [],
+        category,
+        open_now: openNow,
+        radius_miles: rad,
+      });
+      setResults(data.restaurants);
+      setSource(data.source);
+      if (data.restaurants.length < 2) {
+        toast.error("Need at least 2 nearby spots to build a crawl — try a wider radius or another type");
+        return;
+      }
+      setCrawlEndpoints({ origin: A, destination: B });
+      runCrawlShuffle(data.restaurants, () => {
+        setResult(null); setGroupPicks(null); setShowCrawl(true);
+        axios.post(`${API}/stats/fate-dealt`).then(({ data: d }) => setFatesDealt(d.count)).catch(() => {});
+        setStreak(bumpStreak());
+      });
+    } catch (e) {
+      toast.error(e.response?.data?.detail || "Couldn't deal the crawl");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const reportClosed = async (r) => {
     try {
       await axios.post(`${API}/reports`, {
@@ -366,7 +485,7 @@ export default function Home() {
           />
         )}
       </AnimatePresence>
-      <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={coords} crawlLabel={crawlLabelForType(crawlType)} />
+      <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={crawlEndpoints.origin || coords} destination={crawlEndpoints.destination} crawlLabel={crawlLabelForType(crawlType)} />
 
       {/* Decorative reaper background with load animation */}
       <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>
@@ -718,24 +837,26 @@ export default function Home() {
               </span>
             </button>
 
-            <div className="flex flex-wrap items-center gap-4">
-              <motion.button
-                data-testid="spin-roulette-button"
-                onClick={spin}
-                disabled={spinning || loading}
-                whileHover={{ scale: spinning || loading ? 1 : 1.03 }}
-                whileTap={SPIN_TAP}
-                className="inline-flex items-center gap-3 rounded-full border-2 border-[#0E0E0E] bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
-              >
-                <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
-                {loading ? "Finding spots…" : spinning ? "Shuffling…" : crawlMode ? "Deal a Crawl!" : groupMode ? "Deal 3 Fates!" : "Deal Your Fate!"}
-              </motion.button>
-              {results.length > 0 && (
-                <span className="font-sans text-sm text-[#6B7075]">
-                  {results.length} spot{results.length !== 1 && "s"} nearby
-                </span>
-              )}
-            </div>
+            {!crawlMode && (
+              <div className="flex flex-wrap items-center gap-4">
+                <motion.button
+                  data-testid="spin-roulette-button"
+                  onClick={spin}
+                  disabled={spinning || loading}
+                  whileHover={{ scale: spinning || loading ? 1 : 1.03 }}
+                  whileTap={SPIN_TAP}
+                  className="inline-flex items-center gap-3 rounded-full border-2 border-[#0E0E0E] bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
+                >
+                  <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
+                  {loading ? "Finding spots…" : spinning ? "Shuffling…" : groupMode ? "Deal 3 Fates!" : "Deal Your Fate!"}
+                </motion.button>
+                {results.length > 0 && (
+                  <span className="font-sans text-sm text-[#6B7075]">
+                    {results.length} spot{results.length !== 1 && "s"} nearby
+                  </span>
+                )}
+              </div>
+            )}
 
             <div className="flex flex-wrap items-center gap-3">
               <button
@@ -766,7 +887,7 @@ export default function Home() {
             </div>
 
             {crawlMode && (
-              <div className="mt-2 w-full basis-full" data-testid="crawl-type-picker">
+              <div className="mt-2 w-full basis-full rounded-2xl border border-[#E01E26]/30 bg-[#FDF6F6] p-4" data-testid="crawl-type-picker">
                 <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">Pick your crawl</p>
                 <div className="flex flex-wrap gap-2">
                   {CRAWL_TYPES.map((t) => (
@@ -781,6 +902,66 @@ export default function Home() {
                     </button>
                   ))}
                 </div>
+
+                {/* Location A (start / your area) */}
+                <p className="mb-1.5 mt-4 text-xs font-bold uppercase tracking-wider text-[#6B7075]">Start / your area</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    value={coords ? "" : zip}
+                    onChange={(e) => { const v = e.target.value.replace(/[^\d]/g, "").slice(0, 5); setZip(v); setCoords(null); }}
+                    placeholder={coords ? "Using your location" : "ZIP code"}
+                    data-testid="crawl-zip-a"
+                    inputMode="numeric"
+                    className="w-32 rounded-full border border-[#E2E4E7] bg-white px-4 py-2.5 text-sm text-[#0E0E0E] outline-none placeholder-[#9AA0A6] focus:border-[#E01E26]"
+                  />
+                  <button
+                    type="button"
+                    onClick={useMyLocation}
+                    disabled={geoLoading}
+                    data-testid="crawl-use-location-a"
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-70 ${coords ? "bg-[#E01E26] text-white hover:bg-[#B3141A]" : "border border-[#E2E4E7] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
+                  >
+                    <LocateFixed className="h-4 w-4" /> {geoLoading ? "Locating…" : coords ? "Using your location" : "Use my location"}
+                  </button>
+                </div>
+
+                {/* Location B (optional end point) */}
+                <p className="mb-1.5 mt-3 text-xs font-bold uppercase tracking-wider text-[#6B7075]">End point <span className="text-[#9AA0A6]">(optional — crawl toward here)</span></p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    value={coordsB ? "" : zipB}
+                    onChange={(e) => { const v = e.target.value.replace(/[^\d]/g, "").slice(0, 5); setZipB(v); setCoordsB(null); }}
+                    placeholder={coordsB ? "2nd location set" : "ZIP code"}
+                    data-testid="crawl-zip-b"
+                    inputMode="numeric"
+                    className="w-32 rounded-full border border-[#E2E4E7] bg-white px-4 py-2.5 text-sm text-[#0E0E0E] outline-none placeholder-[#9AA0A6] focus:border-[#E01E26]"
+                  />
+                  <button
+                    type="button"
+                    onClick={useMyLocationB}
+                    disabled={geoLoadingB}
+                    data-testid="crawl-use-location-b"
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-70 ${coordsB ? "bg-[#E01E26] text-white hover:bg-[#B3141A]" : "border border-[#E2E4E7] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
+                  >
+                    <LocateFixed className="h-4 w-4" /> {geoLoadingB ? "Locating…" : coordsB ? "2nd location set" : "Use this location"}
+                  </button>
+                  {(coordsB || (zipB || "").length === 5) && (
+                    <button type="button" onClick={() => { setZipB(""); setCoordsB(null); }} data-testid="crawl-clear-b"
+                      className="text-xs font-semibold text-[#9AA0A6] underline underline-offset-2 hover:text-[#E01E26]">clear</button>
+                  )}
+                </div>
+
+                <motion.button
+                  data-testid="crawl-deal-button"
+                  onClick={dealCrawl}
+                  disabled={spinning || loading}
+                  whileHover={{ scale: spinning || loading ? 1 : 1.03 }}
+                  whileTap={SPIN_TAP}
+                  className="mt-4 inline-flex items-center gap-3 rounded-full border-2 border-[#0E0E0E] bg-[#E01E26] px-10 py-4 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
+                >
+                  <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
+                  {loading ? "Finding spots…" : spinning ? "Shuffling…" : "Deal a Crawl!"}
+                </motion.button>
               </div>
             )}
 

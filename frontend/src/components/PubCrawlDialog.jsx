@@ -28,9 +28,17 @@ function haversine(a, b) {
 }
 
 // Greedy nearest-neighbour ordering so the stops form a followable walking path.
-function orderRoute(items, origin) {
+// When a destination is given, order stops by their progress along origin->destination
+// so the route flows from the start toward the end point.
+function orderRoute(items, origin, destination) {
   const hasCoords = items.length > 0 && items.every((s) => s.lat != null && s.lng != null);
   if (!hasCoords) return [...items].sort((a, b) => (a.distance ?? 999) - (b.distance ?? 999));
+  if (origin?.lat != null && destination?.lat != null) {
+    const dx = destination.lng - origin.lng, dy = destination.lat - origin.lat;
+    const len2 = dx * dx + dy * dy || 1;
+    const t = (s) => ((s.lng - origin.lng) * dx + (s.lat - origin.lat) * dy) / len2;
+    return [...items].sort((a, b) => t(a) - t(b));
+  }
   const remaining = [...items];
   const route = [];
   let cur = origin && origin.lat != null ? origin : remaining[0];
@@ -54,7 +62,7 @@ const dirUrl = (from, to) =>
 // Opens a "crawl" window: nearby spots ordered into a followable route. Can be
 // shared with the group via a short link, and progress can be checked off (manual
 // or auto via GPS) as the crew conquers each stop.
-export default function PubCrawlDialog({ open, onClose, results, mode, origin, shared = false, crawlLabel = "" }) {
+export default function PubCrawlDialog({ open, onClose, results, mode, origin, destination, shared = false, crawlLabel = "" }) {
   const maxStops = Math.min(6, results.length);
   const [route, setRoute] = useState([]);
   const [dropped, setDropped] = useState({});
@@ -68,7 +76,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, s
   const promptedRef = useRef(false);
 
   const reshuffle = () => {
-    setRoute(orderRoute(shuffle(results).slice(0, maxStops), origin));
+    setRoute(orderRoute(shuffle(results).slice(0, maxStops), origin, destination));
     setDropped({});
   };
 
@@ -76,7 +84,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, s
     if (!open) return;
     // Shared crawls are locked: everyone sees the same route in the same order.
     if (shared) setRoute(results);
-    else setRoute(orderRoute(shuffle(results).slice(0, maxStops), origin));
+    else setRoute(orderRoute(shuffle(results).slice(0, maxStops), origin, destination));
     setDropped({});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, results, shared]);

@@ -164,6 +164,32 @@ async def places_photo(name: str):
         )
 
 
+@router.get("/geocode", dependencies=[Depends(rate_limit(30))])
+async def geocode_zip(zip: str):
+    """Resolve a US ZIP to lat/lng (cached, cost-capped). Used for multi-point crawls."""
+    z = (zip or "").strip()
+    if not re.fullmatch(r"\d{5}", z):
+        raise HTTPException(status_code=400, detail="zip must be 5 digits")
+    cached = _ZIP_GEO_CACHE.get(z)
+    if cached:
+        return {"lat": cached[0], "lng": cached[1]}
+    if not GOOGLE_API_KEY:
+        raise HTTPException(status_code=503, detail="Geocoding unavailable")
+    if not _google_budget_ok():
+        raise HTTPException(status_code=503, detail="search-budget-exceeded")
+    async with httpx.AsyncClient(timeout=15) as http:
+        geo = await http.get("https://maps.googleapis.com/maps/api/geocode/json", params={
+            "components": f"postal_code:{z}|country:US", "key": GOOGLE_API_KEY,
+        })
+        gd = geo.json()
+        if gd.get("status") != "OK" or not gd.get("results"):
+            raise HTTPException(status_code=400, detail="Could not find that ZIP code")
+        loc = gd["results"][0]["geometry"]["location"]
+    _ZIP_GEO_CACHE[z] = (loc["lat"], loc["lng"])
+    _google_record_call()
+    return {"lat": loc["lat"], "lng": loc["lng"]}
+
+
 def _places_cache_key(req: PlacesSearchRequest):
     lat = round(req.lat, 3) if req.lat is not None else None
     lng = round(req.lng, 3) if req.lng is not None else None
