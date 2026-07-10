@@ -236,7 +236,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
         {step === "intro" ? (
           <div className="flex flex-col items-center gap-4 py-2 text-center" data-testid="crawl-badge-intro">
             {/* Cinematic: shocked reaper backs away into darkness, then flaming reveal */}
-            <div className="relative flex h-44 w-full items-center justify-center overflow-hidden">
+            <div className="relative flex h-60 w-full items-center justify-center overflow-hidden">
               <AnimatePresence>
                 {!cinemaDone && (
                   <motion.img
@@ -252,20 +252,26 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
                       filter: ["blur(3px)", "blur(0px)", "blur(0px)", "blur(1.5px)", "blur(8px)"],
                     }}
                     transition={{ duration: 2.4, times: [0, 0.2, 0.5, 0.76, 1], ease: "easeInOut" }}
-                    className="h-44 w-44 object-contain"
+                    className="h-60 w-60 object-contain"
                   />
                 )}
               </AnimatePresence>
               {cinemaDone && (
-                <motion.h3
-                  initial={{ opacity: 0, scale: 0.75, y: 6 }}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.75, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   transition={{ duration: 0.6, ease: "easeOut" }}
-                  className="flame-text font-serif text-4xl font-semibold tracking-tight"
+                  className="mt-8 flex flex-col items-center"
                   data-testid="crawl-congrats-flame"
                 >
-                  Congratulations
-                </motion.h3>
+                  <div className="flames -mb-3" aria-hidden="true">
+                    <span className="flame" /><span className="flame" /><span className="flame" />
+                    <span className="flame" /><span className="flame" /><span className="flame" /><span className="flame" />
+                  </div>
+                  <h3 className="flame-text font-serif text-5xl font-semibold tracking-tight sm:text-6xl">
+                    Congratulations
+                  </h3>
+                </motion.div>
               )}
             </div>
 
