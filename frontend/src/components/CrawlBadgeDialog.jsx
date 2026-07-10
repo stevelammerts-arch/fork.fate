@@ -128,7 +128,18 @@ export default function CrawlBadgeDialog({ open, onClose, mode, defaultCrew = ""
     [mode]
   );
 
-  useEffect(() => { if (open) setStep("intro"); }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    setStep("intro");
+    // Play the recorded congrats clip on reveal (respects the app mute toggle)
+    try {
+      if (localStorage.getItem("ff_muted") !== "1") {
+        const a = new Audio("/crawl-congrats.mp3");
+        a.volume = 1.0;
+        a.play().catch(() => {});
+      }
+    } catch (e) { /* audio unavailable */ }
+  }, [open]);
 
   const onPickPhoto = (e) => {
     const file = e.target.files?.[0];
