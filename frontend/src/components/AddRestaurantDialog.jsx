@@ -62,8 +62,11 @@ const BAR_CUISINES = [
 const fieldCls =
   "rounded-xl border-[#E2E4E7] bg-[#F5F6F7] px-4 py-2.5 text-[#0E0E0E] focus:ring-2 focus:ring-[#E01E26] focus:ring-offset-1 focus-visible:ring-[#E01E26]";
 
-export default function AddRestaurantDialog({ onAdded, mode = "food" }) {
-  const [open, setOpen] = useState(false);
+export default function AddRestaurantDialog({ onAdded, mode = "food", open: openProp, onOpenChange, hideTrigger = false }) {
+  const [openState, setOpenState] = useState(false);
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? openProp : openState;
+  const setOpen = (v) => { if (isControlled) onOpenChange?.(v); else setOpenState(v); };
   const [saving, setSaving] = useState(false);
   const cuisineOptions = mode === "food" ? CUISINES : mode === "drinks" ? DRINK_CUISINES : mode === "bars" ? BAR_CUISINES : DESSERT_CUISINES;
   const [form, setForm] = useState({
@@ -108,14 +111,16 @@ export default function AddRestaurantDialog({ onAdded, mode = "food" }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button
-          data-testid="open-add-restaurant-button"
-          className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E4E7] bg-white px-3 py-1.5 text-xs font-semibold text-[#0E0E0E] transition-colors hover:bg-[#E2E4E7] sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
-        >
-          <Plus className="h-4 w-4" /> <span>Add spot</span>
-        </button>
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <button
+            data-testid="open-add-restaurant-button"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E4E7] bg-white px-3 py-1.5 text-xs font-semibold text-[#0E0E0E] transition-colors hover:bg-[#E2E4E7] sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
+          >
+            <Plus className="h-4 w-4" /> <span>Add spot</span>
+          </button>
+        </DialogTrigger>
+      )}
       <DialogContent className="rounded-3xl border-[#E2E4E7] bg-white sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-serif text-3xl font-medium text-[#0E0E0E]">

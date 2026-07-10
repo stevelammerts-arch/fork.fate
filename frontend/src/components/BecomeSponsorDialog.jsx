@@ -17,8 +17,11 @@ const CATEGORIES = ["food", "drinks", "bars", "desserts"];
 const PRICES = ["$", "$$", "$$$", "$$$$"];
 const EMPTY = { name: "", category: "food", cuisine: "", price: "$$", address: "", website: "", image: "", contact_email: "" };
 
-export default function BecomeSponsorDialog({ variant = "primary" }) {
-  const [open, setOpen] = useState(false);
+export default function BecomeSponsorDialog({ variant = "primary", open: openProp, onOpenChange, hideTrigger = false }) {
+  const [openState, setOpenState] = useState(false);
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? openProp : openState;
+  const setOpen = (v) => { if (isControlled) onOpenChange?.(v); else setOpenState(v); };
   const [form, setForm] = useState(EMPTY);
   const [loading, setLoading] = useState(false);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
@@ -78,9 +81,11 @@ export default function BecomeSponsorDialog({ variant = "primary" }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {triggers[variant] || triggers.primary}
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          {triggers[variant] || triggers.primary}
+        </DialogTrigger>
+      )}
       <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl border-[#E2E4E7] bg-white sm:max-w-md" data-testid="sponsor-dialog">
         <DialogHeader>
           <DialogTitle className="font-serif text-2xl text-[#0E0E0E]">Sponsor your spot on Fork·Fate</DialogTitle>

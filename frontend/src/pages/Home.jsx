@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer, Trophy } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -16,6 +16,7 @@ import GroupVote from "../components/GroupVote";
 import { useFavorites } from "../hooks/useFavorites";
 import GuidedFlow from "../components/GuidedFlow";
 import PubCrawlDialog from "../components/PubCrawlDialog";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../components/ui/dropdown-menu";
 import {
   readStreak, bumpStreak,
   RESULT_SPRING,
@@ -45,6 +46,8 @@ export default function Home() {
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
   const [groupMode, setGroupMode] = useState(false);
+  const [sponsorOpen, setSponsorOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
   const [groupPicks, setGroupPicks] = useState(null);
   const [crawlMode, setCrawlMode] = useState(false);
   const [crawlType, setCrawlType] = useState("pubs");
@@ -446,10 +449,59 @@ export default function Home() {
             >
               {muted ? <VolumeX className="h-4 w-4 text-[#8A8F95]" /> : <Volume2 className="h-4 w-4 text-[#E01E26]" />}
             </button>
-            <BecomeSponsorDialog variant="link" />
+            <BecomeSponsorDialog
+              variant="link"
+              open={sponsorOpen}
+              onOpenChange={setSponsorOpen}
+              hideTrigger
+            />
+            {/* Desktop: dedicated Sponsor button */}
+            <button
+              type="button"
+              onClick={() => setSponsorOpen(true)}
+              data-testid="header-sponsor-link"
+              className="hidden items-center gap-2 rounded-full border border-white/25 bg-transparent px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10 sm:inline-flex"
+            >
+              <Store className="h-4 w-4 text-[#E01E26]" /> Sponsor your spot
+            </button>
             <FavoritesDrawer favorites={favorites} onRemove={removeFavorite} onDeal={dealFromFavorites} groupMode={groupMode} />
             <InstallAppButton />
-            <AddRestaurantDialog mode={mode} onAdded={(r) => setResults((p) => [r, ...p])} />
+            {/* Desktop: dedicated Add spot button */}
+            <button
+              type="button"
+              onClick={() => setAddOpen(true)}
+              data-testid="open-add-restaurant-button"
+              className="hidden items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-5 py-2.5 text-sm font-semibold text-[#0E0E0E] transition-colors hover:bg-[#E2E4E7] sm:inline-flex"
+            >
+              <Plus className="h-4 w-4" /> <span>Add spot</span>
+            </button>
+            {/* Mobile: combined Add / Sponsor menu to keep the header compact */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  data-testid="mobile-contribute-menu"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-[#B3141A] sm:hidden"
+                >
+                  <Plus className="h-4 w-4" /> Add
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem data-testid="mobile-add-spot-item" onClick={() => setAddOpen(true)}>
+                  <Plus className="mr-2 h-4 w-4" /> Add a spot
+                </DropdownMenuItem>
+                <DropdownMenuItem data-testid="mobile-sponsor-item" onClick={() => setSponsorOpen(true)}>
+                  <Store className="mr-2 h-4 w-4 text-[#E01E26]" /> Sponsor your spot
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <AddRestaurantDialog
+              mode={mode}
+              onAdded={(r) => setResults((p) => [r, ...p])}
+              open={addOpen}
+              onOpenChange={setAddOpen}
+              hideTrigger
+            />
           </div>
         </div>
       </header>
