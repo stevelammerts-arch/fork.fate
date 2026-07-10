@@ -1293,7 +1293,7 @@ function ShufflingDeck({ cards, flash, landed }) {
             {landed && (
               <motion.div
                 className="pointer-events-none absolute left-1/2 top-1/2 z-50"
-                style={{ transform: "translate(-50%, calc(-50% + 6px))" }}
+                style={{ transform: "translate(calc(-50% + 5px), calc(-50% + 6px))" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -1303,7 +1303,7 @@ function ShufflingDeck({ cards, flash, landed }) {
                 <motion.img
                   src="/skeleton-hand.png"
                   alt=""
-                  className="w-[424px] max-w-none select-none drop-shadow-2xl"
+                  className="w-[404px] max-w-none select-none drop-shadow-2xl"
                   initial={{ scale: 1.15 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 240, damping: 18 }}
