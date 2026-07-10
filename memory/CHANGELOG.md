@@ -1,34 +1,38 @@
 # Fork·Fate — Changelog
 
-## 2026-06 — Reveal cinematic, card back, mobile layout, cache-buster
+## 2026-06 — Reveal cinematic, tarot reveal card, cuisines, bubble logo
 
 ### Reveal cinematic audio + flash (USER APPROVED)
-Final sequence in `Home.jsx` `runShuffle`:
-1. Tap "Deal Your Fate!" → voice "Behold your fate" plays first (`/public/reveal-voice-v5.mp3`, pitched down ~5 semitones from the user's original upload, leading silence trimmed).
-2. ~1.2s lead-in, then the deck shuffles.
-3. Deck lands on winner → thunder boom (`/public/reveal-thunder-v4.mp3`, real Wikimedia recording, boom at t=0, 2s fade, preloaded during tap) + white flash strobing 3× over a red glow (`data-testid="reveal-flash"`).
-4. 5.5s hold, then result panel. All cues respect `ff_muted`.
+`Home.jsx` `runShuffle`: tap → voice "Behold your fate" (`/public/reveal-voice-v5.mp3`, pitched down, trimmed) → ~1.2s → deck shuffles → lands → thunder boom (`/public/reveal-thunder-v4.mp3`, real recording, boom at t=0, 2s fade, preloaded) + white flash strobes 3× over red glow (`reveal-flash`) → 5.5s hold → result panel. Respects `ff_muted`.
 
-### Shuffle deck branded card back (USER APPROVED)
-- `CardBack` component: black card, red double-border, skull + "FORK · FATE". Shown on all shuffling cards; the winning photo appears only on the landed card.
-- Nearby-spots grid kept as free Unsplash stock (confirmed no Google billing) per user (option A).
+### Shuffle deck / reveal card (tarot)
+- `CardBack`: black card, red double-border, skull + "FORK · FATE" for all shuffling cards.
+- `CardFront`: winning card is now a tarot-style black card with matching red double-border frame and the restaurant PHOTO INSET/CENTERED (not edge-to-edge).
+- Landed state renders ONLY the winner (`if (landed && i !== 0) return null;`) — no backing-card lines (forensically verified, iteration_42).
+- `skeleton-hand.png` regenerated: removed the baked-in white card (that was the source of the phantom "lines"); background flood-filled to transparent (scipy connected-components); only bones remain.
+- Card container height `h-60` → `h-72` so the card reaches the skeleton wrists (no gap). Verified via local composite.
 
-### Reveal card "lines" regression — fixed & forensically verified
-- Root cause: backing card-backs peeking behind the landed winner.
-- Fix: `if (landed && i !== 0) return null;` in `ShufflingDeck` — backing cards fully unmount when landed. Forensic DOM audit (iteration_42) confirmed exactly ONE bordered element remains (the white-bordered winner card); no stray outlines in the current build.
-- If lines still appear on production: it's an older deployed build (needs redeploy) or a Tor Browser fingerprint-resist letterbox artifact (verify in a mainstream browser).
+### Cuisine chips (`Home.jsx` top constants)
+- FOOD (30+): added Steakhouse, Burgers, Sushi, Vietnamese, Diner, Tacos, Sandwiches, Ramen, Halal, Vegetarian, Poke, Soul Food, Cajun, Hot Pot, Dim Sum, Buffet, Food Trucks.
+- DRINKS: added Espresso, Tea House, Juice Bar, Milkshakes, Kombucha, Cider.
+- DESSERTS: added Gelato, Donuts, Cupcakes, Chocolate, Crepes, Cheesecake, Pie.
+- BARS: Brewery + Distillery moved to FRONT (user has many nearby); added Wine Bar, Pub, Dive Bar, Rooftop Bar, Speakeasy, Nightclub, Karaoke, Cigar Bar, Hookah Lounge, Live Music.
+- NOTE: each chip label doubles as the Google Places search keyword.
 
-### Mobile header + result card
-- Header: `flex-col` on mobile so action buttons wrap into a full-width row below the logo (`flex-wrap`), no clipping. All button labels shown on mobile. Desktop unchanged.
-- Result card right-overflow fixed: added `min-w-0` to the right reveal-stage grid column (`Home.jsx` ~L728). QA (iteration_41) confirmed no horizontal overflow at 412×915.
+### Bubble logo (all 13 logo files)
+- Regenerated the Fork·Fate badge as a glossy 3D glass bubble/orb (transparent PNG). Applied to logo-mark(.png/-192/-512), logo-app(.png/-192/-512), logo-icon(.png/-192/-512), logo-v8/9/10/11. Used by header, footer, favicon, apple-touch-icon, PWA/splash, and the shareable Fate Card canvas.
+
+### Mobile layout fixes
+- Header: `flex-col` on mobile, action buttons wrap into a full-width row below the logo (labels visible). Desktop unchanged.
+- Result card right-overflow fixed via `min-w-0` on the right reveal-stage grid column (QA iteration_41).
 
 ### Cache-buster (index.html)
-- Added a `FF_BUILD` version stamp script that clears caches + does one guarded reload when the version changes. Current: `2026.06-3`. Bump this on each UI ship so returning users get the fresh bundle.
+- `FF_BUILD` version stamp clears caches + one guarded reload on version change. Current: `2026.06-4`. Bump on each UI ship.
 
 ### Test reports
-- iteration_39 (desktop reveal clean), 40 (mobile reveal clean), 41 (mobile result-card no overflow), 42 (forensic border audit — only winner card bordered).
+- iter 39 (desktop reveal clean), 40 (mobile reveal clean), 41 (mobile result-card no overflow), 42 (forensic border audit — only winner card bordered), 43 (hero result-card aura audit).
 
-### Guardrails (unchanged)
+### Guardrails
 - LIVE PAYPAL + PRODUCTION at fork-fate.com. Preview changes are preview-only until redeploy.
 - Google Places capped 160/day; only the winning reveal card uses a billed Google photo.
 - Rate-limit IP via CF-Connecting-IP; sponsor PII stripped from public endpoints.

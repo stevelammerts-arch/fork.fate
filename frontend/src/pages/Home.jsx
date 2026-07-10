@@ -69,14 +69,14 @@ const FOOD_CUISINES = [
   "Italian", "Mexican", "Chinese", "Japanese", "Sushi", "Indian", "Thai", "Korean", "Vietnamese",
   "Chicken Wings", "Fried Chicken", "Burgers", "Steakhouse", "American", "Diner", "Mediterranean", "Greek",
   "Seafood", "Pizza", "Tacos", "Sandwiches", "Deli", "Ramen", "Breakfast", "Halal", "Vegan", "Vegetarian",
-  "Gluten Free", "BBQ", "Cafe",
+  "Gluten Free", "BBQ", "Cafe", "Poke", "Soul Food", "Cajun", "Hot Pot", "Dim Sum", "Buffet", "Food Trucks",
 ];
-const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "Smoothie", "Juice Bar", "Milkshakes"];
-const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Donuts", "Cupcakes", "Candy Shops", "Chocolate"];
+const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "Smoothie", "Juice Bar", "Milkshakes", "Kombucha", "Cider"];
+const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Donuts", "Cupcakes", "Candy Shops", "Chocolate", "Crepes", "Cheesecake", "Pie"];
 const BAR_CUISINES = [
-  "Beer", "Brewery", "Wine", "Wine Bar", "Cocktails", "Liquor", "Spirits", "Whiskey", "Margaritas", "Tiki",
-  "Pub", "Sports Bar", "Irish Bar", "Dive Bar", "Rooftop Bar", "Speakeasy", "Nightclub", "Karaoke", "Bars",
-  "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Games", "Bowling",
+  "Brewery", "Distillery", "Beer", "Wine", "Wine Bar", "Cocktails", "Whiskey", "Liquor", "Spirits", "Margaritas",
+  "Tiki", "Pub", "Sports Bar", "Irish Bar", "Dive Bar", "Rooftop Bar", "Speakeasy", "Nightclub", "Karaoke", "Bars",
+  "Cigar Bar", "Hookah Lounge", "Live Music", "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Games", "Bowling",
 ];
 
 export default function Home() {
