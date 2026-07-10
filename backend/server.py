@@ -303,6 +303,35 @@ class AdminLogin(BaseModel):
     password: str = Field(min_length=1, max_length=200)
 
 
+class CrawlStop(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = ""
+    name: str = Field(default="", max_length=200)
+    cuisine: str = Field(default="", max_length=80)
+    price: str = Field(default="", max_length=8)
+    rating: Optional[float] = None
+    distance: Optional[float] = None
+    open_now: Optional[bool] = None
+    google_url: str = Field(default="", max_length=600)
+
+
+class CrawlCreate(BaseModel):
+    mode: str = "bars"
+    stops: List[CrawlStop] = Field(default_factory=list)
+
+    @field_validator("mode")
+    @classmethod
+    def _valid_crawl_mode(cls, v):
+        return v if v in ("food", "drinks", "bars", "desserts") else "bars"
+
+    @field_validator("stops")
+    @classmethod
+    def _valid_stops(cls, v):
+        if not v or len(v) < 2:
+            raise ValueError("A crawl needs at least 2 stops")
+        return v[:12]
+
+
 class SponsorCreate(BaseModel):
     name: str = Field(min_length=1, max_length=160)
     cuisine: str = Field(min_length=1, max_length=60)
