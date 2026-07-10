@@ -937,8 +937,25 @@ export default function Home() {
           </div>
           <div className="order-3 flex flex-col items-center gap-1.5 md:order-2">
             <p className="font-sans text-xs text-[#8A8F95]">
-              © {new Date().getFullYear()} Fork·Fate — let fate decide.
+              © {new Date().getFullYear()} Fork·Fate — let fate decide. All rights reserved.
             </p>
+            <div className="flex items-center gap-3">
+              <a
+                href="/terms"
+                data-testid="terms-link"
+                className="font-sans text-[11px] font-semibold text-[#8A8F95] underline-offset-4 transition-colors hover:text-white hover:underline"
+              >
+                Terms of Service
+              </a>
+              <span className="text-[#3A3A3A]">·</span>
+              <a
+                href="/privacy"
+                data-testid="privacy-link"
+                className="font-sans text-[11px] font-semibold text-[#8A8F95] underline-offset-4 transition-colors hover:text-white hover:underline"
+              >
+                Privacy Policy
+              </a>
+            </div>
             <a
               href="mailto:stevelammerts@gmail.com?subject=Fork%C2%B7Fate%20App%20Improvement%20Idea&body=Hi%2C%20here%27s%20an%20idea%20to%20improve%20Fork%C2%B7Fate%3A%0A%0A"
               data-testid="feedback-link"
