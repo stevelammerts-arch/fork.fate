@@ -22,7 +22,7 @@ import {
   RESULT_SPRING,
   HERO_INITIAL, HERO_ANIMATE, HERO_TRANSITION, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, SPIN_TAP,
   reaperLineFor,
-  FOOD_CUISINES, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, CRAWL_TYPES, crawlLabelForType,
+  FOOD_CUISINES, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, CRAWL_TYPES, crawlLabelForType, orderCrawlRoute,
 } from "./homeConstants";
 import { Input } from "../components/ui/input";
 import { Slider } from "../components/ui/slider";
@@ -56,6 +56,7 @@ export default function Home() {
   const [geoLoadingB, setGeoLoadingB] = useState(false);
   const [showCrawl, setShowCrawl] = useState(false);
   const [crawlEndpoints, setCrawlEndpoints] = useState({ origin: null, destination: null });
+  const [crawlStops, setCrawlStops] = useState(null);
   const [fatesDealt, setFatesDealt] = useState(null);
   const [crawlsCompleted, setCrawlsCompleted] = useState(null);
   const [streak, setStreak] = useState(() => readStreak());
@@ -284,6 +285,9 @@ export default function Home() {
         }
         setResult(null);
         setGroupPicks(null);
+        const maxStops = Math.min(6, data.restaurants.length);
+        const picked = [...data.restaurants].sort(() => Math.random() - 0.5).slice(0, maxStops);
+        setCrawlStops(orderCrawlRoute(picked, coords, null));
         setShowCrawl(true);
         axios.post(`${API}/stats/fate-dealt`).then(({ data: d }) => setFatesDealt(d.count)).catch(() => {});
         setStreak(bumpStreak());
@@ -362,7 +366,8 @@ export default function Home() {
   };
 
   // Crawl-only shuffle: same deck animation, then opens the crawl route window.
-  const runCrawlShuffle = (pool, onDone) => {
+  // Lands on `winner` (the first stop of the ordered crawl) so the reveal card matches stop #1.
+  const runCrawlShuffle = (pool, winner, onDone) => {
     setResult(null);
     setGroupPicks(null);
     setSpinning(true);
@@ -379,6 +384,7 @@ export default function Home() {
       if (delay < maxDelay) {
         shuffleRef.current = setTimeout(step, delay);
       } else {
+        setFlash(winner || pool[i % pool.length]);
         setFlashHit(true);
         try { playSound("/reveal-thunder-v4.mp3", 1.0); } catch (e) { /* audio */ }
         setRevealFlash(true);
@@ -430,7 +436,12 @@ export default function Home() {
         return;
       }
       setCrawlEndpoints({ origin: A, destination: B });
-      runCrawlShuffle(data.restaurants, () => {
+      // Pick + order the crawl stops now so the reveal card == the first stop.
+      const maxStops = Math.min(6, data.restaurants.length);
+      const picked = [...data.restaurants].sort(() => Math.random() - 0.5).slice(0, maxStops);
+      const ordered = orderCrawlRoute(picked, A, B);
+      setCrawlStops(ordered);
+      runCrawlShuffle(data.restaurants, ordered[0], () => {
         setResult(null); setGroupPicks(null); setShowCrawl(true);
         axios.post(`${API}/stats/fate-dealt`).then(({ data: d }) => setFatesDealt(d.count)).catch(() => {});
         setStreak(bumpStreak());
@@ -487,7 +498,7 @@ export default function Home() {
           />
         )}
       </AnimatePresence>
-      <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={crawlEndpoints.origin || coords} destination={crawlEndpoints.destination} crawlLabel={crawlLabelForType(crawlType)} />
+      <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={crawlEndpoints.origin || coords} destination={crawlEndpoints.destination} crawlLabel={crawlLabelForType(crawlType)} initialStops={crawlStops} />
 
       {/* Decorative reaper background with load animation */}
       <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>
