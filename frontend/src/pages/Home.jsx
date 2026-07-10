@@ -1258,14 +1258,16 @@ function CardFront({ src }) {
     <div className="absolute inset-0 bg-[#0E0E0E]" data-testid="card-front">
       <div
         className="absolute inset-0"
-        style={{ background: "radial-gradient(circle at 50% 42%, rgba(224,30,38,0.20), rgba(0,0,0,0) 62%)" }}
+        style={{ background: "radial-gradient(circle at 50% 42%, rgba(224,30,38,0.22), rgba(0,0,0,0) 62%)" }}
       />
-      <div className="absolute inset-[13px] overflow-hidden rounded-md">
+      {/* red tarot frame */}
+      <div className="absolute inset-2 rounded-xl border-2 border-[#E01E26]" />
+      <div className="absolute inset-[9px] rounded-lg border border-[#E01E26]/40" />
+      {/* photo inset inside the frame so the black tarot card reads clearly around it */}
+      <div className="absolute inset-[18px] overflow-hidden rounded-md border border-[#E01E26]/60">
         <img src={src} alt="" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
       </div>
-      <div className="absolute inset-2 rounded-xl border border-[#E01E26]/70" />
-      <div className="absolute inset-[10px] rounded-lg border border-[#E01E26]/25" />
     </div>
   );
 }
