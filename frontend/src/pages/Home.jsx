@@ -563,37 +563,6 @@ export default function Home() {
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
           {/* left: search + filters + spin */}
           <div className="min-w-0 space-y-7">
-            <div className="inline-flex rounded-full border border-[#E2E4E7] bg-[#EDEEF0] p-1" data-testid="mode-toggle">
-              <button
-                data-testid="mode-food"
-                onClick={() => switchMode("food")}
-                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "food" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
-              >
-                Food
-              </button>
-              <button
-                data-testid="mode-drinks"
-                onClick={() => switchMode("drinks")}
-                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "drinks" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
-              >
-                Drinks
-              </button>
-              <button
-                data-testid="mode-bars"
-                onClick={() => switchMode("bars")}
-                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "bars" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
-              >
-                Bars
-              </button>
-              <button
-                data-testid="mode-desserts"
-                onClick={() => switchMode("desserts")}
-                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "desserts" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
-              >
-                Desserts
-              </button>
-            </div>
-
             <div className="space-y-2">
               <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]">
                 Your ZIP code <span className="text-[#B8BCC2]">(optional)</span>
@@ -644,6 +613,37 @@ export default function Home() {
                   <span>50 mi</span>
                 </div>
               </div>
+            </div>
+
+            <div className="inline-flex rounded-full border border-[#E2E4E7] bg-[#EDEEF0] p-1" data-testid="mode-toggle">
+              <button
+                data-testid="mode-food"
+                onClick={() => switchMode("food")}
+                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "food" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+              >
+                Food
+              </button>
+              <button
+                data-testid="mode-drinks"
+                onClick={() => switchMode("drinks")}
+                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "drinks" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+              >
+                Drinks
+              </button>
+              <button
+                data-testid="mode-bars"
+                onClick={() => switchMode("bars")}
+                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "bars" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+              >
+                Bars
+              </button>
+              <button
+                data-testid="mode-desserts"
+                onClick={() => switchMode("desserts")}
+                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "desserts" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+              >
+                Desserts
+              </button>
             </div>
 
             <Filters
