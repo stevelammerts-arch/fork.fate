@@ -64,10 +64,10 @@ async function buildBadge({ name, label }) {
     ctx.drawImage(reaper, 0, 0, S, S);
   } catch (e) { /* image failed — text still renders */ }
 
-  // Card face region (matches the on-screen preview overlay)
-  const cardCX = 0.706 * S + (0.21 * S) / 2;
-  const cardCY = 0.31 * S;
-  const maxW = 0.21 * S - 26;
+  // Card face region (matches the on-screen preview overlay — horizontal card)
+  const cardCX = (0.645 + 0.28 / 2) * S;
+  const cardCY = (0.355 + 0.235 / 2) * S;
+  const maxW = 0.28 * S - 40;
 
   const segs = [
     { h: 18, mb: 10 }, // kicker
@@ -157,18 +157,18 @@ export default function CrawlBadgeDialog({ open, onClose, mode }) {
 
         {/* Live preview */}
         <div className="relative mx-auto aspect-square w-full max-w-[360px]" data-testid="crawl-badge-preview">
-          <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(circle at 81% 36%, rgba(224,30,38,0.28), rgba(224,30,38,0) 42%)" }} />
+          <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(circle at 79% 47%, rgba(224,30,38,0.28), rgba(224,30,38,0) 40%)" }} />
           <img src={REAPER_SRC} alt="Reaper award" className="absolute inset-0 h-full w-full object-contain" />
           <div
             className="absolute z-10 flex flex-col items-center justify-center text-center leading-none"
-            style={{ left: "70.6%", top: "20%", width: "21%", height: "22%" }}
+            style={{ left: "64.5%", top: "35.5%", width: "28%", height: "23.5%" }}
           >
-            <span className="font-serif font-bold uppercase tracking-[0.12em] text-[#E01E26]" style={{ fontSize: "clamp(6px,1.7vw,9px)" }}>I Survived</span>
-            <span className="mt-0.5 font-serif font-bold text-white drop-shadow" style={{ fontSize: "clamp(9px,2.6vw,15px)" }}>THE FORK·FATE</span>
-            <span className="font-serif font-bold text-white drop-shadow" style={{ fontSize: "clamp(9px,2.6vw,15px)" }}>{label}</span>
-            <span className="my-1 block h-0.5 w-6 bg-[#E01E26]" />
-            <span className="font-serif italic text-[#EDEDED]" style={{ fontSize: "clamp(8px,2.2vw,13px)" }}>{name.trim() || "Your name"}</span>
-            <span className="mt-0.5 tracking-wider text-[#9A9FA5]" style={{ fontSize: "clamp(5px,1.5vw,8px)" }}>fork-fate.com</span>
+            <span className="font-serif font-bold uppercase tracking-[0.12em] text-[#E01E26]" style={{ fontSize: "clamp(7px,1.9vw,10px)" }}>I Survived</span>
+            <span className="mt-0.5 font-serif font-bold text-white drop-shadow" style={{ fontSize: "clamp(10px,2.9vw,17px)" }}>THE FORK·FATE</span>
+            <span className="font-serif font-bold text-white drop-shadow" style={{ fontSize: "clamp(10px,2.9vw,17px)" }}>{label}</span>
+            <span className="my-1 block h-0.5 w-7 bg-[#E01E26]" />
+            <span className="font-serif italic text-[#EDEDED]" style={{ fontSize: "clamp(9px,2.4vw,14px)" }}>{name.trim() || "Your name"}</span>
+            <span className="mt-0.5 tracking-wider text-[#9A9FA5]" style={{ fontSize: "clamp(6px,1.6vw,9px)" }}>fork-fate.com</span>
           </div>
         </div>
 
