@@ -49,7 +49,7 @@ export default function InstallAppButton() {
     <button
       onClick={install}
       data-testid="download-app-button"
-      className="inline-flex items-center gap-2 rounded-full bg-[#E01E26] px-3 py-2 text-sm font-bold text-white shadow-lg shadow-[#E01E26]/30 transition-colors hover:bg-[#B3141A] sm:px-4"
+      className="inline-flex items-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-1.5 text-xs font-bold text-white shadow-lg shadow-[#E01E26]/30 transition-colors hover:bg-[#B3141A] sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
     >
       <Download className="h-4 w-4" /> <span>Download the app!</span>
     </button>

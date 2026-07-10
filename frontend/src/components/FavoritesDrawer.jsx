@@ -12,7 +12,7 @@ export default function FavoritesDrawer({ favorites, onRemove, onDeal, groupMode
       <SheetTrigger asChild>
         <button
           data-testid="open-favorites-button"
-          className="relative inline-flex items-center gap-2 rounded-full border border-white/25 bg-transparent px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10"
+          className="relative inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-transparent px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-white/10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
         >
           <Heart className={`h-4 w-4 ${count ? "fill-[#E01E26] text-[#E01E26]" : ""}`} />
           <span>Favorites</span>

@@ -111,7 +111,7 @@ export default function AddRestaurantDialog({ onAdded, mode = "food" }) {
       <DialogTrigger asChild>
         <button
           data-testid="open-add-restaurant-button"
-          className="inline-flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-3 py-2.5 text-sm font-semibold text-[#0E0E0E] transition-colors hover:bg-[#E2E4E7] sm:px-5"
+          className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E4E7] bg-white px-3 py-1.5 text-xs font-semibold text-[#0E0E0E] transition-colors hover:bg-[#E2E4E7] sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
         >
           <Plus className="h-4 w-4" /> <span>Add spot</span>
         </button>

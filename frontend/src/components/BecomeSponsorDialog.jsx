@@ -54,7 +54,7 @@ export default function BecomeSponsorDialog({ variant = "primary" }) {
     link: (
       <button
         data-testid="header-sponsor-link"
-        className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-transparent px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10"
+        className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-transparent px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-white/10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
       >
         <Store className="h-4 w-4 text-[#E01E26]" /> Sponsor your spot
       </button>

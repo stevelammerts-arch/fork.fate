@@ -56,3 +56,8 @@
 - LIVE PAYPAL + PRODUCTION at fork-fate.com. Preview changes are preview-only until redeploy.
 - Google Places capped 160/day; only the winning reveal card uses a billed Google photo.
 - Rate-limit IP via CF-Connecting-IP; sponsor PII stripped from public endpoints.
+
+## 2026-06-10 — Mobile header polish
+- Slimmed header action buttons (Sponsor, Download, Favorites, Add spot) to text-xs/py-1.5 on mobile, scaling up at sm: breakpoint for consistency with the Guided button.
+- Fork·Fate title confirmed readable at text-2xl on mobile.
+- Bumped FF_BUILD to 2026.06-9 for cache purge.
