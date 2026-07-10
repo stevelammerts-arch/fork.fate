@@ -71,3 +71,24 @@ body {
         @apply bg-background text-foreground;
     }
 }
+
+
+/* Flaming "Congratulations" text for the crawl reward reveal */
+.flame-text {
+    background: linear-gradient(180deg, #fff6cf 0%, #ffcf5a 34%, #ff7a18 70%, #e01e26 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: flameFlicker 1.05s ease-in-out infinite;
+}
+
+@keyframes flameFlicker {
+    0%, 100% {
+        filter: drop-shadow(0 -2px 5px rgba(255, 120, 0, 0.85)) drop-shadow(0 -6px 16px rgba(255, 60, 0, 0.6));
+    }
+    50% {
+        filter: drop-shadow(0 -3px 9px rgba(255, 165, 0, 0.95)) drop-shadow(0 -11px 24px rgba(255, 80, 0, 0.7));
+    }
+}
+

@@ -88,3 +88,9 @@
 - Reward/badge button now gated: disabled until ALL stops checked off ("Check off all stops to unlock (x/N)"), then unlocks + auto-opens badge.
 - Fixed crawl location UX: dealCrawl is forgiving — if only one location is set (even the optional end point), it is used as the start instead of erroring for a start ZIP.
 - FF_BUILD -> 2026.06-29.
+
+## 2026-06-10 — Cinematic crawl reward reveal
+- Added shocked Grim Reaper (public/reaper-shocked.png) that animates in, jolts, then shrinks/blurs/recedes into darkness on the crawl completion screen.
+- "Congratulations" then reveals in the logo serif font with an animated CSS flame effect (.flame-text in index.css).
+- Wired into CrawlBadgeDialog intro (cinemaDone timer ~2.4s) before the reward CTA.
+- FF_BUILD -> 2026.06-30.

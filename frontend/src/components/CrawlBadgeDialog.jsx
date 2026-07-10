@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Trophy, Share2, Download, Camera, X, Lock, Instagram } from "lucide-react";
@@ -130,6 +131,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
   const [photo, setPhoto] = useState(null);
   const [busy, setBusy] = useState(false);
   const [step, setStep] = useState("intro");
+  const [cinemaDone, setCinemaDone] = useState(false);
   const [communityCount, setCommunityCount] = useState(null);
   const fileRef = useRef(null);
   const label = useMemo(() => (crawlLabel ? crawlLabel.toUpperCase() : crawlLabelFor(mode)), [crawlLabel, mode]);
@@ -141,6 +143,9 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
   useEffect(() => {
     if (!open) return;
     setStep("intro");
+    setCinemaDone(false);
+    // Reaper backs away into darkness (~2.4s), then the flaming reveal appears.
+    const t = setTimeout(() => setCinemaDone(true), 2400);
     // Count this survived crawl and grab the community total for social proof
     axios.post(`${API}/stats/crawl-completed`).then(({ data }) => setCommunityCount(data.count)).catch(() => {});
     // Play the recorded congrats clip on reveal (respects the app mute toggle)
@@ -151,6 +156,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
         a.play().catch(() => {});
       }
     } catch (e) { /* audio unavailable */ }
+    return () => clearTimeout(t);
   }, [open]);
 
   const onPickPhoto = (e) => {
@@ -228,29 +234,68 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
         </DialogHeader>
 
         {step === "intro" ? (
-          <div className="flex flex-col items-center gap-4 py-4 text-center" data-testid="crawl-badge-intro">
-            <div className="grid h-16 w-16 place-items-center rounded-full bg-[#E01E26]/15 ring-1 ring-[#E01E26]/40">
-              <Trophy className="h-8 w-8 text-[#E01E26]" />
+          <div className="flex flex-col items-center gap-4 py-2 text-center" data-testid="crawl-badge-intro">
+            {/* Cinematic: shocked reaper backs away into darkness, then flaming reveal */}
+            <div className="relative flex h-44 w-full items-center justify-center overflow-hidden">
+              <AnimatePresence>
+                {!cinemaDone && (
+                  <motion.img
+                    key="reaper-shocked"
+                    src="/reaper-shocked.png?v=1"
+                    alt=""
+                    data-testid="crawl-reaper-shocked"
+                    initial={{ opacity: 0, scale: 0.82, y: 14, filter: "blur(3px)" }}
+                    animate={{
+                      opacity: [0, 1, 1, 1, 0],
+                      scale: [0.82, 1, 1.06, 0.82, 0.28],
+                      y: [14, 0, 0, -10, -64],
+                      filter: ["blur(3px)", "blur(0px)", "blur(0px)", "blur(1.5px)", "blur(8px)"],
+                    }}
+                    transition={{ duration: 2.4, times: [0, 0.2, 0.5, 0.76, 1], ease: "easeInOut" }}
+                    className="h-44 w-44 object-contain"
+                  />
+                )}
+              </AnimatePresence>
+              {cinemaDone && (
+                <motion.h3
+                  initial={{ opacity: 0, scale: 0.75, y: 6 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className="flame-text font-serif text-4xl font-semibold tracking-tight"
+                  data-testid="crawl-congrats-flame"
+                >
+                  Congratulations
+                </motion.h3>
+              )}
             </div>
-            <h3 className="font-serif text-2xl text-white">Congratulations!</h3>
-            <p className="text-sm text-[#C7CBD1]">
-              You survived the <span className="font-bold text-white">Fork·Fate {labelFriendly}</span>. Would you like to take a selfie and see your reward?
-            </p>
-            {communityCount !== null && communityCount > 0 && (
-              <p className="text-xs text-[#8A8F95]" data-testid="crawl-badge-community-count">
-                🏆 <span className="font-bold text-[#E01E26]">{communityCount.toLocaleString()}</span> brave souls have survived a Fork·Fate crawl
-              </p>
+
+            {cinemaDone && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.5 }}
+                className="flex w-full flex-col items-center gap-4"
+              >
+                <p className="text-sm text-[#C7CBD1]">
+                  You survived the <span className="font-bold text-white">Fork·Fate {labelFriendly}</span>. Take a selfie and claim your reward?
+                </p>
+                {communityCount !== null && communityCount > 0 && (
+                  <p className="text-xs text-[#8A8F95]" data-testid="crawl-badge-community-count">
+                    🏆 <span className="font-bold text-[#E01E26]">{communityCount.toLocaleString()}</span> brave souls have survived a Fork·Fate crawl
+                  </p>
+                )}
+                <div className="mt-1 flex w-full flex-col gap-3">
+                  <button onClick={() => { setStep("build"); setTimeout(() => fileRef.current?.click(), 150); }} data-testid="crawl-badge-selfie-cta"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#E01E26] px-5 py-3 text-sm font-bold text-white hover:bg-[#FF2E38]">
+                    <Camera className="h-4 w-4" /> Take a selfie & reveal my reward
+                  </button>
+                  <button onClick={() => setStep("build")} data-testid="crawl-badge-skip-selfie"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-[#3A3A3A] px-5 py-3 text-sm font-bold text-white hover:bg-white/10">
+                    Just show my reward
+                  </button>
+                </div>
+              </motion.div>
             )}
-            <div className="mt-1 flex w-full flex-col gap-3">
-              <button onClick={() => { setStep("build"); setTimeout(() => fileRef.current?.click(), 150); }} data-testid="crawl-badge-selfie-cta"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#E01E26] px-5 py-3 text-sm font-bold text-white hover:bg-[#FF2E38]">
-                <Camera className="h-4 w-4" /> Take a selfie & reveal my reward
-              </button>
-              <button onClick={() => setStep("build")} data-testid="crawl-badge-skip-selfie"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-[#3A3A3A] px-5 py-3 text-sm font-bold text-white hover:bg-white/10">
-                Just show my reward
-              </button>
-            </div>
           </div>
         ) : (
         <>
