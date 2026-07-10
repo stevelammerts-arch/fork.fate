@@ -475,8 +475,8 @@ export default function Home() {
       <header className="sticky top-0 z-30 border-b border-[#E2E4E7] bg-[#0E0E0E]">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:gap-3 md:px-12 md:py-6">
           <div className="flex items-center gap-2 md:gap-3">
-            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-black ring-1 ring-white/25 md:h-16 md:w-16">
-              <img src="/logo-mark.png" alt="Fork·Fate logo" className="h-11 w-11 scale-110 object-contain md:h-16 md:w-16" />
+            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-black ring-1 ring-white/25 md:h-16 md:w-16">
+              <img src="/logo-mark.png" alt="Fork·Fate logo" className="h-12 w-12 scale-110 object-contain md:h-16 md:w-16" />
               <motion.div
                 className="pointer-events-none absolute inset-0"
                 initial={{ x: "-130%" }}
@@ -485,7 +485,7 @@ export default function Home() {
                 style={{ background: "linear-gradient(115deg, transparent 46%, rgba(255,255,255,0.85) 50%, transparent 54%)" }}
               />
             </div>
-            <span className="font-serif text-xl font-semibold tracking-tight text-white md:text-3xl">
+            <span className="font-serif text-2xl font-semibold tracking-tight text-white md:text-4xl">
               Fork·Fate
             </span>
           </div>
@@ -494,7 +494,7 @@ export default function Home() {
               onClick={() => setShowGuided(true)}
               data-testid="relaunch-guided-button"
               title="Start the guided ritual"
-              className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-transparent px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-transparent px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-white/10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
             >
               <Sparkles className="h-4 w-4 text-[#E01E26]" /> <span>Guided</span>
             </button>
@@ -503,7 +503,7 @@ export default function Home() {
               data-testid="sound-toggle-button"
               title={muted ? "Sound off — click to enable the reveal sound" : "Sound on — click to mute"}
               aria-label={muted ? "Enable sound" : "Mute sound"}
-              className="inline-flex items-center justify-center rounded-full border border-white/25 bg-transparent p-2.5 text-white transition-colors hover:bg-white/10"
+              className="inline-flex items-center justify-center rounded-full border border-white/25 bg-transparent p-2 text-white transition-colors hover:bg-white/10 sm:p-2.5"
             >
               {muted ? <VolumeX className="h-4 w-4 text-[#8A8F95]" /> : <Volume2 className="h-4 w-4 text-[#E01E26]" />}
             </button>
