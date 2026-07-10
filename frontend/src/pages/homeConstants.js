@@ -1,5 +1,42 @@
 // Pure constants and helpers for the Home page (no React state).
 
+// ── Crawl route helpers (shared by Home reveal + PubCrawlDialog) ──
+const CRAWL_R_MI = 3958.8;
+export function crawlHaversine(a, b) {
+  if (a?.lat == null || b?.lat == null) return Infinity;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return CRAWL_R_MI * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+}
+
+// Greedy nearest-neighbour ordering so the stops form a followable walking path.
+// With a destination, order stops by their progress along origin->destination.
+export function orderCrawlRoute(items, origin, destination) {
+  const hasCoords = items.length > 0 && items.every((s) => s.lat != null && s.lng != null);
+  if (!hasCoords) return [...items].sort((a, b) => (a.distance ?? 999) - (b.distance ?? 999));
+  if (origin?.lat != null && destination?.lat != null) {
+    const dx = destination.lng - origin.lng, dy = destination.lat - origin.lat;
+    const len2 = dx * dx + dy * dy || 1;
+    const t = (s) => ((s.lng - origin.lng) * dx + (s.lat - origin.lat) * dy) / len2;
+    return [...items].sort((a, b) => t(a) - t(b));
+  }
+  const remaining = [...items];
+  const route = [];
+  let cur = origin && origin.lat != null ? origin : remaining[0];
+  while (remaining.length) {
+    let bi = 0, bd = Infinity;
+    for (let i = 0; i < remaining.length; i++) {
+      const d = crawlHaversine(cur, remaining[i]);
+      if (d < bd) { bd = d; bi = i; }
+    }
+    const nx = remaining.splice(bi, 1)[0];
+    route.push(nx); cur = nx;
+  }
+  return route;
+}
+
+
 const STREAK_KEY = "ff_streak";
 const midnight = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
 

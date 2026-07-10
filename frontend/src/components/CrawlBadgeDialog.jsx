@@ -149,14 +149,23 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
     // Count this survived crawl and grab the community total for social proof
     axios.post(`${API}/stats/crawl-completed`).then(({ data }) => setCommunityCount(data.count)).catch(() => {});
     // Play the recorded congrats clip on reveal (respects the app mute toggle)
+    let thunderT;
     try {
       if (localStorage.getItem("ff_muted") !== "1") {
         const a = new Audio("/crawl-congrats.mp3?v=2");
         a.volume = 1.0;
         a.play().catch(() => {});
+        // Thunder clap the instant the shocked reaper's face jolts into view
+        thunderT = setTimeout(() => {
+          try {
+            const boom = new Audio("/reveal-thunder-v4.mp3");
+            boom.volume = 1.0;
+            boom.play().catch(() => {});
+          } catch (e) { /* audio unavailable */ }
+        }, 350);
       }
     } catch (e) { /* audio unavailable */ }
-    return () => clearTimeout(t);
+    return () => { clearTimeout(t); clearTimeout(thunderT); };
   }, [open]);
 
   const onPickPhoto = (e) => {

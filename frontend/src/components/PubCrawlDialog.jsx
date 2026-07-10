@@ -5,6 +5,7 @@ import { Beer, MapPin, Star, Shuffle, ExternalLink, X, Share2, Trophy, Users, Ch
 import { toast } from "sonner";
 import CrawlBadgeDialog from "./CrawlBadgeDialog";
 import CrawlMap from "./CrawlMap";
+import { orderCrawlRoute as orderRoute, crawlHaversine as haversine } from "../pages/homeConstants";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const ARRIVE_RADIUS_MI = 0.06; // ~95m — close enough to count as "arrived"
@@ -18,42 +19,6 @@ const shuffle = (arr) => {
   return a;
 };
 
-const R_MI = 3958.8;
-function haversine(a, b) {
-  if (a?.lat == null || b?.lat == null) return Infinity;
-  const toRad = (d) => (d * Math.PI) / 180;
-  const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
-  const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
-  return R_MI * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
-}
-
-// Greedy nearest-neighbour ordering so the stops form a followable walking path.
-// When a destination is given, order stops by their progress along origin->destination
-// so the route flows from the start toward the end point.
-function orderRoute(items, origin, destination) {
-  const hasCoords = items.length > 0 && items.every((s) => s.lat != null && s.lng != null);
-  if (!hasCoords) return [...items].sort((a, b) => (a.distance ?? 999) - (b.distance ?? 999));
-  if (origin?.lat != null && destination?.lat != null) {
-    const dx = destination.lng - origin.lng, dy = destination.lat - origin.lat;
-    const len2 = dx * dx + dy * dy || 1;
-    const t = (s) => ((s.lng - origin.lng) * dx + (s.lat - origin.lat) * dy) / len2;
-    return [...items].sort((a, b) => t(a) - t(b));
-  }
-  const remaining = [...items];
-  const route = [];
-  let cur = origin && origin.lat != null ? origin : remaining[0];
-  while (remaining.length) {
-    let bi = 0, bd = Infinity;
-    for (let i = 0; i < remaining.length; i++) {
-      const d = haversine(cur, remaining[i]);
-      if (d < bd) { bd = d; bi = i; }
-    }
-    const nx = remaining.splice(bi, 1)[0];
-    route.push(nx); cur = nx;
-  }
-  return route;
-}
-
 const dirUrl = (from, to) =>
   from?.lat != null && to?.lat != null
     ? `https://www.google.com/maps/dir/?api=1&origin=${from.lat},${from.lng}&destination=${to.lat},${to.lng}&travelmode=walking`
@@ -62,7 +27,7 @@ const dirUrl = (from, to) =>
 // Opens a "crawl" window: nearby spots ordered into a followable route. Can be
 // shared with the group via a short link, and progress can be checked off (manual
 // or auto via GPS) as the crew conquers each stop.
-export default function PubCrawlDialog({ open, onClose, results, mode, origin, destination, shared = false, crawlLabel = "" }) {
+export default function PubCrawlDialog({ open, onClose, results, mode, origin, destination, shared = false, crawlLabel = "", initialStops = null }) {
   const maxStops = Math.min(6, results.length);
   const [route, setRoute] = useState([]);
   const [dropped, setDropped] = useState({});
@@ -84,10 +49,12 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
     if (!open) return;
     // Shared crawls are locked: everyone sees the same route in the same order.
     if (shared) setRoute(results);
+    // Fresh deal: use the exact ordered stops the reveal landed on (stop #1 = reveal card).
+    else if (initialStops && initialStops.length) setRoute(initialStops);
     else setRoute(orderRoute(shuffle(results).slice(0, maxStops), origin, destination));
     setDropped({});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, results, shared]);
+  }, [open, results, shared, initialStops]);
 
   const stops = useMemo(() => route.filter((r) => !dropped[r.id]), [route, dropped]);
   const label = crawlLabel || (mode === "bars" ? "Pub Crawl" : `${mode?.[0]?.toUpperCase()}${mode?.slice(1)} Crawl`);
