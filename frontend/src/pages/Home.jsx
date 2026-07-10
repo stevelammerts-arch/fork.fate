@@ -951,6 +951,24 @@ function CardBack() {
   );
 }
 
+// Tarot-style front: photo centered inside a black card with matching red frame
+function CardFront({ src }) {
+  return (
+    <div className="absolute inset-0 bg-[#0E0E0E]" data-testid="card-front">
+      <div
+        className="absolute inset-0"
+        style={{ background: "radial-gradient(circle at 50% 42%, rgba(224,30,38,0.20), rgba(0,0,0,0) 62%)" }}
+      />
+      <div className="absolute inset-[13px] overflow-hidden rounded-md">
+        <img src={src} alt="" className="h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
+      </div>
+      <div className="absolute inset-2 rounded-xl border border-[#E01E26]/70" />
+      <div className="absolute inset-[10px] rounded-lg border border-[#E01E26]/25" />
+    </div>
+  );
+}
+
 function ShufflingDeck({ cards, flash, landed }) {
   const source = cards.length ? cards : (flash ? [flash] : []);
   // Always fill a full visual deck so the shuffle never looks like a single card,
@@ -997,7 +1015,7 @@ function ShufflingDeck({ cards, flash, landed }) {
             return (
             <motion.div
               key={(c?.id || "c") + i}
-              className={`absolute inset-0 overflow-hidden rounded-2xl border-2 ${showPhoto ? "border-white" : "border-[#E01E26]"} bg-[#0E0E0E] shadow-2xl shadow-black/30`}
+              className={`absolute inset-0 overflow-hidden rounded-2xl border-2 border-[#E01E26] bg-[#0E0E0E] shadow-2xl shadow-black/30`}
               style={{ zIndex: DECK_SIZE - i }}
               animate={
                 landed
@@ -1023,10 +1041,7 @@ function ShufflingDeck({ cards, flash, landed }) {
               }
             >
               {showPhoto ? (
-                <>
-                  <img src={c.image} alt="" className="h-full w-full object-cover opacity-90" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                </>
+                <CardFront src={c.image} />
               ) : (
                 <CardBack />
               )}
