@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Beer, MapPin, Star, Shuffle, ExternalLink, X, Share2, Trophy, Users, Check, Navigation, LocateFixed } from "lucide-react";
 import { toast } from "sonner";
 import CrawlBadgeDialog from "./CrawlBadgeDialog";
+import CrawlMap from "./CrawlMap";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const ARRIVE_RADIUS_MI = 0.06; // ~95m — close enough to count as "arrived"
@@ -179,6 +180,13 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, s
               {stops.length} stop{stops.length !== 1 ? "s" : ""} in a followable route — hit them in order, check each off, and claim your badge.
             </DialogDescription>
           </DialogHeader>
+
+          {/* Route map */}
+          {stops.length > 0 && (
+            <div className="mt-2">
+              <CrawlMap stops={stops} origin={origin} visited={visited} />
+            </div>
+          )}
 
           {/* Progress */}
           {stops.length > 0 && (
