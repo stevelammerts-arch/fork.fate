@@ -914,6 +914,17 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-[#E2E4E7] bg-[#0E0E0E]">
+        <div className="mx-auto max-w-6xl px-6 pt-8 md:px-12">
+          <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4" data-testid="reaper-disclaimer">
+            <Skull className="mt-0.5 h-5 w-5 shrink-0 text-[#E01E26]" />
+            <p className="font-sans text-xs leading-relaxed text-[#8A8F95]">
+              <span className="font-bold text-white">A word from the Reaper:</span> This page offers suggestions
+              only and is not liable for any trouble you encounter in or with an establishment. Our algorithm merely
+              queries the choices — the decision to visit any suggested establishment is yours alone.
+              <span className="mt-1 block italic text-[#B9BEC4]">— The Reaper ☠️</span>
+            </p>
+          </div>
+        </div>
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 pb-28 pt-8 md:flex-row md:px-12 md:pb-20">
           <div className="flex items-center gap-2.5">
             <span className="relative block h-8 w-8 overflow-hidden rounded-full bg-black">
