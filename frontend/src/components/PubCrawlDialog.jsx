@@ -18,7 +18,7 @@ const shuffle = (arr) => {
 
 // Opens a "crawl" window: multiple nearby spots to hit in order. Can be shared
 // with the group via a short link so everyone opens the same fixed route.
-export default function PubCrawlDialog({ open, onClose, results, mode, shared = false }) {
+export default function PubCrawlDialog({ open, onClose, results, mode, shared = false, crawlLabel = "" }) {
   const maxStops = Math.min(6, results.length);
   const [route, setRoute] = useState([]);
   const [dropped, setDropped] = useState({});
@@ -41,7 +41,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, shared = 
   }, [open, results, shared]);
 
   const stops = useMemo(() => route.filter((r) => !dropped[r.id]), [route, dropped]);
-  const label = mode === "bars" ? "Pub Crawl" : `${mode?.[0]?.toUpperCase()}${mode?.slice(1)} Crawl`;
+  const label = crawlLabel || (mode === "bars" ? "Pub Crawl" : `${mode?.[0]?.toUpperCase()}${mode?.slice(1)} Crawl`);
 
   const crewLine = crew.trim() ? ` with ${crew.trim()}` : "";
 
@@ -51,6 +51,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, shared = 
     try {
       const { data } = await axios.post(`${API}/crawls`, {
         mode,
+        label,
         stops: stops.map((s) => ({
           id: String(s.id ?? ""),
           name: s.name,
@@ -159,7 +160,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, shared = 
         </DialogContent>
       </Dialog>
 
-      <CrawlBadgeDialog open={badgeOpen} onClose={() => setBadgeOpen(false)} mode={mode} defaultCrew={crew} />
+      <CrawlBadgeDialog open={badgeOpen} onClose={() => setBadgeOpen(false)} mode={mode} crawlLabel={label} defaultCrew={crew} />
     </>
   );
 }

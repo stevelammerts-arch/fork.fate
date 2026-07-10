@@ -71,15 +71,24 @@ const FOOD_CUISINES = [
   "Italian", "Mexican", "Chinese", "Japanese", "Sushi", "Indian", "Thai", "Korean", "Vietnamese",
   "Chicken Wings", "Fried Chicken", "Burgers", "Steakhouse", "American", "Diner", "Mediterranean", "Greek",
   "Seafood", "Pizza", "Tacos", "Sandwiches", "Deli", "Ramen", "Breakfast", "Halal", "Vegan", "Vegetarian",
-  "Gluten Free", "BBQ", "Cafe", "Poke", "Soul Food", "Cajun", "Hot Pot", "Dim Sum", "Buffet", "Food Trucks",
+  "Gluten Free", "BBQ", "Cafe", "Poke", "Soul Food", "Cajun", "Hot Pot", "Dim Sum", "Buffet", "Food Trucks", "Tapas",
 ];
 const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "Smoothie", "Juice Bar", "Milkshakes", "Kombucha", "Cider"];
 const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Donuts", "Cupcakes", "Candy Shops", "Chocolate", "Crepes", "Cheesecake", "Pie"];
 const BAR_CUISINES = [
   "Brewery", "Distillery", "Beer", "Wine", "Wine Bar", "Cocktails", "Whiskey", "Liquor", "Spirits", "Margaritas",
   "Tiki", "Pub", "Sports Bar", "Irish Bar", "Dive Bar", "Rooftop Bar", "Speakeasy", "Nightclub", "Karaoke", "Bars",
-  "Cigar Bar", "Hookah Lounge", "Live Music", "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Games", "Bowling",
+  "Cigar Bar", "Hookah Lounge", "Live Music", "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Games", "Bowling", "Tapas Bar",
 ];
+const CRAWL_TYPES = [
+  { key: "pubs", label: "Pubs", mode: "bars", cuisine: "Pub", crawl: "Pub Crawl" },
+  { key: "wine", label: "Wine", mode: "bars", cuisine: "Wine Bar", crawl: "Wine Crawl" },
+  { key: "brewery", label: "Brewery", mode: "bars", cuisine: "Brewery", crawl: "Brewery Crawl" },
+  { key: "tacos", label: "Tacos", mode: "food", cuisine: "Tacos", crawl: "Taco Crawl" },
+  { key: "tapas", label: "Tapas", mode: "food", cuisine: "Tapas", crawl: "Tapas Crawl" },
+  { key: "burgers", label: "Burgers", mode: "food", cuisine: "Burgers", crawl: "Burger Crawl" },
+];
+const crawlLabelForType = (key) => (CRAWL_TYPES.find((t) => t.key === key)?.crawl) || "Pub Crawl";
 
 export default function Home() {
   const [mode, setMode] = useState("food");
@@ -99,6 +108,7 @@ export default function Home() {
   const [groupMode, setGroupMode] = useState(false);
   const [groupPicks, setGroupPicks] = useState(null);
   const [crawlMode, setCrawlMode] = useState(false);
+  const [crawlType, setCrawlType] = useState("pubs");
   const [showCrawl, setShowCrawl] = useState(false);
   const [fatesDealt, setFatesDealt] = useState(null);
   const [crawlsCompleted, setCrawlsCompleted] = useState(null);
@@ -198,6 +208,14 @@ export default function Home() {
     setMode(m);
     setSelectedCuisines([]);
     setResults([]);
+    setResult(null);
+    setGroupPicks(null);
+  };
+
+  const applyCrawlType = (t) => {
+    if (t.mode !== mode) switchMode(t.mode);
+    setSelectedCuisines([t.cuisine]);
+    setCrawlType(t.key);
     setResult(null);
     setGroupPicks(null);
   };
@@ -406,7 +424,7 @@ export default function Home() {
           />
         )}
       </AnimatePresence>
-      <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} />
+      <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} crawlLabel={crawlLabelForType(crawlType)} />
 
       {/* Decorative reaper background with load animation */}
       <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>
@@ -725,7 +743,7 @@ export default function Home() {
             <button
               type="button"
               data-testid="crawl-mode-toggle"
-              onClick={() => { setCrawlMode((v) => { const n = !v; if (n) setGroupMode(false); return n; }); setResult(null); setGroupPicks(null); }}
+              onClick={() => { setCrawlMode((v) => { const n = !v; if (n) setGroupMode(false); return n; }); if (!crawlMode) applyCrawlType(CRAWL_TYPES[0]); setResult(null); setGroupPicks(null); }}
               className={`ml-3 inline-flex items-center gap-2.5 rounded-full border px-4 py-2.5 text-sm font-bold transition-colors ${crawlMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E2E4E7] bg-white text-[#6B7075] hover:bg-[#EDEEF0]"}`}
             >
               <Beer className="h-4 w-4" />
@@ -734,6 +752,25 @@ export default function Home() {
                 <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${crawlMode ? "translate-x-3" : ""}`} />
               </span>
             </button>
+
+            {crawlMode && (
+              <div className="mt-2 w-full basis-full" data-testid="crawl-type-picker">
+                <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">Pick your crawl</p>
+                <div className="flex flex-wrap gap-2">
+                  {CRAWL_TYPES.map((t) => (
+                    <button
+                      key={t.key}
+                      type="button"
+                      data-testid={`crawl-type-${t.key}`}
+                      onClick={() => applyCrawlType(t)}
+                      className={`rounded-full border px-4 py-2 text-sm font-bold transition-colors ${crawlType === t.key ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E2E4E7] bg-white text-[#6B7075] hover:bg-[#EDEEF0]"}`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-wrap items-center gap-4">
               <motion.button

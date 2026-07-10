@@ -117,7 +117,7 @@ async function buildBadge({ name, crew, label, photo }) {
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
 
-export default function CrawlBadgeDialog({ open, onClose, mode, defaultCrew = "" }) {
+export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "", defaultCrew = "" }) {
   const [name, setName] = useState("");
   const [crew, setCrew] = useState(defaultCrew);
   const [photo, setPhoto] = useState(null);
@@ -125,10 +125,10 @@ export default function CrawlBadgeDialog({ open, onClose, mode, defaultCrew = ""
   const [step, setStep] = useState("intro");
   const [communityCount, setCommunityCount] = useState(null);
   const fileRef = useRef(null);
-  const label = useMemo(() => crawlLabelFor(mode), [mode]);
+  const label = useMemo(() => (crawlLabel ? crawlLabel.toUpperCase() : crawlLabelFor(mode)), [crawlLabel, mode]);
   const labelFriendly = useMemo(
-    () => ({ bars: "Pub Crawl", food: "Food Crawl", drinks: "Drinks Crawl", desserts: "Dessert Crawl" }[mode] || "Pub Crawl"),
-    [mode]
+    () => crawlLabel || ({ bars: "Pub Crawl", food: "Food Crawl", drinks: "Drinks Crawl", desserts: "Dessert Crawl" }[mode] || "Pub Crawl"),
+    [crawlLabel, mode]
   );
 
   useEffect(() => {

@@ -317,6 +317,7 @@ class CrawlStop(BaseModel):
 
 class CrawlCreate(BaseModel):
     mode: str = "bars"
+    label: str = Field(default="", max_length=40)
     stops: List[CrawlStop] = Field(default_factory=list)
 
     @field_validator("mode")
@@ -769,6 +770,7 @@ async def create_crawl(payload: CrawlCreate):
     doc = {
         "code": code,
         "mode": payload.mode,
+        "label": payload.label,
         "stops": [s.model_dump() for s in payload.stops],
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
