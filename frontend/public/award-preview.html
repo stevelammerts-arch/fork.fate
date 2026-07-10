@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Award Preview</title>
+<style>
+  body { margin:0; background:#0B0B0B; display:grid; place-items:center; min-height:100vh; font-family:Georgia, serif; }
+  .stage { position:relative; width:560px; height:560px; }
+  .glow { position:absolute; inset:0; background:radial-gradient(circle at 50% 42%, rgba(224,30,38,0.28), rgba(224,30,38,0) 60%); }
+  .reaper { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; z-index:2; }
+  /* Text overlay sits on the card the reaper holds */
+  .card-text {
+    position:absolute; z-index:3; text-align:center; color:#fff;
+    left:36.5%; top:24.5%; width:27%; height:34%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+    padding:0 4px;
+  }
+  .kicker { color:#E01E26; font-size:11px; letter-spacing:2px; font-weight:700; text-transform:uppercase; }
+  .title { font-size:22px; line-height:1.05; font-weight:700; text-shadow:0 2px 8px rgba(0,0,0,0.6); }
+  .rule { width:38px; height:2px; background:#E01E26; margin:4px 0; }
+  .name { font-size:16px; font-style:italic; color:#EDEDED; }
+  .foot { font-size:11px; color:#9A9FA5; letter-spacing:1px; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="glow"></div>
+    <img class="reaper" src="/reaper-award.png" alt="reaper" />
+    <div class="card-text">
+      <div class="kicker">The Reaper Certifies</div>
+      <div class="title">PUB CRAWL<br/>SURVIVOR</div>
+      <div class="rule"></div>
+      <div class="name">Alex</div>
+      <div class="foot">Fork·Fate</div>
+    </div>
+  </div>
+</body>
+</html>

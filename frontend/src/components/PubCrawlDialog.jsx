@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Beer, MapPin, Star, Shuffle, ExternalLink, Check, X, Share2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -48,9 +48,9 @@ export default function PubCrawlDialog({ open, onClose, results, mode }) {
           </DialogTitle>
         </DialogHeader>
 
-        <p className="text-sm text-[#A0A0A0]">
+        <DialogDescription className="text-sm text-[#A0A0A0]">
           {stops.length} stop{stops.length !== 1 && "s"} in a random hop order. Drop any you don't want, then hit the road.
-        </p>
+        </DialogDescription>
 
         <div className="mt-2 space-y-2.5">
           {stops.map((s, i) => (
@@ -84,13 +84,13 @@ export default function PubCrawlDialog({ open, onClose, results, mode }) {
           )}
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-3">
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <button onClick={reshuffle} data-testid="crawl-reshuffle-button"
             className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#E01E26] px-5 py-3 text-sm font-bold text-white hover:bg-[#FF2E38]">
             <Shuffle className="h-4 w-4" /> Shuffle a new crawl
           </button>
           <button onClick={shareCrawl} disabled={!stops.length} data-testid="crawl-share-button"
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-[#3A3A3A] px-5 py-3 text-sm font-bold text-white hover:bg-white/10 disabled:opacity-40">
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[#3A3A3A] px-5 py-3 text-sm font-bold text-white hover:bg-white/10 disabled:opacity-40 sm:flex-none">
             <Share2 className="h-4 w-4" /> Share crawl
           </button>
         </div>
