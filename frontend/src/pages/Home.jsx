@@ -653,42 +653,6 @@ export default function Home() {
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
             />
 
-            <div className="flex flex-wrap items-center gap-4">
-              <motion.button
-                data-testid="spin-roulette-button"
-                onClick={spin}
-                disabled={spinning || loading}
-                whileHover={{ scale: spinning || loading ? 1 : 1.03 }}
-                whileTap={SPIN_TAP}
-                className="inline-flex items-center gap-3 rounded-full border-2 border-[#0E0E0E] bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
-              >
-                <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
-                {loading ? "Finding spots…" : spinning ? "Shuffling…" : crawlMode ? "Deal a Crawl!" : groupMode ? "Deal 3 Fates!" : "Deal Your Fate!"}
-              </motion.button>
-              {results.length > 0 && (
-                <span className="font-sans text-sm text-[#6B7075]">
-                  {results.length} spot{results.length !== 1 && "s"} nearby
-                </span>
-              )}
-            </div>
-            {fatesDealt !== null && (
-              <div className="mt-4 inline-flex items-center gap-2 font-sans text-sm text-[#6B7075]" data-testid="fates-dealt-counter">
-                <Dices className="h-4 w-4 text-[#E01E26]" />
-                <span><span className="font-bold text-[#0E0E0E]">{fatesDealt.toLocaleString()}</span> fates dealt</span>
-                {crawlsCompleted !== null && crawlsCompleted > 0 && (
-                  <span className="ml-3 inline-flex items-center gap-1.5" data-testid="crawls-completed-counter">
-                    <Trophy className="h-4 w-4 text-[#E01E26]" />
-                    <span><span className="font-bold text-[#0E0E0E]">{crawlsCompleted.toLocaleString()}</span> crawls survived</span>
-                  </span>
-                )}
-                {streak >= 2 && (
-                  <span className="ml-3 inline-flex items-center gap-1.5 rounded-full bg-[#FCF4F4] px-3 py-1 text-[#E01E26]" data-testid="streak-badge">
-                    <Flame className="h-4 w-4" /><span className="font-bold">{streak}-day streak</span>
-                  </span>
-                )}
-              </div>
-            )}
-
             <button
               type="button"
               data-testid="open-now-toggle"
@@ -744,6 +708,42 @@ export default function Home() {
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-center gap-4">
+              <motion.button
+                data-testid="spin-roulette-button"
+                onClick={spin}
+                disabled={spinning || loading}
+                whileHover={{ scale: spinning || loading ? 1 : 1.03 }}
+                whileTap={SPIN_TAP}
+                className="inline-flex items-center gap-3 rounded-full border-2 border-[#0E0E0E] bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
+              >
+                <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
+                {loading ? "Finding spots…" : spinning ? "Shuffling…" : crawlMode ? "Deal a Crawl!" : groupMode ? "Deal 3 Fates!" : "Deal Your Fate!"}
+              </motion.button>
+              {results.length > 0 && (
+                <span className="font-sans text-sm text-[#6B7075]">
+                  {results.length} spot{results.length !== 1 && "s"} nearby
+                </span>
+              )}
+            </div>
+            {fatesDealt !== null && (
+              <div className="mt-4 inline-flex items-center gap-2 font-sans text-sm text-[#6B7075]" data-testid="fates-dealt-counter">
+                <Dices className="h-4 w-4 text-[#E01E26]" />
+                <span><span className="font-bold text-[#0E0E0E]">{fatesDealt.toLocaleString()}</span> fates dealt</span>
+                {crawlsCompleted !== null && crawlsCompleted > 0 && (
+                  <span className="ml-3 inline-flex items-center gap-1.5" data-testid="crawls-completed-counter">
+                    <Trophy className="h-4 w-4 text-[#E01E26]" />
+                    <span><span className="font-bold text-[#0E0E0E]">{crawlsCompleted.toLocaleString()}</span> crawls survived</span>
+                  </span>
+                )}
+                {streak >= 2 && (
+                  <span className="ml-3 inline-flex items-center gap-1.5 rounded-full bg-[#FCF4F4] px-3 py-1 text-[#E01E26]" data-testid="streak-badge">
+                    <Flame className="h-4 w-4" /><span className="font-bold">{streak}-day streak</span>
+                  </span>
+                )}
               </div>
             )}
           </div>
