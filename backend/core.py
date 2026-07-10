@@ -6,6 +6,7 @@ import os
 import re
 import time
 import math
+import ipaddress
 import jwt
 import logging
 from collections import defaultdict, deque
@@ -36,6 +37,11 @@ SPONSOR_PRICE = "29.00"
 JWT_ALG = "HS256"
 JWT_ISS = os.environ.get("JWT_ISS", "fork-fate")
 JWT_AUD = os.environ.get("JWT_AUD", "fork-fate-admin")
+# How to derive the client IP / real origin behind proxies:
+#   auto (default) -> trust CF/forwarded headers ONLY when the direct TCP peer is a
+#                     private/loopback hop (i.e. our k8s ingress / CDN edge).
+#   always/never   -> force-trust or force-ignore (escape hatches for other setups).
+TRUST_PROXY_MODE = os.environ.get("TRUST_PROXY_HEADERS", "auto").strip().lower()
 # Origins allowed for CORS + WebAuthn (prod fork-fate.com + Emergent preview subdomains).
 ALLOWED_ORIGIN_REGEX = r"https://([a-z0-9-]+\.)*(fork-fate\.com|emergentagent\.com)$"
 _ORIGIN_RE = re.compile(ALLOWED_ORIGIN_REGEX, re.I)
@@ -114,15 +120,35 @@ def origin_allowed(origin: str) -> bool:
     return bool(origin and _ORIGIN_RE.match(origin.strip()))
 
 
+def peer_is_trusted_proxy(request: Request) -> bool:
+    """Whether the direct TCP peer is a trusted proxy hop, so we may believe its
+    forwarded headers (CF-Connecting-IP, X-Forwarded-Host). In 'auto' mode we trust
+    only private/loopback peers — a public peer means the request reached us directly
+    off-CDN, where client-supplied headers are forgeable and must be ignored."""
+    if TRUST_PROXY_MODE == "always":
+        return True
+    if TRUST_PROXY_MODE == "never":
+        return False
+    peer = request.client.host if request.client else None
+    if not peer:
+        return False
+    try:
+        ip = ipaddress.ip_address(peer)
+    except ValueError:
+        return False
+    return ip.is_private or ip.is_loopback
+
+
 def _request_origin(request: Request) -> str:
-    """Best-effort real (user-facing) origin of the calling page. The Emergent
-    ingress rewrites the browser Origin header to an internal host, so the trusted
-    x-forwarded-proto + x-forwarded-host (the real external host) is preferred.
-    This value must equal the browser's page origin for WebAuthn verification."""
-    host = request.headers.get("x-forwarded-host")
-    proto = request.headers.get("x-forwarded-proto") or "https"
-    if host:
-        return f"{proto}://{host}"
+    """Best-effort real (user-facing) origin of the calling page. The ingress rewrites
+    the browser Origin to an internal host, so behind a trusted proxy we prefer
+    x-forwarded-proto + x-forwarded-host (the real external host). This value must equal
+    the browser's page origin for WebAuthn verification."""
+    if peer_is_trusted_proxy(request):
+        host = request.headers.get("x-forwarded-host")
+        proto = request.headers.get("x-forwarded-proto") or "https"
+        if host:
+            return f"{proto}://{host}"
     o = (request.headers.get("origin") or "").strip()
     if o:
         return o
@@ -132,6 +158,7 @@ def _request_origin(request: Request) -> str:
         if p.scheme and p.netloc:
             return f"{p.scheme}://{p.netloc}"
     if request.headers.get("host"):
+        proto = request.headers.get("x-forwarded-proto") or "https"
         return f"{proto}://{request.headers.get('host')}"
     return ""
 
@@ -147,20 +174,47 @@ def rp_id_and_origin(request: Request):
     return host, origin
 
 
-# Global admin-login throttle: caps TOTAL login attempts across all IPs per window,
-# defending against distributed / IP-spoofed brute force (complements the per-IP limit).
+# Admin-login brute-force protection.
+# Per-IP failed-attempt lockout so a single attacker can only lock THEMSELVES out —
+# not the legitimate admin. A generous global backstop still bounds distributed floods.
+_LOGIN_FAILURES = defaultdict(list)   # ip -> [failure timestamps]
+_LOGIN_FAIL_MAX = 8                    # failures per IP within the window -> locked
+_LOGIN_FAIL_WINDOW = 300              # seconds; failures older than this are forgotten
 _ADMIN_LOGIN_GLOBAL = {"window_start": 0.0, "count": 0}
+_GLOBAL_MAX = 240                     # total attempts / window (distributed-flood backstop)
+_GLOBAL_WINDOW = 60
 
 
-def admin_login_throttle(max_per_window: int = 30, window_seconds: int = 60):
+def check_login_lockout(ip: str):
+    """Raise 429 if this IP has too many recent failures, or if the generous global
+    backstop is exceeded. Call before verifying the password."""
     now = time.time()
+    fails = [t for t in _LOGIN_FAILURES.get(ip, []) if now - t < _LOGIN_FAIL_WINDOW]
+    if fails:
+        _LOGIN_FAILURES[ip] = fails
+    else:
+        _LOGIN_FAILURES.pop(ip, None)
+    if len(fails) >= _LOGIN_FAIL_MAX:
+        raise HTTPException(status_code=429, detail="Too many failed attempts. Please try again in a few minutes.")
     g = _ADMIN_LOGIN_GLOBAL
-    if now - g["window_start"] > window_seconds:
+    if now - g["window_start"] > _GLOBAL_WINDOW:
         g["window_start"] = now
         g["count"] = 0
     g["count"] += 1
-    if g["count"] > max_per_window:
-        raise HTTPException(status_code=429, detail="Too many login attempts, please try again shortly")
+    if g["count"] > _GLOBAL_MAX:
+        raise HTTPException(status_code=429, detail="Login temporarily busy, please retry shortly.")
+
+
+def record_login_failure(ip: str):
+    _LOGIN_FAILURES[ip].append(time.time())
+    if len(_LOGIN_FAILURES) > _RL_MAX_KEYS:
+        cutoff = time.time() - _LOGIN_FAIL_WINDOW
+        for k in [k for k, v in list(_LOGIN_FAILURES.items()) if not any(t > cutoff for t in v)]:
+            _LOGIN_FAILURES.pop(k, None)
+
+
+def clear_login_failures(ip: str):
+    _LOGIN_FAILURES.pop(ip, None)
 
 
 # Simple in-memory per-IP rate limiter (coarse abuse/cost protection)
@@ -191,14 +245,16 @@ def _google_record_call():
 
 
 def client_ip(request: Request) -> str:
-    """Trusted client IP. Behind Cloudflare, CF-Connecting-IP is set by the CDN and
-    cannot be spoofed by the client. Do NOT trust the client-supplied leftmost
-    X-Forwarded-For value (forgeable -> rate-limit bypass). Fall back to the direct
-    TCP peer when no trusted CDN header is present."""
-    for h in ("cf-connecting-ip", "true-client-ip"):
-        v = request.headers.get(h)
-        if v and v.strip():
-            return v.strip()
+    """Trusted client IP. Behind our ingress/CDN, CF-Connecting-IP / True-Client-IP are
+    set by the trusted hop. We only believe them when the direct TCP peer is a trusted
+    proxy (see peer_is_trusted_proxy); a direct public peer means the headers are
+    client-forgeable, so we use the TCP peer instead. The client-supplied X-Forwarded-For
+    is never trusted (forgeable -> rate-limit bypass)."""
+    if peer_is_trusted_proxy(request):
+        for h in ("cf-connecting-ip", "true-client-ip"):
+            v = request.headers.get(h)
+            if v and v.strip():
+                return v.strip()
     return request.client.host if request.client else "unknown"
 
 

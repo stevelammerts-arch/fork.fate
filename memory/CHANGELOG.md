@@ -28,7 +28,12 @@
 ### Cache-buster
 - FF_BUILD bumped through 2026.06-49. Bump on each UI ship.
 
-### Shareable Fate Card — QR upgrade (NEW, verified via generated image)
+### Security audit remediation — SEC-001 + SEC-002 (verified)
+- Audit verdict was CONDITIONAL PASS (no critical/high). Fixed the two actionable items in `core.py` + `routes/admin.py`:
+  - SEC-001 (admin-login DoS): replaced the single GLOBAL login throttle with a PER-IP failed-attempt lockout (`check_login_lockout`/`record_login_failure`/`clear_login_failures`, 8 fails / 5 min per IP) + a generous 240/min global backstop. An attacker can only lock their own IP, not the admin. Verified via unit test (locks attacker at attempt 9, different IP unaffected) + curl (correct login still works).
+  - SEC-002 (header-spoof rate-limit bypass): `client_ip` and `_request_origin` now trust CF/forwarded headers only when the direct TCP peer is a private/loopback proxy hop (`peer_is_trusted_proxy`, mode via env `TRUST_PROXY_HEADERS`=auto|always|never). Verified peer in this env is 10.x (private) and WebAuthn rp.id still resolves to the real host.
+- Removed `admin_login_throttle`; `admin_login` now takes `request` and uses the per-IP lockout. No .env change (TRUST_PROXY_HEADERS defaults to auto). Backend-only change — no FF_BUILD bump needed.
+- Deferred (P3 hardening, user not requested): secrets rotation to a manager, JWT in localStorage, auth on /sponsors/subscription-status.
 - Added `qrcode` lib. `buildFateCard()` in `Home.jsx` now draws a scannable QR (→ window.location.origin, i.e. fork-fate.com in prod) on a white rounded box bottom-right, with a left-aligned "Scan the code to shuffle your own fate" CTA. Drives new diners from screenshot shares. FF_BUILD 2026.06-50.
 - Note: existing share flow (Web Share text, Fate Card image download, SocialShare FB/X/WhatsApp/IG/Copy) was already present — the QR is the additive enhancement.
 - After several iterations the user reverted to the ORIGINAL first version and asked to ONLY drag the wrist down.

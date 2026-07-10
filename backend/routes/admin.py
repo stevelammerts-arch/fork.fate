@@ -3,9 +3,11 @@ import uuid
 import hmac
 from typing import List
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 
-from core import db, rate_limit, require_admin, create_admin_token, admin_login_throttle, ADMIN_PASSWORD, SPONSOR_PRICE, FALLBACK_IMG
+from core import (db, rate_limit, require_admin, create_admin_token, client_ip,
+                  check_login_lockout, record_login_failure, clear_login_failures,
+                  ADMIN_PASSWORD, SPONSOR_PRICE, FALLBACK_IMG)
 from models import AdminLogin, SponsorCreate, SponsorUpdate, SponsorClick, Restaurant
 from routes.sponsors import reconcile_sponsors
 
@@ -13,10 +15,13 @@ router = APIRouter()
 
 
 @router.post("/admin/login", dependencies=[Depends(rate_limit(10))])
-async def admin_login(payload: AdminLogin):
-    admin_login_throttle()  # global cap across all IPs (anti distributed brute-force)
+async def admin_login(payload: AdminLogin, request: Request):
+    ip = client_ip(request)
+    check_login_lockout(ip)  # per-IP failed-attempt lockout + generous global backstop
     if not ADMIN_PASSWORD or not hmac.compare_digest(payload.password, ADMIN_PASSWORD):
+        record_login_failure(ip)
         raise HTTPException(status_code=401, detail="Incorrect password")
+    clear_login_failures(ip)
     return {"token": create_admin_token()}
 
 
