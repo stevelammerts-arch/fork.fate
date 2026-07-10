@@ -73,20 +73,21 @@ body {
 }
 
 
-/* "Congratulations" reward reveal — emerges forward out of darkness with a red glow */
-.congrats-reveal {
-    color: #F2F3F5;
-    text-shadow:
-        0 0 10px rgba(224, 30, 38, 0.55),
-        0 0 26px rgba(224, 30, 38, 0.35);
-    animation: congratsGlow 2.4s ease-in-out infinite;
+/* "Congratulations" reward reveal — previous golden gradient look */
+.flame-text {
+    background: linear-gradient(180deg, #fff6cf 0%, #ffcf5a 34%, #ff7a18 70%, #e01e26 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: flameFlicker 1.05s ease-in-out infinite;
 }
-@keyframes congratsGlow {
+@keyframes flameFlicker {
     0%, 100% {
-        text-shadow: 0 0 10px rgba(224, 30, 38, 0.5), 0 0 24px rgba(224, 30, 38, 0.3);
+        filter: drop-shadow(0 -2px 5px rgba(255, 120, 0, 0.85)) drop-shadow(0 -6px 16px rgba(255, 60, 0, 0.6));
     }
     50% {
-        text-shadow: 0 0 14px rgba(224, 30, 38, 0.7), 0 0 34px rgba(224, 30, 38, 0.45);
+        filter: drop-shadow(0 -3px 9px rgba(255, 165, 0, 0.95)) drop-shadow(0 -11px 24px rgba(255, 80, 0, 0.7));
     }
 }
 

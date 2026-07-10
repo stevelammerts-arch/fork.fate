@@ -261,25 +261,26 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
                   {/* Red burst flash */}
                   <motion.div
                     aria-hidden="true"
-                    initial={{ opacity: 0.95, scale: 0.15 }}
-                    animate={{ opacity: 0, scale: 2.6 }}
-                    transition={{ duration: 0.7, ease: "easeOut" }}
-                    className="pointer-events-none absolute h-56 w-56 rounded-full"
+                    initial={{ opacity: 0, scale: 0.2 }}
+                    animate={{ opacity: [0, 1, 0.85, 0], scale: [0.2, 1.1, 1.7, 2.6] }}
+                    transition={{ duration: 1.0, ease: "easeOut", times: [0, 0.18, 0.5, 1] }}
+                    className="pointer-events-none absolute z-0 h-72 w-72 rounded-full"
                     style={{
                       background:
-                        "radial-gradient(circle, rgba(255,90,60,0.95) 0%, rgba(224,30,38,0.7) 35%, rgba(224,30,38,0) 70%)",
-                      mixBlendMode: "screen",
+                        "radial-gradient(circle, rgba(255,120,90,0.98) 0%, rgba(224,30,38,0.9) 30%, rgba(224,30,38,0.45) 55%, rgba(224,30,38,0) 75%)",
                     }}
                   />
                   {/* "Congratulations" emerges forward out of the darkness */}
-                  <motion.h3
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.28, filter: "blur(14px)" }}
                     animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                     transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.12 }}
-                    className="congrats-reveal font-serif text-5xl font-semibold tracking-tight sm:text-6xl"
+                    className="relative z-10"
                   >
-                    Congratulations
-                  </motion.h3>
+                    <h3 className="flame-text font-serif text-5xl font-semibold tracking-tight sm:text-6xl">
+                      Congratulations
+                    </h3>
+                  </motion.div>
                 </div>
               )}
             </div>
