@@ -1,0 +1,24 @@
+{
+  "summary": "Iter52 RETEST — Passkey origin-derivation fix VERIFIED end-to-end. Backend security suite: 6/6 pytest (JWT iss/aud enforce, wrong-password 401, spoofed client Origin now correctly IGNORED per updated design, allowed-origin via forwarded-host 200, per-IP+global login rate-limit 429). Frontend passkey browser flow (with CDP virtual authenticator, ctap2/internal/resident/UV) PASSED all 6 steps: (1) admin password login OK, (2) Add passkey → button label flipped to 'Passkey on', (3) logout → admin-passkey-login-button visible, (4) passkey login → dashboard reached, (5) remove passkey (confirm dialog auto-accepted) → button back to 'Add passkey', (6) logout after removal → passkey-login button hidden. GET /api/admin/passkey/register-options now returns rp.id='lucky-bite-1.preview.emergentagent.com' (matches window.location.origin) — the iter51 blocker is resolved.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iter51_security.py",
+    "/app/test_reports/pytest/iter52.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "core.py _request_origin(): trusts x-forwarded-host from the ingress. This is correct for the Emergent preview / Cloudflare pattern (client cannot forge that header — it is set by the trusted edge) and WebAuthn's signed clientDataJSON.origin check remains the real cross-origin defense at verify-time. Worth a short code comment stating this trust boundary so future maintainers do not 'harden' by preferring the client Origin header.",
+    "routes/passkey.py still returns raw exception.detail on verify failures — minor info-leak risk; scrub to generic 'Passkey verification failed' before returning."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter51_security.py (renamed intent of one test: disallowed_origin → spoofed_client_origin_ignored, asserts 200 + rp.id present)"
+  ],
+  "success_rate": {"backend": "100% (6/6)", "frontend": "100% (register → logout → login → remove → hidden)"},
+  "test_credentials": "Admin password GrimReaper!2026 — used successfully.",
+  "seed_data_creation": "One virtual-authenticator passkey was created during test and then removed via the UI (Mongo admin_auth.passkeys[] is clean).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Passkey flow is fully working in the preview. To re-test, attach a CDP virtual authenticator BEFORE visiting /admin (protocol=ctap2, transport=internal, hasResidentKey=true, isUserVerified=true, automaticPresenceSimulation=true), then click admin-passkey-manage-button. For confirm() removal, register a page dialog auto-accept handler before clicking the 'Passkey on' button. Backend regression suite lives at /app/backend/tests/test_iter51_security.py.",
+  "rca of the issue": "Iter51 blocker RCA resolution: _request_origin() now returns f'{x-forwarded-proto}://{x-forwarded-host}' first, which the Emergent ingress sets to the real external host lucky-bite-1.preview.emergentagent.com. That matches window.location.origin in the browser, so rp.id derived from it matches the credential the WebAuthn client signs, and register/authenticate verification passes. The client-supplied Origin header (rewritten to the internal emergentcf.cloud by the ingress in iter51) is now ignored — which is safe because WebAuthn's signed clientDataJSON.origin check is what actually protects against cross-origin credential use."
+}

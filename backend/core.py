@@ -115,9 +115,14 @@ def origin_allowed(origin: str) -> bool:
 
 
 def _request_origin(request: Request) -> str:
-    """Best-effort origin of the calling page. Same-origin GETs often omit the
-    Origin header, so fall back to Referer, then the forwarded host/proto set by
-    the ingress, then the Host header."""
+    """Best-effort real (user-facing) origin of the calling page. The Emergent
+    ingress rewrites the browser Origin header to an internal host, so the trusted
+    x-forwarded-proto + x-forwarded-host (the real external host) is preferred.
+    This value must equal the browser's page origin for WebAuthn verification."""
+    host = request.headers.get("x-forwarded-host")
+    proto = request.headers.get("x-forwarded-proto") or "https"
+    if host:
+        return f"{proto}://{host}"
     o = (request.headers.get("origin") or "").strip()
     if o:
         return o
@@ -126,10 +131,8 @@ def _request_origin(request: Request) -> str:
         p = urlparse(ref)
         if p.scheme and p.netloc:
             return f"{p.scheme}://{p.netloc}"
-    host = request.headers.get("x-forwarded-host") or request.headers.get("host")
-    proto = request.headers.get("x-forwarded-proto") or "https"
-    if host:
-        return f"{proto}://{host}"
+    if request.headers.get("host"):
+        return f"{proto}://{request.headers.get('host')}"
     return ""
 
 
