@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Trophy, Share2, Download, Camera, X, Lock } from "lucide-react";
+import { Trophy, Share2, Download, Camera, X, Lock, Instagram } from "lucide-react";
 import { toast } from "sonner";
 
 const REAPER_SRC = "/reaper-award.png";
@@ -49,8 +49,8 @@ function drawFit(ctx, text, cx, y, maxWidth, weight, basePx, family, color, spac
   }
 }
 
-async function buildBadge({ name, crew, label, photo }) {
-  const W = 1080, H = 1520;
+async function buildBadge({ name, crew, label, photo, story = false }) {
+  const W = 1080, H = story ? 1920 : 1520;
   const canvas = document.createElement("canvas");
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext("2d");
@@ -114,6 +114,13 @@ async function buildBadge({ name, crew, label, photo }) {
   let y = cardY + (cardH - totalH) / 2;
   for (const row of rows) { row.draw(y); y += row.h + row.mb; }
 
+  // Story format gets a bottom CTA banner in the extra vertical space
+  if (story) {
+    const cy = cardY + cardH + 74;
+    drawFit(ctx, "CAN YOU SURVIVE?", cx, cy, W - 160, "700", 46, "Georgia, serif", "#FFFFFF", 2);
+    drawFit(ctx, "Shuffle your fate at fork-fate.com", cx, cy + 66, W - 160, "400", 30, "Arial, sans-serif", "#E01E26", 1);
+  }
+
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
 
@@ -157,6 +164,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
   };
 
   const makeBlob = () => buildBadge({ name: name.trim(), crew, label, photo });
+  const makeStoryBlob = () => buildBadge({ name: name.trim(), crew, label, photo, story: true });
 
   const download = async () => {
     setBusy(true);
@@ -182,6 +190,26 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
         await navigator.share({ files: [file], title: "Fork\u00B7Fate Crawl Badge", text });
       } else {
         await download();
+      }
+    } catch (e) { /* cancelled */ }
+    finally { setBusy(false); }
+  };
+
+  const shareStory = async () => {
+    setBusy(true);
+    try {
+      const blob = await makeStoryBlob();
+      const file = new File([blob], "fork-fate-story.png", { type: "image/png" });
+      const text = `I survived the Fork\u00B7Fate ${label.toLowerCase()}${crew.trim() ? ` with ${crew.trim()}` : ""}! \u2620\uFE0F ${window.location.origin}`;
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: "Fork\u00B7Fate Story", text });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = "fork-fate-story.png";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        toast.success("Story image saved \u2014 post it to your IG Story!");
       }
     } catch (e) { /* cancelled */ }
     finally { setBusy(false); }
@@ -280,6 +308,10 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
           data-testid="crawl-badge-crew-input"
           className="w-full rounded-xl border border-[#2A2A2A] bg-[#1A1A1A] px-4 py-3 text-sm text-white placeholder-[#6B7075] outline-none focus:border-[#E01E26]" />
 
+        <button onClick={shareStory} disabled={busy} data-testid="crawl-badge-story-button"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#E01E26] via-[#C21C6B] to-[#7A3FF2] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-[#C21C6B]/25 hover:opacity-95 disabled:opacity-50">
+          <Instagram className="h-4 w-4" /> Share to your Story
+        </button>
         <div className="flex flex-col gap-3 sm:flex-row">
           <button onClick={share} disabled={busy} data-testid="crawl-badge-share-button"
             className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#E01E26] px-5 py-3 text-sm font-bold text-white hover:bg-[#FF2E38] disabled:opacity-50">
