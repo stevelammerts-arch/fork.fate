@@ -1255,7 +1255,7 @@ function CardBack() {
 // Tarot-style front: photo centered inside a black card with matching red frame
 function CardFront({ src }) {
   return (
-    <div className="absolute inset-0 bg-[#0E0E0E]" data-testid="card-front">
+    <div className="absolute inset-0" style={{ backgroundColor: "#0E0E0E" }} data-testid="card-front">
       <div
         className="absolute inset-0"
         style={{ background: "radial-gradient(circle at 50% 42%, rgba(224,30,38,0.22), rgba(0,0,0,0) 62%)" }}
@@ -1318,8 +1318,8 @@ function ShufflingDeck({ cards, flash, landed }) {
             return (
             <motion.div
               key={(c?.id || "c") + i}
-              className={`absolute inset-0 overflow-hidden rounded-2xl border-2 border-[#E01E26] bg-[#0E0E0E] shadow-2xl shadow-black/30`}
-              style={{ zIndex: DECK_SIZE - i }}
+              className={`absolute inset-0 overflow-hidden rounded-2xl border-2 border-[#E01E26] shadow-2xl shadow-black/30`}
+              style={{ zIndex: DECK_SIZE - i, backgroundColor: "#0E0E0E" }}
               animate={
                 landed
                   ? {
