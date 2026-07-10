@@ -76,3 +76,10 @@
 - PubCrawlDialog: nearest-neighbour route ordering (fallback to distance), per-leg "Walk to next" Google walking-directions links.
 - Check-off: manual tap + auto GPS check-in (watchPosition, ~95m radius), progress bar, localStorage persistence per route, auto badge prompt at 100%.
 - FF_BUILD -> 2026.06-22.
+
+## 2026-06-10 — Self-contained Pub Crawl section
+- New backend GET /api/geocode?zip= (cached, cost-capped) to resolve ZIP->coords for multi-point crawls.
+- Crawl section is now self-contained: crawl-type chips + Start location (ZIP/use-location) + optional End location + own "Deal a Crawl!" button that fires the shuffle animation, then opens the crawl dialog. Top Deal button hidden in crawl mode.
+- Two-location crawls search around the A/B midpoint and order stops start->end (projection along A->B); single location falls back to nearest-neighbour.
+- Fixed duplicate-key React warning (composite keys in crawl stop list + map markers).
+- FF_BUILD -> 2026.06-27. Tested: iteration_50 (backend 9/9 + frontend flows).

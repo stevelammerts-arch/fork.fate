@@ -66,7 +66,7 @@ export default function CrawlMap({ stops = [], origin = null, visited = {}, live
           <Polyline positions={pts.map((p) => p.ll)} pathOptions={{ color: "#E01E26", weight: 3, opacity: 0.85, dashArray: "6 6" }} />
         )}
         {pts.map((p, i) => (
-          <Marker key={p.id ?? i} position={p.ll} icon={numberIcon(i + 1, !!visited[p.id])}>
+          <Marker key={`${p.id ?? "s"}-${i}`} position={p.ll} icon={numberIcon(i + 1, !!visited[p.id])}>
             <Popup>
               <strong>{i + 1}. {p.name}</strong>
               {p.cuisine ? <div>{p.cuisine}</div> : null}

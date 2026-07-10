@@ -225,7 +225,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
               const next = stops[i + 1];
               const leg = next ? haversine(s, next) : Infinity;
               return (
-                <div key={s.id}>
+                <div key={`${s.id}-${i}`}>
                   <div className={`flex items-center gap-3 rounded-xl border p-3 transition-colors ${done ? "border-[#4ADE80]/40 bg-[#4ADE80]/5" : "border-[#2A2A2A] bg-[#1A1A1A]"}`} data-testid={`crawl-stop-${i}`}>
                     <button
                       onClick={() => toggleVisited(s.id)}
