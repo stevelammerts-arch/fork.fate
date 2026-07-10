@@ -1,0 +1,31 @@
+{
+  "summary": "Verified two new features (iter47): (1) community 'crawls survived' counter API + UI, (2) guided intro Skip button + localStorage persistence. All 5 requested scenarios PASS. Backend pytest 2/2 pass; frontend E2E used exactly 1 Google Places Deal click as instructed.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_crawls_stats.py",
+    "/app/test_reports/pytest/iter47_stats.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home.jsx correctly reads localStorage 'ff_guided_seen' on mount with try/catch guard — safe.",
+    "GuidedFlow.jsx guided-skip button is a visible pill in the header row (top-right), reasonably prominent.",
+    "CrawlBadgeDialog.jsx POSTs /api/stats/crawl-completed on open and renders the returned count as a community line — works as designed.",
+    "Backend /api/stats/crawls GET returns {count:0} when doc missing (fallback), and POST uses find_one_and_update with upsert + ReturnDocument.AFTER — idempotent-safe, correct increment semantics."
+  ],
+  "updated_files": ["/app/backend/tests/test_crawls_stats.py"],
+  "success_rate": {"backend": "100% (2/2)", "frontend": "100% (5/5 scenarios)"},
+  "seed_data_creation": "Incremented db.stats.crawls_completed by 1 during E2E test (from 2 to 3).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend counters (fates_dealt, crawls_completed) share the same pattern in db.stats. Google Places live search cap: this run used 1 Deal click. Home page counter appears with 'N crawls survived' next to 'X fates dealt' as expected. localStorage key 'ff_guided_seen'='1' set on skip; Guide header button reopens the wizard manually.",
+  "evidence": {
+    "backend_before": 2,
+    "backend_after": 3,
+    "community_line_text": "🏆 3 brave souls have survived a Fork·Fate crawl",
+    "home_counter_text_seen": "2 crawls survived",
+    "localStorage_flag": "1",
+    "guide_reappear_after_reload": false,
+    "manual_guide_reopen_via_header_button": true
+  }
+}

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer, Trophy } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -101,6 +101,7 @@ export default function Home() {
   const [crawlMode, setCrawlMode] = useState(false);
   const [showCrawl, setShowCrawl] = useState(false);
   const [fatesDealt, setFatesDealt] = useState(null);
+  const [crawlsCompleted, setCrawlsCompleted] = useState(null);
   const [streak, setStreak] = useState(() => readStreak());
   const [flash, setFlash] = useState(null);
   const [flashHit, setFlashHit] = useState(false);
@@ -110,7 +111,9 @@ export default function Home() {
   const lastPickRef = useRef(null);
   const thunderRef = useRef(null);
   const { favorites, isFavorite, toggleFavorite, removeFavorite } = useFavorites();
-  const [showGuided, setShowGuided] = useState(true);
+  const [showGuided, setShowGuided] = useState(() => {
+    try { return localStorage.getItem("ff_guided_seen") !== "1"; } catch { return true; }
+  });
   const [muted, setMuted] = useState(() => {
     try { return localStorage.getItem("ff_muted") === "1"; } catch { return false; }
   });
@@ -123,7 +126,10 @@ export default function Home() {
   };
   const [mysticalReveal, setMysticalReveal] = useState(false);
 
-  const finishGuided = () => setShowGuided(false);
+  const finishGuided = () => {
+    try { localStorage.setItem("ff_guided_seen", "1"); } catch (e) { /* ignore */ }
+    setShowGuided(false);
+  };
 
   const playSound = (src, volume = 0.9) => {
     try {
@@ -181,6 +187,7 @@ export default function Home() {
 
   useEffect(() => {
     axios.get(`${API}/stats/fates`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
+    axios.get(`${API}/stats/crawls`).then(({ data }) => setCrawlsCompleted(data.count)).catch(() => {});
   }, []);
 
   const toggle = (setter, arr, val) =>
@@ -750,6 +757,12 @@ export default function Home() {
               <div className="mt-4 inline-flex items-center gap-2 font-sans text-sm text-[#6B7075]" data-testid="fates-dealt-counter">
                 <Dices className="h-4 w-4 text-[#E01E26]" />
                 <span><span className="font-bold text-[#0E0E0E]">{fatesDealt.toLocaleString()}</span> fates dealt</span>
+                {crawlsCompleted !== null && crawlsCompleted > 0 && (
+                  <span className="ml-3 inline-flex items-center gap-1.5" data-testid="crawls-completed-counter">
+                    <Trophy className="h-4 w-4 text-[#E01E26]" />
+                    <span><span className="font-bold text-[#0E0E0E]">{crawlsCompleted.toLocaleString()}</span> crawls survived</span>
+                  </span>
+                )}
                 {streak >= 2 && (
                   <span className="ml-3 inline-flex items-center gap-1.5 rounded-full bg-[#FCF4F4] px-3 py-1 text-[#E01E26]" data-testid="streak-badge">
                     <Flame className="h-4 w-4" /><span className="font-bold">{streak}-day streak</span>

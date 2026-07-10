@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
-  Utensils, Wine, Beer, IceCream, MapPin, LocateFixed, ArrowLeft,
+  Utensils, Wine, Beer, IceCream, MapPin, LocateFixed, ArrowLeft, ArrowRight,
   Search, Sparkles, Skull, Check,
 } from "lucide-react";
 import { Input } from "./ui/input";
@@ -95,7 +95,10 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
           </div>
           <span className="font-sans text-xs font-bold tracking-widest text-[#6B6B6B]">{step + 1}/{total}</span>
           {!sealed && (
-            <button onClick={onSkip} data-testid="guided-skip" className="font-sans text-xs font-semibold text-[#6B6B6B] transition-colors hover:text-white">Skip</button>
+            <button onClick={onSkip} data-testid="guided-skip"
+              className="inline-flex items-center gap-1 rounded-full border border-[#3A3A3A] bg-white/5 px-4 py-1.5 font-sans text-xs font-bold text-white transition-colors hover:border-[#E01E26] hover:bg-[#E01E26]">
+              Skip intro <ArrowRight className="h-3.5 w-3.5" />
+            </button>
           )}
         </div>
 

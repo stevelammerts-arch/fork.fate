@@ -733,6 +733,24 @@ async def increment_fates_dealt():
     return {"count": doc.get("count", 1)}
 
 
+@api_router.get("/stats/crawls")
+async def get_crawls_completed():
+    doc = await db.stats.find_one({"key": "crawls_completed"})
+    return {"count": doc["count"] if doc else 0}
+
+
+@api_router.post("/stats/crawl-completed", dependencies=[Depends(rate_limit(60))])
+async def increment_crawls_completed():
+    doc = await db.stats.find_one_and_update(
+        {"key": "crawls_completed"},
+        {"$inc": {"count": 1}},
+        upsert=True,
+        return_document=ReturnDocument.AFTER,
+    )
+    return {"count": doc.get("count", 1)}
+
+
+
 CRAWL_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # no ambiguous chars
 
 

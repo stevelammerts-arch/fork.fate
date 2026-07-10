@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import axios from "axios";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Trophy, Share2, Download, Camera, X, Lock } from "lucide-react";
 import { toast } from "sonner";
 
 const REAPER_SRC = "/reaper-award.png";
+const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const crawlLabelFor = (mode) =>
   ({ bars: "PUB CRAWL", food: "FOOD CRAWL", drinks: "DRINKS CRAWL", desserts: "DESSERT CRAWL" }[mode] || "PUB CRAWL");
@@ -121,6 +123,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, defaultCrew = ""
   const [photo, setPhoto] = useState(null);
   const [busy, setBusy] = useState(false);
   const [step, setStep] = useState("intro");
+  const [communityCount, setCommunityCount] = useState(null);
   const fileRef = useRef(null);
   const label = useMemo(() => crawlLabelFor(mode), [mode]);
   const labelFriendly = useMemo(
@@ -131,6 +134,8 @@ export default function CrawlBadgeDialog({ open, onClose, mode, defaultCrew = ""
   useEffect(() => {
     if (!open) return;
     setStep("intro");
+    // Count this survived crawl and grab the community total for social proof
+    axios.post(`${API}/stats/crawl-completed`).then(({ data }) => setCommunityCount(data.count)).catch(() => {});
     // Play the recorded congrats clip on reveal (respects the app mute toggle)
     try {
       if (localStorage.getItem("ff_muted") !== "1") {
@@ -203,6 +208,11 @@ export default function CrawlBadgeDialog({ open, onClose, mode, defaultCrew = ""
             <p className="text-sm text-[#C7CBD1]">
               You survived the <span className="font-bold text-white">Fork·Fate {labelFriendly}</span>. Would you like to take a selfie and see your reward?
             </p>
+            {communityCount !== null && communityCount > 0 && (
+              <p className="text-xs text-[#8A8F95]" data-testid="crawl-badge-community-count">
+                🏆 <span className="font-bold text-[#E01E26]">{communityCount.toLocaleString()}</span> brave souls have survived a Fork·Fate crawl
+              </p>
+            )}
             <div className="mt-1 flex w-full flex-col gap-3">
               <button onClick={() => { setStep("build"); setTimeout(() => fileRef.current?.click(), 150); }} data-testid="crawl-badge-selfie-cta"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-[#E01E26] px-5 py-3 text-sm font-bold text-white hover:bg-[#FF2E38]">
