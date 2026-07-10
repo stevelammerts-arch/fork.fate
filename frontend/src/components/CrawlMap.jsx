@@ -12,11 +12,26 @@ const numberIcon = (n, done) =>
     popupAnchor: [0, -13],
   });
 
-const originIcon = L.divIcon({
+const startIcon = L.divIcon({
   className: "",
-  html: `<div style="width:16px;height:16px;border-radius:9999px;background:#38BDF8;border:3px solid #0B0B0B;box-shadow:0 0 0 3px rgba(56,189,248,.35)"></div>`,
-  iconSize: [16, 16],
-  iconAnchor: [8, 8],
+  html: `<div style="display:flex;flex-direction:column;align-items:center;transform:translateY(-7px)">
+    <div style="background:#38BDF8;color:#04121c;font:700 9px/1 Arial;padding:2px 6px;border-radius:6px;border:1px solid #04121c;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.6)">START</div>
+    <div style="width:11px;height:11px;border-radius:9999px;background:#38BDF8;border:2px solid #04121c;margin-top:2px"></div>
+  </div>`,
+  iconSize: [50, 30],
+  iconAnchor: [25, 22],
+  popupAnchor: [0, -22],
+});
+
+const endIcon = L.divIcon({
+  className: "",
+  html: `<div style="display:flex;flex-direction:column;align-items:center;transform:translateY(-7px)">
+    <div style="background:#E01E26;color:#fff;font:700 9px/1 Arial;padding:2px 6px;border-radius:6px;border:1px solid #101010;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.6)">FINISH</div>
+    <div style="width:11px;height:11px;border-radius:9999px;background:#E01E26;border:2px solid #101010;margin-top:2px"></div>
+  </div>`,
+  iconSize: [50, 30],
+  iconAnchor: [25, 22],
+  popupAnchor: [0, -22],
 });
 
 const liveIcon = L.divIcon({
@@ -32,7 +47,7 @@ const liveIcon = L.divIcon({
 
 // Interactive, no-cost route map (OpenStreetMap data via CARTO dark tiles).
 // Renders numbered pins + a connecting line for the crawl route.
-export default function CrawlMap({ stops = [], origin = null, visited = {}, livePos = null }) {
+export default function CrawlMap({ stops = [], origin = null, destination = null, visited = {}, livePos = null }) {
   const pts = useMemo(
     () => stops.filter((s) => s.lat != null && s.lng != null).map((s) => ({ ...s, ll: [Number(s.lat), Number(s.lng)] })),
     [stops]
@@ -41,8 +56,9 @@ export default function CrawlMap({ stops = [], origin = null, visited = {}, live
   const bounds = useMemo(() => {
     const all = pts.map((p) => p.ll);
     if (origin && origin.lat != null) all.push([Number(origin.lat), Number(origin.lng)]);
+    if (destination && destination.lat != null) all.push([Number(destination.lat), Number(destination.lng)]);
     return all.length ? L.latLngBounds(all).pad(0.25) : null;
-  }, [pts, origin]);
+  }, [pts, origin, destination]);
 
   if (pts.length < 1 || !bounds) return null;
 
@@ -58,8 +74,13 @@ export default function CrawlMap({ stops = [], origin = null, visited = {}, live
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
         {origin && origin.lat != null && (
-          <Marker position={[Number(origin.lat), Number(origin.lng)]} icon={originIcon}>
-            <Popup>You start here</Popup>
+          <Marker position={[Number(origin.lat), Number(origin.lng)]} icon={startIcon}>
+            <Popup>Start here</Popup>
+          </Marker>
+        )}
+        {destination && destination.lat != null && (
+          <Marker position={[Number(destination.lat), Number(destination.lng)]} icon={endIcon}>
+            <Popup>Finish here</Popup>
           </Marker>
         )}
         {pts.length > 1 && (

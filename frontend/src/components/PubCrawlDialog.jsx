@@ -196,7 +196,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
           {/* Route map */}
           {stops.length > 0 && (
             <div className="mt-2">
-              <CrawlMap stops={stops} origin={origin} visited={visited} livePos={livePos} />
+              <CrawlMap stops={stops} origin={origin} destination={destination} visited={visited} livePos={livePos} />
             </div>
           )}
 
