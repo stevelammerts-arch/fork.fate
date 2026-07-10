@@ -396,13 +396,15 @@ export default function Home() {
 
   const dealCrawl = async () => {
     if (spinning || loading) return;
-    const hasA = coords?.lat != null || /^\d{5}$/.test((zip || "").trim());
-    if (!hasA) { toast.error("Add a starting location (ZIP or use your location) first"); return; }
+    const hasAnyA = coords?.lat != null || /^\d{5}$/.test((zip || "").trim());
+    const hasAnyB = coordsB?.lat != null || /^\d{5}$/.test((zipB || "").trim());
+    if (!hasAnyA && !hasAnyB) { toast.error("Add a location (ZIP or use your location) to start"); return; }
     setLoading(true);
     try {
-      const A = await resolveCoords(coords, zip);
-      const hasB = coordsB?.lat != null || /^\d{5}$/.test((zipB || "").trim());
-      const B = hasB ? await resolveCoords(coordsB, zipB) : null;
+      let A = hasAnyA ? await resolveCoords(coords, zip) : null;
+      let B = hasAnyB ? await resolveCoords(coordsB, zipB) : null;
+      // Forgiving: if only the end location was set, treat it as the start.
+      if (!A && B) { A = B; B = null; }
       let center = A, rad = radius;
       if (A && B) {
         center = { lat: (A.lat + B.lat) / 2, lng: (A.lng + B.lng) / 2 };

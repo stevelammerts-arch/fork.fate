@@ -303,9 +303,9 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
             </button>
           </div>
 
-          <button onClick={() => setBadgeOpen(true)} disabled={!stops.length} data-testid="crawl-complete-button"
-            className={`mt-1 inline-flex w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm font-bold transition-colors disabled:opacity-40 ${allDone ? "border-[#4ADE80] bg-[#4ADE80] text-black hover:bg-[#3ecb70]" : "border-[#E01E26] text-[#E01E26] hover:bg-[#E01E26] hover:text-white"}`}>
-            <Trophy className="h-4 w-4" /> {allDone ? "Crawl conquered — claim your badge" : "Complete crawl — claim your badge"}
+          <button onClick={() => setBadgeOpen(true)} disabled={!allDone} data-testid="crawl-complete-button"
+            className={`mt-1 inline-flex w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${allDone ? "border-[#4ADE80] bg-[#4ADE80] text-black hover:bg-[#3ecb70]" : "border-[#3A3A3A] text-[#8A8A8A]"}`}>
+            <Trophy className="h-4 w-4" /> {allDone ? "Crawl conquered — claim your badge" : `Check off all stops to unlock (${visitedCount}/${stops.length})`}
           </button>
         </DialogContent>
       </Dialog>

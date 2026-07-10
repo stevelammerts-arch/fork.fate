@@ -83,3 +83,8 @@
 - Two-location crawls search around the A/B midpoint and order stops start->end (projection along A->B); single location falls back to nearest-neighbour.
 - Fixed duplicate-key React warning (composite keys in crawl stop list + map markers).
 - FF_BUILD -> 2026.06-27. Tested: iteration_50 (backend 9/9 + frontend flows).
+
+## 2026-06-10 — Crawl fixes
+- Reward/badge button now gated: disabled until ALL stops checked off ("Check off all stops to unlock (x/N)"), then unlocks + auto-opens badge.
+- Fixed crawl location UX: dealCrawl is forgiving — if only one location is set (even the optional end point), it is used as the start instead of erroring for a start ZIP.
+- FF_BUILD -> 2026.06-29.
