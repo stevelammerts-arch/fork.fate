@@ -1,0 +1,44 @@
+{
+  "summary": "Frontend regression test after adding chips + bubble logo + tarot front. One full guided shuffle executed on mobile (412x915) with zip 10001 + surprise-me. Verified reveal timeline (shuffling dark tarot backs -> landed tarot card with photo inset by skeleton hands -> result card). Also verified desktop layout & mobile header wrap.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "GuidedFlow cuisine chips (step 3)", "issue": "FOOD chips list DOES NOT include 'Steakhouse'. In Home.jsx FOOD_CUISINES the order is Italian, Mexican, Chinese, Japanese, Sushi, Indian, Thai, Korean, Vietnamese, Chicken Wings, Fried Chicken, Burgers, Steakhouse... but GuidedFlow.jsx uses `chips = (cuisineMap[mode] || []).slice(0, 12)` which cuts at index 11 -> Steakhouse (index 12) is excluded. Visible chips confirmed via data-testid: only 12 shown, no Steakhouse. Fix: move Steakhouse earlier in FOOD_CUISINES OR increase slice limit.", "selector": "[data-testid^='guided-chip-']", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Mobile header (412x915)", "issues": ["Buttons wrap into 3 rows below logo (Guided/sound/Sponsor y=72, Favorites/Download y=122, Add spot y=172). No horizontal clipping (scrollWidth=clientWidth=412). Layout is functional; whether 3-row height (~231px) is desired is a UX call."]}
+    ],
+    "missing_testids": [
+      {"element": "Favorites open button in header", "note": "No data-testid='open-favorites' found (button labelled 'Favorites' exists). Add data-testid for testability."},
+      {"element": "Add spot open button in header", "note": "No data-testid='open-add-spot' found (button labelled 'Add spot' exists)."},
+      {"element": "Open Guided button", "note": "No data-testid='open-guided' – guided modal auto-opens on first visit but a testid should exist for reopening it."}
+    ]
+  },
+  "verified_features": [
+    "App loads without console errors on desktop (1440x900) AND mobile (412x915).",
+    "Bubble logo visible in header (glossy 'FF' sphere).",
+    "Guided wizard opens; Food/Drinks/Bars/Desserts interest chips selectable.",
+    "BAR_CUISINES: 'Brewery' and 'Distillery' are at positions 0 and 1 in the source array (front of the chip list).",
+    "Shuffle popup shows dark tarot card-backs (red border, skull + Fork·Fate branding) while shuffling.",
+    "Landed winner card is a black tarot card with the photo CENTERED/INSET inside a red frame, held by skeleton hands. No phantom sharp-rectangle outline observed; no visible gap between card bottom and wrists.",
+    "Result card (data-testid='spin-result-card') appears fully within viewport on mobile: x=41, w=330, viewport=412 -> right-overflow = -41px. Doc scrollWidth = clientWidth = 412 (no horizontal overflow).",
+    "Result card action buttons render: Order on DoorDash, Order online, Reviews & ratings, Shuffle again, Share your fate, Share as image, Clear.",
+    "No console errors or warnings captured during the full flow."
+  ],
+  "test_report_links": [],
+  "action_items": [
+    "FIX: Ensure 'Steakhouse' appears in the visible guided-flow FOOD chips. Either move 'Steakhouse' into the first 12 items of FOOD_CUISINES in Home.jsx, or increase the slice in GuidedFlow.jsx (line 66) from .slice(0,12) to a larger value (or show all).",
+    "Add data-testid attributes to header buttons: open-favorites, open-add-spot, open-guided (for reopening) — improves testability."
+  ],
+  "critical_code_review_comments": [
+    "GuidedFlow.jsx line 66 uses `.slice(0, 12)` — this silently hides any chip beyond index 11 regardless of importance. Consider making the cutoff data-driven or displaying a 'See more' expander.",
+    "Home.jsx (1460 lines) exceeds the 700-line guideline; consider splitting ShufflingDeck / CardFront / CardBack / GuidedFlow wrappers into their own files."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "85% (1 HIGH bug: missing Steakhouse chip in guided flow)"},
+  "seed_data_creation": "None. Only ONE Google Places-billed shuffle was run (zip 10001, surprise-me).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Reveal card visuals & mobile overflow already verified (this iter and iters 39-43). The remaining open bug is Steakhouse missing from guided FOOD chips due to slice(0,12) truncation. Once main agent fixes, a lightweight re-check of the guided step-3 chips (no shuffle needed) is sufficient to confirm."
+}
