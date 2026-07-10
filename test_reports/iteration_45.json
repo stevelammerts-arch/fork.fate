@@ -1,0 +1,27 @@
+{
+  "summary": "Frontend-only test of two new features: 'Pub Crawls & more' mode and 'Check in here' button. All 6 requested test scenarios PASS. Crawl toggle, mutual exclusivity with Group mode, Deal button labels ('Deal Your Fate!' / 'Deal 3 Fates!' / 'Deal a Crawl!'), direct dialog open (no shuffle animation), 6 stops rendered with reshuffle/drop/share, dialog closes via ESC, and check-in-button rendered on single-mode fate reveal alongside Shuffle again / Share your fate / Clear all verified. Mobile 390x844 pass on crawl dialog confirms it opens with 6 stops and is scrollable.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "PubCrawlDialog @ 390x844 mobile", "issues": ["Bottom action row (Shuffle a new crawl / Share crawl) does not wrap on narrow viewports — 'Share crawl' button overflows the right edge of the dialog and is partially clipped. `flex-1` on the shuffle button plus min-content share button doesn't collapse; consider giving both buttons `flex-1 basis-full sm:basis-auto` or `flex-col sm:flex-row` so they stack under 640px."]},
+      {"screen": "PubCrawlDialog (both viewports)", "issues": ["Radix accessibility warning in console: 'Missing Description or aria-describedby for DialogContent'. Add a <DialogDescription> or aria-describedby to satisfy Radix a11y."]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_45.json"],
+  "action_items": [
+    "(Low) Make PubCrawlDialog footer buttons wrap/stack on mobile so 'Share crawl' isn't clipped at ≤390px.",
+    "(Low) Add DialogDescription (or aria-describedby) to PubCrawlDialog to silence Radix a11y warning."
+  ],
+  "critical_code_review_comments": [
+    "PubCrawlDialog.jsx: reshuffle() runs on every `results` prop change via useEffect deps — fine, but note that opening the dialog with same results still reshuffles because `open` toggles; acceptable UX.",
+    "CheckInButton.jsx: gracefully falls back to clipboard when navigator.share is unavailable — verified by monkey-patching share=undefined and clicking; no errors."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "100% (6/6 scenarios pass)"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Google Places live search is capped at 160/day — this run used only 3 Deal clicks (2 crawl + 1 single). Both new features work end-to-end with ZIP 10001. Only cosmetic/a11y polish items remain."
+}

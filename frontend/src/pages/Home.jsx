@@ -2,18 +2,20 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
 import InstallAppButton from "../components/InstallAppButton";
 import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
 import SocialShare from "../components/SocialShare";
+import CheckInButton from "../components/CheckInButton";
 import CheckUpdatesButton from "../components/CheckUpdatesButton";
 import FavoritesDrawer from "../components/FavoritesDrawer";
 import GroupVote from "../components/GroupVote";
 import { useFavorites } from "../hooks/useFavorites";
 import GuidedFlow from "../components/GuidedFlow";
+import PubCrawlDialog from "../components/PubCrawlDialog";
 import { Input } from "../components/ui/input";
 import { Slider } from "../components/ui/slider";
 
@@ -96,6 +98,8 @@ export default function Home() {
   const [result, setResult] = useState(null);
   const [groupMode, setGroupMode] = useState(false);
   const [groupPicks, setGroupPicks] = useState(null);
+  const [crawlMode, setCrawlMode] = useState(false);
+  const [showCrawl, setShowCrawl] = useState(false);
   const [fatesDealt, setFatesDealt] = useState(null);
   const [streak, setStreak] = useState(() => readStreak());
   const [flash, setFlash] = useState(null);
@@ -301,6 +305,19 @@ export default function Home() {
         toast.error("No spots match those filters — try loosening them");
         return;
       }
+      // Crawl mode skips the single-reveal shuffle and opens a multi-stop route window.
+      if (crawlMode) {
+        if (data.restaurants.length < 2) {
+          toast.error("Need at least 2 nearby spots to build a crawl — try a wider radius");
+          return;
+        }
+        setResult(null);
+        setGroupPicks(null);
+        setShowCrawl(true);
+        axios.post(`${API}/stats/fate-dealt`).then(({ data: d }) => setFatesDealt(d.count)).catch(() => {});
+        setStreak(bumpStreak());
+        return;
+      }
       runShuffle(data.restaurants);
     } catch (e) {
       toast.error(e.response?.data?.detail || "Search failed");
@@ -382,6 +399,8 @@ export default function Home() {
           />
         )}
       </AnimatePresence>
+      <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} />
+
       {/* Decorative reaper background with load animation */}
       <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>
         <motion.div
@@ -686,13 +705,26 @@ export default function Home() {
             <button
               type="button"
               data-testid="group-mode-toggle"
-              onClick={() => { setGroupMode((v) => !v); setResult(null); setGroupPicks(null); }}
+              onClick={() => { setGroupMode((v) => { const n = !v; if (n) setCrawlMode(false); return n; }); setResult(null); setGroupPicks(null); }}
               className={`ml-3 inline-flex items-center gap-2.5 rounded-full border px-4 py-2.5 text-sm font-bold transition-colors ${groupMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E2E4E7] bg-white text-[#6B7075] hover:bg-[#EDEEF0]"}`}
             >
               <Users className="h-4 w-4" />
               Group mode
               <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${groupMode ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
                 <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${groupMode ? "translate-x-3" : ""}`} />
+              </span>
+            </button>
+
+            <button
+              type="button"
+              data-testid="crawl-mode-toggle"
+              onClick={() => { setCrawlMode((v) => { const n = !v; if (n) setGroupMode(false); return n; }); setResult(null); setGroupPicks(null); }}
+              className={`ml-3 inline-flex items-center gap-2.5 rounded-full border px-4 py-2.5 text-sm font-bold transition-colors ${crawlMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E2E4E7] bg-white text-[#6B7075] hover:bg-[#EDEEF0]"}`}
+            >
+              <Beer className="h-4 w-4" />
+              Pub Crawls & more
+              <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${crawlMode ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
+                <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${crawlMode ? "translate-x-3" : ""}`} />
               </span>
             </button>
 
@@ -706,7 +738,7 @@ export default function Home() {
                 className="inline-flex items-center gap-3 rounded-full bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
               >
                 <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
-                {loading ? "Finding spots…" : spinning ? "Shuffling…" : groupMode ? "Deal 3 Fates!" : "Deal Your Fate!"}
+                {loading ? "Finding spots…" : spinning ? "Shuffling…" : crawlMode ? "Deal a Crawl!" : groupMode ? "Deal 3 Fates!" : "Deal Your Fate!"}
               </motion.button>
               {results.length > 0 && (
                 <span className="font-sans text-sm text-[#6B7075]">
@@ -1366,6 +1398,7 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, onReset,
                   <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               )}
+              <CheckInButton card={card} />
               <button
                 onClick={onReSpin}
                 data-testid="respin-button"
