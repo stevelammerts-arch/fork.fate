@@ -261,12 +261,21 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
                   initial={{ opacity: 0, scale: 0.75, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   transition={{ duration: 0.6, ease: "easeOut" }}
-                  className="mt-8 flex flex-col items-center"
+                  className="mt-8 flex w-full flex-col items-center"
                   data-testid="crawl-congrats-flame"
                 >
-                  <div className="flames -mb-3" aria-hidden="true">
-                    <span className="flame" /><span className="flame" /><span className="flame" />
-                    <span className="flame" /><span className="flame" /><span className="flame" /><span className="flame" />
+                  <div className="fire-wall -mb-4" aria-hidden="true">
+                    {Array.from({ length: 26 }).map((_, i) => (
+                      <span
+                        key={i}
+                        className="flame"
+                        style={{
+                          height: `${16 + (Math.sin(i * 1.7) + 1) * 12 + (i % 4) * 5}px`,
+                          animationDuration: `${0.42 + (i % 5) * 0.06}s`,
+                          animationDelay: `${(i % 8) * 0.05}s`,
+                        }}
+                      />
+                    ))}
                   </div>
                   <h3 className="flame-text font-serif text-5xl font-semibold tracking-tight sm:text-6xl">
                     Congratulations
