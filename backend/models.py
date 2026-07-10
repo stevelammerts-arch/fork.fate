@@ -109,6 +109,8 @@ class CrawlStop(BaseModel):
     price: str = Field(default="", max_length=8)
     rating: Optional[float] = None
     distance: Optional[float] = None
+    lat: Optional[float] = None
+    lng: Optional[float] = None
     open_now: Optional[bool] = None
     google_url: str = Field(default="", max_length=600)
 

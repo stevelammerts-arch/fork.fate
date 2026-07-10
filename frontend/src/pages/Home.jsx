@@ -366,7 +366,7 @@ export default function Home() {
           />
         )}
       </AnimatePresence>
-      <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} crawlLabel={crawlLabelForType(crawlType)} />
+      <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={coords} crawlLabel={crawlLabelForType(crawlType)} />
 
       {/* Decorative reaper background with load animation */}
       <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>

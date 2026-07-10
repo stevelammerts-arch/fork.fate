@@ -130,6 +130,8 @@ async def google_places_search(req: PlacesSearchRequest):
                 "price": PRICE_ENUM_TO_SYMBOL.get(p.get("priceLevel"), "$$"),
                 "rating": float(p.get("rating") or 0.0),
                 "distance": round(dist, 1),
+                "lat": plat,
+                "lng": plng,
                 "address": address,
                 "description": address,
                 # Free placeholder for grid/deck; real (billed) Google photo only for the reveal.

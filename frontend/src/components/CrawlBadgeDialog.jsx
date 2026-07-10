@@ -146,7 +146,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
     // Play the recorded congrats clip on reveal (respects the app mute toggle)
     try {
       if (localStorage.getItem("ff_muted") !== "1") {
-        const a = new Audio("/crawl-congrats.mp3");
+        const a = new Audio("/crawl-congrats.mp3?v=2");
         a.volume = 1.0;
         a.play().catch(() => {});
       }

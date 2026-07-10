@@ -69,3 +69,10 @@
 - Expanded Food/Drinks/Desserts/Bars cuisine lists; added "Winery" to Bars; chips now render alphabetically (sorted in Filters.jsx).
 - Added reaper-voice liability disclaimer to the footer (data-testid=reaper-disclaimer).
 - FF_BUILD bumped to 2026.06-13.
+
+## 2026-06-10 — Crawl route + check-off + audio
+- Rebuilt crawl-congrats voice from original clip (clearer: intelligible vocal + lighter -sub layer, short reverb); referenced as /crawl-congrats.mp3?v=2.
+- Crawl stops now carry lat/lng (models.CrawlStop + places.py search output).
+- PubCrawlDialog: nearest-neighbour route ordering (fallback to distance), per-leg "Walk to next" Google walking-directions links.
+- Check-off: manual tap + auto GPS check-in (watchPosition, ~95m radius), progress bar, localStorage persistence per route, auto badge prompt at 100%.
+- FF_BUILD -> 2026.06-22.
