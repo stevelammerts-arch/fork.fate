@@ -39,12 +39,13 @@ const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => ({
   delay: (i % 6) * 1.6,
 }));
 
-const FLYING_BIRDS = Array.from({ length: 6 }).map((_, i) => ({
-  top: `${5 + i * 6}%`,
-  size: 40 + (i % 3) * 20,
-  dur: 13 + (i % 4) * 3,
-  delay: i * 2.2,
-  flap: 0.7 + (i % 3) * 0.18,
+const FLYING_BIRDS = Array.from({ length: 8 }).map((_, i) => ({
+  top: `${4 + i * 5}%`,
+  size: 38 + (i % 3) * 20,
+  dur: 14 + (i % 5) * 3,
+  delay: -(i * 3.2),
+  flap: 0.7 + (i % 3) * 0.16,
+  flapDelay: -(i * 0.13),
 }));
 
 const SEASONS = {
@@ -103,7 +104,7 @@ function SeasonScene({ theme, cfg }) {
       ))}
       {cfg.birds && FLYING_BIRDS.map((b, i) => (
         <div key={`bird-${i}`} className="absolute left-0" style={{ top: b.top, animation: `ffFly ${b.dur}s linear ${b.delay}s infinite`, willChange: "transform", backfaceVisibility: "hidden" }}>
-          <img src={cfg.birds} alt="" className="ff-gull block opacity-40 drop-shadow-sm" style={{ width: b.size, animationDuration: `${b.flap}s` }} />
+          <img src={cfg.birds} alt="" className="ff-gull block opacity-40 drop-shadow-sm" style={{ width: b.size, animationDuration: `${b.flap}s`, animationDelay: `${b.flapDelay}s` }} />
         </div>
       ))}
     </div>
