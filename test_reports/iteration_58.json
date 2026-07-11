@@ -1,0 +1,43 @@
+{
+  "summary": "Retest after iter57 blank-page fix. Home now mounts cleanly with 0 console errors and 0 pageerrors. Theme menu, hint, Fall visuals, spin button colors (Fall/Light/Dark exact matches), Places deal single run, and Light/Dark regressions all pass. Found ONE persistence bug: Fall theme is NOT restored on reload (falls back to Dark) because useTheme.js `read()` only whitelists 'light'|'dark'.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "useTheme.js read()",
+        "issue": "Fall theme does not persist across reload. localStorage saves ff_theme='fall' correctly (setTheme accepts any value), but on next load read() only returns s if s === 'light' || s === 'dark', otherwise defaults to 'dark'. Result: after picking Fall + reload, dataset.ffTheme='dark' (verified: ff_theme='fall' in localStorage yet ffTheme=dark after reload). Light persists fine.",
+        "selector": "/app/frontend/src/hooks/useTheme.js line 8",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "In /app/frontend/src/hooks/useTheme.js line 8, change `if (s === 'light' || s === 'dark') return s;` to include 'fall', e.g. `if (s === 'light' || s === 'dark' || s === 'fall') return s;` (also update useSyncExternalStore getServerSnapshot fallback if desired)."
+  ],
+  "critical_code_review_comments": [
+    "useTheme.js allowlist in read() must be kept in sync with supported themes; consider a THEMES const array to avoid drift.",
+    "setTheme has no allowlist validation — accepts arbitrary strings into localStorage. Recommend validating against allowed set."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "n/a", "frontend": "~90% (7/8 scenarios; only Fall reload persistence failing)" },
+  "test_credentials": "n/a (no auth)",
+  "seed_data_creation": "None. Cleared localStorage; set ff_guided_seen=1. Ran exactly ONE Places deal with ZIP 90210 as instructed.",
+  "verified_scenarios": {
+    "page_mounts_no_referror": "PASS (body length 3081, 0 console errors, 0 pageerrors)",
+    "theme_menu_shows_3_options": "PASS (dark/light/fall present)",
+    "theme_hint_flow": "PASS (visible on fresh load, hidden after opening menu, not shown after reload with ff_theme_hint_seen=1)",
+    "fall_scene_and_images": "PASS (fall-scene present; /fall-tree.png, /fall-jackolanterns.png, /fall-pumpkins.png, /leaf-red.png, /leaf-orange.png, /leaf-yellow.png, /leaf-brown.png all rendered)",
+    "fall_spin_button_color": "PASS (rgb(192,69,27) exact #C0451B)",
+    "fall_persists_reload": "FAIL (falls back to dark)",
+    "places_deal_fall_shuffle_and_result": "PASS (spin-result-card appeared with /api/places/photo?... restaurant image). Note: card-back <img> query returned empty during shuffle sampling — likely because shuffle finished before query; result card image confirms flow works.",
+    "light_regression": "PASS (rgb(168,201,158), favorites visible, no reaper)",
+    "dark_regression": "PASS (rgb(224,30,38))",
+    "zero_console_errors": "PASS"
+  },
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Only remaining defect is the Fall theme localStorage read allowlist in useTheme.js. Everything else confirmed working. When retesting, verify: (a) after picking Fall then reload, document.documentElement.dataset.ffTheme still equals 'fall'; (b) fall-scene remains rendered after reload."
+}

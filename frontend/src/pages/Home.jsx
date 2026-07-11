@@ -48,6 +48,18 @@ export default function Home() {
   const ghost = light
     ? "border-[#E4E4E7] text-[#3F3F46] hover:bg-[#F4F4F5]"
     : "border-white/25 text-white hover:bg-white/10";
+  const [themeHint, setThemeHint] = useState(() => {
+    try { return localStorage.getItem("ff_theme_hint_seen") !== "1"; } catch (e) { return false; }
+  });
+  const dismissThemeHint = () => {
+    setThemeHint(false);
+    try { localStorage.setItem("ff_theme_hint_seen", "1"); } catch (e) { /* ignore */ }
+  };
+  useEffect(() => {
+    if (!themeHint) return;
+    const t = setTimeout(() => dismissThemeHint(), 6000);
+    return () => clearTimeout(t);
+  }, [themeHint]);
   const [mode, setMode] = useState("food");
   const [zip, setZip] = useState("");
   const [coords, setCoords] = useState(null);
