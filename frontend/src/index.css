@@ -348,7 +348,7 @@ body {
   opacity: 0.55;
   filter: blur(0.4px);
   will-change: background-position, mask-position, transform;
-  animation: ffSeaRipple 5.5s linear infinite, ffSeaGlint 8s linear infinite, ffSeaBob 6s ease-in-out infinite;
+  animation: ffSeaRipple 3.6s linear infinite, ffSeaGlint 12s linear infinite, ffSeaBob 6s ease-in-out infinite;
 }
 @keyframes ffSeaRipple {
   0%   { background-position: 0 0, 0 0; }
