@@ -8,7 +8,7 @@ import { useTheme } from "../hooks/useTheme";
 export default function FavoritesDrawer({ favorites, onRemove, onDeal, groupMode }) {
   const [open, setOpen] = useState(false);
   const { theme } = useTheme();
-  const light = theme === "light";
+  const light = !["dark", "cyber", "steam", "tiki"].includes(theme);
   const count = favorites.length;
 
   const P = light
