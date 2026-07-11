@@ -48,7 +48,7 @@ const FLYING_BIRDS = Array.from({ length: 5 }).map((_, i) => ({
 const SEASONS = {
   fall: {
     grad: "linear-gradient(180deg,#FBF3E8 0%,#F5E6D0 55%,#EFDCC0 100%)",
-    tree: "/fall-tree.png", decorRight: "/fall-jackolanterns.png", decorRightGlow: true, decorLeft: "/fall-pumpkins.png",
+    tree: "/fall-tree.png", decorRight: "/fall-jackolanterns.png", decorRightGlow: true,
     items: ["/leaf-red.png", "/leaf-orange.png", "/leaf-yellow.png", "/leaf-brown.png"], falling: true, hint: "#C0451B",
   },
   winter: {
