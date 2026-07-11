@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -22,16 +22,22 @@ import {
   readStreak, bumpStreak,
   RESULT_SPRING,
   HERO_INITIAL, HERO_ANIMATE, HERO_TRANSITION, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, SPIN_TAP,
-  reaperLineFor,
+  reaperLineFor, lightLineFor,
   FOOD_CUISINES, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, CRAWL_TYPES, crawlLabelForType, orderCrawlRoute,
 } from "./homeConstants";
 import { Input } from "../components/ui/input";
 import { Slider } from "../components/ui/slider";
+import { useTheme } from "../hooks/useTheme";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 
 export default function Home() {
+  const { theme, toggle: toggleTheme } = useTheme();
+  const light = theme === "light";
+  const ghost = light
+    ? "border-[#E4E4E7] text-[#3F3F46] hover:bg-[#F4F4F5]"
+    : "border-white/25 text-white hover:bg-white/10";
   const [mode, setMode] = useState("food");
   const [zip, setZip] = useState("");
   const [coords, setCoords] = useState(null);
@@ -176,18 +182,19 @@ export default function Home() {
     setSpinning(true);
     setFlashHit(false);
     setRevealFlash(false);
-    // Preload thunder now (inside the click gesture) so it reliably plays on reveal
+    // Preload the reveal sound now (inside the click gesture) so it reliably plays.
+    // Light mode: cheerful "Ta-Da!" chime. Dark mode: ominous thunderclap.
     try {
       if (localStorage.getItem("ff_muted") !== "1") {
-        thunderRef.current = new Audio("/reveal-thunder-v4.mp3");
+        thunderRef.current = new Audio(light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
         thunderRef.current.volume = 1.0;
         thunderRef.current.load();
       } else {
         thunderRef.current = null;
       }
     } catch (e) { thunderRef.current = null; }
-    // Voice cue plays first, before the deck starts shuffling
-    playSound("/reveal-voice-v5.mp3", 1.0);
+    // Dark mode plays a spoken voice cue before the deck shuffles; light mode stays clean.
+    if (!light) playSound("/reveal-voice-v5.mp3", 1.0);
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
     // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
@@ -232,7 +239,7 @@ export default function Home() {
           // Thunder boom + 3x screen flash hit exactly as the winner is revealed
           try {
             if (thunderRef.current) { thunderRef.current.currentTime = 0; thunderRef.current.play().catch(() => {}); }
-            else playSound("/reveal-thunder-v4.mp3", 1.0);
+            else playSound(light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3", 1.0);
           } catch (e) { /* audio unavailable */ }
           setRevealFlash(true);
           setTimeout(() => setRevealFlash(false), 1400);
@@ -501,7 +508,16 @@ export default function Home() {
       </AnimatePresence>
       <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={crawlEndpoints.origin || coords} destination={crawlEndpoints.destination} crawlLabel={crawlLabelForType(crawlType)} initialStops={crawlStops} />
 
-      {/* Decorative reaper background with load animation */}
+      {/* Light-mode: faded bright café / restaurant interior background */}
+      {light && (
+        <div
+          className="pointer-events-none fixed inset-0 z-0 select-none bg-cover bg-center"
+          data-testid="cafe-bg-light"
+          style={{ backgroundImage: "url('/cafe-bg-light.png')", opacity: 0.28 }}
+        />
+      )}
+      {/* Dark-mode: decorative reaper background with load animation */}
+      {!light && (
       <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>
         <motion.div
           style={{ rotateX: rotX, rotateY: rotY, x: shiftX, y: shiftY, transformStyle: "preserve-3d" }}
@@ -546,12 +562,13 @@ export default function Home() {
         </motion.div>
         </motion.div>
       </div>
+      )}
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-[#E2E4E7] bg-[#0E0E0E]">
+      <header className={`sticky top-0 z-30 border-b ${light ? "border-[#E4E4E7] bg-white/85 backdrop-blur-xl shadow-sm" : "border-[#E2E4E7] bg-[#0E0E0E]"}`}>
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:gap-3 md:px-12 md:py-6">
           <div className="flex items-center gap-2 md:gap-3">
-            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-black ring-1 ring-white/25 md:h-16 md:w-16">
-              <img src="/logo-mark.png" alt="Fork·Fate logo" className="h-12 w-12 scale-110 object-contain md:h-16 md:w-16" />
+            <div className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-1 md:h-16 md:w-16 ${light ? "bg-[#F5F0E6] ring-[#E4E4E7]" : "bg-black ring-white/25"}`}>
+              <img src={light ? "/logo-mark-light.png" : "/logo-mark.png"} alt="Fork·Fate logo" className="h-12 w-12 scale-110 object-contain md:h-16 md:w-16" />
               <motion.div
                 className="pointer-events-none absolute inset-0"
                 initial={{ x: "-130%" }}
@@ -560,16 +577,27 @@ export default function Home() {
                 style={{ background: "linear-gradient(115deg, transparent 46%, rgba(255,255,255,0.85) 50%, transparent 54%)" }}
               />
             </div>
-            <span className="font-serif text-2xl font-semibold tracking-tight text-white md:text-4xl">
+            <span className={`font-serif text-2xl font-semibold tracking-tight md:text-4xl ${light ? "text-[#18181B]" : "text-white"}`}>
               Fork·Fate
             </span>
           </div>
           <div className="flex flex-wrap items-center justify-start gap-2 md:justify-end md:gap-3">
             <button
+              onClick={toggleTheme}
+              data-testid="theme-toggle-button"
+              title={light ? "Switch to dark (Grim Reaper) mode" : "Switch to light (Professional) mode"}
+              aria-label={light ? "Switch to dark mode" : "Switch to light mode"}
+              className={`group inline-flex items-center justify-center rounded-full border p-2 transition-colors sm:p-2.5 ${ghost}`}
+            >
+              {light
+                ? <Moon className="h-4 w-4 transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110" />
+                : <Sun className="h-4 w-4 text-[#E01E26] transition-transform duration-300 group-hover:rotate-90 group-hover:scale-110" />}
+            </button>
+            <button
               onClick={() => setShowGuided(true)}
               data-testid="relaunch-guided-button"
               title="Start the guided ritual"
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-transparent px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-white/10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
+              className={`inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${ghost}`}
             >
               <Sparkles className="h-4 w-4 text-[#E01E26]" /> <span>Guided</span>
             </button>
@@ -578,7 +606,7 @@ export default function Home() {
               data-testid="sound-toggle-button"
               title={muted ? "Sound off — click to enable the reveal sound" : "Sound on — click to mute"}
               aria-label={muted ? "Enable sound" : "Mute sound"}
-              className="inline-flex items-center justify-center rounded-full border border-white/25 bg-transparent p-2 text-white transition-colors hover:bg-white/10 sm:p-2.5"
+              className={`inline-flex items-center justify-center rounded-full border bg-transparent p-2 transition-colors sm:p-2.5 ${ghost}`}
             >
               {muted ? <VolumeX className="h-4 w-4 text-[#8A8F95]" /> : <Volume2 className="h-4 w-4 text-[#E01E26]" />}
             </button>
@@ -593,7 +621,7 @@ export default function Home() {
               type="button"
               onClick={() => setSponsorOpen(true)}
               data-testid="header-sponsor-link"
-              className="hidden items-center gap-2 rounded-full border border-white/25 bg-transparent px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10 sm:inline-flex"
+              className={`hidden items-center gap-2 rounded-full border bg-transparent px-4 py-2.5 text-sm font-bold transition-colors sm:inline-flex ${ghost}`}
             >
               <Store className="h-4 w-4 text-[#E01E26]" /> Sponsor your spot
             </button>
@@ -653,11 +681,12 @@ export default function Home() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-6 backdrop-blur-sm"
+            className={`fixed inset-0 z-[60] flex items-center justify-center px-6 backdrop-blur-sm ${light ? "bg-white/70" : "bg-black/50"}`}
             data-testid="shuffle-popup"
             style={{ pointerEvents: flashHit ? "none" : "auto" }}
           >
-            {/* Ominous drifting red/black mist */}
+            {/* Ominous drifting red/black mist — dark mode only */}
+            {!light && (
             <div className="pointer-events-none absolute inset-0 overflow-hidden" data-testid="shuffle-mist">
               <motion.div
                 className="absolute left-[10%] top-1/4 h-72 w-72 rounded-full bg-[#E01E26] blur-[90px]"
@@ -675,6 +704,7 @@ export default function Home() {
                 transition={{ duration: 8.5, repeat: Infinity, ease: "easeInOut" }}
               />
             </div>
+            )}
             <motion.div
               initial={{ scale: 0.8, y: 20 }}
               animate={{ scale: 1, y: 0 }}
@@ -682,7 +712,7 @@ export default function Home() {
               transition={{ type: "spring", stiffness: 300, damping: 24 }}
               className="relative z-10 w-full max-w-sm p-8"
             >
-              <ShufflingDeck cards={results} flash={flash} landed={flashHit} />
+              <ShufflingDeck cards={results} flash={flash} landed={flashHit} light={light} />
             </motion.div>
           </motion.div>
         )}
@@ -701,10 +731,12 @@ export default function Home() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {/* lingering red glow */}
+            {/* lingering glow — warm golden in light mode, blood-red in dark */}
             <motion.div
               className="absolute inset-0"
-              style={{ background: "radial-gradient(circle at 50% 45%, rgba(224,30,38,0.55), rgba(0,0,0,0) 60%)" }}
+              style={{ background: light
+                ? "radial-gradient(circle at 50% 45%, rgba(255,193,80,0.45), rgba(255,255,255,0) 60%)"
+                : "radial-gradient(circle at 50% 45%, rgba(224,30,38,0.55), rgba(0,0,0,0) 60%)" }}
               initial={{ opacity: 0 }}
               animate={{ opacity: [0, 0.9, 0.4, 0] }}
               transition={{ duration: 1.4, times: [0, 0.12, 0.55, 1], ease: "easeOut" }}
@@ -862,7 +894,7 @@ export default function Home() {
                   className="inline-flex items-center gap-3 rounded-full border-2 border-[#0E0E0E] bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
                 >
                   <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
-                  {loading ? "Finding spots…" : spinning ? "Shuffling…" : groupMode ? "Deal 3 Fates!" : "Deal Your Fate!"}
+                  {loading ? "Finding spots…" : spinning ? "Shuffling…" : groupMode ? (light ? "Pick 3 Spots" : "Deal 3 Fates!") : (light ? "Spin the Wheel" : "Deal Your Fate!")}
                 </motion.button>
                 {results.length > 0 && (
                   <span className="font-sans text-sm text-[#6B7075]">
@@ -974,7 +1006,7 @@ export default function Home() {
                   className="mt-4 inline-flex items-center gap-3 rounded-full border-2 border-[#0E0E0E] bg-[#E01E26] px-10 py-4 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
                 >
                   <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
-                  {loading ? "Finding spots…" : spinning ? "Shuffling…" : "Deal a Crawl!"}
+                  {loading ? "Finding spots…" : spinning ? "Shuffling…" : (light ? "Plan a Crawl" : "Deal a Crawl!")}
                 </motion.button>
               </div>
             )}
@@ -1234,7 +1266,14 @@ export default function Home() {
 const DECK_SIZE = 5;
 
 // Branded card back shown on every shuffling card (photo only appears on the landed winner)
-function CardBack() {
+function CardBack({ light }) {
+  if (light) {
+    return (
+      <div className="absolute inset-0 bg-[#F5F0E6]" data-testid="card-back">
+        <img src="/card-back-light.png" alt="" className="h-full w-full object-cover" />
+      </div>
+    );
+  }
   return (
     <div className="absolute inset-0 bg-[#0E0E0E]" data-testid="card-back">
       <div
@@ -1254,24 +1293,26 @@ function CardBack() {
 }
 
 // Tarot-style front: photo centered inside a black card with matching red frame
-function CardFront({ src }) {
+function CardFront({ src, light }) {
   return (
-    <div className="absolute inset-0 bg-[#0E0E0E]" data-testid="card-front">
+    <div className={`absolute inset-0 ${light ? "bg-[#F5F0E6]" : "bg-[#0E0E0E]"}`} data-testid="card-front">
       <div
         className="absolute inset-0"
-        style={{ background: "radial-gradient(circle at 50% 42%, rgba(224,30,38,0.20), rgba(0,0,0,0) 62%)" }}
+        style={{ background: light
+          ? "radial-gradient(circle at 50% 42%, rgba(163,22,33,0.10), rgba(255,255,255,0) 62%)"
+          : "radial-gradient(circle at 50% 42%, rgba(224,30,38,0.20), rgba(0,0,0,0) 62%)" }}
       />
       <div className="absolute inset-[13px] overflow-hidden rounded-md">
         <img src={src} alt="" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
       </div>
-      <div className="absolute inset-2 rounded-xl border border-[#E01E26]/70" />
-      <div className="absolute inset-[10px] rounded-lg border border-[#E01E26]/25" />
+      <div className={`absolute inset-2 rounded-xl border ${light ? "border-[#A31621]/60" : "border-[#E01E26]/70"}`} />
+      <div className={`absolute inset-[10px] rounded-lg border ${light ? "border-[#A31621]/25" : "border-[#E01E26]/25"}`} />
     </div>
   );
 }
 
-function ShufflingDeck({ cards, flash, landed }) {
+function ShufflingDeck({ cards, flash, landed, light }) {
   const source = cards.length ? cards : (flash ? [flash] : []);
   // Always fill a full visual deck so the shuffle never looks like a single card,
   // even when the filtered result set is tiny (repeats are visual-only).
@@ -1289,7 +1330,7 @@ function ShufflingDeck({ cards, flash, landed }) {
       <div className="flex flex-col items-center gap-8">
         <div className="relative h-72 w-44">
           <AnimatePresence>
-            {landed && (
+            {landed && !light && (
               <motion.div
                 className="pointer-events-none absolute left-1/2 top-1/2 z-50"
                 style={{ transform: "translate(-50%, calc(-50% + 48px))" }}
@@ -1317,7 +1358,7 @@ function ShufflingDeck({ cards, flash, landed }) {
             return (
             <motion.div
               key={(c?.id || "c") + i}
-              className={`absolute inset-0 overflow-hidden rounded-2xl border-2 border-[#E01E26] bg-[#0E0E0E] shadow-2xl shadow-black/30`}
+              className={`absolute inset-0 overflow-hidden rounded-2xl border-2 shadow-2xl ${light ? "border-[#D9C9A8] bg-[#F5F0E6] shadow-black/10" : "border-[#E01E26] bg-[#0E0E0E] shadow-black/30"}`}
               style={{ zIndex: DECK_SIZE - i }}
               animate={
                 landed
@@ -1343,19 +1384,19 @@ function ShufflingDeck({ cards, flash, landed }) {
               }
             >
               {showPhoto ? (
-                <CardFront src={c.image} />
+                <CardFront src={c.image} light={light} />
               ) : (
-                <CardBack />
+                <CardBack light={light} />
               )}
             </motion.div>
             );
           })}
         </div>
         <div className="relative z-[60] text-center">
-          <p className="font-sans text-xs font-bold uppercase tracking-[0.25em] text-[#E01E26]">
-            {landed ? "Fate has chosen" : "Shuffling the deck"}
+          <p className={`font-sans text-xs font-bold uppercase tracking-[0.25em] ${light ? "text-[#A31621]" : "text-[#E01E26]"}`}>
+            {landed ? (light ? "Your pick" : "Fate has chosen") : (light ? "Shuffling…" : "Shuffling the deck")}
           </p>
-          <p className="mt-1 h-7 font-serif text-2xl text-white drop-shadow">{label}</p>
+          <p className={`mt-1 h-7 font-serif text-2xl drop-shadow ${light ? "text-[#18181B]" : "text-white"}`}>{label}</p>
         </div>
       </div>
     </div>

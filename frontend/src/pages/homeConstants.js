@@ -84,6 +84,16 @@ export const REAPER_LINES = [
 ];
 export const reaperLineFor = (r) => REAPER_LINES[(r?.name?.length || 0) % REAPER_LINES.length];
 
+// Professional light-mode counterparts to the macabre reaper lines.
+export const LIGHT_LINES = [
+  "Your destination awaits.",
+  "Here's tonight's pick.",
+  "Your table is set.",
+  "A great choice, locked in.",
+  "Bon appétit — go enjoy.",
+];
+export const lightLineFor = (r) => LIGHT_LINES[(r?.name?.length || 0) % LIGHT_LINES.length];
+
 export const FOOD_CUISINES = [
   "Italian", "Mexican", "Tex-Mex", "Chinese", "Japanese", "Sushi", "Indian", "Thai", "Korean", "Vietnamese",
   "Filipino", "Malaysian", "Indonesian", "Chicken Wings", "Fried Chicken", "Burgers", "Steakhouse", "American",
