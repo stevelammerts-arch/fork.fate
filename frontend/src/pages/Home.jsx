@@ -140,9 +140,9 @@ function AmbianceScene({ theme, cfg }) {
       {cfg.neon && <div className="absolute left-1/2 top-[15%] z-[1] w-[62vw] max-w-xs -translate-x-1/2"><img src={cfg.neon} alt="" className="w-full object-contain" style={{ mixBlendMode: "screen", animation: "ffNeonFloat 6s ease-in-out infinite" }} /></div>}
       {cfg.wall && <img src={cfg.wall} alt="" className="absolute bottom-0 left-0 z-[1] w-full object-cover object-bottom opacity-60" style={{ maxHeight: "70vh" }} />}
       {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
-      {cfg.console && <img src={cfg.console} alt="" className="absolute bottom-0 left-[-2%] z-[4] h-[74vh] object-contain opacity-80" />}
+      {cfg.console && <img src={cfg.console} alt="" className="absolute bottom-0 left-[-22%] z-[4] h-[52vh] object-contain opacity-80 sm:left-[-2%] sm:h-[74vh]" />}
       {cfg.device && (
-        <div className="absolute bottom-0 right-[3%] z-[3] h-[46vh]" style={{ aspectRatio: "545 / 970" }}>
+        <div className="absolute bottom-0 right-[-5%] z-[3] h-[40vh] sm:right-[3%] sm:h-[46vh]" style={{ aspectRatio: "545 / 970" }}>
           <img src={cfg.device} alt="" className="absolute inset-0 h-full w-full object-contain opacity-90" />
           <div className="absolute" style={{ left: "39%", width: "18%", top: "1.5%", height: "23%" }}>
             <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(120,210,255,0.22), rgba(120,210,255,0) 70%)", animation: "ffArcGlow 0.13s steps(2,end) infinite" }} />
