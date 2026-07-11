@@ -28,10 +28,13 @@ env = 0.12 + 0.88 * (np.linspace(0, 1, T) ** 1.7)
 track *= env
 
 # real cinematic timpani hit (uploaded) for the ending boom
-def load_timpani(dur=3.0, tail_fade=0.6):
+def load_timpani(dur=3.2, tail_fade=0.7):
     with wave.open("/tmp/timpani_dec.wav") as w:
         raw = w.readframes(w.getnframes())
     y = np.frombuffer(raw, dtype="<i2").astype(np.float32) / 32768.0
+    # pitch DOWN one octave: resample 2x (half frequency), keeps the natural timbre
+    idx = np.arange(0, len(y) - 1, 0.5)
+    y = np.interp(idx, np.arange(len(y)), y).astype(np.float32)
     # find onset (first sample crossing a small threshold) and trim leading silence
     thr = 0.02 * np.max(np.abs(y))
     onset = int(np.argmax(np.abs(y) > thr))
