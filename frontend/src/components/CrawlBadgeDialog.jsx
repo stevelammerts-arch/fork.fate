@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Trophy, Share2, Download, Camera, X, Lock, Instagram } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "../hooks/useTheme";
+import { useLang } from "../i18n/i18n";
 
 const REAPER_SRC = "/reaper-award.png";
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -150,6 +151,7 @@ async function buildBadge({ name, crew, label, photo, story = false, light = fal
 
 export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "", defaultCrew = "" }) {
   const { theme } = useTheme();
+  const { t } = useLang();
   const light = theme !== "dark";
   const AC = {
     light:  { text: "#4F6F47", card: "#A31621", btn: "#A8C99E", btnHover: "#97BC8B", btnInk: "#24391F", glowInner: "rgba(122,168,110,0.80)", glowMid: "rgba(79,111,71,0.35)", glowOuter: "rgba(79,111,71,0)" },
@@ -204,7 +206,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
   const onPickPhoto = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) { toast.error("Please choose an image"); return; }
+    if (!file.type.startsWith("image/")) { toast.error(t("Please choose an image")); return; }
     const reader = new FileReader();
     reader.onload = () => setPhoto(reader.result);
     reader.readAsDataURL(file);
@@ -229,8 +231,8 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
       a.href = url; a.download = "fork-fate-crawl-badge.png";
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 2000);
-      toast.success("Badge saved!");
-    } catch (e) { toast.error("Couldn't build the badge — try again"); }
+      toast.success(t("Badge saved!"));
+    } catch (e) { toast.error(t("Couldn't build the badge — try again")); }
     finally { setBusy(false); }
   };
 
@@ -263,7 +265,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
         a.href = url; a.download = "fork-fate-story.png";
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 2000);
-        toast.success("Story image saved \u2014 post it to your IG Story!");
+        toast.success(t("Story image saved \u2014 post it to your IG Story!"));
       }
     } catch (e) { /* cancelled */ }
     finally { setBusy(false); }
@@ -287,10 +289,10 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
       <DialogContent className={`max-h-[94vh] overflow-y-auto sm:max-w-xl ${dlg}`} data-testid="crawl-badge-dialog">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-serif text-2xl">
-            <Trophy className="h-6 w-6" style={{ color: light ? ac.text : "#E01E26" }} /> Crawl Complete
+            <Trophy className="h-6 w-6" style={{ color: light ? ac.text : "#E01E26" }} /> {t("Crawl Complete")}
           </DialogTitle>
           <DialogDescription className={light ? "text-sm text-[#8A7C68]" : "text-sm text-[#A0A0A0]"}>
-            Your reward awaits — claim your badge and share it.
+            {t("Your reward awaits — claim your badge and share it.")}
           </DialogDescription>
         </DialogHeader>
 
@@ -341,11 +343,11 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
                   >
                     {light ? (
                       <h3 className="font-serif text-5xl font-semibold tracking-tight sm:text-6xl" style={{ color: ac.text }}>
-                        Congratulations
+                        {t("Congratulations")}
                       </h3>
                     ) : (
                       <h3 className="flame-text font-serif text-5xl font-semibold tracking-tight sm:text-6xl">
-                        Congratulations
+                        {t("Congratulations")}
                       </h3>
                     )}
                   </motion.div>
@@ -361,21 +363,21 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
                 className="flex w-full flex-col items-center gap-4"
               >
                 <p className={light ? "text-sm text-[#5A5142]" : "text-sm text-[#C7CBD1]"}>
-                  You completed the <span className={`font-bold ${light ? "text-[#2A2118]" : "text-white"}`}>Fork·Fate {labelFriendly}</span>. Take a selfie and claim your reward?
+                  {t("You completed the")} <span className={`font-bold ${light ? "text-[#2A2118]" : "text-white"}`}>Fork·Fate {labelFriendly}</span>. {t("Take a selfie and claim your reward?")}
                 </p>
                 {communityCount !== null && communityCount > 0 && (
                   <p className={light ? "text-xs text-[#8A7C68]" : "text-xs text-[#8A8F95]"} data-testid="crawl-badge-community-count">
-                    🏆 <span className="font-bold" style={{ color: light ? ac.text : "#E01E26" }}>{communityCount.toLocaleString()}</span> crawls completed on Fork·Fate
+                    🏆 <span className="font-bold" style={{ color: light ? ac.text : "#E01E26" }}>{communityCount.toLocaleString()}</span> {t("crawls completed on Fork·Fate")}
                   </p>
                 )}
                 <div className="mt-1 flex w-full flex-col gap-3">
                   <button onClick={() => { setStep("build"); setTimeout(() => fileRef.current?.click(), 150); }} data-testid="crawl-badge-selfie-cta"
                     className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold ${accentBtn}`} style={accentBtnStyle}>
-                    <Camera className="h-4 w-4" /> Take a selfie & reveal my reward
+                    <Camera className="h-4 w-4" /> {t("Take a selfie & reveal my reward")}
                   </button>
                   <button onClick={() => setStep("build")} data-testid="crawl-badge-skip-selfie"
                     className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold ${ghostBtn}`}>
-                    Just show my reward
+                    {t("Just show my reward")}
                   </button>
                 </div>
               </motion.div>
@@ -418,38 +420,38 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
         <input ref={fileRef} type="file" accept="image/*" capture="user" onChange={onPickPhoto} className="hidden" data-testid="crawl-badge-photo-input" />
         <p className={`flex items-start gap-1.5 text-xs ${light ? "text-[#8A7C68]" : "text-[#8A8F95]"}`} data-testid="crawl-badge-privacy-note">
           <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#4ADE80]" />
-          Your photo stays on your device — it's added to the badge here on your phone and never uploaded or stored.
+          {t("Your photo stays on your device — it's added to the badge here on your phone and never uploaded or stored.")}
         </p>
         <p className={`-mt-1 flex items-start gap-1.5 text-xs ${light ? "text-[#B58900]" : "text-[#C9A227]"}`} data-testid="crawl-badge-orientation-note">
           <Camera className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          Use a horizontal (landscape) photo so it fills the card frame.
+          {t("Use a horizontal (landscape) photo so it fills the card frame.")}
         </p>
         <div className="flex gap-3">
           <button onClick={() => fileRef.current?.click()} data-testid="crawl-badge-photo-button"
             className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold ${ghostBtn}`}>
-            <Camera className="h-4 w-4" /> {photo ? "Retake / change" : "Add selfie"}
+            <Camera className="h-4 w-4" /> {photo ? t("Retake / change") : t("Add selfie")}
           </button>
           {photo && (
             <button onClick={() => setPhoto(null)} data-testid="crawl-badge-photo-remove"
               className={`inline-flex items-center justify-center gap-1 rounded-full px-4 py-2.5 text-sm font-bold ${ghostBtn}`}>
-              <X className="h-4 w-4" /> Remove
+              <X className="h-4 w-4" /> {t("Remove")}
             </button>
           )}
         </div>
 
-        <input value={name} onChange={(e) => setName(e.target.value.slice(0, 22))} placeholder="Your name"
+        <input value={name} onChange={(e) => setName(e.target.value.slice(0, 22))} placeholder={t("Your name")}
           data-testid="crawl-badge-name-input" className={inputCls} />
-        <input value={crew} onChange={(e) => setCrew(e.target.value.slice(0, 60))} placeholder="Who's with you? (e.g. Sam, Alex)"
+        <input value={crew} onChange={(e) => setCrew(e.target.value.slice(0, 60))} placeholder={t("Who's with you? (e.g. Sam, Alex)")}
           data-testid="crawl-badge-crew-input" className={inputCls} />
 
         <button onClick={shareStory} disabled={busy} data-testid="crawl-badge-story-button"
           className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#E01E26] via-[#C21C6B] to-[#7A3FF2] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-[#C21C6B]/25 hover:opacity-95 disabled:opacity-50">
-          <Instagram className="h-4 w-4" /> Share to your Story
+          <Instagram className="h-4 w-4" /> {t("Share to your Story")}
         </button>
         <div className="flex flex-col gap-3 sm:flex-row">
           <button onClick={share} disabled={busy} data-testid="crawl-badge-share-button"
             className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold disabled:opacity-50 ${accentBtn}`}>
-            <Share2 className="h-4 w-4" /> Share badge
+            <Share2 className="h-4 w-4" /> {t("Share badge")}
           </button>
           <button onClick={download} disabled={busy} data-testid="crawl-badge-download-button"
             className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold disabled:opacity-50 ${ghostBtn}`}>

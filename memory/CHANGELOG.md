@@ -1,5 +1,15 @@
 # Fork·Fate — Changelog
 
+## 2026-06-11 (fork) — Spanish Translation Phase 2 complete (crawl dialogs)
+
+- Fixed a build-breaking corruption at the end of `PubCrawlDialog.jsx` (leftover duplicate JSX from a mid-edit) that was crashing webpack.
+- `PubCrawlDialog.jsx`: wrapped remaining strings in `t()` — dialog title ("Tu/Grupo Ruta de bares"), description, crew line, share text/toasts, aria-labels, and crawl-type labels. Crawl type names now translate per user request (Pub Crawl → Ruta de bares, etc.).
+- `CrawlBadgeDialog.jsx`: added `useLang` hook and wrapped all UI chrome — "Crawl Complete", "Congratulations", selfie CTAs, privacy/orientation notes, buttons, placeholders, and toasts. NOTE: the badge canvas graphic + its live mirror preview deliberately stay English as a brand artifact.
+- Added ~45 neutral LatAm Spanish keys to `i18n/i18n.js`.
+- Bumped `FF_BUILD` to `2026.06-122` for PWA cache-busting.
+- Verified: app compiles (only harmless eslint dep warnings) and renders cleanly in Spanish.
+
+
 ## 2026-06-11 (cont. 2) — Per-theme shuffle/reveal audio system + scene polish
 
 ### Per-theme audio (shuffle ambience loops during deck, reveal sound on land)

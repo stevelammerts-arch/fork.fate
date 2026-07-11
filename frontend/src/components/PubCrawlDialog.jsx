@@ -59,8 +59,9 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
   }, [open, results, shared, initialStops]);
 
   const stops = useMemo(() => route.filter((r) => !dropped[r.id]), [route, dropped]);
-  const label = crawlLabel || (mode === "bars" ? "Pub Crawl" : `${mode?.[0]?.toUpperCase()}${mode?.slice(1)} Crawl`);
-  const crewLine = crew.trim() ? ` with ${crew.trim()}` : "";
+  const CRAWL_LABELS = { bars: "Pub Crawl", food: "Food Crawl", drinks: "Drinks Crawl", desserts: "Dessert Crawl" };
+  const label = crawlLabel || t(CRAWL_LABELS[mode] || "Pub Crawl");
+  const crewLine = crew.trim() ? ` ${t("with")} ${crew.trim()}` : "";
 
   // Persist check-off progress per unique route (per device).
   const progressKey = useMemo(() => "ffcp_" + route.map((s) => s.id).join("|"), [route]);
@@ -78,7 +79,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
   useEffect(() => {
     if (allDone && !promptedRef.current) {
       promptedRef.current = true;
-      toast.success("Crawl conquered! ☠️ Claim your badge.");
+      toast.success(t("Crawl conquered! ☠️ Claim your badge."));
       setBadgeOpen(true);
     }
     if (!allDone) promptedRef.current = false;
@@ -96,7 +97,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
           for (const s of stops) {
             if (!nv[s.id] && s.lat != null && haversine(p, s) <= ARRIVE_RADIUS_MI) {
               nv[s.id] = true; changed = true;
-              toast.success(`Arrived at ${s.name} ✓`);
+              toast.success(`${t("Arrived at")} ${s.name} ✓`);
             }
           }
           return changed ? nv : v;
@@ -133,9 +134,9 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
         })),
       });
       const link = `${window.location.origin}/c/${data.code}`;
-      const text = `Join my ${label}${crewLine} 🍺\n` +
+      const text = `${t("Join my")} ${label}${crewLine} 🍺\n` +
         stops.map((s, i) => `${i + 1}. ${s.name}`).join("\n") +
-        `\n\nSame crawl on your phone: ${link}`;
+        `\n\n${t("Same crawl on your phone:")} ${link}`;
       if (navigator.share) {
         await navigator.share({ title: label, text, url: link });
       } else {
@@ -155,10 +156,10 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
         <DialogContent className="max-h-[90vh] overflow-y-auto border-[#2A2A2A] bg-[#101010] text-white sm:max-w-lg" data-testid="pub-crawl-dialog" data-ff-dialog>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-serif text-2xl">
-              <Beer className="h-6 w-6 text-[#E01E26]" /> {shared ? `Group ${label}` : `Your ${label}`}
+              <Beer className="h-6 w-6 text-[#E01E26]" /> {shared ? `${t("Group")} ${label}` : `${t("Your")} ${label}`}
             </DialogTitle>
             <DialogDescription className="text-sm text-[#A0A0A0]">
-              {stops.length} stop{stops.length !== 1 ? "s" : ""} in a followable route — hit them in order, check each off, and claim your badge.
+              {stops.length} {stops.length !== 1 ? t("stops") : t("stop")} {t("in a followable route — hit them in order, check each off, and claim your badge.")}
             </DialogDescription>
           </DialogHeader>
 
@@ -199,7 +200,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
                     <button
                       onClick={() => toggleVisited(s.id)}
                       data-testid={`crawl-checkoff-${i}`}
-                      aria-label={done ? "Mark not visited" : "Mark visited"}
+                      aria-label={done ? t("Mark not visited") : t("Mark visited")}
                       className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-bold transition-colors ${done ? "bg-[#4ADE80] text-black" : "bg-[#E01E26] text-white hover:bg-[#FF2E38]"}`}
                     >
                       {done ? <Check className="h-5 w-5" /> : i + 1}
@@ -221,7 +222,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
                     )}
                     {!shared && (
                       <button onClick={() => setDropped((d) => ({ ...d, [s.id]: true }))} data-testid={`crawl-drop-${i}`}
-                        className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#8A8A8A] hover:bg-white/10 hover:text-[#E01E26]" aria-label="Remove stop">
+                        className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#8A8A8A] hover:bg-white/10 hover:text-[#E01E26]" aria-label={t("Remove stop")}>
                         <X className="h-4 w-4" />
                       </button>
                     )}
