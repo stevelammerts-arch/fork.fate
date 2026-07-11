@@ -5,7 +5,7 @@ const KEY = "ff_theme";
 function read() {
   try {
     const s = localStorage.getItem(KEY);
-    if (s === "light" || s === "dark") return s;
+    if (s === "light" || s === "dark" || s === "fall") return s;
   } catch (e) { /* storage unavailable */ }
   return "dark";
 }

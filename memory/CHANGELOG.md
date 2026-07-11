@@ -2,6 +2,17 @@
 
 ## 2026-06-11 — Session: Light/Dark theme toggle (public pages) + horizontal crawl award
 
+### Theme menu + Fall (autumn) seasonal theme (USER REQUEST, tested iter57/58)
+- Replaced the Sun/Moon toggle with a **"Theme" dropdown** (`theme-menu-button`) → Dark / Light / Fall. One-time discovery hint bubble (`theme-hint`).
+- New **Fall theme** (`data-ff-theme="fall"`): warm cream page with a realistic ancient oak tree on the right, three jack-o'-lanterns + pumpkins at the base, and tumbling leaves (CSS `ffLeafFall`/`ffGlow`). Burnt-orange/red + brown accents via a `[data-ff-theme="fall"]` CSS block. Shuffle shows autumn **leaves** instead of cards (landed winner still flips to the restaurant photo).
+- `useTheme` now supports/persists `'dark'|'light'|'fall'` (shared store).
+- Assets: `/fall-tree.png`, `/fall-pumpkins.png`, `/fall-jackolanterns.png`, `/leaf-{red,orange,yellow,brown}.png`.
+
+### Light-mode dialogs
+- All portaled dialogs (`data-ff-dialog`: Add spot, Sponsor, Pub Crawl, iOS Install) now light-theme in light/fall via one scoped CSS block; `AddRestaurant`/`Sponsor` were already light. `GroupVote` is inline (auto-recolored).
+
+
+
 ### Light-mode accent recolor + polish (USER REQUEST, tested iter55/56)
 - Recolored the entire light-mode accent: red → sage green (`#A8C99E` fills / `#4F6F47` text) and black → warm tan (`#D8C3A5`), via theme-scoped CSS overrides in `index.css` (`[data-ff-theme="light"] [data-ff-scope="app"] ...`). Deep green/brown text on pastel fills for contrast. Removed the red glow on green buttons.
 - `useTheme` refactored to a **shared store** (`useSyncExternalStore`) so all consumers (Home, FavoritesDrawer, CrawlBadgeDialog) sync on toggle — fixed FavoritesDrawer staying dark.
