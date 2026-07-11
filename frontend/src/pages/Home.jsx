@@ -39,11 +39,11 @@ const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => ({
   delay: (i % 6) * 1.6,
 }));
 
-const FLYING_BIRDS = Array.from({ length: 5 }).map((_, i) => ({
-  top: `${5 + i * 7}%`,
-  size: 44 + (i % 3) * 22,
-  dur: 17 + (i % 4) * 4,
-  delay: i * 3.4,
+const FLYING_BIRDS = Array.from({ length: 6 }).map((_, i) => ({
+  top: `${5 + i * 6}%`,
+  size: 40 + (i % 3) * 20,
+  dur: 13 + (i % 4) * 3,
+  delay: i * 2.2,
 }));
 
 const SEASONS = {
@@ -76,7 +76,7 @@ function SeasonScene({ theme, cfg }) {
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
       {cfg.ocean && (<>
         <div className="absolute inset-x-0" style={{ top: "45%", height: "20%", background: "linear-gradient(180deg,#2C86C4 0%,#3CA0D4 38%,#74C6E6 80%,#BFE9F4 100%)" }} />
-        <div className="absolute inset-x-0" style={{ top: "47%", height: "16%", background: "repeating-linear-gradient(96deg, rgba(255,255,255,0) 0px, rgba(255,255,255,0.12) 34px, rgba(255,255,255,0) 78px)", opacity: 0.55, animation: "ffSeaShimmer 7s linear infinite, ffSeaBob 5s ease-in-out infinite" }} />
+        <div className="absolute inset-x-0" style={{ top: "47%", height: "16%", background: "repeating-linear-gradient(96deg, rgba(255,255,255,0) 0px, rgba(255,255,255,0.30) 26px, rgba(255,255,255,0) 60px)", opacity: 0.9, mixBlendMode: "screen", animation: "ffSeaShimmer 7s linear infinite, ffSeaBob 5s ease-in-out infinite", willChange: "transform, background-position" }} />
         <div className="absolute inset-x-0" style={{ top: "63.5%", height: "2.4%", background: "linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.9) 55%,rgba(255,255,255,0) 100%)", filter: "blur(1.5px)" }} />
         <div className="absolute inset-x-0" style={{ top: "65%", height: "5%", background: "linear-gradient(180deg,rgba(196,168,110,0.55),rgba(196,168,110,0))" }} />
       </>)}
@@ -93,7 +93,7 @@ function SeasonScene({ theme, cfg }) {
       ))}
       {cfg.birds && FLYING_BIRDS.map((b, i) => (
         <img key={`bird-${i}`} src={cfg.birds} alt="" className="absolute left-0 opacity-40 drop-shadow-sm"
-          style={{ top: b.top, width: b.size, animation: `ffFly ${b.dur}s linear ${b.delay}s infinite` }} />
+          style={{ top: b.top, width: b.size, animation: `ffFly ${b.dur}s linear ${b.delay}s infinite`, willChange: "transform", backfaceVisibility: "hidden" }} />
       ))}
     </div>
   );
