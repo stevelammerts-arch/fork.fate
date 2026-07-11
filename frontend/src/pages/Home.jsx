@@ -322,15 +322,15 @@ export default function Home() {
     // Light mode: cheerful "Ta-Da!" chime. Dark mode: ominous thunderclap.
     try {
       if (localStorage.getItem("ff_muted") !== "1") {
-        thunderRef.current = new Audio(theme === "cyber" ? "/reveal-electric.wav" : light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
+        thunderRef.current = new Audio(theme === "cyber" ? "/reveal-electric.wav" : theme === "tiki" ? "/reveal-drums.wav" : light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
         thunderRef.current.volume = 1.0;
         thunderRef.current.load();
       } else {
         thunderRef.current = null;
       }
     } catch (e) { thunderRef.current = null; }
-    // Dark mode plays a spoken voice cue before the deck shuffles; light mode stays clean.
-    if (!light && theme !== "cyber") playSound("/reveal-voice-v5.mp3", 1.0);
+    // Dark mode plays a spoken voice cue before the deck shuffles; light/cyber/tiki stay clean.
+    if (!light && theme !== "cyber" && theme !== "tiki") playSound("/reveal-voice-v5.mp3", 1.0);
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
     // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
@@ -517,7 +517,7 @@ export default function Home() {
     setSpinning(true);
     setFlashHit(false);
     setRevealFlash(false);
-    playSound("/reveal-voice-v5.mp3", 1.0);
+    if (theme !== "tiki") playSound("/reveal-voice-v5.mp3", 1.0);
     let i = 0;
     let delay = 55;
     const maxDelay = 230;
@@ -530,7 +530,7 @@ export default function Home() {
       } else {
         setFlash(winner || pool[i % pool.length]);
         setFlashHit(true);
-        try { playSound("/reveal-thunder-v4.mp3", 1.0); } catch (e) { /* audio */ }
+        try { playSound(theme === "tiki" ? "/reveal-drums.wav" : "/reveal-thunder-v4.mp3", 1.0); } catch (e) { /* audio */ }
         setRevealFlash(true);
         setTimeout(() => setRevealFlash(false), 1200);
         shuffleRef.current = setTimeout(() => {
