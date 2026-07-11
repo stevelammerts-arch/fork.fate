@@ -156,3 +156,4 @@ Audio build scripts in /app/scripts/: make_reveal_drums.py, make_cyber_radio.py 
 - Fixed Fall tree mobile slash: canopy was cropped at PNG top edge. Regenerated a twisted-trunk autumn tree on green-screen, chroma-keyed for clean transparency (preserves full canopy), enlarged in scene (treeH override) and scaled scarecrow down for realistic proportion.
 - Made Fall hazy moon whiter (radial white gradient + white glow).
 - Bumped FF_BUILD to 2026.06-109.
+- Verified for redeployment (iteration_60): deployment scan PASS; backend 14/14, frontend 100%, no issues. Confirmed Sponsor Analytics (impressions in places.py, clicks in RestaurantCard, admin CTR UI) and Submission Moderation (admin approve/reject) already complete.
