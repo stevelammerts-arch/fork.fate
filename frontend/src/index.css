@@ -150,3 +150,68 @@ body {
 [data-ff-theme="light"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#E01E26\].text-white{color:#24391F !important;}
 [data-ff-theme="light"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#FCF4F4\],
 [data-ff-theme="light"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#F9E9E9\]{background-color:#EEF4EA !important;}
+
+
+/* ── Fall (autumn) theme accent recolor: burnt orange/red (was red) + brown (was black) ── */
+[data-ff-theme="fall"] [data-ff-scope="app"] .bg-\[\#E01E26\]{background-color:#C0451B !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .bg-\[\#B3141A\]{background-color:#A63A15 !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .hover\:bg-\[\#B3141A\]:hover{background-color:#A63A15 !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .bg-\[\#7A0C10\]{background-color:#A63A15 !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .text-\[\#E01E26\]{color:#B23A10 !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .text-\[\#A31621\]{color:#B23A10 !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .border-\[\#E01E26\]{border-color:#C0451B !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .fill-\[\#E01E26\]{fill:#B23A10 !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .focus\:border-\[\#E01E26\]:focus{border-color:#D06A3A !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .focus-within\:border-\[\#E01E26\]:focus-within{border-color:#D06A3A !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .bg-\[\#0E0E0E\]{background-color:#7A4E2D !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .hover\:bg-\[\#2A2A2A\]:hover{background-color:#653F24 !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .text-\[\#0E0E0E\]{color:#4A3212 !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .border-\[\#0E0E0E\]{border-color:#B08A5E !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .bg-\[\#FCF4F4\]{background-color:#FBEFE0 !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .hover\:bg-\[\#FCF4F4\]:hover{background-color:#FBEFE0 !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .bg-\[\#FDF6F6\]{background-color:#FBEFE0 !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .hover\:bg-\[\#FCECEC\]:hover{background-color:#FBEFE0 !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] ::selection{background:#E9A05B;color:#3A2410;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/25{--tw-shadow-color:rgba(192,69,27,0.28) !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/30{--tw-shadow-color:rgba(192,69,27,0.28) !important;}
+
+/* Fall theming for portaled dialogs */
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#101010\],
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#0B0B0B\],
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#0E0E0E\]{background-color:#FBF3E8 !important;}
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#1A1A1A\],
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#2A2A2A\]{background-color:#FFFFFF !important;}
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).bg-white\/10{background-color:rgba(74,50,18,0.06) !important;}
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).border-\[\#2A2A2A\],
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).border-\[\#3A3A3A\]{border-color:#E4D3BC !important;}
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).text-white{color:#4A3212 !important;}
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).text-\[\#A0A0A0\],
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).text-\[\#8A8A8A\],
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).text-\[\#B8BCC2\],
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).text-\[\#C7CBD1\],
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).text-\[\#E6E8EB\],
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).text-\[\#8A8F95\]{color:#7A5A3A !important;}
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#E01E26\]{background-color:#C0451B !important;}
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#B3141A\],
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#FF2E38\]{background-color:#A63A15 !important;}
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).hover\:bg-\[\#B3141A\]:hover,
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).hover\:bg-\[\#FF2E38\]:hover,
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).hover\:bg-\[\#E01E26\]:hover{background-color:#A63A15 !important;}
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).text-\[\#E01E26\]{color:#B23A10 !important;}
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).border-\[\#E01E26\]{border-color:#C0451B !important;}
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).ring-\[\#E01E26\]{--tw-ring-color:#C0451B !important;}
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#E01E26\].text-white{color:#FFFFFF !important;}
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#FCF4F4\],
+[data-ff-theme="fall"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#F9E9E9\]{background-color:#FBEFE0 !important;}
+
+/* Falling autumn leaves */
+@keyframes ffLeafFall {
+  0%   { transform: translate(0, -12vh) rotate(0deg); opacity: 0; }
+  8%   { opacity: 0.95; }
+  92%  { opacity: 0.95; }
+  100% { transform: translate(60px, 112vh) rotate(680deg); opacity: 0; }
+}
+@keyframes ffGlow {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(255,170,60,0.55)); }
+  50%      { filter: drop-shadow(0 0 22px rgba(255,150,40,0.95)); }
+}

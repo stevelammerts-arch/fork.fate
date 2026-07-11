@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -27,14 +27,24 @@ import {
 } from "./homeConstants";
 import { Input } from "../components/ui/input";
 import { Slider } from "../components/ui/slider";
-import { useTheme } from "../hooks/useTheme";
+import { useTheme, setTheme } from "../hooks/useTheme";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+const FALL_LEAF_SRCS = ["/leaf-red.png", "/leaf-orange.png", "/leaf-yellow.png", "/leaf-brown.png"];
+const FALLING_LEAVES = Array.from({ length: 12 }).map((_, i) => ({
+  src: FALL_LEAF_SRCS[i % 4],
+  left: `${(i * 8 + 4) % 94}%`,
+  size: 22 + (i % 3) * 12,
+  dur: 9 + (i % 5) * 2.2,
+  delay: (i % 6) * 1.6,
+}));
+
 
 export default function Home() {
-  const { theme, toggle: toggleTheme } = useTheme();
-  const light = theme === "light";
+  const { theme } = useTheme();
+  const light = theme !== "dark";
+  const fall = theme === "fall";
   const ghost = light
     ? "border-[#E4E4E7] text-[#3F3F46] hover:bg-[#F4F4F5]"
     : "border-white/25 text-white hover:bg-white/10";
@@ -509,12 +519,25 @@ export default function Home() {
       <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={crawlEndpoints.origin || coords} destination={crawlEndpoints.destination} crawlLabel={crawlLabelForType(crawlType)} initialStops={crawlStops} />
 
       {/* Light-mode: faded bright café / restaurant interior background */}
-      {light && (
+      {theme === "light" && (
         <div
           className="pointer-events-none fixed inset-0 z-0 select-none bg-cover bg-center"
           data-testid="cafe-bg-light"
           style={{ backgroundImage: "url('/cafe-bg-light.png')", opacity: 0.28 }}
         />
+      )}
+      {/* Fall theme: warm cream wash, ancient oak on the right, tumbling leaves */}
+      {fall && (
+        <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid="fall-scene">
+          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg,#FBF3E8 0%,#F5E6D0 55%,#EFDCC0 100%)" }} />
+          <img src="/fall-tree.png" alt="" className="absolute bottom-0 right-0 hidden h-[92vh] w-auto object-contain opacity-90 md:block" style={{ maxWidth: "58vw" }} />
+          <img src="/fall-jackolanterns.png" alt="" className="absolute bottom-0 right-[3%] hidden w-[28vw] max-w-md object-contain md:block" style={{ animation: "ffGlow 3.6s ease-in-out infinite" }} />
+          <img src="/fall-pumpkins.png" alt="" className="absolute bottom-0 left-[3%] hidden w-[22vw] max-w-xs object-contain opacity-95 md:block" />
+          {FALLING_LEAVES.map((l, i) => (
+            <img key={i} src={l.src} alt="" className="absolute top-0 opacity-90"
+              style={{ left: l.left, width: l.size, height: l.size, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }} />
+          ))}
+        </div>
       )}
       {/* Dark-mode: decorative reaper background with load animation */}
       {!light && (
@@ -582,17 +605,36 @@ export default function Home() {
             </span>
           </div>
           <div className="flex flex-wrap items-center justify-start gap-2 md:justify-end md:gap-3">
-            <button
-              onClick={toggleTheme}
-              data-testid="theme-toggle-button"
-              title={light ? "Switch to dark (Grim Reaper) mode" : "Switch to light (Professional) mode"}
-              aria-label={light ? "Switch to dark mode" : "Switch to light mode"}
-              className={`group inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${ghost}`}
-            >
-              {light
-                ? <><Moon className="h-4 w-4 transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110" /> <span>Dark</span></>
-                : <><Sun className="h-4 w-4 text-[#E01E26] transition-transform duration-300 group-hover:rotate-90 group-hover:scale-110" /> <span>Light</span></>}
-            </button>
+            <div className="relative">
+              <DropdownMenu onOpenChange={(o) => o && dismissThemeHint()}>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    data-testid="theme-menu-button"
+                    aria-label="Choose a theme"
+                    className={`inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${ghost}`}
+                  >
+                    <Palette className="h-4 w-4" /> <span>Theme</span> <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" data-testid="theme-menu" className="w-40">
+                  <DropdownMenuItem data-testid="theme-option-dark" onClick={() => setTheme("dark")} className="gap-2">
+                    <Moon className="h-4 w-4" /> Dark {theme === "dark" && <Check className="ml-auto h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem data-testid="theme-option-light" onClick={() => setTheme("light")} className="gap-2">
+                    <Sun className="h-4 w-4" /> Light {theme === "light" && <Check className="ml-auto h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem data-testid="theme-option-fall" onClick={() => setTheme("fall")} className="gap-2">
+                    <Leaf className="h-4 w-4" /> Fall {theme === "fall" && <Check className="ml-auto h-4 w-4" />}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              {themeHint && (
+                <div data-testid="theme-hint" className={`absolute left-1/2 top-full z-40 mt-2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold text-white shadow-lg ${fall ? "bg-[#C0451B]" : light ? "bg-[#4F6F47]" : "bg-[#E01E26]"}`}>
+                  Pick a theme 🍂
+                  <button onClick={dismissThemeHint} aria-label="Dismiss theme hint" className="opacity-80 hover:opacity-100">✕</button>
+                </div>
+              )}
+            </div>
             <button
               onClick={() => setShowGuided(true)}
               data-testid="relaunch-guided-button"
@@ -1268,7 +1310,14 @@ export default function Home() {
 const DECK_SIZE = 5;
 
 // Branded card back shown on every shuffling card (photo only appears on the landed winner)
-function CardBack({ light }) {
+function CardBack({ light, fall, leaf }) {
+  if (fall) {
+    return (
+      <div className="absolute inset-0 grid place-items-center bg-[#FBF3E8]" data-testid="card-back">
+        <img src={leaf} alt="" className="h-3/4 w-3/4 object-contain drop-shadow-md" />
+      </div>
+    );
+  }
   if (light) {
     return (
       <div className="absolute inset-0 bg-[#F5F0E6]" data-testid="card-back">
@@ -1314,7 +1363,7 @@ function CardFront({ src, light }) {
   );
 }
 
-function ShufflingDeck({ cards, flash, landed, light }) {
+function ShufflingDeck({ cards, flash, landed, light, fall }) {
   const source = cards.length ? cards : (flash ? [flash] : []);
   // Always fill a full visual deck so the shuffle never looks like a single card,
   // even when the filtered result set is tiny (repeats are visual-only).
@@ -1360,7 +1409,7 @@ function ShufflingDeck({ cards, flash, landed, light }) {
             return (
             <motion.div
               key={(c?.id || "c") + i}
-              className={`absolute inset-0 overflow-hidden rounded-2xl border-2 shadow-2xl ${light ? "border-[#D9C9A8] bg-[#F5F0E6] shadow-black/10" : "border-[#E01E26] bg-[#0E0E0E] shadow-black/30"}`}
+              className={`absolute inset-0 overflow-hidden rounded-2xl border-2 shadow-2xl ${fall ? "border-[#C0451B] bg-[#FBF3E8] shadow-black/10" : light ? "border-[#D9C9A8] bg-[#F5F0E6] shadow-black/10" : "border-[#E01E26] bg-[#0E0E0E] shadow-black/30"}`}
               style={{ zIndex: DECK_SIZE - i }}
               animate={
                 landed
@@ -1388,7 +1437,7 @@ function ShufflingDeck({ cards, flash, landed, light }) {
               {showPhoto ? (
                 <CardFront src={c.image} light={light} />
               ) : (
-                <CardBack light={light} />
+                <CardBack light={light} fall={fall} leaf={FALL_LEAF_SRCS[i % FALL_LEAF_SRCS.length]} />
               )}
             </motion.div>
             );
