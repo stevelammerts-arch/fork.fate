@@ -5,7 +5,7 @@ from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, HTTPException, Request, Depends
 
 from core import (
-    db, logger, rate_limit, client_ip, FALLBACK_IMG, SPONSOR_PRICE,
+    db, logger, rate_limit, client_ip, origin_allowed, FALLBACK_IMG, SPONSOR_PRICE,
     PAYPAL_BASE, PAYPAL_ENV, PAYPAL_CLIENT_ID, PAYPAL_SECRET, PAYPAL_WEBHOOK_ID,
 )
 from models import SponsorshipRequest, SponsorSubscribe
@@ -88,6 +88,8 @@ async def sponsors_subscribe(payload: SponsorSubscribe, request: Request):
     """Self-serve: create a pending sponsor + a PayPal subscription; returns the approval URL."""
     if not paypal_configured():
         raise HTTPException(status_code=503, detail="Online sponsorship isn't available yet — please email us.")
+    if not origin_allowed(payload.origin):
+        raise HTTPException(status_code=400, detail="Invalid origin")
     ip = client_ip(request)
     # Abuse cap: limit unapproved pending sponsors per source in the last 24h.
     day_ago = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
