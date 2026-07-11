@@ -332,35 +332,44 @@ body {
   0%, 100% { filter: drop-shadow(0 0 6px rgba(255,170,60,0.55)); }
   50%      { filter: drop-shadow(0 0 22px rgba(255,150,40,0.95)); }
 }
-/* Summer ocean shimmer — broken, near-horizontal glints that twinkle like
-   sunlight on distant water (not a single sliding ribbon). Two ripple layers
-   drift shoreward while a masked "sparkle" grid slides across to twinkle. */
+/* Summer ocean shimmer — broken, near-horizontal glints that flow toward shore
+   (downward). Motion is GPU-composited transform:translateY (NOT background-position,
+   which mobile browsers refuse to animate), so it runs reliably on phones. A static
+   broken mask turns the light lines into a field of twinkling sparkles; two layers
+   drift at different speeds for depth. */
 .ff-sea-shimmer {
-  background-image:
-    repeating-linear-gradient(0.6deg, rgba(255,255,255,0) 0 5px, rgba(255,255,255,0.30) 5px 6px, rgba(255,255,255,0) 6px 11px),
-    repeating-linear-gradient(-0.6deg, rgba(255,255,255,0) 0 9px, rgba(255,255,255,0.16) 9px 10px, rgba(255,255,255,0) 10px 21px);
-  background-size: 100% 11px, 100% 21px;
-  -webkit-mask-image: repeating-linear-gradient(90deg, transparent 0 10px, #000 20px 34px, transparent 44px 64px);
-  mask-image: repeating-linear-gradient(90deg, transparent 0 10px, #000 20px 34px, transparent 44px 64px);
-  -webkit-mask-size: 150px 100%;
-  mask-size: 150px 100%;
-  mix-blend-mode: screen;
-  opacity: 0.55;
+  opacity: 0.85;
+  -webkit-mask-image: repeating-linear-gradient(90deg, transparent 0 8px, #000 16px 34px, transparent 42px 60px);
+  mask-image: repeating-linear-gradient(90deg, transparent 0 8px, #000 16px 34px, transparent 42px 60px);
+  -webkit-mask-size: 140px 100%;
+  mask-size: 140px 100%;
+}
+.ff-sea-wave {
+  position: absolute;
+  left: 0; right: 0; top: -48px; bottom: -48px;
   filter: blur(0.4px);
-  will-change: background-position, mask-position, transform;
-  animation: ffSeaRipple 3.6s linear infinite, ffSeaGlint 12s linear infinite, ffSeaBob 6s ease-in-out infinite;
+  will-change: transform;
+  transform: translateZ(0);
 }
-@keyframes ffSeaRipple {
-  0%   { background-position: 0 0, 0 0; }
-  100% { background-position: 0 11px, 0 21px; }
+.ff-sea-wave-a {
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,0.5) 0 2px, rgba(255,255,255,0) 2px 20px);
+  animation: ffSeaFlowA 3.4s linear infinite;
 }
-@keyframes ffSeaGlint {
-  0%   { -webkit-mask-position: 0 0; mask-position: 0 0; }
-  100% { -webkit-mask-position: 150px 0; mask-position: 150px 0; }
+.ff-sea-wave-b {
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,0.28) 0 1.5px, rgba(255,255,255,0) 1.5px 34px);
+  animation: ffSeaFlowB 4.8s linear infinite;
 }
-@keyframes ffSeaBob {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(2px); }
+@keyframes ffSeaFlowA { from { transform: translateY(0); } to { transform: translateY(20px); } }
+@keyframes ffSeaFlowB { from { transform: translateY(0); } to { transform: translateY(34px); } }
+/* Seagull wingbeat — vertical squash/stretch of the silhouette reads as flapping */
+.ff-gull {
+  transform-origin: 50% 42%;
+  will-change: transform;
+  animation: ffFlap 0.8s ease-in-out infinite;
+}
+@keyframes ffFlap {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(0.6); }
 }
 /* Seagulls gliding across the summer sky */
 @keyframes ffFly {

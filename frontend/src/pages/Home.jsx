@@ -44,6 +44,7 @@ const FLYING_BIRDS = Array.from({ length: 6 }).map((_, i) => ({
   size: 40 + (i % 3) * 20,
   dur: 13 + (i % 4) * 3,
   delay: i * 2.2,
+  flap: 0.7 + (i % 3) * 0.18,
 }));
 
 const SEASONS = {
@@ -76,7 +77,10 @@ function SeasonScene({ theme, cfg }) {
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
       {cfg.ocean && (<>
         <div className="absolute inset-x-0" style={{ top: "45%", height: "20%", background: "linear-gradient(180deg,#2C86C4 0%,#3CA0D4 38%,#74C6E6 80%,#BFE9F4 100%)" }} />
-        <div className="ff-sea-shimmer absolute inset-x-0" style={{ top: "46%", height: "17.5%" }} />
+        <div className="ff-sea-shimmer absolute inset-x-0 overflow-hidden" style={{ top: "46%", height: "17.5%" }}>
+          <div className="ff-sea-wave ff-sea-wave-a" />
+          <div className="ff-sea-wave ff-sea-wave-b" />
+        </div>
         <div className="absolute inset-x-0" style={{ top: "63.5%", height: "2.4%", background: "linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.9) 55%,rgba(255,255,255,0) 100%)", filter: "blur(1.5px)" }} />
         <div className="absolute inset-x-0" style={{ top: "65%", height: "5%", background: "linear-gradient(180deg,rgba(196,168,110,0.55),rgba(196,168,110,0))" }} />
       </>)}
@@ -92,8 +96,9 @@ function SeasonScene({ theme, cfg }) {
           style={{ left: l.left, width: l.size, height: l.size, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }} />
       ))}
       {cfg.birds && FLYING_BIRDS.map((b, i) => (
-        <img key={`bird-${i}`} src={cfg.birds} alt="" className="absolute left-0 opacity-40 drop-shadow-sm"
-          style={{ top: b.top, width: b.size, animation: `ffFly ${b.dur}s linear ${b.delay}s infinite`, willChange: "transform", backfaceVisibility: "hidden" }} />
+        <div key={`bird-${i}`} className="absolute left-0" style={{ top: b.top, animation: `ffFly ${b.dur}s linear ${b.delay}s infinite`, willChange: "transform", backfaceVisibility: "hidden" }}>
+          <img src={cfg.birds} alt="" className="ff-gull block opacity-40 drop-shadow-sm" style={{ width: b.size, animationDuration: `${b.flap}s` }} />
+        </div>
       ))}
     </div>
   );
