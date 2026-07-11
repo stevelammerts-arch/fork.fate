@@ -31,11 +31,20 @@ track *= env
 def load_timpani(dur=1.5, tail_fade=0.8):
     with wave.open("/tmp/timpani_dec.wav") as w:
         raw = w.readframes(w.getnframes())
-    y = np.frombuffer(raw, dtype="<i2").astype(np.float32) / 32768.0
-    # pitch DOWN one octave: resample 2x (half frequency), keeps the natural timbre
-    idx = np.arange(0, len(y) - 1, 0.5)
-    y = np.interp(idx, np.arange(len(y)), y).astype(np.float32)
-    # find onset (first sample crossing a small threshold) and trim leading silence
+    y0 = np.frombuffer(raw, dtype="<i2").astype(np.float32) / 32768.0
+    src_idx = np.arange(len(y0))
+
+    def pitch(factor):
+        # stretch by `factor` -> pitch divides by `factor` (factor 2 = one octave down)
+        idx = np.arange(0, len(y0) - 1, 1.0 / factor)
+        return np.interp(idx, src_idx, y0).astype(np.float32)
+
+    # 3 simultaneous "bongs": root (octave down) + a fifth + an octave on top
+    layers = [pitch(2.0) * 1.0, pitch(1.3333) * 0.75, pitch(1.0) * 0.6]
+    L = min(len(l) for l in layers)
+    y = sum(l[:L] for l in layers)
+
+    # find onset and trim leading silence
     thr = 0.02 * np.max(np.abs(y))
     onset = int(np.argmax(np.abs(y) > thr))
     y = y[onset: onset + int(SR * dur)]
