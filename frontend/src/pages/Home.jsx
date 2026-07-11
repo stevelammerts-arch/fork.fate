@@ -64,7 +64,7 @@ const SEASONS = {
   },
   summer: {
     grad: "linear-gradient(180deg,#BFE8F7 0%,#8FD3EE 44%,#5FB8D9 62%,#F3E2B3 62%,#EAD199 100%)",
-    tree: "/summer-tree.png", decorLeft: "/summer-decor.png", decorLeftBig: true, sun: "/summer-sun.png", birds: "/summer-seagull.png",
+    tree: "/summer-tree.png", treeH: "h-[60svh] sm:h-[92vh] z-[3]", decorLeft: "/summer-decor.png", decorLeftBig: true, sun: "/summer-sun.png", birds: "/summer-seagull.png",
     items: ["/summer-sun.png", "/summer-ball.png", "/summer-icecream.png"], falling: false, hint: "#E07E17",
   },
 };
@@ -163,19 +163,25 @@ function AmbianceScene({ theme, cfg }) {
       {cfg.steam && STEAM_PUFFS.map((s, i) => (
         <div key={`steam-${i}`} className="absolute bottom-[42vh] rounded-full" style={{ left: s.left, width: s.size, height: s.size, background: "radial-gradient(circle, rgba(255,244,224,0.5), rgba(255,244,224,0) 70%)", animation: `ffSteam ${s.dur}s ease-in ${s.delay}s infinite` }} />
       ))}
-      {cfg.bar && <img src={cfg.bar} alt="" className="absolute bottom-0 left-1/2 w-[58vw] max-w-md -translate-x-1/2 object-contain opacity-85" />}
+      {cfg.bar && <img src={cfg.bar} alt="" className="absolute bottom-0 left-1/2 w-[86vw] max-w-xl -translate-x-1/2 object-contain opacity-85 sm:w-[46vw]" />}
       {cfg.glow && <div className="absolute bottom-[10vh] left-1/2 h-56 w-56 -translate-x-1/2 rounded-full sm:h-72 sm:w-72" style={{ background: "radial-gradient(circle, rgba(255,150,50,0.45), rgba(255,150,50,0) 70%)", animation: "ffTorchGlow 2.3s ease-in-out infinite" }} />}
       {cfg.torchLeft && <>
-        <img src={cfg.torchLeft} alt="" className="absolute bottom-0 left-[-6%] h-[42vh] w-auto object-contain opacity-95" />
-        {cfg.torchFlame && (
-          <div className="absolute bottom-0 left-[-6%] h-[42vh]" style={{ aspectRatio: "848 / 1264", animation: "ffFlame 1.9s ease-in-out infinite" }}>
+        <img src={cfg.torchLeft} alt="" className="absolute bottom-0 left-[-7%] h-[30vh] w-auto object-contain opacity-95 sm:h-[38vh]" />
+        <img src={cfg.torchLeft} alt="" className="absolute bottom-0 right-[-7%] h-[30vh] w-auto object-contain opacity-95 sm:h-[38vh]" style={{ transform: "scaleX(-1)" }} />
+        {cfg.torchFlame && (<>
+          <div className="absolute bottom-0 left-[-7%] h-[30vh] sm:h-[38vh]" style={{ aspectRatio: "848 / 1264", animation: "ffFlame 1.9s ease-in-out infinite" }}>
             {flameFrames.map((f, i) => (
-              <img key={f} src={f} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: 0, animation: `ffFlameCycle ${(flameFrames.length * 0.14).toFixed(2)}s linear infinite`, animationDelay: `${-(i * 0.14).toFixed(2)}s` }} />
+              <img key={`fl-${f}`} src={f} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: 0, animation: `ffFlameCycle ${(flameFrames.length * 0.14).toFixed(2)}s linear infinite`, animationDelay: `${-(i * 0.14).toFixed(2)}s` }} />
             ))}
           </div>
-        )}
+          <div className="absolute bottom-0 right-[-7%] h-[30vh] sm:h-[38vh]" style={{ aspectRatio: "848 / 1264", transform: "scaleX(-1)", animation: "ffFlame 2.1s ease-in-out infinite" }}>
+            {flameFrames.map((f, i) => (
+              <img key={`fr-${f}`} src={f} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: 0, animation: `ffFlameCycle ${(flameFrames.length * 0.14).toFixed(2)}s linear infinite`, animationDelay: `${-(i * 0.14).toFixed(2)}s` }} />
+            ))}
+          </div>
+        </>)}
       </>}
-      {cfg.totemRight && <img src={cfg.totemRight} alt="" className="absolute bottom-0 right-[-6%] h-[46vh] object-contain opacity-90" />}
+      {cfg.totemRight && <img src={cfg.totemRight} alt="" className="absolute bottom-0 right-[7%] h-[34vh] object-contain opacity-90 sm:h-[42vh]" />}
       {cfg.torch && <>
         <img src={cfg.torch} alt="" className="absolute bottom-0 left-[1%] h-[62vh] object-contain opacity-90" style={{ transformOrigin: "bottom", animation: "ffFlame 1.7s ease-in-out infinite" }} />
         <img src={cfg.torch} alt="" className="absolute bottom-0 right-[1%] h-[62vh] object-contain opacity-90" style={{ transform: "scaleX(-1)", transformOrigin: "bottom", animation: "ffFlame 2.1s ease-in-out infinite" }} />
