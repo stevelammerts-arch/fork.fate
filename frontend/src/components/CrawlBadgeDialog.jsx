@@ -75,10 +75,11 @@ function drawSelfie(ctx, photo, x, y, w, h, r, P) {
   ctx.strokeStyle = P.accent; ctx.lineWidth = 4; ctx.stroke();
 }
 
-async function buildBadge({ name, crew, label, photo, story = false, light = false }) {
+async function buildBadge({ name, crew, label, photo, story = false, light = false, accent }) {
   const P = light
     ? { bg1: "#F8F2E7", bg2: "#EDE2CF", panel: "#FFFFFF", panelStroke: "#E7DCC7", ink: "#2A2118", accent: "#4F6F47", muted: "#8A7C68", line: "#E4D9C4", box: "#F1EADB", boxInk: "#B9AC95" }
     : { bg1: "#1C0406", bg2: "#070707", panel: "#141414", panelStroke: "rgba(224,30,38,0.35)", ink: "#FFFFFF", accent: "#E01E26", muted: "#B9BEC4", line: "rgba(224,30,38,0.45)", box: "#141414", boxInk: "#5A5A5A" };
+  if (light && accent) { P.accent = accent; P.line = accent; P.panelStroke = "#E7DCC7"; }
   const logoSrc = light ? "/logo-mark-light.png" : "/logo-mark.png";
 
   const W = story ? 1080 : 1600;
@@ -149,7 +150,15 @@ async function buildBadge({ name, crew, label, photo, story = false, light = fal
 
 export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "", defaultCrew = "" }) {
   const { theme } = useTheme();
-  const light = theme === "light";
+  const light = theme !== "dark";
+  const AC = {
+    light:  { text: "#4F6F47", card: "#A31621", btn: "#A8C99E", btnHover: "#97BC8B", btnInk: "#24391F", glowInner: "rgba(122,168,110,0.80)", glowMid: "rgba(79,111,71,0.35)", glowOuter: "rgba(79,111,71,0)" },
+    fall:   { text: "#B23A10", card: "#C0451B", btn: "#C0451B", btnHover: "#A63A15", btnInk: "#FFFFFF", glowInner: "rgba(224,120,60,0.85)", glowMid: "rgba(192,69,27,0.4)", glowOuter: "rgba(192,69,27,0)" },
+    winter: { text: "#1E5A82", card: "#2E77A6", btn: "#2E77A6", btnHover: "#245F86", btnInk: "#FFFFFF", glowInner: "rgba(90,170,220,0.85)", glowMid: "rgba(46,119,166,0.4)", glowOuter: "rgba(46,119,166,0)" },
+    spring: { text: "#C2547F", card: "#D46A9F", btn: "#E38DB0", btnHover: "#D46A9F", btnInk: "#FFFFFF", glowInner: "rgba(240,150,190,0.85)", glowMid: "rgba(212,106,159,0.4)", glowOuter: "rgba(212,106,159,0)" },
+    summer: { text: "#147A4A", card: "#1E9E63", btn: "#1E9E63", btnHover: "#16824F", btnInk: "#FFFFFF", glowInner: "rgba(80,200,140,0.85)", glowMid: "rgba(30,158,99,0.4)", glowOuter: "rgba(30,158,99,0)" },
+  };
+  const ac = AC[theme] || AC.light;
   const [name, setName] = useState("");
   const [crew, setCrew] = useState(defaultCrew);
   const [photo, setPhoto] = useState(null);
@@ -204,11 +213,11 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
 
   const makeBlob = async () => {
     const img = photo ? await loadImage(photo).catch(() => null) : null;
-    return buildBadge({ name: name.trim(), crew, label, photo: img, light });
+    return buildBadge({ name: name.trim(), crew, label, photo: img, light, accent: ac.card });
   };
   const makeStoryBlob = async () => {
     const img = photo ? await loadImage(photo).catch(() => null) : null;
-    return buildBadge({ name: name.trim(), crew, label, photo: img, story: true, light });
+    return buildBadge({ name: name.trim(), crew, label, photo: img, story: true, light, accent: ac.card });
   };
 
   const download = async () => {
@@ -270,14 +279,15 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
   const ghostBtn = light
     ? "border border-[#E4D9C4] text-[#2A2118] hover:bg-[#F1EADB]"
     : "border border-[#3A3A3A] text-white hover:bg-white/10";
-  const accentBtn = light ? "bg-[#A8C99E] text-[#24391F] hover:bg-[#97BC8B]" : "bg-[#E01E26] text-white hover:bg-[#FF2E38]";
+  const accentBtn = theme === "dark" ? "bg-[#E01E26] text-white hover:bg-[#FF2E38]" : theme === "light" ? "bg-[#A8C99E] text-[#24391F] hover:bg-[#97BC8B]" : "";
+  const accentBtnStyle = (light && theme !== "light") ? { backgroundColor: ac.btn, color: ac.btnInk } : undefined;
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className={`max-h-[94vh] overflow-y-auto sm:max-w-xl ${dlg}`} data-testid="crawl-badge-dialog">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-serif text-2xl">
-            <Trophy className={`h-6 w-6 ${light ? "text-[#4F6F47]" : "text-[#E01E26]"}`} /> Crawl Complete
+            <Trophy className="h-6 w-6" style={{ color: light ? ac.text : "#E01E26" }} /> Crawl Complete
           </DialogTitle>
           <DialogDescription className={light ? "text-sm text-[#8A7C68]" : "text-sm text-[#A0A0A0]"}>
             Your reward awaits — claim your badge and share it.
@@ -319,7 +329,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
                     className="pointer-events-none absolute z-0 h-72 w-72 rounded-full"
                     style={{
                       background: light
-                        ? "radial-gradient(circle, rgba(122,168,110,0.80) 0%, rgba(79,111,71,0.35) 40%, rgba(79,111,71,0) 72%)"
+                        ? `radial-gradient(circle, ${ac.glowInner} 0%, ${ac.glowMid} 40%, ${ac.glowOuter} 72%)`
                         : "radial-gradient(circle, rgba(255,120,90,0.98) 0%, rgba(224,30,38,0.9) 30%, rgba(224,30,38,0.45) 55%, rgba(224,30,38,0) 75%)",
                     }}
                   />
@@ -330,7 +340,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
                     className="relative z-10"
                   >
                     {light ? (
-                      <h3 className="font-serif text-5xl font-semibold tracking-tight text-[#4F6F47] sm:text-6xl">
+                      <h3 className="font-serif text-5xl font-semibold tracking-tight sm:text-6xl" style={{ color: ac.text }}>
                         Congratulations
                       </h3>
                     ) : (
@@ -355,12 +365,12 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
                 </p>
                 {communityCount !== null && communityCount > 0 && (
                   <p className={light ? "text-xs text-[#8A7C68]" : "text-xs text-[#8A8F95]"} data-testid="crawl-badge-community-count">
-                    🏆 <span className={`font-bold ${light ? "text-[#4F6F47]" : "text-[#E01E26]"}`}>{communityCount.toLocaleString()}</span> crawls completed on Fork·Fate
+                    🏆 <span className="font-bold" style={{ color: light ? ac.text : "#E01E26" }}>{communityCount.toLocaleString()}</span> crawls completed on Fork·Fate
                   </p>
                 )}
                 <div className="mt-1 flex w-full flex-col gap-3">
                   <button onClick={() => { setStep("build"); setTimeout(() => fileRef.current?.click(), 150); }} data-testid="crawl-badge-selfie-cta"
-                    className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold ${accentBtn}`}>
+                    className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold ${accentBtn}`} style={accentBtnStyle}>
                     <Camera className="h-4 w-4" /> Take a selfie & reveal my reward
                   </button>
                   <button onClick={() => setStep("build")} data-testid="crawl-badge-skip-selfie"
@@ -383,21 +393,21 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
           <div className="flex w-[35%] flex-col items-center justify-center gap-1 px-2" style={{ borderRight: `1px solid ${light ? "#E4D9C4" : "rgba(224,30,38,0.35)"}` }}>
             <img src={light ? "/logo-mark-light.png" : "/logo-mark.png"} alt="Fork·Fate" className="h-[46%] w-auto object-contain" />
             <span className={`font-serif font-bold ${light ? "text-[#2A2118]" : "text-white"}`} style={{ fontSize: "clamp(11px,3.2vw,20px)" }}>Fork·Fate</span>
-            <span className={`font-bold uppercase tracking-[0.2em] ${light ? "text-[#A31621]" : "text-[#E01E26]"}`} style={{ fontSize: "clamp(5px,1.4vw,9px)" }}>{label}</span>
+            <span className="font-bold uppercase tracking-[0.2em]" style={{ color: light ? ac.card : "#E01E26", fontSize: "clamp(5px,1.4vw,9px)" }}>{label}</span>
           </div>
           {/* Middle: congrats */}
           <div className="flex w-[38%] flex-col items-center justify-center px-2 text-center leading-tight">
-            <span className={`font-bold uppercase tracking-[0.18em] ${light ? "text-[#A31621]" : "text-[#E01E26]"}`} style={{ fontSize: "clamp(6px,1.7vw,11px)" }}>{light ? "Congratulations" : "I Survived"}</span>
+            <span className="font-bold uppercase tracking-[0.18em]" style={{ color: light ? ac.card : "#E01E26", fontSize: "clamp(6px,1.7vw,11px)" }}>{light ? "Congratulations" : "I Survived"}</span>
             <span className={`mt-0.5 font-serif font-bold ${light ? "text-[#2A2118]" : "text-white"}`} style={{ fontSize: "clamp(9px,2.6vw,16px)" }}>THE FORK·FATE</span>
             <span className={`font-serif font-bold ${light ? "text-[#2A2118]" : "text-white"}`} style={{ fontSize: "clamp(9px,2.6vw,16px)" }}>{label}</span>
-            <span className={`my-1 block h-0.5 w-5 ${light ? "bg-[#A31621]" : "bg-[#E01E26]"}`} />
+            <span className="my-1 block h-0.5 w-5" style={{ backgroundColor: light ? ac.card : "#E01E26" }} />
             <span className={`font-serif italic ${light ? "text-[#2A2118]" : "text-[#F3F3F3]"}`} style={{ fontSize: "clamp(8px,2.2vw,13px)" }}>{name.trim() || "Your name"}</span>
             {crew.trim() && <span className={light ? "text-[#8A7C68]" : "text-[#B9BEC4]"} style={{ fontSize: "clamp(6px,1.5vw,9px)" }}>with {crew.trim()}</span>}
             <span className={`mt-0.5 tracking-wider ${light ? "text-[#A99C86]" : "text-[#9A9FA5]"}`} style={{ fontSize: "clamp(5px,1.2vw,8px)" }}>fork-fate.com</span>
           </div>
           {/* Right: selfie */}
           <div className="flex w-[27%] items-center justify-center p-2">
-            <div className="aspect-[4/3] w-full overflow-hidden rounded-md border-2" style={{ borderColor: light ? "#A31621" : "#E01E26" }}>
+            <div className="aspect-[4/3] w-full overflow-hidden rounded-md border-2" style={{ borderColor: light ? ac.card : "#E01E26" }}>
               {photo
                 ? <img src={photo} alt="Your selfie" className="h-full w-full object-cover" />
                 : <div className={`grid h-full w-full place-items-center text-center ${light ? "bg-[#F1EADB] text-[#B9AC95]" : "bg-[#141414] text-[#5A5A5A]"}`}><Camera className="h-5 w-5" /></div>}
