@@ -150,7 +150,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
   return (
     <>
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto border-[#2A2A2A] bg-[#101010] text-white sm:max-w-lg" data-testid="pub-crawl-dialog">
+        <DialogContent className="max-h-[90vh] overflow-y-auto border-[#2A2A2A] bg-[#101010] text-white sm:max-w-lg" data-testid="pub-crawl-dialog" data-ff-dialog>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-serif text-2xl">
               <Beer className="h-6 w-6 text-[#E01E26]" /> {shared ? `Group ${label}` : `Your ${label}`}

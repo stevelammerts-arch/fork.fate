@@ -121,7 +121,7 @@ export default function AddRestaurantDialog({ onAdded, mode = "food", open: open
           </button>
         </DialogTrigger>
       )}
-      <DialogContent className="rounded-3xl border-[#E2E4E7] bg-white sm:max-w-lg">
+      <DialogContent className="rounded-3xl border-[#E2E4E7] bg-white sm:max-w-lg" data-ff-dialog>
         <DialogHeader>
           <DialogTitle className="font-serif text-3xl font-medium text-[#0E0E0E]">
             Add a restaurant

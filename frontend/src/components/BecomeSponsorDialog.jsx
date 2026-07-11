@@ -86,7 +86,7 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
           {triggers[variant] || triggers.primary}
         </DialogTrigger>
       )}
-      <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl border-[#E2E4E7] bg-white sm:max-w-md" data-testid="sponsor-dialog">
+      <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl border-[#E2E4E7] bg-white sm:max-w-md" data-testid="sponsor-dialog" data-ff-dialog>
         <DialogHeader>
           <DialogTitle className="font-serif text-2xl text-[#0E0E0E]">Sponsor your spot on Fork·Fate</DialogTitle>
           <DialogDescription className="text-[#6B7075]">

@@ -67,7 +67,7 @@ export default function InstallAppButton() {
       </button>
 
       <Dialog open={showIOS} onOpenChange={setShowIOS}>
-        <DialogContent className="max-w-sm border-[#2A2A2A] bg-[#0B0B0B] text-white" data-testid="ios-install-dialog">
+        <DialogContent className="max-w-sm border-[#2A2A2A] bg-[#0B0B0B] text-white" data-testid="ios-install-dialog" data-ff-dialog>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-serif text-2xl">
               <span className="relative block h-8 w-8 overflow-hidden rounded-full bg-black">
