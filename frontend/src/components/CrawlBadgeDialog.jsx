@@ -77,7 +77,7 @@ function drawSelfie(ctx, photo, x, y, w, h, r, P) {
 
 async function buildBadge({ name, crew, label, photo, story = false, light = false }) {
   const P = light
-    ? { bg1: "#F8F2E7", bg2: "#EDE2CF", panel: "#FFFFFF", panelStroke: "#E7DCC7", ink: "#2A2118", accent: "#A31621", muted: "#8A7C68", line: "#E4D9C4", box: "#F1EADB", boxInk: "#B9AC95" }
+    ? { bg1: "#F8F2E7", bg2: "#EDE2CF", panel: "#FFFFFF", panelStroke: "#E7DCC7", ink: "#2A2118", accent: "#4F6F47", muted: "#8A7C68", line: "#E4D9C4", box: "#F1EADB", boxInk: "#B9AC95" }
     : { bg1: "#1C0406", bg2: "#070707", panel: "#141414", panelStroke: "rgba(224,30,38,0.35)", ink: "#FFFFFF", accent: "#E01E26", muted: "#B9BEC4", line: "rgba(224,30,38,0.45)", box: "#141414", boxInk: "#5A5A5A" };
   const logoSrc = light ? "/logo-mark-light.png" : "/logo-mark.png";
 
@@ -128,7 +128,7 @@ async function buildBadge({ name, crew, label, photo, story = false, light = fal
     if (crew && crew.trim()) { drawText(`with ${crew.trim()}`, midCx, y, midMaxW, "400", 24, "Arial, sans-serif", P.muted); y += 40; }
     drawText("fork-fate.com", midCx, y, midMaxW, "400", 20, "Arial, sans-serif", P.muted, 1);
 
-    drawSelfie(ctx, photo, 1090, 250, 430, 400, 20, P);
+    drawSelfie(ctx, photo, 1085, 285, 440, 330, 18, P);
   } else {
     // ── Vertical story: logo top · congrats · selfie · CTA ──
     const cx = W / 2;
@@ -270,14 +270,14 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
   const ghostBtn = light
     ? "border border-[#E4D9C4] text-[#2A2118] hover:bg-[#F1EADB]"
     : "border border-[#3A3A3A] text-white hover:bg-white/10";
-  const accentBtn = light ? "bg-[#A31621] text-white hover:bg-[#7F1D1D]" : "bg-[#E01E26] text-white hover:bg-[#FF2E38]";
+  const accentBtn = light ? "bg-[#A8C99E] text-[#24391F] hover:bg-[#97BC8B]" : "bg-[#E01E26] text-white hover:bg-[#FF2E38]";
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className={`max-h-[94vh] overflow-y-auto sm:max-w-xl ${dlg}`} data-testid="crawl-badge-dialog">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-serif text-2xl">
-            <Trophy className={`h-6 w-6 ${light ? "text-[#A31621]" : "text-[#E01E26]"}`} /> Crawl Complete
+            <Trophy className={`h-6 w-6 ${light ? "text-[#4F6F47]" : "text-[#E01E26]"}`} /> Crawl Complete
           </DialogTitle>
           <DialogDescription className={light ? "text-sm text-[#8A7C68]" : "text-sm text-[#A0A0A0]"}>
             Your reward awaits — claim your badge and share it.
@@ -319,7 +319,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
                     className="pointer-events-none absolute z-0 h-72 w-72 rounded-full"
                     style={{
                       background: light
-                        ? "radial-gradient(circle, rgba(255,193,80,0.85) 0%, rgba(163,22,33,0.35) 40%, rgba(163,22,33,0) 72%)"
+                        ? "radial-gradient(circle, rgba(122,168,110,0.80) 0%, rgba(79,111,71,0.35) 40%, rgba(79,111,71,0) 72%)"
                         : "radial-gradient(circle, rgba(255,120,90,0.98) 0%, rgba(224,30,38,0.9) 30%, rgba(224,30,38,0.45) 55%, rgba(224,30,38,0) 75%)",
                     }}
                   />
@@ -330,7 +330,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
                     className="relative z-10"
                   >
                     {light ? (
-                      <h3 className="font-serif text-5xl font-semibold tracking-tight text-[#A31621] sm:text-6xl">
+                      <h3 className="font-serif text-5xl font-semibold tracking-tight text-[#4F6F47] sm:text-6xl">
                         Congratulations
                       </h3>
                     ) : (
@@ -355,7 +355,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
                 </p>
                 {communityCount !== null && communityCount > 0 && (
                   <p className={light ? "text-xs text-[#8A7C68]" : "text-xs text-[#8A8F95]"} data-testid="crawl-badge-community-count">
-                    🏆 <span className={`font-bold ${light ? "text-[#A31621]" : "text-[#E01E26]"}`}>{communityCount.toLocaleString()}</span> crawls completed on Fork·Fate
+                    🏆 <span className={`font-bold ${light ? "text-[#4F6F47]" : "text-[#E01E26]"}`}>{communityCount.toLocaleString()}</span> crawls completed on Fork·Fate
                   </p>
                 )}
                 <div className="mt-1 flex w-full flex-col gap-3">
@@ -397,7 +397,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
           </div>
           {/* Right: selfie */}
           <div className="flex w-[27%] items-center justify-center p-2">
-            <div className="h-[78%] w-full overflow-hidden rounded-md border-2" style={{ borderColor: light ? "#A31621" : "#E01E26" }}>
+            <div className="aspect-[4/3] w-full overflow-hidden rounded-md border-2" style={{ borderColor: light ? "#A31621" : "#E01E26" }}>
               {photo
                 ? <img src={photo} alt="Your selfie" className="h-full w-full object-cover" />
                 : <div className={`grid h-full w-full place-items-center text-center ${light ? "bg-[#F1EADB] text-[#B9AC95]" : "bg-[#141414] text-[#5A5A5A]"}`}><Camera className="h-5 w-5" /></div>}

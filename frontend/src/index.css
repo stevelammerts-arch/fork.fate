@@ -92,3 +92,29 @@ body {
 }
 
 
+
+
+/* ── Light theme accent recolor: sage green (was red) + warm tan (was black).
+   Scoped to [data-ff-scope="app"] so portaled dialogs/drawers keep their own dark styling.
+   Deep green/brown text on the pastel fills keeps contrast readable. ── */
+[data-ff-theme="light"] [data-ff-scope="app"] .bg-\[\#E01E26\]{background-color:#A8C99E !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .bg-\[\#B3141A\]{background-color:#97BC8B !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .hover\:bg-\[\#B3141A\]:hover{background-color:#97BC8B !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .bg-\[\#7A0C10\]{background-color:#97BC8B !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .text-\[\#E01E26\]{color:#4F6F47 !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .text-\[\#A31621\]{color:#4F6F47 !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .border-\[\#E01E26\]{border-color:#A8C99E !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .fill-\[\#E01E26\]{fill:#4F6F47 !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .bg-\[\#E01E26\].text-white{color:#24391F !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .focus\:border-\[\#E01E26\]:focus{border-color:#7FA877 !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .focus-within\:border-\[\#E01E26\]:focus-within{border-color:#7FA877 !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .bg-\[\#0E0E0E\]{background-color:#D8C3A5 !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .bg-\[\#0E0E0E\].text-white{color:#3E2F1E !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .hover\:bg-\[\#2A2A2A\]:hover{background-color:#CBB08A !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .text-\[\#0E0E0E\]{color:#2A2118 !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .border-\[\#0E0E0E\]{border-color:#C8B79A !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .bg-\[\#FCF4F4\]{background-color:#EEF4EA !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .hover\:bg-\[\#FCF4F4\]:hover{background-color:#EEF4EA !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .bg-\[\#FDF6F6\]{background-color:#EEF4EA !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .hover\:bg-\[\#FCECEC\]:hover{background-color:#EEF4EA !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] ::selection{background:#A8C99E;color:#24391F;}

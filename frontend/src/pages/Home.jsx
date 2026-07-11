@@ -496,7 +496,7 @@ export default function Home() {
   }, [results, sortBy]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-white">
+    <div className="relative min-h-screen overflow-hidden bg-white" data-ff-scope="app">
       <AnimatePresence>
         {showGuided && (
           <GuidedFlow
@@ -587,11 +587,11 @@ export default function Home() {
               data-testid="theme-toggle-button"
               title={light ? "Switch to dark (Grim Reaper) mode" : "Switch to light (Professional) mode"}
               aria-label={light ? "Switch to dark mode" : "Switch to light mode"}
-              className={`group inline-flex items-center justify-center rounded-full border p-2 transition-colors sm:p-2.5 ${ghost}`}
+              className={`group inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${ghost}`}
             >
               {light
-                ? <Moon className="h-4 w-4 transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110" />
-                : <Sun className="h-4 w-4 text-[#E01E26] transition-transform duration-300 group-hover:rotate-90 group-hover:scale-110" />}
+                ? <><Moon className="h-4 w-4 transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110" /> <span>Dark</span></>
+                : <><Sun className="h-4 w-4 text-[#E01E26] transition-transform duration-300 group-hover:rotate-90 group-hover:scale-110" /> <span>Light</span></>}
             </button>
             <button
               onClick={() => setShowGuided(true)}
@@ -1195,7 +1195,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-[#E2E4E7] bg-[#0E0E0E]">
+      <footer className="relative z-10 border-t border-[#E2E4E7] bg-[#0F0F0F]">
         <div className="mx-auto max-w-6xl px-6 pt-8 md:px-12">
           <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4" data-testid="reaper-disclaimer">
             <Skull className="mt-0.5 h-5 w-5 shrink-0 text-[#E01E26]" />

@@ -1,0 +1,53 @@
+{
+  "summary": "Frontend-only visual/theme test of Fork·Fate light-mode recolor + Favorites theming. Toggle word label works; sage/tan accent recolor works for spin-roulette-button and mode-food. HOWEVER the header Favorites BUTTON and the Favorites DRAWER remain in the DARK palette while in light mode — the fix did NOT take effect at runtime. Zero JS console errors. Dark-mode regression is clean.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "FavoritesDrawer trigger (header Favorites button)", "issue": "In LIGHT mode computed color is rgb(255,255,255) (white) on the near-white/cream header — button is effectively invisible. Expected the light-palette trigger classes (border-[#E4E4E7] text-[#3F3F46]) to apply but the dark palette (text-white) is still in use.", "selector": "[data-testid='open-favorites-button']", "priority": "HIGH"},
+      {"component": "FavoritesDrawer surface", "issue": "In LIGHT mode drawer computed background is rgb(14,14,14) and text rgb(255,255,255) — expected cream/light surface (#FBF7EF) with dark text. Screenshot confirms dark drawer on light page.", "selector": "[data-testid='favorites-drawer']", "priority": "HIGH"}
+    ],
+    "integration_issues": [
+      {"flow": "Theme sync between components", "issue": "useTheme() is implemented as isolated local useState in each component (no Context/store/storage-event). When Home.jsx toggles the theme, FavoritesDrawer's own useTheme() state does NOT update. Its `light` boolean stays false, so P stays on the dark palette even after the <html data-ff-theme> attribute flips to 'light'. Root cause of both bugs above.", "affected_selectors": ["[data-testid='open-favorites-button']", "[data-testid='favorites-drawer']"]}
+    ],
+    "design_issues": []
+  },
+  "computed_style_evidence": {
+    "dark_initial": {
+      "toggle_text": "Light",
+      "spin_bg": "rgb(224,30,38) OK red",
+      "mode_food_bg": "rgb(14,14,14) OK black",
+      "fav_color": "rgb(255,255,255) OK on dark header"
+    },
+    "after_light_toggle": {
+      "html_data_ff_theme": "light",
+      "toggle_text": "Dark  (label switch OK)",
+      "spin_bg": "rgb(168,201,158) sage OK",
+      "mode_food_bg": "rgb(216,195,165) tan OK",
+      "fav_color": "rgb(255,255,255) BUG — should be dark grey (~#3F3F46)",
+      "drawer_bg": "rgb(14,14,14) BUG — should be #FBF7EF",
+      "drawer_title_color": "rgb(255,255,255) BUG — should be #2A2118"
+    },
+    "back_to_dark": {
+      "spin_bg": "rgb(224,30,38) OK",
+      "drawer_bg": "rgb(14,14,14) OK",
+      "toggle_text": "Light OK"
+    },
+    "console_errors": 0
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Refactor useTheme.js to a shared source of truth so ALL consumers re-render on toggle. Options: (a) wrap App in a ThemeContext.Provider that owns theme+toggle and exposes via useContext, or (b) add a `window` event ('ff-theme-change') that useTheme instances subscribe to in a useEffect, or (c) listen to `storage` events + a same-tab custom event. Currently only the component that owns the toggle sees state changes; FavoritesDrawer is stuck on its initial 'dark' palette.",
+    "After the fix, confirm: light-mode open-favorites-button computed color ≠ rgb(255,255,255) and favorites-drawer computed background ≠ rgb(14,14,14)."
+  ],
+  "critical_code_review_comments": [
+    "useTheme is a per-component useState — behaves like a private hook, not a shared store. Any component reading `theme` will be desynced from a sibling that calls toggle(). Move to Context or an event-based subscription immediately.",
+    "The scoped CSS overrides in index.css (data-ff-theme=light [data-ff-scope=app] ...) do NOT reach FavoritesDrawer content because SheetContent is portaled OUTSIDE the [data-ff-scope='app'] subtree — so even class-based overrides can't rescue it. The JS-side theme check must work for the drawer."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "60% — 4/6 requirements pass; 2 critical light-mode Favorites bugs remain"},
+  "seed_data_creation": "none",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Skip intro via localStorage 'ff_guided_seen'='1'. Do NOT click Deal/Spin — API quota. After main agent fixes useTheme sharing, re-run the same computed-style checks: open-favorites-button color should be dark on light; favorites-drawer bg should be ~rgb(251,247,239). Iteration 54 previously passed; the regression is that Home.jsx and FavoritesDrawer no longer share theme state after the recent theme-aware rewrite.",
+  "rca of the issue": "useTheme() in /app/frontend/src/hooks/useTheme.js uses `useState` with a localStorage initializer but exposes no shared store. Home.jsx calls toggle() → updates ONLY Home's copy of state and writes localStorage. FavoritesDrawer's independent useTheme() instance never re-renders because (1) it doesn't listen to storage events, (2) there is no context, (3) there is no pub/sub. So `light` stays false there, and P stays on the dark palette. Fix: introduce ThemeContext OR dispatch a CustomEvent on toggle and subscribe in useEffect."
+}
