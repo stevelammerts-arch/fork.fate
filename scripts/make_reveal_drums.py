@@ -27,24 +27,22 @@ dur = T / SR
 env = 0.12 + 0.88 * (np.linspace(0, 1, T) ** 1.7)
 track *= env
 
-# timpani (kettle-drum) boom at the end: solid tuned boom, no pitch glide
-def boom(dur=1.7):
-    n = int(SR * dur)
-    tt = np.linspace(0, dur, n, endpoint=False)
-    f0 = 98.0  # low tuned boom (~G2), audible fundamental + harmonics
-    # dominant fundamental for weight; a few fixed harmonics for pitch/speaker clarity
-    partials = [(1.0, 1.00, 2.0), (2.0, 0.45, 3.2), (3.0, 0.22, 4.5), (1.5, 0.18, 3.8)]
-    body = np.zeros(n)
-    for r, g, d in partials:
-        body += g * np.sin(2 * np.pi * f0 * r * tt) * np.exp(-d * tt)
-    # crisp, very short mallet click (no long noise wash -> no "air" sound)
-    click = np.random.randn(n) * np.exp(-tt * 400) * 0.12
-    # smooth 3 ms attack ramp to avoid a click-pop
-    atk = np.clip(tt / 0.003, 0, 1)
-    b = (body + click) * atk
-    return (b / (np.max(np.abs(b)) + 1e-9)).astype(np.float32)
+# real cinematic timpani hit (uploaded) for the ending boom
+def load_timpani(dur=3.0, tail_fade=0.6):
+    with wave.open("/tmp/timpani_dec.wav") as w:
+        raw = w.readframes(w.getnframes())
+    y = np.frombuffer(raw, dtype="<i2").astype(np.float32) / 32768.0
+    # find onset (first sample crossing a small threshold) and trim leading silence
+    thr = 0.02 * np.max(np.abs(y))
+    onset = int(np.argmax(np.abs(y) > thr))
+    y = y[onset: onset + int(SR * dur)]
+    # fade out the ring tail
+    f = int(SR * tail_fade)
+    if len(y) > f:
+        y[-f:] *= np.linspace(1, 0, f)
+    return (y / (np.max(np.abs(y)) + 1e-9)).astype(np.float32)
 
-b = boom()
+b = load_timpani()
 # tiny silent gap so the timpani lands suddenly after the build
 gap = int(SR * 0.05)
 out_len = T + gap + len(b) + int(SR * 0.2)
