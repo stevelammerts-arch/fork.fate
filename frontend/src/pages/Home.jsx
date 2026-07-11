@@ -103,9 +103,9 @@ const CYBER_CARS = [
 ];
 
 const AMBIANCE = {
-  cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", rain: true, accent: "#22E0E0" },
-  steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", pipes: "/steam-pipes.png", steam: true, accent: "#D9A44E" },
-  tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", bar: "/tiki-bar.png", torch: "/tiki-torch.png", accent: "#F0A24E" },
+  cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
+  steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall.png", console: "/steam-console.png", gears: "/steam-gears.png", steam: true, accent: "#D9A44E", sky: "#F1D9A6" },
+  tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", bar: "/tiki-bar.png", torchLeft: "/tiki-torch.png", totemRight: "/tiki-totem.png", grass: "/tiki-grass.png", glow: true, accent: "#F0A24E", sky: "#FBE3C0" },
 };
 
 function AmbianceScene({ theme, cfg }) {
@@ -115,18 +115,20 @@ function AmbianceScene({ theme, cfg }) {
       {cfg.skyline && <img src={cfg.skyline} alt="" className="absolute bottom-0 left-0 w-full object-cover opacity-70" style={{ maxHeight: "52vh" }} />}
       {cfg.rain && <div className="absolute inset-0 ff-rain" />}
       {cfg.cars && CYBER_CARS.map((c, i) => (
-        <img key={`car-${i}`} src={cfg.cars} alt="" className="absolute left-0 object-contain opacity-90"
-          style={{ top: c.top, width: c.size, filter: "drop-shadow(0 0 10px rgba(34,224,224,0.55))", animation: `${c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite` }} />
+        <img key={`car-${i}`} src={c.rev ? cfg.cars2 : cfg.cars} alt="" className="absolute left-0 z-[3] object-contain opacity-90"
+          style={{ top: c.top, width: c.size, filter: "drop-shadow(0 0 10px rgba(34,224,224,0.55))", animation: `${c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite both` }} />
       ))}
-      {cfg.neon && <img src={cfg.neon} alt="" className="absolute left-1/2 top-[5%] w-[74vw] max-w-sm -translate-x-1/2 object-contain" style={{ mixBlendMode: "screen", animation: "ffNeon 4s ease-in-out infinite" }} />}
-      {cfg.pipes && <>
-        <img src={cfg.pipes} alt="" className="absolute bottom-0 left-0 h-[78vh] object-contain opacity-55" />
-        <img src={cfg.pipes} alt="" className="absolute bottom-0 right-0 h-[78vh] object-contain opacity-55" style={{ transform: "scaleX(-1)" }} />
-      </>}
+      {cfg.neon && <img src={cfg.neon} alt="" className="absolute left-1/2 top-[15%] z-[1] w-[62vw] max-w-xs -translate-x-1/2 object-contain" style={{ mixBlendMode: "screen", animation: "ffNeonFloat 6s ease-in-out infinite" }} />}
+      {cfg.wall && <img src={cfg.wall} alt="" className="absolute bottom-0 left-0 w-full object-cover object-bottom opacity-60" style={{ maxHeight: "34vh" }} />}
+      {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
+      {cfg.console && <img src={cfg.console} alt="" className="absolute bottom-0 left-[2%] h-[48vh] object-contain opacity-75" />}
       {cfg.steam && STEAM_PUFFS.map((s, i) => (
         <div key={`steam-${i}`} className="absolute bottom-[42vh] rounded-full" style={{ left: s.left, width: s.size, height: s.size, background: "radial-gradient(circle, rgba(255,244,224,0.5), rgba(255,244,224,0) 70%)", animation: `ffSteam ${s.dur}s ease-in ${s.delay}s infinite` }} />
       ))}
-      {cfg.bar && <img src={cfg.bar} alt="" className="absolute bottom-0 left-1/2 w-[98vw] max-w-2xl -translate-x-1/2 object-contain opacity-80" />}
+      {cfg.bar && <img src={cfg.bar} alt="" className="absolute bottom-0 left-1/2 w-[58vw] max-w-md -translate-x-1/2 object-contain opacity-85" />}
+      {cfg.glow && <div className="absolute bottom-[10vh] left-1/2 h-56 w-56 -translate-x-1/2 rounded-full sm:h-72 sm:w-72" style={{ background: "radial-gradient(circle, rgba(255,150,50,0.45), rgba(255,150,50,0) 70%)", animation: "ffTorchGlow 2.3s ease-in-out infinite" }} />}
+      {cfg.torchLeft && <img src={cfg.torchLeft} alt="" className="absolute bottom-0 left-[1%] h-[42vh] object-contain opacity-95" style={{ animation: "ffFlame 1.6s ease-in-out infinite" }} />}
+      {cfg.totemRight && <img src={cfg.totemRight} alt="" className="absolute bottom-0 right-[1%] h-[46vh] object-contain opacity-90" />}
       {cfg.torch && <>
         <img src={cfg.torch} alt="" className="absolute bottom-0 left-[1%] h-[62vh] object-contain opacity-90" style={{ transformOrigin: "bottom", animation: "ffFlame 1.7s ease-in-out infinite" }} />
         <img src={cfg.torch} alt="" className="absolute bottom-0 right-[1%] h-[62vh] object-contain opacity-90" style={{ transform: "scaleX(-1)", transformOrigin: "bottom", animation: "ffFlame 2.1s ease-in-out infinite" }} />
@@ -305,7 +307,7 @@ export default function Home() {
     // Light mode: cheerful "Ta-Da!" chime. Dark mode: ominous thunderclap.
     try {
       if (localStorage.getItem("ff_muted") !== "1") {
-        thunderRef.current = new Audio(light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
+        thunderRef.current = new Audio(theme === "cyber" ? "/reveal-electric.wav" : light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
         thunderRef.current.volume = 1.0;
         thunderRef.current.load();
       } else {
@@ -313,7 +315,7 @@ export default function Home() {
       }
     } catch (e) { thunderRef.current = null; }
     // Dark mode plays a spoken voice cue before the deck shuffles; light mode stays clean.
-    if (!light) playSound("/reveal-voice-v5.mp3", 1.0);
+    if (!light && theme !== "cyber") playSound("/reveal-voice-v5.mp3", 1.0);
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
     // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
@@ -639,6 +641,7 @@ export default function Home() {
       {seasonCfg && <SeasonScene theme={theme} cfg={seasonCfg} />}
       {/* Ambiance themes: cyberpunk / steampunk / tiki lounge */}
       {ambCfg && <AmbianceScene theme={theme} cfg={ambCfg} />}
+      {theme === "tiki" && <img src="/tiki-grass.png" alt="" className="pointer-events-none fixed left-0 top-0 z-[45] w-full select-none object-cover object-top" style={{ maxHeight: "8vh" }} />}
       {/* Dark-mode: decorative reaper background with load animation */}
       {theme === "dark" && (
       <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>
@@ -872,7 +875,7 @@ export default function Home() {
               transition={{ type: "spring", stiffness: 300, damping: 24 }}
               className="relative z-10 w-full max-w-sm p-8"
             >
-              <ShufflingDeck cards={results} flash={flash} landed={flashHit} light={light} season={season} seasonItems={seasonCfg?.items || null} seasonAccent={seasonCfg?.hint || null} />
+              <ShufflingDeck cards={results} flash={flash} landed={flashHit} light={light} theme={theme} season={season} seasonItems={seasonCfg?.items || null} seasonAccent={seasonCfg?.hint || null} />
             </motion.div>
           </motion.div>
         )}
@@ -894,7 +897,9 @@ export default function Home() {
             {/* lingering glow — warm golden in light mode, blood-red in dark */}
             <motion.div
               className="absolute inset-0"
-              style={{ background: light
+              style={{ background: theme === "cyber"
+                ? "radial-gradient(circle at 50% 45%, rgba(34,224,224,0.5), rgba(199,125,255,0.28) 38%, rgba(0,0,0,0) 66%)"
+                : light
                 ? "radial-gradient(circle at 50% 45%, rgba(255,193,80,0.45), rgba(255,255,255,0) 60%)"
                 : "radial-gradient(circle at 50% 45%, rgba(224,30,38,0.55), rgba(0,0,0,0) 60%)" }}
               initial={{ opacity: 0 }}
@@ -923,10 +928,10 @@ export default function Home() {
           <p className="font-sans text-sm font-extrabold tracking-[0.25em] uppercase text-[#E01E26]">
             {mode === "food" ? "Can't decide where to eat?" : mode === "drinks" ? "Can't decide what to sip?" : mode === "bars" ? "Can't decide where to drink?" : "Craving something sweet?"}
           </p>
-          <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl">
+          <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl" style={ambCfg ? { color: ambCfg.sky, textShadow: theme === "cyber" ? "0 0 12px rgba(199,125,255,0.6)" : undefined } : undefined}>
             {mode === "food" ? "Let fate pick tonight's table." : mode === "drinks" ? "Let fate pick your next sip." : mode === "bars" ? "Let fate pick tonight's bar." : "Let fate pick your sweet treat."}
           </h1>
-          <p className="mt-4 font-sans text-base font-semibold leading-relaxed text-[#0E0E0E]">
+          <p className="mt-4 font-sans text-base font-semibold leading-relaxed text-[#0E0E0E]" style={ambCfg ? { color: ambCfg.sky, opacity: 0.92 } : undefined}>
             {mode === "food"
               ? "Set the mood with a few filters and hit Deal. We'll shuffle great local restaurants — up to 50 miles out — and land on your next meal."
               : mode === "drinks"
@@ -1428,7 +1433,7 @@ export default function Home() {
 const DECK_SIZE = 5;
 
 // Branded card back shown on every shuffling card (photo only appears on the landed winner)
-function CardBack({ light, seasonItem }) {
+function CardBack({ light, seasonItem, theme }) {
   if (seasonItem) {
     return (
       <div className="absolute inset-0 grid place-items-center bg-[#F5F0E6]" data-testid="card-back">
@@ -1440,6 +1445,30 @@ function CardBack({ light, seasonItem }) {
     return (
       <div className="absolute inset-0 bg-[#F5F0E6]" data-testid="card-back">
         <img src="/card-back-light.png" alt="" className="h-full w-full object-cover" />
+      </div>
+    );
+  }
+  if (theme === "cyber") {
+    return (
+      <div className="absolute inset-0 grid place-items-center bg-[#080B18]" data-testid="card-back">
+        <div className="absolute inset-2 rounded-xl border border-[#22E0E0]/60" style={{ boxShadow: "inset 0 0 14px rgba(34,224,224,0.45)" }} />
+        <div className="flex flex-col items-center gap-1 text-center" style={{ textShadow: "0 0 8px rgba(34,224,224,0.95), 0 0 18px rgba(255,47,176,0.6)" }}>
+          <span className="font-serif text-xl font-bold tracking-tight text-[#3EEBF2]">Fork·Fate</span>
+          <span className="font-sans text-[8px] font-bold uppercase tracking-[0.45em] text-[#FF6FCB]">Neon Nights</span>
+        </div>
+      </div>
+    );
+  }
+  if (theme === "steam" || theme === "tiki") {
+    const accent = theme === "steam" ? "#D9A44E" : "#F0A24E";
+    return (
+      <div className="absolute inset-0 grid place-items-center bg-[#141210]" data-testid="card-back">
+        <div className="absolute inset-2 rounded-xl border" style={{ borderColor: `${accent}88` }} />
+        <div className="absolute inset-[10px] rounded-lg border" style={{ borderColor: `${accent}33` }} />
+        <div className="flex flex-col items-center gap-2">
+          <img src="/logo-mark.png" alt="" className="h-14 w-14 object-contain" />
+          <span className="font-serif text-[10px] uppercase tracking-[0.4em]" style={{ color: accent }}>Fork · Fate</span>
+        </div>
       </div>
     );
   }
@@ -1481,7 +1510,7 @@ function CardFront({ src, light }) {
   );
 }
 
-function ShufflingDeck({ cards, flash, landed, light, season, seasonItems, seasonAccent }) {
+function ShufflingDeck({ cards, flash, landed, light, theme, season, seasonItems, seasonAccent }) {
   const source = cards.length ? cards : (flash ? [flash] : []);
   // Always fill a full visual deck so the shuffle never looks like a single card,
   // even when the filtered result set is tiny (repeats are visual-only).
@@ -1499,7 +1528,7 @@ function ShufflingDeck({ cards, flash, landed, light, season, seasonItems, seaso
       <div className="flex flex-col items-center gap-8">
         <div className="relative h-72 w-44">
           <AnimatePresence>
-            {landed && !light && (
+            {landed && theme === "dark" && (
               <motion.div
                 className="pointer-events-none absolute left-1/2 top-1/2 z-50"
                 style={{ transform: "translate(-50%, calc(-50% + 48px))" }}
@@ -1520,6 +1549,16 @@ function ShufflingDeck({ cards, flash, landed, light, season, seasonItems, seaso
               </motion.div>
             )}
           </AnimatePresence>
+          {landed && theme === "cyber" && (
+            <motion.div
+              className="pointer-events-none absolute inset-[-14px] z-40 rounded-3xl"
+              data-testid="cyber-neon-pulse"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 0.15, 1, 0.15, 1, 0] }}
+              transition={{ duration: 1.2, times: [0, 0.12, 0.28, 0.45, 0.62, 0.8, 1], ease: "easeOut" }}
+              style={{ border: "2px solid rgba(34,224,224,0.95)", boxShadow: "0 0 24px 6px rgba(34,224,224,0.9), 0 0 60px 18px rgba(199,125,255,0.7), inset 0 0 22px rgba(34,224,224,0.5)" }}
+            />
+          )}
           {deck.map((c, i) => {
             // Once landed, render only the winning card — no backing cards to peek out as lines
             if (landed && i !== 0) return null;
@@ -1555,7 +1594,7 @@ function ShufflingDeck({ cards, flash, landed, light, season, seasonItems, seaso
               {showPhoto ? (
                 <CardFront src={c.image} light={light} />
               ) : (
-                <CardBack light={light} seasonItem={season && seasonItems ? seasonItems[i % seasonItems.length] : null} />
+                <CardBack light={light} theme={theme} seasonItem={season && seasonItems ? seasonItems[i % seasonItems.length] : null} />
               )}
             </motion.div>
             );

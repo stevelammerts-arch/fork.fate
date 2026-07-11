@@ -360,10 +360,21 @@ body {
 @keyframes ffRain{ to { background-position: -60px 220px, 0 0; } }
 @keyframes ffRainSlow{ to { background-position: 0 0, -40px 340px; } }
 /* Neon sign flicker */
+@keyframes ffSpin{ from{ transform: rotate(0deg); } to{ transform: rotate(360deg); } }
 @keyframes ffNeon{
   0%,18%,22%,55%,57%,100%{ opacity:1; filter: drop-shadow(0 0 10px rgba(34,224,224,0.85)) drop-shadow(0 0 22px rgba(255,47,176,0.5)); }
   20%,56%{ opacity:0.45; }
   70%,72%{ opacity:0.75; }
+}
+/* Neon billboard floating in the sky + flicker */
+@keyframes ffNeonFloat{
+  0%{ transform: translateY(0); opacity:1; filter: drop-shadow(0 0 10px rgba(34,224,224,0.85)) drop-shadow(0 0 22px rgba(255,47,176,0.5)); }
+  18%{ opacity:0.5; }
+  22%{ opacity:1; }
+  50%{ transform: translateY(-12px); opacity:1; }
+  63%{ opacity:0.7; }
+  66%{ opacity:1; }
+  100%{ transform: translateY(0); opacity:1; }
 }
 /* Steam puffs rising */
 @keyframes ffSteam{
@@ -371,10 +382,16 @@ body {
   25%{ opacity:0.55; }
   100%{ opacity:0; transform: translateY(-170px) scale(1.5); }
 }
-/* Tiki torch flame flicker */
+/* Tiki torch flame flicker (flame glow only, torch stays still) */
 @keyframes ffFlame{
-  0%,100%{ filter: drop-shadow(0 -6px 10px rgba(255,150,40,0.65)); transform: scaleY(1); }
-  50%{ filter: drop-shadow(0 -12px 18px rgba(255,185,70,0.95)); transform: scaleY(1.02); }
+  0%,100%{ filter: drop-shadow(0 -6px 10px rgba(255,150,40,0.55)) brightness(1); }
+  50%{ filter: drop-shadow(0 -12px 20px rgba(255,190,80,0.95)) brightness(1.12); }
+}
+/* Warm glow the torch casts on the tiki bar */
+@keyframes ffTorchGlow{
+  0%,100%{ opacity:0.45; transform: scale(0.97); }
+  35%{ opacity:0.75; transform: scale(1.04); }
+  60%{ opacity:0.55; transform: scale(1.0); }
 }
 
 /* ── Cyberpunk accent recolor: neon cyan (dark surfaces preserved) ── */
@@ -395,6 +412,13 @@ body {
 [data-ff-theme="cyber"] [data-ff-scope="app"] .bg-primary{background-color:#15C8D6 !important;}
 [data-ff-theme="cyber"] [data-ff-scope="app"] .bg-primary\/20{background-color:rgba(21,200,214,0.22) !important;}
 [data-ff-theme="cyber"] [data-ff-scope="app"] .border-primary\/50{border-color:rgba(21,200,214,0.6) !important;}
+/* Cyber secondary buttons: neon purple/magenta for dual-tone look */
+[data-ff-theme="cyber"] [data-ff-scope="app"] .bg-\[\#0E0E0E\].text-white{background-color:#9333EA !important; color:#FFFFFF !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .hover\:bg-\[\#2A2A2A\]:hover{background-color:#7E22CE !important;}
+[data-ff-theme="cyber"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#0E0E0E\].text-white{background-color:#9333EA !important; color:#FFFFFF !important;}
+/* Cyber pub-crawl toggle: purple outline */
+[data-ff-theme="cyber"] [data-ff-scope="app"] [data-testid="crawl-mode-toggle"]{border-color:#A855F7 !important; color:#C084FC !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] [data-testid="crawl-mode-toggle"].bg-\[\#E01E26\]{background-color:#9333EA !important; color:#FFFFFF !important;}
 [data-ff-theme="cyber"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#E01E26\]{background-color:#15C8D6 !important;}
 [data-ff-theme="cyber"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#B3141A\],
 [data-ff-theme="cyber"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#FF2E38\]{background-color:#0FA6B2 !important;}

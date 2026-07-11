@@ -88,3 +88,20 @@
 - All seasonal objects faded to opacity 0.32 (like light theme) so UI text pops.
 - CRITICAL FIX: Gemini-generated "transparent" PNGs had checkerboard baked in (0% alpha). Cut out via rembg (decor) + chroma-key green/blue (regenerated decor) + flood-fill de-checker on ORIGINAL tree backups (preserves exact approved trees). Backups in /app/scripts/orig_backup.
 - FF_BUILD bumped to 2026.06-68.
+
+## 2026-06-11 (cont.) — 3 ambiance themes + auto-season + themed award card
+- Added 3 dark ambiance themes: Cyberpunk (rainy neon skyline, flickering neon FORK·FATE sign, 2 flying spinners in opposite directions, cyan accents), Steampunk (brass pipes + gauges + rising steam, brass accents), Tiki Lounge (carved bar w/ voodoo mask + rum, lit torches, amber accents). AmbianceScene + AMBIANCE config in Home.jsx; assets keyed via chroma-green.
+- Per-theme accent CSS for cyber/steam/tiki + slider accents for fall/winter/summer/spring. `light` now = non-dark/non-ambiance set.
+- Award card (CrawlBadgeDialog) now adopts each season's accent (was mirroring light/dark only).
+- Shuffle card backs themed: cyber = neon Fork·Fate, steam/tiki = logo mark.
+- Auto-season: first-visit default picks season by date (Northern) then refines hemisphere via ipapi.co latitude; manual pick persists and overrides. useTheme.js.
+- FF_BUILD=2026.06-73. New public assets: cyber-skyline, cyber-neon-logo, cyber-car, steam-pipes, tiki-bar, tiki-torch, tiki-decor.
+- NOTE: shuffle card backs implemented but not visually verified in a live deal (needs geolocation + Google Places).
+
+## 2026-06-11 (cont. 2) — Ambiance theme polish
+- Cyberpunk: neon FORK·FATE billboard floats in sky (behind cars, centered via content-crop), 2 distinct flying spinners in opposite directions (fixed off-screen start via fill-mode both), purple secondary buttons + purple pub-crawl outline, neon-purple sky/hero text, rain + skyline.
+- Steampunk: horizontal gear/pipe machinery wall (rotated from the vertical panel design) along the bottom, brass console left, rotating gears (ffSpin), fewer irregular steam vents, cream hero text.
+- Tiki: single left bamboo torch (flame-only flicker, no bob) + right totem pole + center bar + top grass valance + torch glow on bar.
+- Hero heading/description now use per-ambiance light 'sky' color for readability on dark scenes.
+- New assets: cyber-car2, cyber-console(unused), steam-console, steam-gears, steam-wall (rotated vertical), tiki-totem, tiki-grass. FF_BUILD=2026.06-83.
+- NOTE: shuffle card backs (cyber neon / steam+tiki logo) implemented, not yet verified in a live deal (needs geolocation + Google Places quota).
