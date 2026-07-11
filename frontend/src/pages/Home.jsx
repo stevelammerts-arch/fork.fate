@@ -355,6 +355,11 @@ export default function Home() {
           grooveRef.current.loop = true;
           grooveRef.current.volume = 0.8;
           grooveRef.current.play().catch(() => {});
+        } else if (theme === "summer") {
+          grooveRef.current = new Audio("/shuffle-seagulls.wav");
+          grooveRef.current.loop = true;
+          grooveRef.current.volume = 0.7;
+          grooveRef.current.play().catch(() => {});
         }
       } else {
         thunderRef.current = null;
@@ -557,6 +562,16 @@ export default function Home() {
           grooveRef.current = new Audio("/reveal-cyber-radio.wav");
           grooveRef.current.loop = true;
           grooveRef.current.volume = 0.8;
+          grooveRef.current.play().catch(() => {});
+        }
+      } catch (e) { grooveRef.current = null; }
+    }
+    else if (theme === "summer") {
+      try {
+        if (localStorage.getItem("ff_muted") !== "1") {
+          grooveRef.current = new Audio("/shuffle-seagulls.wav");
+          grooveRef.current.loop = true;
+          grooveRef.current.volume = 0.7;
           grooveRef.current.play().catch(() => {});
         }
       } catch (e) { grooveRef.current = null; }

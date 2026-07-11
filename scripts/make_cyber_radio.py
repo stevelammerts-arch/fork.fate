@@ -8,12 +8,12 @@ SR = 44100
 rng = np.random.default_rng(11)
 
 PHRASES = [
-    ("onyx", "Dispatch, all units be advised, we have a two-eleven in progress, over."),
-    ("ash",  "Copy that, unit seven responding, code three."),
-    ("onyx", "Suspect last seen heading north on Fifth Street, requesting backup."),
-    ("ash",  "Ten-four, maintain position and await further instructions."),
-    ("onyx", "Control, this is unit twelve, we are ten-eight and clear."),
-    ("ash",  "Be advised, we have eyes on the target, moving in now."),
+    ("onyx", "Dispatch to all units, hovercar pursuit in progress over Sector Nine, over."),
+    ("ash",  "Copy that, drone unit deployed, tracking the target through the neon district."),
+    ("onyx", "Be advised, suspect has cybernetic augments, approach with extreme caution."),
+    ("ash",  "Control, mag-lev checkpoint breached on the upper tier, requesting reinforcements."),
+    ("onyx", "Ten-four, rerouting sky-lane traffic around the Grid, stand by."),
+    ("ash",  "Unit twelve, we have a rogue synthetic near the plasma docks, moving in now."),
 ]
 
 
