@@ -2,6 +2,15 @@
 
 ## 2026-06-11 — Session: Light/Dark theme toggle (public pages) + horizontal crawl award
 
+### Light-mode accent recolor + polish (USER REQUEST, tested iter55/56)
+- Recolored the entire light-mode accent: red → sage green (`#A8C99E` fills / `#4F6F47` text) and black → warm tan (`#D8C3A5`), via theme-scoped CSS overrides in `index.css` (`[data-ff-theme="light"] [data-ff-scope="app"] ...`). Deep green/brown text on pastel fills for contrast. Removed the red glow on green buttons.
+- `useTheme` refactored to a **shared store** (`useSyncExternalStore`) so all consumers (Home, FavoritesDrawer, CrawlBadgeDialog) sync on toggle — fixed FavoritesDrawer staying dark.
+- `FavoritesDrawer` fully theme-aware (was invisible white-on-white trigger + dark drawer in light mode).
+- Header: toggle now shows a "Light"/"Dark" word label; bigger `Fork·Fate` title; "Add spot" button tan in light.
+- Primary CTA copy in light = "Shuffle the Deck".
+- Footer fully themed for light (cream bg, light logo, dark text, green/tan accents); disclaimer reads "A word from management:" (no reaper/skull — uses UtensilsCrossed icon) with sign-off "— The Fork·Fate team".
+
+
 ### Light/Dark theme (USER REQUEST, tested iter53/54 — 100% pass)
 - New `hooks/useTheme.js`: localStorage `ff_theme`, default **dark** (Grim Reaper), sets `document.documentElement.dataset.ffTheme`.
 - Header Sun/Moon toggle (`data-testid=theme-toggle-button`) with rotate/scale hover.
