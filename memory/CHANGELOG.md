@@ -1,5 +1,20 @@
 # Fork·Fate — Changelog
 
+## 2026-06-11 — Session: Light/Dark theme toggle (public pages) + horizontal crawl award
+
+### Light/Dark theme (USER REQUEST, tested iter53/54 — 100% pass)
+- New `hooks/useTheme.js`: localStorage `ff_theme`, default **dark** (Grim Reaper), sets `document.documentElement.dataset.ffTheme`.
+- Header Sun/Moon toggle (`data-testid=theme-toggle-button`) with rotate/scale hover.
+- Light mode = professional cream/editorial reskin: faded bright café background (`/cafe-bg-light.png`), light header, cream+bronze `F·F` logo (`/logo-mark-light.png` — cream dome, metallic-brown ring & big F·F, gold silverware), softened copy ("Deal Your Fate!"→"Spin the Wheel", reaper-line→`LIGHT_LINES` via `lightLineFor`), coffee+bagel playing-card backs (`/card-back-light.png`) during shuffle (restaurant photo still on landed winner), no skeleton hand, cheerful **Ta-Da!** reveal sound (`/reveal-tada.wav`) instead of thunder.
+- Dark mode unchanged. `homeConstants.js`: added `LIGHT_LINES`/`lightLineFor`.
+
+### Pub-Crawl award redesign (USER REQUEST, tested iter54)
+- `CrawlBadgeDialog.jsx` rewritten: badge is now a **horizontal 16:9 card** — Fork·Fate logo LEFT, congratulations MIDDLE, selfie box RIGHT. Theme-aware (cream/professional in light, red/black in dark). Light mode skips the reaper cinematic and plays Ta-Da. Story (9:16) variant retained for IG.
+
+### Backlog idea captured
+- Seasonal/monthly themes (fall/winter/spring/summer) — future enhancement on top of the theme system.
+
+
 ## 2026-06-10 — Session: reward reveal, thunder, crawl-first-stop, security, passkey, iOS install
 
 ### Crawl reward reveal (USER APPROVED)
