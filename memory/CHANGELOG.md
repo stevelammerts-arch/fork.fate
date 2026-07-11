@@ -1,5 +1,23 @@
 # Fork·Fate — Changelog
 
+## 2026-06-11 (cont.) — Tiki polish: readability, flame, fringe, mask, reveal audio
+
+### Dark/ambiance readability (USER REQUEST)
+- Fixed dark-on-dark text on dark/ambiance themes: "fates dealt / crawls survived" counters, "YOUR ZIP CODE" label, "CUISINE" label + "+N more" button now use theme-aware color (`ambCfg.sky`, or white for `dark`). Added `labelColor` in `Home.jsx` and threaded it into `Filters.jsx`. Seasonal/light themes untouched (still use existing CSS overrides).
+- Radius slider now starts at **0 mi** (min 0, label "0 mi").
+
+### Tiki scene
+- Torch & totem moved farther from the bar (`left-[-6%]`/`right-[-6%]`). Bar not resized this session.
+- **Grass fringe** is now a child of the `<header>` (`absolute top-full`), so it moves/scrolls WITH the banner and stays aligned at any width; darkened (`brightness(0.8)`); share bar bumped to `z-40` so the social icons sit in front of the fringe.
+- **Animated flame** (kept default "warp"): split `/tiki-torch.png` into `/tiki-torch-base.png` (static) + flame frames. Warp set = 5 frames warped from the original (`tiki-flame-1..5.png`); Gen set = 4 rembg-isolated AI fire frames (`tiki-flame-gen-1..4.png`). Cross-faded via `ffFlameCycle` keyframe; swap via `localStorage.ff_flame = 'gen'|'warp'`. Only the flame flickers, not the torch. Scripts: `split_torch_flame.py`, `make_flame_frames.py`, `make_gen_flames.py`.
+- **Tiki mask card back** (`/tiki-mask.png`, rembg-isolated AI carved mask): `CardBack` now has a dedicated `tiki` branch showing the mask; `steam` split back out to the logo. (Card back only shows during a reveal shuffle — code verified, not visually tested to preserve Google quota.)
+
+### Tiki reveal audio (USER REQUEST, iterated with user)
+- Tiki reveal now plays `/reveal-drums.wav` (replaces reaper voice + thunder) in both normal and crawl shuffle paths.
+- Final audio = user-uploaded **danza concheros** groove excerpt (~7s) building quiet→loud (ease-in crescendo) → tiny gap → user-uploaded **cinematic timpani**, pitched **down one octave** (2× resample), trimmed to ~1.5s with fade, layered as **3 simultaneous timpani** (root + fifth + octave chord). Script: `make_reveal_drums.py` (uses imageio-ffmpeg to decode mp3). Source mp3s in /tmp (danza.mp3, timpani.mp3).
+- Cache-buster `FF_BUILD` bumped to 2026.06-88.
+
+
 ## 2026-06-11 — Session: Light/Dark theme toggle (public pages) + horizontal crawl award
 
 ### Theme menu + Fall (autumn) seasonal theme (USER REQUEST, tested iter57/58)
