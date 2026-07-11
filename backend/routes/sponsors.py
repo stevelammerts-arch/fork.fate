@@ -207,7 +207,11 @@ async def sponsor_subscription_status(subscription_id: str):
                     s["sub_status"] = status.lower()
         except Exception as e:
             logger.warning(f"PayPal status check failed: {e}")
-    return {"found": True, "name": s.get("name"), "active": s.get("active"), "sub_status": s.get("sub_status")}
+    active = bool(s.get("active"))
+    # Only echo the business name on a confirmed-active subscription (the sponsor's own
+    # success page); avoid disclosing it for pending/unknown ids.
+    return {"found": True, "name": s.get("name") if active else None,
+            "active": active, "sub_status": s.get("sub_status")}
 
 
 async def reconcile_sponsors():

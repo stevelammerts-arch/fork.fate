@@ -229,19 +229,25 @@ _PLACES_TTL = 300  # seconds
 
 # Hard daily ceiling on billed Google search/geocode calls (abuse safety net).
 GOOGLE_SEARCH_DAILY_CAP = int(os.environ.get("GOOGLE_SEARCH_DAILY_CAP", "160"))
-_GOOGLE_DAY = {"date": None, "searches": 0}
 
 
-def _google_budget_ok() -> bool:
+async def _google_budget_ok() -> bool:
+    """Persistent (Mongo-backed) daily cap so the ceiling survives restarts and is
+    shared across replicas — not just in-process memory."""
     today = datetime.now(timezone.utc).date().isoformat()
-    if _GOOGLE_DAY["date"] != today:
-        _GOOGLE_DAY["date"] = today
-        _GOOGLE_DAY["searches"] = 0
-    return _GOOGLE_DAY["searches"] < GOOGLE_SEARCH_DAILY_CAP
+    doc = await db.config.find_one({"key": "google_budget", "date": today})
+    used = int(doc.get("searches", 0)) if doc else 0
+    return used < GOOGLE_SEARCH_DAILY_CAP
 
 
-def _google_record_call():
-    _GOOGLE_DAY["searches"] += 1
+async def _google_record_call():
+    today = datetime.now(timezone.utc).date().isoformat()
+    # Atomic increment on today's counter (upsert creates it on the first call of the day).
+    await db.config.update_one(
+        {"key": "google_budget", "date": today},
+        {"$inc": {"searches": 1}},
+        upsert=True,
+    )
 
 
 def client_ip(request: Request) -> str:

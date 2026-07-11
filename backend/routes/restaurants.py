@@ -51,7 +51,7 @@ async def create_report(payload: ReportCreate):
 
 @router.get("/cuisines", response_model=List[str])
 async def get_cuisines():
-    items = await db.restaurants.find({}, {"_id": 0, "cuisine": 1}).to_list(1000)
+    items = await db.restaurants.find({"status": {"$ne": "pending"}}, {"_id": 0, "cuisine": 1}).to_list(1000)
     return sorted({i['cuisine'] for i in items})
 
 
