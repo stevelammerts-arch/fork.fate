@@ -59,7 +59,7 @@ const SEASONS = {
   },
   spring: {
     grad: "linear-gradient(180deg,#F3FBEF 0%,#FBEFF5 55%,#EFF7E6 100%)",
-    tree: "/spring-tree.png", decorLeft: "/spring-decor.png",
+    tree: "/spring-tree.png", decorLeft: "/spring-decor.png", decorLeftBig: true,
     items: ["/blossom-pink.png", "/blossom-white.png", "/petal-coral.png"], falling: true, hint: "#D46A9F",
   },
   summer: {
@@ -75,8 +75,8 @@ function SeasonScene({ theme, cfg }) {
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
       {cfg.sun && <img src={cfg.sun} alt="" className="absolute right-[24%] top-[5%] w-20 opacity-90" style={{ animation: "ffGlow 5s ease-in-out infinite" }} />}
       <img src={cfg.tree} alt="" className={`absolute bottom-0 ${cfg.treeSide === "left" ? "left-0" : "right-0"} h-[62vh] w-auto object-contain opacity-90 sm:h-[86vh]`} style={{ maxWidth: "62vw", transform: cfg.treeFlip ? "scaleX(-1)" : undefined }} />
-      {cfg.decorRight && <img src={cfg.decorRight} alt="" className={`absolute bottom-0 right-[3%] object-contain ${cfg.decorRightBig ? "w-[54vw] max-w-lg sm:w-[34vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : undefined} />}
-      {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className="absolute bottom-0 left-0 w-[42vw] max-w-sm object-contain opacity-95 sm:left-[2%] sm:w-[26vw]" />}
+      {cfg.decorRight && <img src={cfg.decorRight} alt="" className={`absolute bottom-0 right-[3%] object-contain ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : undefined} />}
+      {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className={`absolute bottom-0 left-0 object-contain opacity-95 sm:left-[2%] ${cfg.decorLeftBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[42vw] max-w-sm sm:w-[26vw]"}`} />}
       {cfg.falling && FALLING_SPRITES.map((l, i) => (
         <img key={i} src={cfg.items[i % cfg.items.length]} alt="" className="absolute top-0 opacity-90"
           style={{ left: l.left, width: l.size, height: l.size, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }} />
