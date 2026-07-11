@@ -28,7 +28,7 @@ env = 0.12 + 0.88 * (np.linspace(0, 1, T) ** 1.7)
 track *= env
 
 # real cinematic timpani hit (uploaded) for the ending boom
-def load_timpani(dur=2.0, tail_fade=0.9):
+def load_timpani(dur=1.5, tail_fade=0.8):
     with wave.open("/tmp/timpani_dec.wav") as w:
         raw = w.readframes(w.getnframes())
     y = np.frombuffer(raw, dtype="<i2").astype(np.float32) / 32768.0
