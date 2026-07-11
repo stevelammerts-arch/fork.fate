@@ -53,7 +53,8 @@ const SEASONS = {
   },
   winter: {
     grad: "linear-gradient(180deg,#EAF3FA 0%,#DCEAF5 55%,#CFE0EE 100%)",
-    tree: "/winter-tree.png", decorLeft: "/winter-decor.png",
+    tree: "/winter-tree.png", treeSide: "left", treeFlip: true,
+    decorRight: "/winter-decor.png", decorRightBig: true,
     items: ["/flake-blue.png", "/flake-white.png", "/flake-silver.png"], falling: true, hint: "#2E77A6",
   },
   spring: {
@@ -73,8 +74,8 @@ function SeasonScene({ theme, cfg }) {
     <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`season-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
       {cfg.sun && <img src={cfg.sun} alt="" className="absolute right-[24%] top-[5%] w-20 opacity-90" style={{ animation: "ffGlow 5s ease-in-out infinite" }} />}
-      <img src={cfg.tree} alt="" className="absolute bottom-0 right-0 h-[62vh] w-auto object-contain opacity-90 sm:h-[86vh]" style={{ maxWidth: "62vw" }} />
-      {cfg.decorRight && <img src={cfg.decorRight} alt="" className="absolute bottom-0 right-[3%] w-[36vw] max-w-md object-contain sm:w-[24vw]" style={cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : undefined} />}
+      <img src={cfg.tree} alt="" className={`absolute bottom-0 ${cfg.treeSide === "left" ? "left-0" : "right-0"} h-[62vh] w-auto object-contain opacity-90 sm:h-[86vh]`} style={{ maxWidth: "62vw", transform: cfg.treeFlip ? "scaleX(-1)" : undefined }} />
+      {cfg.decorRight && <img src={cfg.decorRight} alt="" className={`absolute bottom-0 right-[3%] object-contain ${cfg.decorRightBig ? "w-[54vw] max-w-lg sm:w-[34vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : undefined} />}
       {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className="absolute bottom-0 left-0 w-[42vw] max-w-sm object-contain opacity-95 sm:left-[2%] sm:w-[26vw]" />}
       {cfg.falling && FALLING_SPRITES.map((l, i) => (
         <img key={i} src={cfg.items[i % cfg.items.length]} alt="" className="absolute top-0 opacity-90"
