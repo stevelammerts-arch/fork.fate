@@ -398,6 +398,22 @@ body {
   0%,100%{ transform: rotate(calc(var(--sw) * -1)); }
   50%{ transform: rotate(var(--sw)); }
 }
+/* Electric arc device: bolt climbs up/down between the electrodes, flickering */
+@keyframes ffArcClimb{
+  0%{ transform: translateY(0%); }
+  50%{ transform: translateY(300%); }
+  100%{ transform: translateY(0%); }
+}
+@keyframes ffArcFlicker{
+  0%{ opacity:1; }
+  50%{ opacity:0.35; }
+  100%{ opacity:0.85; }
+}
+@keyframes ffArcGlow{
+  0%{ opacity:0.9; }
+  50%{ opacity:0.4; }
+  100%{ opacity:0.75; }
+}
 /* Warm glow the torch casts on the tiki bar */
 @keyframes ffTorchGlow{
   0%,100%{ opacity:0.45; transform: scale(0.97); }

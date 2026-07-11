@@ -138,6 +138,19 @@ function AmbianceScene({ theme, cfg }) {
       {cfg.wall && <img src={cfg.wall} alt="" className="absolute bottom-0 left-0 z-[1] w-full object-cover object-bottom opacity-60" style={{ maxHeight: "34vh" }} />}
       {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
       {cfg.console && <img src={cfg.console} alt="" className="absolute bottom-0 left-[2%] z-[4] h-[48vh] object-contain opacity-75" />}
+      {cfg.device && (
+        <div className="absolute bottom-0 right-[3%] z-[3] h-[46vh]" style={{ aspectRatio: "545 / 970" }}>
+          <img src={cfg.device} alt="" className="absolute inset-0 h-full w-full object-contain opacity-90" />
+          <div className="absolute" style={{ left: "39%", width: "18%", top: "1.5%", height: "23%" }}>
+            <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(120,210,255,0.22), rgba(120,210,255,0) 70%)", animation: "ffArcGlow 0.13s steps(2,end) infinite" }} />
+            <div className="absolute inset-x-0 top-0" style={{ height: "24%", animation: "ffArcClimb 1.7s ease-in-out infinite" }}>
+              <svg viewBox="0 0 40 12" preserveAspectRatio="none" className="h-full w-full" style={{ overflow: "visible" }}>
+                <polyline points="0,6 6,2 13,9 20,3 27,10 34,4 40,7" fill="none" stroke="#CBF3FF" strokeWidth="1" strokeLinejoin="round" strokeLinecap="round" style={{ filter: "drop-shadow(0 0 2px #4CC8FF) drop-shadow(0 0 5px #7A5CFF)", animation: "ffArcFlicker 0.1s steps(2,end) infinite" }} />
+              </svg>
+            </div>
+          </div>
+        </div>
+      )}
       {cfg.roofCables && STEAM_CABLES.map((c, i) => (
         <div key={`cable-${i}`} className="absolute top-0 z-[3]" style={{ left: c.left, width: c.w, height: `${c.h}vh`, transformOrigin: "top center", animation: `ffCableSway ${c.dur}s ease-in-out ${c.delay}s infinite`, "--sw": `${c.sway}deg` }}>
           <div className="h-full w-full rounded-b-full" style={{ background: "linear-gradient(90deg,#0E0A06 0%,#3A2818 42%,#6B4A2A 50%,#3A2818 58%,#0E0A06 100%)", boxShadow: "0 1px 3px rgba(0,0,0,0.6)" }} />
