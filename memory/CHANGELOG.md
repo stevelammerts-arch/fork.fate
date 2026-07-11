@@ -78,3 +78,13 @@
 ### Guardrails
 - LIVE PAYPAL + PRODUCTION at fork-fate.com. Preview changes are preview-only until redeploy.
 - Google Places capped 160/day; only the winning reveal card uses a billed Google photo.
+
+## 2026-06-11 — Seasonal themes completed + asset transparency fixes
+- Completed Winter, Spring, Summer seasonal scenes (generalized SEASONS config, SeasonScene, ShufflingDeck season sprites).
+- Fixed runtime crash: added missing lucide icons (Snowflake, Flower2, Umbrella); removed stray corrupted lines + undefined `fall` var in Home.jsx.
+- Summer: flying seagulls (ffFly), realistic beach umbrella + 2 chairs facing ocean + beer bottle; palm tree restored.
+- Spring: Chinese gazebo + blossom tree decor, enlarged right cherry-blossom tree layered above gazebo, pink button/slider palette.
+- Winter: tree flipped to left, cottage enlarged (fills page) on right.
+- All seasonal objects faded to opacity 0.32 (like light theme) so UI text pops.
+- CRITICAL FIX: Gemini-generated "transparent" PNGs had checkerboard baked in (0% alpha). Cut out via rembg (decor) + chroma-key green/blue (regenerated decor) + flood-fill de-checker on ORIGINAL tree backups (preserves exact approved trees). Backups in /app/scripts/orig_backup.
+- FF_BUILD bumped to 2026.06-68.

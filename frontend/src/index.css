@@ -185,6 +185,9 @@ body {
 [data-ff-theme="spring"] :is([data-ff-dialog],[data-ff-dialog] *).text-\[\#E01E26\]{color:#C2547F !important;}
 [data-ff-theme="spring"] :is([data-ff-dialog],[data-ff-dialog] *).border-\[\#E01E26\]{border-color:#E38DB0 !important;}
 [data-ff-theme="spring"] :is([data-ff-dialog],[data-ff-dialog] *).ring-\[\#E01E26\]{--tw-ring-color:#E38DB0 !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .bg-primary{background-color:#D46A9F !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .bg-primary\/20{background-color:rgba(212,106,159,0.22) !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .border-primary\/50{border-color:rgba(212,106,159,0.6) !important;}
 
 
 /* ── Fall (autumn) theme accent recolor: burnt orange/red (was red) + brown (was black) ── */

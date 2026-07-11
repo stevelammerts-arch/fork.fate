@@ -59,7 +59,7 @@ const SEASONS = {
   },
   spring: {
     grad: "linear-gradient(180deg,#F3FBEF 0%,#FBEFF5 55%,#EFF7E6 100%)",
-    tree: "/spring-tree.png", decorLeft: "/spring-decor.png", decorLeftBig: true,
+    tree: "/spring-tree.png", treeBig: true, decorLeft: "/spring-decor.png", decorLeftBig: true,
     items: ["/blossom-pink.png", "/blossom-white.png", "/petal-coral.png"], falling: true, hint: "#D46A9F",
   },
   summer: {
@@ -73,16 +73,16 @@ function SeasonScene({ theme, cfg }) {
   return (
     <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`season-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
-      {cfg.sun && <img src={cfg.sun} alt="" className="absolute right-[24%] top-[5%] w-20 opacity-90" style={{ animation: "ffGlow 5s ease-in-out infinite" }} />}
-      <img src={cfg.tree} alt="" className={`absolute bottom-0 ${cfg.treeSide === "left" ? "left-0" : "right-0"} h-[62vh] w-auto object-contain opacity-90 sm:h-[86vh]`} style={{ maxWidth: "62vw", transform: cfg.treeFlip ? "scaleX(-1)" : undefined }} />
-      {cfg.decorRight && <img src={cfg.decorRight} alt="" className={`absolute bottom-0 right-[3%] object-contain ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : undefined} />}
-      {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className={`absolute bottom-0 left-0 object-contain opacity-95 sm:left-[2%] ${cfg.decorLeftBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[42vw] max-w-sm sm:w-[26vw]"}`} />}
+      {cfg.sun && <img src={cfg.sun} alt="" className="absolute right-[24%] top-[5%] w-20 opacity-40" style={{ animation: "ffGlow 5s ease-in-out infinite" }} />}
+      <img src={cfg.tree} alt="" className={`absolute bottom-0 ${cfg.treeSide === "left" ? "left-0" : "right-0"} w-auto object-contain opacity-[0.32] ${cfg.treeBig ? "h-[80vh] sm:h-[106vh] z-[2]" : "h-[62vh] sm:h-[86vh]"}`} style={{ maxWidth: cfg.treeBig ? "88vw" : "62vw", transform: cfg.treeFlip ? "scaleX(-1)" : undefined }} />
+      {cfg.decorRight && <img src={cfg.decorRight} alt="" className={`absolute bottom-0 right-[3%] object-contain opacity-[0.32] ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : undefined} />}
+      {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className={`absolute bottom-0 left-0 object-contain opacity-[0.32] sm:left-[2%] ${cfg.decorLeftBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[42vw] max-w-sm sm:w-[26vw]"}`} />}
       {cfg.falling && FALLING_SPRITES.map((l, i) => (
-        <img key={i} src={cfg.items[i % cfg.items.length]} alt="" className="absolute top-0 opacity-90"
+        <img key={i} src={cfg.items[i % cfg.items.length]} alt="" className="absolute top-0 opacity-40"
           style={{ left: l.left, width: l.size, height: l.size, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }} />
       ))}
       {cfg.birds && FLYING_BIRDS.map((b, i) => (
-        <img key={`bird-${i}`} src={cfg.birds} alt="" className="absolute left-0 opacity-90 drop-shadow-sm"
+        <img key={`bird-${i}`} src={cfg.birds} alt="" className="absolute left-0 opacity-40 drop-shadow-sm"
           style={{ top: b.top, width: b.size, animation: `ffFly ${b.dur}s linear ${b.delay}s infinite` }} />
       ))}
     </div>
