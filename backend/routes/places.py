@@ -11,7 +11,7 @@ from core import (
     db, logger, rate_limit, GOOGLE_API_KEY, FALLBACK_IMG,
     PRICE_ENUM_TO_SYMBOL, SYMBOL_ENUMS, pick_placeholder,
     haversine_miles, prettify_type, maps_url, doordash_url, order_url,
-    _ZIP_GEO_CACHE, _PLACES_CACHE, _PLACES_TTL, _google_budget_ok, _google_record_call,
+    _ZIP_GEO_CACHE, _PLACES_CACHE, _PLACES_TTL, _google_reserve,
 )
 from models import PlacesSearchRequest
 
@@ -175,7 +175,7 @@ async def geocode_zip(zip: str):
         return {"lat": cached[0], "lng": cached[1]}
     if not GOOGLE_API_KEY:
         raise HTTPException(status_code=503, detail="Geocoding unavailable")
-    if not await _google_budget_ok():
+    if not await _google_reserve():
         raise HTTPException(status_code=503, detail="search-budget-exceeded")
     async with httpx.AsyncClient(timeout=15) as http:
         geo = await http.get("https://maps.googleapis.com/maps/api/geocode/json", params={
@@ -186,7 +186,6 @@ async def geocode_zip(zip: str):
             raise HTTPException(status_code=400, detail="Could not find that ZIP code")
         loc = gd["results"][0]["geometry"]["location"]
     _ZIP_GEO_CACHE[z] = (loc["lat"], loc["lng"])
-    await _google_record_call()
     return {"lat": loc["lat"], "lng": loc["lng"]}
 
 
@@ -206,11 +205,10 @@ async def cached_google_search(req: PlacesSearchRequest):
     hit = _PLACES_CACHE.get(key)
     if hit and now - hit[0] < _PLACES_TTL:
         return hit[1]
-    if not await _google_budget_ok():
+    if not await _google_reserve():
         logger.warning("Google daily search cap reached — serving curated fallback")
         raise HTTPException(status_code=503, detail="search-budget-exceeded")
     results = await google_places_search(req)
-    await _google_record_call()
     _PLACES_CACHE[key] = (now, results)
     if len(_PLACES_CACHE) > 2000:
         for k in [k for k, v in list(_PLACES_CACHE.items()) if now - v[0] >= _PLACES_TTL]:

@@ -11,7 +11,7 @@ router = APIRouter()
 CRAWL_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # no ambiguous chars
 
 
-def _gen_crawl_code(n: int = 5) -> str:
+def _gen_crawl_code(n: int = 8) -> str:
     return "".join(secrets.choice(CRAWL_CODE_ALPHABET) for _ in range(n))
 
 

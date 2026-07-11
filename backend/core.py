@@ -2,6 +2,7 @@
 from fastapi import HTTPException, Request
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import ReturnDocument
 import os
 import re
 import time
@@ -42,8 +43,9 @@ JWT_AUD = os.environ.get("JWT_AUD", "fork-fate-admin")
 #                     private/loopback hop (i.e. our k8s ingress / CDN edge).
 #   always/never   -> force-trust or force-ignore (escape hatches for other setups).
 TRUST_PROXY_MODE = os.environ.get("TRUST_PROXY_HEADERS", "auto").strip().lower()
-# Origins allowed for CORS + WebAuthn (prod fork-fate.com + Emergent preview subdomains).
-ALLOWED_ORIGIN_REGEX = r"https://([a-z0-9-]+\.)*(fork-fate\.com|emergentagent\.com)$"
+# Origins allowed for CORS + WebAuthn (prod fork-fate.com + Emergent *.preview* subdomains
+# only — no longer trusts arbitrary emergentagent.com service subdomains).
+ALLOWED_ORIGIN_REGEX = r"https://([a-z0-9-]+\.)*fork-fate\.com$|https://[a-z0-9-]+\.preview\.emergentagent\.com$"
 _ORIGIN_RE = re.compile(ALLOWED_ORIGIN_REGEX, re.I)
 FALLBACK_IMG = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?crop=entropy&cs=srgb&fm=jpg&q=85"
 
@@ -231,23 +233,25 @@ _PLACES_TTL = 300  # seconds
 GOOGLE_SEARCH_DAILY_CAP = int(os.environ.get("GOOGLE_SEARCH_DAILY_CAP", "160"))
 
 
-async def _google_budget_ok() -> bool:
-    """Persistent (Mongo-backed) daily cap so the ceiling survives restarts and is
-    shared across replicas — not just in-process memory."""
+async def _google_reserve() -> bool:
+    """Atomically reserve one billed Google call against today's cap (Mongo-backed so it
+    survives restarts and is shared across replicas). Increment-FIRST so concurrent
+    requests can't all pass a stale check-then-increment; if the reservation lands over
+    the ceiling we roll the counter back and reject."""
     today = datetime.now(timezone.utc).date().isoformat()
-    doc = await db.config.find_one({"key": "google_budget", "date": today})
-    used = int(doc.get("searches", 0)) if doc else 0
-    return used < GOOGLE_SEARCH_DAILY_CAP
-
-
-async def _google_record_call():
-    today = datetime.now(timezone.utc).date().isoformat()
-    # Atomic increment on today's counter (upsert creates it on the first call of the day).
-    await db.config.update_one(
+    doc = await db.config.find_one_and_update(
         {"key": "google_budget", "date": today},
         {"$inc": {"searches": 1}},
         upsert=True,
+        return_document=ReturnDocument.AFTER,
     )
+    if int(doc.get("searches", 0)) > GOOGLE_SEARCH_DAILY_CAP:
+        await db.config.update_one(
+            {"key": "google_budget", "date": today},
+            {"$inc": {"searches": -1}},
+        )
+        return False
+    return True
 
 
 def client_ip(request: Request) -> str:

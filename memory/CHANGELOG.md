@@ -1,5 +1,15 @@
 # Fork·Fate — Changelog
 
+## 2026-06-11 (fork) — Security audit remediation
+
+Audit verdict: CONDITIONAL PASS. Remediated:
+- **[MEDIUM] Atomic Google daily cost cap** (`core.py`): replaced check-then-increment (`_google_budget_ok` + `_google_record_call`) with a single race-safe `_google_reserve()` using `find_one_and_update` `$inc` + `ReturnDocument.AFTER`, rolling the counter back when a reservation lands over the ceiling. Updated both callers in `places.py` (geocode + cached search). Verified: 50 concurrent reservations against a cap of 10 → exactly 10 granted, counter settled at 10.
+- **[P3] CORS tightened** (`core.py`): `ALLOWED_ORIGIN_REGEX` no longer trusts arbitrary `*.emergentagent.com` service subdomains — now only `*.fork-fate.com` + `*.preview.emergentagent.com`.
+- **[P3] Crawl share codes** lengthened 5→8 chars (`crawls.py`), reducing enumeration surface (~1T space). Existing codes still resolve.
+
+Deferred (documented, low impact): shared-store rate-limit/login-lockout (adds per-request Mongo round-trip + latency for marginal benefit on multi-replica); analytics click/impression endpoints already rate-limited and only touch existing sponsors; subscription-status already withholds business name unless active (needed for sponsor success-page polling).
+
+
 ## 2026-06-11 (fork) — Spanish Translation Phase 2 complete (crawl dialogs)
 
 - Fixed a build-breaking corruption at the end of `PubCrawlDialog.jsx` (leftover duplicate JSX from a mid-edit) that was crashing webpack.
