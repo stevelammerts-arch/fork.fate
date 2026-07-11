@@ -102,9 +102,20 @@ const CYBER_CARS = [
   { top: "25%", size: 112, dur: 17, delay: 5, rev: true },
 ];
 
+// A dense mass of steel cables hanging + swaying from the roof (steampunk)
+const STEAM_CABLES = Array.from({ length: 22 }).map((_, i) => ({
+  left: `${(i * 4.6 + (i % 4) * 1.3)}%`,
+  h: 16 + ((i * 37) % 26),        // 16-42vh lengths
+  w: 2 + (i % 3),                 // 2-4px thick
+  sway: 2.2 + ((i * 13) % 5) * 0.7, // 2.2-5deg amplitude
+  dur: 4.2 + ((i * 7) % 6) * 0.55,  // 4.2-7s
+  delay: ((i * 11) % 12) * 0.28,    // staggered
+  plug: i % 3 === 0,
+}));
+
 const AMBIANCE = {
   cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
-  steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall.png", console: "/steam-console.png", gears: "/steam-gears.png", steam: true, accent: "#D9A44E", sky: "#F1D9A6" },
+  steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall.png", console: "/steam-console.png", steam: true, roofCables: true, accent: "#D9A44E", sky: "#F1D9A6" },
   tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", bar: "/tiki-bar.png", torchLeft: "/tiki-torch-base.png", torchFlame: true, totemRight: "/tiki-totem.png", grass: "/tiki-grass.png", glow: true, accent: "#F0A24E", sky: "#FBE3C0" },
 };
 
@@ -123,10 +134,16 @@ function AmbianceScene({ theme, cfg }) {
         <img key={`car-${i}`} src={c.rev ? cfg.cars2 : cfg.cars} alt="" className="absolute left-0 z-[3] object-contain opacity-90"
           style={{ top: c.top, width: c.size, filter: "drop-shadow(0 0 10px rgba(34,224,224,0.55))", animation: `${c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite both` }} />
       ))}
-      {cfg.neon && <img src={cfg.neon} alt="" className="absolute left-1/2 top-[15%] z-[1] w-[62vw] max-w-xs -translate-x-1/2 object-contain" style={{ mixBlendMode: "screen", animation: "ffNeonFloat 6s ease-in-out infinite" }} />}
-      {cfg.wall && <img src={cfg.wall} alt="" className="absolute bottom-0 left-0 w-full object-cover object-bottom opacity-60" style={{ maxHeight: "34vh" }} />}
-      {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
-      {cfg.console && <img src={cfg.console} alt="" className="absolute bottom-0 left-[2%] h-[48vh] object-contain opacity-75" />}
+      {cfg.neon && <div className="absolute left-1/2 top-[15%] z-[1] w-[62vw] max-w-xs -translate-x-1/2"><img src={cfg.neon} alt="" className="w-full object-contain" style={{ mixBlendMode: "screen", animation: "ffNeonFloat 6s ease-in-out infinite" }} /></div>}
+      {cfg.wall && <img src={cfg.wall} alt="" className="absolute bottom-0 left-0 z-[1] w-full object-cover object-bottom opacity-60" style={{ maxHeight: "34vh" }} />}
+      {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
+      {cfg.console && <img src={cfg.console} alt="" className="absolute bottom-0 left-[2%] z-[4] h-[48vh] object-contain opacity-75" />}
+      {cfg.roofCables && STEAM_CABLES.map((c, i) => (
+        <div key={`cable-${i}`} className="absolute top-0 z-[3]" style={{ left: c.left, width: c.w, height: `${c.h}vh`, transformOrigin: "top center", animation: `ffCableSway ${c.dur}s ease-in-out ${c.delay}s infinite`, "--sw": `${c.sway}deg` }}>
+          <div className="h-full w-full rounded-b-full" style={{ background: "linear-gradient(90deg,#0E0A06 0%,#3A2818 42%,#6B4A2A 50%,#3A2818 58%,#0E0A06 100%)", boxShadow: "0 1px 3px rgba(0,0,0,0.6)" }} />
+          {c.plug && <div className="absolute left-1/2 h-2.5 w-2.5 -translate-x-1/2 rounded-full" style={{ bottom: -6, background: "radial-gradient(circle at 35% 30%, #E0B063, #6B4A1A 70%)", boxShadow: "0 1px 2px rgba(0,0,0,0.6)" }} />}
+        </div>
+      ))}
       {cfg.steam && STEAM_PUFFS.map((s, i) => (
         <div key={`steam-${i}`} className="absolute bottom-[42vh] rounded-full" style={{ left: s.left, width: s.size, height: s.size, background: "radial-gradient(circle, rgba(255,244,224,0.5), rgba(255,244,224,0) 70%)", animation: `ffSteam ${s.dur}s ease-in ${s.delay}s infinite` }} />
       ))}
@@ -210,6 +227,8 @@ export default function Home() {
   const resultRef = useRef(null);
   const lastPickRef = useRef(null);
   const thunderRef = useRef(null);
+  const grooveRef = useRef(null);
+  useEffect(() => () => { if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e) { /* ignore */ } grooveRef.current = null; } }, []);
   const { favorites, isFavorite, toggleFavorite, removeFavorite } = useFavorites();
   const [showGuided, setShowGuided] = useState(() => {
     try { return localStorage.getItem("ff_guided_seen") !== "1"; } catch { return true; }
@@ -320,15 +339,28 @@ export default function Home() {
     setRevealFlash(false);
     // Preload the reveal sound now (inside the click gesture) so it reliably plays.
     // Light mode: cheerful "Ta-Da!" chime. Dark mode: ominous thunderclap.
+    // Tiki: tribal groove starts NOW during the shuffle; timpani boom lands on reveal.
     try {
+      if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e0) { /* ignore */ } grooveRef.current = null; }
       if (localStorage.getItem("ff_muted") !== "1") {
-        thunderRef.current = new Audio(theme === "cyber" ? "/reveal-electric.wav" : theme === "tiki" ? "/reveal-drums.wav" : light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
+        thunderRef.current = new Audio(theme === "cyber" ? "/reveal-electric.wav" : theme === "tiki" ? "/reveal-drums-boom.wav" : light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
         thunderRef.current.volume = 1.0;
         thunderRef.current.load();
+        if (theme === "tiki") {
+          grooveRef.current = new Audio("/reveal-drums-groove.wav");
+          grooveRef.current.volume = 1.0;
+          grooveRef.current.play().catch(() => {});
+        } else if (theme === "cyber") {
+          grooveRef.current = new Audio("/reveal-cyber-radio.wav");
+          grooveRef.current.loop = true;
+          grooveRef.current.volume = 0.8;
+          grooveRef.current.play().catch(() => {});
+        }
       } else {
         thunderRef.current = null;
+        grooveRef.current = null;
       }
-    } catch (e) { thunderRef.current = null; }
+    } catch (e) { thunderRef.current = null; grooveRef.current = null; }
     // Dark mode plays a spoken voice cue before the deck shuffles; light/cyber/tiki stay clean.
     if (!light && theme !== "cyber" && theme !== "tiki") playSound("/reveal-voice-v5.mp3", 1.0);
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
@@ -374,6 +406,7 @@ export default function Home() {
           setFlashHit(true);
           // Thunder boom + 3x screen flash hit exactly as the winner is revealed
           try {
+            if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e2) { /* ignore */ } grooveRef.current = null; }
             if (thunderRef.current) { thunderRef.current.currentTime = 0; thunderRef.current.play().catch(() => {}); }
             else playSound(light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3", 1.0);
           } catch (e) { /* audio unavailable */ }
@@ -517,7 +550,18 @@ export default function Home() {
     setSpinning(true);
     setFlashHit(false);
     setRevealFlash(false);
-    if (theme !== "tiki") playSound("/reveal-voice-v5.mp3", 1.0);
+    if (theme === "tiki") { grooveRef.current = playSound("/reveal-drums-groove.wav", 1.0); }
+    else if (theme === "cyber") {
+      try {
+        if (localStorage.getItem("ff_muted") !== "1") {
+          grooveRef.current = new Audio("/reveal-cyber-radio.wav");
+          grooveRef.current.loop = true;
+          grooveRef.current.volume = 0.8;
+          grooveRef.current.play().catch(() => {});
+        }
+      } catch (e) { grooveRef.current = null; }
+    }
+    else playSound("/reveal-voice-v5.mp3", 1.0);
     let i = 0;
     let delay = 55;
     const maxDelay = 230;
@@ -530,7 +574,10 @@ export default function Home() {
       } else {
         setFlash(winner || pool[i % pool.length]);
         setFlashHit(true);
-        try { playSound(theme === "tiki" ? "/reveal-drums.wav" : "/reveal-thunder-v4.mp3", 1.0); } catch (e) { /* audio */ }
+        try {
+          if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e2) { /* ignore */ } grooveRef.current = null; }
+          playSound(theme === "tiki" ? "/reveal-drums-boom.wav" : theme === "cyber" ? "/reveal-electric.wav" : "/reveal-thunder-v4.mp3", 1.0);
+        } catch (e) { /* audio */ }
         setRevealFlash(true);
         setTimeout(() => setRevealFlash(false), 1200);
         shuffleRef.current = setTimeout(() => {

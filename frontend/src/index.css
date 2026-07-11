@@ -393,6 +393,11 @@ body {
   50%{ opacity:1; }
   100%{ opacity:0; }
 }
+/* Steampunk roof cables swinging like pendulums (amplitude via --sw) */
+@keyframes ffCableSway{
+  0%,100%{ transform: rotate(calc(var(--sw) * -1)); }
+  50%{ transform: rotate(var(--sw)); }
+}
 /* Warm glow the torch casts on the tiki bar */
 @keyframes ffTorchGlow{
   0%,100%{ opacity:0.45; transform: scale(0.97); }

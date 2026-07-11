@@ -67,9 +67,25 @@ buf[bi:bi + len(b)] += b * 1.15
 buf[:T] = np.tanh(buf[:T] * 1.3) / np.tanh(1.3) * 0.62
 buf = buf / (np.max(np.abs(buf)) + 1e-9) * 0.98
 
-with wave.open("/app/frontend/public/reveal-drums.wav", "w") as w:
-    w.setnchannels(1)
-    w.setsampwidth(2)
-    w.setframerate(SR)
-    w.writeframes(b"".join(struct.pack("<h", int(max(-1, min(1, s)) * 32767)) for s in buf))
-print("saved reveal-drums.wav", round(out_len / SR, 2), "s")
+
+def write_wav(path, data):
+    with wave.open(path, "w") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(SR)
+        w.writeframes(b"".join(struct.pack("<h", int(max(-1, min(1, s)) * 32767)) for s in data))
+
+
+# full combined clip (kept for reference / fallback)
+write_wav("/app/frontend/public/reveal-drums.wav", buf)
+
+# SPLIT: groove plays during the shuffle, boom (timpani) plays on the reveal
+groove = np.tanh(track * 1.3) / np.tanh(1.3) * 0.62
+groove = groove / (np.max(np.abs(groove)) + 1e-9) * 0.9
+write_wav("/app/frontend/public/reveal-drums-groove.wav", groove)
+
+boom = b / (np.max(np.abs(b)) + 1e-9) * 0.98
+write_wav("/app/frontend/public/reveal-drums-boom.wav", boom)
+
+print("saved reveal-drums.wav", round(out_len / SR, 2), "s |",
+      "groove", round(len(groove) / SR, 2), "s | boom", round(len(boom) / SR, 2), "s")
