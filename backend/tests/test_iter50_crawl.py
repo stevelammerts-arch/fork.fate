@@ -118,7 +118,7 @@ class TestRegression:
         assert "restaurant" in d or "name" in d or "id" in d
 
     def test_admin_login_and_sponsor_stats(self):
-        login = requests.post(f"{API}/admin/login", json={"password": "GrimReaper!2026"}, timeout=15)
+        login = requests.post(f"{API}/admin/login", json={"password": os.environ.get("ADMIN_PASSWORD", "")}, timeout=15)
         assert login.status_code == 200, login.text
         tok = login.json().get("token") or login.json().get("access_token")
         assert tok, login.json()

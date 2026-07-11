@@ -10,7 +10,7 @@ load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 BASE = os.environ.get("REACT_APP_BACKEND_URL", "https://lucky-bite-1.preview.emergentagent.com").rstrip("/")
 API = f"{BASE}/api"
-ADMIN_PW = "GrimReaper!2026"
+ADMIN_PW = os.environ.get("ADMIN_PASSWORD", "")
 JWT_SECRET = os.environ["JWT_SECRET"]
 
 

@@ -7,7 +7,7 @@ import pytest
 import requests
 
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/")
-ADMIN_PW = "GrimReaper!2026"
+ADMIN_PW = os.environ.get("ADMIN_PASSWORD", "")
 
 
 @pytest.fixture(scope="module")

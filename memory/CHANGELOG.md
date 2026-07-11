@@ -1,5 +1,15 @@
 # Fork·Fate — Changelog
 
+## 2026-06-11 (fork) — Cap raise, 90% email alert, Summer mobile fix, secret hygiene
+
+- **Google cost cap raised 160 → 300** (`core.py` default; overridable via `GOOGLE_SEARCH_DAILY_CAP`). Alert threshold `GOOGLE_SEARCH_ALERT_PCT=90`.
+- **Daily usage email alert** via Resend (`core.py::_send_google_cap_alert`): fires exactly once/day when usage crosses 90% (270/300), tracked idempotently via an `alerted` flag on the Mongo `google_budget` doc. Falls back to log-only when Resend not configured. Local imports (asyncio/resend) used to survive the recurring checkpoint import-stripping. Test email delivered successfully to stevelammerts@gmail.com. Env: `RESEND_API_KEY`, `ALERT_EMAIL_TO`, `SENDER_EMAIL` (default onboarding@resend.dev). `/admin/cost-status` now also returns `alert_pct` + `alerted`.
+- **Summer theme mobile fix** (`Home.jsx` + `index.css`): seagulls 5 → 6 with shorter/overlapping durations + `will-change:transform` + `backface-visibility:hidden` so mobile Safari no longer throttles/freezes them; ocean shimmer strengthened (0.12→0.30 white, 0.55→0.9 opacity, `mix-blend-mode:screen`) so it's visible on bright mobile screens. Verified on 402px viewport.
+- **Secret hygiene**: removed hardcoded admin password `GrimReaper!2026` from 6 tracked `backend/tests/*.py` files — now read from `os.environ["ADMIN_PASSWORD"]`. Confirmed no `.env`/Resend/PayPal/Google secrets are tracked or in git history.
+- Bumped `FF_BUILD` → `2026.06-124`.
+- GitHub "third-party OAuth app (Resend)" email was benign — user's Resend signup via GitHub OAuth (`user:email` scope only).
+
+
 ## 2026-06-11 (fork) — Admin "Security & cost" widget
 
 - New endpoint `GET /admin/cost-status` (`admin.py`, admin-gated): returns today's billed Google search/geocode count, the daily cap, remaining, percent used, and last-7-days history from the Mongo `config` google_budget counters.
