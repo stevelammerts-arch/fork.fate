@@ -64,7 +64,7 @@ const SEASONS = {
   },
   summer: {
     grad: "linear-gradient(180deg,#BFE8F7 0%,#8FD3EE 44%,#5FB8D9 62%,#F3E2B3 62%,#EAD199 100%)",
-    tree: "/summer-tree.png", decorLeft: "/summer-decor.png", sun: "/summer-sun.png", birds: "/summer-seagull.png",
+    tree: "/summer-tree.png", decorLeft: "/summer-decor.png", decorLeftBig: true, sun: "/summer-sun.png", birds: "/summer-seagull.png",
     items: ["/summer-sun.png", "/summer-ball.png", "/summer-icecream.png"], falling: false, hint: "#E07E17",
   },
 };
