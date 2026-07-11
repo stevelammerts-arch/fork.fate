@@ -1,95 +1,63 @@
 import numpy as np
-import wave, struct
+import wave, struct, subprocess, imageio_ffmpeg
 
 SR = 44100
-rng = np.random.default_rng(7)
+FF = imageio_ffmpeg.get_ffmpeg_exe()
+IN = "/tmp/danza.mp3"
+TMP = "/tmp/danza_dec.wav"
 
-# Circular-membrane modal ratios (Bessel) -> inharmonic, drum-like (not musical)
-MODES = np.array([1.00, 1.59, 2.14, 2.30, 2.65, 2.92, 3.16, 3.50])
-MODE_GAIN = np.array([1.00, 0.55, 0.42, 0.30, 0.22, 0.16, 0.12, 0.08])
+# decode mp3 -> mono 44.1k 16-bit wav
+subprocess.run([FF, "-y", "-i", IN, "-ac", "1", "-ar", str(SR), "-sample_fmt", "s16", TMP],
+               check=True, capture_output=True)
 
-def bandnoise(n, lo, hi):
-    x = rng.standard_normal(n)
-    X = np.fft.rfft(x)
-    f = np.fft.rfftfreq(n, 1 / SR)
-    mask = (f >= lo) & (f <= hi)
-    X *= mask
-    y = np.fft.irfft(X, n)
-    m = np.max(np.abs(y)) + 1e-9
-    return y / m
+with wave.open(TMP) as w:
+    n = w.getnframes()
+    raw = w.readframes(n)
+track = np.frombuffer(raw, dtype="<i2").astype(np.float32) / 32768.0
+# trim to a tight excerpt for the reveal (skip a short intro)
+START, LEN = 1.0, 7.0
+track = track[int(SR * START): int(SR * (START + LEN))]
+T = len(track)
+print("excerpt seconds:", round(T / SR, 2))
 
-def djembe(kind="bass", dur=0.9):
-    """kind: 'bass' (deep open), 'tone' (mid), 'slap' (bright edge)."""
+t = np.arange(T) / SR
+dur = T / SR
+
+# crescendo: quiet -> loud (ease-in power curve)
+env = 0.12 + 0.88 * (np.linspace(0, 1, T) ** 1.7)
+track *= env
+
+# big deep drum boom at the end
+def boom(dur=1.6):
     n = int(SR * dur)
-    t = np.linspace(0, dur, n, endpoint=False)
-    if kind == "bass":
-        f0 = rng.uniform(84, 92)
-        body_dec = rng.uniform(4.0, 5.0)
-        skin_lo, skin_hi, skin_amp, skin_dec = 120, 900, 0.35, 55
-        tone_amp = 1.0
-    elif kind == "tone":
-        f0 = rng.uniform(150, 168)
-        body_dec = rng.uniform(6.0, 7.5)
-        skin_lo, skin_hi, skin_amp, skin_dec = 300, 2500, 0.5, 70
-        tone_amp = 0.85
-    else:  # slap
-        f0 = rng.uniform(230, 260)
-        body_dec = rng.uniform(9.0, 12.0)
-        skin_lo, skin_hi, skin_amp, skin_dec = 1500, 8000, 0.9, 120
-        tone_amp = 0.5
+    tt = np.linspace(0, dur, n, endpoint=False)
+    # pitch drops from ~120Hz down to ~40Hz for a huge falling thud
+    f = 120 * np.exp(-3.0 * tt) + 38
+    phase = 2 * np.pi * np.cumsum(f) / SR
+    tone = np.sin(phase) + 0.3 * np.sin(2 * phase)
+    sub = 0.9 * np.sin(2 * np.pi * 45 * tt) * np.exp(-2.4 * tt)
+    slap = np.random.randn(n) * np.exp(-30 * tt) * 0.4
+    slap = np.convolve(slap, np.ones(24) / 24, mode="same")
+    env_b = np.exp(-2.6 * tt)
+    return ((tone * 0.9 + sub + slap) * env_b).astype(np.float32)
 
-    # modal body: each mode a slightly detuned decaying sinusoid, higher modes decay faster
-    body = np.zeros(n)
-    for r, g in zip(MODES, MODE_GAIN):
-        fk = f0 * r * rng.uniform(0.995, 1.005)
-        dec = body_dec * (1 + 0.7 * (r - 1))
-        body += g * np.sin(2 * np.pi * fk * t + rng.uniform(0, 6.28)) * np.exp(-dec * t)
-    body *= tone_amp
+b = boom()
+# place the boom so it hits right as the track ends (slight overlap for impact)
+overlap = int(SR * 0.15)
+out_len = T - overlap + len(b) + int(SR * 0.4)
+buf = np.zeros(out_len, dtype=np.float32)
+buf[:T] += track
+bi = T - overlap
+buf[bi:bi + len(b)] += b * 1.0
 
-    # sub weight for the bass hit (chest thump)
-    if kind == "bass":
-        body += 0.7 * np.sin(2 * np.pi * (f0 * 0.5) * t) * np.exp(-3.2 * t)
-
-    # skin-slap transient (filtered noise, very fast decay)
-    slap = bandnoise(n, skin_lo, skin_hi) * np.exp(-skin_dec * t) * skin_amp
-
-    # a touch of low wood-shell knock
-    wood = np.sin(2 * np.pi * rng.uniform(320, 380) * t) * np.exp(-60 * t) * 0.12
-
-    sig = body + slap + wood
-    # natural amplitude envelope pluck at the very start
-    sig *= np.minimum(1.0, t * SR / 40.0) * 0.0 + 1.0  # (keep sharp attack)
-    return sig.astype(np.float32)
-
-# Slow organic tribal groove (humanized timing + velocity)
-BEAT = 0.66
-seq = ["bass", "tone", "bass", "slap", "bass", "tone", "slap", "bass", "bass"]
-total = int(SR * (len(seq) * BEAT + 1.2))
-buf = np.zeros(total, dtype=np.float32)
-for i, kind in enumerate(seq):
-    start = i * BEAT + rng.uniform(-0.02, 0.02)          # timing humanization
-    vel = rng.uniform(0.82, 1.0) * (1.0 if kind == "bass" else 0.8)
-    hit = djembe(kind) * vel
-    s = max(0, int(SR * start))
-    e = min(total, s + len(hit))
-    buf[s:e] += hit[: e - s]
-
-# gentle room reverb (organic space, not washy)
-rev = buf.copy()
-for d, g in [(int(SR * 0.021), 0.3), (int(SR * 0.037), 0.22), (int(SR * 0.061), 0.14), (int(SR * 0.09), 0.08)]:
-    pad = np.zeros_like(buf)
-    pad[d:] = buf[: total - d] * g
-    rev += pad
-buf = 0.85 * buf + 0.15 * rev
-
-# loudness: normalize + mild soft-knee saturation for weight (kept natural)
+# normalize loud with gentle soft-clip for weight
 buf = buf / (np.max(np.abs(buf)) + 1e-9)
-buf = np.tanh(buf * 1.6) / np.tanh(1.6)
-buf = buf / (np.max(np.abs(buf)) + 1e-9) * 0.97
+buf = np.tanh(buf * 1.5) / np.tanh(1.5)
+buf = buf / (np.max(np.abs(buf)) + 1e-9) * 0.98
 
 with wave.open("/app/frontend/public/reveal-drums.wav", "w") as w:
     w.setnchannels(1)
     w.setsampwidth(2)
     w.setframerate(SR)
     w.writeframes(b"".join(struct.pack("<h", int(max(-1, min(1, s)) * 32767)) for s in buf))
-print("saved organic reveal-drums.wav", total / SR, "s")
+print("saved reveal-drums.wav", round(out_len / SR, 2), "s")
