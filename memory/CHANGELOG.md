@@ -151,3 +151,8 @@ Audio build scripts in /app/scripts/: make_reveal_drums.py, make_cyber_radio.py 
 - Hero heading/description now use per-ambiance light 'sky' color for readability on dark scenes.
 - New assets: cyber-car2, cyber-console(unused), steam-console, steam-gears, steam-wall (rotated vertical), tiki-totem, tiki-grass. FF_BUILD=2026.06-83.
 - NOTE: shuffle card backs (cyber neon / steam+tiki logo) implemented, not yet verified in a live deal (needs geolocation + Google Places quota).
+
+## 2026-06-11
+- Fixed Fall tree mobile slash: canopy was cropped at PNG top edge. Regenerated a twisted-trunk autumn tree on green-screen, chroma-keyed for clean transparency (preserves full canopy), enlarged in scene (treeH override) and scaled scarecrow down for realistic proportion.
+- Made Fall hazy moon whiter (radial white gradient + white glow).
+- Bumped FF_BUILD to 2026.06-109.
