@@ -215,3 +215,11 @@ body {
   0%, 100% { filter: drop-shadow(0 0 6px rgba(255,170,60,0.55)); }
   50%      { filter: drop-shadow(0 0 22px rgba(255,150,40,0.95)); }
 }
+/* Seagulls gliding across the summer sky */
+@keyframes ffFly {
+  0%   { transform: translateX(-24vw) translateY(0); }
+  25%  { transform: translateX(24vw) translateY(-16px); }
+  50%  { transform: translateX(58vw) translateY(8px); }
+  75%  { transform: translateX(92vw) translateY(-12px); }
+  100% { transform: translateX(126vw) translateY(4px); }
+}

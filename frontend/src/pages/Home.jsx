@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -38,6 +38,13 @@ const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => ({
   delay: (i % 6) * 1.6,
 }));
 
+const FLYING_BIRDS = Array.from({ length: 5 }).map((_, i) => ({
+  top: `${5 + i * 7}%`,
+  size: 44 + (i % 3) * 22,
+  dur: 17 + (i % 4) * 4,
+  delay: i * 3.4,
+}));
+
 const SEASONS = {
   fall: {
     grad: "linear-gradient(180deg,#FBF3E8 0%,#F5E6D0 55%,#EFDCC0 100%)",
@@ -56,7 +63,7 @@ const SEASONS = {
   },
   summer: {
     grad: "linear-gradient(180deg,#BFE8F7 0%,#8FD3EE 44%,#5FB8D9 62%,#F3E2B3 62%,#EAD199 100%)",
-    tree: "/summer-tree.png", decorLeft: "/summer-decor.png", sun: "/summer-sun.png",
+    tree: "/summer-tree.png", decorLeft: "/summer-decor.png", sun: "/summer-sun.png", birds: "/summer-seagull.png",
     items: ["/summer-sun.png", "/summer-ball.png", "/summer-icecream.png"], falling: false, hint: "#E07E17",
   },
 };
@@ -72,6 +79,10 @@ function SeasonScene({ theme, cfg }) {
       {cfg.falling && FALLING_SPRITES.map((l, i) => (
         <img key={i} src={cfg.items[i % cfg.items.length]} alt="" className="absolute top-0 opacity-90"
           style={{ left: l.left, width: l.size, height: l.size, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }} />
+      ))}
+      {cfg.birds && FLYING_BIRDS.map((b, i) => (
+        <img key={`bird-${i}`} src={cfg.birds} alt="" className="absolute left-0 opacity-90 drop-shadow-sm"
+          style={{ top: b.top, width: b.size, animation: `ffFly ${b.dur}s linear ${b.delay}s infinite` }} />
       ))}
     </div>
   );
@@ -802,7 +813,7 @@ export default function Home() {
               transition={{ type: "spring", stiffness: 300, damping: 24 }}
               className="relative z-10 w-full max-w-sm p-8"
             >
-              <ShufflingDeck cards={results} flash={flash} landed={flashHit} light={light} />
+              <ShufflingDeck cards={results} flash={flash} landed={flashHit} light={light} season={season} seasonItems={seasonCfg?.items || null} seasonAccent={seasonCfg?.hint || null} />
             </motion.div>
           </motion.div>
         )}
@@ -1411,7 +1422,7 @@ function CardFront({ src, light }) {
   );
 }
 
-function ShufflingDeck({ cards, flash, landed, light, season, seasonItems }) {
+function ShufflingDeck({ cards, flash, landed, light, season, seasonItems, seasonAccent }) {
   const source = cards.length ? cards : (flash ? [flash] : []);
   // Always fill a full visual deck so the shuffle never looks like a single card,
   // even when the filtered result set is tiny (repeats are visual-only).
@@ -1457,8 +1468,8 @@ function ShufflingDeck({ cards, flash, landed, light, season, seasonItems }) {
             return (
             <motion.div
               key={(c?.id || "c") + i}
-              className={`absolute inset-0 overflow-hidden rounded-2xl border-2 shadow-2xl ${fall ? "border-[#C0451B] bg-[#FBF3E8] shadow-black/10" : light ? "border-[#D9C9A8] bg-[#F5F0E6] shadow-black/10" : "border-[#E01E26] bg-[#0E0E0E] shadow-black/30"}`}
-              style={{ zIndex: DECK_SIZE - i }}
+              className={`absolute inset-0 overflow-hidden rounded-2xl border-2 shadow-2xl ${season ? "bg-[#F5F0E6] shadow-black/10" : light ? "border-[#D9C9A8] bg-[#F5F0E6] shadow-black/10" : "border-[#E01E26] bg-[#0E0E0E] shadow-black/30"}`}
+              style={{ zIndex: DECK_SIZE - i, ...(season && seasonAccent ? { borderColor: seasonAccent } : {}) }}
               animate={
                 landed
                   ? {
@@ -1492,7 +1503,7 @@ function ShufflingDeck({ cards, flash, landed, light, season, seasonItems }) {
           })}
         </div>
         <div className="relative z-[60] text-center">
-          <p className={`font-sans text-xs font-bold uppercase tracking-[0.25em] ${light ? "text-[#A31621]" : "text-[#E01E26]"}`}>
+          <p className={`font-sans text-xs font-bold uppercase tracking-[0.25em] ${light ? "text-[#A31621]" : "text-[#E01E26]"}`} style={season && seasonAccent ? { color: seasonAccent } : undefined}>
             {landed ? (light ? "Your pick" : "Fate has chosen") : (light ? "Shuffling…" : "Shuffling the deck")}
           </p>
           <p className={`mt-1 h-7 font-serif text-2xl drop-shadow ${light ? "text-[#18181B]" : "text-white"}`}>{label}</p>
