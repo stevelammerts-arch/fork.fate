@@ -2,58 +2,94 @@ import numpy as np
 import wave, struct
 
 SR = 44100
+rng = np.random.default_rng(7)
 
-def tom_hit(freq, dur=0.85, decay=6.5, noise=0.16, pitch_drop=0.26):
-    """Deep menacing tribal tom with a downward pitch bend."""
+# Circular-membrane modal ratios (Bessel) -> inharmonic, drum-like (not musical)
+MODES = np.array([1.00, 1.59, 2.14, 2.30, 2.65, 2.92, 3.16, 3.50])
+MODE_GAIN = np.array([1.00, 0.55, 0.42, 0.30, 0.22, 0.16, 0.12, 0.08])
+
+def bandnoise(n, lo, hi):
+    x = rng.standard_normal(n)
+    X = np.fft.rfft(x)
+    f = np.fft.rfftfreq(n, 1 / SR)
+    mask = (f >= lo) & (f <= hi)
+    X *= mask
+    y = np.fft.irfft(X, n)
+    m = np.max(np.abs(y)) + 1e-9
+    return y / m
+
+def djembe(kind="bass", dur=0.9):
+    """kind: 'bass' (deep open), 'tone' (mid), 'slap' (bright edge)."""
     n = int(SR * dur)
     t = np.linspace(0, dur, n, endpoint=False)
-    env = np.exp(-decay * t)
-    inst_freq = freq * (1.0 - pitch_drop * (1 - np.exp(-6 * t)))
-    phase = 2 * np.pi * np.cumsum(inst_freq) / SR
-    tone = np.sin(phase) + 0.35 * np.sin(2 * phase)
-    sub = 0.7 * np.sin(2 * np.pi * (freq * 0.5) * t) * np.exp(-decay * 0.7 * t)
-    slap = np.random.randn(n) * np.exp(-40 * t) * noise
-    slap = np.convolve(slap, np.ones(28) / 28, mode="same")
-    return (tone * 0.85 + sub + slap) * env
+    if kind == "bass":
+        f0 = rng.uniform(84, 92)
+        body_dec = rng.uniform(4.0, 5.0)
+        skin_lo, skin_hi, skin_amp, skin_dec = 120, 900, 0.35, 55
+        tone_amp = 1.0
+    elif kind == "tone":
+        f0 = rng.uniform(150, 168)
+        body_dec = rng.uniform(6.0, 7.5)
+        skin_lo, skin_hi, skin_amp, skin_dec = 300, 2500, 0.5, 70
+        tone_amp = 0.85
+    else:  # slap
+        f0 = rng.uniform(230, 260)
+        body_dec = rng.uniform(9.0, 12.0)
+        skin_lo, skin_hi, skin_amp, skin_dec = 1500, 8000, 0.9, 120
+        tone_amp = 0.5
 
-LOW = 72.0
-MID = 92.0
+    # modal body: each mode a slightly detuned decaying sinusoid, higher modes decay faster
+    body = np.zeros(n)
+    for r, g in zip(MODES, MODE_GAIN):
+        fk = f0 * r * rng.uniform(0.995, 1.005)
+        dec = body_dec * (1 + 0.7 * (r - 1))
+        body += g * np.sin(2 * np.pi * fk * t + rng.uniform(0, 6.28)) * np.exp(-dec * t)
+    body *= tone_amp
 
-# steady, slow, rhythmic beat — one hit every 0.62s, low with mid accents
-BEAT = 0.62
-seq = [LOW, MID, LOW, MID, LOW, MID, LOW, LOW]
-pattern = [(i * BEAT, f, 1.0 if f == LOW else 0.85) for i, f in enumerate(seq)]
+    # sub weight for the bass hit (chest thump)
+    if kind == "bass":
+        body += 0.7 * np.sin(2 * np.pi * (f0 * 0.5) * t) * np.exp(-3.2 * t)
 
-total = int(SR * (len(seq) * BEAT + 1.0))
+    # skin-slap transient (filtered noise, very fast decay)
+    slap = bandnoise(n, skin_lo, skin_hi) * np.exp(-skin_dec * t) * skin_amp
+
+    # a touch of low wood-shell knock
+    wood = np.sin(2 * np.pi * rng.uniform(320, 380) * t) * np.exp(-60 * t) * 0.12
+
+    sig = body + slap + wood
+    # natural amplitude envelope pluck at the very start
+    sig *= np.minimum(1.0, t * SR / 40.0) * 0.0 + 1.0  # (keep sharp attack)
+    return sig.astype(np.float32)
+
+# Slow organic tribal groove (humanized timing + velocity)
+BEAT = 0.66
+seq = ["bass", "tone", "bass", "slap", "bass", "tone", "slap", "bass", "bass"]
+total = int(SR * (len(seq) * BEAT + 1.2))
 buf = np.zeros(total, dtype=np.float32)
-for start, freq, gain in pattern:
-    hit = tom_hit(freq).astype(np.float32) * gain
-    i = int(SR * start)
-    end = min(total, i + len(hit))
-    buf[i:end] += hit[: end - i]
+for i, kind in enumerate(seq):
+    start = i * BEAT + rng.uniform(-0.02, 0.02)          # timing humanization
+    vel = rng.uniform(0.82, 1.0) * (1.0 if kind == "bass" else 0.8)
+    hit = djembe(kind) * vel
+    s = max(0, int(SR * start))
+    e = min(total, s + len(hit))
+    buf[s:e] += hit[: e - s]
 
-# quiet ominous drone underneath
-t = np.linspace(0, total / SR, total, endpoint=False)
-drone = (0.09 * np.sin(2 * np.pi * 48 * t) + 0.05 * np.sin(2 * np.pi * 36 * t))
-drone *= (0.6 + 0.4 * np.sin(2 * np.pi * 0.7 * t))
-buf += drone.astype(np.float32)
-
-# short reverb tail (light, so it doesn't wash out the loudness)
+# gentle room reverb (organic space, not washy)
 rev = buf.copy()
-for d, g in [(int(SR * 0.08), 0.2), (int(SR * 0.15), 0.12)]:
+for d, g in [(int(SR * 0.021), 0.3), (int(SR * 0.037), 0.22), (int(SR * 0.061), 0.14), (int(SR * 0.09), 0.08)]:
     pad = np.zeros_like(buf)
     pad[d:] = buf[: total - d] * g
     rev += pad
-buf = rev
+buf = 0.85 * buf + 0.15 * rev
 
-# LOUD: normalize then soft-clip (tanh) to raise perceived loudness / RMS
-buf = buf / (np.max(np.abs(buf)) + 1e-6)
-buf = np.tanh(buf * 2.4)            # drive into soft saturation for punch + loudness
-buf = buf / (np.max(np.abs(buf)) + 1e-6) * 0.99
+# loudness: normalize + mild soft-knee saturation for weight (kept natural)
+buf = buf / (np.max(np.abs(buf)) + 1e-9)
+buf = np.tanh(buf * 1.6) / np.tanh(1.6)
+buf = buf / (np.max(np.abs(buf)) + 1e-9) * 0.97
 
 with wave.open("/app/frontend/public/reveal-drums.wav", "w") as w:
     w.setnchannels(1)
     w.setsampwidth(2)
     w.setframerate(SR)
     w.writeframes(b"".join(struct.pack("<h", int(max(-1, min(1, s)) * 32767)) for s in buf))
-print("saved loud slow reveal-drums.wav", total / SR, "s")
+print("saved organic reveal-drums.wav", total / SR, "s")
