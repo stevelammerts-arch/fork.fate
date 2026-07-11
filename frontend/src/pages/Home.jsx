@@ -75,6 +75,7 @@ function SeasonScene({ theme, cfg }) {
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
       {cfg.ocean && (<>
         <div className="absolute inset-x-0" style={{ top: "45%", height: "20%", background: "linear-gradient(180deg,#2C86C4 0%,#3CA0D4 38%,#74C6E6 80%,#BFE9F4 100%)" }} />
+        <div className="absolute inset-x-0" style={{ top: "47%", height: "16%", background: "repeating-linear-gradient(96deg, rgba(255,255,255,0) 0px, rgba(255,255,255,0.12) 34px, rgba(255,255,255,0) 78px)", opacity: 0.55, animation: "ffSeaShimmer 7s linear infinite, ffSeaBob 5s ease-in-out infinite" }} />
         <div className="absolute inset-x-0" style={{ top: "63.5%", height: "2.4%", background: "linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.9) 55%,rgba(255,255,255,0) 100%)", filter: "blur(1.5px)" }} />
         <div className="absolute inset-x-0" style={{ top: "65%", height: "5%", background: "linear-gradient(180deg,rgba(196,168,110,0.55),rgba(196,168,110,0))" }} />
       </>)}
