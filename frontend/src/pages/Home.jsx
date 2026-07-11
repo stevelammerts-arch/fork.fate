@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -90,9 +90,56 @@ function SeasonScene({ theme, cfg }) {
 }
 
 
+const STEAM_PUFFS = [
+  { left: "7%", size: 70, dur: 5.5, delay: 0 },
+  { left: "15%", size: 54, dur: 6.5, delay: 2.2 },
+  { left: "83%", size: 66, dur: 6, delay: 1.1 },
+  { left: "91%", size: 50, dur: 7, delay: 3.3 },
+];
+
+const CYBER_CARS = [
+  { top: "13%", size: 160, dur: 13, delay: 0, rev: false },
+  { top: "25%", size: 112, dur: 17, delay: 5, rev: true },
+];
+
+const AMBIANCE = {
+  cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", rain: true, accent: "#22E0E0" },
+  steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", pipes: "/steam-pipes.png", steam: true, accent: "#D9A44E" },
+  tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", bar: "/tiki-bar.png", torch: "/tiki-torch.png", accent: "#F0A24E" },
+};
+
+function AmbianceScene({ theme, cfg }) {
+  return (
+    <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`ambiance-scene-${theme}`}>
+      <div className="absolute inset-0" style={{ background: cfg.grad }} />
+      {cfg.skyline && <img src={cfg.skyline} alt="" className="absolute bottom-0 left-0 w-full object-cover opacity-70" style={{ maxHeight: "52vh" }} />}
+      {cfg.rain && <div className="absolute inset-0 ff-rain" />}
+      {cfg.cars && CYBER_CARS.map((c, i) => (
+        <img key={`car-${i}`} src={cfg.cars} alt="" className="absolute left-0 object-contain opacity-90"
+          style={{ top: c.top, width: c.size, filter: "drop-shadow(0 0 10px rgba(34,224,224,0.55))", animation: `${c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite` }} />
+      ))}
+      {cfg.neon && <img src={cfg.neon} alt="" className="absolute left-1/2 top-[5%] w-[74vw] max-w-sm -translate-x-1/2 object-contain" style={{ mixBlendMode: "screen", animation: "ffNeon 4s ease-in-out infinite" }} />}
+      {cfg.pipes && <>
+        <img src={cfg.pipes} alt="" className="absolute bottom-0 left-0 h-[78vh] object-contain opacity-55" />
+        <img src={cfg.pipes} alt="" className="absolute bottom-0 right-0 h-[78vh] object-contain opacity-55" style={{ transform: "scaleX(-1)" }} />
+      </>}
+      {cfg.steam && STEAM_PUFFS.map((s, i) => (
+        <div key={`steam-${i}`} className="absolute bottom-[42vh] rounded-full" style={{ left: s.left, width: s.size, height: s.size, background: "radial-gradient(circle, rgba(255,244,224,0.5), rgba(255,244,224,0) 70%)", animation: `ffSteam ${s.dur}s ease-in ${s.delay}s infinite` }} />
+      ))}
+      {cfg.bar && <img src={cfg.bar} alt="" className="absolute bottom-0 left-1/2 w-[98vw] max-w-2xl -translate-x-1/2 object-contain opacity-80" />}
+      {cfg.torch && <>
+        <img src={cfg.torch} alt="" className="absolute bottom-0 left-[1%] h-[62vh] object-contain opacity-90" style={{ transformOrigin: "bottom", animation: "ffFlame 1.7s ease-in-out infinite" }} />
+        <img src={cfg.torch} alt="" className="absolute bottom-0 right-[1%] h-[62vh] object-contain opacity-90" style={{ transform: "scaleX(-1)", transformOrigin: "bottom", animation: "ffFlame 2.1s ease-in-out infinite" }} />
+      </>}
+    </div>
+  );
+}
+
+
 export default function Home() {
   const { theme } = useTheme();
-  const light = theme !== "dark";
+  const ambCfg = AMBIANCE[theme] || null;
+  const light = !(theme === "dark" || ambCfg);
   const seasonCfg = SEASONS[theme] || null;
   const season = seasonCfg ? theme : null;
   const ghost = light
@@ -590,8 +637,10 @@ export default function Home() {
       )}
       {/* Seasonal themes: tree + decor + falling sprites */}
       {seasonCfg && <SeasonScene theme={theme} cfg={seasonCfg} />}
+      {/* Ambiance themes: cyberpunk / steampunk / tiki lounge */}
+      {ambCfg && <AmbianceScene theme={theme} cfg={ambCfg} />}
       {/* Dark-mode: decorative reaper background with load animation */}
-      {!light && (
+      {theme === "dark" && (
       <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>
         <motion.div
           style={{ rotateX: rotX, rotateY: rotY, x: shiftX, y: shiftY, transformStyle: "preserve-3d" }}
@@ -686,10 +735,19 @@ export default function Home() {
                   <DropdownMenuItem data-testid="theme-option-summer" onClick={() => setTheme("summer")} className="gap-2">
                     <Umbrella className="h-4 w-4" /> Summer {theme === "summer" && <Check className="ml-auto h-4 w-4" />}
                   </DropdownMenuItem>
+                  <DropdownMenuItem data-testid="theme-option-cyber" onClick={() => setTheme("cyber")} className="gap-2">
+                    <Zap className="h-4 w-4" /> Cyberpunk {theme === "cyber" && <Check className="ml-auto h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem data-testid="theme-option-steam" onClick={() => setTheme("steam")} className="gap-2">
+                    <Cog className="h-4 w-4" /> Steampunk {theme === "steam" && <Check className="ml-auto h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem data-testid="theme-option-tiki" onClick={() => setTheme("tiki")} className="gap-2">
+                    <Wine className="h-4 w-4" /> Tiki Lounge {theme === "tiki" && <Check className="ml-auto h-4 w-4" />}
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
               {themeHint && (
-                <div data-testid="theme-hint" style={{ backgroundColor: seasonCfg ? seasonCfg.hint : light ? "#4F6F47" : "#E01E26" }} className="absolute left-1/2 top-full z-40 mt-2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold text-white shadow-lg">
+                <div data-testid="theme-hint" style={{ backgroundColor: ambCfg ? ambCfg.accent : seasonCfg ? seasonCfg.hint : light ? "#4F6F47" : "#E01E26" }} className="absolute left-1/2 top-full z-40 mt-2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold text-white shadow-lg">
                   Pick a theme 🍂
                   <button onClick={dismissThemeHint} aria-label="Dismiss theme hint" className="opacity-80 hover:opacity-100">✕</button>
                 </div>

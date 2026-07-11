@@ -340,3 +340,117 @@ body {
   75%  { transform: translateX(92vw) translateY(-12px); }
   100% { transform: translateX(126vw) translateY(4px); }
 }
+/* Cyber spinner flying right-to-left (mirrored) */
+@keyframes ffFlyRev {
+  0%   { transform: translateX(126vw) translateY(0) scaleX(-1); }
+  25%  { transform: translateX(80vw) translateY(-14px) scaleX(-1); }
+  50%  { transform: translateX(46vw) translateY(8px) scaleX(-1); }
+  75%  { transform: translateX(10vw) translateY(-10px) scaleX(-1); }
+  100% { transform: translateX(-26vw) translateY(4px) scaleX(-1); }
+}
+/* Cyberpunk rain */
+.ff-rain{
+  background-image:
+    repeating-linear-gradient(102deg, transparent 0 6px, rgba(150,220,255,0.16) 6px 7px),
+    repeating-linear-gradient(102deg, transparent 0 13px, rgba(180,235,255,0.10) 13px 14px);
+  background-size: 120px 220px, 200px 340px;
+  animation: ffRain 0.45s linear infinite, ffRainSlow 0.8s linear infinite;
+  opacity: 0.55;
+}
+@keyframes ffRain{ to { background-position: -60px 220px, 0 0; } }
+@keyframes ffRainSlow{ to { background-position: 0 0, -40px 340px; } }
+/* Neon sign flicker */
+@keyframes ffNeon{
+  0%,18%,22%,55%,57%,100%{ opacity:1; filter: drop-shadow(0 0 10px rgba(34,224,224,0.85)) drop-shadow(0 0 22px rgba(255,47,176,0.5)); }
+  20%,56%{ opacity:0.45; }
+  70%,72%{ opacity:0.75; }
+}
+/* Steam puffs rising */
+@keyframes ffSteam{
+  0%{ opacity:0; transform: translateY(0) scale(0.5); }
+  25%{ opacity:0.55; }
+  100%{ opacity:0; transform: translateY(-170px) scale(1.5); }
+}
+/* Tiki torch flame flicker */
+@keyframes ffFlame{
+  0%,100%{ filter: drop-shadow(0 -6px 10px rgba(255,150,40,0.65)); transform: scaleY(1); }
+  50%{ filter: drop-shadow(0 -12px 18px rgba(255,185,70,0.95)); transform: scaleY(1.02); }
+}
+
+/* ── Cyberpunk accent recolor: neon cyan (dark surfaces preserved) ── */
+[data-ff-theme="cyber"] [data-ff-scope="app"] .bg-\[\#E01E26\]{background-color:#15C8D6 !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .bg-\[\#B3141A\]{background-color:#0FA6B2 !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .hover\:bg-\[\#B3141A\]:hover{background-color:#0FA6B2 !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .bg-\[\#7A0C10\]{background-color:#0FA6B2 !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .text-\[\#E01E26\]{color:#3EEBF2 !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .text-\[\#A31621\]{color:#3EEBF2 !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .border-\[\#E01E26\]{border-color:#15C8D6 !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .fill-\[\#E01E26\]{fill:#3EEBF2 !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .bg-\[\#E01E26\].text-white{color:#04232A !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .focus\:border-\[\#E01E26\]:focus{border-color:#15C8D6 !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .focus-within\:border-\[\#E01E26\]:focus-within{border-color:#15C8D6 !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] ::selection{background:#15C8D6;color:#04232A;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/25{--tw-shadow-color:rgba(21,200,214,0.4) !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/30{--tw-shadow-color:rgba(21,200,214,0.4) !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .bg-primary{background-color:#15C8D6 !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .bg-primary\/20{background-color:rgba(21,200,214,0.22) !important;}
+[data-ff-theme="cyber"] [data-ff-scope="app"] .border-primary\/50{border-color:rgba(21,200,214,0.6) !important;}
+[data-ff-theme="cyber"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#E01E26\]{background-color:#15C8D6 !important;}
+[data-ff-theme="cyber"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#B3141A\],
+[data-ff-theme="cyber"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#FF2E38\]{background-color:#0FA6B2 !important;}
+[data-ff-theme="cyber"] :is([data-ff-dialog],[data-ff-dialog] *).text-\[\#E01E26\]{color:#3EEBF2 !important;}
+[data-ff-theme="cyber"] :is([data-ff-dialog],[data-ff-dialog] *).border-\[\#E01E26\]{border-color:#15C8D6 !important;}
+[data-ff-theme="cyber"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#E01E26\].text-white{color:#04232A !important;}
+[data-ff-theme="cyber"] :is([data-ff-dialog],[data-ff-dialog] *).ring-\[\#E01E26\]{--tw-ring-color:#15C8D6 !important;}
+
+/* ── Steampunk accent recolor: brass / amber (dark surfaces preserved) ── */
+[data-ff-theme="steam"] [data-ff-scope="app"] .bg-\[\#E01E26\]{background-color:#C0883A !important;}
+[data-ff-theme="steam"] [data-ff-scope="app"] .bg-\[\#B3141A\]{background-color:#A6732E !important;}
+[data-ff-theme="steam"] [data-ff-scope="app"] .hover\:bg-\[\#B3141A\]:hover{background-color:#A6732E !important;}
+[data-ff-theme="steam"] [data-ff-scope="app"] .bg-\[\#7A0C10\]{background-color:#A6732E !important;}
+[data-ff-theme="steam"] [data-ff-scope="app"] .text-\[\#E01E26\]{color:#E0B063 !important;}
+[data-ff-theme="steam"] [data-ff-scope="app"] .text-\[\#A31621\]{color:#E0B063 !important;}
+[data-ff-theme="steam"] [data-ff-scope="app"] .border-\[\#E01E26\]{border-color:#C0883A !important;}
+[data-ff-theme="steam"] [data-ff-scope="app"] .fill-\[\#E01E26\]{fill:#E0B063 !important;}
+[data-ff-theme="steam"] [data-ff-scope="app"] .bg-\[\#E01E26\].text-white{color:#231404 !important;}
+[data-ff-theme="steam"] [data-ff-scope="app"] .focus\:border-\[\#E01E26\]:focus{border-color:#C0883A !important;}
+[data-ff-theme="steam"] [data-ff-scope="app"] .focus-within\:border-\[\#E01E26\]:focus-within{border-color:#C0883A !important;}
+[data-ff-theme="steam"] [data-ff-scope="app"] ::selection{background:#C0883A;color:#231404;}
+[data-ff-theme="steam"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/25{--tw-shadow-color:rgba(192,136,58,0.4) !important;}
+[data-ff-theme="steam"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/30{--tw-shadow-color:rgba(192,136,58,0.4) !important;}
+[data-ff-theme="steam"] [data-ff-scope="app"] .bg-primary{background-color:#C0883A !important;}
+[data-ff-theme="steam"] [data-ff-scope="app"] .bg-primary\/20{background-color:rgba(192,136,58,0.22) !important;}
+[data-ff-theme="steam"] [data-ff-scope="app"] .border-primary\/50{border-color:rgba(192,136,58,0.6) !important;}
+[data-ff-theme="steam"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#E01E26\]{background-color:#C0883A !important;}
+[data-ff-theme="steam"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#B3141A\],
+[data-ff-theme="steam"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#FF2E38\]{background-color:#A6732E !important;}
+[data-ff-theme="steam"] :is([data-ff-dialog],[data-ff-dialog] *).text-\[\#E01E26\]{color:#E0B063 !important;}
+[data-ff-theme="steam"] :is([data-ff-dialog],[data-ff-dialog] *).border-\[\#E01E26\]{border-color:#C0883A !important;}
+[data-ff-theme="steam"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#E01E26\].text-white{color:#231404 !important;}
+[data-ff-theme="steam"] :is([data-ff-dialog],[data-ff-dialog] *).ring-\[\#E01E26\]{--tw-ring-color:#C0883A !important;}
+
+/* ── Tiki Lounge accent recolor: warm orange / amber (dark surfaces preserved) ── */
+[data-ff-theme="tiki"] [data-ff-scope="app"] .bg-\[\#E01E26\]{background-color:#E0722C !important;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] .bg-\[\#B3141A\]{background-color:#C15E22 !important;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] .hover\:bg-\[\#B3141A\]:hover{background-color:#C15E22 !important;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] .bg-\[\#7A0C10\]{background-color:#C15E22 !important;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] .text-\[\#E01E26\]{color:#F0A24E !important;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] .text-\[\#A31621\]{color:#F0A24E !important;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] .border-\[\#E01E26\]{border-color:#E0722C !important;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] .fill-\[\#E01E26\]{fill:#F0A24E !important;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] .bg-\[\#E01E26\].text-white{color:#2A1206 !important;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] .focus\:border-\[\#E01E26\]:focus{border-color:#E0722C !important;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] .focus-within\:border-\[\#E01E26\]:focus-within{border-color:#E0722C !important;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] ::selection{background:#E0722C;color:#2A1206;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/25{--tw-shadow-color:rgba(224,114,44,0.4) !important;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/30{--tw-shadow-color:rgba(224,114,44,0.4) !important;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] .bg-primary{background-color:#E0722C !important;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] .bg-primary\/20{background-color:rgba(224,114,44,0.22) !important;}
+[data-ff-theme="tiki"] [data-ff-scope="app"] .border-primary\/50{border-color:rgba(224,114,44,0.6) !important;}
+[data-ff-theme="tiki"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#E01E26\]{background-color:#E0722C !important;}
+[data-ff-theme="tiki"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#B3141A\],
+[data-ff-theme="tiki"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#FF2E38\]{background-color:#C15E22 !important;}
+[data-ff-theme="tiki"] :is([data-ff-dialog],[data-ff-dialog] *).text-\[\#E01E26\]{color:#F0A24E !important;}
+[data-ff-theme="tiki"] :is([data-ff-dialog],[data-ff-dialog] *).border-\[\#E01E26\]{border-color:#E0722C !important;}
+[data-ff-theme="tiki"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#E01E26\].text-white{color:#2A1206 !important;}
+[data-ff-theme="tiki"] :is([data-ff-dialog],[data-ff-dialog] *).ring-\[\#E01E26\]{--tw-ring-color:#E0722C !important;}
