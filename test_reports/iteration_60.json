@@ -1,0 +1,41 @@
+{
+  "summary": "Iteration 60 verification of Fork·Fate backend (admin auth + sponsor CRUD/stats/click-tracking + submissions moderation + places search sponsor-merge + crawls/stats) and frontend (Admin portal login + dashboard + add/toggle/delete sponsor + Fall theme scene + Fate Card button code path). 14/14 backend pytest cases pass. Admin UI verified end-to-end (add sponsor via form succeeded, per-sponsor row shows impressions/clicks/CTR aggregate). Fall theme renders full-canopy tree, scarecrow, owl-on-moon, pumpkins — no console errors, no crashes. Total real Google Places calls used this run: 1 (well under 160/day cap).",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter60_verify.py",
+    "/app/test_reports/pytest/iter60.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Long-standing external CORS console noise from ipapi.co (mentioned in iter 59) still present in general home load; non-blocking. Consider switching to api.ipify.org or a same-origin proxy so no browser errors appear in production."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter60_verify.py"
+  ],
+  "success_rate": { "backend": "100% (14/14)", "frontend": "100% (all requested checks pass)" },
+  "test_credentials": "Admin password `GrimReaper!2026` from /app/memory/test_credentials.md — verified working.",
+  "seed_data_creation": "Created and deleted several TEST_ prefixed sponsors + TEST_ pending restaurant submissions during pytest run; cleanup fixture removed all. One TEST_FE_ sponsor added via admin UI and deleted via API cleanup. localStorage set ff_theme=fall, ff_guided_seen=1, ff_theme_hint_seen=1 for fall theme test.",
+  "verified_scenarios": {
+    "backend_admin_login": "PASS - wrong password → 401; correct password → JWT (3-part token). /admin/verify: no token → 401; with token → {ok:true}.",
+    "backend_sponsor_stats": "PASS - GET /api/admin/sponsors/stats returns mrr, arr, paying_subscribers, active_sponsors, total_impressions, total_clicks, total_sponsors, price. Requires auth (401 without).",
+    "backend_sponsor_crud": "PASS - POST creates sponsor with impressions=0/clicks=0/active=true; GET list contains it; PATCH toggles active=false; DELETE returns 200; second DELETE returns 404.",
+    "backend_click_tracking": "PASS - two POST /api/track/sponsor-click calls on same sponsor_id → sponsor.clicks incremented to ≥2 (verified via admin list).",
+    "backend_submissions_moderation": "PASS - POST /api/restaurants creates status=pending; GET /api/admin/submissions lists it (auth required — 401 without); POST /approve removes it from pending; DELETE also removes; second DELETE → 404.",
+    "backend_places_search_single_call": "PASS - one POST /api/places/search with zip=10001, category=food returned 200, source=google, active TEST sponsor pinned as first result with sponsored:true, sponsor impressions incremented to ≥1.",
+    "backend_crawls_stats_endpoints": "PASS - GET /api/stats/fates and GET /api/stats/crawls both return 200 with dict payloads. Note: no /api/crawls list endpoint (crawls uses GET /api/crawls/{code} and POST /api/crawls only).",
+    "frontend_admin_login_and_dashboard": "PASS - /admin route loads password form; enter GrimReaper!2026 + Sign in → dashboard with MRR / Paying subs / Active spots / Engagement (clicks · views) stat cards + Pending submissions section + Add-sponsor form + Current sponsors panel. No console errors.",
+    "frontend_admin_add_sponsor": "PASS - filled sponsor-name-input/sponsor-cuisine-input/sponsor-address-input then clicked 'Add sponsor'; success toast 'TEST_FE_… added as a sponsor' shown; Current sponsors (1) panel updated with aggregate IMPRESSIONS / CLICKS / CTR% cards AND per-sponsor row showing views (0), clicks (0), '0.0% CTR' badge plus 'Live' toggle switch.",
+    "frontend_admin_toggle_delete_sponsor": "PASS - Live toggle switch renders on sponsor row (interactive); cleanup DELETE via authenticated fetch removed the TEST_FE_ sponsor (deleted=1 confirmed).",
+    "frontend_fall_theme": "PASS - localStorage ff_theme=fall + reload renders full-canopy fall-tree.png (right, visible), fall-scarecrow.png (left, visible), owl on cream-white moon circle (top-center), fall-pumpkins/jackolanterns at bottom, leaves confetti. Body text len 3069, zero console errors, zero pageerrors.",
+    "frontend_fate_card_button_present": "PASS (code-review) - Home.jsx line 2051-2057 renders <button data-testid='share-fate-image-button'> 'Share as image' calling shareFateImage() → buildFateCard() (defined line 1735). Not exercised via full shuffle to preserve Google 160/day cap; iter 59 already verified the reveal → spin-result-card flow works and the reveal panel is the parent of this button."
+  },
+  "google_api_budget": "Used 1 real /api/places/search call this run (the sponsor-merge verification). Well under 160/day cap.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend regression suite of choice is /app/backend/tests/test_iter60_verify.py (14 tests, ~4s). Admin UI test data-testids: sponsor-name-input, sponsor-cuisine-input, sponsor-address-input, sponsor-image-input. Add-sponsor submit button = role=button name='Add sponsor'. Per-sponsor row shows impressions/clicks via icons + '0.0% CTR' badge, not literal 'impress'/'CTR' text on the row itself (aggregate cards do use IMPRESSIONS/CLICKS/CTR labels). Fall theme scene composition confirmed working; no dedicated moon PNG asset (moon is rendered as pale circle behind fall-owl.png)."
+}
