@@ -105,10 +105,15 @@ const CYBER_CARS = [
 const AMBIANCE = {
   cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
   steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall.png", console: "/steam-console.png", gears: "/steam-gears.png", steam: true, accent: "#D9A44E", sky: "#F1D9A6" },
-  tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", bar: "/tiki-bar.png", torchLeft: "/tiki-torch.png", totemRight: "/tiki-totem.png", grass: "/tiki-grass.png", glow: true, accent: "#F0A24E", sky: "#FBE3C0" },
+  tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", bar: "/tiki-bar.png", torchLeft: "/tiki-torch-base.png", torchFlame: true, totemRight: "/tiki-totem.png", grass: "/tiki-grass.png", glow: true, accent: "#F0A24E", sky: "#FBE3C0" },
 };
 
+const TIKI_FLAME_FRAMES = ["/tiki-flame-1.png", "/tiki-flame-2.png", "/tiki-flame-3.png", "/tiki-flame-4.png", "/tiki-flame-5.png"];
+const TIKI_FLAME_FRAMES_GEN = ["/tiki-flame-gen-1.png", "/tiki-flame-gen-2.png", "/tiki-flame-gen-3.png", "/tiki-flame-gen-4.png"];
+
 function AmbianceScene({ theme, cfg }) {
+  const flameFrames = (typeof localStorage !== "undefined" && localStorage.getItem("ff_flame") === "gen")
+    ? TIKI_FLAME_FRAMES_GEN : TIKI_FLAME_FRAMES;
   return (
     <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`ambiance-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
@@ -127,8 +132,17 @@ function AmbianceScene({ theme, cfg }) {
       ))}
       {cfg.bar && <img src={cfg.bar} alt="" className="absolute bottom-0 left-1/2 w-[58vw] max-w-md -translate-x-1/2 object-contain opacity-85" />}
       {cfg.glow && <div className="absolute bottom-[10vh] left-1/2 h-56 w-56 -translate-x-1/2 rounded-full sm:h-72 sm:w-72" style={{ background: "radial-gradient(circle, rgba(255,150,50,0.45), rgba(255,150,50,0) 70%)", animation: "ffTorchGlow 2.3s ease-in-out infinite" }} />}
-      {cfg.torchLeft && <img src={cfg.torchLeft} alt="" className="absolute bottom-0 left-[1%] h-[42vh] object-contain opacity-95" style={{ animation: "ffFlame 1.6s ease-in-out infinite" }} />}
-      {cfg.totemRight && <img src={cfg.totemRight} alt="" className="absolute bottom-0 right-[1%] h-[46vh] object-contain opacity-90" />}
+      {cfg.torchLeft && <>
+        <img src={cfg.torchLeft} alt="" className="absolute bottom-0 left-[-6%] h-[42vh] w-auto object-contain opacity-95" />
+        {cfg.torchFlame && (
+          <div className="absolute bottom-0 left-[-6%] h-[42vh]" style={{ aspectRatio: "848 / 1264", animation: "ffFlame 1.9s ease-in-out infinite" }}>
+            {flameFrames.map((f, i) => (
+              <img key={f} src={f} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: 0, animation: `ffFlameCycle ${(flameFrames.length * 0.14).toFixed(2)}s linear infinite`, animationDelay: `${-(i * 0.14).toFixed(2)}s` }} />
+            ))}
+          </div>
+        )}
+      </>}
+      {cfg.totemRight && <img src={cfg.totemRight} alt="" className="absolute bottom-0 right-[-6%] h-[46vh] object-contain opacity-90" />}
       {cfg.torch && <>
         <img src={cfg.torch} alt="" className="absolute bottom-0 left-[1%] h-[62vh] object-contain opacity-90" style={{ transformOrigin: "bottom", animation: "ffFlame 1.7s ease-in-out infinite" }} />
         <img src={cfg.torch} alt="" className="absolute bottom-0 right-[1%] h-[62vh] object-contain opacity-90" style={{ transform: "scaleX(-1)", transformOrigin: "bottom", animation: "ffFlame 2.1s ease-in-out infinite" }} />
@@ -147,9 +161,22 @@ export default function Home() {
   const ghost = light
     ? "border-[#E4E4E7] text-[#3F3F46] hover:bg-[#F4F4F5]"
     : "border-white/25 text-white hover:bg-white/10";
+  const labelColor = light ? undefined : (ambCfg ? ambCfg.sky : "#FFFFFF");
   const [themeHint, setThemeHint] = useState(() => {
     try { return localStorage.getItem("ff_theme_hint_seen") !== "1"; } catch (e) { return false; }
   });
+  const headerRef = useRef(null);
+  const [headerH, setHeaderH] = useState(0);
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const update = () => setHeaderH(el.offsetHeight);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener("resize", update);
+    return () => { ro.disconnect(); window.removeEventListener("resize", update); };
+  }, []);
   const dismissThemeHint = () => {
     setThemeHint(false);
     try { localStorage.setItem("ff_theme_hint_seen", "1"); } catch (e) { /* ignore */ }
@@ -641,7 +668,7 @@ export default function Home() {
       {seasonCfg && <SeasonScene theme={theme} cfg={seasonCfg} />}
       {/* Ambiance themes: cyberpunk / steampunk / tiki lounge */}
       {ambCfg && <AmbianceScene theme={theme} cfg={ambCfg} />}
-      {theme === "tiki" && <img src="/tiki-grass.png" alt="" className="pointer-events-none fixed left-0 top-0 z-[45] w-full select-none object-cover object-top" style={{ maxHeight: "8vh" }} />}
+      {theme === "tiki" && <img src="/tiki-grass.png" alt="" className="pointer-events-none fixed left-0 z-[20] w-full select-none object-cover object-top" style={{ top: Math.max(0, headerH - 6), maxHeight: "8vh", filter: "brightness(0.8)" }} />}
       {/* Dark-mode: decorative reaper background with load animation */}
       {theme === "dark" && (
       <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>
@@ -690,7 +717,7 @@ export default function Home() {
       </div>
       )}
       {/* Header */}
-      <header className={`sticky top-0 z-30 border-b ${light ? "border-[#E4E4E7] bg-white/85 backdrop-blur-xl shadow-sm" : "border-[#E2E4E7] bg-[#0E0E0E]"}`}>
+      <header ref={headerRef} className={`sticky top-0 z-30 border-b ${light ? "border-[#E4E4E7] bg-white/85 backdrop-blur-xl shadow-sm" : "border-[#E2E4E7] bg-[#0E0E0E]"}`}>
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:gap-3 md:px-12 md:py-6">
           <div className="flex items-center gap-2 md:gap-3">
             <div className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-1 md:h-16 md:w-16 ${light ? "bg-[#F5F0E6] ring-[#E4E4E7]" : "bg-black ring-white/25"}`}>
@@ -831,7 +858,7 @@ export default function Home() {
       </header>
 
       {/* Social share bar (transparent) */}
-      <div className="relative z-10 mx-auto flex max-w-6xl items-center justify-end gap-2 bg-transparent px-4 pt-2 md:px-12" data-testid="app-social-share">
+      <div className="relative z-40 mx-auto flex max-w-6xl items-center justify-end gap-2 bg-transparent px-4 pt-2 md:px-12" data-testid="app-social-share">
         <SocialShare />
       </div>
 
@@ -946,7 +973,7 @@ export default function Home() {
           {/* left: search + filters + spin */}
           <div className="min-w-0 space-y-7">
             <div className="space-y-2">
-              <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]">
+              <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]" style={labelColor ? { color: labelColor } : undefined}>
                 Your ZIP code <span className="text-[#B8BCC2]">(optional)</span>
               </p>
               <div className="flex items-center gap-2">
@@ -984,14 +1011,14 @@ export default function Home() {
                 <Slider
                   data-testid="radius-slider"
                   value={[radius]}
-                  min={1}
+                  min={0}
                   max={50}
                   step={1}
                   onValueChange={(v) => setRadius(v[0])}
                   aria-label="Search radius in miles"
                 />
                 <div className="mt-1.5 flex justify-between font-sans text-[10px] font-bold uppercase tracking-wider text-[#B8BCC2]">
-                  <span>1 mi</span>
+                  <span>0 mi</span>
                   <span>50 mi</span>
                 </div>
               </div>
@@ -1033,6 +1060,7 @@ export default function Home() {
               cuisineLabel={mode === "food" ? "Cuisine" : mode === "drinks" ? "Drink type" : mode === "bars" ? "Bar type" : "Dessert type"}
               selectedCuisines={selectedCuisines}
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
+              labelColor={labelColor}
             />
 
             <button
@@ -1177,13 +1205,13 @@ export default function Home() {
             )}
 
             {fatesDealt !== null && (
-              <div className="mt-4 inline-flex items-center gap-2 font-sans text-sm text-[#6B7075]" data-testid="fates-dealt-counter">
-                <Dices className="h-4 w-4 text-[#E01E26]" />
-                <span><span className="font-bold text-[#0E0E0E]">{fatesDealt.toLocaleString()}</span> fates dealt</span>
+              <div className="mt-4 inline-flex items-center gap-2 font-sans text-sm" data-testid="fates-dealt-counter" style={{ color: light ? "#6B7075" : (ambCfg ? ambCfg.sky : "rgba(255,255,255,0.72)") }}>
+                <Dices className="h-4 w-4" style={{ color: ambCfg ? ambCfg.accent : "#E01E26" }} />
+                <span><span className="font-bold" style={{ color: light ? "#0E0E0E" : (ambCfg ? ambCfg.sky : "#FFFFFF") }}>{fatesDealt.toLocaleString()}</span> fates dealt</span>
                 {crawlsCompleted !== null && crawlsCompleted > 0 && (
                   <span className="ml-3 inline-flex items-center gap-1.5" data-testid="crawls-completed-counter">
-                    <Trophy className="h-4 w-4 text-[#E01E26]" />
-                    <span><span className="font-bold text-[#0E0E0E]">{crawlsCompleted.toLocaleString()}</span> crawls survived</span>
+                    <Trophy className="h-4 w-4" style={{ color: ambCfg ? ambCfg.accent : "#E01E26" }} />
+                    <span><span className="font-bold" style={{ color: light ? "#0E0E0E" : (ambCfg ? ambCfg.sky : "#FFFFFF") }}>{crawlsCompleted.toLocaleString()}</span> crawls survived</span>
                   </span>
                 )}
                 {streak >= 2 && (

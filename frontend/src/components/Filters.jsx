@@ -19,9 +19,9 @@ const Pill = ({ active, onClick, children, testid }) => (
   </motion.button>
 );
 
-const Group = ({ label, children }) => (
+const Group = ({ label, labelColor, children }) => (
   <div className="space-y-3">
-    <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]">
+    <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]" style={labelColor ? { color: labelColor } : undefined}>
       {label}
     </p>
     <div className="flex flex-wrap gap-3">{children}</div>
@@ -33,6 +33,7 @@ export default function Filters({
   cuisineLabel = "Cuisine",
   selectedCuisines,
   toggleCuisine,
+  labelColor,
 }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -53,7 +54,7 @@ export default function Filters({
 
   return (
     <div className="space-y-6" data-testid="filters-panel">
-      <Group label={cuisineLabel}>
+      <Group label={cuisineLabel} labelColor={labelColor}>
         {visible.map((c) => (
           <Pill
             key={c}
@@ -70,6 +71,7 @@ export default function Filters({
             onClick={() => setExpanded((e) => !e)}
             data-testid="cuisine-toggle-more"
             className="shrink-0 rounded-full border border-dashed border-[#C7CBD1] bg-transparent px-5 py-2.5 text-sm font-bold tracking-wide text-[#0E0E0E] transition-colors duration-200 hover:bg-[#EDEEF0]"
+            style={labelColor ? { color: labelColor, borderColor: labelColor } : undefined}
           >
             {expanded ? "Show less" : `+ ${hiddenCount} more`}
           </motion.button>

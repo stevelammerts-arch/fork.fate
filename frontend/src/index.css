@@ -387,6 +387,12 @@ body {
   0%,100%{ filter: drop-shadow(0 -6px 10px rgba(255,150,40,0.55)) brightness(1); }
   50%{ filter: drop-shadow(0 -12px 20px rgba(255,190,80,0.95)) brightness(1.12); }
 }
+/* Cross-fade the flame frames so the fire morphs/dances smoothly (any frame count) */
+@keyframes ffFlameCycle{
+  0%{ opacity:0; }
+  50%{ opacity:1; }
+  100%{ opacity:0; }
+}
 /* Warm glow the torch casts on the tiki bar */
 @keyframes ffTorchGlow{
   0%,100%{ opacity:0.45; transform: scale(0.97); }
