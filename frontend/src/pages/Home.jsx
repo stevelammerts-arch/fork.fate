@@ -356,7 +356,7 @@ export default function Home() {
     try {
       if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e0) { /* ignore */ } grooveRef.current = null; }
       if (localStorage.getItem("ff_muted") !== "1") {
-        thunderRef.current = new Audio(theme === "cyber" ? "/reveal-electric.wav" : theme === "tiki" ? "/reveal-drums-boom.wav" : light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
+        thunderRef.current = new Audio(theme === "cyber" ? "/reveal-electric.wav" : theme === "tiki" ? "/reveal-drums-boom.wav" : theme === "spring" ? "/reveal-koto.wav" : light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
         thunderRef.current.volume = 1.0;
         thunderRef.current.load();
         if (theme === "tiki") {
@@ -373,14 +373,24 @@ export default function Home() {
           grooveRef.current.loop = true;
           grooveRef.current.volume = 0.7;
           grooveRef.current.play().catch(() => {});
+        } else if (theme === "steam") {
+          grooveRef.current = new Audio("/shuffle-jacobs.wav");
+          grooveRef.current.loop = true;
+          grooveRef.current.volume = 0.85;
+          grooveRef.current.play().catch(() => {});
+        } else if (theme === "spring") {
+          grooveRef.current = new Audio("/shuffle-spring.wav");
+          grooveRef.current.loop = true;
+          grooveRef.current.volume = 0.8;
+          grooveRef.current.play().catch(() => {});
         }
       } else {
         thunderRef.current = null;
         grooveRef.current = null;
       }
     } catch (e) { thunderRef.current = null; grooveRef.current = null; }
-    // Dark mode plays a spoken voice cue before the deck shuffles; light/cyber/tiki stay clean.
-    if (!light && theme !== "cyber" && theme !== "tiki") playSound("/reveal-voice-v5.mp3", 1.0);
+    // Dark mode plays a spoken voice cue before the deck shuffles; themed shuffles stay clean.
+    if (!light && theme !== "cyber" && theme !== "tiki" && theme !== "steam") playSound("/reveal-voice-v5.mp3", 1.0);
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
     // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
@@ -569,27 +579,22 @@ export default function Home() {
     setFlashHit(false);
     setRevealFlash(false);
     if (theme === "tiki") { grooveRef.current = playSound("/reveal-drums-groove.wav", 1.0); }
-    else if (theme === "cyber") {
-      try {
-        if (localStorage.getItem("ff_muted") !== "1") {
-          grooveRef.current = new Audio("/reveal-cyber-radio.wav");
-          grooveRef.current.loop = true;
-          grooveRef.current.volume = 0.8;
-          grooveRef.current.play().catch(() => {});
-        }
-      } catch (e) { grooveRef.current = null; }
+    else {
+      const loopSrc = { cyber: "/reveal-cyber-radio.wav", summer: "/shuffle-seagulls.wav", steam: "/shuffle-jacobs.wav", spring: "/shuffle-spring.wav" }[theme];
+      const loopVol = { cyber: 0.8, summer: 0.7, steam: 0.85, spring: 0.8 }[theme];
+      if (loopSrc) {
+        try {
+          if (localStorage.getItem("ff_muted") !== "1") {
+            grooveRef.current = new Audio(loopSrc);
+            grooveRef.current.loop = true;
+            grooveRef.current.volume = loopVol;
+            grooveRef.current.play().catch(() => {});
+          }
+        } catch (e) { grooveRef.current = null; }
+      } else if (!light) {
+        playSound("/reveal-voice-v5.mp3", 1.0);
+      }
     }
-    else if (theme === "summer") {
-      try {
-        if (localStorage.getItem("ff_muted") !== "1") {
-          grooveRef.current = new Audio("/shuffle-seagulls.wav");
-          grooveRef.current.loop = true;
-          grooveRef.current.volume = 0.7;
-          grooveRef.current.play().catch(() => {});
-        }
-      } catch (e) { grooveRef.current = null; }
-    }
-    else playSound("/reveal-voice-v5.mp3", 1.0);
     let i = 0;
     let delay = 55;
     const maxDelay = 230;
@@ -604,7 +609,7 @@ export default function Home() {
         setFlashHit(true);
         try {
           if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e2) { /* ignore */ } grooveRef.current = null; }
-          playSound(theme === "tiki" ? "/reveal-drums-boom.wav" : theme === "cyber" ? "/reveal-electric.wav" : "/reveal-thunder-v4.mp3", 1.0);
+          playSound(theme === "tiki" ? "/reveal-drums-boom.wav" : theme === "cyber" ? "/reveal-electric.wav" : theme === "spring" ? "/reveal-koto.wav" : "/reveal-thunder-v4.mp3", 1.0);
         } catch (e) { /* audio */ }
         setRevealFlash(true);
         setTimeout(() => setRevealFlash(false), 1200);
