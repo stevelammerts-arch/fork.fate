@@ -165,18 +165,6 @@ export default function Home() {
   const [themeHint, setThemeHint] = useState(() => {
     try { return localStorage.getItem("ff_theme_hint_seen") !== "1"; } catch (e) { return false; }
   });
-  const headerRef = useRef(null);
-  const [headerH, setHeaderH] = useState(0);
-  useEffect(() => {
-    const el = headerRef.current;
-    if (!el) return;
-    const update = () => setHeaderH(el.offsetHeight);
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    window.addEventListener("resize", update);
-    return () => { ro.disconnect(); window.removeEventListener("resize", update); };
-  }, []);
   const dismissThemeHint = () => {
     setThemeHint(false);
     try { localStorage.setItem("ff_theme_hint_seen", "1"); } catch (e) { /* ignore */ }
@@ -668,7 +656,6 @@ export default function Home() {
       {seasonCfg && <SeasonScene theme={theme} cfg={seasonCfg} />}
       {/* Ambiance themes: cyberpunk / steampunk / tiki lounge */}
       {ambCfg && <AmbianceScene theme={theme} cfg={ambCfg} />}
-      {theme === "tiki" && <img src="/tiki-grass.png" alt="" className="pointer-events-none fixed left-0 z-[20] w-full select-none object-cover object-top" style={{ top: Math.max(0, headerH - 6), maxHeight: "8vh", filter: "brightness(0.8)" }} />}
       {/* Dark-mode: decorative reaper background with load animation */}
       {theme === "dark" && (
       <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>
@@ -717,7 +704,7 @@ export default function Home() {
       </div>
       )}
       {/* Header */}
-      <header ref={headerRef} className={`sticky top-0 z-30 border-b ${light ? "border-[#E4E4E7] bg-white/85 backdrop-blur-xl shadow-sm" : "border-[#E2E4E7] bg-[#0E0E0E]"}`}>
+      <header className={`sticky top-0 z-30 border-b ${light ? "border-[#E4E4E7] bg-white/85 backdrop-blur-xl shadow-sm" : "border-[#E2E4E7] bg-[#0E0E0E]"}`}>
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:gap-3 md:px-12 md:py-6">
           <div className="flex items-center gap-2 md:gap-3">
             <div className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-1 md:h-16 md:w-16 ${light ? "bg-[#F5F0E6] ring-[#E4E4E7]" : "bg-black ring-white/25"}`}>
@@ -855,6 +842,7 @@ export default function Home() {
             />
           </div>
         </div>
+        {theme === "tiki" && <img src="/tiki-grass.png" alt="" className="pointer-events-none absolute left-0 top-full z-0 w-full select-none object-cover object-top" style={{ transform: "translateY(-6px)", maxHeight: "8vh", filter: "brightness(0.8)" }} />}
       </header>
 
       {/* Social share bar (transparent) */}
