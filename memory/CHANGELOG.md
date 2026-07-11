@@ -1,5 +1,33 @@
 # Fork·Fate — Changelog
 
+## 2026-06-11 (cont. 2) — Per-theme shuffle/reveal audio system + scene polish
+
+### Per-theme audio (shuffle ambience loops during deck, reveal sound on land)
+Wired in BOTH `runShuffle` and `runCrawlShuffle` (Home.jsx) via `grooveRef` (shuffle loop) + `thunderRef` (reveal). `grooveRef` stopped on reveal + on unmount + before each new spin. All respect `localStorage.ff_muted`.
+Matrix:
+- Tiki: shuffle `/reveal-drums-groove.wav` (danza-concheros build, non-loop) → reveal `/reveal-drums-boom.wav` (3× timpani).
+- Cyber: shuffle `/reveal-cyber-radio.wav` (loop, futuristic-city cop dispatch via OpenAI TTS onyx/ash + radio FX) → reveal `/reveal-electric.wav`.
+- Summer: shuffle `/shuffle-seagulls.wav` (loop, real sea+gulls, user upload) → reveal ta-da.
+- Spring: shuffle `/shuffle-spring.wav` (loop, real birds+water, user upload) → reveal `/reveal-koto.wav` (user upload).
+- Steam: shuffle `/shuffle-jacobs.wav` (loop, real Jacob's-ladder, user upload) → reveal `/reveal-steam.wav` (real steam release, user upload). Reaper voice cue removed for steam.
+- Winter: shuffle `/shuffle-winter.wav` (loop, sleigh/christmas bells, user upload) → reveal `/reveal-santa.wav` (ho-ho-ho, user upload).
+- Dark: reaper voice cue → thunder (unchanged).
+Audio build scripts in /app/scripts/: make_reveal_drums.py, make_cyber_radio.py (uses emergentintegrations OpenAITextToSpeech + EMERGENT_LLM_KEY), make_seagulls.py (synth, replaced by real upload). Source mp3s in /tmp. mp3 decoding via imageio-ffmpeg binary (pip installed).
+
+### Steampunk scene rebuild
+- Removed spinning gears overlay from scene; removed then re-added `wall` (steam-wall.png) BEHIND console+device, enlarged to maxHeight 70vh.
+- Left `console` enlarged to h-[74vh], z-[4], sits in front of wall.
+- Removed original wall/gears, added `device` = `/steam-arc-device.png` (rembg-isolated AI table+Jacob's-ladder) at bottom-right with an animated electric arc (SVG polyline + ffArcClimb/ffArcFlicker/ffArcGlow keyframes) climbing between the electrodes.
+- Roof cables: STEAM_CABLES (22 swaying pendulum cables from top, ffCableSway keyframe).
+- **Steam card back** now shows spinning `/steam-gears.png` (ffSpin) instead of the logo. Verified live.
+
+### Cyber
+- Neon sign re-centered (wrapped in centered container; float animation was overriding -translate-x-1/2).
+
+### Verified live (spent ~3 Google Places calls, credits recharged): Tiki mask card backs + Steam gear card backs render in the shuffling deck.
+- FF_BUILD → 2026.06-99.
+
+
 ## 2026-06-11 (cont.) — Tiki polish: readability, flame, fringe, mask, reveal audio
 
 ### Dark/ambiance readability (USER REQUEST)
