@@ -162,8 +162,11 @@ async def _verify_paypal_webhook(headers, body_json):
     return r.status_code == 200 and r.json().get("verification_status") == "SUCCESS"
 
 
-@router.post("/paypal/webhook")
+@router.post("/paypal/webhook", dependencies=[Depends(rate_limit(60))])
 async def paypal_webhook(request: Request):
+    body = await request.body()
+    if len(body) > 100_000:
+        raise HTTPException(status_code=413, detail="Payload too large")
     event = await request.json()
     if not await _verify_paypal_webhook(request.headers, event):
         raise HTTPException(status_code=400, detail="Invalid webhook signature")

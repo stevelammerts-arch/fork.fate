@@ -265,7 +265,7 @@ async def _send_google_cap_alert(used: int):
                 "</div>"
             ),
         }
-        await asyncio.to_thread(resend.Emails.send, params)
+        await asyncio.wait_for(asyncio.to_thread(resend.Emails.send, params), timeout=10)
         logger.info(f"Sent Google cap alert email to {ALERT_EMAIL_TO} ({pct}%)")
     except Exception as e:
         logger.error(f"Failed to send Google cap alert: {e}")
@@ -298,7 +298,8 @@ async def _google_reserve() -> bool:
             {"$set": {"alerted": True}},
         )
         if claimed.modified_count == 1:
-            await _send_google_cap_alert(used)
+            import asyncio
+            asyncio.create_task(_send_google_cap_alert(used))
     return True
 
 

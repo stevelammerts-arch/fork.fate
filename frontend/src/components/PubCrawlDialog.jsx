@@ -11,6 +11,8 @@ import { useLang } from "../i18n/i18n";
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const ARRIVE_RADIUS_MI = 0.06; // ~95m — close enough to count as "arrived"
 
+const safeHttp = (u) => (typeof u === "string" && /^https?:\/\//i.test(u.trim()) ? u : "");
+
 const shuffle = (arr) => {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -23,7 +25,7 @@ const shuffle = (arr) => {
 const dirUrl = (from, to) =>
   from?.lat != null && to?.lat != null
     ? `https://www.google.com/maps/dir/?api=1&origin=${from.lat},${from.lng}&destination=${to.lat},${to.lng}&travelmode=walking`
-    : to?.google_url || "";
+    : safeHttp(to?.google_url);
 
 // Opens a "crawl" window: nearby spots ordered into a followable route. Can be
 // shared with the group via a short link, and progress can be checked off (manual
@@ -214,8 +216,8 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
                         {typeof s.open_now === "boolean" ? <span className={s.open_now ? "text-[#4ADE80]" : "text-[#8A8A8A]"}>· {s.open_now ? t("Open") : t("Closed")}</span> : null}
                       </p>
                     </div>
-                    {s.google_url && (
-                      <a href={s.google_url} target="_blank" rel="noopener noreferrer" data-testid={`crawl-directions-${i}`}
+                    {safeHttp(s.google_url) && (
+                      <a href={safeHttp(s.google_url)} target="_blank" rel="noopener noreferrer" data-testid={`crawl-directions-${i}`}
                         className="inline-flex items-center gap-1 rounded-full border border-[#3A3A3A] px-3 py-1.5 text-xs font-bold text-white hover:bg-white/10">
                         <ExternalLink className="h-3.5 w-3.5" /> {t("Map")}
                       </a>

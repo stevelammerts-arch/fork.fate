@@ -114,6 +114,12 @@ class CrawlStop(BaseModel):
     open_now: Optional[bool] = None
     google_url: str = Field(default="", max_length=600)
 
+    @field_validator("google_url")
+    @classmethod
+    def _safe_url(cls, v):
+        # Only allow http(s) links — blocks javascript:/data: and other unsafe schemes.
+        return v if isinstance(v, str) and re.match(r"^https?://", v.strip(), re.I) else ""
+
 
 class CrawlCreate(BaseModel):
     mode: str = "bars"

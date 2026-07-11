@@ -1,5 +1,15 @@
 # Fork·Fate — Changelog
 
+## 2026-06-11 (fork) — Security re-audit remediation
+
+Re-audit verdict: CONDITIONAL PASS (all 4 new features verified safe). Fixed:
+- **[MEDIUM] Poisoned crawl links (stored XSS / open-redirect)**: `CrawlStop.google_url` now validated to `http(s)://` only (rejects `javascript:`/`data:` etc.) in `models.py`; verified `javascript:alert(1)` is stripped to empty while https URLs pass. Frontend `PubCrawlDialog.jsx` adds a `safeHttp()` guard on both the "Map" anchor and the leg `dirUrl` fallback (defense-in-depth).
+- **[P3] Webhook abuse**: `/paypal/webhook` now has `rate_limit(60)` + 100KB body-size bound (`sponsors.py`). Forged event still correctly 400s.
+- **[P3] Alert in request path**: the 90% Resend email is now fire-and-forget (`asyncio.create_task`) with a 10s `wait_for` timeout, so the threshold-crossing request never stalls (`core.py`).
+- Noted infra-only P3 (confirm ingress strips client `cf-connecting-ip`/`true-client-ip`) — no code change.
+- FF_BUILD → `2026.06-134`.
+
+
 ## 2026-06-11 (fork) — Summer water/gull polish + PayPal webhook live
 
 - **Ocean shimmer** reworked for realism + mobile: driven by GPU `transform:translateY` (mobile refused to animate `background-position`), warped into organic S-curve ripples via an SVG `feTurbulence`+`feDisplacementMap` filter (`#ff-sea-warp`), sparse/soft/irregular glints flowing slowly shoreward, brightness tuned up. (`Home.jsx` ocean block + `.ff-sea-*` in `index.css`).
