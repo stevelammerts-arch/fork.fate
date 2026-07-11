@@ -230,7 +230,43 @@ _PLACES_CACHE = {}
 _PLACES_TTL = 300  # seconds
 
 # Hard daily ceiling on billed Google search/geocode calls (abuse safety net).
-GOOGLE_SEARCH_DAILY_CAP = int(os.environ.get("GOOGLE_SEARCH_DAILY_CAP", "160"))
+GOOGLE_SEARCH_DAILY_CAP = int(os.environ.get("GOOGLE_SEARCH_DAILY_CAP", "300"))
+# Fire a one-time alert per day once usage crosses this fraction of the cap.
+GOOGLE_SEARCH_ALERT_PCT = int(os.environ.get("GOOGLE_SEARCH_ALERT_PCT", "90"))
+# Email alert delivery (Resend). Left unset -> alert is logged only, no email sent.
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
+ALERT_EMAIL_TO = os.environ.get("ALERT_EMAIL_TO")
+SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "onboarding@resend.dev")
+
+
+async def _send_google_cap_alert(used: int):
+    """One-time daily warning email when Google usage crosses the alert threshold."""
+    pct = round(used / GOOGLE_SEARCH_DAILY_CAP * 100) if GOOGLE_SEARCH_DAILY_CAP else 0
+    if not RESEND_API_KEY or not ALERT_EMAIL_TO:
+        logger.warning(f"Google usage at {used}/{GOOGLE_SEARCH_DAILY_CAP} ({pct}%) — "
+                       f"alert threshold crossed (email not configured)")
+        return
+    try:
+        resend.api_key = RESEND_API_KEY
+        params = {
+            "from": SENDER_EMAIL,
+            "to": [ALERT_EMAIL_TO],
+            "subject": f"Fork·Fate: Google usage at {pct}% ({used}/{GOOGLE_SEARCH_DAILY_CAP})",
+            "html": (
+                "<div style='font-family:Arial,sans-serif;color:#1a1a1a'>"
+                "<h2 style='color:#E01E26;margin:0 0 8px'>Fork·Fate — daily Google usage warning</h2>"
+                f"<p>Today's billed Google Places searches have reached "
+                f"<strong>{used}</strong> of the <strong>{GOOGLE_SEARCH_DAILY_CAP}</strong> daily cap "
+                f"(<strong>{pct}%</strong>).</p>"
+                "<p>Once the cap is hit, shuffles fall back to curated results until midnight UTC. "
+                "Raise the cap via the <code>GOOGLE_SEARCH_DAILY_CAP</code> env var if this is expected traffic.</p>"
+                "</div>"
+            ),
+        }
+        await asyncio.to_thread(resend.Emails.send, params)
+        logger.info(f"Sent Google cap alert email to {ALERT_EMAIL_TO} ({pct}%)")
+    except Exception as e:
+        logger.error(f"Failed to send Google cap alert: {e}")
 
 
 async def _google_reserve() -> bool:
@@ -245,12 +281,22 @@ async def _google_reserve() -> bool:
         upsert=True,
         return_document=ReturnDocument.AFTER,
     )
-    if int(doc.get("searches", 0)) > GOOGLE_SEARCH_DAILY_CAP:
+    used = int(doc.get("searches", 0))
+    if used > GOOGLE_SEARCH_DAILY_CAP:
         await db.config.update_one(
             {"key": "google_budget", "date": today},
             {"$inc": {"searches": -1}},
         )
         return False
+    # One-time-per-day warning once usage crosses the alert threshold.
+    threshold = max(1, (GOOGLE_SEARCH_DAILY_CAP * GOOGLE_SEARCH_ALERT_PCT) // 100)
+    if used >= threshold and not doc.get("alerted"):
+        claimed = await db.config.update_one(
+            {"key": "google_budget", "date": today, "alerted": {"$ne": True}},
+            {"$set": {"alerted": True}},
+        )
+        if claimed.modified_count == 1:
+            await _send_google_cap_alert(used)
     return True
 
 

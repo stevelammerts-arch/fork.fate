@@ -7,7 +7,8 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 
 from core import (db, rate_limit, require_admin, create_admin_token, client_ip,
                   check_login_lockout, record_login_failure, clear_login_failures,
-                  ADMIN_PASSWORD, SPONSOR_PRICE, FALLBACK_IMG, GOOGLE_SEARCH_DAILY_CAP)
+                  ADMIN_PASSWORD, SPONSOR_PRICE, FALLBACK_IMG, GOOGLE_SEARCH_DAILY_CAP,
+                  GOOGLE_SEARCH_ALERT_PCT)
 from models import AdminLogin, SponsorCreate, SponsorUpdate, SponsorClick, Restaurant
 from routes.sponsors import reconcile_sponsors
 
@@ -138,5 +139,7 @@ async def cost_status():
         "cap": cap,
         "remaining": max(0, cap - used),
         "pct": round((used / cap) * 100, 1) if cap else 0,
+        "alert_pct": GOOGLE_SEARCH_ALERT_PCT,
+        "alerted": bool(doc.get("alerted")) if doc else False,
         "history": history,
     }
