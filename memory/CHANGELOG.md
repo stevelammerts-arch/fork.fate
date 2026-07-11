@@ -1,5 +1,13 @@
 # Fork·Fate — Changelog
 
+## 2026-06-11 (fork) — Admin "Security & cost" widget
+
+- New endpoint `GET /admin/cost-status` (`admin.py`, admin-gated): returns today's billed Google search/geocode count, the daily cap, remaining, percent used, and last-7-days history from the Mongo `config` google_budget counters.
+- New dashboard card in `Admin.jsx` (`data-testid="cost-card"`): live usage vs cap with a color-coded progress bar + status pill (Healthy <70% green / Watch 70-90% amber / Near cap ≥90% red) and a recent-days list. Verified via screenshot (118/160, 73.8%, "Watch", 4-day history).
+- Bumped `FF_BUILD` → `2026.06-123`.
+- Note: had to re-fix the recurring trailing-garbage file corruption (this time in `Admin.jsx`) that the fork checkpoint keeps introducing.
+
+
 ## 2026-06-11 (fork) — Security audit remediation
 
 Audit verdict: CONDITIONAL PASS. Remediated:

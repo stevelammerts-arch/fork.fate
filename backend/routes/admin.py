@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 
 from core import (db, rate_limit, require_admin, create_admin_token, client_ip,
                   check_login_lockout, record_login_failure, clear_login_failures,
-                  ADMIN_PASSWORD, SPONSOR_PRICE, FALLBACK_IMG)
+                  ADMIN_PASSWORD, SPONSOR_PRICE, FALLBACK_IMG, GOOGLE_SEARCH_DAILY_CAP)
 from models import AdminLogin, SponsorCreate, SponsorUpdate, SponsorClick, Restaurant
 from routes.sponsors import reconcile_sponsors
 
@@ -121,3 +121,22 @@ async def reject_submission(restaurant_id: str):
 @router.post("/admin/sponsors/reconcile", dependencies=[Depends(require_admin)])
 async def admin_reconcile_sponsors():
     return await reconcile_sponsors()
+
+
+@router.get("/admin/cost-status", dependencies=[Depends(require_admin)])
+async def cost_status():
+    """Today's billed Google search/geocode usage vs the daily cost cap, plus recent history."""
+    today = datetime.now(timezone.utc).date().isoformat()
+    doc = await db.config.find_one({"key": "google_budget", "date": today}, {"_id": 0})
+    used = int(doc.get("searches", 0)) if doc else 0
+    recent = await db.config.find({"key": "google_budget"}, {"_id": 0}).sort("date", -1).to_list(7)
+    history = [{"date": d.get("date"), "searches": int(d.get("searches", 0) or 0)} for d in recent]
+    cap = GOOGLE_SEARCH_DAILY_CAP
+    return {
+        "date": today,
+        "used": used,
+        "cap": cap,
+        "remaining": max(0, cap - used),
+        "pct": round((used / cap) * 100, 1) if cap else 0,
+        "history": history,
+    }
