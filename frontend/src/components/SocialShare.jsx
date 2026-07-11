@@ -1,8 +1,10 @@
 import React from "react";
 import { toast } from "sonner";
 import { Facebook, Twitter, Instagram, MessageCircle, Link2 } from "lucide-react";
+import { useLang } from "../i18n/i18n";
 
 export default function SocialShare({ card }) {
+  const { t } = useLang();
   const url = window.location.origin;
   const text = card
     ? `\u2620 The reaper has spoken: ${card.name} (${card.cuisine} \u00b7 ${card.price})${card.distance ? ` — ${card.distance} mi away` : ""}! Deal your own fate on Fork\u00b7Fate:`
@@ -61,7 +63,7 @@ export default function SocialShare({ card }) {
 
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="social-share">
-      <span className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-[#6B7075]">Share</span>
+      <span className="font-sans text-xs font-bold uppercase tracking-[0.15em] text-[#6B7075]">{t("Share")}</span>
       {links.map(({ key, label, Icon, color, onClick }) => (
         <button
           key={key}

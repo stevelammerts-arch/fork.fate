@@ -1,0 +1,226 @@
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+
+// Neutral Latin-American Spanish. Keyed by the English source string so UI copy
+// can be wrapped with t("English text") without inventing keys. Live restaurant
+// data (Google Places) intentionally stays in its original language.
+export const ES = {
+  // Header / nav
+  "Theme": "Tema",
+  "Dark": "Oscuro",
+  "Light": "Claro",
+  "Fall": "Otoño",
+  "Winter": "Invierno",
+  "Spring": "Primavera",
+  "Summer": "Verano",
+  "Cyberpunk": "Cyberpunk",
+  "Steampunk": "Steampunk",
+  "Tiki Lounge": "Salón Tiki",
+  "Pick a theme": "Elige un tema",
+  "Add": "Agregar",
+  "Guided": "Guiado",
+  "Sponsor your spot": "Promociona tu local",
+  "Favorites": "Favoritos",
+  "Download the app!": "¡Descarga la app!",
+  "Add spot": "Agregar local",
+  "Add a spot": "Agregar un local",
+  "Contribute": "Contribuir",
+  "Mute": "Silenciar",
+  "Unmute": "Activar sonido",
+
+  // Hero
+  "Can't decide where to eat?": "¿No sabes dónde comer?",
+  "Let fate decide.": "Deja que el destino decida.",
+  "Spin the deck and let Fork·Fate deal you a real local restaurant, bar, or dessert spot near you.": "Gira el mazo y deja que Fork·Fate te reparta un restaurante, bar o postre local de verdad cerca de ti.",
+
+  // Modes
+  "Food": "Comida",
+  "Drinks": "Bebidas",
+  "Bars": "Bares",
+  "Desserts": "Postres",
+
+  // Hero
+  "Can't decide where to eat?": "¿No sabes dónde comer?",
+  "Can't decide what to sip?": "¿No sabes qué tomar?",
+  "Can't decide where to drink?": "¿No sabes dónde beber?",
+  "Craving something sweet?": "¿Se te antoja algo dulce?",
+  "Let fate pick tonight's table.": "Deja que el destino elija la mesa de hoy.",
+  "Let fate pick your next sip.": "Deja que el destino elija tu próxima bebida.",
+  "Let fate pick tonight's bar.": "Deja que el destino elija el bar de hoy.",
+  "Let fate pick your sweet treat.": "Deja que el destino elija tu antojo dulce.",
+  "Set the mood with a few filters and hit Deal. We'll shuffle great local restaurants — up to 50 miles out — and land on your next meal.": "Marca el ambiente con unos filtros y pulsa Repartir. Barajaremos grandes restaurantes locales —hasta 80 km a la redonda— y caeremos en tu próxima comida.",
+  "Coffee, boba tea or a smoothie? Set your filters and hit Deal — we'll shuffle nearby drink spots and pick one for you.": "¿Café, boba o un smoothie? Ajusta tus filtros y pulsa Repartir: barajaremos lugares de bebidas cercanos y elegiremos uno para ti.",
+  "Beer, whiskey, margaritas or a Tiki bar? Set your filters and hit Deal — we'll shuffle nearby bars and pick tonight's spot.": "¿Cerveza, whisky, margaritas o un bar Tiki? Ajusta tus filtros y pulsa Repartir: barajaremos bares cercanos y elegiremos el lugar de hoy.",
+  "Ice cream, bakery, candy or froyo? Set your filters and hit Deal — we'll shuffle nearby dessert spots and pick your treat.": "¿Helado, panadería, dulces o yogur helado? Ajusta tus filtros y pulsa Repartir: barajaremos postres cercanos y elegiremos tu antojo.",
+
+  // Controls
+  "Your ZIP code": "Tu código postal",
+  "(optional)": "(opcional)",
+  "Locating…": "Ubicando…",
+  "Search radius": "Radio de búsqueda",
+  "Open now only": "Solo abiertos ahora",
+  "Drink type": "Tipo de bebida",
+  "Bar type": "Tipo de bar",
+  "Dessert type": "Tipo de postre",
+  "Finding spots…": "Buscando lugares…",
+  "Pick 3 Spots": "Elige 3 lugares",
+  "Deal 3 Fates!": "¡Reparte 3 destinos!",
+  "Shuffle the Deck": "Baraja el mazo",
+  "Deal Your Fate!": "¡Reparte tu destino!",
+  "spot nearby": "lugar cerca",
+  "spots nearby": "lugares cerca",
+
+  // Controls (existing)
+  "ZIP code": "Código postal",
+  "Group mode": "Modo grupo",
+  "Pub Crawls & more": "Rutas de bares y más",
+  "Pick your crawl": "Elige tu ruta",
+  "Start / your area": "Inicio / tu zona",
+  "2nd location set": "2.ª ubicación fijada",
+  "End point": "Punto final",
+  "(optional — crawl toward here)": "(opcional — dirígete hacia aquí)",
+  "Use this location": "Usar esta ubicación",
+  "clear": "borrar",
+  "Plan a Crawl": "Planea una ruta",
+  "Deal a Crawl!": "¡Reparte una ruta!",
+  "fates dealt": "destinos repartidos",
+  "crawls survived": "rutas superadas",
+  "day streak": "días de racha",
+  "Nearby spots": "Lugares cercanos",
+  "Featured": "Destacados",
+  "Closest": "Más cercanos",
+  "Use my location": "Usar mi ubicación",
+  "Using your location": "Usando tu ubicación",
+  "Cuisine": "Cocina",
+  "All cuisines": "Todas las cocinas",
+  "Open now": "Abierto ahora",
+  "Within": "Dentro de",
+  "miles": "millas",
+  "Deal my fate": "Reparte mi destino",
+  "Deal my fates": "Reparte mis destinos",
+  "Shuffling…": "Barajando…",
+  "Sort": "Ordenar",
+  "Default": "Predeterminado",
+  "Rating": "Calificación",
+  "Distance": "Distancia",
+
+  // Reveal
+  "Your table awaits": "Tu mesa te espera",
+  "Set your filters and hit Deal — fate decides what you're sipping.": "Ajusta tus filtros y pulsa Repartir: el destino decide qué tomarás.",
+  "Set your filters and hit Deal — fate decides where you're drinking.": "Ajusta tus filtros y pulsa Repartir: el destino decide dónde beberás.",
+  "Set your filters and hit Deal — fate decides your sweet treat.": "Ajusta tus filtros y pulsa Repartir: el destino decide tu antojo dulce.",
+  "Sponsored": "Patrocinado",
+  "Closed right now — shuffle again for an open spot.": "Cerrado ahora mismo: baraja de nuevo para un lugar abierto.",
+  "New": "Nuevo",
+  "mi away": "mi de distancia",
+  "Order on DoorDash": "Pedir en DoorDash",
+  "Order online": "Pedir en línea",
+  "Reviews & ratings": "Reseñas y calificaciones",
+  "Shuffle again": "Barajar de nuevo",
+  "Clear": "Limpiar",
+  "Save to favorites": "Guardar en favoritos",
+  "Copied to clipboard — share your fate!": "Copiado al portapapeles: ¡comparte tu destino!",
+  "Fate card saved — share it anywhere!": "Tarjeta de destino guardada: ¡compártela donde quieras!",
+  "Set your filters and hit Deal — fate decides where you're eating.": "Ajusta tus filtros y pulsa Repartir: el destino decide dónde comerás.",
+  "Fate has spoken": "El destino ha hablado",
+  "Re-roll": "Volver a tirar",
+  "Reshuffle": "Barajar de nuevo",
+  "Directions": "Cómo llegar",
+  "Order delivery": "Pedir a domicilio",
+  "Share your fate": "Comparte tu destino",
+  "Share as image": "Compartir como imagen",
+  "Add to favorites": "Agregar a favoritos",
+  "Remove from favorites": "Quitar de favoritos",
+  "Closed": "Cerrado",
+  "Open": "Abierto",
+
+  // How it works
+  "How it works": "Cómo funciona",
+  "Top rated": "Mejor valorados",
+  "Cheapest": "Más baratos",
+  "Let fate settle the \"where should we eat?\" debate.": "Deja que el destino resuelva el debate de \"¿dónde comemos?\".",
+  "Fork·Fate is a restaurant roulette for anyone who's ever stared blankly at a food app, unable to decide. Set a couple of filters, shuffle the deck, and land on a real local place to eat, drink, or grab dessert — no endless scrolling, no group-chat deadlock.": "Fork·Fate es una ruleta de restaurantes para quien alguna vez se quedó mirando una app de comida sin poder decidir. Ajusta un par de filtros, baraja el mazo y cae en un lugar local de verdad para comer, beber o disfrutar un postre: sin scroll infinito ni discusiones en el chat grupal.",
+  "1. Pick your craving": "1. Elige tu antojo",
+  "Choose Food, Drinks, Bars, or Desserts, then narrow it down with cuisine chips and toggles like \"Open now\" and \"Gluten free\" to match the mood.": "Elige Comida, Bebidas, Bares o Postres, y luego afina con etiquetas de cocina y opciones como \"Abierto ahora\" y \"Sin gluten\" según tu ánimo.",
+  "2. Set your location": "2. Fija tu ubicación",
+  "Enter a ZIP code or tap \"Use my location\" and Fork·Fate pulls real, nearby restaurants within 50 miles using live Google data.": "Ingresa un código postal o toca \"Usar mi ubicación\" y Fork·Fate trae restaurantes reales y cercanos hasta 80 km usando datos en vivo de Google.",
+  "3. Deal your fate": "3. Reparte tu destino",
+  "Hit the button and watch the deck shuffle to reveal tonight's pick — with directions, reviews, delivery links, and a few more spots to consider if you want a re-roll.": "Pulsa el botón y mira cómo se baraja el mazo para revelar la elección de hoy: con indicaciones, reseñas, enlaces de entrega y algunos lugares más por si quieres volver a tirar.",
+  "How does Fork·Fate pick a restaurant?": "¿Cómo elige Fork·Fate un restaurante?",
+  "After you set your filters, Fork·Fate gathers matching local spots and randomly deals one from the deck. Every deal is a fresh shuffle, so you'll discover places you might never have chosen yourself.": "Después de ajustar tus filtros, Fork·Fate reúne los lugares locales que coinciden y reparte uno al azar del mazo. Cada reparto es una nueva baraja, así descubrirás lugares que quizá nunca habrías elegido.",
+  "Is Fork·Fate free to use?": "¿Fork·Fate es gratis?",
+  "Yes — Fork·Fate is completely free. There's no account, no signup, and no paywall. Just open it, shuffle, and go eat.": "Sí, Fork·Fate es totalmente gratis. Sin cuenta, sin registro y sin muros de pago. Solo ábrelo, baraja y ve a comer.",
+  "Do I need to create an account?": "¿Necesito crear una cuenta?",
+  "No login required. You can start spinning the moment the page loads, on your phone or desktop.": "No se requiere inicio de sesión. Puedes empezar a girar apenas cargue la página, en tu teléfono o computadora.",
+  "How do you find nearby places?": "¿Cómo encuentran lugares cercanos?",
+  "Fork·Fate uses live Google Places data based on your ZIP code or device location, so results reflect real, currently-listed restaurants, bars, and dessert shops around you.": "Fork·Fate usa datos en vivo de Google Places según tu código postal o la ubicación de tu dispositivo, así los resultados reflejan restaurantes, bares y postrerías reales listados actualmente cerca de ti.",
+  "Can I add my favorite local spot?": "¿Puedo agregar mi lugar local favorito?",
+  "Absolutely. Tap \"Add spot\" to submit a place you love. Community submissions are quickly reviewed before they join the roulette pool.": "Claro. Toca \"Agregar local\" para enviar un lugar que ames. Los envíos de la comunidad se revisan rápidamente antes de unirse a la ruleta.",
+  "Can I install Fork·Fate as an app?": "¿Puedo instalar Fork·Fate como app?",
+  "Yes — tap \"Download app\" to install Fork·Fate as a PWA on your home screen for one-tap access whenever hunger strikes.": "Sí, toca \"Descargar app\" para instalar Fork·Fate como PWA en tu pantalla de inicio y acceder con un toque cuando te dé hambre.",
+  "A word from management:": "Un mensaje de la gerencia:",
+  "A word from the Reaper:": "Un mensaje de la Parca:",
+  "This page offers suggestions only and is not liable for any trouble you encounter in or with an establishment. Our algorithm merely queries the choices — the decision to visit any suggested establishment is yours alone.": "Esta página solo ofrece sugerencias y no se responsabiliza por ningún problema que encuentres en o con un establecimiento. Nuestro algoritmo solo consulta las opciones; la decisión de visitar cualquier establecimiento sugerido es solo tuya.",
+  "— The Fork·Fate team": "— El equipo de Fork·Fate",
+  "— The Reaper ☠️": "— La Parca ☠️",
+  "Fork·Fate — let fate decide. All rights reserved.": "Fork·Fate — deja que el destino decida. Todos los derechos reservados.",
+  "Frequently asked questions": "Preguntas frecuentes",
+
+  // Footer / misc
+  "Fates dealt": "Destinos repartidos",
+  "day streak": "días seguidos",
+  "Cancel": "Cancelar",
+  "Close": "Cerrar",
+  "Submit": "Enviar",
+  "Loading…": "Cargando…",
+
+  // Favorites drawer
+  "Saved spots": "Lugares guardados",
+  "Spots you've hearted, saved on this device.": "Lugares que marcaste, guardados en este dispositivo.",
+  "No favorites yet": "Aún no hay favoritos",
+  "Tap the heart on any spot to save it here for next time.": "Toca el corazón en cualquier lugar para guardarlo aquí para la próxima.",
+  "Deal 3 from favorites": "Reparte 3 de favoritos",
+  "Deal from my favorites": "Reparte de mis favoritos",
+
+  // Install app
+  "Open your browser menu and choose \u201CInstall app\u201D / \u201CAdd to Home Screen.\u201D": "Abre el menú de tu navegador y elige \u201CInstalar app\u201D / \u201CAgregar a la pantalla de inicio.\u201D",
+  "Add to your iPhone": "Agrega a tu iPhone",
+  "Apple installs web apps from Safari's Share menu — it only takes a few taps.": "Apple instala apps web desde el menú Compartir de Safari: solo toma unos toques.",
+  "Got it": "Entendido",
+  "Share": "Compartir",
+};
+
+const DICTS = { es: ES };
+
+const LangContext = createContext({ lang: "en", setLang: () => {}, t: (s) => s });
+
+function detectInitial() {
+  try {
+    const saved = localStorage.getItem("ff_lang");
+    if (saved === "en" || saved === "es") return saved;
+    const nav = (navigator.language || navigator.userLanguage || "").toLowerCase();
+    if (nav.startsWith("es")) return "es";
+  } catch (e) { /* ignore */ }
+  return "en";
+}
+
+export function LangProvider({ children }) {
+  const [lang, setLangState] = useState(detectInitial);
+
+  useEffect(() => {
+    try { localStorage.setItem("ff_lang", lang); document.documentElement.setAttribute("lang", lang); } catch (e) { /* ignore */ }
+  }, [lang]);
+
+  const setLang = useCallback((l) => setLangState(l === "es" ? "es" : "en"), []);
+
+  const t = useCallback((s) => {
+    if (lang === "en" || s == null) return s;
+    const d = DICTS[lang];
+    return (d && d[s]) || s;
+  }, [lang]);
+
+  return <LangContext.Provider value={{ lang, setLang, t }}>{children}</LangContext.Provider>;
+}
+
+export function useLang() {
+  return useContext(LangContext);
+}

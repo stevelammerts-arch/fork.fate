@@ -4,10 +4,12 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger,
 } from "./ui/sheet";
 import { useTheme } from "../hooks/useTheme";
+import { useLang } from "../i18n/i18n";
 
 export default function FavoritesDrawer({ favorites, onRemove, onDeal, groupMode }) {
   const [open, setOpen] = useState(false);
   const { theme } = useTheme();
+  const { t } = useLang();
   const light = !["dark", "cyber", "steam", "tiki"].includes(theme);
   const count = favorites.length;
 
@@ -45,7 +47,7 @@ export default function FavoritesDrawer({ favorites, onRemove, onDeal, groupMode
           className={`relative inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${P.trigger}`}
         >
           <Heart className={`h-4 w-4 ${count ? P.accentFill : ""}`} />
-          <span>Favorites</span>
+          <span>{t("Favorites")}</span>
           {count > 0 && (
             <span
               data-testid="favorites-count-badge"
@@ -59,10 +61,10 @@ export default function FavoritesDrawer({ favorites, onRemove, onDeal, groupMode
       <SheetContent side="right" className={`w-full overflow-y-auto sm:max-w-md ${P.surface}`} data-testid="favorites-drawer">
         <SheetHeader>
           <SheetTitle className={`flex items-center gap-2 font-serif text-2xl ${P.title}`}>
-            <Heart className={`h-5 w-5 ${P.accentFill}`} /> Saved spots
+            <Heart className={`h-5 w-5 ${P.accentFill}`} /> {t("Saved spots")}
           </SheetTitle>
           <SheetDescription className={P.muted}>
-            Spots you've hearted, saved on this device.
+            {t("Spots you've hearted, saved on this device.")}
           </SheetDescription>
         </SheetHeader>
 
@@ -71,9 +73,9 @@ export default function FavoritesDrawer({ favorites, onRemove, onDeal, groupMode
             <span className={`grid h-16 w-16 place-items-center rounded-full ${P.emptyCircle}`}>
               <Heart className="h-7 w-7" />
             </span>
-            <p className={`mt-4 font-serif text-xl ${P.title}`}>No favorites yet</p>
+            <p className={`mt-4 font-serif text-xl ${P.title}`}>{t("No favorites yet")}</p>
             <p className={`mt-1 max-w-xs font-sans text-sm ${P.muted}`}>
-              Tap the heart on any spot to save it here for next time.
+              {t("Tap the heart on any spot to save it here for next time.")}
             </p>
           </div>
         ) : (
@@ -85,7 +87,7 @@ export default function FavoritesDrawer({ favorites, onRemove, onDeal, groupMode
                 className={`mb-2 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-colors ${P.primaryBtn}`}
               >
                 <Dices className="h-4 w-4" />
-                {groupMode ? "Deal 3 from favorites" : "Deal from my favorites"}
+                {groupMode ? t("Deal 3 from favorites") : t("Deal from my favorites")}
               </button>
             )}
             {favorites.map((r) => (

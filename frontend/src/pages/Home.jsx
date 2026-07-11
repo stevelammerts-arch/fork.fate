@@ -28,6 +28,7 @@ import {
 import { Input } from "../components/ui/input";
 import { Slider } from "../components/ui/slider";
 import { useTheme, setTheme } from "../hooks/useTheme";
+import { useLang } from "../i18n/i18n";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -199,6 +200,7 @@ function AmbianceScene({ theme, cfg }) {
 
 export default function Home() {
   const { theme } = useTheme();
+  const { t, lang, setLang } = useLang();
   const ambCfg = AMBIANCE[theme] || null;
   const light = !(theme === "dark" || ambCfg);
   const seasonCfg = SEASONS[theme] || null;
@@ -801,6 +803,20 @@ export default function Home() {
             </span>
           </div>
           <div className="flex flex-wrap items-center justify-start gap-2 md:justify-end md:gap-3">
+            <div data-testid="language-toggle" className={`inline-flex items-center rounded-full border p-0.5 ${ghost}`}>
+              {["en", "es"].map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setLang(l)}
+                  data-testid={`lang-${l}`}
+                  aria-label={l === "es" ? "Español" : "English"}
+                  className={`rounded-full px-2.5 py-1 text-xs font-bold transition-colors sm:text-sm ${lang === l ? "bg-[#E01E26] text-white" : "opacity-70 hover:opacity-100"}`}
+                >
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
             <div className="relative">
               <DropdownMenu onOpenChange={(o) => o && dismissThemeHint()}>
                 <DropdownMenuTrigger asChild>
@@ -809,42 +825,42 @@ export default function Home() {
                     aria-label="Choose a theme"
                     className={`inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${ghost}`}
                   >
-                    <Palette className="h-4 w-4" /> <span>Theme</span> <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+                    <Palette className="h-4 w-4" /> <span>{t("Theme")}</span> <ChevronDown className="h-3.5 w-3.5 opacity-70" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" data-testid="theme-menu" className="w-40">
                   <DropdownMenuItem data-testid="theme-option-dark" onClick={() => setTheme("dark")} className="gap-2">
-                    <Moon className="h-4 w-4" /> Dark {theme === "dark" && <Check className="ml-auto h-4 w-4" />}
+                    <Moon className="h-4 w-4" /> {t("Dark")} {theme === "dark" && <Check className="ml-auto h-4 w-4" />}
                   </DropdownMenuItem>
                   <DropdownMenuItem data-testid="theme-option-light" onClick={() => setTheme("light")} className="gap-2">
-                    <Sun className="h-4 w-4" /> Light {theme === "light" && <Check className="ml-auto h-4 w-4" />}
+                    <Sun className="h-4 w-4" /> {t("Light")} {theme === "light" && <Check className="ml-auto h-4 w-4" />}
                   </DropdownMenuItem>
                   <DropdownMenuItem data-testid="theme-option-fall" onClick={() => setTheme("fall")} className="gap-2">
-                    <Leaf className="h-4 w-4" /> Fall {theme === "fall" && <Check className="ml-auto h-4 w-4" />}
+                    <Leaf className="h-4 w-4" /> {t("Fall")} {theme === "fall" && <Check className="ml-auto h-4 w-4" />}
                   </DropdownMenuItem>
                   <DropdownMenuItem data-testid="theme-option-winter" onClick={() => setTheme("winter")} className="gap-2">
-                    <Snowflake className="h-4 w-4" /> Winter {theme === "winter" && <Check className="ml-auto h-4 w-4" />}
+                    <Snowflake className="h-4 w-4" /> {t("Winter")} {theme === "winter" && <Check className="ml-auto h-4 w-4" />}
                   </DropdownMenuItem>
                   <DropdownMenuItem data-testid="theme-option-spring" onClick={() => setTheme("spring")} className="gap-2">
-                    <Flower2 className="h-4 w-4" /> Spring {theme === "spring" && <Check className="ml-auto h-4 w-4" />}
+                    <Flower2 className="h-4 w-4" /> {t("Spring")} {theme === "spring" && <Check className="ml-auto h-4 w-4" />}
                   </DropdownMenuItem>
                   <DropdownMenuItem data-testid="theme-option-summer" onClick={() => setTheme("summer")} className="gap-2">
-                    <Umbrella className="h-4 w-4" /> Summer {theme === "summer" && <Check className="ml-auto h-4 w-4" />}
+                    <Umbrella className="h-4 w-4" /> {t("Summer")} {theme === "summer" && <Check className="ml-auto h-4 w-4" />}
                   </DropdownMenuItem>
                   <DropdownMenuItem data-testid="theme-option-cyber" onClick={() => setTheme("cyber")} className="gap-2">
-                    <Zap className="h-4 w-4" /> Cyberpunk {theme === "cyber" && <Check className="ml-auto h-4 w-4" />}
+                    <Zap className="h-4 w-4" /> {t("Cyberpunk")} {theme === "cyber" && <Check className="ml-auto h-4 w-4" />}
                   </DropdownMenuItem>
                   <DropdownMenuItem data-testid="theme-option-steam" onClick={() => setTheme("steam")} className="gap-2">
-                    <Cog className="h-4 w-4" /> Steampunk {theme === "steam" && <Check className="ml-auto h-4 w-4" />}
+                    <Cog className="h-4 w-4" /> {t("Steampunk")} {theme === "steam" && <Check className="ml-auto h-4 w-4" />}
                   </DropdownMenuItem>
                   <DropdownMenuItem data-testid="theme-option-tiki" onClick={() => setTheme("tiki")} className="gap-2">
-                    <Wine className="h-4 w-4" /> Tiki Lounge {theme === "tiki" && <Check className="ml-auto h-4 w-4" />}
+                    <Wine className="h-4 w-4" /> {t("Tiki Lounge")} {theme === "tiki" && <Check className="ml-auto h-4 w-4" />}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
               {themeHint && (
                 <div data-testid="theme-hint" style={{ backgroundColor: ambCfg ? ambCfg.accent : seasonCfg ? seasonCfg.hint : light ? "#4F6F47" : "#E01E26" }} className="absolute left-1/2 top-full z-40 mt-2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold text-white shadow-lg">
-                  Pick a theme 🍂
+                  {t("Pick a theme")} 🍂
                   <button onClick={dismissThemeHint} aria-label="Dismiss theme hint" className="opacity-80 hover:opacity-100">✕</button>
                 </div>
               )}
@@ -855,7 +871,7 @@ export default function Home() {
               title="Start the guided ritual"
               className={`inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${ghost}`}
             >
-              <Sparkles className="h-4 w-4 text-[#E01E26]" /> <span>Guided</span>
+              <Sparkles className="h-4 w-4 text-[#E01E26]" /> <span>{t("Guided")}</span>
             </button>
             <button
               onClick={toggleMuted}
@@ -879,7 +895,7 @@ export default function Home() {
               data-testid="header-sponsor-link"
               className={`hidden items-center gap-2 rounded-full border bg-transparent px-4 py-2.5 text-sm font-bold transition-colors sm:inline-flex ${ghost}`}
             >
-              <Store className="h-4 w-4 text-[#E01E26]" /> Sponsor your spot
+              <Store className="h-4 w-4 text-[#E01E26]" /> {t("Sponsor your spot")}
             </button>
             <FavoritesDrawer favorites={favorites} onRemove={removeFavorite} onDeal={dealFromFavorites} groupMode={groupMode} />
             <InstallAppButton />
@@ -890,7 +906,7 @@ export default function Home() {
               data-testid="open-add-restaurant-button"
               className={`hidden items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold text-[#0E0E0E] transition-colors sm:inline-flex ${light ? "border-[#C8B79A] bg-[#D8C3A5] hover:bg-[#CBB08A]" : "border-[#E2E4E7] bg-white hover:bg-[#E2E4E7]"}`}
             >
-              <Plus className="h-4 w-4" /> <span>Add spot</span>
+              <Plus className="h-4 w-4" /> <span>{t("Add spot")}</span>
             </button>
             {/* Mobile: combined Add / Sponsor menu to keep the header compact */}
             <DropdownMenu>
@@ -900,15 +916,15 @@ export default function Home() {
                   data-testid="mobile-contribute-menu"
                   className="inline-flex items-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-[#B3141A] sm:hidden"
                 >
-                  <Plus className="h-4 w-4" /> Add
+                  <Plus className="h-4 w-4" /> {t("Add")}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem data-testid="mobile-add-spot-item" onClick={() => setAddOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4" /> Add a spot
+                  <Plus className="mr-2 h-4 w-4" /> {t("Add a spot")}
                 </DropdownMenuItem>
                 <DropdownMenuItem data-testid="mobile-sponsor-item" onClick={() => setSponsorOpen(true)}>
-                  <Store className="mr-2 h-4 w-4 text-[#E01E26]" /> Sponsor your spot
+                  <Store className="mr-2 h-4 w-4 text-[#E01E26]" /> {t("Sponsor your spot")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -1020,19 +1036,19 @@ export default function Home() {
           className="max-w-2xl"
         >
           <p className="font-sans text-sm font-extrabold tracking-[0.25em] uppercase text-[#E01E26]">
-            {mode === "food" ? "Can't decide where to eat?" : mode === "drinks" ? "Can't decide what to sip?" : mode === "bars" ? "Can't decide where to drink?" : "Craving something sweet?"}
+            {mode === "food" ? t("Can't decide where to eat?") : mode === "drinks" ? t("Can't decide what to sip?") : mode === "bars" ? t("Can't decide where to drink?") : t("Craving something sweet?")}
           </p>
           <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl" style={ambCfg ? { color: ambCfg.sky, textShadow: theme === "cyber" ? "0 0 12px rgba(199,125,255,0.6)" : undefined } : undefined}>
-            {mode === "food" ? "Let fate pick tonight's table." : mode === "drinks" ? "Let fate pick your next sip." : mode === "bars" ? "Let fate pick tonight's bar." : "Let fate pick your sweet treat."}
+            {mode === "food" ? t("Let fate pick tonight's table.") : mode === "drinks" ? t("Let fate pick your next sip.") : mode === "bars" ? t("Let fate pick tonight's bar.") : t("Let fate pick your sweet treat.")}
           </h1>
           <p className="mt-4 font-sans text-base font-semibold leading-relaxed text-[#0E0E0E]" style={ambCfg ? { color: ambCfg.sky, opacity: 0.92 } : undefined}>
             {mode === "food"
-              ? "Set the mood with a few filters and hit Deal. We'll shuffle great local restaurants — up to 50 miles out — and land on your next meal."
+              ? t("Set the mood with a few filters and hit Deal. We'll shuffle great local restaurants — up to 50 miles out — and land on your next meal.")
               : mode === "drinks"
-              ? "Coffee, boba tea or a smoothie? Set your filters and hit Deal — we'll shuffle nearby drink spots and pick one for you."
+              ? t("Coffee, boba tea or a smoothie? Set your filters and hit Deal — we'll shuffle nearby drink spots and pick one for you.")
               : mode === "bars"
-              ? "Beer, whiskey, margaritas or a Tiki bar? Set your filters and hit Deal — we'll shuffle nearby bars and pick tonight's spot."
-              : "Ice cream, bakery, candy or froyo? Set your filters and hit Deal — we'll shuffle nearby dessert spots and pick your treat."}
+              ? t("Beer, whiskey, margaritas or a Tiki bar? Set your filters and hit Deal — we'll shuffle nearby bars and pick tonight's spot.")
+              : t("Ice cream, bakery, candy or froyo? Set your filters and hit Deal — we'll shuffle nearby dessert spots and pick your treat.")}
           </p>
         </motion.div>
 
@@ -1041,7 +1057,7 @@ export default function Home() {
           <div className="min-w-0 space-y-7">
             <div className="space-y-2">
               <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]" style={labelColor ? { color: labelColor } : undefined}>
-                Your ZIP code <span className="text-[#B8BCC2]">(optional)</span>
+                {t("Your ZIP code")} <span className="text-[#B8BCC2]">{t("(optional)")}</span>
               </p>
               <div className="flex items-center gap-2">
                 <div className="flex flex-1 items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-1.5 focus-within:border-[#E01E26]">
@@ -1064,13 +1080,13 @@ export default function Home() {
                   className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-70 ${coords ? "bg-[#E01E26] text-white hover:bg-[#B3141A]" : "border border-[#E2E4E7] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
                 >
                   <LocateFixed className={`h-4 w-4 ${geoLoading ? "animate-pulse" : ""}`} />
-                  {geoLoading ? "Locating…" : coords ? "Using your location" : "Use my location"}
+                  {geoLoading ? t("Locating…") : coords ? t("Using your location") : t("Use my location")}
                 </button>
               </div>
 
               <div className="rounded-2xl border border-[#E2E4E7] bg-white px-4 py-3" data-testid="radius-control">
                 <div className="mb-2 flex items-center justify-between">
-                  <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]">Search radius</p>
+                  <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]">{t("Search radius")}</p>
                   <span data-testid="radius-value" className="font-serif text-lg font-semibold text-[#E01E26]">
                     {radius} <span className="text-sm text-[#6B7075]">mi</span>
                   </span>
@@ -1097,34 +1113,34 @@ export default function Home() {
                 onClick={() => switchMode("food")}
                 className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "food" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
               >
-                Food
+                {t("Food")}
               </button>
               <button
                 data-testid="mode-drinks"
                 onClick={() => switchMode("drinks")}
                 className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "drinks" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
               >
-                Drinks
+                {t("Drinks")}
               </button>
               <button
                 data-testid="mode-bars"
                 onClick={() => switchMode("bars")}
                 className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "bars" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
               >
-                Bars
+                {t("Bars")}
               </button>
               <button
                 data-testid="mode-desserts"
                 onClick={() => switchMode("desserts")}
                 className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "desserts" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
               >
-                Desserts
+                {t("Desserts")}
               </button>
             </div>
 
             <Filters
               cuisines={cuisineList}
-              cuisineLabel={mode === "food" ? "Cuisine" : mode === "drinks" ? "Drink type" : mode === "bars" ? "Bar type" : "Dessert type"}
+              cuisineLabel={mode === "food" ? t("Cuisine") : mode === "drinks" ? t("Drink type") : mode === "bars" ? t("Bar type") : t("Dessert type")}
               selectedCuisines={selectedCuisines}
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
               labelColor={labelColor}
@@ -1137,7 +1153,7 @@ export default function Home() {
               className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${openNow ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-transparent bg-[#EDEEF0] text-[#6B7075] hover:bg-[#E2E4E7]"}`}
             >
               <Clock className="h-4 w-4" />
-              Open now only
+              {t("Open now only")}
               <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${openNow ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
                 <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${openNow ? "translate-x-3" : ""}`} />
               </span>
@@ -1154,11 +1170,11 @@ export default function Home() {
                   className="inline-flex items-center gap-3 rounded-full border-2 border-[#0E0E0E] bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
                 >
                   <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
-                  {loading ? "Finding spots…" : spinning ? "Shuffling…" : groupMode ? (light ? "Pick 3 Spots" : "Deal 3 Fates!") : (light ? "Shuffle the Deck" : "Deal Your Fate!")}
+                  {loading ? t("Finding spots…") : spinning ? t("Shuffling…") : groupMode ? (light ? t("Pick 3 Spots") : t("Deal 3 Fates!")) : (light ? t("Shuffle the Deck") : t("Deal Your Fate!"))}
                 </motion.button>
                 {results.length > 0 && (
                   <span className="font-sans text-sm text-[#6B7075]">
-                    {results.length} spot{results.length !== 1 && "s"} nearby
+                    {results.length} {results.length !== 1 ? t("spots nearby") : t("spot nearby")}
                   </span>
                 )}
               </div>
@@ -1172,7 +1188,7 @@ export default function Home() {
                 className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${groupMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
               >
                 <Users className="h-4 w-4" />
-                Group mode
+                {t("Group mode")}
                 <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${groupMode ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
                   <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${groupMode ? "translate-x-3" : ""}`} />
                 </span>
@@ -1185,7 +1201,7 @@ export default function Home() {
                 className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${crawlMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E01E26] bg-white text-[#E01E26] hover:bg-[#FCECEC]"}`}
               >
                 <Beer className="h-4 w-4" />
-                Pub Crawls & more
+                {t("Pub Crawls & more")}
                 <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${crawlMode ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
                   <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${crawlMode ? "translate-x-3" : ""}`} />
                 </span>
@@ -1194,7 +1210,7 @@ export default function Home() {
 
             {crawlMode && (
               <div className="mt-2 w-full basis-full rounded-2xl border border-[#E01E26]/30 bg-[#FDF6F6] p-4" data-testid="crawl-type-picker">
-                <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">Pick your crawl</p>
+                <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Pick your crawl")}</p>
                 <div className="flex flex-wrap gap-2">
                   {CRAWL_TYPES.map((t) => (
                     <button
@@ -1210,12 +1226,12 @@ export default function Home() {
                 </div>
 
                 {/* Location A (start / your area) */}
-                <p className="mb-1.5 mt-4 text-xs font-bold uppercase tracking-wider text-[#6B7075]">Start / your area</p>
+                <p className="mb-1.5 mt-4 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Start / your area")}</p>
                 <div className="flex flex-wrap items-center gap-2">
                   <input
                     value={coords ? "" : zip}
                     onChange={(e) => { const v = e.target.value.replace(/[^\d]/g, "").slice(0, 5); setZip(v); setCoords(null); }}
-                    placeholder={coords ? "Using your location" : "ZIP code"}
+                    placeholder={coords ? t("Using your location") : t("ZIP code")}
                     data-testid="crawl-zip-a"
                     inputMode="numeric"
                     className="w-32 rounded-full border border-[#E2E4E7] bg-white px-4 py-2.5 text-sm text-[#0E0E0E] outline-none placeholder-[#9AA0A6] focus:border-[#E01E26]"
@@ -1227,17 +1243,17 @@ export default function Home() {
                     data-testid="crawl-use-location-a"
                     className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-70 ${coords ? "bg-[#E01E26] text-white hover:bg-[#B3141A]" : "border border-[#E2E4E7] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
                   >
-                    <LocateFixed className="h-4 w-4" /> {geoLoading ? "Locating…" : coords ? "Using your location" : "Use my location"}
+                    <LocateFixed className="h-4 w-4" /> {geoLoading ? t("Locating…") : coords ? t("Using your location") : t("Use my location")}
                   </button>
                 </div>
 
                 {/* Location B (optional end point) */}
-                <p className="mb-1.5 mt-3 text-xs font-bold uppercase tracking-wider text-[#6B7075]">End point <span className="text-[#9AA0A6]">(optional — crawl toward here)</span></p>
+                <p className="mb-1.5 mt-3 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("End point")} <span className="text-[#9AA0A6]">{t("(optional — crawl toward here)")}</span></p>
                 <div className="flex flex-wrap items-center gap-2">
                   <input
                     value={coordsB ? "" : zipB}
                     onChange={(e) => { const v = e.target.value.replace(/[^\d]/g, "").slice(0, 5); setZipB(v); setCoordsB(null); }}
-                    placeholder={coordsB ? "2nd location set" : "ZIP code"}
+                    placeholder={coordsB ? t("2nd location set") : t("ZIP code")}
                     data-testid="crawl-zip-b"
                     inputMode="numeric"
                     className="w-32 rounded-full border border-[#E2E4E7] bg-white px-4 py-2.5 text-sm text-[#0E0E0E] outline-none placeholder-[#9AA0A6] focus:border-[#E01E26]"
@@ -1249,11 +1265,11 @@ export default function Home() {
                     data-testid="crawl-use-location-b"
                     className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-70 ${coordsB ? "bg-[#E01E26] text-white hover:bg-[#B3141A]" : "border border-[#E2E4E7] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
                   >
-                    <LocateFixed className="h-4 w-4" /> {geoLoadingB ? "Locating…" : coordsB ? "2nd location set" : "Use this location"}
+                    <LocateFixed className="h-4 w-4" /> {geoLoadingB ? t("Locating…") : coordsB ? t("2nd location set") : t("Use this location")}
                   </button>
                   {(coordsB || (zipB || "").length === 5) && (
                     <button type="button" onClick={() => { setZipB(""); setCoordsB(null); }} data-testid="crawl-clear-b"
-                      className="text-xs font-semibold text-[#9AA0A6] underline underline-offset-2 hover:text-[#E01E26]">clear</button>
+                      className="text-xs font-semibold text-[#9AA0A6] underline underline-offset-2 hover:text-[#E01E26]">{t("clear")}</button>
                   )}
                 </div>
 
@@ -1266,7 +1282,7 @@ export default function Home() {
                   className="mt-4 inline-flex items-center gap-3 rounded-full border-2 border-[#0E0E0E] bg-[#E01E26] px-10 py-4 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
                 >
                   <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
-                  {loading ? "Finding spots…" : spinning ? "Shuffling…" : (light ? "Plan a Crawl" : "Deal a Crawl!")}
+                  {loading ? t("Finding spots…") : spinning ? t("Shuffling…") : (light ? t("Plan a Crawl") : t("Deal a Crawl!"))}
                 </motion.button>
               </div>
             )}
@@ -1274,16 +1290,16 @@ export default function Home() {
             {fatesDealt !== null && (
               <div className="mt-4 inline-flex items-center gap-2 font-sans text-sm" data-testid="fates-dealt-counter" style={{ color: light ? "#6B7075" : (ambCfg ? ambCfg.sky : "rgba(255,255,255,0.72)") }}>
                 <Dices className="h-4 w-4" style={{ color: ambCfg ? ambCfg.accent : "#E01E26" }} />
-                <span><span className="font-bold" style={{ color: light ? "#0E0E0E" : (ambCfg ? ambCfg.sky : "#FFFFFF") }}>{fatesDealt.toLocaleString()}</span> fates dealt</span>
+                <span><span className="font-bold" style={{ color: light ? "#0E0E0E" : (ambCfg ? ambCfg.sky : "#FFFFFF") }}>{fatesDealt.toLocaleString()}</span> {t("fates dealt")}</span>
                 {crawlsCompleted !== null && crawlsCompleted > 0 && (
                   <span className="ml-3 inline-flex items-center gap-1.5" data-testid="crawls-completed-counter">
                     <Trophy className="h-4 w-4" style={{ color: ambCfg ? ambCfg.accent : "#E01E26" }} />
-                    <span><span className="font-bold" style={{ color: light ? "#0E0E0E" : (ambCfg ? ambCfg.sky : "#FFFFFF") }}>{crawlsCompleted.toLocaleString()}</span> crawls survived</span>
+                    <span><span className="font-bold" style={{ color: light ? "#0E0E0E" : (ambCfg ? ambCfg.sky : "#FFFFFF") }}>{crawlsCompleted.toLocaleString()}</span> {t("crawls survived")}</span>
                   </span>
                 )}
                 {streak >= 2 && (
                   <span className="ml-3 inline-flex items-center gap-1.5 rounded-full bg-[#FCF4F4] px-3 py-1 text-[#E01E26]" data-testid="streak-badge">
-                    <Flame className="h-4 w-4" /><span className="font-bold">{streak}-day streak</span>
+                    <Flame className="h-4 w-4" /><span className="font-bold">{streak} {t("day streak")}</span>
                   </span>
                 )}
               </div>
@@ -1330,7 +1346,7 @@ export default function Home() {
         <section className="relative z-10 mx-auto max-w-6xl px-6 pb-24 pt-8 md:px-12">
           <div className="flex items-end justify-between border-b border-[#E2E4E7] pb-4">
             <h2 className="font-serif text-2xl font-medium tracking-tight text-[#0E0E0E] sm:text-3xl">
-              Nearby spots
+              {t("Nearby spots")}
             </h2>
             <label className="flex items-center gap-2 font-sans text-xs font-bold text-[#6B7075]">
               <ArrowDownWideNarrow className="h-4 w-4" />
@@ -1340,10 +1356,10 @@ export default function Home() {
                 onChange={(e) => setSortBy(e.target.value)}
                 className="rounded-full border border-[#E2E4E7] bg-white px-3 py-1.5 font-bold text-[#0E0E0E] focus:outline-none"
               >
-                <option value="default">Featured</option>
-                <option value="distance">Closest</option>
-                <option value="rating">Top rated</option>
-                <option value="price">Cheapest</option>
+                <option value="default">{t("Featured")}</option>
+                <option value="distance">{t("Closest")}</option>
+                <option value="rating">{t("Top rated")}</option>
+                <option value="price">{t("Cheapest")}</option>
               </select>
             </label>
           </div>
@@ -1359,14 +1375,12 @@ export default function Home() {
       <section className="relative z-10 mx-auto max-w-6xl px-6 pb-24 pt-4 md:px-12" data-testid="how-it-works-section">
         <div className="border-t border-[#E2E4E7] pt-14">
           <div className="rounded-3xl border border-[#E2E4E7] bg-white/95 p-8 shadow-sm backdrop-blur-sm md:p-10">
-            <p className="font-sans text-xs font-bold uppercase tracking-[0.25em] text-[#E01E26]">How it works</p>
+            <p className="font-sans text-xs font-bold uppercase tracking-[0.25em] text-[#E01E26]">{t("How it works")}</p>
             <h2 className="mt-2 font-serif text-3xl font-medium tracking-tight text-[#0E0E0E] sm:text-4xl">
-              Let fate settle the "where should we eat?" debate.
+              {t("Let fate settle the \"where should we eat?\" debate.")}
             </h2>
             <p className="mt-3 max-w-2xl font-sans text-base text-[#6B7075]">
-              Fork·Fate is a restaurant roulette for anyone who's ever stared blankly at a food app, unable to decide.
-              Set a couple of filters, shuffle the deck, and land on a real local place to eat, drink, or grab dessert —
-              no endless scrolling, no group-chat deadlock.
+              {t("Fork·Fate is a restaurant roulette for anyone who's ever stared blankly at a food app, unable to decide. Set a couple of filters, shuffle the deck, and land on a real local place to eat, drink, or grab dessert — no endless scrolling, no group-chat deadlock.")}
             </p>
           </div>
 
@@ -1375,78 +1389,70 @@ export default function Home() {
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0E0E0E]">
                 <Search className="h-5 w-5 text-white" />
               </div>
-              <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">1. Pick your craving</h3>
+              <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">{t("1. Pick your craving")}</h3>
               <p className="mt-2 font-sans text-sm text-[#6B7075]">
-                Choose Food, Drinks, Bars, or Desserts, then narrow it down with cuisine chips and toggles like
-                "Open now" and "Gluten free" to match the mood.
+                {t("Choose Food, Drinks, Bars, or Desserts, then narrow it down with cuisine chips and toggles like \"Open now\" and \"Gluten free\" to match the mood.")}
               </p>
             </div>
             <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6" data-testid="step-2">
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0E0E0E]">
                 <MapPin className="h-5 w-5 text-white" />
               </div>
-              <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">2. Set your location</h3>
+              <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">{t("2. Set your location")}</h3>
               <p className="mt-2 font-sans text-sm text-[#6B7075]">
-                Enter a ZIP code or tap "Use my location" and Fork·Fate pulls real, nearby restaurants within
-                50 miles using live Google data.
+                {t("Enter a ZIP code or tap \"Use my location\" and Fork·Fate pulls real, nearby restaurants within 50 miles using live Google data.")}
               </p>
             </div>
             <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6" data-testid="step-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E01E26]">
                 <Dices className="h-5 w-5 text-white" />
               </div>
-              <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">3. Deal your fate</h3>
+              <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">{t("3. Deal your fate")}</h3>
               <p className="mt-2 font-sans text-sm text-[#6B7075]">
-                Hit the button and watch the deck shuffle to reveal tonight's pick — with directions, reviews,
-                delivery links, and a few more spots to consider if you want a re-roll.
+                {t("Hit the button and watch the deck shuffle to reveal tonight's pick — with directions, reviews, delivery links, and a few more spots to consider if you want a re-roll.")}
               </p>
             </div>
           </div>
 
           <div className="mt-16 rounded-3xl border border-[#E2E4E7] bg-white/95 p-8 shadow-sm backdrop-blur-sm md:p-10">
           <h2 className="font-serif text-2xl font-medium tracking-tight text-[#0E0E0E] sm:text-3xl">
-            Frequently asked questions
+            {t("Frequently asked questions")}
           </h2>
           <div className="mt-6 grid grid-cols-1 gap-x-10 gap-y-7 md:grid-cols-2" data-testid="faq-section">
             <div>
-              <h3 className="font-serif text-lg text-[#0E0E0E]">How does Fork·Fate pick a restaurant?</h3>
+              <h3 className="font-serif text-lg text-[#0E0E0E]">{t("How does Fork·Fate pick a restaurant?")}</h3>
               <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
-                After you set your filters, Fork·Fate gathers matching local spots and randomly deals one from the
-                deck. Every deal is a fresh shuffle, so you'll discover places you might never have chosen yourself.
+                {t("After you set your filters, Fork·Fate gathers matching local spots and randomly deals one from the deck. Every deal is a fresh shuffle, so you'll discover places you might never have chosen yourself.")}
               </p>
             </div>
             <div>
-              <h3 className="font-serif text-lg text-[#0E0E0E]">Is Fork·Fate free to use?</h3>
+              <h3 className="font-serif text-lg text-[#0E0E0E]">{t("Is Fork·Fate free to use?")}</h3>
               <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
-                Yes — Fork·Fate is completely free. There's no account, no signup, and no paywall. Just open it,
-                shuffle, and go eat.
+                {t("Yes — Fork·Fate is completely free. There's no account, no signup, and no paywall. Just open it, shuffle, and go eat.")}
               </p>
             </div>
             <div>
-              <h3 className="font-serif text-lg text-[#0E0E0E]">Do I need to create an account?</h3>
+              <h3 className="font-serif text-lg text-[#0E0E0E]">{t("Do I need to create an account?")}</h3>
               <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
-                No login required. You can start spinning the moment the page loads, on your phone or desktop.
+                {t("No login required. You can start spinning the moment the page loads, on your phone or desktop.")}
               </p>
             </div>
             <div>
-              <h3 className="font-serif text-lg text-[#0E0E0E]">How do you find nearby places?</h3>
+              <h3 className="font-serif text-lg text-[#0E0E0E]">{t("How do you find nearby places?")}</h3>
               <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
-                Fork·Fate uses live Google Places data based on your ZIP code or device location, so results reflect
-                real, currently-listed restaurants, bars, and dessert shops around you.
+                {t("Fork·Fate uses live Google Places data based on your ZIP code or device location, so results reflect real, currently-listed restaurants, bars, and dessert shops around you.")}
               </p>
             </div>
             <div>
-              <h3 className="font-serif text-lg text-[#0E0E0E]">Can I add my favorite local spot?</h3>
+              <h3 className="font-serif text-lg text-[#0E0E0E]">{t("Can I add my favorite local spot?")}</h3>
               <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
-                Absolutely. Tap "Add spot" to submit a place you love. Community submissions are quickly reviewed
-                before they join the roulette pool.
+                {t("Absolutely. Tap \"Add spot\" to submit a place you love. Community submissions are quickly reviewed before they join the roulette pool.")}
               </p>
             </div>
             <div>
-              <h3 className="font-serif text-lg text-[#0E0E0E]">Can I install Fork·Fate as an app?</h3>
+              <h3 className="font-serif text-lg text-[#0E0E0E]">{t("Can I install Fork·Fate as an app?")}</h3>
               <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
-                Yes — tap "Download app" to install Fork·Fate as a PWA on your home screen for one-tap access
-                whenever hunger strikes.
+                {t("Yes — tap \"Download app\" to install Fork·Fate as a PWA on your home screen for one-tap access whenever hunger strikes.")}
               </p>
             </div>
           </div>
@@ -1462,10 +1468,8 @@ export default function Home() {
               ? <UtensilsCrossed className="mt-0.5 h-5 w-5 shrink-0 text-[#E01E26]" />
               : <Skull className="mt-0.5 h-5 w-5 shrink-0 text-[#E01E26]" />}
             <p className={`font-sans text-xs leading-relaxed ${light ? "text-[#6E6355]" : "text-[#8A8F95]"}`}>
-              <span className={`font-bold ${light ? "text-[#2A2118]" : "text-white"}`}>{light ? "A word from management:" : "A word from the Reaper:"}</span> This page offers suggestions
-              only and is not liable for any trouble you encounter in or with an establishment. Our algorithm merely
-              queries the choices — the decision to visit any suggested establishment is yours alone.
-              <span className={`mt-1 block italic ${light ? "text-[#8A7C68]" : "text-[#B9BEC4]"}`}>{light ? "— The Fork·Fate team" : "— The Reaper ☠️"}</span>
+              <span className={`font-bold ${light ? "text-[#2A2118]" : "text-white"}`}>{light ? t("A word from management:") : t("A word from the Reaper:")}</span> {t("This page offers suggestions only and is not liable for any trouble you encounter in or with an establishment. Our algorithm merely queries the choices — the decision to visit any suggested establishment is yours alone.")}
+              <span className={`mt-1 block italic ${light ? "text-[#8A7C68]" : "text-[#B9BEC4]"}`}>{light ? t("— The Fork·Fate team") : t("— The Reaper ☠️")}</span>
             </p>
           </div>
         </div>
@@ -1478,7 +1482,7 @@ export default function Home() {
           </div>
           <div className="order-3 flex flex-col items-center gap-1.5 md:order-2">
             <p className={`font-sans text-xs ${light ? "text-[#6E6355]" : "text-[#8A8F95]"}`}>
-              © {new Date().getFullYear()} Fork·Fate — let fate decide. All rights reserved.
+              © {new Date().getFullYear()} {t("Fork·Fate — let fate decide. All rights reserved.")}
             </p>
             <div className="flex items-center gap-3">
               <a
@@ -2023,6 +2027,7 @@ async function buildReaperCard(card) {
 
 
 function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, theme, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite }) {
+  const { t } = useLang();
   if (!result && groupPicks && groupPicks.length > 0) {
     return <GroupVote picks={groupPicks} onReSpin={onReSpin} onWinner={onPick} />;
   }
@@ -2033,15 +2038,15 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
           <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#0E0E0E] text-[#E01E26]">
             <Dices className="h-7 w-7" />
           </span>
-          <p className="font-serif text-2xl text-[#0E0E0E]">Your table awaits</p>
+          <p className="font-serif text-2xl text-[#0E0E0E]">{t("Your table awaits")}</p>
           <p className="mx-auto max-w-xs font-sans text-sm text-[#6B7075]">
             {mode === "food"
-              ? "Set your filters and hit Deal — fate decides where you're eating."
+              ? t("Set your filters and hit Deal — fate decides where you're eating.")
               : mode === "drinks"
-              ? "Set your filters and hit Deal — fate decides what you're sipping."
+              ? t("Set your filters and hit Deal — fate decides what you're sipping.")
               : mode === "bars"
-              ? "Set your filters and hit Deal — fate decides where you're drinking."
-              : "Set your filters and hit Deal — fate decides your sweet treat."}
+              ? t("Set your filters and hit Deal — fate decides where you're drinking.")
+              : t("Set your filters and hit Deal — fate decides your sweet treat.")}
           </p>
         </div>
       </div>
@@ -2058,7 +2063,7 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
         await navigator.share({ title: "Fork·Fate", text, url });
       } else {
         await navigator.clipboard.writeText(`${text} ${url}`);
-        toast.success("Copied to clipboard — share your fate!");
+        toast.success(t("Copied to clipboard — share your fate!"));
       }
     } catch (e) {
       // Share sheet cancelled or unavailable — non-critical
@@ -2079,7 +2084,7 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
         link.download = file.name;
         link.click();
         URL.revokeObjectURL(link.href);
-        toast.success("Fate card saved — share it anywhere!");
+        toast.success(t("Fate card saved — share it anywhere!"));
       }
     } catch (e) {
       console.debug("Image share dismissed:", e);
@@ -2112,7 +2117,7 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
             <button
               onClick={(e) => { e.stopPropagation(); e.preventDefault(); onToggleFavorite(card); }}
               data-testid="result-favorite-toggle"
-              title={isFavorite?.(card) ? "Remove from favorites" : "Save to favorites"}
+              title={isFavorite?.(card) ? t("Remove from favorites") : t("Save to favorites")}
               aria-pressed={isFavorite?.(card)}
               className="absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-full bg-white/90 backdrop-blur transition-transform hover:scale-110 active:scale-95"
             >
@@ -2126,7 +2131,7 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
               </span>
               {card.sponsored && (
                 <span className="rounded-full bg-[#E01E26] px-3 py-1 text-xs font-bold text-white">
-                  Sponsored
+                  {t("Sponsored")}
                 </span>
               )}
             </div>
@@ -2148,16 +2153,16 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
             </p>
             {!card.open_now && (
               <p data-testid="closed-reroll-hint" className="rounded-xl bg-[#FCF4F4] px-3 py-2 font-sans text-xs font-bold text-[#E01E26]">
-                Closed right now — shuffle again for an open spot.
+                {t("Closed right now — shuffle again for an open spot.")}
               </p>
             )}
             <div className="flex items-center gap-5 text-sm text-[#0E0E0E]">
               <span className="flex items-center gap-1.5 font-semibold">
                 <Star className="h-4 w-4 fill-[#E01E26] text-[#E01E26]" />
-                {card.rating > 0 ? card.rating.toFixed(1) : "New"}
+                {card.rating > 0 ? card.rating.toFixed(1) : t("New")}
               </span>
               <span className="flex items-center gap-1.5 text-[#6B7075]">
-                <MapPin className="h-4 w-4" /> {card.distance} mi away
+                <MapPin className="h-4 w-4" /> {card.distance} {t("mi away")}
               </span>
             </div>
             {card.address && (
@@ -2174,7 +2179,7 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
                   data-testid="doordash-button"
                   className="inline-flex items-center gap-2 rounded-full bg-[#E01E26] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
                 >
-                  <ShoppingBag className="h-4 w-4" /> Order on DoorDash
+                  <ShoppingBag className="h-4 w-4" /> {t("Order on DoorDash")}
                   <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               )}
@@ -2186,7 +2191,7 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
                   data-testid="order-online-button"
                   className="inline-flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-2 text-sm font-semibold text-[#0E0E0E] transition-colors hover:bg-[#EDEEF0]"
                 >
-                  <ShoppingBag className="h-4 w-4" /> Order online
+                  <ShoppingBag className="h-4 w-4" /> {t("Order online")}
                 </a>
               )}
               {card.google_url && (
@@ -2197,7 +2202,7 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
                   data-testid="rate-on-google-button"
                   className="inline-flex items-center gap-2 rounded-full bg-[#0E0E0E] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]"
                 >
-                  <Star className="h-4 w-4 fill-[#E01E26] text-[#E01E26]" /> Reviews & ratings
+                  <Star className="h-4 w-4 fill-[#E01E26] text-[#E01E26]" /> {t("Reviews & ratings")}
                   <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               )}
@@ -2207,28 +2212,28 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
                 data-testid="respin-button"
                 className="inline-flex items-center gap-2 rounded-full bg-[#E01E26] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
               >
-                <Dices className="h-4 w-4" /> Shuffle again
+                <Dices className="h-4 w-4" /> {t("Shuffle again")}
               </button>
               <button
                 onClick={shareFate}
                 data-testid="share-fate-button"
                 className="inline-flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-2 text-sm font-semibold text-[#0E0E0E] transition-colors hover:bg-[#EDEEF0]"
               >
-                <Share2 className="h-4 w-4" /> Share your fate
+                <Share2 className="h-4 w-4" /> {t("Share your fate")}
               </button>
               <button
                 onClick={shareFateImage}
                 data-testid="share-fate-image-button"
                 className="inline-flex items-center gap-2 rounded-full bg-[#0E0E0E] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]"
               >
-                <ImageDown className="h-4 w-4" /> Share as image
+                <ImageDown className="h-4 w-4" /> {t("Share as image")}
               </button>
               <button
                 onClick={onReset}
                 data-testid="reset-spin-button"
                 className="inline-flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-2 text-sm font-semibold text-[#0E0E0E] transition-colors hover:bg-[#EDEEF0]"
               >
-                <RotateCcw className="h-4 w-4" /> Clear
+                <RotateCcw className="h-4 w-4" /> {t("Clear")}
               </button>
             </div>
             <div className="border-t border-[#E2E4E7] pt-3">

@@ -6,10 +6,12 @@ import SponsorStatus from "./pages/SponsorStatus";
 import SharedCrawl from "./pages/SharedCrawl";
 import LegalPage from "./pages/LegalPage";
 import { Toaster } from "./components/ui/sonner";
+import { LangProvider } from "./i18n/i18n";
 
 function App() {
   return (
     <div className="App">
+      <LangProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -22,6 +24,7 @@ function App() {
         </Routes>
       </BrowserRouter>
       <Toaster position="top-center" richColors />
+      </LangProvider>
     </div>
   );
 }

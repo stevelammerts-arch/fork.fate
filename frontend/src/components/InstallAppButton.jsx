@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Download, Share, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
+import { useLang } from "../i18n/i18n";
 
 const isStandalone = () =>
   window.matchMedia?.("(display-mode: standalone)").matches ||
@@ -15,6 +16,7 @@ const isIOS = () => /iphone|ipad|ipod/i.test(ua()) ||
 const isIOSSafari = () => isIOS() && !/(CriOS|FxiOS|EdgiOS|OPiOS|GSA)/i.test(ua());
 
 export default function InstallAppButton() {
+  const { t } = useLang();
   const [deferred, setDeferred] = useState(null);
   const [installed, setInstalled] = useState(isStandalone());
   const [showIOS, setShowIOS] = useState(false);
@@ -51,7 +53,7 @@ export default function InstallAppButton() {
       setShowIOS(true);
       return;
     }
-    toast("Open your browser menu and choose \u201CInstall app\u201D / \u201CAdd to Home Screen.\u201D");
+    toast(t("Open your browser menu and choose \u201CInstall app\u201D / \u201CAdd to Home Screen.\u201D"));
   };
 
   if (installed) return null;
@@ -63,7 +65,7 @@ export default function InstallAppButton() {
         data-testid="download-app-button"
         className="inline-flex items-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-1.5 text-xs font-bold text-white shadow-lg shadow-[#E01E26]/30 transition-colors hover:bg-[#B3141A] sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
       >
-        <Download className="h-4 w-4" /> <span>Download the app!</span>
+        <Download className="h-4 w-4" /> <span>{t("Download the app!")}</span>
       </button>
 
       <Dialog open={showIOS} onOpenChange={setShowIOS}>
@@ -73,10 +75,10 @@ export default function InstallAppButton() {
               <span className="relative block h-8 w-8 overflow-hidden rounded-full bg-black">
                 <img src="/logo-mark.png" alt="" className="h-8 w-8 scale-110 object-contain" />
               </span>
-              Add to your iPhone
+              {t("Add to your iPhone")}
             </DialogTitle>
             <DialogDescription className="text-sm text-[#A0A0A0]">
-              Apple installs web apps from Safari's Share menu — it only takes a few taps.
+              {t("Apple installs web apps from Safari's Share menu — it only takes a few taps.")}
             </DialogDescription>
           </DialogHeader>
 
@@ -119,7 +121,7 @@ export default function InstallAppButton() {
             data-testid="ios-install-close"
             className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/20 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
           >
-            <X className="h-4 w-4" /> Got it
+            <X className="h-4 w-4" /> {t("Got it")}
           </button>
         </DialogContent>
       </Dialog>
