@@ -1,5 +1,13 @@
 # Fork·Fate — Changelog
 
+## 2026-06-11 (fork) — Summer water/gull polish + PayPal webhook live
+
+- **Ocean shimmer** reworked for realism + mobile: driven by GPU `transform:translateY` (mobile refused to animate `background-position`), warped into organic S-curve ripples via an SVG `feTurbulence`+`feDisplacementMap` filter (`#ff-sea-warp`), sparse/soft/irregular glints flowing slowly shoreward, brightness tuned up. (`Home.jsx` ocean block + `.ff-sea-*` in `index.css`).
+- **Seagulls**: added wingbeat (`.ff-gull` scaleY flap), bumped to 8 birds with **negative staggered delays** so none sit frozen off-screen at load (fixes "appearing/disappearing" + "not moving"), GPU hints to stop mobile throttling.
+- **PayPal webhook LIVE**: `PAYPAL_WEBHOOK_ID=2YH39827SD3373602` set; forged event correctly rejected (400), signature verification confirmed active. Enables auto activate/cancel/suspend/expire of sponsors. (Must also be set in production env + redeploy.)
+- FF_BUILD → `2026.06-133`.
+
+
 ## 2026-06-11 (fork) — Cap raise, 90% email alert, Summer mobile fix, secret hygiene
 
 - **Google cost cap raised 160 → 300** (`core.py` default; overridable via `GOOGLE_SEARCH_DAILY_CAP`). Alert threshold `GOOGLE_SEARCH_ALERT_PCT=90`.
