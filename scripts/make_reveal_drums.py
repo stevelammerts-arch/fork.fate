@@ -27,28 +27,27 @@ dur = T / SR
 env = 0.12 + 0.88 * (np.linspace(0, 1, T) ** 1.7)
 track *= env
 
-# big deep drum boom at the end
-def boom(dur=1.6):
+# sudden punchy bass-drum thump at the end (tight kick, not a slow boom)
+def boom(dur=0.55):
     n = int(SR * dur)
     tt = np.linspace(0, dur, n, endpoint=False)
-    # pitch drops from ~120Hz down to ~40Hz for a huge falling thud
-    f = 120 * np.exp(-3.0 * tt) + 38
+    # fast pitch drop 150 -> 50 Hz in ~25 ms = tight kick "thump"
+    f = 50 + 100 * np.exp(-tt * 45)
     phase = 2 * np.pi * np.cumsum(f) / SR
-    tone = np.sin(phase) + 0.3 * np.sin(2 * phase)
-    sub = 0.9 * np.sin(2 * np.pi * 45 * tt) * np.exp(-2.4 * tt)
-    slap = np.random.randn(n) * np.exp(-30 * tt) * 0.4
-    slap = np.convolve(slap, np.ones(24) / 24, mode="same")
-    env_b = np.exp(-2.6 * tt)
-    return ((tone * 0.9 + sub + slap) * env_b).astype(np.float32)
+    tone = np.sin(phase)
+    sub = 0.8 * np.sin(2 * np.pi * 48 * tt) * np.exp(-tt * 9)
+    click = np.random.randn(n) * np.exp(-tt * 900) * 0.5   # beater attack
+    body_env = np.exp(-tt * 8)                              # short, punchy decay
+    return ((tone * body_env + sub) + click).astype(np.float32)
 
 b = boom()
-# place the boom so it hits right as the track ends (slight overlap for impact)
-overlap = int(SR * 0.15)
-out_len = T - overlap + len(b) + int(SR * 0.4)
+# tiny silent gap so the thump lands suddenly after the build
+gap = int(SR * 0.05)
+out_len = T + gap + len(b) + int(SR * 0.2)
 buf = np.zeros(out_len, dtype=np.float32)
 buf[:T] += track
-bi = T - overlap
-buf[bi:bi + len(b)] += b * 1.0
+bi = T + gap
+buf[bi:bi + len(b)] += b * 1.15
 
 # normalize loud with gentle soft-clip for weight
 buf = buf / (np.max(np.abs(buf)) + 1e-9)
