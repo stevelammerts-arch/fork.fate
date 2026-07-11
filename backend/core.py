@@ -241,6 +241,8 @@ SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "onboarding@resend.dev")
 
 async def _send_google_cap_alert(used: int):
     """One-time daily warning email when Google usage crosses the alert threshold."""
+    import asyncio
+    import resend
     pct = round(used / GOOGLE_SEARCH_DAILY_CAP * 100) if GOOGLE_SEARCH_DAILY_CAP else 0
     if not RESEND_API_KEY or not ALERT_EMAIL_TO:
         logger.warning(f"Google usage at {used}/{GOOGLE_SEARCH_DAILY_CAP} ({pct}%) — "
