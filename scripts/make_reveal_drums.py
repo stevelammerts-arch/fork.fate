@@ -27,26 +27,22 @@ dur = T / SR
 env = 0.12 + 0.88 * (np.linspace(0, 1, T) ** 1.7)
 track *= env
 
-# timpani (kettle-drum) hit at the end: tuned, ringing boom with mallet attack
-def boom(dur=1.9):
+# timpani (kettle-drum) boom at the end: solid tuned boom, no pitch glide
+def boom(dur=1.7):
     n = int(SR * dur)
     tt = np.linspace(0, dur, n, endpoint=False)
-    f0 = 116.0  # low timpani pitch (~A2)
-    # timpani principal modes give a clear sense of pitch (near-harmonic ratios)
-    ratios = [1.00, 1.50, 1.98, 2.44, 2.90, 3.60, 4.36]
-    gains  = [1.00, 0.62, 0.42, 0.30, 0.20, 0.12, 0.08]
-    decays = [3.2,  4.0,  5.2,  6.5,  8.0,  10.0, 12.0]  # higher modes ring shorter
+    f0 = 98.0  # low tuned boom (~G2), audible fundamental + harmonics
+    # dominant fundamental for weight; a few fixed harmonics for pitch/speaker clarity
+    partials = [(1.0, 1.00, 2.0), (2.0, 0.45, 3.2), (3.0, 0.22, 4.5), (1.5, 0.18, 3.8)]
     body = np.zeros(n)
-    for r, g, d in zip(ratios, gains, decays):
-        # slight downward pitch glide at the attack (membrane tension settling)
-        fk = f0 * r * (1.0 + 0.03 * np.exp(-tt * 30))
-        phase = 2 * np.pi * np.cumsum(fk) / SR
-        body += g * np.sin(phase) * np.exp(-d * tt)
-    # felt-mallet attack: soft, short, band-limited thud
-    mallet = np.random.randn(n) * np.exp(-tt * 120) * 0.25
-    mallet = np.convolve(mallet, np.ones(18) / 18, mode="same")
-    b = body + mallet
-    return (b / (np.max(np.abs(b)) + 1e-9)).astype(np.float32)  # peak-normalized timpani
+    for r, g, d in partials:
+        body += g * np.sin(2 * np.pi * f0 * r * tt) * np.exp(-d * tt)
+    # crisp, very short mallet click (no long noise wash -> no "air" sound)
+    click = np.random.randn(n) * np.exp(-tt * 400) * 0.12
+    # smooth 3 ms attack ramp to avoid a click-pop
+    atk = np.clip(tt / 0.003, 0, 1)
+    b = (body + click) * atk
+    return (b / (np.max(np.abs(b)) + 1e-9)).astype(np.float32)
 
 b = boom()
 # tiny silent gap so the timpani lands suddenly after the build
