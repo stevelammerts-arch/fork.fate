@@ -356,12 +356,12 @@ export default function Home() {
     try {
       if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e0) { /* ignore */ } grooveRef.current = null; }
       if (localStorage.getItem("ff_muted") !== "1") {
-        const revealSrc = { cyber: "/reveal-electric.wav", tiki: "/reveal-drums-boom.wav", spring: "/reveal-koto.wav", steam: "/reveal-steam.wav", winter: "/reveal-santa.wav" }[theme] || (light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
+        const revealSrc = { cyber: "/reveal-electric.wav", tiki: "/reveal-drums-boom.wav", spring: "/reveal-koto.wav", steam: "/reveal-steam.wav", winter: "/reveal-santa.wav", fall: "/reveal-owl.wav" }[theme] || (light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
         thunderRef.current = new Audio(revealSrc);
         thunderRef.current.volume = 1.0;
         thunderRef.current.load();
         // Themed ambience that starts during the shuffle. [src, volume, loop]
-        const loop = { tiki: ["/reveal-drums-groove.wav", 1.0, false], cyber: ["/reveal-cyber-radio.wav", 0.8, true], summer: ["/shuffle-seagulls.wav", 0.7, true], steam: ["/shuffle-jacobs.wav", 0.85, true], spring: ["/shuffle-spring.wav", 0.8, true], winter: ["/shuffle-winter.wav", 0.8, true] }[theme];
+        const loop = { tiki: ["/reveal-drums-groove.wav", 1.0, false], cyber: ["/reveal-cyber-radio.wav", 0.8, true], summer: ["/shuffle-seagulls.wav", 0.7, true], steam: ["/shuffle-jacobs.wav", 0.85, true], spring: ["/shuffle-spring.wav", 0.8, true], winter: ["/shuffle-winter.wav", 0.8, true], fall: ["/shuffle-fall.wav", 0.8, true] }[theme];
         if (loop) {
           grooveRef.current = new Audio(loop[0]);
           grooveRef.current.loop = loop[2];
@@ -564,8 +564,8 @@ export default function Home() {
     setRevealFlash(false);
     if (theme === "tiki") { grooveRef.current = playSound("/reveal-drums-groove.wav", 1.0); }
     else {
-      const loopSrc = { cyber: "/reveal-cyber-radio.wav", summer: "/shuffle-seagulls.wav", steam: "/shuffle-jacobs.wav", spring: "/shuffle-spring.wav", winter: "/shuffle-winter.wav" }[theme];
-      const loopVol = { cyber: 0.8, summer: 0.7, steam: 0.85, spring: 0.8, winter: 0.8 }[theme];
+      const loopSrc = { cyber: "/reveal-cyber-radio.wav", summer: "/shuffle-seagulls.wav", steam: "/shuffle-jacobs.wav", spring: "/shuffle-spring.wav", winter: "/shuffle-winter.wav", fall: "/shuffle-fall.wav" }[theme];
+      const loopVol = { cyber: 0.8, summer: 0.7, steam: 0.85, spring: 0.8, winter: 0.8, fall: 0.8 }[theme];
       if (loopSrc) {
         try {
           if (localStorage.getItem("ff_muted") !== "1") {
@@ -593,7 +593,7 @@ export default function Home() {
         setFlashHit(true);
         try {
           if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e2) { /* ignore */ } grooveRef.current = null; }
-          playSound(theme === "tiki" ? "/reveal-drums-boom.wav" : theme === "cyber" ? "/reveal-electric.wav" : theme === "spring" ? "/reveal-koto.wav" : theme === "steam" ? "/reveal-steam.wav" : theme === "winter" ? "/reveal-santa.wav" : "/reveal-thunder-v4.mp3", 1.0);
+          playSound(theme === "tiki" ? "/reveal-drums-boom.wav" : theme === "cyber" ? "/reveal-electric.wav" : theme === "spring" ? "/reveal-koto.wav" : theme === "steam" ? "/reveal-steam.wav" : theme === "winter" ? "/reveal-santa.wav" : theme === "fall" ? "/reveal-owl.wav" : "/reveal-thunder-v4.mp3", 1.0);
         } catch (e) { /* audio */ }
         setRevealFlash(true);
         setTimeout(() => setRevealFlash(false), 1200);
