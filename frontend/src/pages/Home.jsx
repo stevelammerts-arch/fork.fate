@@ -135,7 +135,7 @@ function AmbianceScene({ theme, cfg }) {
           style={{ top: c.top, width: c.size, filter: "drop-shadow(0 0 10px rgba(34,224,224,0.55))", animation: `${c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite both` }} />
       ))}
       {cfg.neon && <div className="absolute left-1/2 top-[15%] z-[1] w-[62vw] max-w-xs -translate-x-1/2"><img src={cfg.neon} alt="" className="w-full object-contain" style={{ mixBlendMode: "screen", animation: "ffNeonFloat 6s ease-in-out infinite" }} /></div>}
-      {cfg.wall && <img src={cfg.wall} alt="" className="absolute bottom-0 left-0 z-[1] w-full object-cover object-bottom opacity-60" style={{ maxHeight: "52vh" }} />}
+      {cfg.wall && <img src={cfg.wall} alt="" className="absolute bottom-0 left-0 z-[1] w-full object-cover object-bottom opacity-60" style={{ maxHeight: "70vh" }} />}
       {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
       {cfg.console && <img src={cfg.console} alt="" className="absolute bottom-0 left-[-2%] z-[4] h-[74vh] object-contain opacity-80" />}
       {cfg.device && (
