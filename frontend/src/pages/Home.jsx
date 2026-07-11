@@ -31,20 +31,58 @@ import { useTheme, setTheme } from "../hooks/useTheme";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-const FALL_LEAF_SRCS = ["/leaf-red.png", "/leaf-orange.png", "/leaf-yellow.png", "/leaf-brown.png"];
-const FALLING_LEAVES = Array.from({ length: 12 }).map((_, i) => ({
-  src: FALL_LEAF_SRCS[i % 4],
+const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => ({
   left: `${(i * 8 + 4) % 94}%`,
   size: 22 + (i % 3) * 12,
   dur: 9 + (i % 5) * 2.2,
   delay: (i % 6) * 1.6,
 }));
 
+const SEASONS = {
+  fall: {
+    grad: "linear-gradient(180deg,#FBF3E8 0%,#F5E6D0 55%,#EFDCC0 100%)",
+    tree: "/fall-tree.png", decorRight: "/fall-jackolanterns.png", decorRightGlow: true, decorLeft: "/fall-pumpkins.png",
+    items: ["/leaf-red.png", "/leaf-orange.png", "/leaf-yellow.png", "/leaf-brown.png"], falling: true, hint: "#C0451B",
+  },
+  winter: {
+    grad: "linear-gradient(180deg,#EAF3FA 0%,#DCEAF5 55%,#CFE0EE 100%)",
+    tree: "/winter-tree.png", decorLeft: "/winter-decor.png",
+    items: ["/flake-blue.png", "/flake-white.png", "/flake-silver.png"], falling: true, hint: "#2E77A6",
+  },
+  spring: {
+    grad: "linear-gradient(180deg,#F3FBEF 0%,#FBEFF5 55%,#EFF7E6 100%)",
+    tree: "/spring-tree.png", decorLeft: "/spring-decor.png",
+    items: ["/blossom-pink.png", "/blossom-white.png", "/petal-coral.png"], falling: true, hint: "#D46A9F",
+  },
+  summer: {
+    grad: "linear-gradient(180deg,#BFE8F7 0%,#8FD3EE 44%,#5FB8D9 62%,#F3E2B3 62%,#EAD199 100%)",
+    tree: "/summer-tree.png", decorLeft: "/summer-decor.png", sun: "/summer-sun.png",
+    items: ["/summer-sun.png", "/summer-ball.png", "/summer-icecream.png"], falling: false, hint: "#E07E17",
+  },
+};
+
+function SeasonScene({ theme, cfg }) {
+  return (
+    <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`season-scene-${theme}`}>
+      <div className="absolute inset-0" style={{ background: cfg.grad }} />
+      {cfg.sun && <img src={cfg.sun} alt="" className="absolute right-[24%] top-[5%] w-20 opacity-90" style={{ animation: "ffGlow 5s ease-in-out infinite" }} />}
+      <img src={cfg.tree} alt="" className="absolute bottom-0 right-0 h-[62vh] w-auto object-contain opacity-90 sm:h-[86vh]" style={{ maxWidth: "62vw" }} />
+      {cfg.decorRight && <img src={cfg.decorRight} alt="" className="absolute bottom-0 right-[3%] w-[36vw] max-w-md object-contain sm:w-[24vw]" style={cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : undefined} />}
+      {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className="absolute bottom-0 left-0 w-[42vw] max-w-sm object-contain opacity-95 sm:left-[2%] sm:w-[26vw]" />}
+      {cfg.falling && FALLING_SPRITES.map((l, i) => (
+        <img key={i} src={cfg.items[i % cfg.items.length]} alt="" className="absolute top-0 opacity-90"
+          style={{ left: l.left, width: l.size, height: l.size, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }} />
+      ))}
+    </div>
+  );
+}
+
 
 export default function Home() {
   const { theme } = useTheme();
   const light = theme !== "dark";
-  const fall = theme === "fall";
+  const seasonCfg = SEASONS[theme] || null;
+  const season = seasonCfg ? theme : null;
   const ghost = light
     ? "border-[#E4E4E7] text-[#3F3F46] hover:bg-[#F4F4F5]"
     : "border-white/25 text-white hover:bg-white/10";
@@ -538,19 +576,8 @@ export default function Home() {
           style={{ backgroundImage: "url('/cafe-bg-light.png')", opacity: 0.28 }}
         />
       )}
-      {/* Fall theme: warm cream wash, ancient oak on the right, tumbling leaves */}
-      {fall && (
-        <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid="fall-scene">
-          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg,#FBF3E8 0%,#F5E6D0 55%,#EFDCC0 100%)" }} />
-          <img src="/fall-tree.png" alt="" className="absolute bottom-0 right-0 hidden h-[92vh] w-auto object-contain opacity-90 md:block" style={{ maxWidth: "58vw" }} />
-          <img src="/fall-jackolanterns.png" alt="" className="absolute bottom-0 right-[3%] hidden w-[28vw] max-w-md object-contain md:block" style={{ animation: "ffGlow 3.6s ease-in-out infinite" }} />
-          <img src="/fall-pumpkins.png" alt="" className="absolute bottom-0 left-[3%] hidden w-[22vw] max-w-xs object-contain opacity-95 md:block" />
-          {FALLING_LEAVES.map((l, i) => (
-            <img key={i} src={l.src} alt="" className="absolute top-0 opacity-90"
-              style={{ left: l.left, width: l.size, height: l.size, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }} />
-          ))}
-        </div>
-      )}
+      {/* Seasonal themes: tree + decor + falling sprites */}
+      {seasonCfg && <SeasonScene theme={theme} cfg={seasonCfg} />}
       {/* Dark-mode: decorative reaper background with load animation */}
       {!light && (
       <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>
@@ -638,10 +665,19 @@ export default function Home() {
                   <DropdownMenuItem data-testid="theme-option-fall" onClick={() => setTheme("fall")} className="gap-2">
                     <Leaf className="h-4 w-4" /> Fall {theme === "fall" && <Check className="ml-auto h-4 w-4" />}
                   </DropdownMenuItem>
+                  <DropdownMenuItem data-testid="theme-option-winter" onClick={() => setTheme("winter")} className="gap-2">
+                    <Snowflake className="h-4 w-4" /> Winter {theme === "winter" && <Check className="ml-auto h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem data-testid="theme-option-spring" onClick={() => setTheme("spring")} className="gap-2">
+                    <Flower2 className="h-4 w-4" /> Spring {theme === "spring" && <Check className="ml-auto h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem data-testid="theme-option-summer" onClick={() => setTheme("summer")} className="gap-2">
+                    <Umbrella className="h-4 w-4" /> Summer {theme === "summer" && <Check className="ml-auto h-4 w-4" />}
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
               {themeHint && (
-                <div data-testid="theme-hint" className={`absolute left-1/2 top-full z-40 mt-2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold text-white shadow-lg ${fall ? "bg-[#C0451B]" : light ? "bg-[#4F6F47]" : "bg-[#E01E26]"}`}>
+                <div data-testid="theme-hint" style={{ backgroundColor: seasonCfg ? seasonCfg.hint : light ? "#4F6F47" : "#E01E26" }} className="absolute left-1/2 top-full z-40 mt-2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold text-white shadow-lg">
                   Pick a theme 🍂
                   <button onClick={dismissThemeHint} aria-label="Dismiss theme hint" className="opacity-80 hover:opacity-100">✕</button>
                 </div>
@@ -1322,11 +1358,11 @@ export default function Home() {
 const DECK_SIZE = 5;
 
 // Branded card back shown on every shuffling card (photo only appears on the landed winner)
-function CardBack({ light, fall, leaf }) {
-  if (fall) {
+function CardBack({ light, seasonItem }) {
+  if (seasonItem) {
     return (
-      <div className="absolute inset-0 grid place-items-center bg-[#FBF3E8]" data-testid="card-back">
-        <img src={leaf} alt="" className="h-3/4 w-3/4 object-contain drop-shadow-md" />
+      <div className="absolute inset-0 grid place-items-center bg-[#F5F0E6]" data-testid="card-back">
+        <img src={seasonItem} alt="" className="h-3/4 w-3/4 object-contain drop-shadow-md" />
       </div>
     );
   }
@@ -1375,7 +1411,7 @@ function CardFront({ src, light }) {
   );
 }
 
-function ShufflingDeck({ cards, flash, landed, light, fall }) {
+function ShufflingDeck({ cards, flash, landed, light, season, seasonItems }) {
   const source = cards.length ? cards : (flash ? [flash] : []);
   // Always fill a full visual deck so the shuffle never looks like a single card,
   // even when the filtered result set is tiny (repeats are visual-only).
@@ -1449,7 +1485,7 @@ function ShufflingDeck({ cards, flash, landed, light, fall }) {
               {showPhoto ? (
                 <CardFront src={c.image} light={light} />
               ) : (
-                <CardBack light={light} fall={fall} leaf={FALL_LEAF_SRCS[i % FALL_LEAF_SRCS.length]} />
+                <CardBack light={light} seasonItem={season && seasonItems ? seasonItems[i % seasonItems.length] : null} />
               )}
             </motion.div>
             );
