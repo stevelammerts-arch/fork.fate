@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import CrawlBadgeDialog from "./CrawlBadgeDialog";
 import CrawlMap from "./CrawlMap";
 import { orderCrawlRoute as orderRoute, crawlHaversine as haversine } from "../pages/homeConstants";
+import { useLang } from "../i18n/i18n";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const ARRIVE_RADIUS_MI = 0.06; // ~95m — close enough to count as "arrived"
@@ -28,6 +29,7 @@ const dirUrl = (from, to) =>
 // shared with the group via a short link, and progress can be checked off (manual
 // or auto via GPS) as the crew conquers each stop.
 export default function PubCrawlDialog({ open, onClose, results, mode, origin, destination, shared = false, crawlLabel = "", initialStops = null }) {
+  const { t } = useLang();
   const maxStops = Math.min(6, results.length);
   const [route, setRoute] = useState([]);
   const [dropped, setDropped] = useState({});
@@ -100,7 +102,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
           return changed ? nv : v;
         });
       },
-      () => { toast.error("Couldn't access location for auto check-in"); setAutoGps(false); },
+      () => { toast.error(t("Couldn't access location for auto check-in")); setAutoGps(false); },
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
     );
     return () => { if (watchRef.current != null) navigator.geolocation.clearWatch(watchRef.current); };
@@ -138,10 +140,10 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
         await navigator.share({ title: label, text, url: link });
       } else {
         await navigator.clipboard.writeText(text);
-        toast.success("Crawl link copied — drop it in the group chat!");
+        toast.success(t("Crawl link copied — drop it in the group chat!"));
       }
     } catch (e) {
-      if (e?.name !== "AbortError") toast.error("Couldn't create a share link — try again");
+      if (e?.name !== "AbortError") toast.error(t("Couldn't create a share link — try again"));
     } finally {
       setSharing(false);
     }
@@ -171,13 +173,13 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
           {stops.length > 0 && (
             <div className="mt-1" data-testid="crawl-progress">
               <div className="mb-1 flex items-center justify-between text-xs font-bold text-[#A0A0A0]">
-                <span>{visitedCount} / {stops.length} conquered</span>
+                <span>{visitedCount} / {stops.length} {t("conquered")}</span>
                 <button
                   onClick={() => setAutoGps((v) => !v)}
                   data-testid="crawl-autogps-toggle"
                   className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold transition-colors ${autoGps ? "border-[#4ADE80] bg-[#4ADE80]/15 text-[#4ADE80]" : "border-[#3A3A3A] text-white hover:bg-white/10"}`}
                 >
-                  <LocateFixed className="h-3.5 w-3.5" /> {autoGps ? "Auto check-in ON" : "Auto check-in"}
+                  <LocateFixed className="h-3.5 w-3.5" /> {autoGps ? t("Auto check-in ON") : t("Auto check-in")}
                 </button>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-[#2A2A2A]">
@@ -208,13 +210,13 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
                         {s.rating ? <span className="inline-flex items-center gap-1"><Star className="h-3 w-3 fill-[#E01E26] text-[#E01E26]" />{s.rating}</span> : null}
                         {s.cuisine ? <span>· {s.cuisine}</span> : null}
                         {s.distance != null ? <span className="inline-flex items-center gap-1">· <MapPin className="h-3 w-3" />{s.distance} mi</span> : null}
-                        {typeof s.open_now === "boolean" ? <span className={s.open_now ? "text-[#4ADE80]" : "text-[#8A8A8A]"}>· {s.open_now ? "Open" : "Closed"}</span> : null}
+                        {typeof s.open_now === "boolean" ? <span className={s.open_now ? "text-[#4ADE80]" : "text-[#8A8A8A]"}>· {s.open_now ? t("Open") : t("Closed")}</span> : null}
                       </p>
                     </div>
                     {s.google_url && (
                       <a href={s.google_url} target="_blank" rel="noopener noreferrer" data-testid={`crawl-directions-${i}`}
                         className="inline-flex items-center gap-1 rounded-full border border-[#3A3A3A] px-3 py-1.5 text-xs font-bold text-white hover:bg-white/10">
-                        <ExternalLink className="h-3.5 w-3.5" /> Map
+                        <ExternalLink className="h-3.5 w-3.5" /> {t("Map")}
                       </a>
                     )}
                     {!shared && (
@@ -233,7 +235,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
                       className="my-1 ml-4 flex items-center gap-2 pl-0.5 text-[11px] font-semibold text-[#8A8A8A] transition-colors hover:text-[#E01E26]"
                     >
                       <Navigation className="h-3.5 w-3.5" />
-                      Walk to next{leg !== Infinity ? ` · ${leg.toFixed(1)} mi` : ""}
+                      {t("Walk to next")}{leg !== Infinity ? ` · ${leg.toFixed(1)} mi` : ""}
                     </a>
                   )}
                 </div>
@@ -241,7 +243,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
             })}
             {stops.length === 0 && (
               <p className="rounded-xl border border-dashed border-[#3A3A3A] p-6 text-center text-sm text-[#A0A0A0]">
-                No stops selected — shuffle a fresh crawl below.
+                {t("No stops selected — shuffle a fresh crawl below.")}
               </p>
             )}
           </div>
@@ -251,7 +253,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
             <input
               value={crew}
               onChange={(e) => setCrew(e.target.value.slice(0, 60))}
-              placeholder="Who's with you? (e.g. Sam, Alex)"
+              placeholder={t("Who's with you? (e.g. Sam, Alex)")}
               data-testid="crawl-crew-input"
               className="w-full bg-transparent text-sm text-white placeholder-[#6B7075] outline-none"
             />
@@ -261,18 +263,18 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
             {!shared && (
               <button onClick={reshuffle} data-testid="crawl-reshuffle-button"
                 className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[#3A3A3A] px-5 py-3 text-sm font-bold text-white hover:bg-white/10">
-                <Shuffle className="h-4 w-4" /> New crawl
+                <Shuffle className="h-4 w-4" /> {t("New crawl")}
               </button>
             )}
             <button onClick={shareCrawl} disabled={!stops.length || sharing} data-testid="crawl-share-button"
               className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#E01E26] px-5 py-3 text-sm font-bold text-white hover:bg-[#FF2E38] disabled:opacity-40">
-              <Share2 className="h-4 w-4" /> {sharing ? "Creating link…" : "Share with group"}
+              <Share2 className="h-4 w-4" /> {sharing ? t("Creating link…") : t("Share with group")}
             </button>
           </div>
 
           <button onClick={() => setBadgeOpen(true)} disabled={!allDone} data-testid="crawl-complete-button"
             className={`mt-1 inline-flex w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${allDone ? "border-[#4ADE80] bg-[#4ADE80] text-black hover:bg-[#3ecb70]" : "border-[#3A3A3A] text-[#8A8A8A]"}`}>
-            <Trophy className="h-4 w-4" /> {allDone ? "Crawl conquered — claim your badge" : `Check off all stops to unlock (${visitedCount}/${stops.length})`}
+            <Trophy className="h-4 w-4" /> {allDone ? t("Crawl conquered — claim your badge") : `${t("Check off all stops to unlock")} (${visitedCount}/${stops.length})`}
           </button>
         </DialogContent>
       </Dialog>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
+import { useLang } from "../i18n/i18n";
 import {
   Dialog,
   DialogContent,
@@ -64,6 +65,7 @@ const fieldCls =
 
 export default function AddRestaurantDialog({ onAdded, mode = "food", open: openProp, onOpenChange, hideTrigger = false }) {
   const [openState, setOpenState] = useState(false);
+  const { t } = useLang();
   const isControlled = openProp !== undefined;
   const open = isControlled ? openProp : openState;
   const setOpen = (v) => { if (isControlled) onOpenChange?.(v); else setOpenState(v); };
@@ -84,7 +86,7 @@ export default function AddRestaurantDialog({ onAdded, mode = "food", open: open
 
   const submit = async () => {
     if (!form.name.trim() || !form.cuisine) {
-      toast.error("Name and cuisine are required");
+      toast.error(t("Name and cuisine are required"));
       return;
     }
     setSaving(true);
@@ -99,11 +101,11 @@ export default function AddRestaurantDialog({ onAdded, mode = "food", open: open
         category: mode,
       };
       const { data } = await axios.post(`${API}/restaurants`, payload);
-      toast.success(`Thanks! "${data.name}" was submitted for review and will appear once approved.`);
+      toast.success(t("Thanks! Your spot was submitted for review and will appear once approved."));
       setOpen(false);
       setForm({ name: "", cuisine: "", price: "$$", rating: 4.5, distance: 1.0, description: "", address: "", sponsored: false });
     } catch (e) {
-      toast.error("Could not add restaurant");
+      toast.error(t("Could not add restaurant"));
     } finally {
       setSaving(false);
     }
@@ -117,22 +119,22 @@ export default function AddRestaurantDialog({ onAdded, mode = "food", open: open
             data-testid="open-add-restaurant-button"
             className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E4E7] bg-white px-3 py-1.5 text-xs font-semibold text-[#0E0E0E] transition-colors hover:bg-[#E2E4E7] sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
           >
-            <Plus className="h-4 w-4" /> <span>Add spot</span>
+            <Plus className="h-4 w-4" /> <span>{t("Add spot")}</span>
           </button>
         </DialogTrigger>
       )}
       <DialogContent className="rounded-3xl border-[#E2E4E7] bg-white sm:max-w-lg" data-ff-dialog>
         <DialogHeader>
           <DialogTitle className="font-serif text-3xl font-medium text-[#0E0E0E]">
-            Add a restaurant
+            {t("Add a restaurant")}
           </DialogTitle>
           <DialogDescription className="font-sans text-sm text-[#6B7075]">
-            Suggest a local spot. New submissions are quickly reviewed before joining the roulette pool.
+            {t("Suggest a local spot. New submissions are quickly reviewed before joining the roulette pool.")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">Name</Label>
+            <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">{t("Name")}</Label>
             <Input
               data-testid="add-name-input"
               value={form.name}
@@ -144,10 +146,10 @@ export default function AddRestaurantDialog({ onAdded, mode = "food", open: open
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">Cuisine</Label>
+              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">{t("Cuisine")}</Label>
               <Select value={form.cuisine} onValueChange={(v) => set("cuisine", v)}>
                 <SelectTrigger data-testid="add-cuisine-select" className={fieldCls}>
-                  <SelectValue placeholder="Select" />
+                  <SelectValue placeholder={t("Select")} />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
                   {cuisineOptions.map((c) => (
@@ -157,15 +159,15 @@ export default function AddRestaurantDialog({ onAdded, mode = "food", open: open
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">Price</Label>
+              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">{t("Price")}</Label>
               <Select value={form.price} onValueChange={(v) => set("price", v)}>
                 <SelectTrigger data-testid="add-price-select" className={fieldCls}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
-                  <SelectItem value="$">$ · Budget</SelectItem>
-                  <SelectItem value="$$">$$ · Mid</SelectItem>
-                  <SelectItem value="$$$">$$$ · Fancy</SelectItem>
+                  <SelectItem value="$">$ · {t("Budget")}</SelectItem>
+                  <SelectItem value="$$">$$ · {t("Mid")}</SelectItem>
+                  <SelectItem value="$$$">$$$ · {t("Fancy")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -173,7 +175,7 @@ export default function AddRestaurantDialog({ onAdded, mode = "food", open: open
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">Rating</Label>
+              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">{t("Rating")}</Label>
               <Input
                 data-testid="add-rating-input"
                 type="number" step="0.1" min="0" max="5"
@@ -183,7 +185,7 @@ export default function AddRestaurantDialog({ onAdded, mode = "food", open: open
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">Distance (km)</Label>
+              <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">{t("Distance (km)")}</Label>
               <Input
                 data-testid="add-distance-input"
                 type="number" step="0.1" min="0"
@@ -195,12 +197,12 @@ export default function AddRestaurantDialog({ onAdded, mode = "food", open: open
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">Description</Label>
+            <Label className="text-xs font-bold tracking-[0.15em] uppercase text-[#6B7075]">{t("Description")}</Label>
             <Textarea
               data-testid="add-description-input"
               value={form.description}
               onChange={(e) => set("description", e.target.value)}
-              placeholder="What makes it special?"
+              placeholder={t("What makes it special?")}
               className={`${fieldCls} min-h-[80px]`}
             />
           </div>
@@ -212,7 +214,7 @@ export default function AddRestaurantDialog({ onAdded, mode = "food", open: open
             disabled={saving}
             className="w-full rounded-full bg-[#E01E26] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#B3141A] disabled:opacity-60"
           >
-            {saving ? "Submitting…" : "Submit for review"}
+            {saving ? t("Submitting…") : t("Submit for review")}
           </button>
         </DialogFooter>
       </DialogContent>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useLang } from "../i18n/i18n";
 
 const PILL_TAP = { scale: 0.94 };
 const COLLAPSE_LIMIT = 12;
@@ -35,6 +36,7 @@ export default function Filters({
   toggleCuisine,
   labelColor,
 }) {
+  const { t } = useLang();
   const [expanded, setExpanded] = useState(false);
 
   // Collapse back to the short list whenever the category (chip set) changes.
@@ -73,7 +75,7 @@ export default function Filters({
             className="shrink-0 rounded-full border border-dashed border-[#C7CBD1] bg-transparent px-5 py-2.5 text-sm font-bold tracking-wide text-[#0E0E0E] transition-colors duration-200 hover:bg-[#EDEEF0]"
             style={labelColor ? { color: labelColor, borderColor: labelColor } : undefined}
           >
-            {expanded ? "Show less" : `+ ${hiddenCount} more`}
+            {expanded ? t("Show less") : `+ ${hiddenCount} ${t("more")}`}
           </motion.button>
         )}
       </Group>

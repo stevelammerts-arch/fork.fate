@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Star, MapPin, Users, Trophy, Plus, RotateCcw, Dices } from "lucide-react";
+import { useLang } from "../i18n/i18n";
 
 // Group mode: everyone votes on 3 fate-dealt candidates (unlimited votes each), highest tally wins.
 export default function GroupVote({ picks, onReSpin, onWinner }) {
+  const { t } = useLang();
   const [votes, setVotes] = useState(() => picks.map(() => 0));
   const [locked, setLocked] = useState(false);
 
@@ -22,14 +24,14 @@ export default function GroupVote({ picks, onReSpin, onWinner }) {
     <div className="grid h-full min-h-[400px] content-start gap-4 p-1" data-testid="group-vote">
       <div className="flex items-center justify-between">
         <p className="flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#E01E26]">
-          <Users className="h-4 w-4" /> Group vote
+          <Users className="h-4 w-4" /> {t("Group vote")}
         </p>
         <span className="font-sans text-xs font-bold text-[#6B7075]" data-testid="group-vote-total">
-          {total} vote{total !== 1 && "s"}
+          {total} {total !== 1 ? t("votes") : t("vote")}
         </span>
       </div>
       <p className="font-serif text-2xl leading-tight text-[#0E0E0E]">
-        Fate dealt three. Tap to vote, then lock it in.
+        {t("Fate dealt three. Tap to vote, then lock it in.")}
       </p>
 
       <div className="mt-1 space-y-3">
@@ -58,7 +60,7 @@ export default function GroupVote({ picks, onReSpin, onWinner }) {
                   <span>{p.cuisine} · {p.price}</span>
                   <span className="flex items-center gap-1">
                     <Star className="h-3 w-3 fill-[#E01E26] text-[#E01E26]" />
-                    {p.rating > 0 ? p.rating.toFixed(1) : "New"}
+                    {p.rating > 0 ? p.rating.toFixed(1) : t("New")}
                   </span>
                   <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {p.distance} mi</span>
                 </p>
@@ -89,7 +91,7 @@ export default function GroupVote({ picks, onReSpin, onWinner }) {
           data-testid="group-lock-in-button"
           className="inline-flex items-center gap-2 rounded-full bg-[#E01E26] px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#B3141A] disabled:opacity-60"
         >
-          <Trophy className="h-4 w-4" /> {total === 0 ? "Lock in random" : "Lock in winner"}
+          <Trophy className="h-4 w-4" /> {total === 0 ? t("Lock in random") : t("Lock in winner")}
         </button>
         <button
           onClick={onReSpin}
@@ -97,7 +99,7 @@ export default function GroupVote({ picks, onReSpin, onWinner }) {
           data-testid="group-respin-button"
           className="inline-flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-5 py-2.5 text-sm font-semibold text-[#0E0E0E] transition-colors hover:bg-[#EDEEF0] disabled:opacity-60"
         >
-          <Dices className="h-4 w-4" /> Deal 3 again
+          <Dices className="h-4 w-4" /> {t("Deal 3 again")}
         </button>
       </div>
     </div>
