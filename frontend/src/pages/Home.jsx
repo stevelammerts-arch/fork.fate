@@ -48,7 +48,7 @@ const FLYING_BIRDS = Array.from({ length: 5 }).map((_, i) => ({
 const SEASONS = {
   fall: {
     grad: "linear-gradient(180deg,#FBF3E8 0%,#F5E6D0 55%,#EFDCC0 100%)",
-    tree: "/fall-tree.png", decorRight: "/fall-jackolanterns.png", decorRightGlow: true,
+    tree: "/fall-tree.png", decorRight: "/fall-jackolanterns.png", decorRightGlow: true, scarecrow: "/fall-scarecrow.png",
     items: ["/leaf-red.png", "/leaf-orange.png", "/leaf-yellow.png", "/leaf-brown.png"], falling: true, hint: "#C0451B",
   },
   winter: {
@@ -77,6 +77,7 @@ function SeasonScene({ theme, cfg }) {
       <img src={cfg.tree} alt="" className={`absolute bottom-0 ${cfg.treeSide === "left" ? "left-0" : "right-0"} w-auto object-contain opacity-[0.32] ${cfg.treeBig ? "h-[80vh] sm:h-[106vh] z-[2]" : "h-[62vh] sm:h-[86vh]"}`} style={{ maxWidth: cfg.treeBig ? "88vw" : "62vw", transform: cfg.treeFlip ? "scaleX(-1)" : undefined }} />
       {cfg.decorRight && <img src={cfg.decorRight} alt="" className={`absolute bottom-0 right-[3%] object-contain opacity-[0.32] ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : undefined} />}
       {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className={`absolute bottom-0 left-0 object-contain opacity-[0.32] sm:left-[2%] ${cfg.decorLeftBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[42vw] max-w-sm sm:w-[26vw]"}`} />}
+      {cfg.scarecrow && <img src={cfg.scarecrow} alt="" className="absolute bottom-0 left-[1%] z-[2] h-[34vh] w-auto object-contain opacity-[0.42] sm:h-[46vh] sm:left-[3%]" />}
       {cfg.falling && FALLING_SPRITES.map((l, i) => (
         <img key={i} src={cfg.items[i % cfg.items.length]} alt="" className="absolute top-0 opacity-40"
           style={{ left: l.left, width: l.size, height: l.size, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }} />
