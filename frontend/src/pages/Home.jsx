@@ -356,7 +356,7 @@ export default function Home() {
     try {
       if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e0) { /* ignore */ } grooveRef.current = null; }
       if (localStorage.getItem("ff_muted") !== "1") {
-        thunderRef.current = new Audio(theme === "cyber" ? "/reveal-electric.wav" : theme === "tiki" ? "/reveal-drums-boom.wav" : theme === "spring" ? "/reveal-koto.wav" : light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
+        thunderRef.current = new Audio(theme === "cyber" ? "/reveal-electric.wav" : theme === "tiki" ? "/reveal-drums-boom.wav" : theme === "spring" ? "/reveal-koto.wav" : theme === "steam" ? "/reveal-steam.wav" : light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
         thunderRef.current.volume = 1.0;
         thunderRef.current.load();
         if (theme === "tiki") {
@@ -609,7 +609,7 @@ export default function Home() {
         setFlashHit(true);
         try {
           if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e2) { /* ignore */ } grooveRef.current = null; }
-          playSound(theme === "tiki" ? "/reveal-drums-boom.wav" : theme === "cyber" ? "/reveal-electric.wav" : theme === "spring" ? "/reveal-koto.wav" : "/reveal-thunder-v4.mp3", 1.0);
+          playSound(theme === "tiki" ? "/reveal-drums-boom.wav" : theme === "cyber" ? "/reveal-electric.wav" : theme === "spring" ? "/reveal-koto.wav" : theme === "steam" ? "/reveal-steam.wav" : "/reveal-thunder-v4.mp3", 1.0);
         } catch (e) { /* audio */ }
         setRevealFlash(true);
         setTimeout(() => setRevealFlash(false), 1200);
