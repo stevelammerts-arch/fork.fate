@@ -577,7 +577,7 @@ export default function Home() {
                 style={{ background: "linear-gradient(115deg, transparent 46%, rgba(255,255,255,0.85) 50%, transparent 54%)" }}
               />
             </div>
-            <span className={`font-serif text-2xl font-semibold tracking-tight md:text-4xl ${light ? "text-[#18181B]" : "text-white"}`}>
+            <span className={`font-serif text-3xl font-semibold tracking-tight md:text-5xl ${light ? "text-[#18181B]" : "text-white"}`}>
               Fork·Fate
             </span>
           </div>
@@ -632,7 +632,7 @@ export default function Home() {
               type="button"
               onClick={() => setAddOpen(true)}
               data-testid="open-add-restaurant-button"
-              className="hidden items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-5 py-2.5 text-sm font-semibold text-[#0E0E0E] transition-colors hover:bg-[#E2E4E7] sm:inline-flex"
+              className={`hidden items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold text-[#0E0E0E] transition-colors sm:inline-flex ${light ? "border-[#C8B79A] bg-[#D8C3A5] hover:bg-[#CBB08A]" : "border-[#E2E4E7] bg-white hover:bg-[#E2E4E7]"}`}
             >
               <Plus className="h-4 w-4" /> <span>Add spot</span>
             </button>
@@ -894,7 +894,7 @@ export default function Home() {
                   className="inline-flex items-center gap-3 rounded-full border-2 border-[#0E0E0E] bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
                 >
                   <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
-                  {loading ? "Finding spots…" : spinning ? "Shuffling…" : groupMode ? (light ? "Pick 3 Spots" : "Deal 3 Fates!") : (light ? "Spin the Wheel" : "Deal Your Fate!")}
+                  {loading ? "Finding spots…" : spinning ? "Shuffling…" : groupMode ? (light ? "Pick 3 Spots" : "Deal 3 Fates!") : (light ? "Shuffle the Deck" : "Deal Your Fate!")}
                 </motion.button>
                 {results.length > 0 && (
                   <span className="font-sans text-sm text-[#6B7075]">

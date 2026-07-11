@@ -118,3 +118,5 @@ body {
 [data-ff-theme="light"] [data-ff-scope="app"] .bg-\[\#FDF6F6\]{background-color:#EEF4EA !important;}
 [data-ff-theme="light"] [data-ff-scope="app"] .hover\:bg-\[\#FCECEC\]:hover{background-color:#EEF4EA !important;}
 [data-ff-theme="light"] [data-ff-scope="app"] ::selection{background:#A8C99E;color:#24391F;}
+[data-ff-theme="light"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/25{--tw-shadow-color:rgba(122,168,110,0.30) !important;}
+[data-ff-theme="light"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/30{--tw-shadow-color:rgba(122,168,110,0.30) !important;}
