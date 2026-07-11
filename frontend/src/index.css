@@ -338,40 +338,36 @@ body {
    broken mask turns the light lines into a field of twinkling sparkles; two layers
    drift at different speeds for depth. */
 .ff-sea-shimmer {
-  opacity: 0.8;
+  opacity: 0.92;
 }
 .ff-sea-wave {
   position: absolute;
-  left: 0; right: 0; top: -64px; bottom: -64px;
-  filter: blur(0.5px);
+  left: 0; right: 0; top: -80px; bottom: -80px;
+  filter: url(#ff-sea-warp) blur(1px);
   will-change: transform;
   transform: translateZ(0);
 }
-/* Irregular line spacing + slight opposing tilts + offset non-uniform masks so the
-   two layers overlap into a quasi-random sparkle field (not an even grid of dashes). */
+/* Sparse, soft, slow glints (one blurred highlight every ~60–90px) that drift
+   gently shoreward — reads as ambient sparkle, not dense rows of dashes. */
 .ff-sea-wave-a {
-  background: repeating-linear-gradient(1.4deg,
-    rgba(255,255,255,0.55) 0 2px, rgba(255,255,255,0) 2px 12px,
-    rgba(255,255,255,0.34) 12px 13.5px, rgba(255,255,255,0) 13.5px 29px,
-    rgba(255,255,255,0.46) 29px 31px, rgba(255,255,255,0) 31px 47px);
-  -webkit-mask-image: repeating-linear-gradient(90deg, transparent 0 6px, #000 12px 22px, transparent 30px 42px, #000 50px 58px, transparent 66px 84px);
-  mask-image: repeating-linear-gradient(90deg, transparent 0 6px, #000 12px 22px, transparent 30px 42px, #000 50px 58px, transparent 66px 84px);
-  -webkit-mask-size: 118px 100%; mask-size: 118px 100%;
-  animation: ffSeaFlowA 3.6s linear infinite;
+  background: repeating-linear-gradient(1.5deg,
+    rgba(255,255,255,0.6) 0 2px, rgba(255,255,255,0) 2px 58px);
+  -webkit-mask-image: repeating-linear-gradient(90deg, transparent 0 14px, #000 28px 46px, transparent 62px 98px);
+  mask-image: repeating-linear-gradient(90deg, transparent 0 14px, #000 28px 46px, transparent 62px 98px);
+  -webkit-mask-size: 132px 100%; mask-size: 132px 100%;
+  animation: ffSeaFlowA 9s linear infinite;
 }
 .ff-sea-wave-b {
-  background: repeating-linear-gradient(-1.7deg,
-    rgba(255,255,255,0.3) 0 1.5px, rgba(255,255,255,0) 1.5px 21px,
-    rgba(255,255,255,0.2) 21px 22px, rgba(255,255,255,0) 22px 43px,
-    rgba(255,255,255,0.26) 43px 44.5px, rgba(255,255,255,0) 44.5px 63px);
-  -webkit-mask-image: repeating-linear-gradient(90deg, transparent 0 9px, #000 17px 31px, transparent 41px 60px);
-  mask-image: repeating-linear-gradient(90deg, transparent 0 9px, #000 17px 31px, transparent 41px 60px);
-  -webkit-mask-size: 143px 100%; mask-size: 143px 100%;
-  -webkit-mask-position: 47px 0; mask-position: 47px 0;
-  animation: ffSeaFlowB 5.2s linear infinite;
+  background: repeating-linear-gradient(-1.8deg,
+    rgba(255,255,255,0.38) 0 1.5px, rgba(255,255,255,0) 1.5px 89px);
+  -webkit-mask-image: repeating-linear-gradient(90deg, transparent 0 20px, #000 36px 54px, transparent 72px 110px);
+  mask-image: repeating-linear-gradient(90deg, transparent 0 20px, #000 36px 54px, transparent 72px 110px);
+  -webkit-mask-size: 170px 100%; mask-size: 170px 100%;
+  -webkit-mask-position: 61px 0; mask-position: 61px 0;
+  animation: ffSeaFlowB 13s linear infinite;
 }
-@keyframes ffSeaFlowA { from { transform: translateY(0); } to { transform: translateY(47px); } }
-@keyframes ffSeaFlowB { from { transform: translateY(0); } to { transform: translateY(63px); } }
+@keyframes ffSeaFlowA { from { transform: translateY(0); } to { transform: translateY(58px); } }
+@keyframes ffSeaFlowB { from { transform: translateY(0); } to { transform: translateY(89px); } }
 /* Seagull wingbeat — vertical squash/stretch of the silhouette reads as flapping */
 .ff-gull {
   transform-origin: 50% 42%;
