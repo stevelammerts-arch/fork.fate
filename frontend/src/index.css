@@ -152,6 +152,41 @@ body {
 [data-ff-theme="light"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#F9E9E9\]{background-color:#EEF4EA !important;}
 
 
+/* ── Spring theme accent recolor: shades of pink (was red) + soft pink (was black) ── */
+[data-ff-theme="spring"] [data-ff-scope="app"] .bg-\[\#E01E26\]{background-color:#E38DB0 !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .bg-\[\#B3141A\]{background-color:#D46A9F !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .hover\:bg-\[\#B3141A\]:hover{background-color:#D46A9F !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .bg-\[\#7A0C10\]{background-color:#D46A9F !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .text-\[\#E01E26\]{color:#C2547F !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .text-\[\#A31621\]{color:#C2547F !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .border-\[\#E01E26\]{border-color:#E38DB0 !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .fill-\[\#E01E26\]{fill:#C2547F !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .bg-\[\#E01E26\].text-white{color:#FFFFFF !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .focus\:border-\[\#E01E26\]:focus{border-color:#D46A9F !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .focus-within\:border-\[\#E01E26\]:focus-within{border-color:#D46A9F !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .bg-\[\#0E0E0E\]{background-color:#F3C4D8 !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .bg-\[\#0E0E0E\].text-white{color:#6E2647 !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .hover\:bg-\[\#2A2A2A\]:hover{background-color:#EBB0CB !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .text-\[\#0E0E0E\]{color:#5A2038 !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .border-\[\#0E0E0E\]{border-color:#EBB0CB !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .bg-\[\#FCF4F4\]{background-color:#FBEAF2 !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .hover\:bg-\[\#FCF4F4\]:hover{background-color:#FBEAF2 !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .bg-\[\#FDF6F6\]{background-color:#FBEAF2 !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .hover\:bg-\[\#FCECEC\]:hover{background-color:#FBEAF2 !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] ::selection{background:#E38DB0;color:#5A2038;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/25{--tw-shadow-color:rgba(227,141,176,0.35) !important;}
+[data-ff-theme="spring"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/30{--tw-shadow-color:rgba(227,141,176,0.35) !important;}
+[data-ff-theme="spring"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#E01E26\]{background-color:#E38DB0 !important;}
+[data-ff-theme="spring"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#B3141A\],
+[data-ff-theme="spring"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#FF2E38\]{background-color:#D46A9F !important;}
+[data-ff-theme="spring"] :is([data-ff-dialog],[data-ff-dialog] *).hover\:bg-\[\#B3141A\]:hover,
+[data-ff-theme="spring"] :is([data-ff-dialog],[data-ff-dialog] *).hover\:bg-\[\#FF2E38\]:hover,
+[data-ff-theme="spring"] :is([data-ff-dialog],[data-ff-dialog] *).hover\:bg-\[\#E01E26\]:hover{background-color:#D46A9F !important;}
+[data-ff-theme="spring"] :is([data-ff-dialog],[data-ff-dialog] *).text-\[\#E01E26\]{color:#C2547F !important;}
+[data-ff-theme="spring"] :is([data-ff-dialog],[data-ff-dialog] *).border-\[\#E01E26\]{border-color:#E38DB0 !important;}
+[data-ff-theme="spring"] :is([data-ff-dialog],[data-ff-dialog] *).ring-\[\#E01E26\]{--tw-ring-color:#E38DB0 !important;}
+
+
 /* ── Fall (autumn) theme accent recolor: burnt orange/red (was red) + brown (was black) ── */
 [data-ff-theme="fall"] [data-ff-scope="app"] .bg-\[\#E01E26\]{background-color:#C0451B !important;}
 [data-ff-theme="fall"] [data-ff-scope="app"] .bg-\[\#B3141A\]{background-color:#A63A15 !important;}
