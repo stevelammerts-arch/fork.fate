@@ -27,21 +27,29 @@ dur = T / SR
 env = 0.12 + 0.88 * (np.linspace(0, 1, T) ** 1.7)
 track *= env
 
-# sudden punchy bass-drum thump at the end (tight kick, not a slow boom)
-def boom(dur=0.55):
+# timpani (kettle-drum) hit at the end: tuned, ringing boom with mallet attack
+def boom(dur=1.9):
     n = int(SR * dur)
     tt = np.linspace(0, dur, n, endpoint=False)
-    # fast pitch drop 150 -> 50 Hz in ~25 ms = tight kick "thump"
-    f = 50 + 100 * np.exp(-tt * 45)
-    phase = 2 * np.pi * np.cumsum(f) / SR
-    tone = np.sin(phase)
-    sub = 0.8 * np.sin(2 * np.pi * 48 * tt) * np.exp(-tt * 9)
-    click = np.random.randn(n) * np.exp(-tt * 900) * 0.5   # beater attack
-    body_env = np.exp(-tt * 8)                              # short, punchy decay
-    return ((tone * body_env + sub) + click).astype(np.float32)
+    f0 = 116.0  # low timpani pitch (~A2)
+    # timpani principal modes give a clear sense of pitch (near-harmonic ratios)
+    ratios = [1.00, 1.50, 1.98, 2.44, 2.90, 3.60, 4.36]
+    gains  = [1.00, 0.62, 0.42, 0.30, 0.20, 0.12, 0.08]
+    decays = [3.2,  4.0,  5.2,  6.5,  8.0,  10.0, 12.0]  # higher modes ring shorter
+    body = np.zeros(n)
+    for r, g, d in zip(ratios, gains, decays):
+        # slight downward pitch glide at the attack (membrane tension settling)
+        fk = f0 * r * (1.0 + 0.03 * np.exp(-tt * 30))
+        phase = 2 * np.pi * np.cumsum(fk) / SR
+        body += g * np.sin(phase) * np.exp(-d * tt)
+    # felt-mallet attack: soft, short, band-limited thud
+    mallet = np.random.randn(n) * np.exp(-tt * 120) * 0.25
+    mallet = np.convolve(mallet, np.ones(18) / 18, mode="same")
+    b = body + mallet
+    return (b / (np.max(np.abs(b)) + 1e-9)).astype(np.float32)  # peak-normalized timpani
 
 b = boom()
-# tiny silent gap so the thump lands suddenly after the build
+# tiny silent gap so the timpani lands suddenly after the build
 gap = int(SR * 0.05)
 out_len = T + gap + len(b) + int(SR * 0.2)
 buf = np.zeros(out_len, dtype=np.float32)
@@ -49,9 +57,8 @@ buf[:T] += track
 bi = T + gap
 buf[bi:bi + len(b)] += b * 1.15
 
-# normalize loud with gentle soft-clip for weight
-buf = buf / (np.max(np.abs(buf)) + 1e-9)
-buf = np.tanh(buf * 1.5) / np.tanh(1.5)
+# light saturation on the GROOVE only (keeps loudness), timpani left with full dynamics
+buf[:T] = np.tanh(buf[:T] * 1.3) / np.tanh(1.3) * 0.62
 buf = buf / (np.max(np.abs(buf)) + 1e-9) * 0.98
 
 with wave.open("/app/frontend/public/reveal-drums.wav", "w") as w:
