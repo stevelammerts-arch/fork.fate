@@ -1059,7 +1059,7 @@ export default function Home() {
               )}
             </AnimatePresence>
             <div ref={resultRef} className="relative z-10 min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
-              <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} onReset={() => { setResult(null); setGroupPicks(null); }} onReSpin={reSpin} onReport={reportClosed} onPick={setResult} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} />
+              <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} light={light} onReset={() => { setResult(null); setGroupPicks(null); }} onReSpin={reSpin} onReport={reportClosed} onPick={setResult} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} />
             </div>
           </div>
         </div>
@@ -1552,7 +1552,7 @@ async function buildFateCard(card) {
 }
 
 
-function RevealStage({ spinning, flash, deck, result, groupPicks, mode, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite }) {
+function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite }) {
   if (!result && groupPicks && groupPicks.length > 0) {
     return <GroupVote picks={groupPicks} onReSpin={onReSpin} onWinner={onPick} />;
   }
@@ -1673,8 +1673,8 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, onReset,
             transition={DETAIL_TRANSITION}
             className="space-y-4 p-5"
           >
-            <p className="flex items-center gap-2 font-serif text-xl font-bold italic text-[#E01E26]" data-testid="reaper-line">
-              <Skull className="h-4 w-4" /> {reaperLineFor(card)}
+            <p className={`flex items-center gap-2 font-serif text-xl font-bold italic ${light ? "text-[#A31621]" : "text-[#E01E26]"}`} data-testid="reaper-line">
+              {light ? <UtensilsCrossed className="h-4 w-4" /> : <Skull className="h-4 w-4" />} {light ? lightLineFor(card) : reaperLineFor(card)}
             </p>
             {!card.open_now && (
               <p data-testid="closed-reroll-hint" className="rounded-xl bg-[#FCF4F4] px-3 py-2 font-sans text-xs font-bold text-[#E01E26]">
