@@ -332,14 +332,35 @@ body {
   0%, 100% { filter: drop-shadow(0 0 6px rgba(255,170,60,0.55)); }
   50%      { filter: drop-shadow(0 0 22px rgba(255,150,40,0.95)); }
 }
-/* Summer ocean shimmer */
-@keyframes ffSeaShimmer {
-  0%   { background-position: 0 0; }
-  100% { background-position: 240px 0; }
+/* Summer ocean shimmer — broken, near-horizontal glints that twinkle like
+   sunlight on distant water (not a single sliding ribbon). Two ripple layers
+   drift shoreward while a masked "sparkle" grid slides across to twinkle. */
+.ff-sea-shimmer {
+  background-image:
+    repeating-linear-gradient(0.6deg, rgba(255,255,255,0) 0 5px, rgba(255,255,255,0.30) 5px 6px, rgba(255,255,255,0) 6px 11px),
+    repeating-linear-gradient(-0.6deg, rgba(255,255,255,0) 0 9px, rgba(255,255,255,0.16) 9px 10px, rgba(255,255,255,0) 10px 21px);
+  background-size: 100% 11px, 100% 21px;
+  -webkit-mask-image: repeating-linear-gradient(90deg, transparent 0 10px, #000 20px 34px, transparent 44px 64px);
+  mask-image: repeating-linear-gradient(90deg, transparent 0 10px, #000 20px 34px, transparent 44px 64px);
+  -webkit-mask-size: 150px 100%;
+  mask-size: 150px 100%;
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  filter: blur(0.4px);
+  will-change: background-position, mask-position, transform;
+  animation: ffSeaRipple 5.5s linear infinite, ffSeaGlint 8s linear infinite, ffSeaBob 6s ease-in-out infinite;
+}
+@keyframes ffSeaRipple {
+  0%   { background-position: 0 0, 0 0; }
+  100% { background-position: 0 11px, 0 21px; }
+}
+@keyframes ffSeaGlint {
+  0%   { -webkit-mask-position: 0 0; mask-position: 0 0; }
+  100% { -webkit-mask-position: 150px 0; mask-position: 150px 0; }
 }
 @keyframes ffSeaBob {
   0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(3px); }
+  50%      { transform: translateY(2px); }
 }
 /* Seagulls gliding across the summer sky */
 @keyframes ffFly {
