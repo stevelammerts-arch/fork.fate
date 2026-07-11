@@ -189,6 +189,85 @@ body {
 [data-ff-theme="spring"] [data-ff-scope="app"] .bg-primary\/20{background-color:rgba(212,106,159,0.22) !important;}
 [data-ff-theme="spring"] [data-ff-scope="app"] .border-primary\/50{border-color:rgba(212,106,159,0.6) !important;}
 
+/* ── Fall slider accent (buttons already burnt-orange above) ── */
+[data-ff-theme="fall"] [data-ff-scope="app"] .bg-primary{background-color:#C0451B !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .bg-primary\/20{background-color:rgba(192,69,27,0.22) !important;}
+[data-ff-theme="fall"] [data-ff-scope="app"] .border-primary\/50{border-color:rgba(192,69,27,0.6) !important;}
+
+/* ── Winter theme accent recolor: shades of blue (was red) + soft blue (was black) ── */
+[data-ff-theme="winter"] [data-ff-scope="app"] .bg-\[\#E01E26\]{background-color:#2E77A6 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .bg-\[\#B3141A\]{background-color:#245F86 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .hover\:bg-\[\#B3141A\]:hover{background-color:#245F86 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .bg-\[\#7A0C10\]{background-color:#245F86 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .text-\[\#E01E26\]{color:#1E5A82 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .text-\[\#A31621\]{color:#1E5A82 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .border-\[\#E01E26\]{border-color:#2E77A6 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .fill-\[\#E01E26\]{fill:#1E5A82 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .bg-\[\#E01E26\].text-white{color:#FFFFFF !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .focus\:border-\[\#E01E26\]:focus{border-color:#245F86 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .focus-within\:border-\[\#E01E26\]:focus-within{border-color:#245F86 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .bg-\[\#0E0E0E\]{background-color:#C4DEF0 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .bg-\[\#0E0E0E\].text-white{color:#123A56 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .hover\:bg-\[\#2A2A2A\]:hover{background-color:#B0D2E9 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .text-\[\#0E0E0E\]{color:#123A56 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .border-\[\#0E0E0E\]{border-color:#AECDE6 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .bg-\[\#FCF4F4\]{background-color:#EAF3FA !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .hover\:bg-\[\#FCF4F4\]:hover{background-color:#EAF3FA !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .bg-\[\#FDF6F6\]{background-color:#EAF3FA !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .hover\:bg-\[\#FCECEC\]:hover{background-color:#EAF3FA !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] ::selection{background:#2E77A6;color:#FFFFFF;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/25{--tw-shadow-color:rgba(46,119,166,0.32) !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/30{--tw-shadow-color:rgba(46,119,166,0.32) !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .bg-primary{background-color:#2E77A6 !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .bg-primary\/20{background-color:rgba(46,119,166,0.22) !important;}
+[data-ff-theme="winter"] [data-ff-scope="app"] .border-primary\/50{border-color:rgba(46,119,166,0.6) !important;}
+[data-ff-theme="winter"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#E01E26\]{background-color:#2E77A6 !important;}
+[data-ff-theme="winter"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#B3141A\],
+[data-ff-theme="winter"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#FF2E38\]{background-color:#245F86 !important;}
+[data-ff-theme="winter"] :is([data-ff-dialog],[data-ff-dialog] *).hover\:bg-\[\#B3141A\]:hover,
+[data-ff-theme="winter"] :is([data-ff-dialog],[data-ff-dialog] *).hover\:bg-\[\#FF2E38\]:hover,
+[data-ff-theme="winter"] :is([data-ff-dialog],[data-ff-dialog] *).hover\:bg-\[\#E01E26\]:hover{background-color:#245F86 !important;}
+[data-ff-theme="winter"] :is([data-ff-dialog],[data-ff-dialog] *).text-\[\#E01E26\]{color:#1E5A82 !important;}
+[data-ff-theme="winter"] :is([data-ff-dialog],[data-ff-dialog] *).border-\[\#E01E26\]{border-color:#2E77A6 !important;}
+[data-ff-theme="winter"] :is([data-ff-dialog],[data-ff-dialog] *).ring-\[\#E01E26\]{--tw-ring-color:#2E77A6 !important;}
+
+/* ── Summer theme accent recolor: tropical green (was red) + soft green (was black) ── */
+[data-ff-theme="summer"] [data-ff-scope="app"] .bg-\[\#E01E26\]{background-color:#1E9E63 !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .bg-\[\#B3141A\]{background-color:#16824F !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .hover\:bg-\[\#B3141A\]:hover{background-color:#16824F !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .bg-\[\#7A0C10\]{background-color:#16824F !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .text-\[\#E01E26\]{color:#147A4A !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .text-\[\#A31621\]{color:#147A4A !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .border-\[\#E01E26\]{border-color:#1E9E63 !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .fill-\[\#E01E26\]{fill:#147A4A !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .bg-\[\#E01E26\].text-white{color:#FFFFFF !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .focus\:border-\[\#E01E26\]:focus{border-color:#16824F !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .focus-within\:border-\[\#E01E26\]:focus-within{border-color:#16824F !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .bg-\[\#0E0E0E\]{background-color:#C4E8D5 !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .bg-\[\#0E0E0E\].text-white{color:#0E4A30 !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .hover\:bg-\[\#2A2A2A\]:hover{background-color:#B2DEC5 !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .text-\[\#0E0E0E\]{color:#0E4A30 !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .border-\[\#0E0E0E\]{border-color:#AEDBC2 !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .bg-\[\#FCF4F4\]{background-color:#E9F6EF !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .hover\:bg-\[\#FCF4F4\]:hover{background-color:#E9F6EF !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .bg-\[\#FDF6F6\]{background-color:#E9F6EF !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .hover\:bg-\[\#FCECEC\]:hover{background-color:#E9F6EF !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] ::selection{background:#1E9E63;color:#FFFFFF;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/25{--tw-shadow-color:rgba(30,158,99,0.32) !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/30{--tw-shadow-color:rgba(30,158,99,0.32) !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .bg-primary{background-color:#1E9E63 !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .bg-primary\/20{background-color:rgba(30,158,99,0.22) !important;}
+[data-ff-theme="summer"] [data-ff-scope="app"] .border-primary\/50{border-color:rgba(30,158,99,0.6) !important;}
+[data-ff-theme="summer"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#E01E26\]{background-color:#1E9E63 !important;}
+[data-ff-theme="summer"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#B3141A\],
+[data-ff-theme="summer"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#FF2E38\]{background-color:#16824F !important;}
+[data-ff-theme="summer"] :is([data-ff-dialog],[data-ff-dialog] *).hover\:bg-\[\#B3141A\]:hover,
+[data-ff-theme="summer"] :is([data-ff-dialog],[data-ff-dialog] *).hover\:bg-\[\#FF2E38\]:hover,
+[data-ff-theme="summer"] :is([data-ff-dialog],[data-ff-dialog] *).hover\:bg-\[\#E01E26\]:hover{background-color:#16824F !important;}
+[data-ff-theme="summer"] :is([data-ff-dialog],[data-ff-dialog] *).text-\[\#E01E26\]{color:#147A4A !important;}
+[data-ff-theme="summer"] :is([data-ff-dialog],[data-ff-dialog] *).border-\[\#E01E26\]{border-color:#1E9E63 !important;}
+[data-ff-theme="summer"] :is([data-ff-dialog],[data-ff-dialog] *).ring-\[\#E01E26\]{--tw-ring-color:#1E9E63 !important;}
+
 
 /* ── Fall (autumn) theme accent recolor: burnt orange/red (was red) + brown (was black) ── */
 [data-ff-theme="fall"] [data-ff-scope="app"] .bg-\[\#E01E26\]{background-color:#C0451B !important;}
