@@ -7,12 +7,19 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 
 from core import (db, rate_limit, require_admin, create_admin_token, client_ip,
                   check_login_lockout, record_login_failure, clear_login_failures,
-                  ADMIN_PASSWORD, SPONSOR_PRICE, FALLBACK_IMG, GOOGLE_SEARCH_DAILY_CAP,
-                  GOOGLE_SEARCH_ALERT_PCT, send_email)
+                  ADMIN_PASSWORD, SPONSOR_PRICE, SPONSOR_PRICE_ANNUAL, FALLBACK_IMG,
+                  GOOGLE_SEARCH_DAILY_CAP, GOOGLE_SEARCH_ALERT_PCT, send_email)
 from models import AdminLogin, SponsorCreate, SponsorUpdate, SponsorClick, Restaurant
 from routes.sponsors import reconcile_sponsors
 
 router = APIRouter()
+
+
+def _monthly_value(sponsor) -> float:
+    """Normalized monthly revenue for a paying sponsor (annual plans divided by 12)."""
+    if sponsor.get("billing_period") == "yearly":
+        return float(SPONSOR_PRICE_ANNUAL) / 12
+    return float(SPONSOR_PRICE)
 
 
 @router.post("/admin/login", dependencies=[Depends(rate_limit(10))])
@@ -45,12 +52,15 @@ async def sponsor_stats():
     paying = [s for s in sponsors if s.get("sub_status") == "active"]
     total_impressions = sum(int(s.get("impressions", 0) or 0) for s in sponsors)
     total_clicks = sum(int(s.get("clicks", 0) or 0) for s in sponsors)
+    mrr = round(sum(_monthly_value(s) for s in paying), 2)
+    yearly_subs = len([s for s in paying if s.get("billing_period") == "yearly"])
     return {
         "total_sponsors": len(sponsors),
         "active_sponsors": len(active),
         "paying_subscribers": len(paying),
-        "mrr": round(len(paying) * price, 2),
-        "arr": round(len(paying) * price * 12, 2),
+        "yearly_subscribers": yearly_subs,
+        "mrr": mrr,
+        "arr": round(mrr * 12, 2),
         "price": price,
         "total_impressions": total_impressions,
         "total_clicks": total_clicks,
@@ -154,7 +164,8 @@ async def build_sponsor_summary():
     active = [s for s in sponsors if s.get("active")]
     total_impressions = sum(int(s.get("impressions", 0) or 0) for s in sponsors)
     total_clicks = sum(int(s.get("clicks", 0) or 0) for s in sponsors)
-    mrr = round(len(paying) * price, 2)
+    mrr = round(sum(_monthly_value(s) for s in paying), 2)
+    yearly_subs = len([s for s in paying if s.get("billing_period") == "yearly"])
     arr = round(mrr * 12, 2)
     ctr = round(total_clicks / total_impressions * 100, 1) if total_impressions else 0
     month = datetime.now(timezone.utc).strftime("%B %Y")
@@ -174,6 +185,7 @@ async def build_sponsor_summary():
         f"<p style='margin:0 0 16px;color:#666'>{month}</p>"
         "<table style='border-collapse:collapse;width:100%;margin-bottom:18px'>"
         f"<tr><td style='padding:6px 0'>Paying subscribers</td><td style='text-align:right;font-weight:bold'>{len(paying)}</td></tr>"
+        f"<tr><td style='padding:6px 0'>Annual subscribers</td><td style='text-align:right;font-weight:bold'>{yearly_subs}</td></tr>"
         f"<tr><td style='padding:6px 0'>MRR</td><td style='text-align:right;font-weight:bold'>${mrr:,.2f}</td></tr>"
         f"<tr><td style='padding:6px 0'>ARR (projected)</td><td style='text-align:right;font-weight:bold'>${arr:,.2f}</td></tr>"
         f"<tr><td style='padding:6px 0'>Active sponsors shown</td><td style='text-align:right;font-weight:bold'>{len(active)}</td></tr>"

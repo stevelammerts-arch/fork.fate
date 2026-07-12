@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Request, Depends
 
 from core import (
     db, logger, rate_limit, client_ip, origin_allowed, FALLBACK_IMG, SPONSOR_PRICE,
+    SPONSOR_PRICE_ANNUAL,
     PAYPAL_BASE, PAYPAL_ENV, PAYPAL_CLIENT_ID, PAYPAL_SECRET, PAYPAL_WEBHOOK_ID,
 )
 from models import SponsorshipRequest, SponsorSubscribe
@@ -41,12 +42,11 @@ async def paypal_token(http: httpx.AsyncClient):
     return r.json()["access_token"]
 
 
-async def ensure_paypal_plan(http: httpx.AsyncClient, token: str):
-    """Create (once) and cache a $29/mo plan with a free first-month trial."""
-    cfg = await db.config.find_one({"key": "paypal_plan"})
-    if cfg and cfg.get("plan_id") and cfg.get("env") == PAYPAL_ENV:
-        return cfg["plan_id"]
-    h = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+async def _ensure_paypal_product(http: httpx.AsyncClient, h: dict) -> str:
+    """Create (once) and cache the shared PayPal product for all sponsor plans."""
+    cfg = await db.config.find_one({"key": "paypal_product", "env": PAYPAL_ENV})
+    if cfg and cfg.get("product_id"):
+        return cfg["product_id"]
     prod = await http.post(f"{PAYPAL_BASE}/v1/catalogs/products", headers=h, json={
         "name": "Fork·Fate Sponsorship", "type": "SERVICE", "category": "ADVERTISING",
     })
@@ -54,7 +54,32 @@ async def ensure_paypal_plan(http: httpx.AsyncClient, token: str):
         logger.error(f"PayPal product error: {prod.text[:300]}")
         raise HTTPException(status_code=502, detail="Could not create PayPal product")
     product_id = prod.json()["id"]
-    plan = await http.post(f"{PAYPAL_BASE}/v1/billing/plans", headers=h, json={
+    await db.config.update_one({"key": "paypal_product", "env": PAYPAL_ENV},
+                               {"$set": {"product_id": product_id}}, upsert=True)
+    return product_id
+
+
+def _plan_spec(period: str, product_id: str) -> dict:
+    """PayPal billing-plan body for the given period.
+    monthly: free first month, then $29/mo. yearly: $290/yr charged up front, no trial."""
+    if period == "yearly":
+        return {
+            "product_id": product_id,
+            "name": "Fork·Fate Sponsor — $290/yr",
+            "description": "Sponsored placement on Fork·Fate. Billed $290/year (2 months free).",
+            "billing_cycles": [
+                {"frequency": {"interval_unit": "YEAR", "interval_count": 1}, "tenure_type": "REGULAR",
+                 "sequence": 1, "total_cycles": 0,
+                 "pricing_scheme": {"fixed_price": {"value": SPONSOR_PRICE_ANNUAL, "currency_code": "USD"}}},
+            ],
+            "payment_preferences": {
+                "auto_bill_outstanding": True,
+                "setup_fee": {"value": "0", "currency_code": "USD"},
+                "setup_fee_failure_action": "CONTINUE",
+                "payment_failure_threshold": 2,
+            },
+        }
+    return {
         "product_id": product_id,
         "name": "Fork·Fate Sponsor — $29/mo",
         "description": "Sponsored placement on Fork·Fate. First month free, then $29/month.",
@@ -72,12 +97,24 @@ async def ensure_paypal_plan(http: httpx.AsyncClient, token: str):
             "setup_fee_failure_action": "CONTINUE",
             "payment_failure_threshold": 2,
         },
-    })
+    }
+
+
+async def ensure_paypal_plan(http: httpx.AsyncClient, token: str, period: str = "monthly"):
+    """Create (once) and cache the PayPal billing plan for the given period."""
+    key = "paypal_plan_annual" if period == "yearly" else "paypal_plan"
+    cfg = await db.config.find_one({"key": key})
+    if cfg and cfg.get("plan_id") and cfg.get("env") == PAYPAL_ENV:
+        return cfg["plan_id"]
+    h = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    product_id = await _ensure_paypal_product(http, h)
+    plan = await http.post(f"{PAYPAL_BASE}/v1/billing/plans", headers=h,
+                           json=_plan_spec(period, product_id))
     if plan.status_code not in (200, 201):
         logger.error(f"PayPal plan error: {plan.text[:300]}")
         raise HTTPException(status_code=502, detail="Could not create PayPal plan")
     plan_id = plan.json()["id"]
-    await db.config.update_one({"key": "paypal_plan"},
+    await db.config.update_one({"key": key},
                                {"$set": {"plan_id": plan_id, "product_id": product_id, "env": PAYPAL_ENV}},
                                upsert=True)
     return plan_id
@@ -108,6 +145,7 @@ async def sponsors_subscribe(payload: SponsorSubscribe, request: Request):
         "website": payload.website, "contact_email": payload.contact_email,
         "rating": 4.7, "distance": 0.5, "open_now": True,
         "active": False, "sub_status": "pending_payment", "subscription_id": None,
+        "billing_period": payload.plan,
         "impressions": 0, "clicks": 0,
         "created_ip": ip,
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -116,7 +154,7 @@ async def sponsors_subscribe(payload: SponsorSubscribe, request: Request):
     origin = payload.origin.rstrip("/")
     async with httpx.AsyncClient(timeout=20) as http:
         token = await paypal_token(http)
-        plan_id = await ensure_paypal_plan(http, token)
+        plan_id = await ensure_paypal_plan(http, token, payload.plan)
         sub = await http.post(f"{PAYPAL_BASE}/v1/billing/subscriptions",
             headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
             json={

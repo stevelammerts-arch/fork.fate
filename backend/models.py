@@ -185,6 +185,12 @@ class SponsorSubscribe(BaseModel):
     website: str = Field(default="", max_length=300)
     contact_email: str = Field(min_length=3, max_length=160)
     origin: str = Field(min_length=1, max_length=300)
+    plan: str = Field(default="monthly", max_length=10)
+
+    @field_validator("plan")
+    @classmethod
+    def _valid_plan(cls, v):
+        return v if v in ("monthly", "yearly") else "monthly"
 
     @field_validator("category")
     @classmethod

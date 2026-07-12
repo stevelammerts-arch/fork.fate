@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { Megaphone, Check, Loader2, Store, ArrowRight } from "lucide-react";
+import { Megaphone, Loader2, Store, ArrowRight } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger,
 } from "./ui/dialog";
@@ -26,6 +26,7 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
   const setOpen = (v) => { if (isControlled) onOpenChange?.(v); else setOpenState(v); };
   const [form, setForm] = useState(EMPTY);
   const [loading, setLoading] = useState(false);
+  const [plan, setPlan] = useState("monthly");
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const subscribe = async () => {
@@ -37,6 +38,7 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
     try {
       const { data } = await axios.post(`${API}/sponsors/subscribe`, {
         ...form,
+        plan,
         origin: window.location.origin,
       });
       window.location.href = data.approval_url;
@@ -96,12 +98,34 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-2xl border border-[#E2E4E7] bg-[#F5F6F7] p-4 text-center">
-          <p className="font-serif text-3xl font-semibold text-[#0E0E0E]">$29<span className="text-lg text-[#6B7075]">/{t("month")}</span></p>
-          <p className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-[#E01E26]/10 px-3 py-1 font-sans text-xs font-bold text-[#E01E26]">
-            <Check className="h-3.5 w-3.5" /> {t("First month FREE · cancel anytime")}
-          </p>
+        <div className="grid grid-cols-2 gap-2" data-testid="sponsor-plan-toggle">
+          <button
+            type="button"
+            onClick={() => setPlan("monthly")}
+            data-testid="sponsor-plan-monthly"
+            aria-pressed={plan === "monthly"}
+            className={`relative rounded-2xl border p-4 text-center transition-colors ${plan === "monthly" ? "border-[#E01E26] bg-[#E01E26]/5 ring-1 ring-[#E01E26]" : "border-[#E2E4E7] bg-[#F5F6F7] hover:border-[#D5D8DC]"}`}
+          >
+            <p className="font-sans text-xs font-bold uppercase tracking-wide text-[#6B7075]">{t("Monthly")}</p>
+            <p className="mt-1 font-serif text-2xl font-semibold text-[#0E0E0E]">$29<span className="text-sm text-[#6B7075]">/{t("mo")}</span></p>
+            <p className="mt-1 font-sans text-[11px] font-semibold text-[#E01E26]">{t("First month FREE")}</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => setPlan("yearly")}
+            data-testid="sponsor-plan-yearly"
+            aria-pressed={plan === "yearly"}
+            className={`relative rounded-2xl border p-4 text-center transition-colors ${plan === "yearly" ? "border-[#E01E26] bg-[#E01E26]/5 ring-1 ring-[#E01E26]" : "border-[#E2E4E7] bg-[#F5F6F7] hover:border-[#D5D8DC]"}`}
+          >
+            <span className="absolute -top-2 right-2 rounded-full bg-[#E01E26] px-2 py-0.5 font-sans text-[10px] font-bold text-white" data-testid="sponsor-yearly-savings">{t("Save $58/yr")}</span>
+            <p className="font-sans text-xs font-bold uppercase tracking-wide text-[#6B7075]">{t("Yearly")}</p>
+            <p className="mt-1 font-serif text-2xl font-semibold text-[#0E0E0E]">$290<span className="text-sm text-[#6B7075]">/{t("yr")}</span></p>
+            <p className="mt-1 font-sans text-[11px] font-semibold text-[#E01E26]">{t("2 months free")}</p>
+          </button>
         </div>
+        <p className="text-center font-sans text-xs text-[#8A8F95]" data-testid="sponsor-plan-note">
+          {plan === "yearly" ? t("Billed $290 today, then annually · cancel anytime") : t("Free first month, then $29/month · cancel anytime")}
+        </p>
 
         <div className="space-y-3 py-1">
           <div className="space-y-1.5">
