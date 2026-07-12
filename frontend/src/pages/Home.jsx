@@ -39,13 +39,12 @@ const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => ({
   delay: (i % 6) * 1.6,
 }));
 
-const REAPER_BATS = Array.from({ length: 4 }).map((_, i) => ({
-  top: `${11 + i * 12}%`,
-  size: 20 + (i % 3) * 8,
-  dur: 12 + i * 3,
-  delay: -(i * 5),
-  flap: 0.28 + (i % 3) * 0.06,
-}));
+const REAPER_BATS = [
+  { left: "43%", top: "16%", size: 22, dur: 8, delay: 0, flap: 0.3 },
+  { left: "55%", top: "27%", size: 18, dur: 10, delay: -3, flap: 0.34 },
+  { left: "48%", top: "39%", size: 26, dur: 9, delay: -6, flap: 0.28 },
+  { left: "59%", top: "20%", size: 16, dur: 11, delay: -1.5, flap: 0.32 },
+];
 
 const FLYING_BIRDS = Array.from({ length: 8 }).map((_, i) => ({
   top: `${4 + i * 5}%`,
@@ -764,7 +763,7 @@ export default function Home() {
         <div className="ff-smoke ff-smoke-2" />
         <div className="ff-smoke ff-smoke-3" />
         {REAPER_BATS.map((b, i) => (
-          <div key={`bat-${i}`} className="ff-bat-fly" style={{ top: b.top, animationDuration: `${b.dur}s`, animationDelay: `${b.delay}s` }}>
+          <div key={`bat-${i}`} className="ff-bat-fly" style={{ left: b.left, top: b.top, animationDuration: `${b.dur}s`, animationDelay: `${b.delay}s` }}>
             <img src="/reaper-bat.png" alt="" className="ff-bat" style={{ width: b.size, animationDuration: `${b.flap}s` }} />
           </div>
         ))}
