@@ -76,7 +76,71 @@ function drawSelfie(ctx, photo, x, y, w, h, r, P) {
   ctx.strokeStyle = P.accent; ctx.lineWidth = 4; ctx.stroke();
 }
 
+async function buildReaperBadge({ name, crew, label, photo, story = false }) {
+  const W = 1080, H = story ? 1920 : 1520;
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  // Red/black backdrop behind the reaper
+  const base = ctx.createLinearGradient(0, 0, 0, H);
+  base.addColorStop(0, "#1C0406"); base.addColorStop(0.5, "#0C0304"); base.addColorStop(1, "#070707");
+  ctx.fillStyle = base; ctx.fillRect(0, 0, W, H);
+  const glow = ctx.createRadialGradient(W * 0.5, H * 0.22, 40, W * 0.5, H * 0.22, 720);
+  glow.addColorStop(0, "rgba(224,30,38,0.42)"); glow.addColorStop(0.55, "rgba(150,16,22,0.14)"); glow.addColorStop(1, "rgba(224,30,38,0)");
+  ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+  const vig = ctx.createRadialGradient(W * 0.5, H * 0.45, H * 0.3, W * 0.5, H * 0.5, H * 0.75);
+  vig.addColorStop(0, "rgba(0,0,0,0)"); vig.addColorStop(1, "rgba(0,0,0,0.6)");
+  ctx.fillStyle = vig; ctx.fillRect(0, 0, W, H);
+
+  try { const reaper = await loadImage(REAPER_SRC); ctx.drawImage(reaper, 0, 0, W, W); } catch (e) { /* text still renders */ }
+
+  // Selfie fills the card the reaper holds (photo is a preloaded Image or null)
+  if (photo) {
+    const sx = 0.522 * W, sy = 0.35 * W, sw = 0.42 * W, sh = 0.205 * W;
+    const scale = Math.max(sw / photo.width, sh / photo.height);
+    const dw = photo.width * scale, dh = photo.height * scale;
+    ctx.save();
+    roundRect(ctx, sx, sy, sw, sh, 10);
+    ctx.clip();
+    ctx.drawImage(photo, sx + (sw - dw) / 2, sy + (sh - dh) / 2, dw, dh);
+    ctx.restore();
+  }
+
+  // Info plaque below the reaper
+  const cardX = (W - 620) / 2, cardW = 620, cardY = 1090, cardH = 380, r = 20;
+  roundRect(ctx, cardX, cardY, cardW, cardH, r);
+  const cg = ctx.createLinearGradient(0, cardY, 0, cardY + cardH);
+  cg.addColorStop(0, "#161616"); cg.addColorStop(1, "#0C0C0C");
+  ctx.fillStyle = cg; ctx.fill();
+  ctx.strokeStyle = "rgba(224,30,38,0.7)"; ctx.lineWidth = 3; ctx.stroke();
+
+  const cx = W / 2, maxW = cardW - 64;
+  const hasCrew = !!(crew && crew.trim());
+  const rows = [
+    { draw: (y) => drawFit(ctx, "I SURVIVED", cx, y, maxW, "700", 24, "Georgia, serif", "#E01E26", 3), h: 24, mb: 14 },
+    { draw: (y) => drawFit(ctx, "THE FORK\u00B7FATE", cx, y, maxW, "700", 42, "Georgia, serif", "#FFFFFF"), h: 42, mb: 2 },
+    { draw: (y) => drawFit(ctx, label, cx, y, maxW, "700", 42, "Georgia, serif", "#FFFFFF"), h: 42, mb: 16 },
+    { draw: (y) => { ctx.fillStyle = "#E01E26"; ctx.fillRect(cx - 24, y, 48, 2); }, h: 2, mb: 16 },
+    { draw: (y) => drawFit(ctx, name || "A Brave Soul", cx, y, maxW, "400", 34, "Georgia, serif", "#F3F3F3", 0, true), h: 34, mb: hasCrew ? 10 : 12 },
+    ...(hasCrew ? [{ draw: (y) => drawFit(ctx, `with ${crew.trim()}`, cx, y, maxW, "400", 22, "Arial, sans-serif", "#B9BEC4"), h: 22, mb: 10 }] : []),
+    { draw: (y) => drawFit(ctx, "fork-fate.com", cx, y, maxW, "400", 18, "Arial, sans-serif", "#9A9FA5", 1), h: 18, mb: 0 },
+  ];
+  const totalH = rows.reduce((s, x) => s + x.h + x.mb, 0);
+  let y = cardY + (cardH - totalH) / 2;
+  for (const row of rows) { row.draw(y); y += row.h + row.mb; }
+
+  if (story) {
+    const cy = cardY + cardH + 74;
+    drawFit(ctx, "CAN YOU SURVIVE?", cx, cy, W - 160, "700", 46, "Georgia, serif", "#FFFFFF", 2);
+    drawFit(ctx, "Shuffle your fate at fork-fate.com", cx, cy + 66, W - 160, "400", 30, "Arial, sans-serif", "#E01E26", 1);
+  }
+
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+}
+
 async function buildBadge({ name, crew, label, photo, story = false, light = false, accent }) {
+  // Dark/Reaper theme keeps its unique reaper reward card
+  if (!light) return buildReaperBadge({ name, crew, label, photo, story });
   const P = light
     ? { bg1: "#F8F2E7", bg2: "#EDE2CF", panel: "#FFFFFF", panelStroke: "#E7DCC7", ink: "#2A2118", accent: "#4F6F47", muted: "#8A7C68", line: "#E4D9C4", box: "#F1EADB", boxInk: "#B9AC95" }
     : { bg1: "#1C0406", bg2: "#070707", panel: "#141414", panelStroke: "rgba(224,30,38,0.35)", ink: "#FFFFFF", accent: "#E01E26", muted: "#B9BEC4", line: "rgba(224,30,38,0.45)", box: "#141414", boxInk: "#5A5A5A" };
@@ -385,37 +449,63 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
           </div>
         ) : (
         <>
-        {/* Live horizontal preview: logo left · congrats middle · selfie right */}
+        {/* Live preview: dark keeps the unique reaper reward card; light uses the clean horizontal card */}
+        {!light ? (
+        <div className="relative mx-auto aspect-[108/152] w-full max-w-[300px] overflow-hidden rounded-lg" data-testid="crawl-badge-preview"
+          style={{ background: "linear-gradient(#1C0406,#0C0304 50%,#070707)" }}>
+          <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(circle at 50% 22%, rgba(224,30,38,0.42), rgba(150,16,22,0.12) 55%, rgba(224,30,38,0) 72%)" }} />
+          <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(circle at 50% 48%, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55) 100%)" }} />
+          <img src={REAPER_SRC} alt="Reaper award" className="absolute left-0 top-0 h-[71%] w-full object-contain" />
+          <div className="absolute overflow-hidden rounded-md" style={{ left: "52.2%", top: "24.9%", width: "42%", height: "14.6%" }}>
+            {photo
+              ? <img src={photo} alt="Your selfie" className="h-full w-full object-cover" />
+              : <div className="grid h-full w-full place-items-center bg-[#141414] text-center text-[#5A5A5A]"><Camera className="h-5 w-5" /></div>}
+          </div>
+          <div
+            className="absolute flex flex-col items-center justify-center rounded-2xl border-2 border-[#E01E26]/70 bg-gradient-to-b from-[#161616] to-[#0C0C0C] text-center leading-none"
+            style={{ left: "21.3%", top: "71.7%", width: "57.4%", height: "25%", padding: "0 14px", boxShadow: "0 0 20px rgba(224,30,38,0.3)" }}
+          >
+            <span className="font-serif font-bold uppercase tracking-[0.2em] text-[#E01E26]" style={{ fontSize: "clamp(7px,2vw,10px)" }}>{t("I Survived")}</span>
+            <span className="mt-1 font-serif font-bold text-white" style={{ fontSize: "clamp(12px,3.6vw,17px)" }}>THE FORK·FATE</span>
+            <span className="font-serif font-bold text-white" style={{ fontSize: "clamp(12px,3.6vw,17px)" }}>{label}</span>
+            <span className="my-1 block h-0.5 w-6 bg-[#E01E26]" />
+            <span className="font-serif italic text-[#F3F3F3]" style={{ fontSize: "clamp(10px,2.8vw,14px)" }}>{name.trim() || t("Your name")}</span>
+            {crew.trim() && <span className="mt-0.5 text-[#B9BEC4]" style={{ fontSize: "clamp(7px,1.9vw,10px)" }}>with {crew.trim()}</span>}
+            <span className="mt-0.5 tracking-wider text-[#9A9FA5]" style={{ fontSize: "clamp(6px,1.5vw,8px)" }}>fork-fate.com</span>
+          </div>
+        </div>
+        ) : (
         <div
           className="relative mx-auto flex w-full max-w-[520px] items-stretch overflow-hidden rounded-xl border"
           data-testid="crawl-badge-preview"
-          style={{ aspectRatio: "16 / 9", background: light ? "#FFFFFF" : "linear-gradient(#1C0406,#0C0304 60%,#070707)", borderColor: light ? "#E7DCC7" : "rgba(224,30,38,0.35)" }}
+          style={{ aspectRatio: "16 / 9", background: "#FFFFFF", borderColor: "#E7DCC7" }}
         >
           {/* Left: logo */}
-          <div className="flex w-[35%] flex-col items-center justify-center gap-1 px-2" style={{ borderRight: `1px solid ${light ? "#E4D9C4" : "rgba(224,30,38,0.35)"}` }}>
-            <img src={light ? "/logo-mark-light.png" : "/logo-mark.png"} alt="Fork·Fate" className="h-[46%] w-auto object-contain" />
-            <span className={`font-serif font-bold ${light ? "text-[#2A2118]" : "text-white"}`} style={{ fontSize: "clamp(11px,3.2vw,20px)" }}>Fork·Fate</span>
-            <span className="font-bold uppercase tracking-[0.2em]" style={{ color: light ? ac.card : "#E01E26", fontSize: "clamp(5px,1.4vw,9px)" }}>{label}</span>
+          <div className="flex w-[35%] flex-col items-center justify-center gap-1 px-2" style={{ borderRight: "1px solid #E4D9C4" }}>
+            <img src="/logo-mark-light.png" alt="Fork·Fate" className="h-[46%] w-auto object-contain" />
+            <span className="font-serif font-bold text-[#2A2118]" style={{ fontSize: "clamp(11px,3.2vw,20px)" }}>Fork·Fate</span>
+            <span className="font-bold uppercase tracking-[0.2em]" style={{ color: ac.card, fontSize: "clamp(5px,1.4vw,9px)" }}>{label}</span>
           </div>
           {/* Middle: congrats */}
           <div className="flex w-[38%] flex-col items-center justify-center px-2 text-center leading-tight">
-            <span className="font-bold uppercase tracking-[0.18em]" style={{ color: light ? ac.card : "#E01E26", fontSize: "clamp(6px,1.7vw,11px)" }}>{light ? "Congratulations" : "I Survived"}</span>
-            <span className={`mt-0.5 font-serif font-bold ${light ? "text-[#2A2118]" : "text-white"}`} style={{ fontSize: "clamp(9px,2.6vw,16px)" }}>THE FORK·FATE</span>
-            <span className={`font-serif font-bold ${light ? "text-[#2A2118]" : "text-white"}`} style={{ fontSize: "clamp(9px,2.6vw,16px)" }}>{label}</span>
-            <span className="my-1 block h-0.5 w-5" style={{ backgroundColor: light ? ac.card : "#E01E26" }} />
-            <span className={`font-serif italic ${light ? "text-[#2A2118]" : "text-[#F3F3F3]"}`} style={{ fontSize: "clamp(8px,2.2vw,13px)" }}>{name.trim() || "Your name"}</span>
-            {crew.trim() && <span className={light ? "text-[#8A7C68]" : "text-[#B9BEC4]"} style={{ fontSize: "clamp(6px,1.5vw,9px)" }}>with {crew.trim()}</span>}
-            <span className={`mt-0.5 tracking-wider ${light ? "text-[#A99C86]" : "text-[#9A9FA5]"}`} style={{ fontSize: "clamp(5px,1.2vw,8px)" }}>fork-fate.com</span>
+            <span className="font-bold uppercase tracking-[0.18em]" style={{ color: ac.card, fontSize: "clamp(6px,1.7vw,11px)" }}>Congratulations</span>
+            <span className="mt-0.5 font-serif font-bold text-[#2A2118]" style={{ fontSize: "clamp(9px,2.6vw,16px)" }}>THE FORK·FATE</span>
+            <span className="font-serif font-bold text-[#2A2118]" style={{ fontSize: "clamp(9px,2.6vw,16px)" }}>{label}</span>
+            <span className="my-1 block h-0.5 w-5" style={{ backgroundColor: ac.card }} />
+            <span className="font-serif italic text-[#2A2118]" style={{ fontSize: "clamp(8px,2.2vw,13px)" }}>{name.trim() || "Your name"}</span>
+            {crew.trim() && <span className="text-[#8A7C68]" style={{ fontSize: "clamp(6px,1.5vw,9px)" }}>with {crew.trim()}</span>}
+            <span className="mt-0.5 tracking-wider text-[#A99C86]" style={{ fontSize: "clamp(5px,1.2vw,8px)" }}>fork-fate.com</span>
           </div>
           {/* Right: selfie */}
           <div className="flex w-[27%] items-center justify-center p-2">
-            <div className="aspect-[4/3] w-full overflow-hidden rounded-md border-2" style={{ borderColor: light ? ac.card : "#E01E26" }}>
+            <div className="aspect-[4/3] w-full overflow-hidden rounded-md border-2" style={{ borderColor: ac.card }}>
               {photo
                 ? <img src={photo} alt="Your selfie" className="h-full w-full object-cover" />
-                : <div className={`grid h-full w-full place-items-center text-center ${light ? "bg-[#F1EADB] text-[#B9AC95]" : "bg-[#141414] text-[#5A5A5A]"}`}><Camera className="h-5 w-5" /></div>}
+                : <div className="grid h-full w-full place-items-center bg-[#F1EADB] text-center text-[#B9AC95]"><Camera className="h-5 w-5" /></div>}
             </div>
           </div>
         </div>
+        )}
 
         <input ref={fileRef} type="file" accept="image/*" capture="user" onChange={onPickPhoto} className="hidden" data-testid="crawl-badge-photo-input" />
         <p className={`flex items-start gap-1.5 text-xs ${light ? "text-[#8A7C68]" : "text-[#8A8F95]"}`} data-testid="crawl-badge-privacy-note">
