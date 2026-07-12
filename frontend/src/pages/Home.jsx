@@ -1112,7 +1112,7 @@ export default function Home() {
                   onClick={useMyLocation}
                   disabled={geoLoading || loading || spinning}
                   data-testid="use-my-location-button"
-                  className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-70 ${coords ? "bg-[#E01E26] text-white hover:bg-[#B3141A]" : "border border-[#E2E4E7] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
+                  className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-70 ${(coords || geoLoading) ? "bg-[#E01E26] text-white hover:bg-[#B3141A]" : "border border-[#E2E4E7] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
                 >
                   <LocateFixed className={`h-4 w-4 ${geoLoading ? "animate-pulse" : ""}`} />
                   {geoLoading ? t("Locating…") : coords ? t("Using your location") : t("Use my location")}

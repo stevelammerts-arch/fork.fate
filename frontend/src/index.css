@@ -132,19 +132,19 @@ body {
 }
 /* Reaper theme: soften white panels/inputs/buttons to a faint gray so they blend
    with the smoky background instead of popping stark white. */
-[data-ff-theme="dark"] [data-ff-scope="app"] .bg-white { background-color: #E6E4EA !important; }
-[data-ff-theme="dark"] [data-ff-scope="app"] .hover\:bg-white:hover { background-color: #DCDAE1 !important; }
-[data-ff-theme="dark"] [data-ff-scope="app"] .bg-\[\#EDEEF0\] { background-color: #D7D5DC !important; }
-[data-ff-theme="dark"] [data-ff-scope="app"] .hover\:bg-\[\#EDEEF0\]:hover { background-color: #CFcdd5 !important; }
-[data-ff-theme="dark"] [data-ff-scope="app"] .bg-\[\#E2E4E7\] { background-color: #D2D0D8 !important; }
-[data-ff-theme="dark"] [data-ff-scope="app"] .hover\:bg-\[\#E2E4E7\]:hover { background-color: #CAC8D1 !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] .bg-white { background-color: #D6D3DC !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] .hover\:bg-white:hover { background-color: #CCC9D3 !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] .bg-\[\#EDEEF0\] { background-color: #CAC7D0 !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] .hover\:bg-\[\#EDEEF0\]:hover { background-color: #C2BFC9 !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] .bg-\[\#E2E4E7\] { background-color: #C6C3CD !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] .hover\:bg-\[\#E2E4E7\]:hover { background-color: #BEBBC6 !important; }
 /* Buttons & links a shade darker than panels for contrast */
 [data-ff-theme="dark"] [data-ff-scope="app"] button.bg-white,
-[data-ff-theme="dark"] [data-ff-scope="app"] a.bg-white { background-color: #CBC8D2 !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] a.bg-white { background-color: #BEBBC7 !important; }
 [data-ff-theme="dark"] [data-ff-scope="app"] button.hover\:bg-\[\#EDEEF0\]:hover,
 [data-ff-theme="dark"] [data-ff-scope="app"] a.hover\:bg-\[\#EDEEF0\]:hover,
 [data-ff-theme="dark"] [data-ff-scope="app"] button.hover\:bg-\[\#E2E4E7\]:hover,
-[data-ff-theme="dark"] [data-ff-scope="app"] a.hover\:bg-\[\#E2E4E7\]:hover { background-color: #BDBAC5 !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] a.hover\:bg-\[\#E2E4E7\]:hover { background-color: #B0ADBA !important; }
 
 /* ── Light-mode theming for portaled dialogs (marked data-ff-dialog):
    lighten dark surfaces + text, recolor red accents to sage/green. ── */
