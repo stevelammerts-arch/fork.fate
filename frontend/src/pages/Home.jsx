@@ -768,6 +768,17 @@ export default function Home() {
         <div className="ff-smoke ff-smoke-1" />
         <div className="ff-smoke ff-smoke-2" />
         <div className="ff-smoke ff-smoke-3" />
+        <div className="ff-sky-flash" />
+        <svg className="ff-lightning" style={{ left: "22%", animationDuration: "12s", animationDelay: "3s" }} viewBox="0 0 64 400" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
+          <path d="M32 0 L25 72 L38 100 L22 176 L35 214 L19 300 L30 400" />
+          <path d="M38 100 L55 142 L46 172" />
+          <path d="M22 176 L7 214 L15 238" />
+        </svg>
+        <svg className="ff-lightning" style={{ left: "73%", animationDuration: "16s", animationDelay: "9s" }} viewBox="0 0 64 400" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
+          <path d="M34 0 L41 66 L28 92 L44 160 L30 206 L46 292 L36 400" />
+          <path d="M28 92 L11 130 L20 158" />
+          <path d="M44 160 L60 198" />
+        </svg>
         {REAPER_BATS.map((b, i) => (
           <div key={`bat-${i}`} className="ff-bat-fly" style={{ left: b.left, top: b.top, animationDuration: `${b.dur}s`, animationDelay: `${b.delay}s` }}>
             <img src="/reaper-bat.png" alt="" className="ff-bat" style={{ width: b.size, animationDuration: `${b.flap}s` }} />

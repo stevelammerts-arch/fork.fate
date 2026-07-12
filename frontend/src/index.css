@@ -480,6 +480,49 @@ body {
   75%  { transform: translate(-2.5vw, -2vh) rotate(5deg); }
   100% { transform: translate(0, 6vh) rotate(-6deg); }
 }
+/* Occasional thin lightning tendrils flickering behind the reaper */
+.ff-lightning {
+  position: absolute;
+  top: 0;
+  height: 62%;
+  width: auto;
+  opacity: 0;
+  overflow: visible;
+  will-change: opacity;
+  animation-name: ffBolt;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.ff-lightning path {
+  fill: none;
+  stroke: #ffe2e0;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 3px rgba(255,120,110,0.95)) drop-shadow(0 0 8px rgba(220,40,40,0.6));
+}
+/* Brief double-flicker, then a long dark gap so strikes feel rare/random */
+@keyframes ffBolt {
+  0%    { opacity: 0; }
+  1.2%  { opacity: 0.95; }
+  2.4%  { opacity: 0.15; }
+  3.4%  { opacity: 0.85; }
+  5%    { opacity: 0; }
+  100%  { opacity: 0; }
+}
+/* Faint sky-flash that accompanies a strike */
+.ff-sky-flash {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 55%;
+  background: radial-gradient(120% 100% at 50% 0%, rgba(255,150,140,0.10), rgba(255,80,70,0) 60%);
+  opacity: 0;
+  will-change: opacity;
+  animation: ffBolt 13s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ff-lightning, .ff-sky-flash { animation: none; opacity: 0; }
+}
 /* Cyber spinner flying right-to-left (mirrored) */
 @keyframes ffFlyRev {
   0%   { transform: translateX(126vw) translateY(0) scaleX(-1); }
