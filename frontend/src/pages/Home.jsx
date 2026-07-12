@@ -788,7 +788,7 @@ export default function Home() {
           className="h-[70vh] max-w-none md:h-[85vh]"
           style={{ filter: "drop-shadow(24px 34px 30px rgba(0,0,0,0.45))" }}
           initial={{ opacity: 0, y: 50, scale: 1.06 }}
-          animate={{ opacity: 0.38, y: 0, scale: 1 }}
+          animate={{ opacity: 0.55, y: 0, scale: 1 }}
           transition={{
             opacity: { duration: 1.6, ease: "easeOut" },
             y: { duration: 1.6, ease: "easeOut" },
