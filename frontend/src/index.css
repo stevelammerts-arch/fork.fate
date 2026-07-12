@@ -495,11 +495,11 @@ body {
 }
 .ff-lightning path {
   fill: none;
-  stroke: #ffe2e0;
+  stroke: #ffffff;
   stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 0 3px rgba(255,120,110,0.95)) drop-shadow(0 0 8px rgba(220,40,40,0.6));
+  filter: drop-shadow(0 0 3px rgba(255,255,255,0.95)) drop-shadow(0 0 8px rgba(255,255,255,0.6));
 }
 /* Brief double-flicker, then a long dark gap so strikes feel rare/random */
 @keyframes ffBolt {
