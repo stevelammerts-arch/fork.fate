@@ -1,6 +1,7 @@
 """Fork·Fate API entrypoint: wires routers, CORS, startup/shutdown."""
 import os
 import asyncio
+from datetime import datetime, timezone
 from fastapi import FastAPI, APIRouter
 from starlette.middleware.cors import CORSMiddleware
 
@@ -47,10 +48,33 @@ async def _reconcile_loop():
         await asyncio.sleep(24 * 60 * 60)
 
 
+async def _monthly_summary_loop():
+    """Auto-send the sponsor summary email on the 1st of each month (idempotent)."""
+    from core import send_email, db
+    from routes.admin import build_sponsor_summary
+    while True:
+        try:
+            now = datetime.now(timezone.utc)
+            if now.day == 1:
+                tag = now.strftime("%Y-%m")
+                already = await db.config.find_one({"key": "summary_sent", "month": tag})
+                if not already:
+                    subject, html = await build_sponsor_summary()
+                    if await send_email(subject, html):
+                        await db.config.update_one(
+                            {"key": "summary_sent", "month": tag},
+                            {"$set": {"sent_at": now.isoformat()}}, upsert=True)
+                        logger.info(f"Sent monthly sponsor summary for {tag}")
+        except Exception as e:
+            logger.warning(f"Monthly summary loop error: {e}")
+        await asyncio.sleep(6 * 60 * 60)
+
+
 @app.on_event("startup")
 async def startup_event():
     await seed_db()
     asyncio.create_task(_reconcile_loop())
+    asyncio.create_task(_monthly_summary_loop())
 
 
 @app.on_event("shutdown")

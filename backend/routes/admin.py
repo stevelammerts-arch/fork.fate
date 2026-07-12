@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from core import (db, rate_limit, require_admin, create_admin_token, client_ip,
                   check_login_lockout, record_login_failure, clear_login_failures,
                   ADMIN_PASSWORD, SPONSOR_PRICE, FALLBACK_IMG, GOOGLE_SEARCH_DAILY_CAP,
-                  GOOGLE_SEARCH_ALERT_PCT)
+                  GOOGLE_SEARCH_ALERT_PCT, send_email)
 from models import AdminLogin, SponsorCreate, SponsorUpdate, SponsorClick, Restaurant
 from routes.sponsors import reconcile_sponsors
 
@@ -143,3 +143,60 @@ async def cost_status():
         "alerted": bool(doc.get("alerted")) if doc else False,
         "history": history,
     }
+
+
+
+async def build_sponsor_summary():
+    """Build the (subject, html) for the sponsor performance summary email."""
+    sponsors = await db.sponsors.find({}, {"_id": 0}).to_list(500)
+    price = float(SPONSOR_PRICE)
+    paying = [s for s in sponsors if s.get("sub_status") == "active"]
+    active = [s for s in sponsors if s.get("active")]
+    total_impressions = sum(int(s.get("impressions", 0) or 0) for s in sponsors)
+    total_clicks = sum(int(s.get("clicks", 0) or 0) for s in sponsors)
+    mrr = round(len(paying) * price, 2)
+    arr = round(mrr * 12, 2)
+    ctr = round(total_clicks / total_impressions * 100, 1) if total_impressions else 0
+    month = datetime.now(timezone.utc).strftime("%B %Y")
+    top = sorted(sponsors, key=lambda s: int(s.get("clicks", 0) or 0), reverse=True)[:5]
+    if top and total_clicks:
+        rows = "".join(
+            f"<tr><td style='padding:7px 12px;border-bottom:1px solid #eee'>{i+1}. {(s.get('name') or 'Sponsor')}</td>"
+            f"<td style='padding:7px 12px;border-bottom:1px solid #eee;text-align:right'>{int(s.get('clicks',0) or 0)}</td>"
+            f"<td style='padding:7px 12px;border-bottom:1px solid #eee;text-align:right'>{int(s.get('impressions',0) or 0)}</td></tr>"
+            for i, s in enumerate(top))
+    else:
+        rows = "<tr><td style='padding:7px 12px' colspan='3'>No sponsor clicks yet.</td></tr>"
+    subject = f"Fork·Fate sponsor summary — {month}"
+    html = (
+        "<div style='font-family:Arial,sans-serif;color:#1a1a1a;max-width:560px'>"
+        f"<h2 style='color:#E01E26;margin:0 0 4px'>Fork·Fate sponsor summary</h2>"
+        f"<p style='margin:0 0 16px;color:#666'>{month}</p>"
+        "<table style='border-collapse:collapse;width:100%;margin-bottom:18px'>"
+        f"<tr><td style='padding:6px 0'>Paying subscribers</td><td style='text-align:right;font-weight:bold'>{len(paying)}</td></tr>"
+        f"<tr><td style='padding:6px 0'>MRR</td><td style='text-align:right;font-weight:bold'>${mrr:,.2f}</td></tr>"
+        f"<tr><td style='padding:6px 0'>ARR (projected)</td><td style='text-align:right;font-weight:bold'>${arr:,.2f}</td></tr>"
+        f"<tr><td style='padding:6px 0'>Active sponsors shown</td><td style='text-align:right;font-weight:bold'>{len(active)}</td></tr>"
+        f"<tr><td style='padding:6px 0'>Total clicks (all-time)</td><td style='text-align:right;font-weight:bold'>{total_clicks:,}</td></tr>"
+        f"<tr><td style='padding:6px 0'>Total impressions (all-time)</td><td style='text-align:right;font-weight:bold'>{total_impressions:,}</td></tr>"
+        f"<tr><td style='padding:6px 0'>Click-through rate</td><td style='text-align:right;font-weight:bold'>{ctr}%</td></tr>"
+        "</table>"
+        "<h3 style='margin:0 0 8px'>Top sponsors by clicks</h3>"
+        "<table style='border-collapse:collapse;width:100%'>"
+        "<tr style='text-align:left;color:#666;font-size:13px'><th style='padding:7px 12px'>Sponsor</th>"
+        "<th style='padding:7px 12px;text-align:right'>Clicks</th><th style='padding:7px 12px;text-align:right'>Impressions</th></tr>"
+        f"{rows}</table>"
+        "<p style='margin:18px 0 0;color:#999;font-size:12px'>Clicks &amp; impressions are all-time cumulative totals.</p>"
+        "</div>"
+    )
+    return subject, html
+
+
+@router.post("/admin/email-summary", dependencies=[Depends(require_admin)])
+async def email_summary():
+    """Send the sponsor performance summary email on demand."""
+    subject, html = await build_sponsor_summary()
+    ok = await send_email(subject, html)
+    if not ok:
+        raise HTTPException(status_code=503, detail="email-not-configured-or-failed")
+    return {"sent": True}

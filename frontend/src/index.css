@@ -130,6 +130,21 @@ body {
     radial-gradient(760px 520px at 72% 96%, rgba(150,15,20,0.22), transparent 58%),
     linear-gradient(158deg, #A9A6B0 0%, #8D8A95 46%, #77747F 100%) !important;
 }
+/* Reaper theme: soften white panels/inputs/buttons to a faint gray so they blend
+   with the smoky background instead of popping stark white. */
+[data-ff-theme="dark"] [data-ff-scope="app"] .bg-white { background-color: #E6E4EA !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] .hover\:bg-white:hover { background-color: #DCDAE1 !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] .bg-\[\#EDEEF0\] { background-color: #D7D5DC !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] .hover\:bg-\[\#EDEEF0\]:hover { background-color: #CFcdd5 !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] .bg-\[\#E2E4E7\] { background-color: #D2D0D8 !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] .hover\:bg-\[\#E2E4E7\]:hover { background-color: #CAC8D1 !important; }
+/* Buttons & links a shade darker than panels for contrast */
+[data-ff-theme="dark"] [data-ff-scope="app"] button.bg-white,
+[data-ff-theme="dark"] [data-ff-scope="app"] a.bg-white { background-color: #CBC8D2 !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] button.hover\:bg-\[\#EDEEF0\]:hover,
+[data-ff-theme="dark"] [data-ff-scope="app"] a.hover\:bg-\[\#EDEEF0\]:hover,
+[data-ff-theme="dark"] [data-ff-scope="app"] button.hover\:bg-\[\#E2E4E7\]:hover,
+[data-ff-theme="dark"] [data-ff-scope="app"] a.hover\:bg-\[\#E2E4E7\]:hover { background-color: #BDBAC5 !important; }
 
 /* ── Light-mode theming for portaled dialogs (marked data-ff-dialog):
    lighten dark surfaces + text, recolor red accents to sage/green. ── */

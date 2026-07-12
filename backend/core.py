@@ -271,6 +271,26 @@ async def _send_google_cap_alert(used: int):
         logger.error(f"Failed to send Google cap alert: {e}")
 
 
+async def send_email(subject: str, html: str, to: str = None) -> bool:
+    """Generic transactional email via Resend. Returns True on success, False if
+    unconfigured or on error (never raises)."""
+    import asyncio
+    import resend
+    recipient = to or ALERT_EMAIL_TO
+    if not RESEND_API_KEY or not recipient:
+        logger.warning(f"Email not sent (Resend not configured): {subject}")
+        return False
+    try:
+        resend.api_key = RESEND_API_KEY
+        params = {"from": SENDER_EMAIL, "to": [recipient], "subject": subject, "html": html}
+        await asyncio.wait_for(asyncio.to_thread(resend.Emails.send, params), timeout=15)
+        logger.info(f"Sent email '{subject}' to {recipient}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to send email '{subject}': {e}")
+        return False
+
+
 async def _google_reserve() -> bool:
     """Atomically reserve one billed Google call against today's cap (Mongo-backed so it
     survives restarts and is shared across replicas). Increment-FIRST so concurrent
