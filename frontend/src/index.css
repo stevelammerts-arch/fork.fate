@@ -124,9 +124,10 @@ body {
    Kept light enough that the dark hero text and white cards stay readable. */
 [data-ff-theme="dark"] [data-ff-scope="app"] {
   background:
-    radial-gradient(900px 560px at 10% 6%, rgba(150,15,20,0.34), transparent 58%),
-    radial-gradient(1040px 640px at 90% 20%, rgba(122,12,16,0.30), transparent 60%),
-    radial-gradient(760px 520px at 72% 96%, rgba(150,15,20,0.26), transparent 58%),
+    radial-gradient(1500px 440px at 50% -10%, rgba(200,18,50,0.42), transparent 66%),
+    radial-gradient(900px 560px at 10% 6%, rgba(165,16,38,0.30), transparent 58%),
+    radial-gradient(1040px 640px at 90% 20%, rgba(135,12,30,0.26), transparent 60%),
+    radial-gradient(760px 520px at 72% 96%, rgba(150,15,20,0.22), transparent 58%),
     linear-gradient(158deg, #A9A6B0 0%, #8D8A95 46%, #77747F 100%) !important;
 }
 
