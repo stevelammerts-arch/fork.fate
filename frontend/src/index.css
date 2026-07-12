@@ -133,7 +133,12 @@ body {
 /* Reaper theme: soften white panels/inputs/buttons to a faint gray so they blend
    with the smoky background instead of popping stark white. */
 [data-ff-theme="dark"] [data-ff-scope="app"] .bg-white { background-color: #D6D3DC !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] .bg-white\/95 { background-color: #D6D3DC !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] .bg-white\/90 { background-color: #D6D3DC !important; }
+[data-ff-theme="dark"] [data-ff-scope="app"] .bg-white\/60 { background-color: #D0CDD7 !important; }
 [data-ff-theme="dark"] [data-ff-scope="app"] .hover\:bg-white:hover { background-color: #CCC9D3 !important; }
+/* Toggle off-track: darken so the (gray) thumb stays visible in Reaper */
+[data-ff-theme="dark"] [data-ff-scope="app"] .bg-\[\#D5D8DC\] { background-color: #7C7986 !important; }
 [data-ff-theme="dark"] [data-ff-scope="app"] .bg-\[\#EDEEF0\] { background-color: #CAC7D0 !important; }
 [data-ff-theme="dark"] [data-ff-scope="app"] .hover\:bg-\[\#EDEEF0\]:hover { background-color: #C2BFC9 !important; }
 [data-ff-theme="dark"] [data-ff-scope="app"] .bg-\[\#E2E4E7\] { background-color: #C6C3CD !important; }
