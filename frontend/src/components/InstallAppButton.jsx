@@ -40,6 +40,22 @@ export default function InstallAppButton() {
     };
   }, []);
 
+  // One-time nudge to install after the user's first successful shuffle.
+  useEffect(() => {
+    const onShuffle = () => {
+      if (isStandalone() || localStorage.getItem("ff_install_nudged")) return;
+      if (!deferred && !isIOS()) return; // nothing we can offer on this platform
+      localStorage.setItem("ff_install_nudged", "1");
+      toast(t("Loving fate's picks? Add Fork·Fate to your home screen."), {
+        duration: 9000,
+        action: { label: t("Install"), onClick: () => install() },
+      });
+    };
+    window.addEventListener("ff:shuffle-success", onShuffle);
+    return () => window.removeEventListener("ff:shuffle-success", onShuffle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deferred]);
+
   const install = async () => {
     // Android / desktop Chromium: real one-tap install prompt.
     if (deferred) {

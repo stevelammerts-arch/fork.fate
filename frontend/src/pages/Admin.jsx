@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { startRegistration, startAuthentication } from "@simplewebauthn/browser";
-import { Lock, Plus, Trash2, LogOut, Star, Eye, EyeOff, Check, X, Clock, MousePointerClick, Fingerprint, Gauge, ShieldCheck } from "lucide-react";
+import { Lock, Plus, Trash2, LogOut, Star, Eye, EyeOff, Check, X, Clock, MousePointerClick, Fingerprint, Gauge, ShieldCheck, Mail } from "lucide-react";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
@@ -31,6 +31,7 @@ export default function Admin() {
   const [passkeyAvail, setPasskeyAvail] = useState(false);
   const [passkeyRegistered, setPasskeyRegistered] = useState(false);
   const [passkeyBusy, setPasskeyBusy] = useState(false);
+  const [emailing, setEmailing] = useState(false);
 
   const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -205,8 +206,23 @@ export default function Admin() {
     }
   };
 
-  const approveSubmission = async (r) => {
+  const sendSummaryEmail = async () => {
+    setEmailing(true);
     try {
+      await axios.post(`${API}/admin/email-summary`, {}, authHeaders);
+      toast.success("Sponsor summary email sent");
+    } catch (e) {
+      toast.error(
+        e.response?.data?.detail === "email-not-configured-or-failed"
+          ? "Email not configured — check Resend keys"
+          : "Could not send summary email"
+      );
+    } finally {
+      setEmailing(false);
+    }
+  };
+
+  const approveSubmission = async (r) => {    try {
       await axios.post(`${API}/admin/submissions/${r.id}/approve`, {}, authHeaders);
       toast.success(`${r.name} approved — now live in the pool`);
       loadSubmissions();
@@ -405,6 +421,21 @@ export default function Admin() {
                     </div>
                   </div>
                 )}
+
+                <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#EDEEF0] pt-4" data-testid="sponsor-summary-email">
+                  <div>
+                    <p className="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#6B7075]">Sponsor revenue summary</p>
+                    <p className="mt-0.5 font-sans text-xs text-[#8A8F95]">Auto-sent on the 1st monthly · send an up-to-the-minute digest now</p>
+                  </div>
+                  <button
+                    onClick={sendSummaryEmail}
+                    disabled={emailing}
+                    data-testid="send-summary-email-button"
+                    className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[#0E0E0E] bg-[#0E0E0E] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[#2A2A2A] disabled:opacity-60"
+                  >
+                    <Mail className="h-4 w-4" /> {emailing ? "Sending…" : "Send summary now"}
+                  </button>
+                </div>
               </div>
             );
           })()}

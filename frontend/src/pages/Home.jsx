@@ -353,6 +353,8 @@ export default function Home() {
         const y = resultRef.current.getBoundingClientRect().top + window.scrollY - 88;
         window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
       }, 120);
+      // Gently nudge a home-screen install after fate has been dealt (once per device).
+      setTimeout(() => window.dispatchEvent(new CustomEvent("ff:shuffle-success")), 2500);
     }
   }, [result, groupPicks]);
 
