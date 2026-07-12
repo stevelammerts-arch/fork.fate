@@ -124,10 +124,10 @@ body {
    Kept light enough that the dark hero text and white cards stay readable. */
 [data-ff-theme="dark"] [data-ff-scope="app"] {
   background:
-    radial-gradient(920px 560px at 10% 6%, rgba(224,30,38,0.16), transparent 60%),
-    radial-gradient(1040px 640px at 90% 20%, rgba(150,20,24,0.14), transparent 62%),
-    radial-gradient(760px 520px at 72% 96%, rgba(224,30,38,0.12), transparent 60%),
-    linear-gradient(158deg, #DEDBE1 0%, #CFCCD3 46%, #C2BFC7 100%) !important;
+    radial-gradient(900px 560px at 10% 6%, rgba(150,15,20,0.34), transparent 58%),
+    radial-gradient(1040px 640px at 90% 20%, rgba(122,12,16,0.30), transparent 60%),
+    radial-gradient(760px 520px at 72% 96%, rgba(150,15,20,0.26), transparent 58%),
+    linear-gradient(158deg, #C2BFC8 0%, #ADAAB4 46%, #9A97A2 100%) !important;
 }
 
 /* ── Light-mode theming for portaled dialogs (marked data-ff-dialog):
