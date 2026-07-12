@@ -40,10 +40,13 @@ const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => ({
 }));
 
 const REAPER_BATS = [
-  { left: "43%", top: "16%", size: 22, dur: 8, delay: 0, flap: 0.3 },
-  { left: "55%", top: "27%", size: 18, dur: 10, delay: -3, flap: 0.34 },
-  { left: "48%", top: "39%", size: 26, dur: 9, delay: -6, flap: 0.28 },
-  { left: "59%", top: "20%", size: 16, dur: 11, delay: -1.5, flap: 0.32 },
+  { left: "12%", top: "14%", size: 20, dur: 9, delay: 0, flap: 0.32 },
+  { left: "28%", top: "34%", size: 16, dur: 11, delay: -4, flap: 0.36 },
+  { left: "44%", top: "12%", size: 24, dur: 8, delay: -2, flap: 0.28 },
+  { left: "58%", top: "40%", size: 18, dur: 10, delay: -6, flap: 0.34 },
+  { left: "70%", top: "18%", size: 22, dur: 12, delay: -1, flap: 0.3 },
+  { left: "84%", top: "30%", size: 15, dur: 9.5, delay: -5, flap: 0.38 },
+  { left: "20%", top: "52%", size: 19, dur: 13, delay: -8, flap: 0.33 },
 ];
 
 const FLYING_BIRDS = Array.from({ length: 8 }).map((_, i) => ({
