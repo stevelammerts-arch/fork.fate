@@ -120,6 +120,15 @@ body {
 [data-ff-theme="light"] [data-ff-scope="app"] ::selection{background:#A8C99E;color:#24391F;}
 [data-ff-theme="light"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/25{--tw-shadow-color:rgba(122,168,110,0.30) !important;}
 [data-ff-theme="light"] [data-ff-scope="app"] .shadow-\[\#E01E26\]\/30{--tw-shadow-color:rgba(122,168,110,0.30) !important;}
+/* Reaper (dark) theme — smoky gray base with soft red haze instead of plain white.
+   Kept light enough that the dark hero text and white cards stay readable. */
+[data-ff-theme="dark"] [data-ff-scope="app"] {
+  background:
+    radial-gradient(920px 560px at 10% 6%, rgba(224,30,38,0.16), transparent 60%),
+    radial-gradient(1040px 640px at 90% 20%, rgba(150,20,24,0.14), transparent 62%),
+    radial-gradient(760px 520px at 72% 96%, rgba(224,30,38,0.12), transparent 60%),
+    linear-gradient(158deg, #DEDBE1 0%, #CFCCD3 46%, #C2BFC7 100%) !important;
+}
 
 /* ── Light-mode theming for portaled dialogs (marked data-ff-dialog):
    lighten dark surfaces + text, recolor red accents to sage/green. ── */
@@ -386,18 +395,29 @@ body {
   75%  { transform: translateX(92vw) translateY(-12px); }
   100% { transform: translateX(126vw) translateY(4px); }
 }
-/* Reaper ambiance — rising smoke plumes behind the reaper (dark theme) */
+/* Reaper ambiance — broad low-lying atmospheric haze + rising smoke plumes */
+.ff-haze {
+  position: absolute;
+  left: -10%; right: -10%; bottom: -10%;
+  height: 85%;
+  background: radial-gradient(120% 95% at 50% 100%, rgba(52,56,78,0.26), rgba(52,56,78,0.11) 45%, rgba(52,56,78,0) 76%);
+  mix-blend-mode: multiply;
+  filter: blur(30px);
+  will-change: opacity;
+  animation: ffHazePulse 13s ease-in-out infinite;
+}
+@keyframes ffHazePulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.95; } }
 .ff-smoke {
   position: absolute;
   border-radius: 50%;
-  filter: blur(42px);
+  filter: blur(48px);
   opacity: 0;
   mix-blend-mode: multiply;
   will-change: transform, opacity;
 }
-.ff-smoke-1 { left: 26%; bottom: -12%; width: 62vmin; height: 62vmin; background: radial-gradient(circle, rgba(66,68,86,0.30), rgba(66,68,86,0) 70%); animation: ffSmokeA 17s ease-in-out infinite; }
-.ff-smoke-2 { left: 52%; bottom: -16%; width: 74vmin; height: 74vmin; background: radial-gradient(circle, rgba(54,60,82,0.26), rgba(54,60,82,0) 70%); animation: ffSmokeB 23s ease-in-out infinite; animation-delay: -7s; }
-.ff-smoke-3 { left: 40%; bottom: -22%; width: 94vmin; height: 94vmin; background: radial-gradient(circle, rgba(44,48,68,0.22), rgba(44,48,68,0) 72%); animation: ffSmokeA 29s ease-in-out infinite; animation-delay: -14s; }
+.ff-smoke-1 { left: 14%; bottom: -14%; width: 70vmin; height: 70vmin; background: radial-gradient(circle, rgba(66,68,86,0.28), rgba(66,68,86,0) 70%); animation: ffSmokeA 17s ease-in-out infinite; }
+.ff-smoke-2 { left: 44%; bottom: -18%; width: 82vmin; height: 82vmin; background: radial-gradient(circle, rgba(54,60,82,0.24), rgba(54,60,82,0) 70%); animation: ffSmokeB 23s ease-in-out infinite; animation-delay: -7s; }
+.ff-smoke-3 { left: 72%; bottom: -22%; width: 88vmin; height: 88vmin; background: radial-gradient(circle, rgba(44,48,68,0.22), rgba(44,48,68,0) 72%); animation: ffSmokeA 29s ease-in-out infinite; animation-delay: -14s; }
 @keyframes ffSmokeA {
   0%   { transform: translate(-10%, 22%) scale(0.9); opacity: 0; }
   25%  { opacity: 0.9; }
@@ -422,7 +442,7 @@ body {
   display: block;
   transform-origin: 50% 45%;
   opacity: 0.5;
-  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.55));
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
   will-change: transform;
   animation-name: ffBatFlap;
   animation-timing-function: ease-in-out;
