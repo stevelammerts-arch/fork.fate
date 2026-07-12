@@ -39,6 +39,14 @@ const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => ({
   delay: (i % 6) * 1.6,
 }));
 
+const REAPER_BATS = Array.from({ length: 4 }).map((_, i) => ({
+  top: `${11 + i * 12}%`,
+  size: 20 + (i % 3) * 8,
+  dur: 12 + i * 3,
+  delay: -(i * 5),
+  flap: 0.28 + (i % 3) * 0.06,
+}));
+
 const FLYING_BIRDS = Array.from({ length: 8 }).map((_, i) => ({
   top: `${4 + i * 5}%`,
   size: 38 + (i % 3) * 20,
@@ -750,6 +758,18 @@ export default function Home() {
       {/* Ambiance themes: cyberpunk / steampunk / tiki lounge */}
       {ambCfg && <AmbianceScene theme={theme} cfg={ambCfg} />}
       {/* Dark-mode: decorative reaper background with load animation */}
+      {theme === "dark" && (
+      <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid="reaper-ambiance">
+        <div className="ff-smoke ff-smoke-1" />
+        <div className="ff-smoke ff-smoke-2" />
+        <div className="ff-smoke ff-smoke-3" />
+        {REAPER_BATS.map((b, i) => (
+          <div key={`bat-${i}`} className="ff-bat-fly" style={{ top: b.top, animationDuration: `${b.dur}s`, animationDelay: `${b.delay}s` }}>
+            <img src="/reaper-bat.png" alt="" className="ff-bat" style={{ width: b.size, animationDuration: `${b.flap}s` }} />
+          </div>
+        ))}
+      </div>
+      )}
       {theme === "dark" && (
       <div className="pointer-events-none fixed left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>
         <motion.div
