@@ -243,7 +243,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
     if (!open) return;
     setStep("intro");
     setCinemaDone(false);
-    const t = setTimeout(() => setCinemaDone(true), light ? 1400 : 2400);
+    const t = setTimeout(() => setCinemaDone(true), light ? 1400 : 3600);
     axios.post(`${API}/stats/crawl-completed`).then(({ data }) => setCommunityCount(data.count)).catch(() => {});
     let thunderT;
     try {
@@ -362,7 +362,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
 
         {step === "intro" ? (
           <div className="flex flex-col items-center gap-4 py-2 text-center" data-testid="crawl-badge-intro">
-            <div className="relative flex h-60 w-full items-center justify-center overflow-hidden">
+            <div className={`relative flex h-60 w-full items-center justify-center overflow-hidden ${!light ? "rounded-xl bg-black" : ""}`}>
               {/* Dark mode keeps the cinematic reaper; light mode does a clean cream reveal */}
               {!light && (
                 <AnimatePresence>
@@ -379,7 +379,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
                         y: [14, 0, 0, -10, -64],
                         filter: ["blur(3px)", "blur(0px)", "blur(0px)", "blur(1.5px)", "blur(8px)"],
                       }}
-                      transition={{ duration: 2.4, times: [0, 0.2, 0.5, 0.76, 1], ease: "easeInOut" }}
+                      transition={{ duration: 3.6, times: [0, 0.14, 0.42, 0.66, 1], ease: "easeInOut" }}
                       className="h-60 w-60 object-contain"
                     />
                   )}
