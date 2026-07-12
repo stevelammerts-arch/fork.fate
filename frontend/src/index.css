@@ -127,7 +127,7 @@ body {
     radial-gradient(900px 560px at 10% 6%, rgba(150,15,20,0.34), transparent 58%),
     radial-gradient(1040px 640px at 90% 20%, rgba(122,12,16,0.30), transparent 60%),
     radial-gradient(760px 520px at 72% 96%, rgba(150,15,20,0.26), transparent 58%),
-    linear-gradient(158deg, #C2BFC8 0%, #ADAAB4 46%, #9A97A2 100%) !important;
+    linear-gradient(158deg, #A9A6B0 0%, #8D8A95 46%, #77747F 100%) !important;
 }
 
 /* ── Light-mode theming for portaled dialogs (marked data-ff-dialog):
