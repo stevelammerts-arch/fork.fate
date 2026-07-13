@@ -2208,16 +2208,19 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
               <Heart className={`h-5 w-5 transition-colors ${isFavorite?.(card) ? "fill-[#E01E26] text-[#E01E26]" : "text-[#6B7075]"}`} />
             </button>
           )}
+          {card.sponsored && (
+            <div
+              className="pointer-events-none absolute left-3 top-3 z-10 flex items-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-lg shadow-black/30"
+              data-testid="sponsored-ribbon"
+            >
+              <Store className="h-3 w-3" /> {t("Sponsored")}
+            </div>
+          )}
           <div className="pointer-events-none absolute bottom-4 left-4 right-4">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#0E0E0E]">
                 {card.cuisine} · {card.price}
               </span>
-              {card.sponsored && (
-                <span className="rounded-full bg-[#E01E26] px-3 py-1 text-xs font-bold text-white">
-                  {t("Sponsored")}
-                </span>
-              )}
             </div>
             <h3 className="mt-2 font-serif text-4xl font-medium leading-none text-white drop-shadow">
               {card.name}
