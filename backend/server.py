@@ -73,6 +73,12 @@ async def _monthly_summary_loop():
 @app.on_event("startup")
 async def startup_event():
     await seed_db()
+    try:
+        from core import init_storage
+        await init_storage()
+        logger.info("Object storage initialized")
+    except Exception as e:
+        logger.error(f"Object storage init failed: {e}")
     asyncio.create_task(_reconcile_loop())
     asyncio.create_task(_monthly_summary_loop())
 

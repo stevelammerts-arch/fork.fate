@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { Megaphone, Loader2, Store, ArrowRight } from "lucide-react";
+import { Megaphone, Loader2, Store, ArrowRight, Upload, Image as ImageIcon } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger,
 } from "./ui/dialog";
@@ -27,7 +27,32 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
   const [form, setForm] = useState(EMPTY);
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState("monthly");
+  const [uploading, setUploading] = useState(false);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const uploadPhoto = async (file) => {
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error(t("Please upload a JPG, PNG or WEBP image"));
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(t("Image too large (max 5 MB)"));
+      return;
+    }
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const { data } = await axios.post(`${API}/sponsors/upload-photo`, fd);
+      set("image", `${API}/files/${data.path}`);
+      toast.success(t("Photo uploaded"));
+    } catch (e) {
+      toast.error(e.response?.data?.detail || t("Upload failed, please try again"));
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const subscribe = async () => {
     if (!form.name.trim() || !form.cuisine.trim() || !form.contact_email.trim()) {
@@ -165,8 +190,33 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
             <Input id="sp-web" data-testid="sponsor-form-website" value={form.website} onChange={(e) => set("website", e.target.value)} placeholder="https://…" />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="sp-img">{t("Image URL")} <span className="text-[#B8BCC2]">{t("(optional)")}</span></Label>
-            <Input id="sp-img" data-testid="sponsor-form-image" value={form.image} onChange={(e) => set("image", e.target.value)} placeholder="https://… (a great photo of your spot)" />
+            <Label>{t("Business photo")} <span className="text-[#B8BCC2]">{t("(optional, recommended)")}</span></Label>
+            <div className="flex items-center gap-3">
+              <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-[#E2E4E7] bg-[#F5F6F7]">
+                {form.image
+                  ? <img src={form.image} alt="" className="h-full w-full object-cover" data-testid="sponsor-photo-preview" />
+                  : <div className="grid h-full w-full place-items-center text-[#B9AC95]"><ImageIcon className="h-6 w-6" /></div>}
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label
+                  data-testid="sponsor-photo-upload"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[#0E0E0E] px-3 py-1.5 text-xs font-bold text-[#0E0E0E] transition-colors hover:bg-[#0E0E0E] hover:text-white"
+                >
+                  {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+                  {uploading ? t("Uploading…") : (form.image ? t("Replace photo") : t("Upload photo"))}
+                  <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" disabled={uploading}
+                    onChange={(e) => { uploadPhoto(e.target.files?.[0]); e.target.value = ""; }} />
+                </label>
+                {form.image && (
+                  <button type="button" data-testid="sponsor-photo-remove" onClick={() => set("image", "")}
+                    className="text-left text-[11px] font-semibold text-[#B3141A] hover:underline">
+                    {t("Remove photo")}
+                  </button>
+                )}
+              </div>
+            </div>
+            <Input id="sp-img" data-testid="sponsor-form-image" value={form.image} onChange={(e) => set("image", e.target.value)} placeholder={t("…or paste an image URL")} className="text-xs" />
+            <p className="text-[11px] text-[#8A8F95]">{t("No photo? We'll show a tasteful image matched to your cuisine.")}</p>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="sp-email">{t("Contact email *")}</Label>

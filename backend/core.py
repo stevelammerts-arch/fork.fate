@@ -9,6 +9,7 @@ import time
 import math
 import ipaddress
 import jwt
+import httpx
 import logging
 from collections import defaultdict, deque
 from pathlib import Path
@@ -86,6 +87,100 @@ def pick_placeholder(category: str, key: str) -> str:
     imgs = PLACEHOLDER_IMGS.get(category, PLACEHOLDER_IMGS["food"])
     idx = sum(bytearray((key or "x").encode("utf-8"))) % len(imgs)
     return imgs[idx]
+
+
+# Curated per-cuisine imagery so sponsors who skip uploading a photo still get a
+# relevant, professional-looking image (not one generic stock shot).
+CUISINE_IMGS = {
+    "pizza": _u("https://images.unsplash.com/photo-1513104890138-7c749659a591"),
+    "taco": _u("https://images.unsplash.com/photo-1565299624946-b28f40a0ae38"),
+    "mexican": _u("https://images.unsplash.com/photo-1565299624946-b28f40a0ae38"),
+    "burger": _u("https://images.unsplash.com/photo-1568901346375-23c9450c58cd"),
+    "sushi": _u("https://images.unsplash.com/photo-1579871494447-9811cf80d66c"),
+    "japanese": _u("https://images.unsplash.com/photo-1579871494447-9811cf80d66c"),
+    "ramen": _u("https://images.unsplash.com/photo-1569718212165-3a8278d5f624"),
+    "chinese": _u("https://images.unsplash.com/photo-1585032226651-759b368d7246"),
+    "thai": _u("https://images.unsplash.com/photo-1559314809-0d155014e29e"),
+    "indian": _u("https://images.unsplash.com/photo-1585937421612-70a008356fbe"),
+    "italian": _u("https://images.unsplash.com/photo-1551183053-bf91a1d81141"),
+    "pasta": _u("https://images.unsplash.com/photo-1551183053-bf91a1d81141"),
+    "steak": _u("https://images.unsplash.com/photo-1600891964092-4316c288032e"),
+    "bbq": _u("https://images.unsplash.com/photo-1529193591184-b1d58069ecdd"),
+    "seafood": _u("https://images.unsplash.com/photo-1559737558-2f5a35f4523b"),
+    "breakfast": _u("https://images.unsplash.com/photo-1533089860892-a7c6f0a88666"),
+    "coffee": _u("https://images.unsplash.com/photo-1495474472287-4d71bcdd2085"),
+    "cafe": _u("https://images.unsplash.com/photo-1495474472287-4d71bcdd2085"),
+    "boba": _u("https://images.unsplash.com/photo-1558857563-b371033873b8"),
+    "tea": _u("https://images.unsplash.com/photo-1558857563-b371033873b8"),
+    "juice": _u("https://images.unsplash.com/photo-1600271886742-f049cd451bba"),
+    "wine": _u("https://images.unsplash.com/photo-1510812431401-41d2bd2722f3"),
+    "winery": _u("https://images.unsplash.com/photo-1510812431401-41d2bd2722f3"),
+    "beer": _u("https://images.unsplash.com/photo-1608270586620-248524c67de9"),
+    "brewery": _u("https://images.unsplash.com/photo-1608270586620-248524c67de9"),
+    "cocktail": _u("https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b"),
+    "whiskey": _u("https://images.unsplash.com/photo-1527281400683-1aae777175f8"),
+    "liquor": _u("https://images.unsplash.com/photo-1569529465841-dfecdab7503b"),
+    "ice cream": _u("https://images.unsplash.com/photo-1501443762994-82bd5dace89a"),
+    "donut": _u("https://images.unsplash.com/photo-1551024601-bec78aea704b"),
+    "bakery": _u("https://images.unsplash.com/photo-1509440159596-0249088772ff"),
+    "cake": _u("https://images.unsplash.com/photo-1578985545062-69928b1d9587"),
+    "chocolate": _u("https://images.unsplash.com/photo-1481391319762-47dff72954d9"),
+}
+
+
+def sponsor_fallback_image(category: str, cuisine: str, key: str) -> str:
+    """Best-effort relevant image for a sponsor with no uploaded photo."""
+    lower = (cuisine or "").lower()
+    for kw, url in CUISINE_IMGS.items():
+        if kw in lower:
+            return url
+    return pick_placeholder(category or "food", key or cuisine or "x")
+
+
+# ---- Emergent object storage (sponsor photo uploads) ----
+EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+STORAGE_URL = "https://integrations.emergentagent.com/objstore/api/v1/storage"
+STORAGE_APP = "fork-fate"
+_storage_key = None
+
+
+async def init_storage():
+    global _storage_key
+    if _storage_key:
+        return _storage_key
+    async with httpx.AsyncClient(timeout=30) as http:
+        r = await http.post(f"{STORAGE_URL}/init", json={"emergent_key": EMERGENT_LLM_KEY})
+        r.raise_for_status()
+        _storage_key = r.json()["storage_key"]
+    return _storage_key
+
+
+async def storage_put(path: str, data: bytes, content_type: str) -> dict:
+    global _storage_key
+    key = await init_storage()
+    async with httpx.AsyncClient(timeout=120) as http:
+        headers = {"X-Storage-Key": key, "Content-Type": content_type}
+        r = await http.put(f"{STORAGE_URL}/objects/{path}", headers=headers, content=data)
+        if r.status_code == 403:
+            _storage_key = None
+            key = await init_storage()
+            headers["X-Storage-Key"] = key
+            r = await http.put(f"{STORAGE_URL}/objects/{path}", headers=headers, content=data)
+        r.raise_for_status()
+        return r.json()
+
+
+async def storage_get(path: str):
+    global _storage_key
+    key = await init_storage()
+    async with httpx.AsyncClient(timeout=60) as http:
+        r = await http.get(f"{STORAGE_URL}/objects/{path}", headers={"X-Storage-Key": key})
+        if r.status_code == 403:
+            _storage_key = None
+            key = await init_storage()
+            r = await http.get(f"{STORAGE_URL}/objects/{path}", headers={"X-Storage-Key": key})
+        r.raise_for_status()
+        return r.content, r.headers.get("Content-Type", "application/octet-stream")
 
 
 MAX_RADIUS_MILES = 50.0

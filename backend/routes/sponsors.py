@@ -2,16 +2,68 @@
 import uuid
 import httpx
 from datetime import datetime, timezone, timedelta
-from fastapi import APIRouter, HTTPException, Request, Depends
+from fastapi import APIRouter, HTTPException, Request, Depends, UploadFile, File
+from fastapi.responses import Response
 
 from core import (
     db, logger, rate_limit, client_ip, origin_allowed, FALLBACK_IMG, SPONSOR_PRICE,
-    SPONSOR_PRICE_ANNUAL,
+    SPONSOR_PRICE_ANNUAL, sponsor_fallback_image, storage_put, storage_get, STORAGE_APP,
     PAYPAL_BASE, PAYPAL_ENV, PAYPAL_CLIENT_ID, PAYPAL_SECRET, PAYPAL_WEBHOOK_ID,
 )
 from models import SponsorshipRequest, SponsorSubscribe
 
 router = APIRouter()
+
+_UPLOAD_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}
+_MAX_UPLOAD = 5 * 1024 * 1024  # 5 MB
+
+
+@router.post("/sponsors/upload-photo", dependencies=[Depends(rate_limit(15))])
+async def upload_sponsor_photo(file: UploadFile = File(...)):
+    """Upload a sponsor business photo to object storage; returns its serve path."""
+    ext = _UPLOAD_TYPES.get(file.content_type)
+    if not ext:
+        raise HTTPException(status_code=400, detail="Please upload a JPG, PNG or WEBP image")
+    data = await file.read()
+    if len(data) > _MAX_UPLOAD:
+        raise HTTPException(status_code=400, detail="Image too large (max 5 MB)")
+    if not data:
+        raise HTTPException(status_code=400, detail="Empty file")
+    path = f"{STORAGE_APP}/sponsors/{uuid.uuid4()}.{ext}"
+    try:
+        result = await storage_put(path, data, file.content_type)
+    except Exception as e:
+        logger.error(f"Sponsor photo upload failed: {e}")
+        raise HTTPException(status_code=502, detail="Upload failed, please try again")
+    stored = result.get("path", path)
+    await db.files.insert_one({
+        "id": str(uuid.uuid4()),
+        "storage_path": stored,
+        "original_filename": file.filename,
+        "content_type": file.content_type,
+        "size": result.get("size", len(data)),
+        "kind": "sponsor_photo",
+        "is_deleted": False,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"path": stored}
+
+
+@router.get("/files/{path:path}")
+async def serve_file(path: str):
+    """Public serve for sponsor photos (images are meant to be shown to everyone)."""
+    record = await db.files.find_one({"storage_path": path, "is_deleted": False})
+    if not record:
+        raise HTTPException(status_code=404, detail="File not found")
+    try:
+        data, content_type = await storage_get(path)
+    except Exception:
+        raise HTTPException(status_code=404, detail="File not found")
+    return Response(
+        content=data,
+        media_type=record.get("content_type", content_type),
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
 
 
 @router.post("/sponsorship-requests", dependencies=[Depends(rate_limit(10))])
@@ -141,7 +193,7 @@ async def sponsors_subscribe(payload: SponsorSubscribe, request: Request):
         "id": sponsor_id,
         "name": payload.name, "cuisine": payload.cuisine, "price": payload.price,
         "category": payload.category, "address": payload.address,
-        "description": payload.description, "image": payload.image or FALLBACK_IMG,
+        "description": payload.description, "image": payload.image or sponsor_fallback_image(payload.category, payload.cuisine, payload.name),
         "website": payload.website, "contact_email": payload.contact_email,
         "rating": 4.7, "distance": 0.5, "open_now": True,
         "active": False, "sub_status": "pending_payment", "subscription_id": None,

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, ArrowRight } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -1501,6 +1501,45 @@ export default function Home() {
               </p>
             </div>
           </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature your business (sponsorship visibility band) */}
+      <section
+        className={`relative z-10 border-t ${light ? "border-[#E7DCC7]" : "border-[#E2E4E7]"}`}
+        data-testid="feature-business-band"
+      >
+        <div className="mx-auto max-w-6xl px-6 py-14 md:px-12">
+          <div
+            className={`relative overflow-hidden rounded-3xl border p-8 md:p-12 ${light ? "border-[#E0D5C0] bg-[#2A2118]" : "border-[#E01E26]/40 bg-[#141414]"}`}
+          >
+            <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#E01E26]/20 blur-3xl" />
+            <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
+              <div className="max-w-xl">
+                <span className="inline-flex items-center gap-2 rounded-full bg-[#E01E26]/15 px-3 py-1 font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#E01E26]">
+                  <Store className="h-3.5 w-3.5" /> {t("For local businesses")}
+                </span>
+                <h2 className="mt-3 font-serif text-3xl font-semibold text-white md:text-4xl">
+                  {t("Own the top spot when fate is decided")}
+                </h2>
+                <p className="mt-3 font-sans text-sm text-[#C7CBD1] md:text-base">
+                  {t("Sponsored spots appear first when locals shuffle for a place to eat, drink or treat themselves. Fixed monthly price, no bidding, cancel anytime.")}
+                </p>
+                <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 font-sans text-sm text-white">
+                  <span className="flex items-baseline gap-1.5"><span className="font-serif text-2xl font-bold">$29</span><span className="text-[#9A9FA5]">/{t("mo")}</span></span>
+                  <span className="text-[#6B7075]">{t("or")}</span>
+                  <span className="flex items-baseline gap-1.5"><span className="font-serif text-2xl font-bold">$290</span><span className="text-[#9A9FA5]">/{t("yr")}</span> <span className="rounded-full bg-[#E01E26] px-2 py-0.5 text-[10px] font-bold">{t("Save $58/yr")}</span></span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSponsorOpen(true)}
+                data-testid="feature-business-cta"
+                className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#E01E26] px-6 py-3.5 font-sans text-sm font-bold text-white shadow-lg shadow-[#E01E26]/30 transition-colors hover:bg-[#B3141A]"
+              >
+                {t("Feature your business")} <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       </section>
