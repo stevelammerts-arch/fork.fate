@@ -82,8 +82,16 @@ async def google_places_search(req: PlacesSearchRequest):
             base = " ".join(req.cuisines) if req.cuisines else "coffee boba tea smoothie"
             query = (base + " cafe drinks").strip()
         elif req.category == "bars":
-            base = " ".join(req.cuisines) if req.cuisines else "bar pub"
-            query = (base + " bar pub").strip()
+            if req.cuisines:
+                c = " ".join(req.cuisines)
+                # Liquor / package stores aren't "bars" — don't force the bar/pub suffix,
+                # which would bury them in the results.
+                if "liquor store" in c.lower():
+                    query = c.strip()
+                else:
+                    query = (c + " bar pub").strip()
+            else:
+                query = "bar pub liquor store"
         elif req.category == "desserts":
             base = " ".join(req.cuisines) if req.cuisines else "dessert ice cream bakery"
             query = (base + " dessert shop").strip()

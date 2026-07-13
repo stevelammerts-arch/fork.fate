@@ -107,7 +107,7 @@ export const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "S
 export const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Donuts", "Cupcakes", "Candy Shops", "Chocolate", "Crepes", "Cheesecake", "Pie", "Cookies", "Waffles", "Macarons", "Cinnamon Rolls"];
 export const BAR_CUISINES = [
   "Brewery", "Beer Garden", "Taproom", "Distillery", "Beer", "Wine", "Winery", "Wine Bar", "Wine Tasting",
-  "Champagne Bar", "Cider House", "Cocktails", "Whiskey", "Liquor", "Spirits", "Margaritas", "Tequila Bar",
+  "Champagne Bar", "Cider House", "Cocktails", "Whiskey", "Liquor", "Liquor Store", "Spirits", "Margaritas", "Tequila Bar",
   "Mezcal Bar", "Tiki", "Pub", "Gastropub", "Sports Bar", "Irish Bar", "Dive Bar", "Rooftop Bar", "Lounge",
   "Speakeasy", "Nightclub", "Karaoke", "Bars", "Cigar Bar", "Hookah Lounge", "Live Music", "Jazz Bar",
   "Piano Bar", "Comedy Club", "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Arcade Bar", "Axe Throwing",

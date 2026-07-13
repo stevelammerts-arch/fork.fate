@@ -56,7 +56,7 @@ const CUISINES = [
 const DRINK_CUISINES = ["Coffee", "Boba Tea", "Smoothie"];
 const DESSERT_CUISINES = ["Ice Cream", "Candy Shops", "Bakery", "Frozen Yogurt"];
 const BAR_CUISINES = [
-  "Beer", "Wine", "Cocktails", "Liquor", "Spirits", "Whiskey", "Margaritas", "Tiki", "Sports Bar", "Irish Bar", "Bars",
+  "Beer", "Wine", "Cocktails", "Liquor", "Liquor Store", "Spirits", "Whiskey", "Margaritas", "Tiki", "Sports Bar", "Irish Bar", "Bars",
   "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Games", "Bowling",
 ];
 
