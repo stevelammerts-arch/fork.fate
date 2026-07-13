@@ -27,7 +27,7 @@
   "id": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "theme_color": "#e32020",
+  "theme_color": "#000000",
   "background_color": "#000000",
   "lang": "en",
   "dir": "auto"
