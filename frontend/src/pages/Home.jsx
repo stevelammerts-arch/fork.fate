@@ -282,9 +282,7 @@ export default function Home() {
   const grooveRef = useRef(null);
   useEffect(() => () => { if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e) { /* ignore */ } grooveRef.current = null; } }, []);
   const { favorites, isFavorite, toggleFavorite, removeFavorite } = useFavorites();
-  const [showGuided, setShowGuided] = useState(() => {
-    try { return localStorage.getItem("ff_guided_seen") !== "1"; } catch { return true; }
-  });
+  const [showGuided, setShowGuided] = useState(true);
   const [muted, setMuted] = useState(() => {
     try { return localStorage.getItem("ff_muted") === "1"; } catch { return false; }
   });
@@ -298,7 +296,6 @@ export default function Home() {
   const [mysticalReveal, setMysticalReveal] = useState(false);
 
   const finishGuided = () => {
-    try { localStorage.setItem("ff_guided_seen", "1"); } catch (e) { /* ignore */ }
     setShowGuided(false);
   };
 
