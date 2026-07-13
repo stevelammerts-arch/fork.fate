@@ -243,3 +243,10 @@ Audio build scripts in /app/scripts/: make_reveal_drums.py, make_cyber_radio.py 
   - Icon split retained: maskable=logo-mark-maskable-512.png (glossy red bubble, launcher), any=logo-mark-192/512.png (FF disc on black, splash). Once truly installed, manifest splash (black bg) + icons apply.
   - Also confirmed earlier fixes live on preview: guided intro shows on every app load; Liquor Store added to bar search.
   - USER ACTION for production: redeploy, then on phone REMOVE the old shortcut/app, revisit fork-fate.com in Chrome, tap + wait ~30s (engagement heuristic), then tap Download -> native install; reinstall required for new splash/icon.
+- 2026-06 Sponsor photos + sponsorship visibility (FF_BUILD -> 2026.06-167):
+  - Sponsor photo UPLOAD to Emergent object storage: core.py init_storage/storage_put/storage_get (httpx async, 403->reinit retry); server.py startup init; routes/sponsors.py POST /api/sponsors/upload-photo (jpg/png/webp, 5MB cap, stores db.files record) + public GET /api/files/{path} (Cache-Control 1d). Verified via curl (upload {path}; serve 200 image/jpeg).
+  - Smart per-cuisine fallback: core.py CUISINE_IMGS + sponsor_fallback_image(category,cuisine,key); sponsors subscribe uses it instead of a single FALLBACK_IMG so photo-less sponsors get a relevant image (varies by cuisine/name), not one generic shot.
+  - BecomeSponsorDialog: photo upload UI (preview, replace, remove) + secondary URL paste + helper note. EMERGENT_LLM_KEY already present in backend/.env.
+  - Homepage 'Feature your business' band (feature-business-band) above footer: pitch + $29/mo & $290/yr (Save $58/yr) + CTA (feature-business-cta) -> opens sponsor dialog.
+  - EN+ES i18n added. testing_agent iteration_62.json: 100% pass, no issues. Frontend compiles.
+ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiques, gas stations, thrift/bookstores etc. ("local businesses roulette"). Modular add: category + Google Places query + cuisine chips.
