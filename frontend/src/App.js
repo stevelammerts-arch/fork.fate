@@ -7,6 +7,7 @@ import SharedCrawl from "./pages/SharedCrawl";
 import LegalPage from "./pages/LegalPage";
 import { Toaster } from "./components/ui/sonner";
 import { LangProvider } from "./i18n/i18n";
+import InstallHelper from "./components/InstallHelper";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         </Routes>
       </BrowserRouter>
       <Toaster position="top-center" richColors />
+      <InstallHelper />
       </LangProvider>
     </div>
   );

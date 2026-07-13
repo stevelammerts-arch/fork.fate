@@ -3,17 +3,7 @@ import { Download, Share, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { useLang } from "../i18n/i18n";
-
-const isStandalone = () =>
-  window.matchMedia?.("(display-mode: standalone)").matches ||
-  window.navigator.standalone === true;
-
-const ua = () => window.navigator.userAgent || "";
-const isIOS = () => /iphone|ipad|ipod/i.test(ua()) ||
-  // iPadOS 13+ reports as Mac; detect touch to disambiguate
-  (/Macintosh/i.test(ua()) && "ontouchend" in document);
-// On iOS only Safari can Add to Home Screen (Chrome/Firefox/Edge in-app cannot).
-const isIOSSafari = () => isIOS() && !/(CriOS|FxiOS|EdgiOS|OPiOS|GSA)/i.test(ua());
+import { isStandalone, isIOS, isIOSSafari } from "../lib/pwa";
 
 export default function InstallAppButton() {
   const { t } = useLang();
