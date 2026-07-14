@@ -1,5 +1,18 @@
 # Fork·Fate — Changelog
 
+## 2026-07-14 (fork) — Developer audit remediation + logo black ring
+
+**Whole-app audit (code review + security + deployment).** Deployment: PASS. Fixed all findings:
+- **[HIGH] Google outage bypassed curated fallback** (`places.py`): `places_search` now also catches `httpx.HTTPError`/`ValueError`/`KeyError`, so timeouts/connection resets/bad-JSON degrade to curated seed data instead of 500. Verified search still returns `source: google`.
+- **[MED] Daily Google cost cap undercounted geocode leg** (`places.py` `google_places_search`): cold-ZIP searches now reserve the geocode call via `_google_reserve()` too (both billed legs counted).
+- **[MED] Transient PayPal error orphaned pending sponsor rows** (`sponsors.py`): PayPal calls wrapped in try/except that deletes the pending row on any failure; also cleanup on missing approval link. Prevents 24h per-IP lockout.
+- **[SEC-001 MED] Unauthenticated sponsor upload cost abuse** (`sponsors.py`): added global `_MAX_UPLOADS_PER_DAY=300` cap + magic-byte image validation (`_sniff_image`) rejecting non-image bytes. Verified fake PNG → 400, real PNG → 200.
+- **[LOW] Lint**: removed unused `FALLBACK_IMG` import (sponsors), unused `price` (admin), renamed ambiguous `l`→`lnk`.
+- SEC-002 (spoofable client-IP headers) already mitigated in code via `peer_is_trusted_proxy`; remains a P3 infra reminder to confirm ingress strips inbound `cf-connecting-ip`/`true-client-ip`.
+
+**Logo — thick glossy black ring on all red versions** (Gemini 3.1 edit + PIL flood-fill cutout). Updated: `logo-mark.png`, `logo-bubble-master.png` (transparent masters), `logo-mark-full.png` (dark-red bg), `ff-logo-1024/512.png/.jpg`, `logo-mark-192/512.png`, `logo-mark-maskable-512.png`, `apple-touch-icon.png`, and all 14 `splash/*.png`. Bumped `FF_BUILD` → `2026.06-172`. NOTE: gold `logo-mark-light.png` left unchanged (not red). Business-card composites (`ff-card-4096x2304.*`, `ff-business-card.*`) still use the pre-ring logo — pending user go-ahead to regenerate.
+
+
 ## 2026-06-11 (fork) — Security re-audit remediation
 
 Re-audit verdict: CONDITIONAL PASS (all 4 new features verified safe). Fixed:
