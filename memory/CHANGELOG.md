@@ -1,5 +1,11 @@
 # Fork·Fate — Changelog
 
+## 2026-07-14 (fork) — P2: "Sponsored" tag on secondary results + Touchless Car Wash
+
+- **Sponsored tag on alternatives**: the "3 more to consider" list now shows a red "SPONSORED" pill (with Store icon) next to any sponsor entry (`alt.sponsored`), matching the main card's ribbon. `Home.jsx` alternatives block (~2375), testid `alternative-sponsored-{id}`. Verified by seeding 3 active food sponsors — all 3 tagged in alternatives — then cleaned up.
+- Added **Touchless Car Wash** to `FUEL_CUISINES`.
+
+
 ## 2026-07-14 (fork) — Fuel category (6th tab), order-button gating, snappier shuffle, Shops bugfix
 
 - **Bugfix (Shops → food card)**: the `PlacesSearchRequest` category validator (`models.py:97`) was missing `"shops"`, silently coercing `shops→food` and running a "Record Store restaurant" query with food images. Added `"shops"` (and now `"fuel"`) to all 5 validators. Verified: shops searches return real shops with shop imagery.

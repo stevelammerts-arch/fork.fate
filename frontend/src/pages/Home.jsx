@@ -2373,8 +2373,18 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
                         className="h-12 w-12 shrink-0 rounded-xl object-cover"
                       />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate font-serif text-base font-medium leading-tight text-[#0E0E0E]">
-                          {alt.name}
+                        <span className="flex items-center gap-1.5">
+                          <span className="truncate font-serif text-base font-medium leading-tight text-[#0E0E0E]">
+                            {alt.name}
+                          </span>
+                          {alt.sponsored && (
+                            <span
+                              data-testid={`alternative-sponsored-${alt.id}`}
+                              className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#E01E26] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"
+                            >
+                              <Store className="h-2.5 w-2.5" /> {t("Sponsored")}
+                            </span>
+                          )}
                         </span>
                         <span className="mt-0.5 flex items-center gap-2 font-sans text-xs text-[#6B7075]">
                           <span>{alt.cuisine} · {alt.price}</span>
