@@ -9,6 +9,7 @@ import AddRestaurantDialog from "../components/AddRestaurantDialog";
 import InstallAppButton from "../components/InstallAppButton";
 import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
 import SponsorMarquee from "../components/SponsorMarquee";
+import AndroidBetaBanner from "../components/AndroidBetaBanner";
 import SocialShare from "../components/SocialShare";
 import QRCode from "qrcode";
 import CheckInButton from "../components/CheckInButton";
@@ -988,7 +989,10 @@ export default function Home() {
         {theme === "tiki" && <img src="/tiki-grass.png" alt="" className="pointer-events-none absolute left-0 top-full z-0 w-full select-none object-cover object-top" style={{ transform: "translateY(-6px)", maxHeight: "8vh", filter: "brightness(0.8)" }} />}
       </header>
 
-      <SponsorMarquee light={light} onSponsor={() => setSponsorOpen(true)} />
+      <div className="relative z-40">
+        <AndroidBetaBanner light={light} />
+        <SponsorMarquee light={light} onSponsor={() => setSponsorOpen(true)} />
+      </div>
 
       {/* Social share bar (transparent) */}
       <div className="relative z-40 mx-auto flex max-w-6xl items-center justify-end gap-2 bg-transparent px-4 pt-2 md:px-12" data-testid="app-social-share">
