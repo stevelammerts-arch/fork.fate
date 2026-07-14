@@ -284,7 +284,10 @@ async def paypal_webhook(request: Request):
     body = await request.body()
     if len(body) > 100_000:
         raise HTTPException(status_code=413, detail="Payload too large")
-    event = await request.json()
+    try:
+        event = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
     if not await _verify_paypal_webhook(request.headers, event):
         raise HTTPException(status_code=400, detail="Invalid webhook signature")
     etype = event.get("event_type", "")
