@@ -159,7 +159,6 @@ async def cost_status():
 async def build_sponsor_summary():
     """Build the (subject, html) for the sponsor performance summary email."""
     sponsors = await db.sponsors.find({}, {"_id": 0}).to_list(500)
-    price = float(SPONSOR_PRICE)
     paying = [s for s in sponsors if s.get("sub_status") == "active"]
     active = [s for s in sponsors if s.get("active")]
     total_impressions = sum(int(s.get("impressions", 0) or 0) for s in sponsors)

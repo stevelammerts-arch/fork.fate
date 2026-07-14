@@ -13,6 +13,7 @@ from core import (
     haversine_miles, prettify_type, maps_url, doordash_url, order_url,
     _ZIP_GEO_CACHE, _PLACES_CACHE, _PLACES_TTL, _google_reserve,
 )
+
 from models import PlacesSearchRequest
 
 router = APIRouter()
@@ -67,6 +68,10 @@ async def google_places_search(req: PlacesSearchRequest):
             if cached:
                 lat, lng = cached
             else:
+                # The geocode leg is a separate billed Google call — reserve it against
+                # today's cap so cold-ZIP searches can't quietly double our spend.
+                if not await _google_reserve():
+                    raise HTTPException(status_code=503, detail="search-budget-exceeded")
                 geo = await http.get("https://maps.googleapis.com/maps/api/geocode/json", params={
                     "components": f"postal_code:{req.zip_code}|country:US",
                     "key": GOOGLE_API_KEY,
@@ -236,6 +241,10 @@ async def places_search(req: PlacesSearchRequest):
             if e.status_code == 400:
                 raise
             logger.warning(f"Places search fell back to curated: {e.detail}")
+        except (httpx.HTTPError, ValueError, KeyError) as e:
+            # Real Google failures (timeout, connection reset, bad/HTML JSON body) must
+            # not 500 the core roulette — degrade gracefully to curated seed data.
+            logger.warning(f"Places search fell back to curated (google error): {type(e).__name__}: {e}")
 
     # Fallback to curated seed data
     items = await db.restaurants.find({"status": {"$ne": "pending"}}, {"_id": 0}).to_list(1000)

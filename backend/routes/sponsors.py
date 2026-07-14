@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, Request, Depends, UploadFile, File
 from fastapi.responses import Response
 
 from core import (
-    db, logger, rate_limit, client_ip, origin_allowed, FALLBACK_IMG, SPONSOR_PRICE,
+    db, logger, rate_limit, client_ip, origin_allowed, SPONSOR_PRICE,
     SPONSOR_PRICE_ANNUAL, sponsor_fallback_image, storage_put, storage_get, STORAGE_APP,
     PAYPAL_BASE, PAYPAL_ENV, PAYPAL_CLIENT_ID, PAYPAL_SECRET, PAYPAL_WEBHOOK_ID,
 )
@@ -16,6 +16,18 @@ router = APIRouter()
 
 _UPLOAD_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}
 _MAX_UPLOAD = 5 * 1024 * 1024  # 5 MB
+_MAX_UPLOADS_PER_DAY = 300  # global ceiling to bound object-storage cost abuse
+
+
+def _sniff_image(data: bytes) -> str | None:
+    """Verify real image bytes (magic numbers) rather than trusting the client header."""
+    if data[:3] == b"\xff\xd8\xff":
+        return "jpg"
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return "png"
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "webp"
+    return None
 
 
 @router.post("/sponsors/upload-photo", dependencies=[Depends(rate_limit(15))])
@@ -24,11 +36,19 @@ async def upload_sponsor_photo(file: UploadFile = File(...)):
     ext = _UPLOAD_TYPES.get(file.content_type)
     if not ext:
         raise HTTPException(status_code=400, detail="Please upload a JPG, PNG or WEBP image")
+    # Global daily cap so an anonymous caller can't bulk-fill paid storage.
+    day_ago = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+    recent = await db.files.count_documents({"kind": "sponsor_photo", "created_at": {"$gt": day_ago}})
+    if recent >= _MAX_UPLOADS_PER_DAY:
+        raise HTTPException(status_code=429, detail="Upload limit reached, please try again later")
     data = await file.read()
     if len(data) > _MAX_UPLOAD:
         raise HTTPException(status_code=400, detail="Image too large (max 5 MB)")
     if not data:
         raise HTTPException(status_code=400, detail="Empty file")
+    # Trust the bytes, not the header — reject anything that isn't a real image.
+    if _sniff_image(data) != ext:
+        raise HTTPException(status_code=400, detail="File is not a valid JPG, PNG or WEBP image")
     path = f"{STORAGE_APP}/sponsors/{uuid.uuid4()}.{ext}"
     try:
         result = await storage_put(path, data, file.content_type)
@@ -204,30 +224,37 @@ async def sponsors_subscribe(payload: SponsorSubscribe, request: Request):
     }
     await db.sponsors.insert_one(doc)
     origin = payload.origin.rstrip("/")
-    async with httpx.AsyncClient(timeout=20) as http:
-        token = await paypal_token(http)
-        plan_id = await ensure_paypal_plan(http, token, payload.plan)
-        sub = await http.post(f"{PAYPAL_BASE}/v1/billing/subscriptions",
-            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-            json={
-                "plan_id": plan_id,
-                "custom_id": sponsor_id,
-                "subscriber": {"email_address": payload.contact_email},
-                "application_context": {
-                    "brand_name": "Fork·Fate",
-                    "user_action": "SUBSCRIBE_NOW",
-                    "shipping_preference": "NO_SHIPPING",
-                    "return_url": f"{origin}/sponsor/success",
-                    "cancel_url": f"{origin}/sponsor/cancelled",
-                },
-            })
+    try:
+        async with httpx.AsyncClient(timeout=20) as http:
+            token = await paypal_token(http)
+            plan_id = await ensure_paypal_plan(http, token, payload.plan)
+            sub = await http.post(f"{PAYPAL_BASE}/v1/billing/subscriptions",
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                json={
+                    "plan_id": plan_id,
+                    "custom_id": sponsor_id,
+                    "subscriber": {"email_address": payload.contact_email},
+                    "application_context": {
+                        "brand_name": "Fork·Fate",
+                        "user_action": "SUBSCRIBE_NOW",
+                        "shipping_preference": "NO_SHIPPING",
+                        "return_url": f"{origin}/sponsor/success",
+                        "cancel_url": f"{origin}/sponsor/cancelled",
+                    },
+                })
+    except Exception:
+        # Any PayPal failure (auth/timeout/network) must not orphan the pending row —
+        # otherwise it counts toward the per-IP cap and locks the business out for 24h.
+        await db.sponsors.delete_one({"id": sponsor_id})
+        raise
     if sub.status_code not in (200, 201):
         logger.error(f"PayPal subscription error: {sub.text[:300]}")
         await db.sponsors.delete_one({"id": sponsor_id})
         raise HTTPException(status_code=502, detail="Could not start PayPal subscription")
     data = sub.json()
-    approve = next((l["href"] for l in data.get("links", []) if l.get("rel") == "approve"), None)
+    approve = next((lnk["href"] for lnk in data.get("links", []) if lnk.get("rel") == "approve"), None)
     if not approve:
+        await db.sponsors.delete_one({"id": sponsor_id})
         raise HTTPException(status_code=502, detail="PayPal did not return an approval link")
     await db.sponsors.update_one({"id": sponsor_id}, {"$set": {"subscription_id": data.get("id")}})
     return {"approval_url": approve, "subscription_id": data.get("id")}
