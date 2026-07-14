@@ -95,6 +95,7 @@ const PRIVACY = [
       "\u2022 Your IP address, used transiently for abuse and rate-limit protection.",
       "\u2022 Community submissions and reports you choose to send.",
       "\u2022 If you become a sponsor: your business details and contact email, plus a subscription ID. Payment card data is handled entirely by PayPal \u2014 we never see or store it.",
+      "\u2022 If you join the Android beta: the email address you submit, used solely to add you as a tester on Google Play. You can ask us to remove it at any time.",
     ],
   },
   {
