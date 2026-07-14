@@ -18,6 +18,14 @@ from models import PlacesSearchRequest
 
 router = APIRouter()
 
+# Google primaryType fragments that are food/drink venues — excluded from the Shops
+# category so a "record store" search never lands on a steakhouse or brewery.
+_NON_SHOP_TYPES = (
+    "restaurant", "bar", "pub", "cafe", "coffee", "bakery", "brewery", "brewpub",
+    "winery", "food", "meal", "steak", "grill", "diner", "pizz", "deli",
+    "night_club", "ice_cream", "dessert", "donut", "fast_food", "sandwich",
+)
+
 
 async def fetch_active_sponsors(req: PlacesSearchRequest):
     docs = await db.sponsors.find({"active": True, "category": req.category}, {"_id": 0}).sort("created_at", -1).to_list(100)
@@ -102,9 +110,14 @@ async def google_places_search(req: PlacesSearchRequest):
             query = (base + " dessert shop").strip()
         elif req.category == "shops":
             if req.cuisines:
-                query = (" ".join(req.cuisines) + " shop").strip()
+                query = " ".join(req.cuisines).strip()
             else:
                 query = "antique thrift vintage consignment resale shop"
+        elif req.category == "fuel":
+            if req.cuisines:
+                query = " ".join(req.cuisines).strip()
+            else:
+                query = "gas station ev charging station"
         else:
             query = (" ".join(req.cuisines) + " restaurant").strip()
         headers = {
@@ -134,6 +147,12 @@ async def google_places_search(req: PlacesSearchRequest):
             dist = haversine_miles(lat, lng, plat, plng) if plat is not None and plng is not None else 0.0
             if dist > req.radius_miles:
                 continue
+            # Shops roulette must not surface food/drink venues that merely match a
+            # store-ish keyword (e.g. "Vinyl Steakhouse" under Record Store).
+            if req.category == "shops":
+                ptype = (p.get("primaryType") or "").lower()
+                if any(k in ptype for k in _NON_SHOP_TYPES):
+                    continue
             photos = p.get("photos") or []
             photo_url = ""
             if photos:
@@ -144,7 +163,7 @@ async def google_places_search(req: PlacesSearchRequest):
             out.append({
                 "id": rid,
                 "name": name,
-                "cuisine": prettify_type(p.get("primaryType")),
+                "cuisine": prettify_type(p.get("primaryType"), req.category),
                 "price": PRICE_ENUM_TO_SYMBOL.get(p.get("priceLevel"), "$$"),
                 "rating": float(p.get("rating") or 0.0),
                 "distance": round(dist, 1),

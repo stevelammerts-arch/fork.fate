@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
-  Utensils, Wine, Beer, IceCream, ShoppingBag, MapPin, LocateFixed, ArrowLeft, ArrowRight,
+  Utensils, Wine, Beer, IceCream, ShoppingBag, Fuel, MapPin, LocateFixed, ArrowLeft, ArrowRight,
   Search, Sparkles, Skull, Check,
 } from "lucide-react";
 import { Input } from "./ui/input";
@@ -24,6 +24,7 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
     { key: "bars", label: t("Bars"), sub: t("Cocktails & nightlife"), Icon: Beer },
     { key: "desserts", label: t("Desserts"), sub: t("Something sweet"), Icon: IceCream },
     { key: "shops", label: t("Shops"), sub: t("Antiques, thrift & more"), Icon: ShoppingBag },
+    { key: "fuel", label: t("Fuel"), sub: t("Gas & EV charging"), Icon: Fuel },
   ];
   const [step, setStep] = useState(0);
   const [mode, setMode] = useState(null);

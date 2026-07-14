@@ -86,6 +86,12 @@ PLACEHOLDER_IMGS = {
         _u("https://images.unsplash.com/photo-1569424746512-4f98ac866469"),
         _u("https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7"),
     ],
+    "fuel": [
+        _u("https://images.unsplash.com/photo-1635627026254-b652e62d1d07"),
+        _u("https://images.unsplash.com/photo-1695561324569-5e47c76dc0a3"),
+        _u("https://images.unsplash.com/photo-1593941707874-ef25b8b4a92b"),
+        _u("https://images.unsplash.com/photo-1593941707882-a5bba14938c7"),
+    ],
 }
 
 
@@ -484,9 +490,9 @@ def haversine_miles(lat1, lon1, lat2, lon2):
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
-def prettify_type(t):
+def prettify_type(t, category="food"):
     if not t:
-        return "Restaurant"
+        return {"drinks": "Cafe", "bars": "Bar", "desserts": "Dessert Shop", "shops": "Shop", "fuel": "Gas Station"}.get(category, "Restaurant")
     return t.replace("_restaurant", "").replace("_", " ").title()
 
 

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, ArrowRight } from "lucide-react";
+import { Dices, Star, MapPin, RotateCcw, Search, ExternalLink, ShoppingBag, Fuel, Flag, Clock, Share2, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, ImageDown, Flame, Heart, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, ArrowRight } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -23,7 +23,7 @@ import {
   RESULT_SPRING,
   HERO_INITIAL, HERO_ANIMATE, HERO_TRANSITION, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, SPIN_TAP,
   reaperLineFor, lightLineFor,
-  FOOD_CUISINES, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, SHOP_CUISINES, CRAWL_TYPES, crawlLabelForType, orderCrawlRoute,
+  FOOD_CUISINES, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, SHOP_CUISINES, FUEL_CUISINES, CRAWL_TYPES, crawlLabelForType, orderCrawlRoute,
 } from "./homeConstants";
 import { Input } from "../components/ui/input";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "../components/ui/accordion";
@@ -382,7 +382,7 @@ export default function Home() {
     setGroupPicks(null);
   };
 
-  const cuisineList = mode === "food" ? FOOD_CUISINES : mode === "drinks" ? DRINK_CUISINES : mode === "bars" ? BAR_CUISINES : mode === "desserts" ? DESSERT_CUISINES : SHOP_CUISINES;
+  const cuisineList = mode === "food" ? FOOD_CUISINES : mode === "drinks" ? DRINK_CUISINES : mode === "bars" ? BAR_CUISINES : mode === "desserts" ? DESSERT_CUISINES : mode === "shops" ? SHOP_CUISINES : FUEL_CUISINES;
 
   const runShuffle = (pool) => {
     setResult(null);
@@ -452,7 +452,7 @@ export default function Home() {
       if (delay < maxDelay) {
         shuffleRef.current = setTimeout(step, delay);
       } else {
-        // Deck lands on the winner: boom + flash as the card is presented
+        // Deck lands on the winner: boom + flash the instant the card is presented
         setFlash(chosen);
         shuffleRef.current = setTimeout(() => {
           setFlashHit(true);
@@ -472,8 +472,8 @@ export default function Home() {
             setFlashHit(false);
             axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
             setStreak(bumpStreak());
-          }, 5500);
-        }, 1200);
+          }, 1600);
+        }, 140);
       }
     };
     // Let the voice cue lead in before the deck starts shuffling
@@ -740,7 +740,7 @@ export default function Home() {
       <AnimatePresence>
         {showGuided && (
           <GuidedFlow
-            cuisineMap={{ food: FOOD_CUISINES, drinks: DRINK_CUISINES, bars: BAR_CUISINES, desserts: DESSERT_CUISINES, shops: SHOP_CUISINES }}
+            cuisineMap={{ food: FOOD_CUISINES, drinks: DRINK_CUISINES, bars: BAR_CUISINES, desserts: DESSERT_CUISINES, shops: SHOP_CUISINES, fuel: FUEL_CUISINES }}
             onSeal={sealFate}
             onSkip={finishGuided}
           />
@@ -1083,10 +1083,10 @@ export default function Home() {
           className="max-w-2xl"
         >
           <p className="font-sans text-sm font-extrabold tracking-[0.25em] uppercase text-[#E01E26]">
-            {mode === "food" ? t("Can't decide where to eat?") : mode === "drinks" ? t("Can't decide what to sip?") : mode === "bars" ? t("Can't decide where to drink?") : mode === "desserts" ? t("Craving something sweet?") : t("Feeling like a treasure hunt?")}
+            {mode === "food" ? t("Can't decide where to eat?") : mode === "drinks" ? t("Can't decide what to sip?") : mode === "bars" ? t("Can't decide where to drink?") : mode === "desserts" ? t("Craving something sweet?") : mode === "shops" ? t("Feeling like a treasure hunt?") : t("Need to fill up or charge?")}
           </p>
           <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl" style={ambCfg ? { color: ambCfg.sky, textShadow: theme === "cyber" ? "0 0 12px rgba(199,125,255,0.6)" : undefined } : undefined}>
-            {mode === "food" ? t("Let fate pick tonight's table.") : mode === "drinks" ? t("Let fate pick your next sip.") : mode === "bars" ? t("Let fate pick tonight's bar.") : mode === "desserts" ? t("Let fate pick your sweet treat.") : t("Let fate pick your next find.")}
+            {mode === "food" ? t("Let fate pick tonight's table.") : mode === "drinks" ? t("Let fate pick your next sip.") : mode === "bars" ? t("Let fate pick tonight's bar.") : mode === "desserts" ? t("Let fate pick your sweet treat.") : mode === "shops" ? t("Let fate pick your next find.") : t("Let fate pick your pit stop.")}
           </h1>
           <p className="mt-4 font-sans text-base font-semibold leading-relaxed text-[#0E0E0E]" style={ambCfg ? { color: ambCfg.sky, opacity: 0.92 } : undefined}>
             {mode === "food"
@@ -1097,7 +1097,9 @@ export default function Home() {
               ? t("Beer, whiskey, margaritas or a Tiki bar? Set your filters and hit Deal — we'll shuffle nearby bars and pick tonight's spot.")
               : mode === "desserts"
               ? t("Ice cream, bakery, candy or froyo? Set your filters and hit Deal — we'll shuffle nearby dessert spots and pick your treat.")
-              : t("Antiques, thrift, vintage or a hobby shop? Set your filters and hit Deal — we'll shuffle nearby shops and pick your next find.")}
+              : mode === "shops"
+              ? t("Antiques, thrift, vintage or a hobby shop? Set your filters and hit Deal — we'll shuffle nearby shops and pick your next find.")
+              : t("Gas or an EV charger? Set your filters and hit Deal — we'll shuffle nearby stations and pick your pit stop.")}
           </p>
         </motion.div>
 
@@ -1193,11 +1195,19 @@ export default function Home() {
                 <ShoppingBag className="h-4 w-4" />
                 {t("Shops")}
               </button>
+              <button
+                data-testid="mode-fuel"
+                onClick={() => switchMode("fuel")}
+                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "fuel" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+              >
+                <Fuel className="h-4 w-4" />
+                {t("Fuel")}
+              </button>
             </div>
 
             <Filters
               cuisines={cuisineList}
-              cuisineLabel={mode === "food" ? t("Cuisine") : mode === "drinks" ? t("Drink type") : mode === "bars" ? t("Bar type") : mode === "desserts" ? t("Dessert type") : t("Shop type")}
+              cuisineLabel={mode === "food" ? t("Cuisine") : mode === "drinks" ? t("Drink type") : mode === "bars" ? t("Bar type") : mode === "desserts" ? t("Dessert type") : mode === "shops" ? t("Shop type") : t("Fuel type")}
               selectedCuisines={selectedCuisines}
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
               labelColor={labelColor}
@@ -2138,7 +2148,9 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
               ? t("Set your filters and hit Deal — fate decides where you're drinking.")
               : mode === "desserts"
               ? t("Set your filters and hit Deal — fate decides your sweet treat.")
-              : t("Set your filters and hit Deal — fate decides your next find.")}
+              : mode === "shops"
+              ? t("Set your filters and hit Deal — fate decides your next find.")
+              : t("Set your filters and hit Deal — fate decides your pit stop.")}
           </p>
         </div>
       </div>
@@ -2266,7 +2278,7 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
               </p>
             )}
             <div className="flex flex-wrap gap-3">
-              {card.doordash_url && (
+              {card.doordash_url && mode !== "shops" && mode !== "fuel" && (
                 <a
                   href={card.doordash_url}
                   target="_blank"
@@ -2278,7 +2290,7 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
                   <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               )}
-              {card.order_url && (
+              {card.order_url && mode !== "shops" && mode !== "fuel" && (
                 <a
                   href={card.order_url}
                   target="_blank"
