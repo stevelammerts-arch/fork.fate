@@ -26,6 +26,7 @@ import {
   FOOD_CUISINES, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, CRAWL_TYPES, crawlLabelForType, orderCrawlRoute,
 } from "./homeConstants";
 import { Input } from "../components/ui/input";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "../components/ui/accordion";
 import { Slider } from "../components/ui/slider";
 import { useTheme, setTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
@@ -1459,48 +1460,29 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-16 rounded-3xl border border-[#E2E4E7] bg-white/95 p-8 shadow-sm backdrop-blur-sm md:p-10">
+          <div className="mt-16 rounded-3xl border border-[#E2E4E7] bg-white/95 p-6 shadow-sm backdrop-blur-sm md:p-8">
           <h2 className="font-serif text-2xl font-medium tracking-tight text-[#0E0E0E] sm:text-3xl">
             {t("Frequently asked questions")}
           </h2>
-          <div className="mt-6 grid grid-cols-1 gap-x-10 gap-y-7 md:grid-cols-2" data-testid="faq-section">
-            <div>
-              <h3 className="font-serif text-lg text-[#0E0E0E]">{t("How does Fork·Fate pick a restaurant?")}</h3>
-              <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
-                {t("After you set your filters, Fork·Fate gathers matching local spots and randomly deals one from the deck. Every deal is a fresh shuffle, so you'll discover places you might never have chosen yourself.")}
-              </p>
-            </div>
-            <div>
-              <h3 className="font-serif text-lg text-[#0E0E0E]">{t("Is Fork·Fate free to use?")}</h3>
-              <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
-                {t("Yes — Fork·Fate is completely free. There's no account, no signup, and no paywall. Just open it, shuffle, and go eat.")}
-              </p>
-            </div>
-            <div>
-              <h3 className="font-serif text-lg text-[#0E0E0E]">{t("Do I need to create an account?")}</h3>
-              <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
-                {t("No login required. You can start spinning the moment the page loads, on your phone or desktop.")}
-              </p>
-            </div>
-            <div>
-              <h3 className="font-serif text-lg text-[#0E0E0E]">{t("How do you find nearby places?")}</h3>
-              <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
-                {t("Fork·Fate uses live Google Places data based on your ZIP code or device location, so results reflect real, currently-listed restaurants, bars, and dessert shops around you.")}
-              </p>
-            </div>
-            <div>
-              <h3 className="font-serif text-lg text-[#0E0E0E]">{t("Can I add my favorite local spot?")}</h3>
-              <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
-                {t("Absolutely. Tap \"Add spot\" to submit a place you love. Community submissions are quickly reviewed before they join the roulette pool.")}
-              </p>
-            </div>
-            <div>
-              <h3 className="font-serif text-lg text-[#0E0E0E]">{t("Can I install Fork·Fate as an app?")}</h3>
-              <p className="mt-1.5 font-sans text-sm text-[#6B7075]">
-                {t("Yes — tap \"Download app\" to install Fork·Fate as a PWA on your home screen for one-tap access whenever hunger strikes.")}
-              </p>
-            </div>
-          </div>
+          <Accordion type="single" collapsible className="mt-4 w-full" data-testid="faq-section">
+            {[
+              { q: t("How does Fork·Fate pick a restaurant?"), a: t("After you set your filters, Fork·Fate gathers matching local spots and randomly deals one from the deck. Every deal is a fresh shuffle, so you'll discover places you might never have chosen yourself.") },
+              { q: t("Is Fork·Fate free to use?"), a: t("Yes — Fork·Fate is completely free. There's no account, no signup, and no paywall. Just open it, shuffle, and go eat.") },
+              { q: t("Do I need to create an account?"), a: t("No login required. You can start spinning the moment the page loads, on your phone or desktop.") },
+              { q: t("How do you find nearby places?"), a: t("Fork·Fate uses live Google Places data based on your ZIP code or device location, so results reflect real, currently-listed restaurants, bars, and dessert shops around you.") },
+              { q: t("Can I add my favorite local spot?"), a: t("Absolutely. Tap \"Add spot\" to submit a place you love. Community submissions are quickly reviewed before they join the roulette pool.") },
+              { q: t("Can I install Fork·Fate as an app?"), a: t("Yes — tap \"Download app\" to install Fork·Fate as a PWA on your home screen for one-tap access whenever hunger strikes.") },
+            ].map((item, i) => (
+              <AccordionItem key={i} value={`faq-${i}`} className="border-[#E2E4E7]" data-testid={`faq-item-${i}`}>
+                <AccordionTrigger className="text-left font-serif text-base text-[#0E0E0E] hover:no-underline">
+                  {item.q}
+                </AccordionTrigger>
+                <AccordionContent className="font-sans text-sm text-[#6B7075]">
+                  {item.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
           </div>
         </div>
       </section>
