@@ -26,6 +26,7 @@ export default function Admin() {
   const [stats, setStats] = useState(null);
   const [cost, setCost] = useState(null);
   const [submissions, setSubmissions] = useState([]);
+  const [betaTesters, setBetaTesters] = useState([]);
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [passkeyAvail, setPasskeyAvail] = useState(false);
@@ -81,9 +82,18 @@ export default function Admin() {
     }
   }, [token, logout]);
 
+  const loadBeta = useCallback(async () => {
+    try {
+      const { data } = await axios.get(`${API}/admin/beta-testers`, { headers: { Authorization: `Bearer ${token}` } });
+      setBetaTesters(data.testers || []);
+    } catch (e) {
+      if (e.response?.status === 401) logout();
+    }
+  }, [token, logout]);
+
   useEffect(() => {
-    if (token) { loadSponsors(); loadSubmissions(); loadStats(); loadCost(); }
-  }, [token, loadSponsors, loadSubmissions, loadStats, loadCost]);
+    if (token) { loadSponsors(); loadSubmissions(); loadStats(); loadCost(); loadBeta(); }
+  }, [token, loadSponsors, loadSubmissions, loadStats, loadCost, loadBeta]);
 
   // Show the passkey button on the login screen only when one is registered.
   useEffect(() => {
@@ -439,6 +449,44 @@ export default function Admin() {
               </div>
             );
           })()}
+        </section>
+
+        {/* Android beta testers */}
+        <section className="md:col-span-2" data-testid="beta-testers-section">
+          <div className="flex items-center gap-2">
+            <h2 className="font-serif text-xl text-[#0E0E0E]">Android beta testers</h2>
+            <span data-testid="beta-count-badge" className={`rounded-full px-2.5 py-0.5 text-xs font-bold text-white ${betaTesters.length >= 12 ? "bg-[#1AA85B]" : "bg-[#E01E26]"}`}>
+              {betaTesters.length}/12
+            </span>
+            {betaTesters.length > 0 && (
+              <button
+                data-testid="copy-beta-emails-btn"
+                onClick={() => {
+                  navigator.clipboard?.writeText(betaTesters.map((x) => x.email).join(", "));
+                  toast.success("All tester emails copied");
+                }}
+                className="ml-auto rounded-full border border-[#E2E4E7] bg-white px-3 py-1 text-xs font-bold text-[#0E0E0E] hover:bg-[#F5F6F7]"
+              >
+                Copy all emails
+              </button>
+            )}
+          </div>
+          <p className="mt-1 text-xs text-[#6B7075]">
+            Paste these Gmail addresses into Play Console → Closed testing → Testers. You need 12+ for 14 days.
+          </p>
+          <div className="mt-4 space-y-2" data-testid="beta-testers-list">
+            {betaTesters.length === 0 && (
+              <p className="rounded-2xl border border-dashed border-[#E2E4E7] bg-white px-4 py-6 text-center text-sm text-[#6B7075]">
+                No sign-ups yet — share the app so visitors can join the beta.
+              </p>
+            )}
+            {betaTesters.map((x) => (
+              <div key={x.email} className="flex items-center justify-between rounded-2xl border border-[#E2E4E7] bg-white px-4 py-2.5">
+                <span className="font-mono text-sm text-[#0E0E0E]">{x.email}</span>
+                <span className="text-xs text-[#9AA0A6]">{(x.created_at || "").slice(0, 10)}</span>
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* Pending community submissions */}
