@@ -3,9 +3,9 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "com.forkfate.twa",
+      "package_name": "com.fork_fate.twa",
       "sha256_cert_fingerprints": [
-        "REPLACE_WITH_YOUR_UPLOAD_KEY_SHA256",
+        "21:D0:AB:A6:A0:67:8D:FE:81:78:DC:6A:8A:7A:62:47:4F:E1:03:C3:C5:54:87:76:AA:8B:FE:52:72:34:AA:39",
         "REPLACE_WITH_GOOGLE_PLAY_APP_SIGNING_SHA256"
       ]
     }
