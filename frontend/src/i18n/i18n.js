@@ -39,6 +39,8 @@ export const ES = {
   "Desserts": "Postres",
   "Shops": "Tiendas",
   "Fuel": "Combustible",
+  "Sponsors": "Patrocinadores",
+  "Feature your business here": "Anuncia tu negocio aquí",
   "Antiques, thrift & more": "Antigüedades, segunda mano y más",
   "Gas & EV charging": "Gasolina y carga eléctrica",
 

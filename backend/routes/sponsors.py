@@ -305,6 +305,33 @@ async def paypal_webhook(request: Request):
     return {"ok": True}
 
 
+@router.get("/sponsors/active", dependencies=[Depends(rate_limit(60))])
+async def active_sponsors():
+    """Public list of active sponsors for the header marquee (no PII)."""
+    docs = await db.sponsors.find({"active": True}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    out = []
+    for s in docs:
+        out.append({
+            "id": s.get("id"),
+            "name": s.get("name"),
+            "cuisine": s.get("cuisine"),
+            "category": s.get("category"),
+            "website": s.get("website", ""),
+            "image": s.get("image") or sponsor_fallback_image(s.get("category"), s.get("cuisine"), s.get("id") or s.get("name") or "x"),
+        })
+    ids = [s["id"] for s in out if s.get("id")]
+    if ids:
+        await db.sponsors.update_many({"id": {"$in": ids}}, {"$inc": {"impressions": 1}})
+    return {"sponsors": out}
+
+
+@router.post("/sponsors/{sponsor_id}/click", dependencies=[Depends(rate_limit(60))])
+async def sponsor_click(sponsor_id: str):
+    """Count a click from the marquee / result card toward a sponsor's stats."""
+    r = await db.sponsors.update_one({"id": sponsor_id, "active": True}, {"$inc": {"clicks": 1}})
+    return {"ok": r.modified_count > 0}
+
+
 @router.get("/sponsors/subscription-status", dependencies=[Depends(rate_limit(30))])
 async def sponsor_subscription_status(subscription_id: str):
     s = await db.sponsors.find_one({"subscription_id": subscription_id})
