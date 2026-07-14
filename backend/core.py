@@ -80,6 +80,12 @@ PLACEHOLDER_IMGS = {
         _u("https://images.unsplash.com/photo-1671395276760-959704c6350a"),
         _u("https://images.unsplash.com/photo-1640902106532-47dd3a2e833e"),
     ],
+    "shops": [
+        _u("https://images.unsplash.com/photo-1443884590026-2e4d21aee71c"),
+        _u("https://images.unsplash.com/photo-1460776960860-7adc30a4e69d"),
+        _u("https://images.unsplash.com/photo-1569424746512-4f98ac866469"),
+        _u("https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7"),
+    ],
 }
 
 
@@ -125,6 +131,10 @@ CUISINE_IMGS = {
     "bakery": _u("https://images.unsplash.com/photo-1509440159596-0249088772ff"),
     "cake": _u("https://images.unsplash.com/photo-1578985545062-69928b1d9587"),
     "chocolate": _u("https://images.unsplash.com/photo-1481391319762-47dff72954d9"),
+    "antique": _u("https://images.unsplash.com/photo-1443884590026-2e4d21aee71c"),
+    "vintage": _u("https://images.unsplash.com/photo-1460776960860-7adc30a4e69d"),
+    "consignment": _u("https://images.unsplash.com/photo-1569424746512-4f98ac866469"),
+    "thrift": _u("https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7"),
 }
 
 

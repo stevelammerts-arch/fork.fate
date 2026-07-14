@@ -23,7 +23,7 @@ import {
   RESULT_SPRING,
   HERO_INITIAL, HERO_ANIMATE, HERO_TRANSITION, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, SPIN_TAP,
   reaperLineFor, lightLineFor,
-  FOOD_CUISINES, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, CRAWL_TYPES, crawlLabelForType, orderCrawlRoute,
+  FOOD_CUISINES, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, SHOP_CUISINES, CRAWL_TYPES, crawlLabelForType, orderCrawlRoute,
 } from "./homeConstants";
 import { Input } from "../components/ui/input";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "../components/ui/accordion";
@@ -382,7 +382,7 @@ export default function Home() {
     setGroupPicks(null);
   };
 
-  const cuisineList = mode === "food" ? FOOD_CUISINES : mode === "drinks" ? DRINK_CUISINES : mode === "bars" ? BAR_CUISINES : DESSERT_CUISINES;
+  const cuisineList = mode === "food" ? FOOD_CUISINES : mode === "drinks" ? DRINK_CUISINES : mode === "bars" ? BAR_CUISINES : mode === "desserts" ? DESSERT_CUISINES : SHOP_CUISINES;
 
   const runShuffle = (pool) => {
     setResult(null);
@@ -740,7 +740,7 @@ export default function Home() {
       <AnimatePresence>
         {showGuided && (
           <GuidedFlow
-            cuisineMap={{ food: FOOD_CUISINES, drinks: DRINK_CUISINES, bars: BAR_CUISINES, desserts: DESSERT_CUISINES }}
+            cuisineMap={{ food: FOOD_CUISINES, drinks: DRINK_CUISINES, bars: BAR_CUISINES, desserts: DESSERT_CUISINES, shops: SHOP_CUISINES }}
             onSeal={sealFate}
             onSkip={finishGuided}
           />
@@ -1083,10 +1083,10 @@ export default function Home() {
           className="max-w-2xl"
         >
           <p className="font-sans text-sm font-extrabold tracking-[0.25em] uppercase text-[#E01E26]">
-            {mode === "food" ? t("Can't decide where to eat?") : mode === "drinks" ? t("Can't decide what to sip?") : mode === "bars" ? t("Can't decide where to drink?") : t("Craving something sweet?")}
+            {mode === "food" ? t("Can't decide where to eat?") : mode === "drinks" ? t("Can't decide what to sip?") : mode === "bars" ? t("Can't decide where to drink?") : mode === "desserts" ? t("Craving something sweet?") : t("Feeling like a treasure hunt?")}
           </p>
           <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl" style={ambCfg ? { color: ambCfg.sky, textShadow: theme === "cyber" ? "0 0 12px rgba(199,125,255,0.6)" : undefined } : undefined}>
-            {mode === "food" ? t("Let fate pick tonight's table.") : mode === "drinks" ? t("Let fate pick your next sip.") : mode === "bars" ? t("Let fate pick tonight's bar.") : t("Let fate pick your sweet treat.")}
+            {mode === "food" ? t("Let fate pick tonight's table.") : mode === "drinks" ? t("Let fate pick your next sip.") : mode === "bars" ? t("Let fate pick tonight's bar.") : mode === "desserts" ? t("Let fate pick your sweet treat.") : t("Let fate pick your next find.")}
           </h1>
           <p className="mt-4 font-sans text-base font-semibold leading-relaxed text-[#0E0E0E]" style={ambCfg ? { color: ambCfg.sky, opacity: 0.92 } : undefined}>
             {mode === "food"
@@ -1095,7 +1095,9 @@ export default function Home() {
               ? t("Coffee, boba tea or a smoothie? Set your filters and hit Deal — we'll shuffle nearby drink spots and pick one for you.")
               : mode === "bars"
               ? t("Beer, whiskey, margaritas or a Tiki bar? Set your filters and hit Deal — we'll shuffle nearby bars and pick tonight's spot.")
-              : t("Ice cream, bakery, candy or froyo? Set your filters and hit Deal — we'll shuffle nearby dessert spots and pick your treat.")}
+              : mode === "desserts"
+              ? t("Ice cream, bakery, candy or froyo? Set your filters and hit Deal — we'll shuffle nearby dessert spots and pick your treat.")
+              : t("Antiques, thrift, vintage or a hobby shop? Set your filters and hit Deal — we'll shuffle nearby shops and pick your next find.")}
           </p>
         </motion.div>
 
@@ -1154,40 +1156,48 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="inline-flex rounded-full border border-[#E2E4E7] bg-[#EDEEF0] p-1" data-testid="mode-toggle">
+            <div className="inline-flex flex-wrap justify-center rounded-full border border-[#E2E4E7] bg-[#EDEEF0] p-1" data-testid="mode-toggle">
               <button
                 data-testid="mode-food"
                 onClick={() => switchMode("food")}
-                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "food" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+                className={`rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "food" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
               >
                 {t("Food")}
               </button>
               <button
                 data-testid="mode-drinks"
                 onClick={() => switchMode("drinks")}
-                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "drinks" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+                className={`rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "drinks" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
               >
                 {t("Drinks")}
               </button>
               <button
                 data-testid="mode-bars"
                 onClick={() => switchMode("bars")}
-                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "bars" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+                className={`rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "bars" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
               >
                 {t("Bars")}
               </button>
               <button
                 data-testid="mode-desserts"
                 onClick={() => switchMode("desserts")}
-                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${mode === "desserts" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+                className={`rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "desserts" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
               >
                 {t("Desserts")}
+              </button>
+              <button
+                data-testid="mode-shops"
+                onClick={() => switchMode("shops")}
+                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "shops" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+              >
+                <ShoppingBag className="h-4 w-4" />
+                {t("Shops")}
               </button>
             </div>
 
             <Filters
               cuisines={cuisineList}
-              cuisineLabel={mode === "food" ? t("Cuisine") : mode === "drinks" ? t("Drink type") : mode === "bars" ? t("Bar type") : t("Dessert type")}
+              cuisineLabel={mode === "food" ? t("Cuisine") : mode === "drinks" ? t("Drink type") : mode === "bars" ? t("Bar type") : mode === "desserts" ? t("Dessert type") : t("Shop type")}
               selectedCuisines={selectedCuisines}
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
               labelColor={labelColor}
@@ -2126,7 +2136,9 @@ function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, t
               ? t("Set your filters and hit Deal — fate decides what you're sipping.")
               : mode === "bars"
               ? t("Set your filters and hit Deal — fate decides where you're drinking.")
-              : t("Set your filters and hit Deal — fate decides your sweet treat.")}
+              : mode === "desserts"
+              ? t("Set your filters and hit Deal — fate decides your sweet treat.")
+              : t("Set your filters and hit Deal — fate decides your next find.")}
           </p>
         </div>
       </div>

@@ -100,6 +100,11 @@ async def google_places_search(req: PlacesSearchRequest):
         elif req.category == "desserts":
             base = " ".join(req.cuisines) if req.cuisines else "dessert ice cream bakery"
             query = (base + " dessert shop").strip()
+        elif req.category == "shops":
+            if req.cuisines:
+                query = (" ".join(req.cuisines) + " shop").strip()
+            else:
+                query = "antique thrift vintage consignment resale shop"
         else:
             query = (" ".join(req.cuisines) + " restaurant").strip()
         headers = {

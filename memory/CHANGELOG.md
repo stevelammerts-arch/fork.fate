@@ -1,5 +1,14 @@
 # Fork·Fate — Changelog
 
+## 2026-07-14 (fork) — New "Shops" category + Antique/Thrift crawls
+
+Added a full **Shops** category (local-business roulette) alongside Food/Drinks/Bars/Desserts, plus Antique & Thrift crawl types.
+- **Backend**: `"shops"` added to all 5 category validators + crawl-mode validator (`models.py`); `places.py` builds a shops Google query (`"<cuisines> shop"` or default `"antique thrift vintage consignment resale shop"`); `core.py` `PLACEHOLDER_IMGS["shops"]` (antique/thrift stock) + CUISINE_IMGS keys (antique/vintage/consignment/thrift) for sponsor fallback. Verified via curl: `category=shops` returns real antique stores.
+- **Frontend**: `SHOP_CUISINES` (17 chips: Antiques, Thrift Store, Vintage, Flea Market, Consignment, Record Store, Bookstore, Pawn Shop, Gem Store, Jewelry Store, Bead/Quilt/Yarn/Hobby/Comic/Model shops, Trading Cards). New **Shops** mode pill with a `ShoppingBag` icon (`data-testid="mode-shops"`); shops branch added to `cuisineList`, `cuisineMap`, `cuisineLabel`, and hero/empty-state copy ("Feeling like a treasure hunt?"). Guided-flow interest card added (ShoppingBag). Crawl toggle (`CRAWL_TYPES`) gained **Antiques** ("Antique Crawl") and **Thrift** ("Thrift Crawl"), both `mode:"shops"`; `PubCrawlDialog` label map + `crawlLabelForType` handle shops.
+- **i18n**: Spanish strings for Shops tab, Shop type, hero copy, and treasure-hunt lines.
+- Verified via screenshots: Shops tab + all chips render; Antiques/Thrift appear in "Pick your crawl".
+
+
 ## 2026-07-14 (fork) — Developer audit remediation + logo black ring
 
 **Whole-app audit (code review + security + deployment).** Deployment: PASS. Fixed all findings:

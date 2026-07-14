@@ -43,7 +43,7 @@ class RestaurantCreate(BaseModel):
     @field_validator("category")
     @classmethod
     def _valid_category(cls, v):
-        return v if v in ("food", "drinks", "bars", "desserts") else "food"
+        return v if v in ("food", "drinks", "bars", "desserts", "shops") else "food"
 
 
 class SpinRequest(BaseModel):
@@ -129,7 +129,7 @@ class CrawlCreate(BaseModel):
     @field_validator("mode")
     @classmethod
     def _valid_crawl_mode(cls, v):
-        return v if v in ("food", "drinks", "bars", "desserts") else "bars"
+        return v if v in ("food", "drinks", "bars", "desserts", "shops") else "bars"
 
     @field_validator("stops")
     @classmethod
@@ -154,7 +154,7 @@ class SponsorCreate(BaseModel):
     @field_validator("category")
     @classmethod
     def _valid_category_sc(cls, v):
-        return v if v in ("food", "drinks", "bars", "desserts") else "food"
+        return v if v in ("food", "drinks", "bars", "desserts", "shops") else "food"
 
 
 class SponsorUpdate(BaseModel):
@@ -195,7 +195,7 @@ class SponsorSubscribe(BaseModel):
     @field_validator("category")
     @classmethod
     def _valid_cat_sub(cls, v):
-        return v if v in ("food", "drinks", "bars", "desserts") else "food"
+        return v if v in ("food", "drinks", "bars", "desserts", "shops") else "food"
 
     @field_validator("contact_email")
     @classmethod

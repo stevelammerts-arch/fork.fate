@@ -105,6 +105,7 @@ export const FOOD_CUISINES = [
 ];
 export const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "Smoothie", "Juice Bar", "Milkshakes", "Kombucha", "Cider", "Hot Chocolate", "Matcha", "Lemonade", "Soda Fountain"];
 export const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Donuts", "Cupcakes", "Candy Shops", "Chocolate", "Crepes", "Cheesecake", "Pie", "Cookies", "Waffles", "Macarons", "Cinnamon Rolls"];
+export const SHOP_CUISINES = ["Antiques", "Thrift Store", "Vintage", "Flea Market", "Consignment", "Record Store", "Bookstore", "Pawn Shop", "Gem Store", "Jewelry Store", "Bead Shop", "Quilt Shop", "Yarn Shop", "Hobby Shop", "Comic Store", "Model Shop", "Trading Cards"];
 export const BAR_CUISINES = [
   "Brewery", "Beer Garden", "Taproom", "Distillery", "Beer", "Wine", "Winery", "Wine Bar", "Wine Tasting",
   "Champagne Bar", "Cider House", "Cocktails", "Whiskey", "Liquor", "Liquor Store", "Spirits", "Margaritas", "Tequila Bar",
@@ -120,5 +121,7 @@ export const CRAWL_TYPES = [
   { key: "tacos", label: "Tacos", mode: "food", cuisine: "Tacos", crawl: "Taco Crawl" },
   { key: "tapas", label: "Tapas", mode: "food", cuisine: "Tapas", crawl: "Tapas Crawl" },
   { key: "burgers", label: "Burgers", mode: "food", cuisine: "Burgers", crawl: "Burger Crawl" },
+  { key: "antiques", label: "Antiques", mode: "shops", cuisine: "Antiques", crawl: "Antique Crawl" },
+  { key: "thrift", label: "Thrift", mode: "shops", cuisine: "Thrift Store", crawl: "Thrift Crawl" },
 ];
 export const crawlLabelForType = (key) => (CRAWL_TYPES.find((t) => t.key === key)?.crawl) || "Pub Crawl";

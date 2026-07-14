@@ -61,7 +61,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
   }, [open, results, shared, initialStops]);
 
   const stops = useMemo(() => route.filter((r) => !dropped[r.id]), [route, dropped]);
-  const CRAWL_LABELS = { bars: "Pub Crawl", food: "Food Crawl", drinks: "Drinks Crawl", desserts: "Dessert Crawl" };
+  const CRAWL_LABELS = { bars: "Pub Crawl", food: "Food Crawl", drinks: "Drinks Crawl", desserts: "Dessert Crawl", shops: "Shop Crawl" };
   const label = crawlLabel || t(CRAWL_LABELS[mode] || "Pub Crawl");
   const crewLine = crew.trim() ? ` ${t("with")} ${crew.trim()}` : "";
 
