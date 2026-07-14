@@ -84,7 +84,7 @@ export const REAPER_LINES = [
 ];
 export const reaperLineFor = (r) => REAPER_LINES[(r?.name?.length || 0) % REAPER_LINES.length];
 
-// Professional light-mode counterparts to the macabre reaper lines.
+// Professional light-mode counterparts to the macabre reaper lines, per category.
 export const LIGHT_LINES = [
   "Your destination awaits.",
   "Here's tonight's pick.",
@@ -92,7 +92,18 @@ export const LIGHT_LINES = [
   "A great choice, locked in.",
   "Bon appétit — go enjoy.",
 ];
-export const lightLineFor = (r) => LIGHT_LINES[(r?.name?.length || 0) % LIGHT_LINES.length];
+const LIGHT_LINES_BY_MODE = {
+  food: ["Your table is set.", "Here's tonight's pick.", "A great choice, locked in.", "Bon appétit — go enjoy."],
+  drinks: ["Your next sip is set.", "Here's your pick.", "A great choice, locked in.", "Cheers to that."],
+  bars: ["Tonight's bar is set.", "Here's your spot.", "A great choice, locked in.", "Enjoy the night."],
+  desserts: ["Your sweet pick is set.", "Here's your treat.", "A great choice, locked in.", "Treat yourself."],
+  shops: ["Your next find awaits.", "Here's your pick.", "A great choice, locked in.", "Happy hunting."],
+  fuel: ["Your pit stop is set.", "Here's your stop.", "A great choice, locked in.", "Fill up and roll out."],
+};
+export const lightLineFor = (r, mode = "food") => {
+  const arr = LIGHT_LINES_BY_MODE[mode] || LIGHT_LINES_BY_MODE.food;
+  return arr[(r?.name?.length || 0) % arr.length];
+};
 
 export const FOOD_CUISINES = [
   "Italian", "Mexican", "Tex-Mex", "Chinese", "Japanese", "Sushi", "Indian", "Thai", "Korean", "Vietnamese",
