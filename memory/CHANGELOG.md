@@ -1,5 +1,16 @@
 # Fork·Fate — Changelog
 
+## 2026-07-14 (fork) — Fuel category (6th tab), order-button gating, snappier shuffle, Shops bugfix
+
+- **Bugfix (Shops → food card)**: the `PlacesSearchRequest` category validator (`models.py:97`) was missing `"shops"`, silently coercing `shops→food` and running a "Record Store restaurant" query with food images. Added `"shops"` (and now `"fuel"`) to all 5 validators. Verified: shops searches return real shops with shop imagery.
+- **Shops relevance**: dropped the noisy `"...shop"` query suffix; added `_NON_SHOP_TYPES` filter (`places.py`) excluding food/bar Google primaryTypes so e.g. "Vinyl Steakhouse" no longer appears under Record Store. `prettify_type` now takes a category for a sensible default label ("Shop"/"Gas Station" vs "Restaurant").
+- **New "Fuel" category (6th tab)**: `FUEL_CUISINES = Gas Station, EV Charging, Truck Stop, Car Wash, Diesel`. Fuel-pump icon tab (`mode-fuel`), fuel hero/empty-state copy ("Let fate pick your pit stop."), guided-flow card, placeholder + query building (`"gas station ev charging station"` default), i18n. Verified: Gas Station→Mobil, EV Charging→Tesla/Blink chargers.
+- **Order buttons hidden for Shops & Fuel**: DoorDash / Order-online gated by `mode !== "shops" && mode !== "fuel"` (Home.jsx). Verified hidden on shop/fuel cards, present on food/drinks.
+- **Sponsors under Shops**: `BecomeSponsorDialog` category list now includes `shops` (fuel intentionally not offered for sponsorship).
+- **Snappier shuffle**: end-of-shuffle hold cut from ~6.7s (1200ms pre-boom + 5500ms post-boom) to ~1.7s (140ms + 1600ms) so the boom hits as the card lands and the result reveals promptly. Crawl shuffle already snappy.
+- Verified end-to-end by testing_agent (iteration_64.json): 15/15 flows PASS, 100% frontend.
+
+
 ## 2026-07-14 (fork) — New "Shops" category + Antique/Thrift crawls
 
 Added a full **Shops** category (local-business roulette) alongside Food/Drinks/Bars/Desserts, plus Antique & Thrift crawl types.
