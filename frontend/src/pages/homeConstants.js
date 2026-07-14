@@ -105,7 +105,7 @@ export const FOOD_CUISINES = [
 ];
 export const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "Smoothie", "Juice Bar", "Milkshakes", "Kombucha", "Cider", "Hot Chocolate", "Matcha", "Lemonade", "Soda Fountain"];
 export const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Donuts", "Cupcakes", "Candy Shops", "Chocolate", "Crepes", "Cheesecake", "Pie", "Cookies", "Waffles", "Macarons", "Cinnamon Rolls"];
-export const SHOP_CUISINES = ["Antiques", "Thrift Store", "Vintage", "Flea Market", "Consignment", "Record Store", "Bookstore", "Pawn Shop", "Gem Store", "Jewelry Store", "Bead Shop", "Quilt Shop", "Yarn Shop", "Hobby Shop", "Comic Store", "Model Shop", "Trading Cards", "Toy Trains", "LEGO Store"];
+export const SHOP_CUISINES = ["Antiques", "Thrift Store", "Vintage", "Flea Market", "Consignment", "Record Store", "Bookstore", "Pawn Shop", "Gem Store", "Jewelry Store", "Bead Shop", "Quilt Shop", "Yarn Shop", "Hobby Shop", "Comic Store", "Model Shop", "Trading Cards", "Toy Trains", "LEGO Store", "Toy Store"];
 export const FUEL_CUISINES = ["Gas Station", "EV Charging", "Truck Stop", "Car Wash", "Touchless Car Wash", "Diesel"];
 export const BAR_CUISINES = [
   "Brewery", "Beer Garden", "Taproom", "Distillery", "Beer", "Wine", "Winery", "Wine Bar", "Wine Tasting",
