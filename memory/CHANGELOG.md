@@ -1,5 +1,15 @@
 # Fork·Fate — Changelog
 
+## 2026-07-14 (fork) — Android launch support: TWA verification, beta funnel, icons, Play paperwork
+
+- **Digital Asset Links verified**: fixed `assetlinks.json` package to `com.fork_fate.twa` (extracted from the PWABuilder `.aab` via openssl) + both SHA-256 fingerprints (upload key `21:D0:...` + Google Play app-signing key `92:45:...`). Google DAL API returns 2 valid statements on production.
+- **Android beta email collector**: replaced the direct-link "Join beta" banner with an email-capture form (`AndroidBetaBanner.jsx`) → `POST /api/beta-testers` (dedupe by lowercased email, validated). Admin panel (`/admin`) gained an "Android beta testers" card with X/12 counter + "Copy all emails" (`GET /api/admin/beta-testers`, admin-auth). New model `BetaSignup`. Banner + marquee lifted to `relative z-40` so seasonal decorations don't cover them.
+- **All 6 category tabs now have icons** (Food=UtensilsCrossed, Drinks=Coffee, Bars=Beer, Desserts=IceCream, Shops=ShoppingBag, Fuel=Fuel).
+- **More Shops chips**: Toy Trains, LEGO Store, Toy Store, Bicycle Shop (SHOP_CUISINES now 21).
+- **Copy**: manifest + meta description updated to mention shops/fuel; privacy policy (`LegalPage.jsx`) gained a beta-email-collection disclosure. Privacy URL for Play = https://fork-fate.com/privacy.
+- Provided Play Content Rating (references alcohol = Yes; user-initiated location share for crawls = Yes) + Data Safety answers (email collected/not shared; location collected+shared ephemerally for functionality; check-in = pure social share, no location data). Store listing copy drafted.
+
+
 ## 2026-07-14 (fork) — P2: "Sponsored" tag on secondary results + Touchless Car Wash
 
 - **Sponsored tag on alternatives**: the "3 more to consider" list now shows a red "SPONSORED" pill (with Store icon) next to any sponsor entry (`alt.sponsored`), matching the main card's ribbon. `Home.jsx` alternatives block (~2375), testid `alternative-sponsored-{id}`. Verified by seeding 3 active food sponsors — all 3 tagged in alternatives — then cleaned up.
