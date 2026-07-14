@@ -284,6 +284,7 @@ export default function Home() {
   useEffect(() => () => { if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e) { /* ignore */ } grooveRef.current = null; } }, []);
   const { favorites, isFavorite, toggleFavorite, removeFavorite } = useFavorites();
   const [showGuided, setShowGuided] = useState(true);
+  const [faqOpen, setFaqOpen] = useState(false);
   const [muted, setMuted] = useState(() => {
     try { return localStorage.getItem("ff_muted") === "1"; } catch { return false; }
   });
@@ -1461,10 +1462,22 @@ export default function Home() {
           </div>
 
           <div className="mt-16 rounded-3xl border border-[#E2E4E7] bg-white/95 p-6 shadow-sm backdrop-blur-sm md:p-8">
-          <h2 className="font-serif text-2xl font-medium tracking-tight text-[#0E0E0E] sm:text-3xl">
-            {t("Frequently asked questions")}
-          </h2>
-          <Accordion type="single" collapsible className="mt-4 w-full" data-testid="faq-section">
+          <button
+            onClick={() => setFaqOpen((o) => !o)}
+            data-testid="faq-toggle"
+            aria-expanded={faqOpen}
+            className="flex w-full items-center justify-between gap-3 text-left"
+          >
+            <h2 className="font-serif text-2xl font-medium tracking-tight text-[#0E0E0E] sm:text-3xl">
+              {t("Frequently asked questions")}
+            </h2>
+            <span className="flex shrink-0 items-center gap-1 font-sans text-sm font-bold text-[#E01E26]">
+              {faqOpen ? t("Less") : t("More")}
+              <ChevronDown className={`h-5 w-5 transition-transform duration-300 ${faqOpen ? "rotate-180" : ""}`} />
+            </span>
+          </button>
+          {faqOpen && (
+          <Accordion type="single" collapsible className="mt-4 w-full animate-in fade-in slide-in-from-top-2 duration-300" data-testid="faq-section">
             {[
               { q: t("How does Fork·Fate pick a restaurant?"), a: t("After you set your filters, Fork·Fate gathers matching local spots and randomly deals one from the deck. Every deal is a fresh shuffle, so you'll discover places you might never have chosen yourself.") },
               { q: t("Is Fork·Fate free to use?"), a: t("Yes — Fork·Fate is completely free. There's no account, no signup, and no paywall. Just open it, shuffle, and go eat.") },
@@ -1483,6 +1496,7 @@ export default function Home() {
               </AccordionItem>
             ))}
           </Accordion>
+          )}
           </div>
         </div>
       </section>

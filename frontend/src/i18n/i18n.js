@@ -266,6 +266,8 @@ export const ES = {
   "Sponsored spots appear first when locals shuffle for a place to eat, drink or treat themselves. Fixed monthly price, no bidding, cancel anytime.": "Los patrocinados aparecen primero cuando la gente busca dónde comer, beber o darse un gusto. Precio mensual fijo, sin pujas, cancela cuando quieras.",
   "or": "o",
   "Feature your business": "Destaca tu negocio",
+  "More": "Más",
+  "Less": "Menos",
   "Business name *": "Nombre del negocio *",
   "Category": "Categoría",
   "Cuisine / type *": "Cocina / tipo *",
