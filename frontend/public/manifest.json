@@ -1,7 +1,7 @@
 {
   "short_name": "Fork·Fate",
   "name": "Fork·Fate — Restaurant Roulette",
-  "description": "Shuffle the deck for a nearby restaurant, drink spot, bar or dessert.",
+  "description": "Shuffle the deck for a nearby restaurant, bar, dessert, local shop or fuel stop.",
   "icons": [
     {
       "src": "logo-mark-192.png",
