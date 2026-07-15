@@ -119,7 +119,7 @@ function SeasonScene({ theme, cfg }) {
           <span className="absolute rounded-full" style={{ left: "62%", top: "14.6%", width: "6.5%", height: "3.2%", background: "radial-gradient(circle, rgba(255,55,30,1), rgba(255,20,0,0.5) 45%, rgba(255,0,0,0) 72%)", filter: "blur(1px)", animation: "ffEyeFlash 3.2s ease-in-out infinite" }} />
         </div>
       )}
-      {cfg.groundPumpkins && <img src="/fall-jackolanterns.png" alt="" className="absolute bottom-0 left-1/2 z-[3] w-[42vw] max-w-none -translate-x-1/2 object-contain opacity-[0.42] sm:w-[24vw]" style={{ animation: "ffGlow 3.4s ease-in-out infinite" }} />}
+      {cfg.groundPumpkins && <img src="/fall-pumpkins-mid.png" alt="" className="absolute bottom-0 left-1/2 z-[3] w-[40vw] max-w-none -translate-x-1/2 object-contain opacity-[0.46] sm:w-[24vw]" style={{ animation: "ffGlow 3.4s ease-in-out infinite" }} />}
       {cfg.moon && <div className="absolute top-[6%] left-[24%] z-[1] aspect-square w-[24vw] rounded-full sm:left-[27%] sm:w-[14vw]" style={{ background: "radial-gradient(circle at 42% 40%, #FCF4DA 0%, #EDDCAB 60%, #D6C084 100%)", boxShadow: "0 0 90px 34px rgba(255,240,205,0.38), 0 0 44px 14px rgba(255,246,222,0.55)", opacity: 0.6 }} />}
       {cfg.owl && <img src={cfg.owl} alt="" className="absolute top-[13%] left-[30%] z-[2] w-[13vw] max-w-[150px] object-contain opacity-[0.5] sm:w-[9vw]" />}
       {cfg.falling && FALLING_SPRITES.map((l, i) => (
