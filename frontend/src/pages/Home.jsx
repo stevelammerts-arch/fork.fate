@@ -70,7 +70,7 @@ const SEASONS = {
   winter: {
     grad: "linear-gradient(180deg,#EAF3FA 0%,#DCEAF5 55%,#CFE0EE 100%)",
     tree: "/winter-tree.png", treeSide: "left", treeFlip: true,
-    decorRight: "/winter-decor.png", decorRightBig: true, santa: "/santa-sleigh.png",
+    decorRight: "/winter-decor.png", decorRightBig: true, decorRightPos: "right-[-10%] sm:right-[-5%]", santa: "/santa-sleigh.png",
     items: ["/flake-blue.png", "/flake-white.png", "/flake-silver.png"], falling: true, hint: "#2E77A6",
   },
   spring: {
@@ -107,11 +107,11 @@ function SeasonScene({ theme, cfg }) {
       {cfg.sun && <img src={cfg.sun} alt="" className="absolute right-[24%] top-[5%] w-20 opacity-40" style={{ animation: "ffGlow 5s ease-in-out infinite" }} />}
       {cfg.santa && (
         <div className="absolute left-0 top-0 z-[4]" style={{ animation: "ffSantaFly 26s ease-in-out infinite" }} data-testid="winter-santa">
-          <img src={cfg.santa} alt="" className="w-32 opacity-90 drop-shadow-[0_4px_10px_rgba(0,0,0,0.25)] sm:w-44" style={{ animation: "ffSantaBob 2.6s ease-in-out infinite" }} />
+          <img src={cfg.santa} alt="" className="w-28 opacity-70 drop-shadow-[0_3px_10px_rgba(120,150,180,0.3)] sm:w-40" style={{ animation: "ffSantaBob 2.6s ease-in-out infinite", filter: "blur(0.5px)" }} />
         </div>
       )}
       <img src={cfg.tree} alt="" className={`absolute bottom-0 ${cfg.treeSide === "left" ? "left-0" : "right-0"} w-auto max-w-[96vw] object-contain opacity-[0.32] ${cfg.treeH ? cfg.treeH : (cfg.treeBig ? "h-[70svh] sm:h-[106vh] z-[2]" : "h-[46svh] sm:h-[86vh]")}`} style={{ maxWidth: cfg.treeBig ? "88vw" : undefined, transform: cfg.treeFlip ? "scaleX(-1)" : undefined }} />
-      {cfg.decorRight && <img src={cfg.decorRight} alt="" className={`absolute bottom-0 right-[3%] object-contain opacity-[0.32] ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : undefined} />}
+      {cfg.decorRight && <img src={cfg.decorRight} alt="" className={`absolute bottom-0 ${cfg.decorRightPos || "right-[3%]"} object-contain opacity-[0.32] ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : undefined} />}
       {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className={`absolute bottom-0 left-0 object-contain opacity-[0.32] sm:left-[2%] ${cfg.decorLeftW ? cfg.decorLeftW : (cfg.decorLeftBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[42vw] max-w-sm sm:w-[26vw]")}`} />}
       {cfg.scarecrow && <img src={cfg.scarecrow} alt="" className="absolute bottom-0 left-[1%] z-[2] h-[22vh] w-auto object-contain opacity-[0.42] sm:h-[30vh] sm:left-[3%]" />}
       {cfg.moon && <div className="absolute top-[6%] left-[24%] z-[1] aspect-square w-[24vw] rounded-full sm:left-[27%] sm:w-[14vw]" style={{ background: "radial-gradient(circle at 42% 40%, #FCF4DA 0%, #EDDCAB 60%, #D6C084 100%)", boxShadow: "0 0 90px 34px rgba(255,240,205,0.38), 0 0 44px 14px rgba(255,246,222,0.55)", opacity: 0.6 }} />}
