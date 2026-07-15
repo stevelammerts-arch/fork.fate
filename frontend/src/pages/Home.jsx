@@ -70,7 +70,7 @@ const SEASONS = {
   winter: {
     grad: "linear-gradient(180deg,#EAF3FA 0%,#DCEAF5 55%,#CFE0EE 100%)",
     tree: "/winter-tree.png", treeSide: "left", treeFlip: true,
-    decorRight: "/winter-decor.png", decorRightBig: true,
+    decorRight: "/winter-decor.png", decorRightBig: true, santa: "/santa-sleigh.png",
     items: ["/flake-blue.png", "/flake-white.png", "/flake-silver.png"], falling: true, hint: "#2E77A6",
   },
   spring: {
@@ -105,6 +105,11 @@ function SeasonScene({ theme, cfg }) {
         <div className="absolute inset-x-0" style={{ top: "65%", height: "5%", background: "linear-gradient(180deg,rgba(196,168,110,0.55),rgba(196,168,110,0))" }} />
       </>)}
       {cfg.sun && <img src={cfg.sun} alt="" className="absolute right-[24%] top-[5%] w-20 opacity-40" style={{ animation: "ffGlow 5s ease-in-out infinite" }} />}
+      {cfg.santa && (
+        <div className="absolute left-0 top-0 z-[4]" style={{ animation: "ffSantaFly 26s ease-in-out infinite" }} data-testid="winter-santa">
+          <img src={cfg.santa} alt="" className="w-32 opacity-90 drop-shadow-[0_4px_10px_rgba(0,0,0,0.25)] sm:w-44" style={{ animation: "ffSantaBob 2.6s ease-in-out infinite" }} />
+        </div>
+      )}
       <img src={cfg.tree} alt="" className={`absolute bottom-0 ${cfg.treeSide === "left" ? "left-0" : "right-0"} w-auto max-w-[96vw] object-contain opacity-[0.32] ${cfg.treeH ? cfg.treeH : (cfg.treeBig ? "h-[70svh] sm:h-[106vh] z-[2]" : "h-[46svh] sm:h-[86vh]")}`} style={{ maxWidth: cfg.treeBig ? "88vw" : undefined, transform: cfg.treeFlip ? "scaleX(-1)" : undefined }} />
       {cfg.decorRight && <img src={cfg.decorRight} alt="" className={`absolute bottom-0 right-[3%] object-contain opacity-[0.32] ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : undefined} />}
       {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className={`absolute bottom-0 left-0 object-contain opacity-[0.32] sm:left-[2%] ${cfg.decorLeftW ? cfg.decorLeftW : (cfg.decorLeftBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[42vw] max-w-sm sm:w-[26vw]")}`} />}
@@ -132,9 +137,18 @@ const STEAM_PUFFS = [
   { left: "91%", size: 50, dur: 7, delay: 3.3 },
 ];
 
+// Constant plume venting from the pipe coupling just right of center on the wall.
+const STEAM_JET = Array.from({ length: 7 }).map((_, i) => ({
+  size: 22 + (i % 3) * 12,
+  dur: 3.0 + (i % 3) * 0.7,
+  delay: -(i * 0.5),
+}));
+
+
 const CYBER_CARS = [
-  { top: "13%", size: 160, dur: 13, delay: 0, rev: false },
-  { top: "25%", size: 112, dur: 17, delay: 5, rev: true },
+  { top: "18%", size: 200, dur: 12, delay: 0, rev: false, spinner: true },
+  { top: "13%", size: 160, dur: 13, delay: 3, rev: false },
+  { top: "27%", size: 112, dur: 17, delay: 6, rev: true },
 ];
 
 // A dense mass of steel cables hanging + swaying from the roof (steampunk)
@@ -149,8 +163,8 @@ const STEAM_CABLES = Array.from({ length: 22 }).map((_, i) => ({
 }));
 
 const AMBIANCE = {
-  cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
-  steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall-full.png", console: "/steam-console.png", device: "/steam-arc-device.png", steam: true, roofCables: true, accent: "#D9A44E", sky: "#F1D9A6" },
+  cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", spinner: "/cyber-spinner-suv.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
+  steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall-full.png", console: "/steam-console.png", device: "/steam-arc-device.png", steam: true, roofCables: true, floor: true, accent: "#D9A44E", sky: "#F1D9A6" },
   tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", bar: "/tiki-bar.png", torchLeft: "/tiki-torch-base.png", torchFlame: true, totemRight: "/tiki-totem.png", grass: "/tiki-grass.png", glow: true, accent: "#F0A24E", sky: "#FBE3C0" },
 };
 
@@ -166,15 +180,15 @@ function AmbianceScene({ theme, cfg }) {
       {cfg.skyline && <img src={cfg.skyline} alt="" className="absolute bottom-0 left-0 w-full object-cover opacity-70" style={{ maxHeight: "52vh" }} />}
       {cfg.rain && <div className="absolute inset-0 ff-rain" />}
       {cfg.cars && CYBER_CARS.map((c, i) => (
-        <img key={`car-${i}`} src={c.rev ? cfg.cars2 : cfg.cars} alt="" className="absolute left-0 z-[3] object-contain opacity-90"
-          style={{ top: c.top, width: c.size, filter: "drop-shadow(0 0 10px rgba(34,224,224,0.55))", animation: `${c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite both` }} />
+        <img key={`car-${i}`} src={c.spinner ? cfg.spinner : (c.rev ? cfg.cars2 : cfg.cars)} alt="" className={`absolute left-0 object-contain opacity-90 ${c.spinner ? "z-[4]" : "z-[3]"}`}
+          style={{ top: c.top, width: c.size, filter: `drop-shadow(0 0 ${c.spinner ? 14 : 10}px rgba(34,224,224,${c.spinner ? 0.7 : 0.55}))`, animation: `${c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite both` }} />
       ))}
       {cfg.neon && <div className="absolute left-1/2 top-[15%] z-[1] w-[62vw] max-w-xs -translate-x-1/2"><img src={cfg.neon} alt="" className="w-full object-contain" style={{ mixBlendMode: "screen", animation: "ffNeonFloat 6s ease-in-out infinite" }} /></div>}
       {cfg.wall && <img src={cfg.wall} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-60" style={{ objectPosition: "center top" }} />}
       {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
       {cfg.console && <img src={cfg.console} alt="" className="absolute bottom-0 left-[-22%] z-[4] h-[52vh] object-contain opacity-80 sm:left-[-2%] sm:h-[74vh]" />}
       {cfg.device && (
-        <div className="absolute bottom-0 right-[-5%] z-[3] h-[40vh] sm:right-[3%] sm:h-[46vh]" style={{ aspectRatio: "545 / 970" }}>
+        <div className="absolute bottom-0 right-[-5%] z-[3] h-[40vh] sm:right-[3%] sm:h-[46vh]" style={{ aspectRatio: "545 / 970", transform: "scaleX(-1)" }}>
           <img src={cfg.device} alt="" className="absolute inset-0 h-full w-full object-contain opacity-90" />
           <div className="absolute" style={{ left: "39%", width: "18%", top: "1.5%", height: "23%" }}>
             <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(120,210,255,0.22), rgba(120,210,255,0) 70%)", animation: "ffArcGlow 0.13s steps(2,end) infinite" }} />
@@ -195,6 +209,13 @@ function AmbianceScene({ theme, cfg }) {
       {cfg.steam && STEAM_PUFFS.map((s, i) => (
         <div key={`steam-${i}`} className="absolute bottom-[42vh] rounded-full" style={{ left: s.left, width: s.size, height: s.size, background: "radial-gradient(circle, rgba(255,244,224,0.5), rgba(255,244,224,0) 70%)", animation: `ffSteam ${s.dur}s ease-in ${s.delay}s infinite` }} />
       ))}
+      {cfg.steam && (
+        <div className="absolute z-[2]" style={{ left: "59.5%", top: "16vw" }} data-testid="steam-jet">
+          {STEAM_JET.map((p, i) => (
+            <div key={`jet-${i}`} className="absolute -translate-x-1/2 rounded-full" style={{ width: p.size, height: p.size, background: "radial-gradient(circle, rgba(255,250,240,0.7), rgba(255,250,240,0) 70%)", filter: "blur(2px)", animation: `ffSteam ${p.dur}s ease-in ${p.delay}s infinite` }} />
+          ))}
+        </div>
+      )}
       {cfg.bar && <img src={cfg.bar} alt="" className="absolute bottom-0 left-1/2 w-[86vw] max-w-xl -translate-x-1/2 object-contain opacity-85 sm:w-[46vw]" />}
       {cfg.glow && <div className="absolute bottom-[10vh] left-1/2 h-56 w-56 -translate-x-1/2 rounded-full sm:h-72 sm:w-72" style={{ background: "radial-gradient(circle, rgba(255,150,50,0.45), rgba(255,150,50,0) 70%)", animation: "ffTorchGlow 2.3s ease-in-out infinite" }} />}
       {cfg.torchLeft && <>
@@ -218,6 +239,15 @@ function AmbianceScene({ theme, cfg }) {
         <img src={cfg.torch} alt="" className="absolute bottom-0 left-[1%] h-[62vh] object-contain opacity-90" style={{ transformOrigin: "bottom", animation: "ffFlame 1.7s ease-in-out infinite" }} />
         <img src={cfg.torch} alt="" className="absolute bottom-0 right-[1%] h-[62vh] object-contain opacity-90" style={{ transform: "scaleX(-1)", transformOrigin: "bottom", animation: "ffFlame 2.1s ease-in-out infinite" }} />
       </>}
+      {cfg.floor && (
+        <div className="absolute inset-x-0 bottom-0 z-[2]" style={{ height: "14vh" }} data-testid="steam-floor">
+          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg,#2c1d0e 0%,#1b1209 42%,#0d0906 100%)", boxShadow: "0 -10px 28px rgba(0,0,0,0.55)" }} />
+          <div className="absolute inset-0 opacity-40" style={{ backgroundImage: "repeating-linear-gradient(90deg, rgba(0,0,0,0.55) 0px, rgba(0,0,0,0.55) 2px, transparent 2px, transparent 140px)" }} />
+          <div className="absolute inset-x-0 top-[46%] h-px" style={{ background: "rgba(0,0,0,0.5)" }} />
+          <div className="absolute inset-x-0 top-0 h-[3px]" style={{ background: "linear-gradient(90deg, transparent, rgba(217,164,78,0.55) 20%, rgba(240,200,120,0.7) 50%, rgba(217,164,78,0.55) 80%, transparent)" }} />
+          <div className="absolute inset-x-0 top-[3px] h-[10px]" style={{ background: "linear-gradient(180deg, rgba(217,164,78,0.22), transparent)" }} />
+        </div>
+      )}
     </div>
   );
 }
