@@ -1,5 +1,17 @@
 # Fork·Fate — Changelog
 
+## 2026-07-15 (fork) — Seasonal/ambiance theme polish (winter, steampunk, cyber)
+
+- **Winter tree**: cropped `winter-tree.png` to drop the disconnected bottom stump + gap that made the trunk look "cut off in the middle"; trunk now reaches the ground when anchored bottom.
+- **Winter flying Santa**: added `santa-sleigh.png` (realistic Santa + sleigh + reindeer) flying a diagonal upward climb (`ffSantaFly`, ~12° to match the nose-up sleigh) with a gentle bob (`ffSantaBob`) across the winter sky. New winter config `santa`.
+- **Steampunk full wall**: generated `steam-wall-full.png` (tall vertical steampunk machine wall) replacing the landscape `steam-wall.png`; now fills the entire page (`inset-0 h-full w-full object-cover`, `object-position center top`) so it spans full width/height with the top never cropped, cables layered on top.
+- **Steampunk steam jet**: constant plume (`STEAM_JET`) venting from the pipe coupling right of center; anchored with `top:16vw` so it tracks the coupling on the object-cover wall across widths.
+- **Steampunk floor**: added a riveted metal floor band (bottom 14vh, z-[2], behind the console/device) so the cabinet and table look grounded instead of floating. New steam config `floor`.
+- **Steampunk table**: flipped the arc-device ("little table") with `scaleX(-1)` so it faces inward.
+- **Cyber spinner SUV**: generated `cyber-spinner-suv.png`, added as the lead flying vehicle in `CYBER_CARS` (bigger, z-[4]) ahead of the existing cars. New cyber config `spinner`.
+- Bumped `FF_BUILD` to `2026.06-175` for the new image assets. (Old `steam-wall.png` now unused.)
+
+
 ## 2026-07-15 (fork) — Guided wizard overflow fix on short laptop screens
 
 - **GuidedFlow modal too tall**: on short laptop viewports the vertically-centered ritual wizard overflowed and clipped the top "Skip intro" (exit) and bottom. Restructured to the standard scrollable-modal pattern: outer `fixed inset-0 overflow-y-auto`, fixed backdrop, inner `flex min-h-full items-center justify-center` wrapper. Exit button now always reachable; verified at 1280×600 (`guided-skip` visible). (`GuidedFlow.jsx`)
