@@ -159,8 +159,8 @@ export default function LegalPage({ type = "terms" }) {
           {sections.map((s) => (
             <section key={s.h} className="space-y-2">
               <h2 className="font-serif text-lg font-semibold text-white">{s.h}</h2>
-              {s.p.map((para, i) => (
-                <p key={i} className="text-sm leading-relaxed text-[#B8BCC2]">{para}</p>
+              {s.p.map((para) => (
+                <p key={para} className="text-sm leading-relaxed text-[#B8BCC2]">{para}</p>
               ))}
             </section>
           ))}

@@ -1559,7 +1559,7 @@ export default function Home() {
               { q: t("Can I add my favorite local spot?"), a: t("Absolutely. Tap \"Add spot\" to submit a place you love. Community submissions are quickly reviewed before they join the roulette pool.") },
               { q: t("Can I install Fork·Fate as an app?"), a: t("Yes — tap \"Download app\" to install Fork·Fate as a PWA on your home screen for one-tap access whenever hunger strikes.") },
             ].map((item, i) => (
-              <AccordionItem key={i} value={`faq-${i}`} className="border-[#E2E4E7]" data-testid={`faq-item-${i}`}>
+              <AccordionItem key={item.q} value={`faq-${i}`} className="border-[#E2E4E7]" data-testid={`faq-item-${i}`}>
                 <AccordionTrigger className="text-left font-serif text-base text-[#0E0E0E] hover:no-underline">
                   {item.q}
                 </AccordionTrigger>
