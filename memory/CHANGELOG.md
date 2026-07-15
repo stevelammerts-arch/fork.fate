@@ -1,5 +1,13 @@
 # Fork·Fate — Changelog
 
+## 2026-07-15 (fork) — Cyber neon logo, spinner SUV, dark techno shuffle audio
+
+- **Cyber neon logo**: replaced the "Fork Fate" neon with a round neon sign of the app logo (purple ring border, elegant magenta FF monogram layered in FRONT of crossed cyan fork & knife). Baked luminance-based transparency so there's no black square; render now has a pulsing background flash glow (`ffNeonFlash`) plus the existing float/flicker (`ffNeonFloat`).
+- **Cyber spinner SUV**: generated `cyber-spinner-suv.png` (rembg-cleaned transparent). Flies as the lead car in the sky (`CYBER_CARS`) AND appears on the cyber shuffle-deck card backs (`CardBack` cyber) with a neon glow + "NEON NIGHTS".
+- **Cyber shuffle audio**: rebuilt `reveal-cyber-radio.wav` as a strong DARK DRIVING TECHNO loop (126 BPM, punchy 4-on-the-floor kick, resonant sequenced saw bass, hard detuned arp lead, clap/hats, sidechain pump, tritone tension) via `/app/scripts/make_cyber_track.py`. Earlier ambient/elevator versions rejected.
+- Bumped `FF_BUILD` to `2026.06-179`.
+
+
 ## 2026-07-15 (fork) — Seasonal/ambiance theme polish (winter, steampunk, cyber)
 
 - **Winter tree**: cropped `winter-tree.png` to drop the disconnected bottom stump + gap that made the trunk look "cut off in the middle"; trunk now reaches the ground when anchored bottom.

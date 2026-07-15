@@ -146,8 +146,9 @@ const STEAM_JET = Array.from({ length: 7 }).map((_, i) => ({
 
 
 const CYBER_CARS = [
-  { top: "13%", size: 160, dur: 13, delay: 0, rev: false },
-  { top: "25%", size: 112, dur: 17, delay: 5, rev: true },
+  { top: "18%", size: 200, dur: 12, delay: 0, rev: false, spinner: true },
+  { top: "13%", size: 160, dur: 13, delay: 3, rev: false },
+  { top: "27%", size: 112, dur: 17, delay: 6, rev: true },
 ];
 
 // A dense mass of steel cables hanging + swaying from the roof (steampunk)
@@ -182,7 +183,12 @@ function AmbianceScene({ theme, cfg }) {
         <img key={`car-${i}`} src={c.spinner ? cfg.spinner : (c.rev ? cfg.cars2 : cfg.cars)} alt="" className={`absolute left-0 object-contain opacity-90 ${c.spinner ? "z-[4]" : "z-[3]"}`}
           style={{ top: c.top, width: c.size, filter: `drop-shadow(0 0 ${c.spinner ? 14 : 10}px rgba(34,224,224,${c.spinner ? 0.7 : 0.55}))`, animation: `${c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite both` }} />
       ))}
-      {cfg.neon && <div className="absolute left-1/2 top-[15%] z-[1] w-[62vw] max-w-xs -translate-x-1/2"><img src={cfg.neon} alt="" className="w-full object-contain" style={{ mixBlendMode: "screen", animation: "ffNeonFloat 6s ease-in-out infinite" }} /></div>}
+      {cfg.neon && (
+        <div className="absolute left-1/2 top-[15%] z-[1] w-[62vw] max-w-xs -translate-x-1/2" data-testid="cyber-neon">
+          <div className="absolute left-1/2 top-1/2 h-[135%] w-[135%] -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ background: "radial-gradient(circle, rgba(199,125,255,0.42), rgba(34,224,224,0.18) 46%, transparent 70%)", filter: "blur(26px)", animation: "ffNeonFlash 3.4s ease-in-out infinite" }} />
+          <img src={cfg.neon} alt="" className="relative w-full object-contain" style={{ animation: "ffNeonFloat 6s ease-in-out infinite" }} />
+        </div>
+      )}
       {cfg.wall && <img src={cfg.wall} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-60" style={{ objectPosition: "center top" }} />}
       {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
       {cfg.console && <img src={cfg.console} alt="" className="absolute bottom-0 left-[-22%] z-[4] h-[52vh] object-contain opacity-80 sm:left-[-2%] sm:h-[74vh]" />}
@@ -1689,12 +1695,11 @@ function CardBack({ light, seasonItem, theme }) {
   }
   if (theme === "cyber") {
     return (
-      <div className="absolute inset-0 grid place-items-center bg-[#080B18]" data-testid="card-back">
+      <div className="absolute inset-0 grid place-items-center overflow-hidden bg-[#080B18]" data-testid="card-back">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 50% 46%, rgba(34,224,224,0.20), rgba(0,0,0,0) 66%)" }} />
         <div className="absolute inset-2 rounded-xl border border-[#22E0E0]/60" style={{ boxShadow: "inset 0 0 14px rgba(34,224,224,0.45)" }} />
-        <div className="flex flex-col items-center gap-1 text-center" style={{ textShadow: "0 0 8px rgba(34,224,224,0.95), 0 0 18px rgba(255,47,176,0.6)" }}>
-          <span className="font-serif text-xl font-bold tracking-tight text-[#3EEBF2]">Fork·Fate</span>
-          <span className="font-sans text-[8px] font-bold uppercase tracking-[0.45em] text-[#FF6FCB]">Neon Nights</span>
-        </div>
+        <img src="/cyber-spinner-suv.png" alt="" className="w-[84%] object-contain" style={{ filter: "drop-shadow(0 0 10px rgba(34,224,224,0.8)) drop-shadow(0 0 20px rgba(199,125,255,0.55))" }} />
+        <span className="absolute bottom-4 font-sans text-[8px] font-bold uppercase tracking-[0.45em] text-[#FF6FCB]" style={{ textShadow: "0 0 8px rgba(255,47,176,0.7)" }}>Neon Nights</span>
       </div>
     );
   }

@@ -560,6 +560,12 @@ body {
   100%{ transform: translateY(0); opacity:1; }
 }
 /* Steam puffs rising */
+@keyframes ffNeonFlash{
+  0%,100%{ opacity:0.35; transform: translate(-50%,-50%) scale(0.95); }
+  20%{ opacity:0.95; }
+  50%{ opacity:0.55; transform: translate(-50%,-50%) scale(1.07); }
+  72%{ opacity:1; }
+}
 @keyframes ffSteam{
   0%{ opacity:0; transform: translateY(0) scale(0.5); }
   25%{ opacity:0.55; }
