@@ -113,8 +113,13 @@ function SeasonScene({ theme, cfg }) {
       <img src={cfg.tree} alt="" className={`absolute bottom-0 ${cfg.treeSide === "left" ? "left-0" : "right-0"} w-auto max-w-[96vw] object-contain opacity-[0.32] ${cfg.treeH ? cfg.treeH : (cfg.treeBig ? "h-[70svh] sm:h-[106vh] z-[2]" : "h-[46svh] sm:h-[86vh]")}`} style={{ maxWidth: cfg.treeBig ? "88vw" : undefined, transform: cfg.treeFlip ? "scaleX(-1)" : undefined }} />
       {cfg.decorRight && <img src={cfg.decorRight} alt="" className={`absolute bottom-0 ${cfg.decorRightPos || "right-[3%]"} object-contain opacity-[0.32] ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : undefined} />}
       {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className={`absolute bottom-0 left-0 object-contain opacity-[0.32] sm:left-[2%] ${cfg.decorLeftW ? cfg.decorLeftW : (cfg.decorLeftBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[42vw] max-w-sm sm:w-[26vw]")}`} />}
-      {cfg.scarecrow && <img src={cfg.scarecrow} alt="" className="absolute bottom-0 left-[1%] z-[2] h-[22vh] w-auto object-contain opacity-[0.42] sm:h-[30vh] sm:left-[3%]" />}
-      {cfg.groundPumpkins && <img src="/fall-jackolanterns.png" alt="" className="absolute bottom-0 left-[1%] z-[3] w-[36vw] max-w-none object-contain opacity-[0.42] sm:left-[2%] sm:w-[20vw]" style={{ animation: "ffGlow 3.4s ease-in-out infinite" }} />}
+      {cfg.scarecrow && (
+        <div className="absolute bottom-0 left-[1%] z-[2] h-[28vh] sm:left-[3%] sm:h-[39vh]" style={{ aspectRatio: "766 / 1585" }} data-testid="fall-scarecrow">
+          <img src={cfg.scarecrow} alt="" className="h-full w-full object-contain opacity-[0.42]" />
+          <span className="absolute rounded-full" style={{ left: "62%", top: "14.6%", width: "6.5%", height: "3.2%", background: "radial-gradient(circle, rgba(255,55,30,1), rgba(255,20,0,0.5) 45%, rgba(255,0,0,0) 72%)", filter: "blur(1px)", animation: "ffEyeFlash 3.2s ease-in-out infinite" }} />
+        </div>
+      )}
+      {cfg.groundPumpkins && <img src="/fall-jackolanterns.png" alt="" className="absolute bottom-0 left-1/2 z-[3] w-[42vw] max-w-none -translate-x-1/2 object-contain opacity-[0.42] sm:w-[22vw]" style={{ animation: "ffGlow 3.4s ease-in-out infinite" }} />}
       {cfg.moon && <div className="absolute top-[6%] left-[24%] z-[1] aspect-square w-[24vw] rounded-full sm:left-[27%] sm:w-[14vw]" style={{ background: "radial-gradient(circle at 42% 40%, #FCF4DA 0%, #EDDCAB 60%, #D6C084 100%)", boxShadow: "0 0 90px 34px rgba(255,240,205,0.38), 0 0 44px 14px rgba(255,246,222,0.55)", opacity: 0.6 }} />}
       {cfg.owl && <img src={cfg.owl} alt="" className="absolute top-[13%] left-[30%] z-[2] w-[13vw] max-w-[150px] object-contain opacity-[0.5] sm:w-[9vw]" />}
       {cfg.falling && FALLING_SPRITES.map((l, i) => (

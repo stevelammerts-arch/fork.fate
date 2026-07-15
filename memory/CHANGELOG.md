@@ -1,5 +1,14 @@
 # Fork·Fate — Changelog
 
+## 2026-07-15 (fork) — Fall scene: pumpkins, taller scarecrow, red eye flash; cyber header logo
+
+- **Cyber header logo**: header shows the round neon logo ONLY on the cyber theme (`theme === "cyber"`); all other themes keep the red badge.
+- **Fall jack-o'-lanterns**: two batches now — the original group by the tree (right) plus a second centered group on the ground (`groundPumpkins`), proportionate.
+- **Fall scarecrow**: extended the wooden stake (~+30% via a smooth stretched+affine-sheared pole matching the original's rightward lean) so he sits higher; render moved to a ratio-locked wrapper (`766/1585`), height bumped to h-28vh/sm:h-39vh. Backup at `fall-scarecrow-orig.png`.
+- **Scarecrow red eye flash**: overlaid a small red radial glow on his eye with a periodic flicker (`ffEyeFlash`).
+- Verified all active fall assets (jack-o'-lanterns, scarecrow, tree, owl) are transparent — no baked-in backgrounds. Bumped FF_BUILD to 2026.06-185.
+
+
 ## 2026-07-15 (fork) — Cyber neon logo, spinner SUV, dark techno shuffle audio
 
 - **Cyber neon logo**: replaced the "Fork Fate" neon with a round neon sign of the app logo (purple ring border, elegant magenta FF monogram layered in FRONT of crossed cyan fork & knife). Baked luminance-based transparency so there's no black square; render now has a pulsing background flash glow (`ffNeonFlash`) plus the existing float/flicker (`ffNeonFloat`).
