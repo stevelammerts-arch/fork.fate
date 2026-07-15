@@ -1,5 +1,12 @@
 # Fork·Fate — Changelog
 
+## 2026-07-15 (fork) — Code-review cleanup: places.py refactor + content-based keys
+
+- **`google_places_search` refactored** (`routes/places.py`): split the ~114-line, complexity-35 function into a small orchestrator + 4 focused helpers — `_resolve_latlng`, `_build_text_query`, `_build_search_payload`, `_place_to_result` (plus a `_PLACES_FIELD_MASK` constant). Behavior is identical; verified via curl across all 6 categories, ZIP + coords paths, cuisine/price/open_now filters, radius filtering, and the liquor-store bar special case.
+- **Array-index keys** → content-based in FAQ (`Home.jsx`) and legal paragraphs (`LegalPage.jsx`).
+- **Reviewed & declined (false positives):** `is None` "comparison anti-patterns" (correct Python), non-sensitive UI localStorage (theme/favorites/mute — admin token already on HttpOnly cookie), `console.debug` in catch blocks. Report also referenced a nonexistent "MapView"/map — generic/auto-generated. Large component splits deferred (intricate, production-critical; not worth regression risk without dedicated effort).
+
+
 ## 2026-07-15 (fork) — P3 security: Admin session moved to HttpOnly cookie + Fall scarecrow eye tuning
 
 - **Admin auth hardening (P3)**: Migrated admin session from a localStorage `Authorization: Bearer` JWT (XSS-exposed) to an **HttpOnly, Secure, SameSite=Lax cookie** `ff_admin` (12h).

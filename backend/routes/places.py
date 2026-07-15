@@ -67,119 +67,128 @@ def merge_sponsors(sponsors, items):
     return sponsors + [r for r in items if r.get('name', '').lower() not in names]
 
 
+_PLACES_FIELD_MASK = (
+    "places.displayName,places.rating,places.priceLevel,places.primaryType,"
+    "places.formattedAddress,places.location,places.photos,places.googleMapsUri,"
+    "places.currentOpeningHours.openNow"
+)
+
+
+async def _resolve_latlng(http, req: PlacesSearchRequest):
+    """Return (lat, lng) from explicit coords or a (cached/billed) ZIP geocode."""
+    if req.lat is not None and req.lng is not None:
+        return req.lat, req.lng
+    cached = _ZIP_GEO_CACHE.get(req.zip_code)
+    if cached:
+        return cached
+    # The geocode leg is a separate billed Google call — reserve it against
+    # today's cap so cold-ZIP searches can't quietly double our spend.
+    if not await _google_reserve():
+        raise HTTPException(status_code=503, detail="search-budget-exceeded")
+    geo = await http.get("https://maps.googleapis.com/maps/api/geocode/json", params={
+        "components": f"postal_code:{req.zip_code}|country:US",
+        "key": GOOGLE_API_KEY,
+    })
+    gd = geo.json()
+    if gd.get("status") != "OK" or not gd.get("results"):
+        raise HTTPException(status_code=400, detail="Could not find that ZIP code")
+    loc = gd["results"][0]["geometry"]["location"]
+    latlng = (loc["lat"], loc["lng"])
+    _ZIP_GEO_CACHE[req.zip_code] = latlng
+    return latlng
+
+
+def _build_text_query(req: PlacesSearchRequest) -> str:
+    """Compose the Google textQuery from the category + selected cuisines."""
+    cuisines = " ".join(req.cuisines)
+    if req.category == "drinks":
+        return ((cuisines or "coffee boba tea smoothie") + " cafe drinks").strip()
+    if req.category == "bars":
+        if not req.cuisines:
+            return "bar pub liquor store"
+        # Liquor / package stores aren't "bars" — don't force the bar/pub suffix,
+        # which would bury them in the results.
+        if "liquor store" in cuisines.lower():
+            return cuisines.strip()
+        return (cuisines + " bar pub").strip()
+    if req.category == "desserts":
+        return ((cuisines or "dessert ice cream bakery") + " dessert shop").strip()
+    if req.category == "shops":
+        return (cuisines or "antique thrift vintage consignment resale shop").strip()
+    if req.category == "fuel":
+        return (cuisines or "gas station ev charging station").strip()
+    return (cuisines + " restaurant").strip()
+
+
+def _build_search_payload(req: PlacesSearchRequest, lat: float, lng: float) -> dict:
+    payload = {
+        "textQuery": _build_text_query(req),
+        "locationBias": {"circle": {"center": {"latitude": lat, "longitude": lng}, "radius": min(req.radius_miles * 1609.34, 50000.0)}},
+        "maxResultCount": 20,
+    }
+    if req.price_levels:
+        payload["priceLevels"] = req.price_levels
+    if req.open_now:
+        payload["openNow"] = True
+    return payload
+
+
+def _place_to_result(p: dict, req: PlacesSearchRequest, lat: float, lng: float):
+    """Map one Google place to a result dict, or None if it should be filtered out."""
+    ploc = p.get("location") or {}
+    plat, plng = ploc.get("latitude"), ploc.get("longitude")
+    dist = haversine_miles(lat, lng, plat, plng) if plat is not None and plng is not None else 0.0
+    if dist > req.radius_miles:
+        return None
+    # Shops roulette must not surface food/drink venues that merely match a
+    # store-ish keyword (e.g. "Vinyl Steakhouse" under Record Store).
+    if req.category == "shops":
+        ptype = (p.get("primaryType") or "").lower()
+        if any(k in ptype for k in _NON_SHOP_TYPES):
+            return None
+    photos = p.get("photos") or []
+    photo_url = f"/api/places/photo?name={quote_plus(photos[0]['name'])}" if photos else ""
+    name = p.get("displayName", {}).get("text", "Unknown")
+    address = p.get("formattedAddress", "")
+    return {
+        "id": str(uuid.uuid4()),
+        "name": name,
+        "cuisine": prettify_type(p.get("primaryType"), req.category),
+        "price": PRICE_ENUM_TO_SYMBOL.get(p.get("priceLevel"), "$$"),
+        "rating": float(p.get("rating") or 0.0),
+        "distance": round(dist, 1),
+        "lat": plat,
+        "lng": plng,
+        "address": address,
+        "description": address,
+        # Free placeholder for grid/deck; real (billed) Google photo only for the reveal.
+        "image": pick_placeholder(req.category, name),
+        "photo_url": photo_url,
+        "sponsored": False,
+        "google_url": p.get("googleMapsUri") or maps_url(name, address),
+        "doordash_url": doordash_url(name, address),
+        "order_url": order_url(name, address),
+        "open_now": (p.get("currentOpeningHours") or {}).get("openNow", True),
+    }
+
+
 async def google_places_search(req: PlacesSearchRequest):
     async with httpx.AsyncClient(timeout=15) as http:
-        if req.lat is not None and req.lng is not None:
-            lat, lng = req.lat, req.lng
-        else:
-            cached = _ZIP_GEO_CACHE.get(req.zip_code)
-            if cached:
-                lat, lng = cached
-            else:
-                # The geocode leg is a separate billed Google call — reserve it against
-                # today's cap so cold-ZIP searches can't quietly double our spend.
-                if not await _google_reserve():
-                    raise HTTPException(status_code=503, detail="search-budget-exceeded")
-                geo = await http.get("https://maps.googleapis.com/maps/api/geocode/json", params={
-                    "components": f"postal_code:{req.zip_code}|country:US",
-                    "key": GOOGLE_API_KEY,
-                })
-                gd = geo.json()
-                if gd.get("status") != "OK" or not gd.get("results"):
-                    raise HTTPException(status_code=400, detail="Could not find that ZIP code")
-                loc = gd["results"][0]["geometry"]["location"]
-                lat, lng = loc["lat"], loc["lng"]
-                _ZIP_GEO_CACHE[req.zip_code] = (lat, lng)
-
-        if req.category == "drinks":
-            base = " ".join(req.cuisines) if req.cuisines else "coffee boba tea smoothie"
-            query = (base + " cafe drinks").strip()
-        elif req.category == "bars":
-            if req.cuisines:
-                c = " ".join(req.cuisines)
-                # Liquor / package stores aren't "bars" — don't force the bar/pub suffix,
-                # which would bury them in the results.
-                if "liquor store" in c.lower():
-                    query = c.strip()
-                else:
-                    query = (c + " bar pub").strip()
-            else:
-                query = "bar pub liquor store"
-        elif req.category == "desserts":
-            base = " ".join(req.cuisines) if req.cuisines else "dessert ice cream bakery"
-            query = (base + " dessert shop").strip()
-        elif req.category == "shops":
-            if req.cuisines:
-                query = " ".join(req.cuisines).strip()
-            else:
-                query = "antique thrift vintage consignment resale shop"
-        elif req.category == "fuel":
-            if req.cuisines:
-                query = " ".join(req.cuisines).strip()
-            else:
-                query = "gas station ev charging station"
-        else:
-            query = (" ".join(req.cuisines) + " restaurant").strip()
-        headers = {
-            "X-Goog-Api-Key": GOOGLE_API_KEY,
-            "X-Goog-FieldMask": "places.displayName,places.rating,places.priceLevel,places.primaryType,places.formattedAddress,places.location,places.photos,places.googleMapsUri,places.currentOpeningHours.openNow",
-            "Content-Type": "application/json",
-        }
-        payload = {
-            "textQuery": query,
-            "locationBias": {"circle": {"center": {"latitude": lat, "longitude": lng}, "radius": min(req.radius_miles * 1609.34, 50000.0)}},
-            "maxResultCount": 20,
-        }
-        if req.price_levels:
-            payload["priceLevels"] = req.price_levels
-        if req.open_now:
-            payload["openNow"] = True
-        pres = await http.post("https://places.googleapis.com/v1/places:searchText", headers=headers, json=payload)
+        lat, lng = await _resolve_latlng(http, req)
+        pres = await http.post(
+            "https://places.googleapis.com/v1/places:searchText",
+            headers={
+                "X-Goog-Api-Key": GOOGLE_API_KEY,
+                "X-Goog-FieldMask": _PLACES_FIELD_MASK,
+                "Content-Type": "application/json",
+            },
+            json=_build_search_payload(req, lat, lng),
+        )
         pd = pres.json()
         if "error" in pd:
             logger.warning(f"Places API error: {str(pd['error'])[:300]}")
             raise HTTPException(status_code=502, detail="Places search is temporarily unavailable")
-
-        out = []
-        for p in pd.get("places", []):
-            ploc = p.get("location") or {}
-            plat, plng = ploc.get("latitude"), ploc.get("longitude")
-            dist = haversine_miles(lat, lng, plat, plng) if plat is not None and plng is not None else 0.0
-            if dist > req.radius_miles:
-                continue
-            # Shops roulette must not surface food/drink venues that merely match a
-            # store-ish keyword (e.g. "Vinyl Steakhouse" under Record Store).
-            if req.category == "shops":
-                ptype = (p.get("primaryType") or "").lower()
-                if any(k in ptype for k in _NON_SHOP_TYPES):
-                    continue
-            photos = p.get("photos") or []
-            photo_url = ""
-            if photos:
-                photo_url = f"/api/places/photo?name={quote_plus(photos[0]['name'])}"
-            name = p.get("displayName", {}).get("text", "Unknown")
-            address = p.get("formattedAddress", "")
-            rid = str(uuid.uuid4())
-            out.append({
-                "id": rid,
-                "name": name,
-                "cuisine": prettify_type(p.get("primaryType"), req.category),
-                "price": PRICE_ENUM_TO_SYMBOL.get(p.get("priceLevel"), "$$"),
-                "rating": float(p.get("rating") or 0.0),
-                "distance": round(dist, 1),
-                "lat": plat,
-                "lng": plng,
-                "address": address,
-                "description": address,
-                # Free placeholder for grid/deck; real (billed) Google photo only for the reveal.
-                "image": pick_placeholder(req.category, name),
-                "photo_url": photo_url,
-                "sponsored": False,
-                "google_url": p.get("googleMapsUri") or maps_url(name, address),
-                "doordash_url": doordash_url(name, address),
-                "order_url": order_url(name, address),
-                "open_now": (p.get("currentOpeningHours") or {}).get("openNow", True),
-            })
+        out = [r for p in pd.get("places", []) if (r := _place_to_result(p, req, lat, lng))]
         out.sort(key=lambda r: r["distance"])
         return out
 
