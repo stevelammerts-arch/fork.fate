@@ -27,6 +27,25 @@ export default function Admin() {
   const [cost, setCost] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [betaTesters, setBetaTesters] = useState([]);
+  const [optInLink, setOptInLink] = useState(() => {
+    try { return localStorage.getItem("ff_optin_link") || "https://play.google.com/apps/testing/com.fork_fate.twa"; }
+    catch (e) { return "https://play.google.com/apps/testing/com.fork_fate.twa"; }
+  });
+
+  const emailAllTesters = () => {
+    if (betaTesters.length === 0) return;
+    const bcc = betaTesters.map((x) => x.email).join(",");
+    const subject = "You're invited to test Fork·Fate on Android 🎲";
+    const body =
+      "Hi! Thanks for signing up to test Fork·Fate on Android.\n\n" +
+      "To join (takes ~1 min):\n" +
+      "1) Open this link on your Android phone: " + optInLink + "\n" +
+      "2) Tap \"Become a tester,\" then install Fork·Fate from Google Play\n" +
+      "3) Please keep it installed for ~2 weeks — that's what unlocks our public launch!\n\n" +
+      "Shuffle the deck and let fate pick your next spot. Thanks so much for the help! 🙏\n\n— Fork·Fate";
+    window.location.href =
+      `mailto:?bcc=${encodeURIComponent(bcc)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [passkeyAvail, setPasskeyAvail] = useState(false);
@@ -484,6 +503,24 @@ export default function Admin() {
           <p className="mt-1 text-xs text-[#6B7075]">
             Paste these Gmail addresses into Play Console → Closed testing → Testers. You need 12+ for 14 days.
           </p>
+          {betaTesters.length > 0 && (
+            <div className="mt-3 flex flex-col gap-2 rounded-2xl border border-[#E2E4E7] bg-[#FAFAFB] p-3 sm:flex-row sm:items-center">
+              <input
+                data-testid="optin-link-input"
+                value={optInLink}
+                onChange={(e) => { setOptInLink(e.target.value); try { localStorage.setItem("ff_optin_link", e.target.value); } catch (er) {} }}
+                placeholder="Paste your Play opt-in link"
+                className="min-w-0 flex-1 rounded-full border border-[#E2E4E7] bg-white px-3 py-1.5 text-xs text-[#0E0E0E] outline-none focus:ring-2 focus:ring-[#E01E26]/30"
+              />
+              <button
+                data-testid="email-all-testers-btn"
+                onClick={emailAllTesters}
+                className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#B3141A]"
+              >
+                <Mail className="h-3.5 w-3.5" /> Email all testers the invite
+              </button>
+            </div>
+          )}
           <div className="mt-4 space-y-2" data-testid="beta-testers-list">
             {betaTesters.length === 0 && (
               <p className="rounded-2xl border border-dashed border-[#E2E4E7] bg-white px-4 py-6 text-center text-sm text-[#6B7075]">
