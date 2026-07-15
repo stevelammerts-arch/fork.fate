@@ -1,5 +1,11 @@
 # Fork·Fate — Changelog
 
+## 2026-07-15 (fork) — Refactor: extracted theme scenes out of Home.jsx
+
+- **New module `components/ThemeScenes.jsx`** (220 lines): moved `SeasonScene` + `AmbianceScene` components and their data/constants (`SEASONS`, `AMBIANCE`, `FALLING_SPRITES`, `FLYING_BIRDS`, `STEAM_PUFFS`, `STEAM_JET`, `CYBER_CARS`, `STEAM_CABLES`, `TIKI_FLAME_FRAMES*`) out of `Home.jsx`. `Home.jsx` now imports `{ SEASONS, AMBIANCE, SeasonScene, AmbianceScene }`. `REAPER_BATS` stays in Home (dark-mode reaper).
+- `Home.jsx` shrank ~2470 → 2251 lines. Behavior identical — verified all 4 themed scenes (fall/winter SeasonScene, cyber/steam AmbianceScene) render with no errors. Build → `2026.06-196`.
+
+
 ## 2026-07-15 (fork) — Code-review cleanup: places.py refactor + content-based keys
 
 - **`google_places_search` refactored** (`routes/places.py`): split the ~114-line, complexity-35 function into a small orchestrator + 4 focused helpers — `_resolve_latlng`, `_build_text_query`, `_build_search_payload`, `_place_to_result` (plus a `_PLACES_FIELD_MASK` constant). Behavior is identical; verified via curl across all 6 categories, ZIP + coords paths, cuisine/price/open_now filters, radius filtering, and the liquor-store bar special case.
