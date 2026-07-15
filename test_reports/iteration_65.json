@@ -1,0 +1,34 @@
+{
+  "summary": "Visual/theme regression test for Fork-Fate PWA. Verified default + fall/winter/steam/cyber themes render with no JS/pageerrors, guided-skip works, home content (zip, radius, mode tabs Food/Drinks/Bars/Desserts/Shops/Fuel, Banh Mi chip) visible, cyber header neon logo and cyber-neon skyline present, shuffle deck opens with card-back showing cyber-spinner-suv, result card lands successfully, and Shops/Fuel curated fallback deals produce a result card.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home.jsx is very large (>2200 lines) with many inline decoration blocks (SeasonScene, AmbianceScene, CardBack variants, ShufflingDeck). Consider extracting theme scenes and CardBack into separate modules for maintainability.",
+    "Multiple duplicate card-back blocks (6 occurrences at lines 1690-1737) - could be refactored to a single component parameterized by theme.",
+    "Farmers Market chip is hidden behind '+ 54 more' expand in Shops cuisine - present in data but not visible without expanding. Verify UX intent (may be by design)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Deal button testid is 'spin-roulette-button' (not 'shuffle-button'). Radius uses 'radius-slider' (not 'radius-input'). Guided flow may not always appear; guided-skip only present when guided modal is open. Themes set via localStorage 'ff_theme' - must reload after setting. Only console noise seen was a single 'Failed to load resource: net::ERR_FAILED' (unrelated to theme code, likely a beacon/analytics call).",
+  "verified_flows": [
+    "Default theme home load: no page errors",
+    "Theme=fall: fall-scarecrow renders, no errors",
+    "Theme=winter: winter-santa renders, no errors",
+    "Theme=steam: steam-jet and steam-floor render, no errors",
+    "Theme=cyber: cyber-neon skyline + header /cyber-neon-logo.png present, no errors",
+    "Cyber shuffle: shuffling-deck opens, 5 card-backs shown, /cyber-spinner-suv.png present, result-photo-link renders",
+    "Shops mode deal: result-photo-link + favorite-toggle rendered (curated fallback)",
+    "Fuel mode deal: result-photo-link rendered (curated fallback)",
+    "Guided-skip testid works to dismiss overlay",
+    "Banh Mi chip visible under Food cuisine"
+  ]
+}
