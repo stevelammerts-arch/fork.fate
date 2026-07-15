@@ -1,0 +1,39 @@
+{
+  "summary": "Post-refactor regression pass for Fork-Fate. Verified backend places search refactor (food/shops/fuel + radius), admin HttpOnly cookie auth (login/verify/logout, no localStorage token, ff_admin cookie is httpOnly), all 9 themes render correct scene testids without console errors, ShufflingDeck opens with 5 card-backs and lands on a result for default/dark and cyber themes, Shops+Fuel deal produce a result (curated fallback), shared crawl invalid link route shows 'This crawl link is invalid or has expired.' correctly (route is /c/:code, not /crawl/:code as stated in prompt), Pub Crawl mode dealing produced a result card ('Hudson Yards Tavern' YOUR PICK).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_regression_v66.py",
+    "/app/test_reports/pytest/pytest_v66.xml"
+  ],
+  "action_items": [
+    "Minor: The review request mentions shared crawl at '/crawl/<code>' but the actual React route is '/c/:code'. Confirm intended URL scheme (both should not exist unless aliased).",
+    "Pub Crawl 'route dialog with multiple stops' not exposed via testids like crawl-route-dialog or crawl-stop-N — a crawl deal produced a single 'YOUR PICK' result card. If a multi-stop route dialog is expected, verify it renders and add data-testids for automated tests."
+  ],
+  "critical_code_review_comments": [
+    "Home.jsx (~2200 lines) still large — extraction of ThemeScenes/ReaperScene/ShufflingDeck is a good start; consider extracting the Pub Crawl UI block next.",
+    "Frontend calls ipapi.co/latitude directly from browser and hits CORS (harmless, but noisy in console). Consider proxying via backend or catching the CORS error silently."
+  ],
+  "updated_files": ["/app/backend/tests/test_regression_v66.py"],
+  "success_rate": {"backend": "100% (9/9)", "frontend": "100% on verified flows"},
+  "test_credentials": "Admin password from /app/memory/test_credentials.md (GrimReaper!2026). Cookie 'ff_admin' is HttpOnly.",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Correct shared crawl route is /c/:code. Deal-button testid is 'spin-roulette-button'. Themes are persisted in localStorage 'ff_theme' and require a page reload to render the theme scene. When testing shuffle in themes, first navigate to home, then evaluate localStorage.setItem for ff_theme+ff_theme_hint_seen+ff_muted+ff_guided_seen, THEN goto home again. When clicking crawl-mode-toggle, verify picker becomes visible before proceeding (the toggle may already be on).",
+  "verified_flows": [
+    "Backend POST /api/places/search food/shops/fuel + radius 2/5 mi all 200 with results",
+    "Admin POST /api/admin/login sets ff_admin HttpOnly cookie, GET /api/admin/verify 200, POST /api/admin/logout clears cookie",
+    "Admin UI: login card -> MRR overview, no localStorage 'ff_admin_token', logout returns to login",
+    "9 themes (dark/light/fall/winter/spring/summer/cyber/steam/tiki) each render their expected scene testid with 0 real console errors",
+    "Dark shuffle: 5 card-backs + result-photo-link lands",
+    "Cyber shuffle: 5 card-backs + result-photo-link lands",
+    "Shops + Fuel deal produce result cards",
+    "/c/INVALIDCODE123 shows 'This crawl link is invalid or has expired.' with 'Deal your own fate' CTA",
+    "Pub Crawl deal produced a landed 'YOUR PICK' card (Hudson Yards Tavern)"
+  ]
+}
