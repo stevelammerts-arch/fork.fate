@@ -717,7 +717,6 @@ export default function Home() {
             />
           </div>
         </div>
-        {theme === "tiki" && <img src="/tiki-grass.png" alt="" className="pointer-events-none absolute left-0 top-full z-0 w-full select-none object-cover object-top" style={{ transform: "translateY(-6px)", maxHeight: "8vh", filter: "brightness(0.8)" }} />}
       </header>
 
       <div className="relative z-40">
