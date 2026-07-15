@@ -1,5 +1,12 @@
 # Fork·Fate — Changelog
 
+## 2026-07-15 (fork) — Curated fallback for Shops & Fuel + new filter chips
+
+- **Curated fallback DB for Shops & Fuel**: added ~31 curated seed spots (21 shops, 10 fuel) to `backend/seed_data.py` so these tabs no longer break or burn Google quota when the 300/day cap is hit or Google is down. Covers antiques, thrift, vintage, consignment, record stores, bookstores, farmers markets, flea markets, comics, trading cards, toys, LEGO, hobby, bicycle, jewelry, pawn (shops) and gas, EV charging, truck stop, diesel, car wash, touchless (fuel). Verified: `/api/places/search` returns `source:curated` with 21 shops / 10 fuel.
+- **Seed backfill**: `seed_db()` now backfills newly-added curated spots into an already-seeded DB (dedupe by name) instead of only seeding on an empty collection.
+- **New filter chips**: added "Banh Mi" to Food and "Farmers Market" to Shops (`homeConstants.js`). Farmers Market filter verified against curated data.
+
+
 ## 2026-07-14 (fork) — Android launch support: TWA verification, beta funnel, icons, Play paperwork
 
 - **Digital Asset Links verified**: fixed `assetlinks.json` package to `com.fork_fate.twa` (extracted from the PWABuilder `.aab` via openssl) + both SHA-256 fingerprints (upload key `21:D0:...` + Google Play app-signing key `92:45:...`). Google DAL API returns 2 valid statements on production.

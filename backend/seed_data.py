@@ -194,6 +194,103 @@ SEED = [
     {"name": "Shaker & Spoon", "cuisine": "Cocktails", "price": "$$$", "rating": 4.7, "distance": 3.6, "category": "bars",
      "description": "Craft cocktails and seasonal infusions by master mixologists.", "address": "29 Bitters Blvd",
      "image": "https://images.unsplash.com/photo-1470337458703-46ad1756a187?crop=entropy&cs=srgb&fm=jpg&q=85"},
+
+    # --- Shops ---
+    {"name": "Rustic Relics", "cuisine": "Antiques", "price": "$$", "rating": 4.7, "distance": 1.4, "category": "shops", "sponsored": True,
+     "description": "Vintage furniture, mirrors and one-of-a-kind curios.", "address": "14 Heritage Ln",
+     "image": "https://images.unsplash.com/photo-1758380742318-4074cce52ec4?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Curio Cabinet", "cuisine": "Antiques", "price": "$$", "rating": 4.5, "distance": 5.2, "category": "shops",
+     "description": "Two floors of estate finds, glassware and old maps.", "address": "3 Attic Ave",
+     "image": "https://images.unsplash.com/photo-1742818379540-b9ae978cfaad?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Second Life Thrift", "cuisine": "Thrift Store", "price": "$", "rating": 4.6, "distance": 2.1, "category": "shops", "sponsored": True,
+     "description": "Racks of pre-loved fashion, books and household treasures.", "address": "88 Recycle Rd",
+     "image": "https://images.unsplash.com/photo-1521335629791-ce4aec67dd15?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Fern & Feather Vintage", "cuisine": "Vintage", "price": "$$", "rating": 4.7, "distance": 3.8, "category": "shops",
+     "description": "Curated 70s and 80s threads, boots and denim.", "address": "27 Retro St",
+     "image": "https://images.unsplash.com/photo-1615420733091-6b320329987b?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Consignment Corner", "cuisine": "Consignment", "price": "$$", "rating": 4.5, "distance": 4.4, "category": "shops",
+     "description": "Gently-used designer bags, shoes and coats.", "address": "9 Resale Row",
+     "image": "https://images.unsplash.com/photo-1637228393246-c38a4b3d2011?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Groove Vinyl", "cuisine": "Record Store", "price": "$$", "rating": 4.8, "distance": 1.9, "category": "shops", "sponsored": True,
+     "description": "Crates of new and used vinyl across every genre.", "address": "12 Wax Way",
+     "image": "https://images.unsplash.com/photo-1530288782965-fbad40327074?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Spin City Records", "cuisine": "Record Store", "price": "$", "rating": 4.6, "distance": 6.3, "category": "shops",
+     "description": "Rare pressings, turntables and listening booths.", "address": "44 Groove Blvd",
+     "image": "https://images.unsplash.com/photo-1488841714725-bb4c32d1ac94?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Reading Nook", "cuisine": "Bookstore", "price": "$$", "rating": 4.8, "distance": 1.2, "category": "shops", "sponsored": True,
+     "description": "Independent bookshop with a cozy cafe and reading chairs.", "address": "5 Chapter Ln",
+     "image": "https://images.unsplash.com/photo-1518373714866-3f1478910cc0?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Dusty Pages Books", "cuisine": "Bookstore", "price": "$", "rating": 4.7, "distance": 7.5, "category": "shops",
+     "description": "Floor-to-ceiling used books and first editions.", "address": "31 Spine St",
+     "image": "https://images.unsplash.com/photo-1573592371950-348a8f1d9f38?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Harvest Green Market", "cuisine": "Farmers Market", "price": "$", "rating": 4.9, "distance": 2.6, "category": "shops", "sponsored": True,
+     "description": "Local produce, fresh flowers and artisan goods every weekend.", "address": "1 Orchard Sq",
+     "image": "https://images.unsplash.com/photo-1687199129802-3e4cc27baac0?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Town Square Farmers Market", "cuisine": "Farmers Market", "price": "$", "rating": 4.7, "distance": 5.9, "category": "shops",
+     "description": "Farm-fresh veggies, honey, baked goods and cheese.", "address": "20 Meadow Rd",
+     "image": "https://images.unsplash.com/photo-1616362406547-1c556ceb4d80?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Weekend Flea", "cuisine": "Flea Market", "price": "$", "rating": 4.5, "distance": 4.1, "category": "shops",
+     "description": "Dozens of stalls of oddities, crafts and collectibles.", "address": "60 Bargain Ave",
+     "image": "https://images.unsplash.com/photo-1663366936874-e0cf8ad40d81?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Flea & Found", "cuisine": "Flea Market", "price": "$", "rating": 4.4, "distance": 8.8, "category": "shops",
+     "description": "Open-air market with tools, records and knick-knacks.", "address": "3 Swap Ln",
+     "image": "https://images.unsplash.com/photo-1685875018101-a3e87efdb1d1?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Panel Zero Comics", "cuisine": "Comic Store", "price": "$$", "rating": 4.7, "distance": 3.3, "category": "shops", "sponsored": True,
+     "description": "New issues, graphic novels and back-issue long boxes.", "address": "8 Hero Ct",
+     "image": "https://images.unsplash.com/photo-1749999589464-4810447142bb?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Trading Post", "cuisine": "Trading Cards", "price": "$$", "rating": 4.6, "distance": 5.7, "category": "shops",
+     "description": "Sports and TCG singles, booster boxes and grading.", "address": "17 Deck St",
+     "image": "https://images.unsplash.com/photo-1698177077434-17523aea69c6?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Wonder Toys", "cuisine": "Toy Store", "price": "$$", "rating": 4.8, "distance": 2.4, "category": "shops", "sponsored": True,
+     "description": "Wall-to-wall toys, puzzles and games for all ages.", "address": "10 Play Pl",
+     "image": "https://images.unsplash.com/photo-1761207300250-a71b2ff68b99?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Brick & Block", "cuisine": "LEGO Store", "price": "$$", "rating": 4.7, "distance": 6.1, "category": "shops",
+     "description": "Buckets of bricks, sets and a build-your-own bar.", "address": "42 Stud Ave",
+     "image": "https://images.unsplash.com/photo-1779384027896-3c78d80e230b?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Hobby Bench", "cuisine": "Hobby Shop", "price": "$$", "rating": 4.6, "distance": 4.9, "category": "shops",
+     "description": "Model kits, paints, RC cars and miniatures.", "address": "23 Craft Rd",
+     "image": "https://images.unsplash.com/photo-1601067095185-b8b73ad7db10?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Two Wheels Cyclery", "cuisine": "Bicycle Shop", "price": "$$", "rating": 4.8, "distance": 3.0, "category": "shops", "sponsored": True,
+     "description": "Road, gravel and city bikes plus expert tune-ups.", "address": "6 Pedal Way",
+     "image": "https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Gilded Gem Jewelers", "cuisine": "Jewelry Store", "price": "$$$", "rating": 4.8, "distance": 2.7, "category": "shops",
+     "description": "Fine jewelry, custom rings and estate pieces.", "address": "14 Carat Ct",
+     "image": "https://images.unsplash.com/photo-1689560025810-4599bc195814?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "The Pawn Vault", "cuisine": "Pawn Shop", "price": "$$", "rating": 4.3, "distance": 7.2, "category": "shops",
+     "description": "Instruments, tools, electronics and gold buys.", "address": "50 Ticket St",
+     "image": "https://images.unsplash.com/photo-1622704776938-bed6cd156e04?crop=entropy&cs=srgb&fm=jpg&q=85"},
+
+    # --- Fuel ---
+    {"name": "QuickFill Station", "cuisine": "Gas Station", "price": "$", "rating": 4.4, "distance": 0.6, "category": "fuel", "sponsored": True,
+     "description": "24/7 pumps, fresh coffee and a well-stocked mart.", "address": "2 Pump Row",
+     "image": "https://images.unsplash.com/photo-1709536240401-58dff8e8d597?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Corner Fuel Co", "cuisine": "Gas Station", "price": "$", "rating": 4.2, "distance": 2.3, "category": "fuel",
+     "description": "Regular, premium and air pumps with a car vacuum.", "address": "88 Octane Ave",
+     "image": "https://images.unsplash.com/photo-1695561324569-5e47c76dc0a3?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Midnight Mart & Gas", "cuisine": "Gas Station", "price": "$", "rating": 4.3, "distance": 4.8, "category": "fuel",
+     "description": "Late-night fill-ups, snacks and lottery.", "address": "12 Fuel Ln",
+     "image": "https://images.unsplash.com/photo-1635627026254-b652e62d1d07?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "VoltPoint Charging", "cuisine": "EV Charging", "price": "$$", "rating": 4.7, "distance": 1.1, "category": "fuel", "sponsored": True,
+     "description": "Fast DC chargers with a lounge and free wifi.", "address": "5 Current Ct",
+     "image": "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "GreenCharge Hub", "cuisine": "EV Charging", "price": "$$", "rating": 4.6, "distance": 3.5, "category": "fuel",
+     "description": "Level 2 and fast chargers next to a coffee bar.", "address": "30 Watt Way",
+     "image": "https://images.unsplash.com/photo-1593941707874-ef25b8b4a92b?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Highway Haven Truck Stop", "cuisine": "Truck Stop", "price": "$", "rating": 4.5, "distance": 8.4, "category": "fuel", "sponsored": True,
+     "description": "Diesel lanes, showers, diner and overnight parking.", "address": "1 Interstate Rd",
+     "image": "https://images.unsplash.com/photo-1783243858623-aa17e2e07779?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Big Rig Rest Stop", "cuisine": "Truck Stop", "price": "$", "rating": 4.3, "distance": 14.7, "category": "fuel",
+     "description": "High-flow diesel, weigh station and 24hr diner.", "address": "77 Mile Marker",
+     "image": "https://images.unsplash.com/photo-1602126719641-078917db06d1?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Diesel Depot", "cuisine": "Diesel", "price": "$", "rating": 4.4, "distance": 6.9, "category": "fuel",
+     "description": "Dedicated diesel lanes and DEF at every pump.", "address": "40 Cetane St",
+     "image": "https://images.unsplash.com/photo-1635627026254-b652e62d1d07?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Sparkle Touchless Wash", "cuisine": "Touchless Car Wash", "price": "$$", "rating": 4.6, "distance": 1.8, "category": "fuel", "sponsored": True,
+     "description": "Brushless laser wash with spot-free rinse.", "address": "9 Shine Ave",
+     "image": "https://images.unsplash.com/photo-1633014041037-f5446fb4ce99?crop=entropy&cs=srgb&fm=jpg&q=85"},
+    {"name": "Sudsy's Car Wash", "cuisine": "Car Wash", "price": "$", "rating": 4.4, "distance": 3.2, "category": "fuel",
+     "description": "Soft-cloth tunnel wash with free vacuums.", "address": "22 Bubble Blvd",
+     "image": "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?crop=entropy&cs=srgb&fm=jpg&q=85"},
 ]
 
 
@@ -209,6 +306,22 @@ async def seed_db():
             docs.append(doc)
         await db.restaurants.insert_many(docs)
         logging.info(f"Seeded {len(docs)} restaurants")
+    else:
+        # Backfill any newly-added curated categories (e.g. shops, fuel) into an
+        # already-seeded DB without duplicating existing spots.
+        existing = set(await db.restaurants.distinct("name"))
+        new_docs = []
+        for idx, item in enumerate(SEED):
+            if item["name"] in existing:
+                continue
+            r = Restaurant(**item)
+            r.open_now = (idx % 4 != 0)
+            doc = r.model_dump()
+            doc['created_at'] = doc['created_at'].isoformat()
+            new_docs.append(doc)
+        if new_docs:
+            await db.restaurants.insert_many(new_docs)
+            logging.info(f"Backfilled {len(new_docs)} curated spots")
     # Seed the global "fates dealt" social-proof counter
     if await db.stats.count_documents({"key": "fates_dealt"}) == 0:
         await db.stats.insert_one({"key": "fates_dealt", "count": 1042})

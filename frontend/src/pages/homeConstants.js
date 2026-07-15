@@ -110,13 +110,13 @@ export const FOOD_CUISINES = [
   "Filipino", "Malaysian", "Indonesian", "Chicken Wings", "Fried Chicken", "Burgers", "Steakhouse", "American",
   "Diner", "Comfort Food", "Southern", "Soul Food", "Cajun", "Mediterranean", "Greek", "Spanish", "French",
   "Middle Eastern", "Lebanese", "Turkish", "Ethiopian", "Caribbean", "Cuban", "Peruvian", "Brazilian", "Hawaiian",
-  "Seafood", "Poke", "Pizza", "Pasta", "Tacos", "Sandwiches", "Deli", "Ramen", "Noodles", "Pho", "Dumplings",
+  "Seafood", "Poke", "Pizza", "Pasta", "Tacos", "Sandwiches", "Banh Mi", "Deli", "Ramen", "Noodles", "Pho", "Dumplings",
   "Breakfast", "Brunch", "Salads", "Halal", "Vegan", "Vegetarian", "Gluten Free", "BBQ", "Cafe", "Gastropub",
   "Fine Dining", "Fusion", "Hot Pot", "Dim Sum", "Buffet", "Food Trucks", "Fast Food", "Tapas",
 ];
 export const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "Smoothie", "Juice Bar", "Milkshakes", "Kombucha", "Cider", "Hot Chocolate", "Matcha", "Lemonade", "Soda Fountain"];
 export const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Donuts", "Cupcakes", "Candy Shops", "Chocolate", "Crepes", "Cheesecake", "Pie", "Cookies", "Waffles", "Macarons", "Cinnamon Rolls"];
-export const SHOP_CUISINES = ["Antiques", "Thrift Store", "Vintage", "Flea Market", "Consignment", "Record Store", "Bookstore", "Pawn Shop", "Gem Store", "Jewelry Store", "Bead Shop", "Quilt Shop", "Yarn Shop", "Hobby Shop", "Comic Store", "Model Shop", "Trading Cards", "Toy Trains", "LEGO Store", "Toy Store", "Bicycle Shop"];
+export const SHOP_CUISINES = ["Antiques", "Thrift Store", "Vintage", "Flea Market", "Farmers Market", "Consignment", "Record Store", "Bookstore", "Pawn Shop", "Gem Store", "Jewelry Store", "Bead Shop", "Quilt Shop", "Yarn Shop", "Hobby Shop", "Comic Store", "Model Shop", "Trading Cards", "Toy Trains", "LEGO Store", "Toy Store", "Bicycle Shop"];
 export const FUEL_CUISINES = ["Gas Station", "EV Charging", "Truck Stop", "Car Wash", "Touchless Car Wash", "Diesel"];
 export const BAR_CUISINES = [
   "Brewery", "Beer Garden", "Taproom", "Distillery", "Beer", "Wine", "Winery", "Wine Bar", "Wine Tasting",
