@@ -1,5 +1,16 @@
 # Fork·Fate — Changelog
 
+## 2026-07-15 (fork) — P3 security: Admin session moved to HttpOnly cookie + Fall scarecrow eye tuning
+
+- **Admin auth hardening (P3)**: Migrated admin session from a localStorage `Authorization: Bearer` JWT (XSS-exposed) to an **HttpOnly, Secure, SameSite=Lax cookie** `ff_admin` (12h).
+  - Backend `core.py`: added `ADMIN_COOKIE`, `set_admin_cookie`/`clear_admin_cookie`; `require_admin` now reads the cookie first, falls back to Bearer header (for curl/tooling).
+  - `POST /api/admin/login` + passkey `POST /api/auth/passkey/login-verify` set the cookie and return `{ok:true}` (no token in body). Added `POST /api/admin/logout` to clear it.
+  - `server.py` CORS: `allow_credentials=True` (origins still restricted by regex/env).
+  - Frontend `Admin.jsx`: removed all localStorage token handling; uses axios `withCredentials`, checks session via `GET /api/admin/verify` on mount, spinner while checking.
+  - Verified via curl (cookie set/verify/logout/401) and browser flow (login→dashboard→logout; confirmed no localStorage token).
+- **Fall scarecrow eyes**: changed strobe flash to a slow smooth pulse (`ffEyeFlash` 5s ease-in-out); repositioned both eye glows onto the actual eyes (amber eye 64.6%,14.9% + dark socket 70.6%,17.8%) fixing wrong-direction tilt; enlarged scarecrow to 46vh desktop / 34vh mobile.
+
+
 ## 2026-07-15 (fork) — Fall scene: pumpkins, taller scarecrow, red eye flash; cyber header logo
 
 - **Cyber header logo**: header shows the round neon logo ONLY on the cyber theme (`theme === "cyber"`); all other themes keep the red badge.

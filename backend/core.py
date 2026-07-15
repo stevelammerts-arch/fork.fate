@@ -1,5 +1,5 @@
 """Shared config, DB client, helpers, auth and rate limiting for Fork·Fate."""
-from fastapi import HTTPException, Request
+from fastapi import HTTPException, Request, Response
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import ReturnDocument
@@ -210,9 +210,28 @@ def create_admin_token():
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
 
 
+# HttpOnly session cookie for the admin JWT (replaces localStorage Bearer storage,
+# eliminating XSS token theft). Same-origin app, so SameSite=Lax + Secure is safe.
+ADMIN_COOKIE = "ff_admin"
+ADMIN_COOKIE_MAX_AGE = 12 * 60 * 60  # matches the 12h token expiry
+
+
+def set_admin_cookie(response: Response, token: str):
+    response.set_cookie(
+        key=ADMIN_COOKIE, value=token, httponly=True, secure=True,
+        samesite="lax", max_age=ADMIN_COOKIE_MAX_AGE, path="/",
+    )
+
+
+def clear_admin_cookie(response: Response):
+    response.delete_cookie(key=ADMIN_COOKIE, path="/", samesite="lax", secure=True, httponly=True)
+
+
 def require_admin(request: Request):
-    auth = request.headers.get("Authorization", "")
-    token = auth[7:] if auth.startswith("Bearer ") else None
+    token = request.cookies.get(ADMIN_COOKIE)
+    if not token:
+        auth = request.headers.get("Authorization", "")
+        token = auth[7:] if auth.startswith("Bearer ") else None
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
     try:

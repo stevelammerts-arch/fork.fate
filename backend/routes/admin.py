@@ -3,10 +3,11 @@ import uuid
 import hmac
 from typing import List
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Request, Response
 
 from core import (db, rate_limit, require_admin, create_admin_token, client_ip,
                   check_login_lockout, record_login_failure, clear_login_failures,
+                  set_admin_cookie, clear_admin_cookie,
                   ADMIN_PASSWORD, SPONSOR_PRICE, SPONSOR_PRICE_ANNUAL, FALLBACK_IMG,
                   GOOGLE_SEARCH_DAILY_CAP, GOOGLE_SEARCH_ALERT_PCT, send_email)
 from models import AdminLogin, SponsorCreate, SponsorUpdate, SponsorClick, Restaurant, BetaSignup
@@ -23,14 +24,21 @@ def _monthly_value(sponsor) -> float:
 
 
 @router.post("/admin/login", dependencies=[Depends(rate_limit(10))])
-async def admin_login(payload: AdminLogin, request: Request):
+async def admin_login(payload: AdminLogin, request: Request, response: Response):
     ip = client_ip(request)
     check_login_lockout(ip)  # per-IP failed-attempt lockout + generous global backstop
     if not ADMIN_PASSWORD or not hmac.compare_digest(payload.password, ADMIN_PASSWORD):
         record_login_failure(ip)
         raise HTTPException(status_code=401, detail="Incorrect password")
     clear_login_failures(ip)
-    return {"token": create_admin_token()}
+    set_admin_cookie(response, create_admin_token())
+    return {"ok": True}
+
+
+@router.post("/admin/logout")
+async def admin_logout(response: Response):
+    clear_admin_cookie(response)
+    return {"ok": True}
 
 
 @router.get("/admin/verify", dependencies=[Depends(require_admin)])

@@ -12,13 +12,15 @@ import {
 } from "../components/ui/select";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-const TOKEN_KEY = "ff_admin_token";
+// Admin session lives in an HttpOnly cookie set by the backend; send it on every request.
+const WC = { withCredentials: true };
 const CATEGORIES = ["food", "drinks", "bars", "desserts"];
 const PRICES = ["$", "$$", "$$$", "$$$$"];
 const EMPTY = { name: "", cuisine: "", price: "$$", category: "food", address: "", description: "", image: "", active: true };
 
 export default function Admin() {
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || "");
+  const [authed, setAuthed] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
@@ -53,18 +55,16 @@ export default function Admin() {
   const [passkeyBusy, setPasskeyBusy] = useState(false);
   const [emailing, setEmailing] = useState(false);
 
-  const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
-
-  const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-    setToken("");
+  const logout = useCallback(async () => {
+    try { await axios.post(`${API}/admin/logout`, {}, WC); } catch (e) { /* ignore */ }
+    setAuthed(false);
     setSponsors([]);
     setSubmissions([]);
   }, []);
 
   const loadSponsors = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${API}/admin/sponsors`, { headers: { Authorization: `Bearer ${token}` } });
+      const { data } = await axios.get(`${API}/admin/sponsors`, WC);
       setSponsors(data);
     } catch (e) {
       if (e.response?.status === 401) {
@@ -72,38 +72,38 @@ export default function Admin() {
         logout();
       }
     }
-  }, [token, logout]);
+  }, [logout]);
 
   const loadStats = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${API}/admin/sponsors/stats`, { headers: { Authorization: `Bearer ${token}` } });
+      const { data } = await axios.get(`${API}/admin/sponsors/stats`, WC);
       setStats(data);
     } catch (e) {
       if (e.response?.status === 401) logout();
     }
-  }, [token, logout]);
+  }, [logout]);
 
   const loadCost = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${API}/admin/cost-status`, { headers: { Authorization: `Bearer ${token}` } });
+      const { data } = await axios.get(`${API}/admin/cost-status`, WC);
       setCost(data);
     } catch (e) {
       if (e.response?.status === 401) logout();
     }
-  }, [token, logout]);
+  }, [logout]);
 
   const loadSubmissions = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${API}/admin/submissions`, { headers: { Authorization: `Bearer ${token}` } });
+      const { data } = await axios.get(`${API}/admin/submissions`, WC);
       setSubmissions(data);
     } catch (e) {
       if (e.response?.status === 401) logout();
     }
-  }, [token, logout]);
+  }, [logout]);
 
   const deleteBeta = async (email) => {
     try {
-      await axios.delete(`${API}/admin/beta-testers`, { params: { email }, headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`${API}/admin/beta-testers`, { params: { email }, ...WC });
       setBetaTesters((prev) => prev.filter((x) => x.email !== email));
       toast.success("Tester removed");
     } catch (e) {
@@ -113,32 +113,40 @@ export default function Admin() {
 
   const loadBeta = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${API}/admin/beta-testers`, { headers: { Authorization: `Bearer ${token}` } });
+      const { data } = await axios.get(`${API}/admin/beta-testers`, WC);
       setBetaTesters(data.testers || []);
     } catch (e) {
       if (e.response?.status === 401) logout();
     }
-  }, [token, logout]);
+  }, [logout]);
+
+  // Check for an existing admin session (HttpOnly cookie) on mount.
+  useEffect(() => {
+    axios.get(`${API}/admin/verify`, WC)
+      .then(() => setAuthed(true))
+      .catch(() => setAuthed(false))
+      .finally(() => setChecking(false));
+  }, []);
 
   useEffect(() => {
-    if (token) { loadSponsors(); loadSubmissions(); loadStats(); loadCost(); loadBeta(); }
-  }, [token, loadSponsors, loadSubmissions, loadStats, loadCost, loadBeta]);
+    if (authed) { loadSponsors(); loadSubmissions(); loadStats(); loadCost(); loadBeta(); }
+  }, [authed, loadSponsors, loadSubmissions, loadStats, loadCost, loadBeta]);
 
   // Show the passkey button on the login screen only when one is registered.
   useEffect(() => {
-    if (token) return;
+    if (authed) return;
     axios.get(`${API}/auth/passkey/available`)
       .then(({ data }) => setPasskeyAvail(!!data.available))
       .catch(() => setPasskeyAvail(false));
-  }, [token]);
+  }, [authed]);
 
   // Load passkey registration status once logged in.
   useEffect(() => {
-    if (!token) return;
-    axios.get(`${API}/admin/passkey/status`, { headers: { Authorization: `Bearer ${token}` } })
+    if (!authed) return;
+    axios.get(`${API}/admin/passkey/status`, WC)
       .then(({ data }) => setPasskeyRegistered(!!data.registered))
       .catch(() => {});
-  }, [token]);
+  }, [authed]);
 
   const loginWithPasskey = async () => {
     if (passkeyBusy) return;
@@ -146,9 +154,8 @@ export default function Admin() {
     try {
       const { data: optionsJSON } = await axios.get(`${API}/auth/passkey/login-options`);
       const asseResp = await startAuthentication({ optionsJSON });
-      const { data } = await axios.post(`${API}/auth/passkey/login-verify`, { response: asseResp });
-      localStorage.setItem(TOKEN_KEY, data.token);
-      setToken(data.token);
+      await axios.post(`${API}/auth/passkey/login-verify`, { response: asseResp }, WC);
+      setAuthed(true);
       toast.success("Unlocked with passkey");
     } catch (e) {
       if (e?.name === "NotAllowedError" || e?.name === "AbortError") return; // user cancelled
@@ -162,9 +169,9 @@ export default function Admin() {
     if (passkeyBusy) return;
     setPasskeyBusy(true);
     try {
-      const { data: optionsJSON } = await axios.get(`${API}/admin/passkey/register-options`, { headers: { Authorization: `Bearer ${token}` } });
+      const { data: optionsJSON } = await axios.get(`${API}/admin/passkey/register-options`, WC);
       const attResp = await startRegistration({ optionsJSON });
-      await axios.post(`${API}/admin/passkey/register-verify`, { response: attResp }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`${API}/admin/passkey/register-verify`, { response: attResp }, WC);
       setPasskeyRegistered(true);
       toast.success("Passkey saved — use your fingerprint or Face ID next time");
     } catch (e) {
@@ -178,7 +185,7 @@ export default function Admin() {
   const removePasskey = async () => {
     if (!window.confirm("Remove the saved passkey from this admin account?")) return;
     try {
-      await axios.delete(`${API}/admin/passkey`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`${API}/admin/passkey`, WC);
       setPasskeyRegistered(false);
       toast.success("Passkey removed");
     } catch {
@@ -190,9 +197,8 @@ export default function Admin() {
     if (!password) return;
     setAuthLoading(true);
     try {
-      const { data } = await axios.post(`${API}/admin/login`, { password });
-      localStorage.setItem(TOKEN_KEY, data.token);
-      setToken(data.token);
+      await axios.post(`${API}/admin/login`, { password }, WC);
+      setAuthed(true);
       setPassword("");
       toast.success("Welcome back, admin");
     } catch (e) {
@@ -211,7 +217,7 @@ export default function Admin() {
     }
     setSaving(true);
     try {
-      await axios.post(`${API}/admin/sponsors`, form, authHeaders);
+      await axios.post(`${API}/admin/sponsors`, form, WC);
       toast.success(`${form.name} added as a sponsor`);
       setForm(EMPTY);
       loadSponsors();
@@ -225,7 +231,7 @@ export default function Admin() {
 
   const toggleActive = async (s) => {
     try {
-      await axios.patch(`${API}/admin/sponsors/${s.id}`, { active: !s.active }, authHeaders);
+      await axios.patch(`${API}/admin/sponsors/${s.id}`, { active: !s.active }, WC);
       loadSponsors();
       loadStats();
     } catch {
@@ -236,7 +242,7 @@ export default function Admin() {
   const remove = async (s) => {
     if (!window.confirm(`Remove ${s.name} from sponsors?`)) return;
     try {
-      await axios.delete(`${API}/admin/sponsors/${s.id}`, authHeaders);
+      await axios.delete(`${API}/admin/sponsors/${s.id}`, WC);
       toast.success("Sponsor removed");
       loadSponsors();
       loadStats();
@@ -248,7 +254,7 @@ export default function Admin() {
   const sendSummaryEmail = async () => {
     setEmailing(true);
     try {
-      await axios.post(`${API}/admin/email-summary`, {}, authHeaders);
+      await axios.post(`${API}/admin/email-summary`, {}, WC);
       toast.success("Sponsor summary email sent");
     } catch (e) {
       toast.error(
@@ -262,7 +268,7 @@ export default function Admin() {
   };
 
   const approveSubmission = async (r) => {    try {
-      await axios.post(`${API}/admin/submissions/${r.id}/approve`, {}, authHeaders);
+      await axios.post(`${API}/admin/submissions/${r.id}/approve`, {}, WC);
       toast.success(`${r.name} approved — now live in the pool`);
       loadSubmissions();
     } catch {
@@ -273,7 +279,7 @@ export default function Admin() {
   const rejectSubmission = async (r) => {
     if (!window.confirm(`Reject and delete "${r.name}"?`)) return;
     try {
-      await axios.delete(`${API}/admin/submissions/${r.id}`, authHeaders);
+      await axios.delete(`${API}/admin/submissions/${r.id}`, WC);
       toast.success("Submission rejected");
       loadSubmissions();
     } catch {
@@ -281,7 +287,15 @@ export default function Admin() {
     }
   };
 
-  if (!token) {
+  if (checking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#0E0E0E]" data-testid="admin-checking">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-[#E01E26]" />
+      </div>
+    );
+  }
+
+  if (!authed) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#0E0E0E] px-6">
         <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-[#141414] p-8" data-testid="admin-login-card">

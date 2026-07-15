@@ -2,7 +2,7 @@
 (fingerprint / FaceID) gated by the existing admin JWT, then log in with it to
 receive the same admin session token. Password login stays as a fallback."""
 import json
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Request, Response
 from pydantic import BaseModel
 
 from webauthn import (
@@ -21,7 +21,7 @@ from webauthn.helpers.structs import (
     AuthenticatorAttachment,
 )
 
-from core import db, rate_limit, require_admin, create_admin_token, rp_id_and_origin, logger
+from core import db, rate_limit, require_admin, create_admin_token, set_admin_cookie, rp_id_and_origin, logger
 
 router = APIRouter()
 
@@ -142,7 +142,7 @@ async def login_options(request: Request):
 
 
 @router.post("/auth/passkey/login-verify", dependencies=[Depends(rate_limit(20))])
-async def login_verify(payload: VerifyPayload, request: Request):
+async def login_verify(payload: VerifyPayload, request: Request, response: Response):
     rp_id, origin = rp_id_and_origin(request)
     doc = await _get_doc()
     challenge = doc.get("auth_challenge")
@@ -169,4 +169,5 @@ async def login_verify(payload: VerifyPayload, request: Request):
         {"_id": ADMIN_KEY, "passkeys.credential_id": cred_id},
         {"$set": {"passkeys.$.sign_count": verification.new_sign_count}, "$unset": {"auth_challenge": ""}},
     )
-    return {"token": create_admin_token()}
+    set_admin_cookie(response, create_admin_token())
+    return {"ok": True}

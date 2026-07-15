@@ -40,7 +40,7 @@ async def security_headers(request, call_next):
 _extra_origins = [o.strip() for o in os.environ.get('CORS_ORIGINS', '').split(',') if o.strip() and o.strip() != '*']
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=False,
+    allow_credentials=True,
     allow_origins=_extra_origins,
     allow_origin_regex=ALLOWED_ORIGIN_REGEX,
     allow_methods=["*"],
