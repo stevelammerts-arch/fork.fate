@@ -61,6 +61,12 @@ async def list_beta_testers():
     return {"testers": docs, "count": len(docs)}
 
 
+@router.delete("/admin/beta-testers", dependencies=[Depends(require_admin)])
+async def delete_beta_tester(email: str):
+    r = await db.beta_testers.delete_one({"email": email.strip().lower()})
+    return {"ok": r.deleted_count > 0, "count": await db.beta_testers.count_documents({})}
+
+
 @router.get("/admin/sponsors", dependencies=[Depends(require_admin)])
 async def list_sponsors():
     return await db.sponsors.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)

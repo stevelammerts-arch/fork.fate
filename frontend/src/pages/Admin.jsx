@@ -82,6 +82,16 @@ export default function Admin() {
     }
   }, [token, logout]);
 
+  const deleteBeta = async (email) => {
+    try {
+      await axios.delete(`${API}/admin/beta-testers`, { params: { email }, headers: { Authorization: `Bearer ${token}` } });
+      setBetaTesters((prev) => prev.filter((x) => x.email !== email));
+      toast.success("Tester removed");
+    } catch (e) {
+      toast.error("Could not remove tester");
+    }
+  };
+
   const loadBeta = useCallback(async () => {
     try {
       const { data } = await axios.get(`${API}/admin/beta-testers`, { headers: { Authorization: `Bearer ${token}` } });
@@ -483,7 +493,17 @@ export default function Admin() {
             {betaTesters.map((x) => (
               <div key={x.email} className="flex items-center justify-between rounded-2xl border border-[#E2E4E7] bg-white px-4 py-2.5">
                 <span className="font-mono text-sm text-[#0E0E0E]">{x.email}</span>
-                <span className="text-xs text-[#9AA0A6]">{(x.created_at || "").slice(0, 10)}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-[#9AA0A6]">{(x.created_at || "").slice(0, 10)}</span>
+                  <button
+                    data-testid={`delete-beta-${x.email}`}
+                    onClick={() => deleteBeta(x.email)}
+                    aria-label="Remove tester"
+                    className="rounded-full p-1.5 text-[#B01015] transition-colors hover:bg-[#FCE9EA]"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
