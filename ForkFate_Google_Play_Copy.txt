@@ -40,3 +40,45 @@ Plan the perfect night out. Fork·Fate builds shareable pub crawls and randomly 
 
 Search terms woven in: where to eat, restaurant randomizer, decision maker,
 food roulette, restaurants near me, pub crawl, bars near me, what should I eat.
+
+
+
+===================================================================
+STORE SCREENSHOTS — HOW TO CAPTURE (full-res, policy-compliant)
+===================================================================
+
+App URL (preview): https://lucky-bite-1.preview.emergentagent.com
+(Use your LIVE production URL instead once deployed.)
+
+REQUIRED SIZES (all 16:9 landscape, PNG or JPEG, under 8 MB):
+  - 7" tablet ............ 1920 x 1080
+  - 10" tablet ........... 2560 x 1440
+  - Chromebook ........... 2560 x 1440  (same spec as 10")
+  Each side must be within the store limits (7": 320-3840 px, 10"/Chromebook: 1080-7680 px).
+  You can reuse the same 2560x1440 images for both 10" and Chromebook.
+
+STEPS (desktop Chrome):
+  1. Open the app URL in Chrome.
+  2. Press F12, then toggle the Device Toolbar (Ctrl/Cmd + Shift + M).
+  3. In the size dropdown pick "Responsive", type the exact WIDTH x HEIGHT above.
+  4. Set DPR (device pixel ratio) = 1 so the exported pixels match exactly.
+  5. Use the toolbar's 3-dot menu -> "Capture screenshot" (full size, not "area").
+     -> Saves a PNG at that exact resolution.
+
+STAGE EACH THEME FAST (paste in the DevTools Console, then re-run per theme):
+  localStorage.setItem('ff_theme','cyber'); localStorage.setItem('ff_theme_hint_seen','1'); localStorage.setItem('ff_muted','1'); location.reload()
+  (swap 'cyber' for: fall, winter, spring, summer, steam, tiki, dark, light)
+
+  To grab the shuffle + result shots: enter a ZIP (e.g. 10001), click "Deal",
+  screenshot mid-shuffle (the card deck), then again after it lands on a result.
+
+SUGGESTED 5-SHOT SET (per size):
+  1. Cyberpunk home (neon logo + skyline)
+  2. Shuffling deck mid-animation ("NEON NIGHTS" cards)
+  3. Landed result card (photo + Order/Check-in buttons)
+  4. Fall home (cozy seasonal variety)
+  5. A second category — Bars or Desserts
+
+YOUTUBE PROMO VIDEO:
+  Google only needs a public/unlisted YouTube URL pasted into the listing.
+  Ask me for a 30-60s shot-by-shot script + on-screen captions when ready.
