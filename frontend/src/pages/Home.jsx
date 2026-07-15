@@ -64,7 +64,7 @@ const FLYING_BIRDS = Array.from({ length: 8 }).map((_, i) => ({
 const SEASONS = {
   fall: {
     grad: "linear-gradient(180deg,#FBF3E8 0%,#F5E6D0 55%,#EFDCC0 100%)",
-    tree: "/fall-tree.png", decorRight: "/fall-jackolanterns.png", decorRightGlow: true, scarecrow: "/fall-scarecrow.png", owl: "/fall-owl.png", moon: true,
+    tree: "/fall-tree.png", decorRight: "/fall-jackolanterns.png", decorRightGlow: true, scarecrow: "/fall-scarecrow.png", groundPumpkins: true, owl: "/fall-owl.png", moon: true,
     items: ["/leaf-red.png", "/leaf-orange.png", "/leaf-yellow.png", "/leaf-brown.png"], falling: true, hint: "#C0451B",
   },
   winter: {
@@ -114,6 +114,7 @@ function SeasonScene({ theme, cfg }) {
       {cfg.decorRight && <img src={cfg.decorRight} alt="" className={`absolute bottom-0 ${cfg.decorRightPos || "right-[3%]"} object-contain opacity-[0.32] ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : undefined} />}
       {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className={`absolute bottom-0 left-0 object-contain opacity-[0.32] sm:left-[2%] ${cfg.decorLeftW ? cfg.decorLeftW : (cfg.decorLeftBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[42vw] max-w-sm sm:w-[26vw]")}`} />}
       {cfg.scarecrow && <img src={cfg.scarecrow} alt="" className="absolute bottom-0 left-[1%] z-[2] h-[22vh] w-auto object-contain opacity-[0.42] sm:h-[30vh] sm:left-[3%]" />}
+      {cfg.groundPumpkins && <img src="/fall-jackolanterns.png" alt="" className="absolute bottom-0 left-[1%] z-[3] w-[36vw] max-w-none object-contain opacity-[0.42] sm:left-[2%] sm:w-[20vw]" style={{ animation: "ffGlow 3.4s ease-in-out infinite" }} />}
       {cfg.moon && <div className="absolute top-[6%] left-[24%] z-[1] aspect-square w-[24vw] rounded-full sm:left-[27%] sm:w-[14vw]" style={{ background: "radial-gradient(circle at 42% 40%, #FCF4DA 0%, #EDDCAB 60%, #D6C084 100%)", boxShadow: "0 0 90px 34px rgba(255,240,205,0.38), 0 0 44px 14px rgba(255,246,222,0.55)", opacity: 0.6 }} />}
       {cfg.owl && <img src={cfg.owl} alt="" className="absolute top-[13%] left-[30%] z-[2] w-[13vw] max-w-[150px] object-contain opacity-[0.5] sm:w-[9vw]" />}
       {cfg.falling && FALLING_SPRITES.map((l, i) => (
