@@ -1,5 +1,11 @@
 # Fork·Fate — Changelog
 
+## 2026-07-15 (fork) — Refactor: extracted dark-mode ReaperScene from Home.jsx
+
+- **New component `components/ReaperScene.jsx`** (102 lines): moved the dark-theme decorative background (smoke/haze, lightning SVGs, flapping `REAPER_BATS`, cursor-parallax reaper + flickering lantern) plus its `useMotionValue`/`useSpring`/`useTransform` hooks and the mousemove listener out of `Home.jsx`. Home now renders `{theme === "dark" && <ReaperScene />}` and no longer imports the framer-motion motion-value hooks.
+- `Home.jsx` shrank ~2251 → 2157 lines. Verified dark theme renders reaper-ambiance + reaper-bg + reaper-lantern with cursor parallax and no errors. Build → `2026.06-197`.
+
+
 ## 2026-07-15 (fork) — Refactor: extracted theme scenes out of Home.jsx
 
 - **New module `components/ThemeScenes.jsx`** (220 lines): moved `SeasonScene` + `AmbianceScene` components and their data/constants (`SEASONS`, `AMBIANCE`, `FALLING_SPRITES`, `FLYING_BIRDS`, `STEAM_PUFFS`, `STEAM_JET`, `CYBER_CARS`, `STEAM_CABLES`, `TIKI_FLAME_FRAMES*`) out of `Home.jsx`. `Home.jsx` now imports `{ SEASONS, AMBIANCE, SeasonScene, AmbianceScene }`. `REAPER_BATS` stays in Home (dark-mode reaper).
