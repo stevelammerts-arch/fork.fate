@@ -1,5 +1,11 @@
 # Fork·Fate — Changelog
 
+## 2026-07-15 (fork) — Refactor: extracted ShufflingDeck into its own module
+
+- **New component `components/ShufflingDeck.jsx`** (194 lines): moved `ShufflingDeck` + internal `CardBack`, `CardFront`, and `DECK_SIZE` out of `Home.jsx`. Only `ShufflingDeck` is exported. **All per-theme card visuals are unchanged** (skull/dark, neon-SUV/cyber, tiki mask, steam gears, seasonal sprites, light) — the shared shuffle animation stays identical.
+- `Home.jsx` shrank ~2061 → 1967 lines (now under 2k; total across refactors: 2470 → 1967). Verified the cyber-theme deal opens the shuffle popup with its themed card-backs ("NEON NIGHTS") animating correctly, landing on a result. Build → `2026.06-198`.
+
+
 ## 2026-07-15 (fork) — Refactor: extracted dark-mode ReaperScene from Home.jsx
 
 - **New component `components/ReaperScene.jsx`** (102 lines): moved the dark-theme decorative background (smoke/haze, lightning SVGs, flapping `REAPER_BATS`, cursor-parallax reaper + flickering lantern) plus its `useMotionValue`/`useSpring`/`useTransform` hooks and the mousemove listener out of `Home.jsx`. Home now renders `{theme === "dark" && <ReaperScene />}` and no longer imports the framer-motion motion-value hooks.
