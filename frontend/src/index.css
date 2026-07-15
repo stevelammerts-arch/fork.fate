@@ -561,10 +561,8 @@ body {
 }
 /* Steam puffs rising */
 @keyframes ffEyeFlash{
-  0%,44%,64%,100%{ opacity:0.12; }
+  0%,100%{ opacity:0.2; }
   50%{ opacity:1; }
-  54%{ opacity:0.35; }
-  58%{ opacity:0.95; }
 }
 @keyframes ffNeonFlash{
   0%,100%{ opacity:0.35; transform: translate(-50%,-50%) scale(0.95); }
