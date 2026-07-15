@@ -146,9 +146,8 @@ const STEAM_JET = Array.from({ length: 7 }).map((_, i) => ({
 
 
 const CYBER_CARS = [
-  { top: "18%", size: 200, dur: 12, delay: 0, rev: false, spinner: true },
-  { top: "13%", size: 160, dur: 13, delay: 3, rev: false },
-  { top: "27%", size: 112, dur: 17, delay: 6, rev: true },
+  { top: "13%", size: 160, dur: 13, delay: 0, rev: false },
+  { top: "25%", size: 112, dur: 17, delay: 5, rev: true },
 ];
 
 // A dense mass of steel cables hanging + swaying from the roof (steampunk)
