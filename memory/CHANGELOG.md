@@ -1,5 +1,10 @@
 # Fork·Fate — Changelog
 
+## 2026-07-15 (fork) — Guided wizard overflow fix on short laptop screens
+
+- **GuidedFlow modal too tall**: on short laptop viewports the vertically-centered ritual wizard overflowed and clipped the top "Skip intro" (exit) and bottom. Restructured to the standard scrollable-modal pattern: outer `fixed inset-0 overflow-y-auto`, fixed backdrop, inner `flex min-h-full items-center justify-center` wrapper. Exit button now always reachable; verified at 1280×600 (`guided-skip` visible). (`GuidedFlow.jsx`)
+
+
 ## 2026-07-15 (fork) — Security audit hardening (P3 items)
 
 - **Security audit**: ran read-only audit → PASS, no Critical/High/Medium. Implemented 2 approved P3 hardening items below.

@@ -76,15 +76,16 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: sealed ? 1 : 0.4 }}
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4"
+      className="fixed inset-0 z-[100] overflow-y-auto"
       data-testid="guided-flow"
       style={{ perspective: 1400 }}
     >
       <div
-        className={`absolute inset-0 transition-all duration-700 ${step === 3 ? "bg-black/40 backdrop-blur-[2px]" : "bg-black/70 backdrop-blur-md"}`}
+        className={`fixed inset-0 transition-all duration-700 ${step === 3 ? "bg-black/40 backdrop-blur-[2px]" : "bg-black/70 backdrop-blur-md"}`}
         onMouseDown={() => { const el = document.activeElement; if (el && el.tagName === "INPUT") el.blur(); }}
       />
 
+      <div className="relative flex min-h-full items-center justify-center p-4">
       <div className="relative w-full max-w-md">
         {/* progress + back */}
         <div className="mb-4 flex items-center gap-3">
@@ -282,6 +283,7 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
             )}
           </motion.div>
         </AnimatePresence>
+      </div>
       </div>
     </motion.div>
   );
