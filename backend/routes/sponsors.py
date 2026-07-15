@@ -2,6 +2,7 @@
 import uuid
 import httpx
 from datetime import datetime, timezone, timedelta
+from pymongo.errors import DuplicateKeyError
 from fastapi import APIRouter, HTTPException, Request, Depends, UploadFile, File
 from fastapi.responses import Response
 
@@ -17,6 +18,38 @@ router = APIRouter()
 _UPLOAD_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}
 _MAX_UPLOAD = 5 * 1024 * 1024  # 5 MB
 _MAX_UPLOADS_PER_DAY = 300  # global ceiling to bound object-storage cost abuse
+
+# Cross-worker dedupe (Mongo-backed) so a single client can't inflate sponsor
+# analytics by hammering the public impression/click endpoints. A TTL index on
+# `exp` auto-expires stale keys.
+_IMPRESSION_TTL = 60      # count one impression batch per IP per minute
+_CLICK_TTL = 300          # count one click per (sponsor, IP) per 5 minutes
+_dedupe_index_ready = False
+
+
+async def _stat_first_seen(key: str, ttl: int) -> bool:
+    """True if this key hasn't been counted within its TTL window (atomic, cross-worker)."""
+    global _dedupe_index_ready
+    if not _dedupe_index_ready:
+        try:
+            await db.stat_dedupe.create_index("exp", expireAfterSeconds=0)
+        except Exception:
+            pass
+        _dedupe_index_ready = True
+    now = datetime.now(timezone.utc)
+    exp = now + timedelta(seconds=ttl)
+    try:
+        # Matches only a missing or already-expired key; a live key hits the unique
+        # _id on upsert insert and raises DuplicateKeyError -> deduped.
+        await db.stat_dedupe.update_one(
+            {"_id": key, "exp": {"$lte": now}},
+            {"$set": {"exp": exp}},
+            upsert=True,
+        )
+        return True
+    except DuplicateKeyError:
+        return False
+
 
 
 def _sniff_image(data: bytes) -> str | None:
@@ -306,7 +339,7 @@ async def paypal_webhook(request: Request):
 
 
 @router.get("/sponsors/active", dependencies=[Depends(rate_limit(60))])
-async def active_sponsors():
+async def active_sponsors(request: Request):
     """Public list of active sponsors for the header marquee (no PII)."""
     docs = await db.sponsors.find({"active": True}, {"_id": 0}).sort("created_at", -1).to_list(100)
     out = []
@@ -320,14 +353,16 @@ async def active_sponsors():
             "image": s.get("image") or sponsor_fallback_image(s.get("category"), s.get("cuisine"), s.get("id") or s.get("name") or "x"),
         })
     ids = [s["id"] for s in out if s.get("id")]
-    if ids:
+    if ids and await _stat_first_seen(f"imp:{client_ip(request)}", _IMPRESSION_TTL):
         await db.sponsors.update_many({"id": {"$in": ids}}, {"$inc": {"impressions": 1}})
     return {"sponsors": out}
 
 
 @router.post("/sponsors/{sponsor_id}/click", dependencies=[Depends(rate_limit(60))])
-async def sponsor_click(sponsor_id: str):
+async def sponsor_click(sponsor_id: str, request: Request):
     """Count a click from the marquee / result card toward a sponsor's stats."""
+    if not await _stat_first_seen(f"clk:{sponsor_id}:{client_ip(request)}", _CLICK_TTL):
+        return {"ok": True}
     r = await db.sponsors.update_one({"id": sponsor_id, "active": True}, {"$inc": {"clicks": 1}})
     return {"ok": r.modified_count > 0}
 

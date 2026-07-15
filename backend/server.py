@@ -23,6 +23,18 @@ api_router.include_router(passkey.router)
 
 app.include_router(api_router)
 
+
+@app.middleware("http")
+async def security_headers(request, call_next):
+    resp = await call_next(request)
+    resp.headers["X-Content-Type-Options"] = "nosniff"
+    resp.headers["X-Frame-Options"] = "DENY"
+    resp.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    resp.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
+    # API responses never embed active content; lock them down completely.
+    resp.headers.setdefault("Content-Security-Policy", "default-src 'none'; img-src 'self'; frame-ancestors 'none'")
+    return resp
+
 # Restrict CORS to the app's own domains (prod fork-fate.com + Emergent preview subdomains).
 # Extra explicit origins can be added via the CORS_ORIGINS env (comma-separated).
 _extra_origins = [o.strip() for o in os.environ.get('CORS_ORIGINS', '').split(',') if o.strip() and o.strip() != '*']

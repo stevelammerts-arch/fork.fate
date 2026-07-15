@@ -1,5 +1,13 @@
 # Fork·Fate — Changelog
 
+## 2026-07-15 (fork) — Security audit hardening (P3 items)
+
+- **Security audit**: ran read-only audit → PASS, no Critical/High/Medium. Implemented 2 approved P3 hardening items below.
+- **Security headers** (`server.py`): added global middleware setting `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Strict-Transport-Security`, and a locked-down `Content-Security-Policy` (`default-src 'none'; img-src 'self'; frame-ancestors 'none'`) on all API responses (incl. the image-serve route).
+- **Sponsor counter dedupe** (`sponsors.py`): impressions/clicks now deduped per client-IP window (impressions 60s, clicks 300s/sponsor) via an atomic, cross-worker MongoDB `stat_dedupe` collection with a TTL index, preventing casual inflation of sponsor analytics.
+- Remaining P3 (not implemented, user's call): forwarded-header trust verification at ingress, admin token in localStorage → HttpOnly cookie, subscription-status name echo.
+
+
 ## 2026-07-15 (fork) — Curated fallback for Shops & Fuel + new filter chips
 
 - **Curated fallback DB for Shops & Fuel**: added ~31 curated seed spots (21 shops, 10 fuel) to `backend/seed_data.py` so these tabs no longer break or burn Google quota when the 300/day cap is hit or Google is down. Covers antiques, thrift, vintage, consignment, record stores, bookstores, farmers markets, flea markets, comics, trading cards, toys, LEGO, hobby, bicycle, jewelry, pawn (shops) and gas, EV charging, truck stop, diesel, car wash, touchless (fuel). Verified: `/api/places/search` returns `source:curated` with 21 shops / 10 fuel.
