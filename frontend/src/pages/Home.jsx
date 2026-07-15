@@ -873,7 +873,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:gap-3 md:px-12 md:py-6">
           <div className="flex items-center gap-2 md:gap-3">
             <div className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-1 md:h-16 md:w-16 ${light ? "bg-[#F5F0E6] ring-[#E4E4E7]" : "bg-black ring-white/25"}`}>
-              <img src={light ? "/logo-mark-light.png" : "/logo-mark.png"} alt="Fork·Fate logo" className="h-12 w-12 scale-110 object-contain md:h-16 md:w-16" />
+              <img src={theme === "cyber" ? "/cyber-neon-logo.png" : (light ? "/logo-mark-light.png" : "/logo-mark.png")} alt="Fork·Fate logo" className={`h-12 w-12 object-contain md:h-16 md:w-16 ${theme === "cyber" ? "p-0.5" : "scale-110"}`} />
               <motion.div
                 className="pointer-events-none absolute inset-0"
                 initial={{ x: "-130%" }}
