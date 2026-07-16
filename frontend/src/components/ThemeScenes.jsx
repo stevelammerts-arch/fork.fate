@@ -115,6 +115,8 @@ const CYBER_CARS = [
   { top: "19%", topM: "52%", size: 56, dur: 18, delay: 7, rev: true },
   // Close-up people bus — big, low and in front
   { top: "40%", topM: "58%", size: 300, dur: 26, delay: 2, rev: false, bus: true },
+  // Far-away transit bus — small, high up, drifting slowly in the distance
+  { top: "6%", topM: "14%", size: 62, dur: 34, delay: 15, rev: true, bus2: true },
 ];
 
 // A dense mass of steel cables hanging + swaying from the roof (steampunk)
@@ -129,7 +131,7 @@ const STEAM_CABLES = Array.from({ length: 22 }).map((_, i) => ({
 }));
 
 export const AMBIANCE = {
-  cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", spinner: "/cyber-spinner-suv.png", bus: "/cyber-bus.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
+  cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", spinner: "/cyber-spinner-suv.png", bus: "/cyber-bus.png", bus2: "/cyber-bus2.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
   steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall-full.png", console: "/steam-console.png", device: "/steam-arc-device.png", steam: true, roofCables: true, floor: true, accent: "#D9A44E", sky: "#F1D9A6" },
   tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", lounge: "/tiki-lounge-full.png", accent: "#F0A24E", sky: "#FBE3C0" },
 };
@@ -154,9 +156,9 @@ export function AmbianceScene({ theme, cfg }) {
       {cfg.skyline && <img src={cfg.skyline} alt="" className="absolute bottom-0 left-0 w-full object-cover opacity-70" style={{ maxHeight: "52vh" }} />}
       {cfg.rain && <div className="absolute inset-0 ff-rain" />}
       {cfg.cars && CYBER_CARS.map((c, i) => (
-        <div key={`car-${i}`} className={`absolute left-0 ${c.bus ? "z-[5]" : c.spinner ? "z-[4]" : "z-[3]"}`}
+        <div key={`car-${i}`} className={`absolute left-0 ${c.bus ? "z-[5]" : c.bus2 ? "z-[2]" : c.spinner ? "z-[4]" : "z-[3]"}`}
           style={{ top: mobile ? c.topM : c.top, willChange: "transform", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", animation: `${c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite both` }}>
-          <img src={c.bus ? cfg.bus : (c.spinner ? cfg.spinner : (c.rev ? cfg.cars2 : cfg.cars))} alt="" className="block object-contain opacity-90"
+          <img src={c.bus ? cfg.bus : (c.bus2 ? cfg.bus2 : (c.spinner ? cfg.spinner : (c.rev ? cfg.cars2 : cfg.cars)))} alt="" className="block object-contain opacity-90"
             style={{ width: c.size, filter: c.bus
               ? "drop-shadow(0 9px 22px rgba(34,224,224,0.55)) drop-shadow(0 16px 44px rgba(34,224,224,0.4)) drop-shadow(0 24px 66px rgba(34,224,224,0.25))"
               : `drop-shadow(0 0 ${c.spinner ? 12 : 8}px rgba(34,224,224,${c.spinner ? 0.65 : 0.5}))` }} />
