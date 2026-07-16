@@ -1,0 +1,28 @@
+{
+  "summary": "Regression pass for Fork-Fate iteration 67 focused on new theme visuals (Tiki lounge, Spring ground) and redesigned 'more to consider' alternatives section. Backend POST /api/places/search healthy for food/shops/fuel with radius. All 9 theme scenes render expected data-testids with 0 console/page errors. Tiki shows tiki-lounge-bg + 3 string-lights + 3 drink-flames; Spring shows spring-ground. Core deal flow works on light, tiki, and spring themes — shuffle-popup opens, result-photo-link lands, alternatives-section renders exactly 3 alternative-<id> cards, and clicking an alternative successfully re-rolls (still 3 alternatives after). Shops and Fuel categories deal successfully.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/test_regression_v66.py"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home.jsx still very large (~2200 lines) — consider extracting the deal/alternatives block and Pub Crawl UI block for maintainability.",
+    "Backend /api/places/search returns key 'restaurants' regardless of category (e.g., shops/fuel). Consider renaming to a category-agnostic key like 'results' or 'places' for clarity (docs match, but code readability suffers)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (3/3 category searches)", "frontend": "100% on verified flows"},
+  "test_credentials": "Admin GrimReaper!2026 (not exercised this iteration).",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "For deal flow: after setting ZIP with fill(), press Enter and wait ~2.5s for lat/lng resolution before clicking data-testid='spin-roulette-button' — otherwise shuffle-popup may not open in time and the button appears already in 'Shuffling…' state. Themes require reload after localStorage 'ff_theme' change. Alternatives testids are 'alternatives-section' + 'alternative-<placeId>' (and 'alternative-sponsored-<id>' for sponsored). 3 alternative cards observed per deal.",
+  "verified_flows": [
+    "Backend POST /api/places/search food/shops/fuel (radius 2/5 mi) all 200 with results (source=google)",
+    "All 9 themes (dark/light/fall/winter/spring/summer/cyber/steam/tiki) render expected scene testids with 0 errors",
+    "Tiki: tiki-lounge-bg + tiki-string-lights-0/1/2 + tiki-drink-flame-0/1/2 all present",
+    "Spring: spring-ground overlay present under pergola/tree",
+    "Light deal: shuffle-popup opens, result-photo-link lands (Ci Siamo), 3 alternative-<id> cards render, clicking an alternative re-rolls and 3 new alternatives render",
+    "Tiki deal: overlays do NOT block clicks, shuffle-popup + result land + 3 alternatives",
+    "Spring deal: overlays do NOT block clicks, shuffle-popup + result land + 3 alternatives",
+    "Shops + Fuel category deals produce landed result cards"
+  ]
+}
