@@ -730,3 +730,11 @@ body {
 [data-ff-theme="tiki"] :is([data-ff-dialog],[data-ff-dialog] *).border-\[\#E01E26\]{border-color:#E0722C !important;}
 [data-ff-theme="tiki"] :is([data-ff-dialog],[data-ff-dialog] *).bg-\[\#E01E26\].text-white{color:#2A1206 !important;}
 [data-ff-theme="tiki"] :is([data-ff-dialog],[data-ff-dialog] *).ring-\[\#E01E26\]{--tw-ring-color:#E0722C !important;}
+
+/* Freeze the animated theme scene while the crawl badge dialog is open.
+   Prevents GPU-compositing flicker when the large badge canvas is generated. */
+body.ff-badge-open .ff-theme-scene,
+body.ff-badge-open .ff-theme-scene * {
+  animation-play-state: paused !important;
+}
+

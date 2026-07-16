@@ -42,7 +42,7 @@ export const SEASONS = {
 
 export function SeasonScene({ theme, cfg }) {
   return (
-    <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`season-scene-${theme}`}>
+    <div className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`season-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
       {cfg.ground && <img src={cfg.ground} alt="" className={`pointer-events-none absolute bottom-0 left-0 z-0 w-full select-none object-cover object-bottom opacity-[0.6] ${cfg.groundH || "h-[46vh]"}`} style={{ maskImage: "linear-gradient(to top, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)", WebkitMaskImage: "linear-gradient(to top, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)", ...(cfg.groundOpacity ? { opacity: cfg.groundOpacity } : {}) }} data-testid="spring-ground" />}
       {cfg.ocean && (<>
@@ -151,7 +151,7 @@ export function AmbianceScene({ theme, cfg }) {
   const flameFrames = (typeof localStorage !== "undefined" && localStorage.getItem("ff_flame") === "gen")
     ? TIKI_FLAME_FRAMES_GEN : TIKI_FLAME_FRAMES;
   return (
-    <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`ambiance-scene-${theme}`}>
+    <div className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`ambiance-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
       {cfg.skyline && <img src={cfg.skyline} alt="" className="absolute bottom-0 left-0 w-full object-cover opacity-70" style={{ maxHeight: "52vh" }} />}
       {cfg.rain && <div className="absolute inset-0 ff-rain" />}

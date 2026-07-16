@@ -241,6 +241,16 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
     [crawlLabel, mode]
   );
 
+  // Pause the heavy animated theme scene while this dialog is open. On phones,
+  // generating the 1080×1920 badge canvas spikes GPU memory and the compositor
+  // starts thrashing the many looping scene animations (esp. Tiki flames),
+  // which shows up as irregular screen flashing. Freezing them prevents that.
+  useEffect(() => {
+    if (open) document.body.classList.add("ff-badge-open");
+    else document.body.classList.remove("ff-badge-open");
+    return () => document.body.classList.remove("ff-badge-open");
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     setStep("intro");
