@@ -417,6 +417,60 @@ body {
   100% { transform: translateX(126vw) translateY(4px); }
 }
 /* Reaper ambiance — broad low-lying atmospheric haze + rising smoke plumes */
+/* Night-sky darkener: deepens the top sky + a pool behind the cemetery so the
+   graveyard reads clearly, while leaving the upper-left hero text zone light. */
+.ff-night-sky {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  background:
+    radial-gradient(70% 60% at 90% 4%, rgba(3,2,9,0.80), rgba(3,2,9,0.30) 46%, rgba(3,2,9,0) 72%),
+    linear-gradient(180deg, rgba(5,4,12,0.72) 0%, rgba(5,4,12,0.40) 14%, rgba(5,4,12,0) 30%),
+    radial-gradient(130% 80% at 55% 122%, rgba(3,2,8,0.66), rgba(3,2,8,0) 60%);
+}
+/* Cloud-veiled full moon in the top-right sky */
+.ff-moon {
+  position: absolute;
+  top: 17%;
+  right: 5%;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 62% 40%, rgba(120,116,104,0.55) 0 6%, transparent 6.5%),
+    radial-gradient(circle at 40% 63%, rgba(120,116,104,0.5) 0 5%, transparent 5.5%),
+    radial-gradient(circle at 56% 70%, rgba(120,116,104,0.42) 0 3.5%, transparent 4%),
+    radial-gradient(circle at 30% 30%, rgba(120,116,104,0.4) 0 4%, transparent 4.5%),
+    radial-gradient(circle at 38% 34%, #f6f3e8 0%, #ddd8c6 38%, #b7b2a0 66%, #8b8778 100%);
+  box-shadow:
+    0 0 46px 14px rgba(232,226,204,0.42),
+    0 0 90px 40px rgba(150,160,190,0.16),
+    inset -12px -12px 26px rgba(46,44,38,0.55);
+}
+.ff-moon-cloud {
+  position: absolute;
+  left: -35%;
+  width: 170%;
+  height: 34%;
+  border-radius: 50%;
+  background: rgba(24,22,34,0.62);
+  filter: blur(7px);
+  will-change: transform;
+}
+.ff-moon-cloud-1 { top: 26%; animation: ffMoonCloud 26s linear infinite; }
+.ff-moon-cloud-2 { top: 56%; opacity: 0.82; animation: ffMoonCloud 40s linear infinite; animation-delay: -14s; }
+@keyframes ffMoonCloud {
+  0%   { transform: translateX(-42%); }
+  100% { transform: translateX(42%); }
+}
+@media (max-width: 640px) {
+  .ff-moon { width: 88px; height: 88px; top: 13%; right: 6%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ff-moon-cloud { animation: none; }
+}
 .ff-haze {
   position: absolute;
   left: -10%; right: -10%; bottom: -10%;
