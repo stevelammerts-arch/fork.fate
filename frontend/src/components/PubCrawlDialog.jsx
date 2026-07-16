@@ -134,6 +134,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
     );
     return () => { if (watchRef.current != null) navigator.geolocation.clearWatch(watchRef.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoGps, stops]);
 
   const toggleVisited = (id) => setVisited((v) => ({ ...v, [id]: !v[id] }));
