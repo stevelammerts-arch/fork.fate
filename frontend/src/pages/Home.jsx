@@ -838,6 +838,20 @@ export default function Home() {
               ? t("Antiques, thrift, vintage or a hobby shop? Set your filters and hit Deal — we'll shuffle nearby shops and pick your next find.")
               : t("Gas or an EV charger? Set your filters and hit Deal — we'll shuffle nearby stations and pick your pit stop.")}
           </p>
+          {!crawlMode && (
+            <button
+              data-testid="hero-crawl-chip"
+              onClick={() => {
+                setCrawlMode(true); setGroupMode(false); applyCrawlType(CRAWL_TYPES[0]); setResult(null); setGroupPicks(null);
+                setTimeout(() => { document.querySelector("[data-testid='crawl-mode-toggle']")?.scrollIntoView({ behavior: "smooth", block: "center" }); }, 80);
+              }}
+              className="group mt-5 inline-flex items-center gap-2 rounded-full border-2 border-[#E01E26] bg-[#E01E26] px-4 py-2 font-sans text-sm font-bold text-white shadow-sm transition-transform hover:-translate-y-0.5"
+            >
+              <Beer className="h-4 w-4" />
+              {t("New: Try a Pub Crawl")}
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </button>
+          )}
         </motion.div>
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
