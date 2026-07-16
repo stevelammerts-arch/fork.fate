@@ -24,7 +24,7 @@ const rankTitle = (stops) => {
   return "Brave Soul";
 };
 
-export { rankTitle };
+export { rankTitle, fmtTime };
 
 export default function CrawlLeaderboard({ mode, label, stops = 0, durationSeconds = null, code = null, defaultTeam = "", light = false, ac }) {
   const { t } = useLang();

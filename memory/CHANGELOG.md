@@ -1,5 +1,10 @@
 # Fork·Fate — Changelog
 
+## 2026-06 (fork) — Public /leaderboard "Hall of Fate" page
+
+- **New route `/leaderboard`** (`pages/Leaderboard.jsx`): standalone dark "Crawl Champions" hall-of-fame browsable without finishing a crawl. Global board with Most Stops / Fastest tabs, top-3 gold/silver/bronze chips, crown on #1, rank titles, staggered entrance animation, empty state + "Start a crawl" CTA. Linked from Home header via a new "Champions" button (`data-testid header-leaderboard-link`).
+- `fmtTime` now also exported from `CrawlLeaderboard.jsx` for reuse by the page. Build → `2026.06-219`.
+
 ## 2026-06 (fork) — Pub Crawl Leaderboard + silent timing (gamification / viral loop)
 
 - **New leaderboard** (`components/CrawlLeaderboard.jsx`): opt-in board surfaced inside the Crawl Complete/badge dialog via "See the Leaderboard". Team-name/nickname entry (no real names), then submits the run. Two scope tabs (**Global** + **Your Crew** — the latter only when a shared crawl `code` exists) × two sort tabs (**Most Stops** + **Fastest**). Top-3 get gold/silver/bronze rank chips; each row shows stops + time + a rank title.

@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Admin from "./pages/Admin";
 import SponsorStatus from "./pages/SponsorStatus";
 import SharedCrawl from "./pages/SharedCrawl";
+import Leaderboard from "./pages/Leaderboard";
 import LegalPage from "./pages/LegalPage";
 import { Toaster } from "./components/ui/sonner";
 import { LangProvider } from "./i18n/i18n";
@@ -17,6 +18,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/c/:code" element={<SharedCrawl />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/sponsor/success" element={<SponsorStatus />} />
           <Route path="/sponsor/cancelled" element={<SponsorStatus cancelled />} />

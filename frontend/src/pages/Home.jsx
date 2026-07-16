@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -653,6 +654,14 @@ export default function Home() {
             >
               <Sparkles className="h-4 w-4 text-[#E01E26]" /> <span>{t("Guided")}</span>
             </button>
+            <Link
+              to="/leaderboard"
+              data-testid="header-leaderboard-link"
+              title="Crawl Champions leaderboard"
+              className={`inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${ghost}`}
+            >
+              <Trophy className="h-4 w-4 text-[#E01E26]" /> <span>{t("Champions")}</span>
+            </Link>
             <button
               onClick={toggleMuted}
               data-testid="sound-toggle-button"
