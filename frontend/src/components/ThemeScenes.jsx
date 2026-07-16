@@ -160,7 +160,7 @@ export function AmbianceScene({ theme, cfg }) {
           style={{ top: mobile ? c.topM : c.top, willChange: "transform", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", animation: `${c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite both` }}>
           <img src={c.bus ? cfg.bus : (c.bus2 ? cfg.bus2 : (c.spinner ? cfg.spinner : (c.rev ? cfg.cars2 : cfg.cars)))} alt="" className="block object-contain opacity-90"
             style={{ width: c.size, filter: c.bus
-              ? "drop-shadow(0 9px 22px rgba(34,224,224,0.55)) drop-shadow(0 16px 44px rgba(34,224,224,0.4)) drop-shadow(0 24px 66px rgba(34,224,224,0.25))"
+              ? "drop-shadow(0 0 16px rgba(34,224,224,0.7)) drop-shadow(0 4px 10px rgba(34,224,224,0.5))"
               : `drop-shadow(0 0 ${c.spinner ? 12 : 8}px rgba(34,224,224,${c.spinner ? 0.65 : 0.5}))` }} />
         </div>
       ))}
