@@ -133,25 +133,6 @@ export const AMBIANCE = {
 const TIKI_FLAME_FRAMES = ["/tiki-flame-1.png", "/tiki-flame-2.png", "/tiki-flame-3.png", "/tiki-flame-4.png", "/tiki-flame-5.png"];
 const TIKI_FLAME_FRAMES_GEN = ["/tiki-flame-gen-1.png", "/tiki-flame-gen-2.png", "/tiki-flame-gen-3.png", "/tiki-flame-gen-4.png"];
 
-// Positions (in %) of the lamps/lanterns painted into the tiki-lounge backdrop.
-// Each gets a randomized flicker duration/delay so the lights feel alive.
-const TIKI_LIGHTS = [
-  { l: 40.0, t: 29.2, s: 46, d: 2.3, dl: 0 },
-  { l: 50.5, t: 25.8, s: 62, d: 3.1, dl: -1.4 },
-  { l: 58.0, t: 30.6, s: 52, d: 2.6, dl: -0.7 },
-  { l: 63.9, t: 35.4, s: 44, d: 3.4, dl: -2.1 },
-  { l: 57.9, t: 21.3, s: 38, d: 2.0, dl: -1.1 },
-  { l: 81.7, t: 23.3, s: 40, d: 2.8, dl: -0.4 },
-  { l: 21.2, t: 41.1, s: 42, d: 2.5, dl: -1.8 },
-  { l: 11.5, t: 39.5, s: 38, d: 3.2, dl: -0.9 },
-  { l: 91.7, t: 32.0, s: 40, d: 2.2, dl: -1.5 },
-  { l: 76.1, t: 39.9, s: 32, d: 2.9, dl: -2.4 },
-  { l: 10.2, t: 75.8, s: 52, d: 3.0, dl: -0.6 },
-  { l: 92.8, t: 72.9, s: 52, d: 2.4, dl: -1.9 },
-  { l: 44.7, t: 57.6, s: 30, d: 3.3, dl: -1.2 },
-  { l: 53.6, t: 57.6, s: 30, d: 2.1, dl: -2.2 },
-];
-
 export function AmbianceScene({ theme, cfg }) {
   const flameFrames = (typeof localStorage !== "undefined" && localStorage.getItem("ff_flame") === "gen")
     ? TIKI_FLAME_FRAMES_GEN : TIKI_FLAME_FRAMES;
@@ -174,17 +155,21 @@ export function AmbianceScene({ theme, cfg }) {
       {cfg.lounge && (<>
         <img src={cfg.lounge} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-90" style={{ objectPosition: "center center" }} data-testid="tiki-lounge-bg" />
         <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(180deg, rgba(20,10,4,0.55) 0%, rgba(20,10,4,0.15) 30%, rgba(20,10,4,0.25) 70%, rgba(20,10,4,0.7) 100%)" }} />
-        {TIKI_LIGHTS.map((g, i) => (
-          <span
-            key={`tiki-light-${i}`}
-            className="pointer-events-none absolute z-[2] rounded-full"
-            style={{
-              left: `${g.l}%`, top: `${g.t}%`, width: g.s, height: g.s,
-              background: "radial-gradient(circle, rgba(255,214,130,0.95), rgba(255,168,60,0.5) 42%, rgba(255,150,40,0) 72%)",
-              filter: "blur(2px)",
-              transform: "translate(-50%,-50%)",
-              animation: `ffTikiFlicker ${g.d}s ease-in-out ${g.dl}s infinite`,
-            }}
+        {/* String-light glows on the SAME 1264x848 canvas + identical object-cover,
+            so they always align with the painted bulbs. 3 interleaved groups flicker
+            independently for a random twinkle. */}
+        {[
+          { src: "/tiki-string-1.png", d: 2.4, dl: 0 },
+          { src: "/tiki-string-2.png", d: 3.1, dl: -1.3 },
+          { src: "/tiki-string-3.png", d: 2.7, dl: -0.6 },
+        ].map((s, i) => (
+          <img
+            key={`tiki-string-${i}`}
+            src={s.src}
+            alt=""
+            data-testid={`tiki-string-lights-${i}`}
+            className="pointer-events-none absolute inset-0 z-[2] h-full w-full object-cover mix-blend-screen"
+            style={{ objectPosition: "center center", animation: `ffTikiTwinkle ${s.d}s ease-in-out ${s.dl}s infinite` }}
           />
         ))}
       </>)}
