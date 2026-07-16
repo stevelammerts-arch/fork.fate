@@ -18,6 +18,7 @@ import { useFavorites } from "../hooks/useFavorites";
 import GuidedFlow from "../components/GuidedFlow";
 import PubCrawlDialog from "../components/PubCrawlDialog";
 import RevealStage from "../components/home/RevealStage";
+import ReigningChampBadge from "../components/ReigningChampBadge";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../components/ui/dropdown-menu";
 import {
   readStreak, bumpStreak,
@@ -658,6 +659,7 @@ export default function Home() {
             >
               <Trophy className="h-4 w-4 text-[#E01E26]" /> <span>{t("Champions")}</span>
             </Link>
+            <ReigningChampBadge light={light} />
             <button
               onClick={toggleMuted}
               data-testid="sound-toggle-button"
