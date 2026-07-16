@@ -82,7 +82,7 @@ async function buildThemedCard(card, cfg) {
         const im = await loadImage(cfg.scatter[i % cfg.scatter.length]);
         const [sx, sy, ss] = spots[i];
         ctx.save(); ctx.globalAlpha = 0.5; ctx.drawImage(im, sx - ss / 2, sy - ss / 2, ss, ss); ctx.restore();
-      } catch (e) { /* skip */ }
+      } catch (e) { console.debug("scatter skipped", e); }
     }
   }
 
