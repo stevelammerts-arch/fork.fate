@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Skull } from "lucide-react";
 
-const CONTACT = "stevelammerts@gmail.com";
+const CONTACT = "steve@fork-fate.com";
 const EFFECTIVE = "June 10, 2026";
 
 const TERMS = [

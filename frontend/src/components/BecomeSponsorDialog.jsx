@@ -13,7 +13,7 @@ import {
 } from "./ui/select";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-const EMAIL = "stevelammerts@gmail.com";
+const EMAIL = "steve@fork-fate.com";
 const CATEGORIES = ["food", "drinks", "bars", "desserts", "shops"];
 const PRICES = ["$", "$$", "$$$", "$$$$"];
 const EMPTY = { name: "", category: "food", cuisine: "", price: "$$", address: "", website: "", image: "", contact_email: "" };

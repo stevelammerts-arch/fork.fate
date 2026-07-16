@@ -1350,7 +1350,7 @@ export default function Home() {
               </a>
             </div>
             <a
-              href="mailto:stevelammerts@gmail.com?subject=Fork%C2%B7Fate%20App%20Improvement%20Idea&body=Hi%2C%20here%27s%20an%20idea%20to%20improve%20Fork%C2%B7Fate%3A%0A%0A"
+              href="mailto:steve@fork-fate.com?subject=Fork%C2%B7Fate%20App%20Improvement%20Idea&body=Hi%2C%20here%27s%20an%20idea%20to%20improve%20Fork%C2%B7Fate%3A%0A%0A"
               data-testid="feedback-link"
               className={`inline-flex items-center gap-1.5 font-sans text-xs font-bold underline-offset-4 transition-colors hover:underline ${light ? "text-[#2A2118] hover:text-[#4F6F47]" : "text-white hover:text-[#E01E26]"}`}
             >
