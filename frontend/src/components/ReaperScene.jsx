@@ -33,6 +33,17 @@ export function ReaperScene() {
     <>
       <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid="reaper-ambiance">
         <div className="ff-haze" />
+        <img
+          src="/reaper-cemetery.png"
+          alt=""
+          aria-hidden="true"
+          data-testid="reaper-cemetery"
+          className="absolute bottom-0 left-0 h-[62vh] w-full object-cover object-bottom opacity-[0.62]"
+          style={{
+            maskImage: "linear-gradient(to top, #000 30%, rgba(0,0,0,0.55) 62%, rgba(0,0,0,0) 100%)",
+            WebkitMaskImage: "linear-gradient(to top, #000 30%, rgba(0,0,0,0.55) 62%, rgba(0,0,0,0) 100%)",
+          }}
+        />
         <div className="ff-smoke ff-smoke-1" />
         <div className="ff-smoke ff-smoke-2" />
         <div className="ff-smoke ff-smoke-3" />
