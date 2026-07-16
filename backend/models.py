@@ -139,6 +139,33 @@ class CrawlCreate(BaseModel):
         return v[:12]
 
 
+class CrawlCompletionCreate(BaseModel):
+    """A single crew's finished-crawl result submitted to the leaderboard (opt-in)."""
+    team_name: str = Field(default="", max_length=40)
+    stops: int = Field(ge=1, le=12)
+    mode: str = "bars"
+    label: str = Field(default="", max_length=40)
+    code: Optional[str] = Field(default=None, max_length=12)
+    duration_seconds: Optional[int] = Field(default=None, ge=1, le=172800)
+
+    @field_validator("team_name")
+    @classmethod
+    def _clean_team(cls, v):
+        v = (v or "").strip()
+        return v[:40] if v else "Anonymous Crew"
+
+    @field_validator("mode")
+    @classmethod
+    def _valid_completion_mode(cls, v):
+        return v if v in ("food", "drinks", "bars", "desserts", "shops", "fuel") else "bars"
+
+    @field_validator("code")
+    @classmethod
+    def _clean_code(cls, v):
+        v = (v or "").strip().upper()
+        return v[:12] if v else None
+
+
 class SponsorCreate(BaseModel):
     name: str = Field(min_length=1, max_length=160)
     cuisine: str = Field(min_length=1, max_length=60)

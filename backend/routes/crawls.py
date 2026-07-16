@@ -3,8 +3,10 @@ import secrets
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Depends
 
+from typing import Optional
+
 from core import db, rate_limit
-from models import CrawlCreate
+from models import CrawlCreate, CrawlCompletionCreate
 
 router = APIRouter()
 
@@ -32,6 +34,56 @@ async def create_crawl(payload: CrawlCreate):
     }
     await db.crawls.insert_one(doc)
     return {"code": code}
+
+
+def _clean_entry(doc: dict) -> dict:
+    return {
+        "team_name": doc.get("team_name", "Anonymous Crew"),
+        "stops": doc.get("stops", 0),
+        "duration_seconds": doc.get("duration_seconds"),
+        "mode": doc.get("mode", "bars"),
+        "label": doc.get("label", ""),
+        "created_at": doc.get("created_at"),
+    }
+
+
+async def _leaderboard_for(match: dict) -> dict:
+    """Top 10 by most stops (fastest as tie-break) and top 10 by fastest time."""
+    docs = [d async for d in db.crawl_completions.find(match, {"_id": 0}).sort("created_at", -1).limit(500)]
+    by_stops = sorted(
+        docs,
+        key=lambda d: (
+            -(d.get("stops") or 0),
+            d.get("duration_seconds") if isinstance(d.get("duration_seconds"), int) else 10 ** 12,
+            d.get("created_at", ""),
+        ),
+    )[:10]
+    fastest_pool = [d for d in docs if isinstance(d.get("duration_seconds"), int)]
+    by_fast = sorted(fastest_pool, key=lambda d: (d.get("duration_seconds"), -(d.get("stops") or 0)))[:10]
+    return {"stops": [_clean_entry(d) for d in by_stops], "fastest": [_clean_entry(d) for d in by_fast]}
+
+
+@router.post("/crawls/complete", dependencies=[Depends(rate_limit(30))])
+async def complete_crawl(payload: CrawlCompletionCreate):
+    """Record a crew's finished crawl for the leaderboard (opt-in from the badge dialog)."""
+    doc = {
+        "team_name": payload.team_name,
+        "stops": payload.stops,
+        "mode": payload.mode,
+        "label": payload.label,
+        "code": payload.code,
+        "duration_seconds": payload.duration_seconds,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.crawl_completions.insert_one(doc)
+    return {"ok": True}
+
+
+@router.get("/crawls/leaderboard")
+async def crawl_leaderboard(code: Optional[str] = None):
+    result = {"global": await _leaderboard_for({})}
+    result["crawl"] = await _leaderboard_for({"code": code.strip().upper()}) if code else None
+    return result
 
 
 @router.get("/crawls/{code}")

@@ -6,6 +6,7 @@ import { Trophy, Share2, Download, Camera, X, Lock, Instagram } from "lucide-rea
 import { toast } from "sonner";
 import { useTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
+import CrawlLeaderboard from "./CrawlLeaderboard";
 
 const REAPER_SRC = "/reaper-award.png";
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -213,7 +214,7 @@ async function buildBadge({ name, crew, label, photo, story = false, light = fal
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
 
-export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "", defaultCrew = "" }) {
+export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "", defaultCrew = "", stops = 0, durationSeconds = null, crawlCode = null }) {
   const { theme } = useTheme();
   const { t } = useLang();
   const light = theme !== "dark";
@@ -548,6 +549,17 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
             <Download className="h-4 w-4" /> Download
           </button>
         </div>
+
+        <CrawlLeaderboard
+          mode={mode}
+          label={label}
+          stops={stops}
+          durationSeconds={durationSeconds}
+          code={crawlCode}
+          defaultTeam={crew}
+          light={light}
+          ac={ac}
+        />
         </>
         )}
       </DialogContent>

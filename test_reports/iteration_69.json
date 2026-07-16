@@ -1,0 +1,22 @@
+{
+  "summary": "Tested new Pub Crawl Leaderboard feature end-to-end. Backend: 11/11 pytest passed covering route ordering (leaderboard not shadowed by /crawls/{code}), team_name normalization, stops validation (1-12), sort ordering (most stops desc with fastest tiebreak; fastest asc excluding untimed), top-10 cap, and entry shape (no _id leak). Frontend: on /c/{code}, PubCrawlDialog auto-opened, checked off all 3 stops via crawl-checkoff-N, badge dialog auto-opened, clicked crawl-badge-skip-selfie, opened leaderboard via crawl-leaderboard-toggle, submitted team name -> saw success toast + crawl-leaderboard-posted state. Row appeared in list with recorded time (0m 01s, not dash) confirming silent timer works. Global/Your Crew scope tabs and Most Stops/Fastest sort tabs all switch board correctly. 'Your Crew' tab only shown when code present.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_crawl_leaderboard.py",
+    "/app/test_reports/pytest/iter69_leaderboard.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor: class-scoped fixture defined as instance method emits PytestRemovedIn10Warning in test file — cosmetic only.",
+    "crawls.py _leaderboard_for uses in-memory sort on last 500 docs — acceptable now but consider a Mongo aggregation index (mode+code, stops desc) once volume grows.",
+    "CrawlCompletionCreate lacks explicit rate limiting per IP for spam prevention beyond the shared 30/min bucket; team_name allows any UTF-8 up to 40 chars — may want simple profanity/emoji-only filter.",
+    "CrawlLeaderboard.jsx submit uses stops={Math.max(1, stops)} — if a user opens the badge without any completion it will still post stops=1; the button flow currently only reaches this after allDone so ok, but worth guarding against future entry points."
+  ],
+  "updated_files": ["/app/backend/tests/test_crawl_leaderboard.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "Created several TEST_ prefixed crawl_completions on codes ND9QYHDM and additional generated codes for ordering verification. Data is prefixed for cleanup.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend test file test_crawl_leaderboard.py can be reused as regression. Feature works end-to-end. Frontend crawl code used for manual verification: ND9QYHDM (may be cleaned up)."
+}

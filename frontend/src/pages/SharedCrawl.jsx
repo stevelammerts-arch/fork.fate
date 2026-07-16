@@ -43,6 +43,7 @@ export default function SharedCrawl() {
           open
           shared
           mode={crawl.mode}
+          code={code}
           crawlLabel={crawl.label || ""}
           results={crawl.stops || []}
           onClose={() => navigate("/")}

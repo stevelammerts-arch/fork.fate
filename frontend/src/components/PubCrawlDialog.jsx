@@ -30,7 +30,7 @@ const dirUrl = (from, to) =>
 // Opens a "crawl" window: nearby spots ordered into a followable route. Can be
 // shared with the group via a short link, and progress can be checked off (manual
 // or auto via GPS) as the crew conquers each stop.
-export default function PubCrawlDialog({ open, onClose, results, mode, origin, destination, shared = false, crawlLabel = "", initialStops = null }) {
+export default function PubCrawlDialog({ open, onClose, results, mode, origin, destination, shared = false, crawlLabel = "", initialStops = null, code = null }) {
   const { t } = useLang();
   const maxStops = Math.min(6, results.length);
   const [route, setRoute] = useState([]);
@@ -41,8 +41,12 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
   const [crew, setCrew] = useState("");
   const [sharing, setSharing] = useState(false);
   const [badgeOpen, setBadgeOpen] = useState(false);
+  const [crawlCode, setCrawlCode] = useState(code || null);
+  const [completion, setCompletion] = useState({ stops: 0, duration: null });
   const watchRef = useRef(null);
   const promptedRef = useRef(false);
+
+  useEffect(() => { setCrawlCode(code || null); }, [code]);
 
   const reshuffle = () => {
     setRoute(orderRoute(shuffle(results).slice(0, maxStops), origin, destination));
@@ -77,14 +81,35 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
   const visitedCount = stops.filter((s) => visited[s.id]).length;
   const allDone = stops.length > 0 && visitedCount === stops.length;
 
+  // Silently time the crawl: start clock on the first check-in (no visible timer).
+  const startKey = useMemo(() => progressKey + "_start", [progressKey]);
+  useEffect(() => {
+    if (visitedCount > 0) {
+      try { if (!localStorage.getItem(startKey)) localStorage.setItem(startKey, String(Date.now())); } catch { /* ignore */ }
+    }
+  }, [visitedCount, startKey]);
+
+  const computeDuration = () => {
+    try {
+      const s = Number(localStorage.getItem(startKey));
+      if (s > 0) return Math.max(1, Math.round((Date.now() - s) / 1000));
+    } catch { /* ignore */ }
+    return null;
+  };
+  const openBadge = () => {
+    setCompletion({ stops: stops.length, duration: computeDuration() });
+    setBadgeOpen(true);
+  };
+
   // Auto-prompt the badge once the whole crawl is conquered.
   useEffect(() => {
     if (allDone && !promptedRef.current) {
       promptedRef.current = true;
       toast.success(t("Crawl conquered! ☠️ Claim your badge."));
-      setBadgeOpen(true);
+      openBadge();
     }
     if (!allDone) promptedRef.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allDone]);
 
   // Auto GPS check-in: mark a stop visited when you get close enough.
@@ -136,6 +161,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
         })),
       });
       const link = `${window.location.origin}/c/${data.code}`;
+      setCrawlCode(data.code);
       const text = `${t("Join my")} ${label}${crewLine} 🍺\n` +
         stops.map((s, i) => `${i + 1}. ${s.name}`).join("\n") +
         `\n\n${t("Same crawl on your phone:")} ${link}`;
@@ -297,14 +323,15 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
             </button>
           </div>
 
-          <button onClick={() => setBadgeOpen(true)} disabled={!allDone} data-testid="crawl-complete-button"
+          <button onClick={openBadge} disabled={!allDone} data-testid="crawl-complete-button"
             className={`mt-1 inline-flex w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${allDone ? "border-[#4ADE80] bg-[#4ADE80] text-black hover:bg-[#3ecb70]" : "border-[#3A3A3A] text-[#8A8A8A]"}`}>
             <Trophy className="h-4 w-4" /> {allDone ? t("Crawl conquered — claim your badge") : `${t("Check off all stops to unlock")} (${visitedCount}/${stops.length})`}
           </button>
         </DialogContent>
       </Dialog>
 
-      <CrawlBadgeDialog open={badgeOpen} onClose={() => setBadgeOpen(false)} mode={mode} crawlLabel={label} defaultCrew={crew} />
+      <CrawlBadgeDialog open={badgeOpen} onClose={() => setBadgeOpen(false)} mode={mode} crawlLabel={label} defaultCrew={crew}
+        stops={completion.stops} durationSeconds={completion.duration} crawlCode={crawlCode} />
     </>
   );
 }
