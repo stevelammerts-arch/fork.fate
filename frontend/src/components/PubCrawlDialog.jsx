@@ -155,8 +155,8 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
   return (
     <>
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto border-[#2A2A2A] bg-[#101010] text-white sm:max-w-lg" data-testid="pub-crawl-dialog" data-ff-dialog>
-          <DialogHeader>
+        <DialogContent className="flex max-h-[92dvh] flex-col overflow-hidden border-[#2A2A2A] bg-[#101010] text-white sm:max-w-lg" data-testid="pub-crawl-dialog" data-ff-dialog>
+          <DialogHeader className="shrink-0 pr-8">
             <DialogTitle className="flex items-center gap-2 font-serif text-2xl">
               <Beer className="h-6 w-6 text-[#E01E26]" /> {shared ? `${t("Group")} ${label}` : `${t("Your")} ${label}`}
             </DialogTitle>
@@ -165,6 +165,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
             </DialogDescription>
           </DialogHeader>
 
+          <div className="ff-crawl-body -mr-2 flex-1 space-y-0 overflow-y-auto pr-2">
           {/* Route map */}
           {stops.length > 0 && (
             <div className="mt-2">
@@ -174,7 +175,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
 
           {/* Progress */}
           {stops.length > 0 && (
-            <div className="mt-1" data-testid="crawl-progress">
+            <div className="mt-2" data-testid="crawl-progress">
               <div className="mb-1 flex items-center justify-between text-xs font-bold text-[#A0A0A0]">
                 <span>{visitedCount} / {stops.length} {t("conquered")}</span>
                 <button
@@ -188,6 +189,10 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
               <div className="h-2 w-full overflow-hidden rounded-full bg-[#2A2A2A]">
                 <div className="h-full rounded-full bg-[#E01E26] transition-all duration-500" style={{ width: `${stops.length ? (visitedCount / stops.length) * 100 : 0}%` }} />
               </div>
+              <p className="mt-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#8A8A8A]">
+                <Check className="h-3.5 w-3.5 text-[#4ADE80]" />
+                {t("Arrived? Tap the numbered circle on a stop to check it off.")}
+              </p>
             </div>
           )}
 
@@ -261,8 +266,9 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
               className="w-full bg-transparent text-sm text-white placeholder-[#6B7075] outline-none"
             />
           </label>
+          </div>
 
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <div className="mt-4 flex shrink-0 flex-col gap-3 sm:flex-row sm:flex-wrap">
             {!shared && (
               <button onClick={reshuffle} data-testid="crawl-reshuffle-button"
                 className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[#3A3A3A] px-5 py-3 text-sm font-bold text-white hover:bg-white/10">
