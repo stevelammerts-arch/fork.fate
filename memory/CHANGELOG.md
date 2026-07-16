@@ -1,5 +1,15 @@
 # Fork·Fate — Changelog
 
+## 2026-06 (fork) — Pub Crawl Leaderboard + silent timing (gamification / viral loop)
+
+- **New leaderboard** (`components/CrawlLeaderboard.jsx`): opt-in board surfaced inside the Crawl Complete/badge dialog via "See the Leaderboard". Team-name/nickname entry (no real names), then submits the run. Two scope tabs (**Global** + **Your Crew** — the latter only when a shared crawl `code` exists) × two sort tabs (**Most Stops** + **Fastest**). Top-3 get gold/silver/bronze rank chips; each row shows stops + time + a rank title.
+- **Silent crawl timing** (`PubCrawlDialog.jsx`): a background clock starts on the **first check-in** (localStorage `${progressKey}_start`), no visible live timer. Duration computed at completion and passed to the badge/leaderboard so the "Fastest" board works.
+- **Backend** (`routes/crawls.py`, `models.py`): `POST /api/crawls/complete` (`CrawlCompletionCreate`: team_name→"Anonymous Crew" fallback, stops 1-12, optional code + duration_seconds) stores to `crawl_completions`. `GET /api/crawls/leaderboard[?code=]` returns `{global:{stops,fastest}, crawl:{stops,fastest}|null}`, top-10 each; stops board = most stops desc w/ fastest tiebreak, fastest board = timed runs asc. Literal routes placed ABOVE `/crawls/{code}` to avoid shadowing.
+- Community stat counter (`/api/stats/crawl-completed`) is unchanged and still counts every dialog-open; leaderboard submission is separate/opt-in (no double count).
+- Tested: backend 11/11 pytest (`tests/test_crawl_leaderboard.py`), frontend full flow 100% (iteration_69). Build → `2026.06-218`. Preview-only; user must redeploy to reach fork-fate.com.
+
+
+
 ## 2026-07-15/16 (fork) — Tiki redo + Fall/Winter fixes + alternatives upsell
 
 - **Tiki theme redesigned**: replaced scattered props (bar/torches/totem/grass) with a full **Tiki lounge interior** backdrop (`tiki-lounge-full.png`) + dark overlay for text legibility. Added **randomly twinkling string lights** (3 interleaved transparent overlays on the same 1264×848 canvas + identical `object-cover` → always aligned; opacity flicker via `ffTikiTwinkle`). Added a gentle **red flame** (no blue) on the tall straw drink and the empty coconut (3 cross-fading frames, `ffTikiFlame`).
