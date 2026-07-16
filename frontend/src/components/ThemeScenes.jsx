@@ -158,9 +158,8 @@ export function AmbianceScene({ theme, cfg }) {
       {cfg.cars && CYBER_CARS.map((c, i) => (
         <div key={`car-${i}`} className={`absolute left-0 ${c.bus ? "z-[5]" : c.bus2 ? "z-[2]" : c.spinner ? "z-[4]" : "z-[3]"}`}
           style={{ top: mobile ? c.topM : c.top, willChange: "transform", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", animation: `${c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite both` }}>
-          {c.bus && <span className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2" style={{ width: "62%", height: "40%", background: "radial-gradient(ellipse at center, rgba(34,224,224,0.85) 0%, rgba(34,224,224,0.4) 42%, rgba(34,224,224,0) 72%)", filter: "blur(4px)" }} />}
           <img src={c.bus ? cfg.bus : (c.bus2 ? cfg.bus2 : (c.spinner ? cfg.spinner : (c.rev ? cfg.cars2 : cfg.cars)))} alt="" className="relative block object-contain opacity-90"
-            style={{ width: c.size, filter: c.bus ? "none" : `drop-shadow(0 0 ${c.spinner ? 12 : 8}px rgba(34,224,224,${c.spinner ? 0.65 : 0.5}))` }} />
+            style={{ width: c.size, filter: c.bus ? "none" : `drop-shadow(0 0 ${c.spinner ? 12 : 8}px rgba(34,224,224,${c.spinner ? 0.65 : 0.5}))`, ...(c.bus ? { maskImage: "linear-gradient(to bottom, #000 68%, rgba(0,0,0,0.3) 88%, rgba(0,0,0,0.12) 100%)", WebkitMaskImage: "linear-gradient(to bottom, #000 68%, rgba(0,0,0,0.3) 88%, rgba(0,0,0,0.12) 100%)" } : {}) }} />
         </div>
       ))}
       {cfg.neon && (
