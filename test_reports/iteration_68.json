@@ -1,0 +1,26 @@
+{
+  "summary": "Verified Pub Crawl mobile-fix end-to-end on 412x732 viewport. Header (X button) and footer (New crawl / Share with group / Complete-badge) stay pinned; middle .ff-crawl-body scrolls internally (scrollH=857, clientH=329) and after scrolling to bottom, closeBtn/shareBtn/completeBtn all remain in view. 'Arrived? Tap the numbered circle...' hint is present. Check-off flow works: 6/6 stops turned green, progress bar filled, complete button became enabled. hero-crawl-chip confirmed removed. Backend POST /api/crawls returns 200 with share code and GET /api/crawls/{code} returns the doc (verified via curl and backend logs during share click). Regression: crawl-toggle OFF -> spin-roulette-button click triggered POST /api/places/search 200 (deal succeeded).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Share with group (Playwright only)", "issue": "In headless Chromium, navigator.share exists but rejects with non-AbortError, causing 'Couldn't create a share link — try again' toast. Backend POST /api/crawls actually succeeded (200 in logs). Not a real-user bug on Safari/Chrome mobile, but consider treating share() rejections as clipboard-fallback rather than error toast for robustness.", "affected_selectors": ["[data-testid=crawl-share-button]"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_68.json"],
+  "action_items": [
+    "(Optional polish) In PubCrawlDialog.shareCrawl, on any navigator.share() failure that's not AbortError, fall back to clipboard.writeText + success toast instead of showing an error toast. This makes the share flow resilient in embedded browsers/PWAs where the Web Share API is partially broken."
+  ],
+  "critical_code_review_comments": [
+    "PubCrawlDialog.jsx is 294 lines — fine, but consider extracting the stops list into a subcomponent if it grows.",
+    "The check-off circle button doubles as both the number badge and check control; add aria-pressed for a11y."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "None (a couple of TEST crawl codes M4L27UNM created via curl; harmless).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Mobile crawl-dialog fix is verified. Correct testids: shuffle-popup (not reveal-dialog), pub-crawl-dialog, crawl-mode-toggle, crawl-deal-button, spin-roulette-button, crawl-checkoff-{i}, crawl-complete-button, crawl-share-button. .ff-crawl-body is the scrollable middle section. In Playwright, navigator.share resolves oddly; test the /api/crawls POST via curl or intercept requests instead of relying on the success toast.",
+  "rca of the issue": "N/A — no bug found. Mobile layout fix (flex column, shrink-0 header/footer, flex-1 overflow-y-auto middle) works as designed."
+}
