@@ -1,6 +1,12 @@
 # Fork·Fate — Changelog
 
-## 2026-06 (fork) — Rank nudge (viral loop tightening)
+## 2026-06 (fork) — Refactor: Admin.jsx split into container + 6 sub-components
+
+- `pages/Admin.jsx` reduced **733 → 359 lines**, now a pure container (all state, API calls, handlers) that composes new presentational components under `components/admin/`: `AdminLogin`, `StatsPanel` (MRR + cost/security card), `BetaTesters`, `SubmissionsQueue`, `SponsorForm`, `SponsorList`.
+- Pure UI extraction — **zero behavior change**; every `data-testid` preserved verbatim. Verified end-to-end by testing agent (iteration_70, frontend 100%: login → all 18 dashboard testids → add/toggle/delete sponsor → logout).
+- Removed now-unused imports from Admin.jsx. Frontend build compiles with 0 warnings.
+
+
 
 - `POST /api/crawls/complete` now returns the crew's **global rank** (`rank_stops`, `rank_fastest`, `total`) computed with fastest-time tiebreak. Verified: faster crew outranks slower at equal stops; untimed crews get `rank_fastest: null`.
 - `CrawlLeaderboard.jsx` shows a post-submit nudge ("Ranked #1 globally by stops · #1 fastest of N crews. Share it and dare your friends to beat you!") plus a "See the full Hall of Fate" link to `/leaderboard`.
