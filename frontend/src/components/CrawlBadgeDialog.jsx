@@ -233,6 +233,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
   const [step, setStep] = useState("intro");
   const [cinemaDone, setCinemaDone] = useState(false);
   const [communityCount, setCommunityCount] = useState(null);
+  const [rankInfo, setRankInfo] = useState(null);
   const fileRef = useRef(null);
   const label = useMemo(() => (crawlLabel ? crawlLabel.toUpperCase() : crawlLabelFor(mode)), [crawlLabel, mode]);
   const labelFriendly = useMemo(
@@ -244,6 +245,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
     if (!open) return;
     setStep("intro");
     setCinemaDone(false);
+    setRankInfo(null);
     const t = setTimeout(() => setCinemaDone(true), light ? 1400 : 3600);
     axios.post(`${API}/stats/crawl-completed`).then(({ data }) => setCommunityCount(data.count)).catch(() => {});
     let thunderT;
@@ -287,6 +289,14 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
     return buildBadge({ name: name.trim(), crew, label, photo: img, story: true, light, accent: ac.card });
   };
 
+  const shareText = () => {
+    const base = `I completed the Fork\u00B7Fate ${label.toLowerCase()}${crew.trim() ? ` with ${crew.trim()}` : ""}!`;
+    if (rankInfo && rankInfo.rank_stops) {
+      return `${base} We're ranked #${rankInfo.rank_stops} on the Fork\u00B7Fate Crawl Champions board \uD83C\uDFC6 Think you can beat us? ${window.location.origin}/leaderboard`;
+    }
+    return `${base} ${window.location.origin}`;
+  };
+
   const download = async () => {
     setBusy(true);
     try {
@@ -306,7 +316,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
     try {
       const blob = await makeBlob();
       const file = new File([blob], "fork-fate-crawl-badge.png", { type: "image/png" });
-      const text = `I completed the Fork\u00B7Fate ${label.toLowerCase()}${crew.trim() ? ` with ${crew.trim()}` : ""}! ${window.location.origin}`;
+      const text = shareText();
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: "Fork\u00B7Fate Crawl Badge", text });
       } else {
@@ -321,7 +331,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
     try {
       const blob = await makeStoryBlob();
       const file = new File([blob], "fork-fate-story.png", { type: "image/png" });
-      const text = `I completed the Fork\u00B7Fate ${label.toLowerCase()}${crew.trim() ? ` with ${crew.trim()}` : ""}! ${window.location.origin}`;
+      const text = shareText();
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: "Fork\u00B7Fate Story", text });
       } else {
@@ -559,6 +569,7 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
           defaultTeam={crew}
           light={light}
           ac={ac}
+          onRanked={setRankInfo}
         />
         </>
         )}

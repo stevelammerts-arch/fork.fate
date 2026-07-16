@@ -1,5 +1,11 @@
 # Fork·Fate — Changelog
 
+## 2026-06 (fork) — Rank nudge (viral loop tightening)
+
+- `POST /api/crawls/complete` now returns the crew's **global rank** (`rank_stops`, `rank_fastest`, `total`) computed with fastest-time tiebreak. Verified: faster crew outranks slower at equal stops; untimed crews get `rank_fastest: null`.
+- `CrawlLeaderboard.jsx` shows a post-submit nudge ("Ranked #1 globally by stops · #1 fastest of N crews. Share it and dare your friends to beat you!") plus a "See the full Hall of Fate" link to `/leaderboard`.
+- `CrawlBadgeDialog.jsx` share/story text auto-appends the taunt + `/leaderboard` link when a rank is known (`shareText()` helper); rank resets on each dialog open. Build → `2026.06-220`.
+
 ## 2026-06 (fork) — Public /leaderboard "Hall of Fate" page
 
 - **New route `/leaderboard`** (`pages/Leaderboard.jsx`): standalone dark "Crawl Champions" hall-of-fame browsable without finishing a crawl. Global board with Most Stops / Fastest tabs, top-3 gold/silver/bronze chips, crown on #1, rank titles, staggered entrance animation, empty state + "Start a crawl" CTA. Linked from Home header via a new "Champions" button (`data-testid header-leaderboard-link`).

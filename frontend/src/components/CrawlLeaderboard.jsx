@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Zap, Globe, Users, Crown, Loader2, PartyPopper } from "lucide-react";
+import { Trophy, Zap, Globe, Users, Crown, Loader2, PartyPopper, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useLang } from "../i18n/i18n";
 
@@ -26,12 +27,13 @@ const rankTitle = (stops) => {
 
 export { rankTitle, fmtTime };
 
-export default function CrawlLeaderboard({ mode, label, stops = 0, durationSeconds = null, code = null, defaultTeam = "", light = false, ac }) {
+export default function CrawlLeaderboard({ mode, label, stops = 0, durationSeconds = null, code = null, defaultTeam = "", light = false, ac, onRanked }) {
   const { t } = useLang();
   const [open, setOpen] = useState(false);
   const [team, setTeam] = useState(defaultTeam || "");
   const [posting, setPosting] = useState(false);
   const [posted, setPosted] = useState(false);
+  const [rank, setRank] = useState(null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
   const [scope, setScope] = useState("global");
@@ -73,7 +75,7 @@ export default function CrawlLeaderboard({ mode, label, stops = 0, durationSecon
     if (posting) return;
     setPosting(true);
     try {
-      await axios.post(`${API}/crawls/complete`, {
+      const { data } = await axios.post(`${API}/crawls/complete`, {
         team_name: team.trim(),
         stops: Math.max(1, stops),
         mode,
@@ -82,6 +84,10 @@ export default function CrawlLeaderboard({ mode, label, stops = 0, durationSecon
         duration_seconds: durationSeconds || null,
       });
       setPosted(true);
+      if (data && data.rank_stops) {
+        setRank(data);
+        if (onRanked) onRanked(data);
+      }
       toast.success(t("You're on the board! 🏆"));
       if (code) setScope("crawl");
       await loadBoard();
@@ -153,8 +159,25 @@ export default function CrawlLeaderboard({ mode, label, stops = 0, durationSecon
                   </button>
                 </div>
               ) : (
-                <div className="mb-3 flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold" style={{ backgroundColor: `${accent}1A`, color: accent }} data-testid="crawl-leaderboard-posted">
-                  <Crown className="h-4 w-4" /> {t("Your crew is on the board!")}
+                <div className="mb-3 flex flex-col gap-1.5 rounded-xl px-3 py-2.5" style={{ backgroundColor: `${accent}1A` }} data-testid="crawl-leaderboard-posted">
+                  <div className="flex items-center gap-2 text-sm font-bold" style={{ color: accent }}>
+                    <Crown className="h-4 w-4" /> {t("Your crew is on the board!")}
+                  </div>
+                  {rank && rank.rank_stops && (
+                    <p className={`text-xs font-semibold ${light ? "text-[#5A5142]" : "text-[#C7CBD1]"}`} data-testid="crawl-leaderboard-rank">
+                      {t("Ranked")}{" "}
+                      <span className="font-extrabold" style={{ color: accent }}>#{rank.rank_stops}</span>{" "}
+                      {t("globally by stops")}
+                      {rank.rank_fastest ? (
+                        <>
+                          {" · "}
+                          <span className="font-extrabold" style={{ color: accent }}>#{rank.rank_fastest}</span>{" "}
+                          {t("fastest")}
+                        </>
+                      ) : null}
+                      {" "}{t("of")} {rank.total} {t("crews")}. {t("Share it and dare your friends to beat you!")}
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -216,6 +239,14 @@ export default function CrawlLeaderboard({ mode, label, stops = 0, durationSecon
                   ))
                 )}
               </div>
+
+              <Link
+                to="/leaderboard"
+                data-testid="crawl-leaderboard-fullboard-link"
+                className={`mt-3 inline-flex w-full items-center justify-center gap-1.5 text-xs font-bold ${light ? "text-[#8A7C68] hover:text-[#2A2118]" : "text-[#8A8F95] hover:text-white"}`}
+              >
+                {t("See the full Hall of Fate")} <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
             </div>
           </motion.div>
         )}

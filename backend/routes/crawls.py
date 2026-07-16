@@ -65,7 +65,10 @@ async def _leaderboard_for(match: dict) -> dict:
 
 @router.post("/crawls/complete", dependencies=[Depends(rate_limit(30))])
 async def complete_crawl(payload: CrawlCompletionCreate):
-    """Record a crew's finished crawl for the leaderboard (opt-in from the badge dialog)."""
+    """Record a crew's finished crawl for the leaderboard (opt-in from the badge dialog).
+
+    Returns the crew's global rank so the app can nudge them to share/climb.
+    """
     doc = {
         "team_name": payload.team_name,
         "stops": payload.stops,
@@ -76,7 +79,28 @@ async def complete_crawl(payload: CrawlCompletionCreate):
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.crawl_completions.insert_one(doc)
-    return {"ok": True}
+
+    my_stops = payload.stops
+    my_dur = payload.duration_seconds
+    all_docs = [d async for d in db.crawl_completions.find({}, {"_id": 0, "stops": 1, "duration_seconds": 1}).limit(5000)]
+
+    def dur_or(d):
+        v = d.get("duration_seconds")
+        return v if isinstance(v, int) else 10 ** 12
+
+    my_dur_eff = my_dur if isinstance(my_dur, int) else 10 ** 12
+    rank_stops = 1 + sum(
+        1 for d in all_docs
+        if (d.get("stops", 0) > my_stops) or (d.get("stops", 0) == my_stops and dur_or(d) < my_dur_eff)
+    )
+    rank_fastest = None
+    if isinstance(my_dur, int):
+        timed = [d for d in all_docs if isinstance(d.get("duration_seconds"), int)]
+        rank_fastest = 1 + sum(
+            1 for d in timed
+            if (d["duration_seconds"] < my_dur) or (d["duration_seconds"] == my_dur and d.get("stops", 0) > my_stops)
+        )
+    return {"ok": True, "rank_stops": rank_stops, "rank_fastest": rank_fastest, "total": len(all_docs)}
 
 
 @router.get("/crawls/leaderboard")
