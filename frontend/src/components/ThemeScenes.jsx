@@ -174,7 +174,7 @@ export function AmbianceScene({ theme, cfg }) {
         ))}
         {/* Flaming tiki cocktail — 3 flame frames on the same canvas cross-fade
             (staggered) so it stays aligned to the drink and flickers gently. */}
-        {["/tiki-flame-drink-1.png", "/tiki-flame-drink-2.png", "/tiki-flame-drink-3.png"].map((src, i) => (
+        {["/tiki-flame-red-1.png", "/tiki-flame-red-2.png", "/tiki-flame-red-3.png"].map((src, i) => (
           <img
             key={`tiki-flame-${i}`}
             src={src}
