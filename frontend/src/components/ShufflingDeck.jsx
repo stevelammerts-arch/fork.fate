@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Skull } from "lucide-react";
+import { Skull, Cog } from "lucide-react";
 
 const DECK_SIZE = 5;
 
@@ -44,13 +44,22 @@ function CardBack({ light, seasonItem, theme }) {
     );
   }
   if (theme === "steam") {
-    const accent = "#D9A44E";
+    const brass = "#D9A44E";
     return (
-      <div className="absolute inset-0 grid place-items-center overflow-hidden bg-[#141210]" data-testid="card-back">
-        <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 50% 45%, rgba(217,164,78,0.16), rgba(0,0,0,0) 65%)" }} />
-        <img src="/steam-gears.png" alt="" className="h-[78%] w-[78%] object-contain opacity-90" style={{ animation: "ffSpin 20s linear infinite" }} />
-        <div className="absolute inset-2 rounded-xl border" style={{ borderColor: `${accent}88` }} />
-        <div className="absolute inset-[10px] rounded-lg border" style={{ borderColor: `${accent}33` }} />
+      <div className="absolute inset-0 grid place-items-center overflow-hidden" data-testid="card-back"
+        style={{ background: "radial-gradient(circle at 50% 42%, #3A2A18 0%, #1A120B 72%)" }}>
+        <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 50% 44%, rgba(217,164,78,0.22), rgba(0,0,0,0) 62%)" }} />
+        <div className="relative flex items-center justify-center">
+          <Cog className="h-24 w-24" strokeWidth={1.1} style={{ color: brass, filter: "drop-shadow(0 2px 5px rgba(0,0,0,0.55))" }} />
+          <Cog className="absolute -bottom-5 -right-6 h-12 w-12" strokeWidth={1.15} style={{ color: "#B9833A" }} />
+          <span className="absolute h-3 w-3 rounded-full" style={{ background: "radial-gradient(circle at 35% 30%, #F3D28A, #8A5E24)" }} />
+        </div>
+        <div className="absolute inset-2 rounded-xl border" style={{ borderColor: `${brass}99`, boxShadow: "inset 0 0 12px rgba(217,164,78,0.32)" }} />
+        <div className="absolute inset-[10px] rounded-lg border" style={{ borderColor: `${brass}40` }} />
+        {[["7px", "7px", "auto", "auto"], ["7px", "auto", "auto", "7px"], ["auto", "7px", "7px", "auto"], ["auto", "auto", "7px", "7px"]].map((p, i) => (
+          <span key={i} className="absolute h-1.5 w-1.5 rounded-full" style={{ top: p[0], right: p[1], bottom: p[2], left: p[3], background: "radial-gradient(circle at 35% 30%, #F3D28A, #7A5220)" }} />
+        ))}
+        <span className="absolute bottom-4 font-serif text-[9px] uppercase tracking-[0.4em]" style={{ color: brass }}>Clockwork</span>
       </div>
     );
   }
