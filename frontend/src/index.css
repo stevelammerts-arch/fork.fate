@@ -442,12 +442,12 @@ body {
   display: block;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0 24px rgba(214,220,240,0.38));
+  filter: drop-shadow(0 0 22px rgba(255,255,255,0.55)) drop-shadow(0 0 48px rgba(255,255,255,0.28));
   animation: ffMoonGlow 7s ease-in-out infinite;
 }
 @keyframes ffMoonGlow {
-  0%, 100% { filter: drop-shadow(0 0 18px rgba(214,220,240,0.30)); }
-  50%      { filter: drop-shadow(0 0 40px rgba(224,228,248,0.62)); }
+  0%, 100% { filter: drop-shadow(0 0 16px rgba(255,255,255,0.42)) drop-shadow(0 0 40px rgba(255,255,255,0.20)); }
+  50%      { filter: drop-shadow(0 0 30px rgba(255,255,255,0.78)) drop-shadow(0 0 66px rgba(255,255,255,0.42)); }
 }
 .ff-moon-clouds {
   position: absolute;
