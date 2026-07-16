@@ -848,7 +848,7 @@ export default function Home() {
               className="group mt-5 inline-flex items-center gap-2 rounded-full border-2 border-[#E01E26] bg-[#E01E26] px-4 py-2 font-sans text-sm font-bold text-white shadow-sm transition-transform hover:-translate-y-0.5"
             >
               <Beer className="h-4 w-4" />
-              {t("Pub Crawls & more")}
+              {t("New! Pub Crawls & more")}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </button>
           )}
