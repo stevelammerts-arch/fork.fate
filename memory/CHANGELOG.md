@@ -1,5 +1,14 @@
 # Fork·Fate — Changelog
 
+## 2026-07-15/16 (fork) — Tiki redo + Fall/Winter fixes + alternatives upsell
+
+- **Tiki theme redesigned**: replaced scattered props (bar/torches/totem/grass) with a full **Tiki lounge interior** backdrop (`tiki-lounge-full.png`) + dark overlay for text legibility. Added **randomly twinkling string lights** (3 interleaved transparent overlays on the same 1264×848 canvas + identical `object-cover` → always aligned; opacity flicker via `ffTikiTwinkle`). Added a gentle **red flame** (no blue) on the tall straw drink and the empty coconut (3 cross-fading frames, `ffTikiFlame`).
+- **Fall fix**: jack-o'-lantern pumpkins were translucent (tree showing through) — bumped their opacity to 0.72 via new `decorRightOpacity` config so they read as solid.
+- **Winter fix**: Santa now flies **behind** the big tree on laptop (`sm:z-[1]` on santa, new `treeZ: z-[2]` on winter tree); still in front on mobile.
+- **Result card "N more to consider"**: enlarged from tiny rows to tactile cards — 72px thumbnails, text-lg names, rating/distance, "PICK THIS" dice affordance, hover-lift, corner Sponsored badge, and a friendly re-roll subheading (more enticing for sponsored slots).
+- Builds bumped through `2026.06-208`. All preview-only; user must redeploy to reach fork-fate.com.
+
+
 ## 2026-07-15 (fork) — Refactor: extracted ShufflingDeck into its own module
 
 - **New component `components/ShufflingDeck.jsx`** (194 lines): moved `ShufflingDeck` + internal `CardBack`, `CardFront`, and `DECK_SIZE` out of `Home.jsx`. Only `ShufflingDeck` is exported. **All per-theme card visuals are unchanged** (skull/dark, neon-SUV/cyber, tiki mask, steam gears, seasonal sprites, light) — the shared shuffle animation stays identical.
