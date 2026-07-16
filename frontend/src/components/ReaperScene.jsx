@@ -20,6 +20,8 @@ export function ReaperScene() {
   const rotY = useSpring(useTransform(tiltX, [-0.5, 0.5], [-12, 12]), { stiffness: 60, damping: 18 });
   const shiftX = useSpring(useTransform(tiltX, [-0.5, 0.5], [-18, 18]), { stiffness: 60, damping: 18 });
   const shiftY = useSpring(useTransform(tiltY, [-0.5, 0.5], [-12, 12]), { stiffness: 60, damping: 18 });
+  const moonX = useSpring(useTransform(tiltX, [-0.5, 0.5], [16, -16]), { stiffness: 38, damping: 22 });
+  const moonY = useSpring(useTransform(tiltY, [-0.5, 0.5], [11, -11]), { stiffness: 38, damping: 22 });
   useEffect(() => {
     const onMove = (e) => {
       tiltX.set(e.clientX / window.innerWidth - 0.5);
@@ -33,10 +35,13 @@ export function ReaperScene() {
     <>
       <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid="reaper-ambiance">
         <div className="ff-night-sky" />
-        <div className="ff-moon" data-testid="reaper-moon">
-          <div className="ff-moon-cloud ff-moon-cloud-1" />
-          <div className="ff-moon-cloud ff-moon-cloud-2" />
-        </div>
+        <motion.div className="ff-moon" data-testid="reaper-moon" style={{ x: moonX, y: moonY }}>
+          <img src="/reaper-moon.png" alt="" aria-hidden="true" className="ff-moon-img" />
+          <div className="ff-moon-clouds">
+            <div className="ff-moon-cloud ff-moon-cloud-1" />
+            <div className="ff-moon-cloud ff-moon-cloud-2" />
+          </div>
+        </motion.div>
         <div className="ff-haze" />
         <img
           src="/reaper-cemetery.png"
