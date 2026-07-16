@@ -139,14 +139,30 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
       const text = `${t("Join my")} ${label}${crewLine} 🍺\n` +
         stops.map((s, i) => `${i + 1}. ${s.name}`).join("\n") +
         `\n\n${t("Same crawl on your phone:")} ${link}`;
+      // Link is created — from here, never dead-end: try native share, then
+      // fall back to clipboard (Web Share API is flaky inside PWAs / Android TWA).
       if (navigator.share) {
-        await navigator.share({ title: label, text, url: link });
+        try {
+          await navigator.share({ title: label, text, url: link });
+        } catch (shareErr) {
+          if (shareErr?.name === "AbortError") return; // user cancelled — do nothing
+          try {
+            await navigator.clipboard.writeText(text);
+            toast.success(t("Crawl link copied — drop it in the group chat!"));
+          } catch {
+            toast.success(`${t("Your crawl link:")} ${link}`);
+          }
+        }
       } else {
-        await navigator.clipboard.writeText(text);
-        toast.success(t("Crawl link copied — drop it in the group chat!"));
+        try {
+          await navigator.clipboard.writeText(text);
+          toast.success(t("Crawl link copied — drop it in the group chat!"));
+        } catch {
+          toast.success(`${t("Your crawl link:")} ${link}`);
+        }
       }
     } catch (e) {
-      if (e?.name !== "AbortError") toast.error(t("Couldn't create a share link — try again"));
+      toast.error(t("Couldn't create a share link — try again"));
     } finally {
       setSharing(false);
     }
