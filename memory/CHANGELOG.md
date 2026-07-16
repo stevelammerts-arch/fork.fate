@@ -1,6 +1,16 @@
 # Fork·Fate — Changelog
 
-## 2026-06 (fork) — Refactor: Admin.jsx split into container + 6 sub-components
+## 2026-06 (fork) — Refactor: Home.jsx split + pre-launch deployment scan
+
+- `pages/Home.jsx` reduced **1,981 → 1,380 lines** by extracting two zero-coupling blocks (no behavior change):
+  - `pages/homeFateCard.js` — Fate Card canvas utilities (`buildFateCard`, `buildThemedCard`, `buildReaperCard`, `loadImage`, `wrapLines`, `hexA`, `FATE_CARD`); moved the `qrcode` import here.
+  - `components/home/RevealStage.jsx` — the spin-result component (result card, alternatives, share/respin/favorite actions).
+  - Removed now-unused imports from Home (`QRCode`, `GroupVote`, `CheckInButton`, `RESULT_SPRING`, `DETAIL_*`, `reaperLineFor`, `lightLineFor`, icons `RotateCcw/Flag/Share2/ImageDown/Heart`). Build compiles with 0 warnings.
+  - Verified end-to-end by testing agent (iteration_71, frontend 100%): deal → result card → respin → alternative swap → favorite → Share-as-image (buildFateCard) → reset → theme switch → crawl/leaderboard nav. Zero regressions.
+- **Deployment-readiness scan: PASS** (deployment_agent) — no hardcoded secrets/URLs, env vars correct, /api routing + supervisor config valid, frontend build healthy. Build → `2026.06-222`.
+- Note: pre-existing (not from refactor) `ipapi.co` client-side CORS console error on load — non-blocking geolocation fallback. Optional hardening: lock backend CORS from `*` to the production domain.
+
+
 
 - `pages/Admin.jsx` reduced **733 → 359 lines**, now a pure container (all state, API calls, handlers) that composes new presentational components under `components/admin/`: `AdminLogin`, `StatsPanel` (MRR + cost/security card), `BetaTesters`, `SubmissionsQueue`, `SponsorForm`, `SponsorList`.
 - Pure UI extraction — **zero behavior change**; every `data-testid` preserved verbatim. Verified end-to-end by testing agent (iteration_70, frontend 100%: login → all 18 dashboard testids → add/toggle/delete sponsor → logout).
