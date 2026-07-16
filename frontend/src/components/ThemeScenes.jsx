@@ -172,6 +172,18 @@ export function AmbianceScene({ theme, cfg }) {
             style={{ objectPosition: "center center", animation: `ffTikiTwinkle ${s.d}s ease-in-out ${s.dl}s infinite` }}
           />
         ))}
+        {/* Flaming tiki cocktail — 3 flame frames on the same canvas cross-fade
+            (staggered) so it stays aligned to the drink and flickers gently. */}
+        {["/tiki-flame-drink-1.png", "/tiki-flame-drink-2.png", "/tiki-flame-drink-3.png"].map((src, i) => (
+          <img
+            key={`tiki-flame-${i}`}
+            src={src}
+            alt=""
+            data-testid={`tiki-drink-flame-${i}`}
+            className="pointer-events-none absolute inset-0 z-[2] h-full w-full object-cover mix-blend-screen"
+            style={{ objectPosition: "center center", animation: `ffTikiFlame 1.2s ease-in-out ${(-0.4 * i).toFixed(1)}s infinite` }}
+          />
+        ))}
       </>)}
       {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
       {cfg.console && <img src={cfg.console} alt="" className="absolute bottom-0 left-[-22%] z-[4] h-[52vh] object-contain opacity-80 sm:left-[-2%] sm:h-[74vh]" />}

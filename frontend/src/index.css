@@ -577,6 +577,12 @@ body {
   86%  { opacity:0.92; }
   100% { opacity:0.9; }
 }
+/* Tiki flaming-drink — cross-fade 3 flame frames for gentle movement */
+@keyframes ffTikiFlame{
+  0%,100% { opacity:0.15; }
+  33%     { opacity:1; }
+  66%     { opacity:0.15; }
+}
 @keyframes ffNeonFlash{
   0%,100%{ opacity:0.35; transform: translate(-50%,-50%) scale(0.95); }
   20%{ opacity:0.95; }
