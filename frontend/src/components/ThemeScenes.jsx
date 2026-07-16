@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => ({
   left: `${(i * 8 + 4) % 94}%`,
@@ -109,9 +109,12 @@ const STEAM_JET = Array.from({ length: 7 }).map((_, i) => ({
 
 
 const CYBER_CARS = [
-  { top: "18%", size: 200, dur: 12, delay: 0, rev: false, spinner: true },
-  { top: "13%", size: 160, dur: 13, delay: 3, rev: false },
-  { top: "27%", size: 112, dur: 17, delay: 6, rev: true },
+  // Distant traffic — small & high up, feels far away
+  { top: "12%", topM: "40%", size: 96, dur: 13, delay: 0, rev: false, spinner: true },
+  { top: "9%", topM: "36%", size: 78, dur: 15, delay: 4, rev: false },
+  { top: "19%", topM: "52%", size: 56, dur: 18, delay: 7, rev: true },
+  // Close-up people bus — big, low and in front
+  { top: "40%", topM: "58%", size: 300, dur: 26, delay: 2, rev: false, bus: true },
 ];
 
 // A dense mass of steel cables hanging + swaying from the roof (steampunk)
@@ -126,7 +129,7 @@ const STEAM_CABLES = Array.from({ length: 22 }).map((_, i) => ({
 }));
 
 export const AMBIANCE = {
-  cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", spinner: "/cyber-spinner-suv.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
+  cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", spinner: "/cyber-spinner-suv.png", bus: "/cyber-bus.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
   steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall-full.png", console: "/steam-console.png", device: "/steam-arc-device.png", steam: true, roofCables: true, floor: true, accent: "#D9A44E", sky: "#F1D9A6" },
   tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", lounge: "/tiki-lounge-full.png", accent: "#F0A24E", sky: "#FBE3C0" },
 };
@@ -135,6 +138,14 @@ const TIKI_FLAME_FRAMES = ["/tiki-flame-1.png", "/tiki-flame-2.png", "/tiki-flam
 const TIKI_FLAME_FRAMES_GEN = ["/tiki-flame-gen-1.png", "/tiki-flame-gen-2.png", "/tiki-flame-gen-3.png", "/tiki-flame-gen-4.png"];
 
 export function AmbianceScene({ theme, cfg }) {
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const on = () => setMobile(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
   const flameFrames = (typeof localStorage !== "undefined" && localStorage.getItem("ff_flame") === "gen")
     ? TIKI_FLAME_FRAMES_GEN : TIKI_FLAME_FRAMES;
   return (
@@ -143,8 +154,13 @@ export function AmbianceScene({ theme, cfg }) {
       {cfg.skyline && <img src={cfg.skyline} alt="" className="absolute bottom-0 left-0 w-full object-cover opacity-70" style={{ maxHeight: "52vh" }} />}
       {cfg.rain && <div className="absolute inset-0 ff-rain" />}
       {cfg.cars && CYBER_CARS.map((c, i) => (
-        <img key={`car-${i}`} src={c.spinner ? cfg.spinner : (c.rev ? cfg.cars2 : cfg.cars)} alt="" className={`absolute left-0 object-contain opacity-90 ${c.spinner ? "z-[4]" : "z-[3]"}`}
-          style={{ top: c.top, width: c.size, filter: `drop-shadow(0 0 ${c.spinner ? 14 : 10}px rgba(34,224,224,${c.spinner ? 0.7 : 0.55}))`, animation: `${c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite both` }} />
+        <div key={`car-${i}`} className={`absolute left-0 ${c.bus ? "z-[5]" : c.spinner ? "z-[4]" : "z-[3]"}`}
+          style={{ top: mobile ? c.topM : c.top, willChange: "transform", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", animation: `${c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite both` }}>
+          <img src={c.bus ? cfg.bus : (c.spinner ? cfg.spinner : (c.rev ? cfg.cars2 : cfg.cars))} alt="" className="block object-contain opacity-90"
+            style={{ width: c.size, filter: c.bus
+              ? "drop-shadow(0 9px 22px rgba(34,224,224,0.55)) drop-shadow(0 16px 44px rgba(34,224,224,0.4)) drop-shadow(0 24px 66px rgba(34,224,224,0.25))"
+              : `drop-shadow(0 0 ${c.spinner ? 12 : 8}px rgba(34,224,224,${c.spinner ? 0.65 : 0.5}))` }} />
+        </div>
       ))}
       {cfg.neon && (
         <div className="absolute left-1/2 top-[15%] z-[1] w-[62vw] max-w-xs -translate-x-1/2" data-testid="cyber-neon">
