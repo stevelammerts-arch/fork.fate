@@ -30,7 +30,7 @@ export const SEASONS = {
   },
   spring: {
     grad: "linear-gradient(180deg,#F3FBEF 0%,#FBEFF5 55%,#EFF7E6 100%)",
-    tree: "/spring-tree.png", treeBig: true, decorLeft: "/spring-decor.png", decorLeftBig: true,
+    tree: "/spring-tree.png", treeBig: true, ground: "/spring-ground.png", decorLeft: "/spring-decor.png", decorLeftBig: true,
     items: ["/blossom-pink.png", "/blossom-white.png", "/petal-coral.png"], falling: true, hint: "#D46A9F",
   },
   summer: {
@@ -44,6 +44,7 @@ export function SeasonScene({ theme, cfg }) {
   return (
     <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`season-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
+      {cfg.ground && <img src={cfg.ground} alt="" className="absolute bottom-0 left-0 w-full object-cover object-bottom opacity-[0.55]" style={{ maxHeight: "32vh" }} data-testid="spring-ground" />}
       {cfg.ocean && (<>
         <svg width="0" height="0" className="absolute" aria-hidden="true">
           <filter id="ff-sea-warp" x="-20%" y="-20%" width="140%" height="140%">
