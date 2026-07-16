@@ -23,9 +23,21 @@ function stored() {
   return null;
 }
 
-// First visit (nothing stored): default to the current season (northern mapping first).
+// Infer hemisphere from the device timezone's DST pattern — no network call needed.
+// Southern-hemisphere zones observe DST in their local summer (≈ Jan), so July's
+// offset is larger than January's. Zones without DST fall back to northern.
+function isSouthernHemisphere() {
+  try {
+    const y = new Date().getFullYear();
+    const jan = new Date(y, 0, 1).getTimezoneOffset();
+    const jul = new Date(y, 6, 1).getTimezoneOffset();
+    return jul > jan;
+  } catch (e) { return false; }
+}
+
+// First visit (nothing stored): default to the current season, mapped by hemisphere.
 function read() {
-  return stored() || seasonForDate(new Date(), false);
+  return stored() || seasonForDate(new Date(), isSouthernHemisphere());
 }
 
 let current = read();
@@ -35,21 +47,6 @@ function apply() {
   try { document.documentElement.dataset.ffTheme = current; } catch (e) { /* ignore */ }
 }
 apply();
-
-// If no explicit choice yet, refine the season default by detecting hemisphere via IP location.
-if (!stored()) {
-  fetch("https://ipapi.co/latitude/")
-    .then((r) => r.text())
-    .then((t) => {
-      const lat = parseFloat(t);
-      if (!stored() && !isNaN(lat) && lat < 0) {
-        current = seasonForDate(new Date(), true);
-        apply();
-        listeners.forEach((l) => l());
-      }
-    })
-    .catch(() => { /* keep northern default */ });
-}
 
 export function setTheme(next) {
   if (next === current) return;

@@ -1,6 +1,13 @@
 # Fork·Fate — Changelog
 
-## 2026-06 (fork) — Refactor: Home.jsx split + pre-launch deployment scan
+## 2026-06 (fork) — Hardenings, weekly leaderboard tab & Fall theme polish
+
+- **CORS hardening**: `backend/.env` `CORS_ORIGINS` changed from misleading `"*"` (which the code already filtered out) to explicit `https://fork-fate.com,https://www.fork-fate.com`. Verified preflight from prod origin returns 204.
+- **Removed client-side `ipapi.co` call** (`hooks/useTheme.js`): hemisphere for the seasonal default is now inferred from the device timezone's DST pattern — no network, no CORS error, privacy-friendly.
+- **Weekly leaderboard**: `GET /api/crawls/leaderboard` now returns a `week` board (last 7 days) alongside `global`; public `/leaderboard` page gained an **All-Time / This Week** period toggle (`data-testid leaderboard-period-all|week`). Verified rendering.
+- **Fall theme**: bumped tree/scarecrow/ground-pumpkins/owl opacity to 0.72 to match the jack-o'-lanterns; added a generated warm ground surface (`fall-ground.png`, slightly darker than sky) with small leaf piles and tiny in-scale leaves (`groundH`/`groundOpacity` config added to `SeasonScene`). Also added `treeOpacity`/`decorLeftOpacity` overrides earlier for Summer. Build → `2026.06-228`.
+
+
 
 - `pages/Home.jsx` reduced **1,981 → 1,380 lines** by extracting two zero-coupling blocks (no behavior change):
   - `pages/homeFateCard.js` — Fate Card canvas utilities (`buildFateCard`, `buildThemedCard`, `buildReaperCard`, `loadImage`, `wrapLines`, `hexA`, `FATE_CARD`); moved the `qrcode` import here.

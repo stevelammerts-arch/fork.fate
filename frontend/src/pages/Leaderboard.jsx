@@ -20,17 +20,19 @@ export default function Leaderboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState("stops");
+  const [period, setPeriod] = useState("all");
 
   useEffect(() => {
     let alive = true;
     axios.get(`${API}/crawls/leaderboard`)
       .then(({ data }) => { if (alive) setData(data); })
-      .catch(() => { if (alive) setData({ global: { stops: [], fastest: [] } }); })
+      .catch(() => { if (alive) setData({ global: { stops: [], fastest: [] }, week: { stops: [], fastest: [] } }); })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
   }, []);
 
-  const rows = data?.global?.[sort] || [];
+  const board = data ? (period === "week" ? data.week : data.global) : null;
+  const rows = board?.[sort] || [];
 
   const tab = (active) =>
     active ? "bg-[#E01E26] text-white" : "border border-[#3A3A3A] bg-[#1A1A1A] text-[#C7CBD1] hover:bg-white/10";
@@ -73,6 +75,20 @@ export default function Leaderboard() {
             {t("The bravest crews to ever conquer a Fork·Fate crawl. Think you can top them?")}
           </p>
         </motion.div>
+
+        {/* Period toggle: All-Time vs This Week */}
+        <div className="mb-4 flex justify-center" data-testid="leaderboard-period-toggle">
+          <div className="inline-flex rounded-full border border-[#2A2A2A] bg-[#141414] p-1">
+            <button onClick={() => setPeriod("all")} data-testid="leaderboard-period-all"
+              className={`rounded-full px-4 py-1.5 text-xs font-bold transition-colors ${period === "all" ? "bg-[#E01E26] text-white" : "text-[#C7CBD1] hover:text-white"}`}>
+              {t("All-Time")}
+            </button>
+            <button onClick={() => setPeriod("week")} data-testid="leaderboard-period-week"
+              className={`rounded-full px-4 py-1.5 text-xs font-bold transition-colors ${period === "week" ? "bg-[#E01E26] text-white" : "text-[#C7CBD1] hover:text-white"}`}>
+              {t("This Week")}
+            </button>
+          </div>
+        </div>
 
         {/* Sort tabs */}
         <div className="mb-5 flex justify-center gap-2" data-testid="leaderboard-page-tabs">

@@ -1,6 +1,6 @@
 """Shareable multi-stop crawls saved under short link codes."""
 import secrets
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, HTTPException, Depends
 
 from typing import Optional
@@ -105,7 +105,11 @@ async def complete_crawl(payload: CrawlCompletionCreate):
 
 @router.get("/crawls/leaderboard")
 async def crawl_leaderboard(code: Optional[str] = None):
-    result = {"global": await _leaderboard_for({})}
+    week_cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+    result = {
+        "global": await _leaderboard_for({}),
+        "week": await _leaderboard_for({"created_at": {"$gte": week_cutoff}}),
+    }
     result["crawl"] = await _leaderboard_for({"code": code.strip().upper()}) if code else None
     return result
 
