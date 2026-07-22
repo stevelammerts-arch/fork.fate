@@ -147,6 +147,8 @@ class CrawlCompletionCreate(BaseModel):
     label: str = Field(default="", max_length=40)
     code: Optional[str] = Field(default=None, max_length=12)
     duration_seconds: Optional[int] = Field(default=None, ge=1, le=172800)
+    verified: bool = False  # True only when every stop was GPS auto-checked-in
+    distance: Optional[float] = Field(default=None, ge=0, le=1000)  # total route miles (for speed sanity check)
 
     @field_validator("team_name")
     @classmethod

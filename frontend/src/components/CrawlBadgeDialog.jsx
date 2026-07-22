@@ -214,7 +214,7 @@ async function buildBadge({ name, crew, label, photo, story = false, light = fal
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
 
-export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "", defaultCrew = "", stops = 0, durationSeconds = null, crawlCode = null }) {
+export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "", defaultCrew = "", stops = 0, durationSeconds = null, crawlCode = null, verified = false, distance = null }) {
   const { theme } = useTheme();
   const { t } = useLang();
   const light = theme !== "dark";
@@ -579,6 +579,8 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
           defaultTeam={crew}
           light={light}
           ac={ac}
+          verified={verified}
+          distance={distance}
           onRanked={setRankInfo}
         />
         </>

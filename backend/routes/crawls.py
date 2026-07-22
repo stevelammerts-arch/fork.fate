@@ -48,7 +48,12 @@ def _clean_entry(doc: dict) -> dict:
 
 
 async def _leaderboard_for(match: dict) -> dict:
-    """Top 10 by most stops (fastest as tie-break) and top 10 by fastest time."""
+    """Top 10 by most stops (fastest as tie-break) and top 10 by fastest time.
+
+    Only GPS-verified crews rank. ``$ne: False`` also matches legacy docs saved
+    before verification existed (missing field), so historical entries stay visible.
+    """
+    match = {**match, "verified": {"$ne": False}}
     docs = [d async for d in db.crawl_completions.find(match, {"_id": 0}).sort("created_at", -1).limit(500)]
     by_stops = sorted(
         docs,
@@ -67,8 +72,21 @@ async def _leaderboard_for(match: dict) -> dict:
 async def complete_crawl(payload: CrawlCompletionCreate):
     """Record a crew's finished crawl for the leaderboard (opt-in from the badge dialog).
 
-    Returns the crew's global rank so the app can nudge them to share/climb.
+    Only GPS-verified crews are ranked. A server-side sanity check downgrades any
+    "verified" run whose implied travel speed is physically impossible (> 15 mph),
+    or that lacks the distance/duration needed to validate it. Unverified runs are
+    still recorded (for the badge + community count) but never appear on the board
+    and receive no rank.
     """
+    verified = bool(payload.verified)
+    dist = payload.distance
+    dur = payload.duration_seconds
+    if verified:
+        if not (isinstance(dur, int) and dur > 0 and isinstance(dist, (int, float)) and dist >= 0):
+            verified = False
+        elif dist / (dur / 3600.0) > 15.0:  # implied avg speed cap (mph)
+            verified = False
+
     doc = {
         "team_name": payload.team_name,
         "stops": payload.stops,
@@ -76,13 +94,22 @@ async def complete_crawl(payload: CrawlCompletionCreate):
         "label": payload.label,
         "code": payload.code,
         "duration_seconds": payload.duration_seconds,
+        "distance": dist,
+        "verified": verified,
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.crawl_completions.insert_one(doc)
 
+    # Ranking pool = verified crews only (includes legacy docs missing the field).
+    all_docs = [d async for d in db.crawl_completions.find(
+        {"verified": {"$ne": False}}, {"_id": 0, "stops": 1, "duration_seconds": 1}
+    ).limit(5000)]
+
+    if not verified:
+        return {"ok": True, "verified": False, "rank_stops": None, "rank_fastest": None, "total": len(all_docs)}
+
     my_stops = payload.stops
     my_dur = payload.duration_seconds
-    all_docs = [d async for d in db.crawl_completions.find({}, {"_id": 0, "stops": 1, "duration_seconds": 1}).limit(5000)]
 
     def dur_or(d):
         v = d.get("duration_seconds")
@@ -100,7 +127,7 @@ async def complete_crawl(payload: CrawlCompletionCreate):
             1 for d in timed
             if (d["duration_seconds"] < my_dur) or (d["duration_seconds"] == my_dur and d.get("stops", 0) > my_stops)
         )
-    return {"ok": True, "rank_stops": rank_stops, "rank_fastest": rank_fastest, "total": len(all_docs)}
+    return {"ok": True, "verified": True, "rank_stops": rank_stops, "rank_fastest": rank_fastest, "total": len(all_docs)}
 
 
 @router.get("/crawls/leaderboard")

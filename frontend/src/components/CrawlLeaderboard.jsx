@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Zap, Globe, Users, Crown, Loader2, PartyPopper, ArrowRight } from "lucide-react";
+import { Trophy, Zap, Globe, Users, Crown, Loader2, PartyPopper, ArrowRight, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { useLang } from "../i18n/i18n";
 
@@ -27,12 +27,13 @@ const rankTitle = (stops) => {
 
 export { rankTitle, fmtTime };
 
-export default function CrawlLeaderboard({ mode, label, stops = 0, durationSeconds = null, code = null, defaultTeam = "", light = false, ac, onRanked }) {
+export default function CrawlLeaderboard({ mode, label, stops = 0, durationSeconds = null, code = null, defaultTeam = "", light = false, ac, verified = false, distance = null, onRanked }) {
   const { t } = useLang();
   const [open, setOpen] = useState(false);
   const [team, setTeam] = useState(defaultTeam || "");
   const [posting, setPosting] = useState(false);
   const [posted, setPosted] = useState(false);
+  const [serverVerified, setServerVerified] = useState(null);
   const [rank, setRank] = useState(null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
@@ -82,13 +83,16 @@ export default function CrawlLeaderboard({ mode, label, stops = 0, durationSecon
         label,
         code: code || null,
         duration_seconds: durationSeconds || null,
+        verified: !!verified,
+        distance: distance != null ? distance : null,
       });
       setPosted(true);
+      setServerVerified(!!(data && data.verified));
       if (data && data.rank_stops) {
         setRank(data);
         if (onRanked) onRanked(data);
       }
-      toast.success(t("You're on the board! 🏆"));
+      toast.success(data && data.verified ? t("You're on the board! 🏆") : t("Badge recorded!"));
       if (code) setScope("crawl");
       await loadBoard();
     } catch (e) {
@@ -147,6 +151,12 @@ export default function CrawlLeaderboard({ mode, label, stops = 0, durationSecon
                     {stops} {stops !== 1 ? t("stops") : t("stop")} {t("conquered")}
                     {durationSeconds != null ? ` · ${fmtTime(durationSeconds)}` : ""} · {t(rankTitle(stops))}
                   </p>
+                  {!verified && (
+                    <p className={`flex items-start gap-1.5 rounded-lg px-2.5 py-2 text-[11px] ${light ? "bg-[#FBECC9] text-[#8A6D00]" : "bg-[#3A2E00] text-[#F0C33C]"}`} data-testid="crawl-leaderboard-unverified-note">
+                      <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                      {t("Manual check-ins earn your badge but won't be ranked. Turn on Auto check-in (GPS) next crawl to compete on the board.")}
+                    </p>
+                  )}
                   <button
                     onClick={submit}
                     disabled={posting}
@@ -157,6 +167,15 @@ export default function CrawlLeaderboard({ mode, label, stops = 0, durationSecon
                     {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <PartyPopper className="h-4 w-4" />}
                     {t("Add my crew to the board")}
                   </button>
+                </div>
+              ) : serverVerified === false ? (
+                <div className={`mb-3 flex flex-col gap-1.5 rounded-xl px-3 py-2.5 ${light ? "bg-[#FBECC9]" : "bg-[#3A2E00]"}`} data-testid="crawl-leaderboard-posted-unverified">
+                  <div className="flex items-center gap-2 text-sm font-bold" style={{ color: light ? "#8A6D00" : "#F0C33C" }}>
+                    <Trophy className="h-4 w-4" /> {t("Badge earned!")}
+                  </div>
+                  <p className={`text-xs font-semibold ${light ? "text-[#8A6D00]" : "text-[#F0C33C]"}`} data-testid="crawl-leaderboard-unverified">
+                    {t("Recorded, but not ranked — this crawl was checked off manually. Use Auto check-in (GPS) to appear on the leaderboard.")}
+                  </p>
                 </div>
               ) : (
                 <div className="mb-3 flex flex-col gap-1.5 rounded-xl px-3 py-2.5" style={{ backgroundColor: `${accent}1A` }} data-testid="crawl-leaderboard-posted">

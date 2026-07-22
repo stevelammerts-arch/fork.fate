@@ -10,6 +10,7 @@ import { useLang } from "../i18n/i18n";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const ARRIVE_RADIUS_MI = 0.06; // ~95m — close enough to count as "arrived"
+const MANUAL_MIN_GAP_MS = 30000; // min gap between manual check-ins (anti-cheat pacing)
 
 const safeHttp = (u) => (typeof u === "string" && /^https?:\/\//i.test(u.trim()) ? u : "");
 
@@ -36,15 +37,17 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
   const [route, setRoute] = useState([]);
   const [dropped, setDropped] = useState({});
   const [visited, setVisited] = useState({});
+  const [gpsVisited, setGpsVisited] = useState({}); // stops confirmed via GPS auto check-in (leaderboard-eligible)
   const [autoGps, setAutoGps] = useState(false);
   const [livePos, setLivePos] = useState(null);
   const [crew, setCrew] = useState("");
   const [sharing, setSharing] = useState(false);
   const [badgeOpen, setBadgeOpen] = useState(false);
   const [crawlCode, setCrawlCode] = useState(code || null);
-  const [completion, setCompletion] = useState({ stops: 0, duration: null });
+  const [completion, setCompletion] = useState({ stops: 0, duration: null, verified: false, distance: null });
   const watchRef = useRef(null);
   const promptedRef = useRef(false);
+  const lastManualRef = useRef(0);
 
   useEffect(() => { setCrawlCode(code || null); }, [code]);
 
@@ -71,15 +74,31 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
 
   // Persist check-off progress per unique route (per device).
   const progressKey = useMemo(() => "ffcp_" + route.map((s) => s.id).join("|"), [route]);
+  const gpsKey = useMemo(() => progressKey + "_gps", [progressKey]);
   useEffect(() => {
     try { setVisited(JSON.parse(localStorage.getItem(progressKey) || "{}")); } catch { setVisited({}); }
-  }, [progressKey]);
+    try { setGpsVisited(JSON.parse(localStorage.getItem(gpsKey) || "{}")); } catch { setGpsVisited({}); }
+  }, [progressKey, gpsKey]);
   useEffect(() => {
     try { localStorage.setItem(progressKey, JSON.stringify(visited)); } catch { /* ignore */ }
   }, [visited, progressKey]);
+  useEffect(() => {
+    try { localStorage.setItem(gpsKey, JSON.stringify(gpsVisited)); } catch { /* ignore */ }
+  }, [gpsVisited, gpsKey]);
 
   const visitedCount = stops.filter((s) => visited[s.id]).length;
   const allDone = stops.length > 0 && visitedCount === stops.length;
+  // Leaderboard-eligible only when EVERY conquered stop was confirmed by GPS.
+  const crawlVerified = allDone && stops.every((s) => gpsVisited[s.id]);
+
+  // Total route distance (miles) for the server-side speed sanity check.
+  const routeDistance = useMemo(() => {
+    const pts = stops.filter((s) => s.lat != null && s.lng != null);
+    let d = 0;
+    if (origin?.lat != null && pts[0]) d += haversine(origin, pts[0]);
+    for (let i = 0; i < pts.length - 1; i++) d += haversine(pts[i], pts[i + 1]);
+    return Math.round(d * 100) / 100;
+  }, [stops, origin]);
 
   // Silently time the crawl: start clock on the first check-in (no visible timer).
   const startKey = useMemo(() => progressKey + "_start", [progressKey]);
@@ -97,7 +116,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
     return null;
   };
   const openBadge = () => {
-    setCompletion({ stops: stops.length, duration: computeDuration() });
+    setCompletion({ stops: stops.length, duration: computeDuration(), verified: crawlVerified, distance: routeDistance });
     setBadgeOpen(true);
   };
 
@@ -121,12 +140,15 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
         setLivePos(p);
         setVisited((v) => {
           let changed = false; const nv = { ...v };
+          const arrived = [];
           for (const s of stops) {
             if (!nv[s.id] && s.lat != null && haversine(p, s) <= ARRIVE_RADIUS_MI) {
               nv[s.id] = true; changed = true;
+              arrived.push(s);
               toast.success(`${t("Arrived at")} ${s.name} ✓`);
             }
           }
+          if (arrived.length) setGpsVisited((g) => ({ ...g, ...Object.fromEntries(arrived.map((s) => [s.id, true])) }));
           return changed ? nv : v;
         });
       },
@@ -137,7 +159,26 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoGps, stops]);
 
-  const toggleVisited = (id) => setVisited((v) => ({ ...v, [id]: !v[id] }));
+  // Manual check-in is paced (anti-cheat) and never counts as GPS-verified, so it
+  // earns the badge but won't rank. Unchecking is always allowed.
+  const toggleVisited = (id) => {
+    const isOn = !!visited[id];
+    if (!isOn) {
+      const now = Date.now();
+      const gap = now - lastManualRef.current;
+      if (gap < MANUAL_MIN_GAP_MS) {
+        const wait = Math.ceil((MANUAL_MIN_GAP_MS - gap) / 1000);
+        toast.error(`${t("Slow down — wait")} ${wait}s ${t("before checking off the next stop.")}`);
+        return;
+      }
+      lastManualRef.current = now;
+      setVisited((v) => ({ ...v, [id]: true }));
+      setGpsVisited((g) => { if (!g[id]) return g; const ng = { ...g }; delete ng[id]; return ng; });
+    } else {
+      setVisited((v) => ({ ...v, [id]: false }));
+      setGpsVisited((g) => { if (!g[id]) return g; const ng = { ...g }; delete ng[id]; return ng; });
+    }
+  };
 
   useEffect(() => { if (!autoGps) setLivePos(null); }, [autoGps]);
 
@@ -332,7 +373,8 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
       </Dialog>
 
       <CrawlBadgeDialog open={badgeOpen} onClose={() => setBadgeOpen(false)} mode={mode} crawlLabel={label} defaultCrew={crew}
-        stops={completion.stops} durationSeconds={completion.duration} crawlCode={crawlCode} />
+        stops={completion.stops} durationSeconds={completion.duration} crawlCode={crawlCode}
+        verified={completion.verified} distance={completion.distance} />
     </>
   );
 }
