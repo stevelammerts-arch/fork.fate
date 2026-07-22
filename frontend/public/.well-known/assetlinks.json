@@ -1,13 +1,17 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "com.fork_fate.twa",
       "sha256_cert_fingerprints": [
         "21:D0:AB:A6:A0:67:8D:FE:81:78:DC:6A:8A:7A:62:47:4F:E1:03:C3:C5:54:87:76:AA:8B:FE:52:72:34:AA:39",
         "92:45:DE:A9:BC:02:FB:3F:6A:0B:37:6C:A7:61:1B:70:2B:0E:77:43:17:15:04:D0:79:4F:02:B2:F9:44:07:2A",
-        "21:41:95:BD:E2:5B:D0:09:E3:2A:9A:0A:6C:34:E2:F6:0A:FC:D7:45:89:66:3A:0F:20:3A:B2:C2:91:2F:E0:17"
+        "21:41:95:BD:E2:5B:D0:09:E3:2A:9A:0A:6C:34:E2:F6:0A:FC:D7:45:89:66:3A:0F:20:3A:B2:C2:91:2F:E0:17",
+        "59:D3:B2:EF:1C:0E:5A:10:44:C1:3F:94:68:F2:E9:1E:CD:49:35:39:C9:D8:86:AF:AE:6A:B6:86:8B:CD:D5:64"
       ]
     }
   }
