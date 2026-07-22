@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
   Utensils, Wine, Beer, IceCream, ShoppingBag, Fuel, MapPin, LocateFixed, ArrowLeft, ArrowRight,
-  Search, Sparkles, Skull, Check,
+  Search, Sparkles, Skull, Check, MousePointerClick,
   Snowflake, Sun, Flower2, Leaf, Zap, Cog, Palmtree,
 } from "lucide-react";
 import { Input } from "./ui/input";
@@ -63,8 +63,16 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: 
   const CHIP_PREVIEW = 9;
 
   const total = 4;
-  const next = () => setStep((s) => Math.min(s + 1, total - 1));
-  const back = () => setStep((s) => Math.max(s - 1, 0));
+  const playTurn = (vol = 0.5) => {
+    try {
+      if (localStorage.getItem("ff_muted") === "1") return;
+      const a = new Audio("/turn-page.mp3");
+      a.volume = vol;
+      a.play().catch(() => {});
+    } catch (e) { /* audio unavailable — non-critical */ }
+  };
+  const next = () => { playTurn(); setStep((s) => Math.min(s + 1, total - 1)); };
+  const back = () => { playTurn(0.35); setStep((s) => Math.max(s - 1, 0)); };
 
   const pickInterest = (key) => { setMode(key); setCuisines([]); next(); };
 
@@ -90,13 +98,7 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: 
   const seal = () => {
     if (sealed) return;
     setSealed(true);
-    try {
-      if (localStorage.getItem("ff_muted") !== "1") {
-        const a = new Audio("/flip-page.wav");
-        a.volume = 0.55;
-        a.play().catch(() => {});
-      }
-    } catch (e) { /* audio unavailable — non-critical */ }
+    playTurn(0.6);
     setTimeout(() => onSeal({ mode, zip: zip.trim(), coords, radius, cuisines }), 1100);
   };
 
