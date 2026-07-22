@@ -8,6 +8,7 @@ import BecomeSponsorDialog from "../BecomeSponsorDialog";
 import { useLang } from "../../i18n/i18n";
 import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reaperLineFor, lightLineFor } from "../../pages/homeConstants";
 import { buildFateCard } from "../../pages/homeFateCard";
+import { trackEvent } from "../../lib/analytics";
 
 export default function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, theme, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite }) {
   const { t } = useLang();
@@ -45,6 +46,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   const shareFate = async () => {
     const text = `Fate picked ${card.name} (${card.cuisine} · ${card.price})${card.distance ? ` — ${card.distance} mi away` : ""}. Shuffle your own fate on Fork·Fate!`;
     const url = window.location.origin;
+    trackEvent("share_fate", { method: "text", category: mode, theme });
     try {
       if (navigator.share) {
         await navigator.share({ title: "Fork·Fate", text, url });
@@ -58,6 +60,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
     }
   };
   const shareFateImage = async () => {
+    trackEvent("share_fate", { method: "image", category: mode, theme });
     try {
       const blob = await buildFateCard(card, theme);
       if (!blob) throw new Error("no blob");

@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { useLang } from "../i18n/i18n";
 import { isStandalone, isIOS, isIOSSafari } from "../lib/pwa";
+import { trackEvent } from "../lib/analytics";
 
 export default function InstallAppButton() {
   const { t } = useLang();
@@ -50,7 +51,8 @@ export default function InstallAppButton() {
     // Android / desktop Chromium: real one-tap install prompt.
     if (deferred) {
       deferred.prompt();
-      await deferred.userChoice;
+      const choice = await deferred.userChoice;
+      trackEvent("app_install_prompt", { outcome: choice?.outcome || "unknown" });
       setDeferred(null);
       return;
     }

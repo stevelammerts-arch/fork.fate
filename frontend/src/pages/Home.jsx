@@ -30,6 +30,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "..
 import { Slider } from "../components/ui/slider";
 import { useTheme, setTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
+import { trackEvent } from "../lib/analytics";
 import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene } from "../components/ThemeScenes";
 import { ReaperScene } from "../components/ReaperScene";
 import { ShufflingDeck } from "../components/ShufflingDeck";
@@ -139,6 +140,7 @@ export default function Home() {
     setSelectedCuisines(cuisines);
     setMysticalReveal(true);
     finishGuided();
+    trackEvent("seal_fate", { category: m, radius_mi: r, cuisine_count: (cuisines || []).length, theme });
     doSearch(cuisines, [], m, c || null, { zipArg: z || "", radiusArg: r });
   };
 
