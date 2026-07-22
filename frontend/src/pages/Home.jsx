@@ -547,6 +547,8 @@ export default function Home() {
             cuisineMap={{ food: FOOD_CUISINES, drinks: DRINK_CUISINES, bars: BAR_CUISINES, desserts: DESSERT_CUISINES, shops: SHOP_CUISINES, fuel: FUEL_CUISINES }}
             onSeal={sealFate}
             onSkip={finishGuided}
+            theme={theme}
+            accent={auraAccent}
           />
         )}
       </AnimatePresence>
