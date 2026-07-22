@@ -52,6 +52,11 @@ export function setTheme(next) {
   if (next === current) return;
   current = next;
   try { localStorage.setItem(KEY, next); } catch (e) { /* ignore */ }
+  try {
+    if (typeof window !== "undefined" && typeof window.gtag === "function") {
+      window.gtag("event", "theme_select", { theme: next });
+    }
+  } catch (e) { /* analytics non-critical */ }
   apply();
   listeners.forEach((l) => l());
 }

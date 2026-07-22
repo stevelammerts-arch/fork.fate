@@ -278,6 +278,7 @@ export default function Home() {
             setFlashHit(false);
             axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
             setStreak(bumpStreak());
+            trackEvent("deal_result", { category: mode, theme, group: !!groupMode });
           }, 1600);
         }, 140);
       }
@@ -326,6 +327,7 @@ export default function Home() {
         setShowCrawl(true);
         axios.post(`${API}/stats/fate-dealt`).then(({ data: d }) => setFatesDealt(d.count)).catch(() => {});
         setStreak(bumpStreak());
+        trackEvent("deal_result", { category: categoryArg, theme, mode: "crawl" });
         return;
       }
       runShuffle(data.restaurants);
@@ -521,7 +523,7 @@ export default function Home() {
   };
 
   const reSpin = () => {
-    if (results.length) { runShuffle(results); }
+    if (results.length) { trackEvent("respin", { category: mode, theme }); runShuffle(results); }
   };
 
   const dealFromFavorites = () => {
