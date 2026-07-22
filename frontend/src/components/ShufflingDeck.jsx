@@ -56,8 +56,8 @@ function CardBack({ light, seasonItem, theme }) {
         </div>
         <div className="absolute inset-2 rounded-xl border" style={{ borderColor: `${brass}99`, boxShadow: "inset 0 0 12px rgba(217,164,78,0.32)" }} />
         <div className="absolute inset-[10px] rounded-lg border" style={{ borderColor: `${brass}40` }} />
-        {[["7px", "7px", "auto", "auto"], ["7px", "auto", "auto", "7px"], ["auto", "7px", "7px", "auto"], ["auto", "auto", "7px", "7px"]].map((p, i) => (
-          <span key={i} className="absolute h-1.5 w-1.5 rounded-full" style={{ top: p[0], right: p[1], bottom: p[2], left: p[3], background: "radial-gradient(circle at 35% 30%, #F3D28A, #7A5220)" }} />
+        {[["7px", "7px", "auto", "auto"], ["7px", "auto", "auto", "7px"], ["auto", "7px", "7px", "auto"], ["auto", "auto", "7px", "7px"]].map((p) => (
+          <span key={p.join("-")} className="absolute h-1.5 w-1.5 rounded-full" style={{ top: p[0], right: p[1], bottom: p[2], left: p[3], background: "radial-gradient(circle at 35% 30%, #F3D28A, #7A5220)" }} />
         ))}
         <span className="absolute bottom-4 font-serif text-[9px] uppercase tracking-[0.4em]" style={{ color: brass }}>Clockwork</span>
       </div>
