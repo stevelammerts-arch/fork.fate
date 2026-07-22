@@ -995,6 +995,8 @@ export default function Home() {
               </div>
             )}
 
+            <div className="mt-2 rounded-3xl border border-[#E2E4E7] bg-white/95 p-4 shadow-sm backdrop-blur-sm" data-testid="modes-card">
+            <p className="mb-3 font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#E01E26]">{t("More ways to play")}</p>
             <div className="flex flex-wrap items-center gap-3">
               <button
                 type="button"
@@ -1021,6 +1023,7 @@ export default function Home() {
                   <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${crawlMode ? "translate-x-3" : ""}`} />
                 </span>
               </button>
+            </div>
             </div>
 
             {crawlMode && (
