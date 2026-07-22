@@ -251,7 +251,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
                   className="flex items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold shadow-md transition-transform hover:-translate-y-0.5"
                   style={{ backgroundColor: accent, color: darkText ? "#0B0B0C" : "#ffffff" }}
                 >
-                  <ShoppingBag className="h-4 w-4" /> {m ? `Shop the ${m.label} tee` : "Shop Fork·Fate merch"} →
+                  <ShoppingBag className="h-4 w-4" /> {m ? t("Shop the {theme} tee").replace("{theme}", m.label) : t("Shop Fork·Fate merch")} →
                 </Link>
               );
             })()}
