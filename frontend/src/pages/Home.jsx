@@ -44,6 +44,10 @@ export default function Home() {
   const light = !(theme === "dark" || ambCfg);
   const seasonCfg = SEASONS[theme] || null;
   const season = seasonCfg ? theme : null;
+  const auraAccent = ambCfg ? ambCfg.accent : (seasonCfg ? seasonCfg.hint : "#E01E26");
+  const auraBg = theme === "dark"
+    ? "conic-gradient(from 0deg, #E01E26, #0b0b0b, #7a0c10, #000000, #E01E26)"
+    : `conic-gradient(from 0deg, ${auraAccent}, rgba(255,255,255,0) 25%, ${auraAccent} 50%, rgba(255,255,255,0) 75%, ${auraAccent})`;
   const ghost = light
     ? "border-[#E4E4E7] text-[#3F3F46] hover:bg-[#F4F4F5]"
     : "border-white/25 text-white hover:bg-white/10";
@@ -1140,13 +1144,14 @@ export default function Home() {
                 >
                   <motion.div
                     className="absolute inset-0 rounded-[32px]"
-                    style={{ background: "conic-gradient(from 0deg, #E01E26, #0b0b0b, #7a0c10, #000000, #E01E26)", filter: "blur(16px)" }}
+                    style={{ background: auraBg, filter: "blur(16px)" }}
                     animate={{ rotate: 360 }}
                     transition={{ repeat: Infinity, duration: 5, ease: "linear" }}
                   />
                   <motion.div
-                    className="absolute inset-[9px] rounded-[26px] border-2 border-[#E01E26]"
-                    animate={{ opacity: [0.35, 0.95, 0.35], boxShadow: ["0 0 22px rgba(224,30,38,0.4)", "0 0 55px rgba(224,30,38,0.95)", "0 0 22px rgba(224,30,38,0.4)"] }}
+                    className="absolute inset-[9px] rounded-[26px] border-2"
+                    style={{ borderColor: auraAccent }}
+                    animate={{ opacity: [0.35, 0.95, 0.35], boxShadow: [`0 0 22px ${auraAccent}66`, `0 0 55px ${auraAccent}f0`, `0 0 22px ${auraAccent}66`] }}
                     transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
                   />
                 </motion.div>
