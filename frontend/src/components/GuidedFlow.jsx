@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import {
   Utensils, Wine, Beer, IceCream, ShoppingBag, Fuel, MapPin, LocateFixed, ArrowLeft, ArrowRight,
   Search, Sparkles, Skull, Check,
+  Snowflake, Sun, Flower2, Leaf, Zap, Cog, Palmtree,
 } from "lucide-react";
 import { Input } from "./ui/input";
 import { Slider } from "./ui/slider";
@@ -16,8 +17,32 @@ const pageVariants = {
   exit: { rotateY: -75, opacity: 0, x: -60 },
 };
 
-export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
+const AMBIANCE_THEMES = ["cyber", "steam", "tiki"];
+const SEAL_ICONS = {
+  winter: Snowflake, summer: Sun, spring: Flower2, fall: Leaf,
+  cyber: Zap, steam: Cog, tiki: Palmtree, light: Sparkles,
+};
+
+export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: accentProp }) {
   const { t } = useLang();
+
+  // ---- Theme resolution ---------------------------------------------------
+  const accent = accentProp || "#E01E26";
+  const isReaper = theme === "dark" || !theme;
+  const dark = isReaper || AMBIANCE_THEMES.includes(theme); // dark card surface
+  const SealIcon = SEAL_ICONS[theme] || Skull;
+
+  // surface tokens (dark = gothic/ambiance, light = bright seasonal themes)
+  const surface = dark ? "border-[#2A2A2A] bg-[#0E0E0E]/95" : "border-black/10 bg-white/95";
+  const titleColor = dark ? "text-white" : "text-[#0E0E0E]";
+  const subColor = dark ? "text-[#A0A0A0]" : "text-[#5A6068]";
+  const tileIdle = dark ? "border-[#2A2A2A] bg-[#161616]" : "border-black/10 bg-black/[0.03]";
+  const iconIdle = dark ? "text-[#C0C0C0]" : "text-[#5A6068]";
+  const trackBg = dark ? "bg-[#2A2A2A]" : "bg-black/10";
+  const chipIdle = dark ? "border-[#2A2A2A] bg-[#1C1C1C] text-[#A0A0A0]" : "border-black/10 bg-black/[0.03] text-[#3A3F45]";
+  const backBtn = dark ? "text-[#C0C0C0] hover:text-white" : "text-[#5A6068] hover:text-[#0E0E0E]";
+  const skipIdle = dark ? "border-[#3A3A3A] bg-white/5 text-white" : "border-black/15 bg-black/[0.04] text-[#0E0E0E]";
+
   const INTERESTS = [
     { key: "food", label: t("Food"), sub: t("Restaurants & eats"), Icon: Utensils },
     { key: "drinks", label: t("Drinks"), sub: t("Coffee, boba, more"), Icon: Wine },
@@ -78,7 +103,7 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
       transition={{ duration: sealed ? 1 : 0.4 }}
       className="fixed inset-0 z-[100] overflow-y-auto"
       data-testid="guided-flow"
-      style={{ perspective: 1400 }}
+      style={{ perspective: 1400, "--ff-accent": accent, "--ff-accent-soft": `${accent}1a` }}
     >
       <div
         className={`fixed inset-0 transition-all duration-700 ${step === 3 ? "bg-black/40 backdrop-blur-[2px]" : "bg-black/70 backdrop-blur-md"}`}
@@ -90,17 +115,18 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
         {/* progress + back */}
         <div className="mb-4 flex items-center gap-3">
           {step > 0 && !sealed && (
-            <button onClick={back} data-testid="guided-back" className="flex items-center gap-1 font-sans text-sm text-[#C0C0C0] transition-colors hover:text-white">
+            <button onClick={back} data-testid="guided-back" className={`flex items-center gap-1 font-sans text-sm transition-colors ${backBtn}`}>
               <ArrowLeft className="h-4 w-4" /> {t("Back")}
             </button>
           )}
-          <div className="h-1 flex-1 overflow-hidden rounded-full bg-[#2A2A2A]">
-            <motion.div className="h-full bg-[#E01E26]" animate={{ width: `${((step + 1) / total) * 100}%` }} transition={{ duration: 0.4 }} />
+          <div className={`h-1 flex-1 overflow-hidden rounded-full ${trackBg}`}>
+            <motion.div className="h-full" style={{ backgroundColor: accent }} animate={{ width: `${((step + 1) / total) * 100}%` }} transition={{ duration: 0.4 }} />
           </div>
           <span className="font-sans text-xs font-bold tracking-widest text-[#6B6B6B]">{step + 1}/{total}</span>
           {!sealed && (
             <button onClick={onSkip} data-testid="guided-skip"
-              className="inline-flex items-center gap-1 rounded-full border border-[#3A3A3A] bg-white/5 px-4 py-1.5 font-sans text-xs font-bold text-white transition-colors hover:border-[#E01E26] hover:bg-[#E01E26]">
+              style={{ "--tw-ring-color": accent }}
+              className={`inline-flex items-center gap-1 rounded-full border px-4 py-1.5 font-sans text-xs font-bold transition-colors hover:border-[var(--ff-accent)] hover:bg-[var(--ff-accent)] hover:text-white ${skipIdle}`}>
               {t("Skip intro")} <ArrowRight className="h-3.5 w-3.5" />
             </button>
           )}
@@ -115,25 +141,25 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
             exit="exit"
             transition={{ duration: 0.45, ease: "easeInOut" }}
             style={{ transformOrigin: "left center" }}
-            className={`relative overflow-hidden rounded-2xl p-7 ${step === 3 ? "border-0 bg-transparent shadow-none" : "border border-[#2A2A2A] bg-[#0E0E0E]/95 shadow-2xl backdrop-blur-3xl"}`}
+            className={`relative overflow-hidden rounded-2xl p-7 ${step === 3 ? "border-0 bg-transparent shadow-none" : `border shadow-2xl backdrop-blur-3xl ${surface}`}`}
           >
             {/* STEP 1 — interest */}
             {step === 0 && (
               <div data-testid="guided-step-interest">
-                <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#E01E26]">{t("Step one")}</p>
-                <h2 className="mt-1 font-serif text-3xl font-bold text-white">{t("What calls to you?")}</h2>
-                <p className="mt-1 font-sans text-sm text-[#A0A0A0]">{t("Choose your craving to begin the ritual.")}</p>
+                <p className="font-sans text-xs font-bold uppercase tracking-[0.2em]" style={{ color: accent }}>{t("Step one")}</p>
+                <h2 className={`mt-1 font-serif text-3xl font-bold ${titleColor}`}>{t("What calls to you?")}</h2>
+                <p className={`mt-1 font-sans text-sm ${subColor}`}>{t("Choose your craving to begin the ritual.")}</p>
                 <div className="mt-6 grid grid-cols-2 gap-4">
                   {INTERESTS.map(({ key, label, sub, Icon }) => (
                     <button
                       key={key}
                       onClick={() => pickInterest(key)}
                       data-testid={`guided-interest-${key}`}
-                      className="group flex aspect-square flex-col items-center justify-center gap-3 rounded-xl border border-[#2A2A2A] bg-[#161616] transition-colors duration-200 hover:border-[#E01E26] hover:bg-[#E01E26]/10"
+                      className={`group flex aspect-square flex-col items-center justify-center gap-3 rounded-xl border transition-colors duration-200 hover:border-[var(--ff-accent)] hover:bg-[var(--ff-accent-soft)] ${tileIdle}`}
                     >
-                      <Icon className="h-9 w-9 text-[#C0C0C0] transition-colors duration-200 group-hover:text-[#E01E26]" />
+                      <Icon className={`h-9 w-9 transition-colors duration-200 group-hover:text-[var(--ff-accent)] ${iconIdle}`} />
                       <span className="text-center">
-                        <span className="block font-serif text-lg font-semibold text-white">{label}</span>
+                        <span className={`block font-serif text-lg font-semibold ${titleColor}`}>{label}</span>
                         <span className="block font-sans text-[11px] text-[#6B6B6B]">{sub}</span>
                       </span>
                     </button>
@@ -145,9 +171,9 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
             {/* STEP 2 — location + radius */}
             {step === 1 && (
               <div data-testid="guided-step-location">
-                <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#E01E26]">{t("Step two")}</p>
-                <h2 className="mt-1 font-serif text-3xl font-bold text-white">{t("Where shall fate look?")}</h2>
-                <div className="mt-6 flex items-center gap-2 rounded-xl border border-[#2A2A2A] bg-[#161616] px-4 py-1.5 focus-within:border-[#E01E26]">
+                <p className="font-sans text-xs font-bold uppercase tracking-[0.2em]" style={{ color: accent }}>{t("Step two")}</p>
+                <h2 className={`mt-1 font-serif text-3xl font-bold ${titleColor}`}>{t("Where shall fate look?")}</h2>
+                <div className={`mt-6 flex items-center gap-2 rounded-xl border px-4 py-1.5 focus-within:border-[var(--ff-accent)] ${tileIdle}`}>
                   <Search className="h-5 w-5 shrink-0 text-[#6B6B6B]" />
                   <Input
                     data-testid="guided-zip-input"
@@ -157,7 +183,7 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
                     placeholder={t("Enter ZIP")}
                     inputMode="numeric"
                     enterKeyHint="go"
-                    className="border-0 bg-transparent px-1 text-lg font-semibold text-white placeholder:text-[#4A4A4A] shadow-none focus-visible:ring-0"
+                    className={`border-0 bg-transparent px-1 text-lg font-semibold placeholder:text-[#8A8A8A] shadow-none focus-visible:ring-0 ${titleColor}`}
                   />
                 </div>
                 <div className="my-3 text-center font-sans text-xs uppercase tracking-widest text-[#6B6B6B]">{t("or")}</div>
@@ -165,26 +191,28 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
                   onClick={useMyLocation}
                   disabled={geoLoading}
                   data-testid="guided-use-location"
-                  className={`flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold transition-colors disabled:opacity-70 ${coords ? "bg-[#E01E26] text-white" : "border border-[#2A2A2A] bg-[#1C1C1C] text-white hover:bg-[#2A2A2A]"}`}
+                  style={coords ? { backgroundColor: accent } : undefined}
+                  className={`flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold transition-colors disabled:opacity-70 ${coords ? "text-white" : `border ${tileIdle} ${titleColor} hover:brightness-95`}`}
                 >
                   <LocateFixed className={`h-4 w-4 ${geoLoading ? "animate-pulse" : ""}`} />
                   {geoLoading ? t("Locating…") : coords ? t("Location set") : t("Use my location")}
                 </button>
 
-                <div className="mt-6 rounded-xl border border-[#2A2A2A] bg-[#161616] px-4 py-3">
+                <div className={`mt-6 rounded-xl border px-4 py-3 ${tileIdle}`}>
                   <div className="mb-2 flex items-center justify-between">
-                    <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#C0C0C0]">{t("Search radius")}</p>
-                    <span data-testid="guided-radius-value" className="font-serif text-lg font-semibold text-[#E01E26]">{radius} <span className="text-sm text-[#6B6B6B]">mi</span></span>
+                    <p className={`font-sans text-xs font-bold uppercase tracking-[0.2em] ${dark ? "text-[#C0C0C0]" : "text-[#5A6068]"}`}>{t("Search radius")}</p>
+                    <span data-testid="guided-radius-value" className="font-serif text-lg font-semibold" style={{ color: accent }}>{radius} <span className="text-sm text-[#6B6B6B]">mi</span></span>
                   </div>
                   <Slider data-testid="guided-radius-slider" value={[radius]} min={1} max={50} step={1} onValueChange={(v) => setRadius(v[0])} />
-                  <div className="mt-1.5 flex justify-between font-sans text-[10px] font-bold uppercase tracking-wider text-[#4A4A4A]"><span>1 mi</span><span>50 mi</span></div>
+                  <div className="mt-1.5 flex justify-between font-sans text-[10px] font-bold uppercase tracking-wider text-[#6B6B6B]"><span>1 mi</span><span>50 mi</span></div>
                 </div>
 
                 <button
                   onClick={next}
                   disabled={!locationReady}
                   data-testid="guided-location-next"
-                  className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#E01E26] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#FF2E38] disabled:cursor-not-allowed disabled:opacity-40"
+                  style={{ backgroundColor: accent }}
+                  className="mt-6 flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold text-white transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {t("Continue")}
                 </button>
@@ -194,9 +222,9 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
             {/* STEP 3 — sub chips */}
             {step === 2 && (
               <div data-testid="guided-step-chips">
-                <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#E01E26]">{t("Step three")}</p>
-                <h2 className="mt-1 font-serif text-3xl font-bold text-white">{t("Narrow the fates")}</h2>
-                <p className="mt-1 font-sans text-sm text-[#A0A0A0]">{t("Pick any that tempt you — or let fate surprise you.")}</p>
+                <p className="font-sans text-xs font-bold uppercase tracking-[0.2em]" style={{ color: accent }}>{t("Step three")}</p>
+                <h2 className={`mt-1 font-serif text-3xl font-bold ${titleColor}`}>{t("Narrow the fates")}</h2>
+                <p className={`mt-1 font-sans text-sm ${subColor}`}>{t("Pick any that tempt you — or let fate surprise you.")}</p>
                 <div className="mt-6 flex max-h-[42vh] flex-wrap gap-2.5 overflow-y-auto pr-1">
                   {(showAllChips ? chips : chips.slice(0, CHIP_PREVIEW)).map((c) => {
                     const on = cuisines.includes(c);
@@ -205,7 +233,8 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
                         key={c}
                         onClick={() => toggleCuisine(c)}
                         data-testid={`guided-chip-${c}`}
-                        className={`rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 ${on ? "border border-transparent bg-[#E01E26] text-white" : "border border-[#2A2A2A] bg-[#1C1C1C] text-[#A0A0A0] hover:border-[#E01E26]/60"}`}
+                        style={on ? { backgroundColor: accent, borderColor: "transparent" } : undefined}
+                        className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-200 ${on ? "text-white" : `hover:border-[var(--ff-accent)] ${chipIdle}`}`}
                       >
                         {on && <Check className="mr-1 inline h-3.5 w-3.5" />}{c}
                       </button>
@@ -215,17 +244,18 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
                     <button
                       onClick={() => setShowAllChips((s) => !s)}
                       data-testid="guided-chips-more"
-                      className="rounded-full border border-dashed border-[#E01E26]/60 bg-transparent px-4 py-2 text-sm font-semibold text-[#E01E26] transition-colors hover:bg-[#E01E26]/10"
+                      style={{ color: accent, borderColor: `${accent}99` }}
+                      className="rounded-full border border-dashed bg-transparent px-4 py-2 text-sm font-semibold transition-colors hover:bg-[var(--ff-accent-soft)]"
                     >
                       {showAllChips ? t("Show less") : `+ ${chips.length - CHIP_PREVIEW} ${t("more")}`}
                     </button>
                   )}
                 </div>
                 <div className="mt-7 flex gap-3">
-                  <button onClick={next} data-testid="guided-surprise-me" className="flex-1 rounded-full border border-[#2A2A2A] bg-[#1C1C1C] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]">
-                    <Sparkles className="mr-1.5 inline h-4 w-4 text-[#E01E26]" /> {t("Surprise me")}
+                  <button onClick={next} data-testid="guided-surprise-me" className={`flex-1 rounded-full border px-5 py-3 text-sm font-bold transition-colors hover:brightness-95 ${tileIdle} ${titleColor}`}>
+                    <Sparkles className="mr-1.5 inline h-4 w-4" style={{ color: accent }} /> {t("Surprise me")}
                   </button>
-                  <button onClick={next} disabled={!cuisines.length} data-testid="guided-chips-next" className="flex-1 rounded-full bg-[#E01E26] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#FF2E38] disabled:opacity-40">
+                  <button onClick={next} disabled={!cuisines.length} data-testid="guided-chips-next" style={{ backgroundColor: accent }} className="flex-1 rounded-full px-5 py-3 text-sm font-bold text-white transition-all hover:brightness-110 disabled:opacity-40">
                     {t("Continue")} ({cuisines.length})
                   </button>
                 </div>
@@ -235,8 +265,10 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
             {/* STEP 4 — tarot seal */}
             {step === 3 && (
               <div className="text-center" data-testid="guided-step-seal">
-                <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#E01E26] drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">{t("The final step")}</p>
-                <h2 className="mt-1 font-serif text-3xl font-bold text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">{t("The reaper offers your fate")}</h2>
+                <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" style={{ color: accent }}>{t("The final step")}</p>
+                <h2 className="mt-1 font-serif text-3xl font-bold text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+                  {isReaper ? t("The reaper offers your fate") : t("Fate offers your card")}
+                </h2>
 
                 <div className="mx-auto mt-8 h-72 w-48" style={{ perspective: 1000 }}>
                   <motion.button
@@ -248,30 +280,65 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip }) {
                     transition={sealed ? { type: "spring", stiffness: 60, damping: 15 } : { y: { repeat: Infinity, duration: 3, ease: "easeInOut" } }}
                     whileHover={sealed ? {} : { scale: 1.04 }}
                   >
-                    {/* front — gothic tarot */}
-                    <span className="absolute inset-0 overflow-hidden rounded-2xl border-2 border-[#C0C0C0]/50 bg-[radial-gradient(circle_at_50%_32%,#2a1519_0%,#0b0b0b_72%)] shadow-[0_0_40px_rgba(224,30,38,0.45)]" style={{ backfaceVisibility: "hidden" }}>
-                      <span className="pointer-events-none absolute inset-[6px] rounded-xl border border-[#C0C0C0]/25" />
-                      <span className="pointer-events-none absolute inset-[10px] rounded-lg border border-[#C0C0C0]/10" />
-                      {/* corner flourishes */}
-                      <span className="pointer-events-none absolute left-2 top-2 h-2.5 w-2.5 rotate-45 border-l border-t border-[#C0C0C0]/60" />
-                      <span className="pointer-events-none absolute right-2 top-2 h-2.5 w-2.5 rotate-45 border-r border-t border-[#C0C0C0]/60" />
-                      <span className="pointer-events-none absolute bottom-2 left-2 h-2.5 w-2.5 rotate-45 border-b border-l border-[#C0C0C0]/60" />
-                      <span className="pointer-events-none absolute bottom-2 right-2 h-2.5 w-2.5 rotate-45 border-b border-r border-[#C0C0C0]/60" />
-                      <span className="flex h-full flex-col items-center justify-center gap-2.5 px-4">
-                        <span className="font-serif text-[10px] tracking-[0.35em] text-[#C0C0C0]/70">✦ FORK·FATE ✦</span>
-                        <span className="h-px w-16 bg-gradient-to-r from-transparent via-[#C0C0C0]/50 to-transparent" />
-                        <span className="relative">
-                          <Skull className="h-16 w-16 text-[#E01E26] drop-shadow-[0_0_14px_rgba(224,30,38,0.85)]" />
+                    {isReaper ? (
+                      /* front — gothic tarot (Reaper only, untouched) */
+                      <span className="absolute inset-0 overflow-hidden rounded-2xl border-2 border-[#C0C0C0]/50 bg-[radial-gradient(circle_at_50%_32%,#2a1519_0%,#0b0b0b_72%)] shadow-[0_0_40px_rgba(224,30,38,0.45)]" style={{ backfaceVisibility: "hidden" }}>
+                        <span className="pointer-events-none absolute inset-[6px] rounded-xl border border-[#C0C0C0]/25" />
+                        <span className="pointer-events-none absolute inset-[10px] rounded-lg border border-[#C0C0C0]/10" />
+                        <span className="pointer-events-none absolute left-2 top-2 h-2.5 w-2.5 rotate-45 border-l border-t border-[#C0C0C0]/60" />
+                        <span className="pointer-events-none absolute right-2 top-2 h-2.5 w-2.5 rotate-45 border-r border-t border-[#C0C0C0]/60" />
+                        <span className="pointer-events-none absolute bottom-2 left-2 h-2.5 w-2.5 rotate-45 border-b border-l border-[#C0C0C0]/60" />
+                        <span className="pointer-events-none absolute bottom-2 right-2 h-2.5 w-2.5 rotate-45 border-b border-r border-[#C0C0C0]/60" />
+                        <span className="flex h-full flex-col items-center justify-center gap-2.5 px-4">
+                          <span className="font-serif text-[10px] tracking-[0.35em] text-[#C0C0C0]/70">✦ FORK·FATE ✦</span>
+                          <span className="h-px w-16 bg-gradient-to-r from-transparent via-[#C0C0C0]/50 to-transparent" />
+                          <span className="relative">
+                            <Skull className="h-16 w-16 text-[#E01E26] drop-shadow-[0_0_14px_rgba(224,30,38,0.85)]" />
+                          </span>
+                          <span className="h-px w-16 bg-gradient-to-r from-transparent via-[#C0C0C0]/50 to-transparent" />
+                          <span className="font-serif text-base font-bold uppercase leading-tight tracking-[0.25em] text-[#C0C0C0]">{t("Seal your")}<br />{t("fate")}</span>
+                          <span className="font-serif text-lg text-[#C0C0C0]/50">☩</span>
                         </span>
-                        <span className="h-px w-16 bg-gradient-to-r from-transparent via-[#C0C0C0]/50 to-transparent" />
-                        <span className="font-serif text-base font-bold uppercase leading-tight tracking-[0.25em] text-[#C0C0C0]">{t("Seal your")}<br />{t("fate")}</span>
-                        <span className="font-serif text-lg text-[#C0C0C0]/50">☩</span>
                       </span>
-                    </span>
+                    ) : (
+                      /* front — themed tarot (accent + per-theme icon) */
+                      <span
+                        className="absolute inset-0 overflow-hidden rounded-2xl border-2 shadow-2xl"
+                        style={{
+                          backfaceVisibility: "hidden",
+                          borderColor: `${accent}80`,
+                          background: dark
+                            ? "radial-gradient(circle at 50% 32%, #1c1c1c 0%, #0b0b0b 74%)"
+                            : "linear-gradient(180deg,#ffffff 0%,#eef1f4 100%)",
+                          boxShadow: `0 0 40px ${accent}66`,
+                        }}
+                      >
+                        <span className="pointer-events-none absolute inset-[6px] rounded-xl border" style={{ borderColor: `${accent}40` }} />
+                        <span className="pointer-events-none absolute inset-[10px] rounded-lg border" style={{ borderColor: `${accent}1f` }} />
+                        <span className="flex h-full flex-col items-center justify-center gap-2.5 px-4">
+                          <span className="font-serif text-[10px] tracking-[0.35em]" style={{ color: dark ? "rgba(192,192,192,0.7)" : accent }}>✦ FORK·FATE ✦</span>
+                          <span className="h-px w-16" style={{ background: `linear-gradient(to right, transparent, ${accent}80, transparent)` }} />
+                          <SealIcon className="h-16 w-16" style={{ color: accent, filter: `drop-shadow(0 0 14px ${accent}d9)` }} />
+                          <span className="h-px w-16" style={{ background: `linear-gradient(to right, transparent, ${accent}80, transparent)` }} />
+                          <span className="font-serif text-base font-bold uppercase leading-tight tracking-[0.25em]" style={{ color: dark ? "#C0C0C0" : "#3A3F45" }}>{t("Seal your")}<br />{t("fate")}</span>
+                        </span>
+                      </span>
+                    )}
                     {/* back */}
-                    <span className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-[#E01E26] bg-gradient-to-b from-[#2a0b0d] to-[#0b0b0b] shadow-[0_0_55px_rgba(224,30,38,0.85)]" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
-                      <Sparkles className="h-12 w-12 text-[#E01E26]" />
-                      <span className="font-serif text-xl font-bold uppercase tracking-widest text-white">{t("Fate Sealed")}</span>
+                    <span
+                      className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl border-2"
+                      style={{
+                        backfaceVisibility: "hidden",
+                        transform: "rotateY(180deg)",
+                        borderColor: accent,
+                        background: dark
+                          ? (isReaper ? "linear-gradient(180deg,#2a0b0d,#0b0b0b)" : "linear-gradient(180deg,#1a1a1a,#0b0b0b)")
+                          : "linear-gradient(180deg,#ffffff,#eef1f4)",
+                        boxShadow: `0 0 55px ${accent}d9`,
+                      }}
+                    >
+                      <Sparkles className="h-12 w-12" style={{ color: accent }} />
+                      <span className="font-serif text-xl font-bold uppercase tracking-widest" style={{ color: dark ? "#fff" : "#0E0E0E" }}>{t("Fate Sealed")}</span>
                     </span>
                   </motion.button>
                 </div>
