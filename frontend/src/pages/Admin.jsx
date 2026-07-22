@@ -6,6 +6,7 @@ import { LogOut, Fingerprint } from "lucide-react";
 import { AdminLogin } from "../components/admin/AdminLogin";
 import { StatsPanel } from "../components/admin/StatsPanel";
 import { BetaTesters } from "../components/admin/BetaTesters";
+import { MerchInterest } from "../components/admin/MerchInterest";
 import { SubmissionsQueue } from "../components/admin/SubmissionsQueue";
 import { SponsorForm } from "../components/admin/SponsorForm";
 import { SponsorList } from "../components/admin/SponsorList";
@@ -26,6 +27,7 @@ export default function Admin() {
   const [cost, setCost] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [betaTesters, setBetaTesters] = useState([]);
+  const [merch, setMerch] = useState({ signups: [], count: 0, by_design: {} });
   const [optInLink, setOptInLink] = useState(() => {
     try { return localStorage.getItem("ff_optin_link") || "https://play.google.com/apps/testing/com.fork_fate.twa"; }
     catch (e) { return "https://play.google.com/apps/testing/com.fork_fate.twa"; }
@@ -117,6 +119,15 @@ export default function Admin() {
     }
   }, [logout]);
 
+  const loadMerch = useCallback(async () => {
+    try {
+      const { data } = await axios.get(`${API}/admin/merch-interest`, WC);
+      setMerch(data || { signups: [], count: 0, by_design: {} });
+    } catch (e) {
+      if (e.response?.status === 401) logout();
+    }
+  }, [logout]);
+
   // Check for an existing admin session (HttpOnly cookie) on mount.
   useEffect(() => {
     axios.get(`${API}/admin/verify`, WC)
@@ -126,8 +137,8 @@ export default function Admin() {
   }, []);
 
   useEffect(() => {
-    if (authed) { loadSponsors(); loadSubmissions(); loadStats(); loadCost(); loadBeta(); }
-  }, [authed, loadSponsors, loadSubmissions, loadStats, loadCost, loadBeta]);
+    if (authed) { loadSponsors(); loadSubmissions(); loadStats(); loadCost(); loadBeta(); loadMerch(); }
+  }, [authed, loadSponsors, loadSubmissions, loadStats, loadCost, loadBeta, loadMerch]);
 
   // Show the passkey button on the login screen only when one is registered.
   useEffect(() => {
@@ -350,6 +361,7 @@ export default function Admin() {
           deleteBeta={deleteBeta}
         />
         <SubmissionsQueue submissions={submissions} approveSubmission={approveSubmission} rejectSubmission={rejectSubmission} />
+        <MerchInterest data={merch} />
         <SponsorForm form={form} set={set} saving={saving} addSponsor={addSponsor} />
         <SponsorList sponsors={sponsors} toggleActive={toggleActive} remove={remove} />
       </main>

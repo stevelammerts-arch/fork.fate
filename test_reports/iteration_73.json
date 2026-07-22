@@ -1,0 +1,27 @@
+{
+  "summary": "Tested the new /shop merch showcase (8 designs, notify dialog, valid/invalid email flows), backend /api/merch/notify (public + upsert + validation) and /api/admin/merch-interest (auth-gated, per-design tally), plus the nav change moving Champions from header into the modes-card and the new header-shop-link. All 6 backend pytest tests pass. All frontend flows verified end-to-end including admin panel showing the emails submitted from the shop UI (count=3, per-design tally correct).",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_merch.py",
+    "/app/test_reports/pytest/merch_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Shop.jsx product_key is hardcoded to 'tee' on POST — regardless of which product tag the user is interested in. If tally-by-product-type is ever needed, capture the chosen product/size on the card before opening the dialog.",
+    "MerchInterest.jsx: `copy-merch-emails-btn` relies on navigator.clipboard which may be undefined on non-HTTPS/older browsers — currently guarded with optional chaining so it silently no-ops; consider a toast on success/failure.",
+    "merch.py /merch/notify: rate_limit(20) applies per-IP; fine for MVP but no per-email dedupe/protection against enumeration of the count field. Low priority for a showcase-only endpoint."
+  ],
+  "updated_files": ["/app/backend/tests/test_merch.py"],
+  "success_rate": { "backend": "100% (6/6)", "frontend": "100%" },
+  "test_credentials": "Admin password: GrimReaper!2026 (route /admin) — used and validated",
+  "seed_data_creation": "Backend test inserted 2 TEST_ merch signups via /api/merch/notify (unique_email + one via UI). Verified upsert (duplicate does not increment count).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Merch showcase + admin merch-interest panel fully working. Previous iteration_72 covered Dragon's Hoard + guided ritual + GA4. Champions link is now inside modes-card as data-testid='crawl-champions-link'; header has data-testid='header-shop-link' (no more header-leaderboard-link). Note: opening /admin quickly may momentarily show count=0 before loadMerch resolves; a small wait_for_timeout after login is sufficient.",
+  "rca of the issue": "N/A — no bugs found."
+}

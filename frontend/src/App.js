@@ -6,6 +6,7 @@ import SponsorStatus from "./pages/SponsorStatus";
 import SharedCrawl from "./pages/SharedCrawl";
 import Leaderboard from "./pages/Leaderboard";
 import LegalPage from "./pages/LegalPage";
+import Shop from "./pages/Shop";
 import { Toaster } from "./components/ui/sonner";
 import { LangProvider } from "./i18n/i18n";
 import InstallHelper from "./components/InstallHelper";
@@ -19,6 +20,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/c/:code" element={<SharedCrawl />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/shop" element={<Shop />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/sponsor/success" element={<SponsorStatus />} />
           <Route path="/sponsor/cancelled" element={<SponsorStatus cancelled />} />

@@ -665,12 +665,12 @@ export default function Home() {
               <Sparkles className="h-4 w-4 text-[#E01E26]" /> <span>{t("Guided")}</span>
             </button>
             <Link
-              to="/leaderboard"
-              data-testid="header-leaderboard-link"
-              title="Crawl Champions leaderboard"
+              to="/shop"
+              data-testid="header-shop-link"
+              title="Fork·Fate merch shop"
               className={`inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${ghost}`}
             >
-              <Trophy className="h-4 w-4 text-[#E01E26]" /> <span>{t("Champions")}</span>
+              <ShoppingBag className="h-4 w-4 text-[#E01E26]" /> <span>{t("Shop")}</span>
             </Link>
             <ReigningChampBadge light={light} />
             <button
@@ -1038,6 +1038,14 @@ export default function Home() {
                   <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${crawlMode ? "translate-x-3" : ""}`} />
                 </span>
               </button>
+
+              <Link
+                to="/leaderboard"
+                data-testid="crawl-champions-link"
+                className="inline-flex items-center gap-2.5 rounded-full border-2 border-[#F0A24E] bg-white px-4 py-2.5 text-sm font-bold text-[#B26A12] transition-colors hover:bg-[#FBF3E7]"
+              >
+                <Trophy className="h-4 w-4" /> {t("Champions")}
+              </Link>
             </div>
             </div>
 
