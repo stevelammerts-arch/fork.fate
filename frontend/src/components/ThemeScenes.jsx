@@ -26,9 +26,9 @@ const CHIMNEY_SMOKE = Array.from({ length: 9 }).map((_, i) => ({
 
 // Fantasy "Dragon's Hoard": glittering gold sparkles across the treasure pile
 // + slow water droplets falling from the cave ceiling with a ripple on landing.
-const GOLD_GLITTER = Array.from({ length: 18 }).map((_, i) => ({
-  left: `${(i * 5.7 + (i % 5) * 2.4) % 96}%`,
-  top: `${57 + ((i * 17) % 37)}%`,
+const GOLD_GLITTER = Array.from({ length: 16 }).map((_, i) => ({
+  left: `${8 + (i * 6.1 + (i % 4) * 3.2) % 84}%`,
+  top: `${74 + ((i * 13) % 20)}%`,
   size: 3 + (i % 3) * 2,
   dur: 1.6 + ((i * 7) % 5) * 0.4,
   delay: ((i * 11) % 13) * 0.3,
