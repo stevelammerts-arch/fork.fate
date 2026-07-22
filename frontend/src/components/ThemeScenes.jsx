@@ -34,11 +34,11 @@ const GOLD_GLITTER = Array.from({ length: 18 }).map((_, i) => ({
   delay: ((i * 11) % 13) * 0.3,
 }));
 const CAVE_DRIPS = [
-  { left: "17%", dur: 5.6, delay: 0 },
-  { left: "35%", dur: 6.6, delay: 2.2 },
-  { left: "51%", dur: 7.3, delay: 1.1 },
-  { left: "67%", dur: 6.1, delay: 3.5 },
-  { left: "83%", dur: 6.9, delay: 0.9 },
+  { left: "17%", dur: 2.6, delay: 0 },
+  { left: "35%", dur: 3.1, delay: 0.9 },
+  { left: "51%", dur: 2.4, delay: 0.4 },
+  { left: "67%", dur: 3.3, delay: 1.4 },
+  { left: "83%", dur: 2.8, delay: 0.6 },
 ];
 
 export const SEASONS = {
