@@ -813,6 +813,8 @@ export default function Home() {
               className="absolute inset-0"
               style={{ background: theme === "cyber"
                 ? "radial-gradient(circle at 50% 45%, rgba(34,224,224,0.5), rgba(199,125,255,0.28) 38%, rgba(0,0,0,0) 66%)"
+                : theme === "fantasy"
+                ? "radial-gradient(circle at 50% 45%, rgba(230,178,58,0.6), rgba(224,86,30,0.28) 38%, rgba(0,0,0,0) 66%)"
                 : light
                 ? "radial-gradient(circle at 50% 45%, rgba(255,193,80,0.45), rgba(255,255,255,0) 60%)"
                 : "radial-gradient(circle at 50% 45%, rgba(224,30,38,0.55), rgba(0,0,0,0) 60%)" }}

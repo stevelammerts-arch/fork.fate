@@ -757,6 +757,10 @@ body {
   0%,100%{ opacity:0.12; transform: scale(0.6); }
   50%{ opacity:1; transform: scale(1.2); }
 }
+@keyframes ffEyeGlow{
+  0%,100%{ opacity:0.35; }
+  50%{ opacity:1; }
+}
 @keyframes ffDripFall{
   0%{ transform: translateY(0); opacity:0; }
   7%{ opacity:0.92; }

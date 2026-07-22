@@ -63,6 +63,18 @@ function CardBack({ light, seasonItem, theme }) {
       </div>
     );
   }
+  if (theme === "fantasy") {
+    const gold = "#E6B23A";
+    return (
+      <div className="absolute inset-0 grid place-items-center overflow-hidden bg-[#0E0906]" data-testid="card-back">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 50% 44%, rgba(230,178,58,0.22), rgba(0,0,0,0) 62%)" }} />
+        <img src="/fantasy-emblem.png" alt="" className="h-3/4 w-auto max-w-[82%] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.7)]" />
+        <div className="absolute inset-2 rounded-xl border" style={{ borderColor: `${gold}99`, boxShadow: "inset 0 0 12px rgba(230,178,58,0.3)" }} />
+        <div className="absolute inset-[10px] rounded-lg border" style={{ borderColor: `${gold}40` }} />
+        <span className="absolute bottom-4 font-serif text-[9px] uppercase tracking-[0.4em]" style={{ color: gold }}>Fork · Fate</span>
+      </div>
+    );
+  }
   return (
     <div className="absolute inset-0 bg-[#0E0E0E]" data-testid="card-back">
       <div
@@ -81,13 +93,16 @@ function CardBack({ light, seasonItem, theme }) {
   );
 }
 
-// Tarot-style front: photo centered inside a black card with matching red frame
-function CardFront({ src, light }) {
+// Tarot-style front: photo centered inside a card with matching themed frame
+function CardFront({ src, light, theme }) {
+  const fantasy = theme === "fantasy";
   return (
     <div className={`absolute inset-0 ${light ? "bg-[#F5F0E6]" : "bg-[#0E0E0E]"}`} data-testid="card-front">
       <div
         className="absolute inset-0"
-        style={{ background: light
+        style={{ background: fantasy
+          ? "radial-gradient(circle at 50% 42%, rgba(230,178,58,0.16), rgba(0,0,0,0) 62%)"
+          : light
           ? "radial-gradient(circle at 50% 42%, rgba(163,22,33,0.10), rgba(255,255,255,0) 62%)"
           : "radial-gradient(circle at 50% 42%, rgba(224,30,38,0.20), rgba(0,0,0,0) 62%)" }}
       />
@@ -95,8 +110,8 @@ function CardFront({ src, light }) {
         <img src={src} alt="" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
       </div>
-      <div className={`absolute inset-2 rounded-xl border ${light ? "border-[#A31621]/60" : "border-[#E01E26]/70"}`} />
-      <div className={`absolute inset-[10px] rounded-lg border ${light ? "border-[#A31621]/25" : "border-[#E01E26]/25"}`} />
+      <div className={`absolute inset-2 rounded-xl border ${light ? "border-[#A31621]/60" : "border-[#E01E26]/70"}`} style={fantasy ? { borderColor: "rgba(230,178,58,0.7)" } : undefined} />
+      <div className={`absolute inset-[10px] rounded-lg border ${light ? "border-[#A31621]/25" : "border-[#E01E26]/25"}`} style={fantasy ? { borderColor: "rgba(230,178,58,0.28)" } : undefined} />
     </div>
   );
 }
@@ -150,6 +165,16 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
               style={{ border: "2px solid rgba(34,224,224,0.95)", boxShadow: "0 0 24px 6px rgba(34,224,224,0.9), 0 0 60px 18px rgba(199,125,255,0.7), inset 0 0 22px rgba(34,224,224,0.5)" }}
             />
           )}
+          {landed && theme === "fantasy" && (
+            <motion.div
+              className="pointer-events-none absolute inset-[-14px] z-40 rounded-3xl"
+              data-testid="fantasy-gold-pulse"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 0.2, 1, 0.2, 0.9, 0] }}
+              transition={{ duration: 1.3, times: [0, 0.14, 0.3, 0.46, 0.62, 0.8, 1], ease: "easeOut" }}
+              style={{ border: "2px solid rgba(230,178,58,0.95)", boxShadow: "0 0 26px 7px rgba(230,178,58,0.9), 0 0 64px 20px rgba(224,86,30,0.6), inset 0 0 22px rgba(230,178,58,0.5)" }}
+            />
+          )}
           {deck.map((c, i) => {
             // Once landed, render only the winning card — no backing cards to peek out as lines
             if (landed && i !== 0) return null;
@@ -158,7 +183,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
             <motion.div
               key={(c?.id || "c") + i}
               className={`absolute inset-0 overflow-hidden rounded-2xl border-2 shadow-2xl ${season ? "bg-[#F5F0E6] shadow-black/10" : light ? "border-[#D9C9A8] bg-[#F5F0E6] shadow-black/10" : "border-[#E01E26] bg-[#0E0E0E] shadow-black/30"}`}
-              style={{ zIndex: DECK_SIZE - i, ...(season && seasonAccent ? { borderColor: seasonAccent } : {}) }}
+              style={{ zIndex: DECK_SIZE - i, ...(season && seasonAccent ? { borderColor: seasonAccent } : {}), ...(theme === "fantasy" ? { borderColor: "#E6B23A" } : {}) }}
               animate={
                 landed
                   ? {
@@ -192,7 +217,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
           })}
         </div>
         <div className="relative z-[60] text-center">
-          <p className={`font-sans text-xs font-bold uppercase tracking-[0.25em] ${light ? "text-[#A31621]" : "text-[#E01E26]"}`} style={season && seasonAccent ? { color: seasonAccent } : undefined}>
+          <p className={`font-sans text-xs font-bold uppercase tracking-[0.25em] ${light ? "text-[#A31621]" : "text-[#E01E26]"}`} style={season && seasonAccent ? { color: seasonAccent } : (theme === "fantasy" ? { color: "#E6B23A" } : undefined)}>
             {landed ? (light ? "Your pick" : "Fate has chosen") : (light ? "Shuffling…" : "Shuffling the deck")}
           </p>
           <p className={`mt-1 h-7 font-serif text-2xl drop-shadow ${light ? "text-[#18181B]" : "text-white"}`}>{label}</p>
