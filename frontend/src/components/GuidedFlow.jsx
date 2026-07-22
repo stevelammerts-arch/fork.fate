@@ -90,6 +90,13 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: 
   const seal = () => {
     if (sealed) return;
     setSealed(true);
+    try {
+      if (localStorage.getItem("ff_muted") !== "1") {
+        const a = new Audio("/flip-page.wav");
+        a.volume = 0.55;
+        a.play().catch(() => {});
+      }
+    } catch (e) { /* audio unavailable — non-critical */ }
     setTimeout(() => onSeal({ mode, zip: zip.trim(), coords, radius, cuisines }), 1100);
   };
 
@@ -270,7 +277,16 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: 
                   {isReaper ? t("The reaper offers your fate") : t("Fate offers your card")}
                 </h2>
 
-                <div className="mx-auto mt-8 h-72 w-48" style={{ perspective: 1000 }}>
+                <div className="relative mx-auto mt-8 h-72 w-48" style={{ perspective: 1000 }}>
+                  {!sealed && (
+                    <motion.span
+                      aria-hidden
+                      className="pointer-events-none absolute -inset-5 rounded-[28px] border-2"
+                      style={{ borderColor: accent }}
+                      animate={{ opacity: [0.12, 0.6, 0.12], scale: [0.97, 1.03, 0.97] }}
+                      transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+                    />
+                  )}
                   <motion.button
                     onClick={seal}
                     data-testid="guided-seal-button"
@@ -341,11 +357,37 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: 
                       <span className="font-serif text-xl font-bold uppercase tracking-widest" style={{ color: dark ? "#fff" : "#0E0E0E" }}>{t("Fate Sealed")}</span>
                     </span>
                   </motion.button>
+                  {!sealed && (
+                    <motion.div
+                      aria-hidden
+                      className="pointer-events-none absolute bottom-[-6px] left-1/2 z-20 flex -translate-x-1/2 flex-col items-center"
+                      animate={{ y: [0, 7, 0] }}
+                      transition={{ repeat: Infinity, duration: 1.1, ease: "easeInOut" }}
+                    >
+                      <MousePointerClick className="h-10 w-10 drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)]" style={{ color: accent }} />
+                      <span className="mt-1 whitespace-nowrap rounded-full bg-black/75 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em] text-white shadow-lg">{t("Tap here")}</span>
+                    </motion.div>
+                  )}
                 </div>
 
-                <p className="mt-6 font-serif text-base italic text-[#C0C0C0] drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
-                  {sealed ? t("The deck decides…") : t("Once chosen, your fate is sealed.")}
-                </p>
+                {sealed ? (
+                  <p className="mt-6 font-serif text-base italic text-[#C0C0C0] drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
+                    {t("The deck decides…")}
+                  </p>
+                ) : (
+                  <motion.button
+                    onClick={seal}
+                    data-testid="guided-seal-hint"
+                    className="mt-7 inline-flex items-center gap-2 rounded-full border-2 px-5 py-2.5 font-sans text-sm font-bold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
+                    style={{ borderColor: accent, backgroundColor: `${accent}33` }}
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <MousePointerClick className="h-4 w-4" style={{ color: accent }} />
+                    {t("Tap the card to seal your fate")}
+                  </motion.button>
+                )}
               </div>
             )}
           </motion.div>
