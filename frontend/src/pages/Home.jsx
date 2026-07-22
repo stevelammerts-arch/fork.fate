@@ -1279,7 +1279,7 @@ export default function Home() {
       >
         <div className="mx-auto max-w-6xl px-6 py-14 md:px-12">
           <div
-            className={`relative overflow-hidden rounded-3xl border p-8 md:p-12 ${light ? "border-[#E0D5C0] bg-[#2A2118]" : "border-[#E01E26]/40 bg-[#141414]"}`}
+            className={`relative overflow-hidden rounded-3xl border p-8 md:p-12 ${light ? "border-[#E2E4E7] bg-white/95 backdrop-blur-sm" : "border-[#E01E26]/40 bg-[#141414]"}`}
           >
             <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#E01E26]/20 blur-3xl" />
             <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
@@ -1287,13 +1287,13 @@ export default function Home() {
                 <span className="inline-flex items-center gap-2 rounded-full bg-[#E01E26]/15 px-3 py-1 font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#E01E26]">
                   <Store className="h-3.5 w-3.5" /> {t("For local businesses")}
                 </span>
-                <h2 className="mt-3 font-serif text-3xl font-semibold text-white md:text-4xl">
+                <h2 className={`mt-3 font-serif text-3xl font-semibold md:text-4xl ${light ? "text-[#0E0E0E]" : "text-white"}`}>
                   {t("Own the top spot when fate is decided")}
                 </h2>
-                <p className="mt-3 font-sans text-sm text-[#C7CBD1] md:text-base">
+                <p className={`mt-3 font-sans text-sm md:text-base ${light ? "text-[#4B5563]" : "text-[#C7CBD1]"}`}>
                   {t("Sponsored spots appear first when locals shuffle for a place to eat, drink or treat themselves. Fixed monthly price, no bidding, cancel anytime.")}
                 </p>
-                <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 font-sans text-sm text-white">
+                <div className={`mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 font-sans text-sm ${light ? "text-[#0E0E0E]" : "text-white"}`}>
                   <span className="flex items-baseline gap-1.5"><span className="font-serif text-2xl font-bold">$29</span><span className="text-[#9A9FA5]">/{t("mo")}</span></span>
                   <span className="text-[#6B7075]">{t("or")}</span>
                   <span className="flex items-baseline gap-1.5"><span className="font-serif text-2xl font-bold">$290</span><span className="text-[#9A9FA5]">/{t("yr")}</span> <span className="rounded-full bg-[#E01E26] px-2 py-0.5 text-[10px] font-bold">{t("Save $58/yr")}</span></span>
