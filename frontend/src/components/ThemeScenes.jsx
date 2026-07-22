@@ -24,6 +24,23 @@ const CHIMNEY_SMOKE = Array.from({ length: 9 }).map((_, i) => ({
   delay: -(i * 1.0),
 }));
 
+// Fantasy "Dragon's Hoard": glittering gold sparkles across the treasure pile
+// + slow water droplets falling from the cave ceiling with a ripple on landing.
+const GOLD_GLITTER = Array.from({ length: 18 }).map((_, i) => ({
+  left: `${(i * 5.7 + (i % 5) * 2.4) % 96}%`,
+  top: `${57 + ((i * 17) % 37)}%`,
+  size: 3 + (i % 3) * 2,
+  dur: 1.6 + ((i * 7) % 5) * 0.4,
+  delay: ((i * 11) % 13) * 0.3,
+}));
+const CAVE_DRIPS = [
+  { left: "17%", dur: 5.6, delay: 0 },
+  { left: "35%", dur: 6.6, delay: 2.2 },
+  { left: "51%", dur: 7.3, delay: 1.1 },
+  { left: "67%", dur: 6.1, delay: 3.5 },
+  { left: "83%", dur: 6.9, delay: 0.9 },
+];
+
 export const SEASONS = {
   fall: {
     grad: "linear-gradient(180deg,#FBF3E8 0%,#F5E6D0 55%,#EFDCC0 100%)",
@@ -152,6 +169,7 @@ export const AMBIANCE = {
   cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", spinner: "/cyber-spinner-suv.png", bus: "/cyber-bus.png", bus2: "/cyber-bus2.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
   steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall-full.png", console: "/steam-console.png", device: "/steam-arc-device.png", steam: true, roofCables: true, floor: true, accent: "#D9A44E", sky: "#F1D9A6" },
   tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", lounge: "/tiki-lounge-full.png", accent: "#F0A24E", sky: "#FBE3C0" },
+  fantasy: { grad: "linear-gradient(180deg,#1A0E08 0%,#120A06 55%,#080503 100%)", hoard: "/fantasy-cave.jpg", accent: "#E6B23A", sky: "#F3D9A0" },
 };
 
 const TIKI_FLAME_FRAMES = ["/tiki-flame-1.png", "/tiki-flame-2.png", "/tiki-flame-3.png", "/tiki-flame-4.png", "/tiki-flame-5.png"];
@@ -171,6 +189,20 @@ export function AmbianceScene({ theme, cfg }) {
   return (
     <div className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`ambiance-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
+      {cfg.hoard && (<>
+        <img src={cfg.hoard} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-90" style={{ objectPosition: "center center" }} data-testid="fantasy-hoard-bg" />
+        <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(180deg, rgba(10,7,5,0.55) 0%, rgba(10,7,5,0.12) 34%, rgba(10,7,5,0.28) 70%, rgba(8,5,3,0.72) 100%)" }} />
+        <div className="absolute inset-0 z-[1]" style={{ background: "radial-gradient(ellipse at 50% 80%, rgba(230,160,60,0.30), rgba(224,86,30,0.10) 44%, transparent 72%)", mixBlendMode: "screen", animation: "ffCaveFlicker 3.4s ease-in-out infinite" }} data-testid="fantasy-firelight" />
+        {GOLD_GLITTER.map((g, i) => (
+          <span key={`glit-${i}`} className="pointer-events-none absolute z-[2] rounded-full" style={{ left: g.left, top: g.top, width: g.size, height: g.size, background: "radial-gradient(circle, #FFF6D5, rgba(255,220,130,0.6) 42%, rgba(255,220,130,0) 74%)", animation: `ffGoldTwinkle ${g.dur}s ease-in-out ${g.delay}s infinite` }} />
+        ))}
+        {CAVE_DRIPS.map((d, i) => (
+          <React.Fragment key={`drip-${i}`}>
+            <span className="pointer-events-none absolute z-[3]" style={{ left: d.left, top: 0, width: 3, height: 12, borderRadius: "0 0 3px 3px", background: "linear-gradient(180deg, rgba(190,225,240,0.05), rgba(205,235,248,0.92))", animation: `ffDripFall ${d.dur}s cubic-bezier(0.55,0,0.95,0.5) ${d.delay}s infinite` }} />
+            <span className="pointer-events-none absolute z-[3] rounded-full border" style={{ left: d.left, top: "88vh", width: 16, height: 5, borderColor: "rgba(200,230,245,0.55)", animation: `ffDripRipple ${d.dur}s ease-out ${d.delay}s infinite` }} />
+          </React.Fragment>
+        ))}
+      </>)}
       {cfg.skyline && <img src={cfg.skyline} alt="" className="absolute bottom-0 left-0 w-full object-cover opacity-70" style={{ maxHeight: "52vh" }} />}
       {cfg.rain && <div className="absolute inset-0 ff-rain" />}
       {cfg.cars && CYBER_CARS.map((c, i) => (

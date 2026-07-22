@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, Search, ExternalLink, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, Flame, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, ArrowRight } from "lucide-react";
+import { Dices, Star, MapPin, Search, ExternalLink, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, Flame, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, ArrowRight, Swords } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -643,6 +643,9 @@ export default function Home() {
                   </DropdownMenuItem>
                   <DropdownMenuItem data-testid="theme-option-tiki" onClick={() => setTheme("tiki")} className="gap-2">
                     <Wine className="h-4 w-4" /> {t("Tiki Lounge")} {theme === "tiki" && <Check className="ml-auto h-4 w-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem data-testid="theme-option-fantasy" onClick={() => setTheme("fantasy")} className="gap-2">
+                    <Swords className="h-4 w-4" /> {t("Dragon's Hoard")} {theme === "fantasy" && <Check className="ml-auto h-4 w-4" />}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

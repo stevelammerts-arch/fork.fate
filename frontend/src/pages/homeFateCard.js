@@ -38,6 +38,7 @@ const FATE_CARD = {
   cyber:  { lightBg: false, bg1: "#070A16", bg2: "#160A28", accent: "#22E0E0", art: "/cyber-neon-logo.png", artSize: 300, kicker: "FATE.EXE // EXECUTED", glow2: "#C77DFF" },
   steam:  { lightBg: false, bg1: "#1B120A", bg2: "#0F0A06", accent: "#D9A44E", art: "/steam-gears.png",     artSize: 260, kicker: "THE MACHINE DECREES" },
   tiki:   { lightBg: false, bg1: "#2A140A", bg2: "#150B06", accent: "#F0A24E", art: "/tiki-mask.png",       artSize: 240, kicker: "THE TIKI GODS CHOOSE" },
+  fantasy:{ lightBg: false, bg1: "#1A0E08", bg2: "#080503", accent: "#E6B23A", art: "/fantasy-emblem.png", artSize: 300, kicker: "THE DRAGON GRANTS YOUR QUEST", glow2: "#E0561E" },
 };
 
 function hexA(hex, a) {

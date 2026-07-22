@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import {
   Utensils, Wine, Beer, IceCream, ShoppingBag, Fuel, MapPin, LocateFixed, ArrowLeft, ArrowRight,
   Search, Sparkles, Skull, Check, MousePointerClick,
-  Snowflake, Sun, Flower2, Leaf, Zap, Cog, Palmtree,
+  Snowflake, Sun, Flower2, Leaf, Zap, Cog, Palmtree, Swords,
 } from "lucide-react";
 import { Input } from "./ui/input";
 import { Slider } from "./ui/slider";
@@ -17,10 +17,10 @@ const pageVariants = {
   exit: { rotateY: -75, opacity: 0, x: -60 },
 };
 
-const AMBIANCE_THEMES = ["cyber", "steam", "tiki"];
+const AMBIANCE_THEMES = ["cyber", "steam", "tiki", "fantasy"];
 const SEAL_ICONS = {
   winter: Snowflake, summer: Sun, spring: Flower2, fall: Leaf,
-  cyber: Zap, steam: Cog, tiki: Palmtree, light: Sparkles,
+  cyber: Zap, steam: Cog, tiki: Palmtree, light: Sparkles, fantasy: Swords,
 };
 
 export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: accentProp }) {

@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 
 const KEY = "ff_theme";
-const ALLOWED = ["light", "dark", "fall", "winter", "spring", "summer", "cyber", "steam", "tiki"];
+const ALLOWED = ["light", "dark", "fall", "winter", "spring", "summer", "cyber", "steam", "tiki", "fantasy"];
 
 // Map the current date to a season. Northern hemisphere by default; flip for southern.
 function seasonForDate(d, southern) {
