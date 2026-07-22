@@ -44,7 +44,7 @@ async def register_options(request: Request):
     doc = await _get_doc()
     exclude = [
         PublicKeyCredentialDescriptor(id=base64url_to_bytes(pk["credential_id"]))
-        for pk in doc.get("passkeys", [])
+        for pk in doc.get("passkeys", []) if pk.get("rp_id", rp_id) == rp_id
     ]
     options = generate_registration_options(
         rp_id=rp_id,
@@ -89,6 +89,7 @@ async def register_verify(payload: VerifyPayload, request: Request):
         "credential_id": bytes_to_base64url(verification.credential_id),
         "public_key": bytes_to_base64url(verification.credential_public_key),
         "sign_count": verification.sign_count,
+        "rp_id": rp_id,
     }
     await db.admin_auth.update_one(
         {"_id": ADMIN_KEY},
@@ -99,30 +100,39 @@ async def register_verify(payload: VerifyPayload, request: Request):
 
 
 @router.get("/admin/passkey/status", dependencies=[Depends(require_admin)])
-async def passkey_status():
+async def passkey_status(request: Request):
+    rp_id, _ = rp_id_and_origin(request)
     doc = await _get_doc()
-    return {"registered": len(doc.get("passkeys", [])) > 0, "count": len(doc.get("passkeys", []))}
+    mine = [pk for pk in doc.get("passkeys", []) if pk.get("rp_id", rp_id) == rp_id]
+    return {"registered": len(mine) > 0, "count": len(mine)}
 
 
 @router.delete("/admin/passkey", dependencies=[Depends(require_admin)])
-async def passkey_remove():
-    await db.admin_auth.update_one({"_id": ADMIN_KEY}, {"$set": {"passkeys": []}}, upsert=True)
+async def passkey_remove(request: Request):
+    rp_id, _ = rp_id_and_origin(request)
+    doc = await _get_doc()
+    # Only remove passkeys bound to THIS origin (legacy untagged ones count as current).
+    kept = [pk for pk in doc.get("passkeys", []) if pk.get("rp_id", rp_id) != rp_id]
+    await db.admin_auth.update_one({"_id": ADMIN_KEY}, {"$set": {"passkeys": kept}}, upsert=True)
     return {"ok": True}
 
 
 # ── Authentication (public, issues the admin JWT) ──────────────────────────
 @router.get("/auth/passkey/available")
-async def passkey_available():
-    """Lets the login screen decide whether to show the passkey button."""
+async def passkey_available(request: Request):
+    """Lets the login screen decide whether to show the passkey button — only when
+    a passkey exists for THIS origin's RP-ID (preview and production are separate)."""
+    rp_id, _ = rp_id_and_origin(request)
     doc = await _get_doc()
-    return {"available": len(doc.get("passkeys", [])) > 0}
+    avail = any(pk.get("rp_id", rp_id) == rp_id for pk in doc.get("passkeys", []))
+    return {"available": avail}
 
 
 @router.get("/auth/passkey/login-options", dependencies=[Depends(rate_limit(20))])
 async def login_options(request: Request):
     rp_id, _ = rp_id_and_origin(request)
     doc = await _get_doc()
-    passkeys = doc.get("passkeys", [])
+    passkeys = [pk for pk in doc.get("passkeys", []) if pk.get("rp_id", rp_id) == rp_id]
     if not passkeys:
         raise HTTPException(status_code=400, detail="No passkey registered")
     options = generate_authentication_options(
@@ -149,7 +159,7 @@ async def login_verify(payload: VerifyPayload, request: Request, response: Respo
     if not challenge:
         raise HTTPException(status_code=400, detail="No pending login challenge")
     cred_id = payload.response.get("id") or payload.response.get("rawId")
-    matched = next((pk for pk in doc.get("passkeys", []) if pk["credential_id"] == cred_id), None)
+    matched = next((pk for pk in doc.get("passkeys", []) if pk["credential_id"] == cred_id and pk.get("rp_id", rp_id) == rp_id), None)
     if not matched:
         raise HTTPException(status_code=400, detail="Unknown passkey")
     try:

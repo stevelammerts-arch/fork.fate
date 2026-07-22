@@ -1,47 +1,53 @@
-# Fork·Fate — Product Requirements & Status
+# Fork·Fate — Product Requirements & State
 
 ## Original Problem Statement
-Local restaurant roulette web app. Pre-seeded/curated restaurant list, users can add spots, randomized shuffling-deck card reveal, filterable spin. No login required.
-Later requirements: black/silver/red/white theme; AdSense + sponsored spots monetization; tabs for Food/Drinks/Bars/Desserts; Google Places integration; shuffling deck animation; DoorDash + Google Reviews portal buttons; PWA "Download app"; "Use my location"; admin sponsorship management; animated grim reaper background.
+Local Restaurant roulette PWA ("Fork·Fate") with a randomized card reveal/shuffle
+experience. Geolocated Google Places searches, a guided "sealing your fate" ritual
+wizard, filtering, shareable "Fate Card" generation, PWA installability, Admin portal
+for sponsors, Pub Crawl mode with verified anti-cheat leaderboards, 10 themes, and an
+in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fate.com.
 
-## Architecture
-- Frontend: React + Tailwind + Framer Motion. Key pages: `src/pages/Home.jsx`, `src/pages/Admin.jsx`.
-- Backend: FastAPI + Motor (MongoDB) + PyJWT. `backend/server.py`.
-- Integrations: Google Places (New) & Geocoding API, AdSense, PayPal (manual QR), Gemini image gen (Emergent LLM key, for logo/reaper assets).
-- Admin `/admin` password: `GrimReaper!2026` (env ADMIN_PASSWORD).
+## Environments
+- PREVIEW (dev): https://lucky-bite-1.preview.emergentagent.com — separate DB.
+- PRODUCTION (live): https://fork-fate.com — separate DB. User deploys manually.
+- PWA caching: bump `var FF_BUILD="2026.06-XX"` in `/app/frontend/public/index.html`
+  on ANY frontend change. (Currently 2026.06-275.)
 
-## Deployment
-- Preview: https://lucky-bite-1.preview.emergentagent.com
-- Production: deployed (user manages). Custom domain planned but NOT active yet — all domain refs removed from code.
-- `.gitignore` fixed to NOT block `.env` (was reappearing at bottom; removed again).
+## Tech Stack
+- Frontend: React + Tailwind + framer-motion, react-i18next (`t()`), PWA.
+- Backend: FastAPI + MongoDB (Motor). Admin auth = HttpOnly cookie JWT + WebAuthn passkey.
+- Integrations: Google Places, PayPal, Resend, GA4, Emergent Object Storage, Gemini image gen.
 
-## Implemented (latest first — 2026-07)
-- 2026-06 (fork): Shop + reveal CTA localized (Spanish). Wrapped all Shop.jsx strings and the RevealStage "Shop the {theme} tee" CTA in t(), added ~35 ES entries to i18n.js (hero, product names, blurbs, dialog, toasts, badges). Theme proper-names kept as-is. Verified Spanish renders across shop hero/cards/dialog. Decision: KEEP in-app Spanish switcher for non-Chrome/Safari/web visitors (Google Play + Chrome auto-translate covers TWA users; store-listing translation is separate/Google-handled). DEPLOY AUDIT re-run: only flag is CORS_ORIGINS (BLOCKER per agent's generic rule) — VERIFIED NO-OP FALSE POSITIVE: server.py L41 filters out '*' from CORS_ORIGINS, real CORS is allow_origin_regex ALLOWED_ORIGIN_REGEX matching *.fork-fate.com + *.preview.emergentagent.com. Do NOT set CORS_ORIGINS='*' (discarded anyway). App is deploy-green. FF_BUILD → 2026.06-274. NOTE: app is now DEPLOYED to production at fork-fate.com; preview and prod are separate — code changes need redeploy.
-- 2026-06 (fork): Reveal "Shop the drop" CTA + cyber neon front. Added a themed "Shop the {theme} tee →" button on the reveal/result screen (RevealStage, data-testid reveal-shop-cta) that deep-links to /shop#{designKey} (fantasy→dragon-scene, dark→reaper-crypt, cyber→cyber-scene, tiki→tiki-scene; others→/shop); fires GA4 merch_cta_click. Shop.jsx auto-scrolls + gold-ring highlights the matching design from the hash. Cyber tee designs (cyber-scene, cyber-classic) now use the neon FF logo front (/merch-front-cyber.jpg) via per-design `front`. Verified via screenshot end-to-end (CTA→deeplink→highlight). FF_BUILD → 2026.06-273.
-- 2026-06 (fork): MERCH SHOWCASE store (launch-safe, NO live payments yet). New `/shop` page (`pages/Shop.jsx`) + "Shop" header link; Champions/leaderboard link MOVED from header into the homepage "More ways to play" card (`crawl-champions-link`, gold outline). 8 tee designs (real theme art on backs — Dragon/Reaper-crypt/Reaper-classic/Cyber/Tiki in Scene+Classic variants; discreet FF crest + "Let Fate Decide" front `merch-front-logo.jpg`), offered as tees/hoodies/mugs/posters/stickers, sizes S–XXL, placeholder prices. Each design has "Notify me when it drops" → POST `/api/merch/notify` (public, rate-limited, upsert by email+design) storing pre-launch interest. Admin panel gets a "Merch interest" section (`components/admin/MerchInterest.jsx`) via GET `/api/admin/merch-interest` (require_admin) with per-design tally + copy-all-emails. Backend: `routes/merch.py`, `MerchNotify` model. GA4 `merch_notify` event. User owns fork-fate.shop (future Printful checkout target). DEFERRED per user: live Printful print-on-demand checkout until Google Play clears. Tested iteration_73.json: backend 6/6, frontend 100%, zero issues. FF_BUILD → 2026.06-271. Mockups AI-generated (no copyright issue).
-- 2026-06 (fork): NEW 10th theme "Dragon's Hoard" (fantasy). Ambiance-type dark theme. Hero art `/fantasy-cave.jpg` (AI-generated: realistic red dragon w/ glowing yellow eyes + nostril smoke over a glittering gold/jewels/weapons hoard in a torchlit dripping cave). Accent = molten gold #E6B23A, sky #F3D9A0. Wired end-to-end: useTheme ALLOWED, AMBIANCE config + AmbianceScene render (full-cover bg, gradient scrim, firelight flicker `ffCaveFlicker`, 18 gold glitter sparkles `ffGoldTwinkle`, 5 ceiling water drips + ripples `ffDripFall`/`ffDripRipple`), Home.jsx theme dropdown ("Dragon's Hoard" + Swords icon), GuidedFlow (AMBIANCE_THEMES + SEAL_ICONS fantasy→Swords), Fate Card share image (FATE_CARD.fantasy: gold dragon crest `/fantasy-emblem.png` keyed transparent from black bg, kicker "THE DRAGON GRANTS YOUR QUEST"). Verified via screenshots: scene, guided seal, and fate card all render correctly. FF_BUILD → 2026.06-262.
-- 2026-06 (fork): Dragon's Hoard gold shuffle deck + pulsing eyes. ShufflingDeck now renders gold card borders + a dragon-crest (`/fantasy-emblem.png`) card BACK + gold "Shuffling"/"Fate has chosen" label + gold winner frame (CardFront theme prop) + a gold landed pulse ring (mirrors cyber). Home.jsx reveal-flash gets a gold splash for fantasy (was red). Added a pulsing dragon-eye glow overlay `/fantasy-eyes.png` (same 1264x848 dims + identical object-cover as hero so it stays aligned to the eyes on any viewport; mix-blend screen, `ffEyeGlow` opacity pulse). Verified via screenshots: eyes aligned on desktop, shuffle deck shows gold cards + crest backs. FF_BUILD → 2026.06-266.
-- 2026-06 (fork): Dragon's Hoard drip tuning — reduced ceiling drips 5→3 and darkened droplet+ripple to muted slate-blue rgba(58,88,104). Decision: NO ambient/background drip sound (autoplay-blocked + intrusive + would be the only theme with idle audio); audio stays shuffle(wings)+reveal(roar) only. FF_BUILD → 2026.06-265.
-- 2026-06 (fork): Dragon's Hoard AUDIO wired + drip tuning. Shuffle loop `/shuffle-dragon.mp3` (wings, vol 0.85, in runShuffle + runCrawlShuffle loop maps), reveal `/reveal-dragon.mp3` (roar, in both reveal maps). Suppressed the reaper voice cue for fantasy (added to the voice-cue exclusion list). Sped up cave water drips ~2.5× (CAVE_DRIPS dur 2.4–3.3s). FF_BUILD → 2026.06-264. Audio files uploaded by user; verified valid+served, wiring is data-map additions (compile clean).
-- 2026-06 (fork): Enriched GA4 funnel events + deploy audit. Added `deal_result` (category/theme/group — fires when the winning card lands, in Home.jsx runShuffle + crawl path), `respin` (reSpin), and `theme_select` (hooks/useTheme.js setTheme — tracks which themes are popular). Completes the seal_fate → deal_result → share_fate → app_install funnel. FF_BUILD → 2026.06-261.
-- DEPLOY AUDIT (2026-06): Ran deployment_agent. Both reported "blockers" are FALSE POSITIVES verified with evidence — (1) CORS: `core.py` ALLOWED_ORIGIN_REGEX matches both `*.fork-fate.com` and `*.preview.emergentagent.com`; live preflight from preview origin returns 200 with ACAO header; `CORS_ORIGINS` env only adds extra explicit origins and intentionally ignores `*` (do NOT set it to `*`). (2) supervisord.conf exists at /etc/supervisor/conf.d/ and all services RUNNING. App is deployment-ready; no code/env changes required for deploy.
-- 2026-06 (fork): Google Analytics 4 integrated. Added `gtag.js` (Measurement ID `G-4E739B8J0H`) in `public/index.html` + a safe `src/lib/analytics.js` `trackEvent()` wrapper (no-ops if gtag absent). Custom events wired: `seal_fate` (category/radius/cuisine_count/theme — in Home.jsx sealFate), `share_fate` (method text|image, category, theme — in RevealStage), `app_install_prompt` (outcome — in InstallAppButton). Page views auto-tracked. Verified gtag loads + test event fires on preview. NOTE: real data only appears in the GA4 dashboard once deployed live + traffic flows (check GA4 Realtime/DebugView). FF_BUILD → 2026.06-260.
-- 2026-06 (fork): Guided ritual UX + audio polish. (1) Added a clear "tap to seal" affordance on the final ritual step — a pulsing accent ring around the fate card, an on-card "TAP HERE" cursor badge, and a bouncing "Tap the card to seal your fate" pill (all theme-colored, hidden once sealed). Users previously didn't realize they had to click the card. (2) Added a real page-turn sound (`/turn-page.mp3`, user-supplied) that plays on EVERY guided-step transition (next 0.5 / back 0.35 vol) and on the seal tap (0.6 vol), respecting the existing `ff_muted` localStorage flag. NOTE: `MousePointerClick` must stay imported in GuidedFlow.jsx (a missing import caused a runtime crash during dev). FF_BUILD → 2026.06-259. Verified via screenshots on Winter.
-- 2026-06 (fork): Made the guided "Seal your fate" ritual (`GuidedFlow.jsx`) fully theme-aware. It now consumes `theme` + `accent` props from `Home.jsx`. Reaper/dark theme keeps the exact gothic skull/red design; all other themes recolor accents (progress bar, buttons, chips, step labels) to the theme accent, swap the seal Skull for a per-theme lucide icon (winter→Snowflake, summer→Sun, spring→Flower2, fall→Leaf, cyber→Zap, steam→Cog, tiki→Palmtree, light→Sparkles), use a light card surface on bright seasonal themes, and change gothic copy ("The reaper offers your fate" → "Fate offers your card") on non-Reaper themes. Bumped FF_BUILD to 2026.06-256. Verified via screenshots on Winter + Reaper. NOTE: the prior fork's rewrite of this component was lost; re-implemented from scratch. The winning-card `mysticalReveal` aura in Home.jsx was already theme-aware.
-- Update mechanism hardened: "Check for updates" now unregisters service workers, clears all Cache Storage, and reloads with cache-busting param (`CheckUpdatesButton.jsx`). Fixes "latest version but stale assets".
-- Logo cleanup: replaced speckled/ring logo with clean `logo-v10.png` (red glossy button, no silver ring, no clutter). Updated header, footer, favicon, PWA icon. (Older: logo-v8 had baked speckle shadow; v9 had silver ring.)
-- Logo light-sweep glint: thinned band (~8% wide) and slowed (2.6s duration, 8s repeat delay).
-- Grim reaper: 3D mouse-parallax tilt + drop shadow for depth; cloak-hem skew sway; yellow lantern glow repositioned over the actual lantern (right side) and wrapped in shared skew wrapper so glow moves WITH the lantern.
-- Removed all `fork-fate.com` SEO/OG meta tags (domain not active yet).
-- Prior: 4-tab UI, cuisine/vibe filters, Open now + Gluten free, ZIP/geolocation Google Places search, full-screen shuffle pop-up w/ deceleration + camera flash, "5 more to consider", PWA install, AdSense (ads.txt), /admin sponsor management, PayPal $29/mo dialog, social share, "reaper has spoken" one-liners (bold + text-xl), grid sort.
+## Implemented (recent)
+- 2026-06: **Pub Crawl anti-cheat** (tested via curl):
+  - Only GPS-auto-checked-in crawls rank on the leaderboard. Manual taps earn the
+    badge but show "Unverified — not ranked".
+  - Server sanity check: verified runs implying > 15 mph avg speed (from distance/
+    duration) are downgraded to unverified. Missing distance/duration on a claimed
+    verified run also downgrades it.
+  - `_leaderboard_for` matches `verified: {$ne: False}` → legacy entries (no field)
+    stay visible; new manual/impossible entries are hidden.
+  - Client: 30s minimum pacing between MANUAL check-ins; GPS arrivals tracked
+    separately (`gpsVisited`) to compute `verified`; route distance computed client-side.
+  - Files: `backend/models.py` (CrawlCompletionCreate + verified/distance),
+    `backend/routes/crawls.py`, `frontend/components/PubCrawlDialog.jsx`,
+    `CrawlBadgeDialog.jsx`, `CrawlLeaderboard.jsx`.
+- 2026-06: **Multi-origin WebAuthn passkeys** (tested via curl):
+  - Each passkey now tagged with `rp_id` at registration; availability, register-options
+    (excludeCredentials), login-options (allowCredentials), status, and remove all filter
+    by the current request's RP-ID. Legacy untagged passkeys treated as current-origin
+    (backward compatible → production passkey untouched).
+  - Effect: preview and production each need their own registered passkey (WebAuthn is
+    domain-bound). Preview login screen now hides the fingerprint button until a passkey
+    is registered for the preview domain.
+  - File: `backend/routes/passkey.py`.
 
-## Backlog / Next
-- P1: Sponsor analytics in /admin (impressions/clicks) to justify $29/mo.
-- P1: Light moderation for public "Add spot" submissions (anti-spam).
-- P2: Save favorites (local), spin history & streaks, auto-reroll if closed, distance/price/rating sort on Nearby grid, group mode (3 picks to vote).
-- P2: Refactor server.py into route modules; full PayPal API auto-activation.
-- When custom domain goes live: re-add canonical/OG/Twitter meta tags; add domain to Google Places API key referrer allowlist.
+## Pending / Backlog
+- P1: **Live Print-on-Demand checkout** (Printful) for `/shop` — currently "Notify me"
+  email capture only. Waiting on user signal + Printful API keys.
+- P1: **Resend domain verification** — `SENDER_EMAIL` temporarily `onboarding@resend.dev`
+  until SPF/DKIM for fork-fate.com is verified.
+- In progress: Google Play closed-testing 14-day / 12+ tester window.
 
-## Testing
-- Latest passing: /app/test_reports/iteration_27.json (reaper/glow/bold-line regression, all clean).
-- Deployment health check: PASS after .gitignore fix.
+## Test Credentials
+See `/app/memory/test_credentials.md`.
