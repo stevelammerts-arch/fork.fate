@@ -16,10 +16,10 @@ const DESIGNS = [
   { key: "dragon-scene",   theme: "Dragon's Hoard", style: "Scene",    back: "/merch-scene-dragon.jpg",      accent: "#E6B23A", blurb: "The red dragon brooding over its glittering hoard." },
   { key: "reaper-crypt",   theme: "The Reaper",     style: "Crypt",    back: "/merch-scene-reaper-env.jpg",  accent: "#E01E26", blurb: "The Reaper serving fate in his moonlit graveyard." },
   { key: "reaper-classic", theme: "The Reaper",     style: "Classic",  back: "/merch-reaper.jpg",            accent: "#E01E26", blurb: "The gothic Reaper crest — bold and iconic." },
-  { key: "cyber-scene",    theme: "Neon Nights",    style: "Scene",    back: "/merch-scene-cyber.jpg",       accent: "#22E0E0", blurb: "A rain-slicked neon skyline that never sleeps." },
+  { key: "cyber-scene",    theme: "Neon Nights",    style: "Scene",    back: "/merch-scene-cyber.jpg",       accent: "#22E0E0", front: "/merch-front-cyber.jpg", blurb: "A rain-slicked neon skyline that never sleeps." },
   { key: "dragon-classic", theme: "Dragon's Hoard", style: "Classic",  back: "/merch-dragon.jpg",            accent: "#E6B23A", blurb: "A fierce dragon over gold — big-print statement." },
   { key: "tiki-scene",     theme: "Tiki Lounge",    style: "Scene",    back: "/merch-scene-tiki.jpg",        accent: "#F0A24E", blurb: "Warm torchlit tiki bar, straight off the island." },
-  { key: "cyber-classic",  theme: "Neon Nights",    style: "Classic",  back: "/merch-cyber.jpg",             accent: "#22E0E0", blurb: "Neon fork + skyline synthwave graphic." },
+  { key: "cyber-classic",  theme: "Neon Nights",    style: "Classic",  back: "/merch-cyber.jpg",             accent: "#22E0E0", front: "/merch-front-cyber.jpg", blurb: "Neon fork + skyline synthwave graphic." },
   { key: "tiki-classic",   theme: "Tiki Lounge",    style: "Classic",  back: "/merch-tiki.jpg",              accent: "#F0A24E", blurb: "Carved tiki mask + palms — tropical bold." },
 ];
 
@@ -116,7 +116,7 @@ export default function Shop() {
                 <img src={d.back} alt={`${d.theme} back print`} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
                 {/* front thumbnail chip */}
                 <div className="absolute bottom-3 right-3 flex items-center gap-2 rounded-lg border border-white/15 bg-black/55 p-1.5 backdrop-blur-sm">
-                  <img src={FRONT} alt="Front" className="h-11 w-11 rounded-md object-cover" />
+                  <img src={d.front || FRONT} alt="Front" className="h-11 w-11 rounded-md object-cover" />
                   <span className="pr-1.5 text-[10px] font-bold uppercase leading-tight tracking-wider text-white/70">Front<br />left chest</span>
                 </div>
                 <span className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-black" style={{ backgroundColor: d.accent }}>{d.style}</span>
