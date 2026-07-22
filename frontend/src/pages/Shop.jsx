@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -36,6 +36,19 @@ export default function Shop() {
   const [active, setActive] = useState(null); // design being notified about
   const [email, setEmail] = useState("");
   const [sending, setSending] = useState(false);
+  const [highlight, setHighlight] = useState("");
+
+  useEffect(() => {
+    const key = (window.location.hash || "").replace("#", "");
+    if (!key) return;
+    setHighlight(key);
+    const t = setTimeout(() => {
+      const el = document.querySelector(`[data-testid="shop-design-${key}"]`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
+    const clear = setTimeout(() => setHighlight(""), 2600);
+    return () => { clearTimeout(t); clearTimeout(clear); };
+  }, []);
 
   const submit = async () => {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) {
@@ -110,7 +123,7 @@ export default function Shop() {
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: (i % 3) * 0.06 }}
               className="group overflow-hidden rounded-2xl border border-white/10 bg-[#141416] shadow-xl"
-              style={{ boxShadow: `0 0 0 1px ${d.accent}14` }}
+              style={{ boxShadow: highlight === d.key ? `0 0 0 3px ${d.accent}, 0 0 34px ${d.accent}80` : `0 0 0 1px ${d.accent}14` }}
             >
               <div className="relative aspect-square overflow-hidden bg-[#0E0E0F]">
                 <img src={d.back} alt={`${d.theme} back print`} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />

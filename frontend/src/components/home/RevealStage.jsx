@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Dices, Store, Heart, Star, MapPin, ShoppingBag, Fuel, UtensilsCrossed, Skull, ExternalLink, Share2, ImageDown, RotateCcw, Flag } from "lucide-react";
 import GroupVote from "../GroupVote";
@@ -232,6 +233,28 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
             <div className="border-t border-[#E2E4E7] pt-3">
               <SocialShare card={card} />
             </div>
+            {(() => {
+              const MERCH = {
+                fantasy: { key: "dragon-scene", accent: "#E6B23A", label: "Dragon's Hoard" },
+                dark: { key: "reaper-crypt", accent: "#E01E26", label: "Reaper" },
+                cyber: { key: "cyber-scene", accent: "#22E0E0", label: "Neon Nights" },
+                tiki: { key: "tiki-scene", accent: "#F0A24E", label: "Tiki Lounge" },
+              };
+              const m = MERCH[theme];
+              const accent = m?.accent || "#E01E26";
+              const darkText = ["#E6B23A", "#22E0E0", "#F0A24E"].includes(accent);
+              return (
+                <Link
+                  to={m ? `/shop#${m.key}` : "/shop"}
+                  data-testid="reveal-shop-cta"
+                  onClick={() => trackEvent("merch_cta_click", { from: "reveal", theme })}
+                  className="flex items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold shadow-md transition-transform hover:-translate-y-0.5"
+                  style={{ backgroundColor: accent, color: darkText ? "#0B0B0C" : "#ffffff" }}
+                >
+                  <ShoppingBag className="h-4 w-4" /> {m ? `Shop the ${m.label} tee` : "Shop Fork·Fate merch"} →
+                </Link>
+              );
+            })()}
             <button
               onClick={() => onReport?.(card)}
               data-testid="report-closed-button"
