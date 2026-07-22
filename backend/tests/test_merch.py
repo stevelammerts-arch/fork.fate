@@ -12,7 +12,15 @@ if not BASE_URL:
             if line.startswith("REACT_APP_BACKEND_URL="):
                 BASE_URL = line.split("=", 1)[1].strip().rstrip("/")
 
-ADMIN_PASSWORD = "GrimReaper!2026"
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
+if not ADMIN_PASSWORD:
+    try:
+        with open("/app/backend/.env") as f:
+            for line in f:
+                if line.startswith("ADMIN_PASSWORD="):
+                    ADMIN_PASSWORD = line.split("=", 1)[1].strip().strip('"').strip("'")
+    except OSError:
+        pass
 
 
 @pytest.fixture(scope="module")

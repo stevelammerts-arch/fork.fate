@@ -9,7 +9,15 @@ import pytest
 import requests
 
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://lucky-bite-1.preview.emergentagent.com").rstrip("/")
-ADMIN_PW = "GrimReaper!2026"
+ADMIN_PW = os.environ.get("ADMIN_PASSWORD", "")
+if not ADMIN_PW:
+    try:
+        with open("/app/backend/.env") as f:
+            for line in f:
+                if line.startswith("ADMIN_PASSWORD="):
+                    ADMIN_PW = line.split("=", 1)[1].strip().strip('"').strip("'")
+    except OSError:
+        pass
 
 
 @pytest.fixture(scope="module")
