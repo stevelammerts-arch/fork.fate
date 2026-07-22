@@ -34,11 +34,9 @@ const GOLD_GLITTER = Array.from({ length: 18 }).map((_, i) => ({
   delay: ((i * 11) % 13) * 0.3,
 }));
 const CAVE_DRIPS = [
-  { left: "17%", dur: 2.6, delay: 0 },
-  { left: "35%", dur: 3.1, delay: 0.9 },
-  { left: "51%", dur: 2.4, delay: 0.4 },
-  { left: "67%", dur: 3.3, delay: 1.4 },
-  { left: "83%", dur: 2.8, delay: 0.6 },
+  { left: "22%", dur: 2.7, delay: 0 },
+  { left: "54%", dur: 3.2, delay: 1.3 },
+  { left: "79%", dur: 2.9, delay: 0.6 },
 ];
 
 export const SEASONS = {
@@ -198,8 +196,8 @@ export function AmbianceScene({ theme, cfg }) {
         ))}
         {CAVE_DRIPS.map((d, i) => (
           <React.Fragment key={`drip-${i}`}>
-            <span className="pointer-events-none absolute z-[3]" style={{ left: d.left, top: 0, width: 3, height: 12, borderRadius: "0 0 3px 3px", background: "linear-gradient(180deg, rgba(190,225,240,0.05), rgba(205,235,248,0.92))", animation: `ffDripFall ${d.dur}s cubic-bezier(0.55,0,0.95,0.5) ${d.delay}s infinite` }} />
-            <span className="pointer-events-none absolute z-[3] rounded-full border" style={{ left: d.left, top: "88vh", width: 16, height: 5, borderColor: "rgba(200,230,245,0.55)", animation: `ffDripRipple ${d.dur}s ease-out ${d.delay}s infinite` }} />
+            <span className="pointer-events-none absolute z-[3]" style={{ left: d.left, top: 0, width: 3, height: 12, borderRadius: "0 0 3px 3px", background: "linear-gradient(180deg, rgba(40,60,72,0.04), rgba(58,88,104,0.72))", animation: `ffDripFall ${d.dur}s cubic-bezier(0.55,0,0.95,0.5) ${d.delay}s infinite` }} />
+            <span className="pointer-events-none absolute z-[3] rounded-full border" style={{ left: d.left, top: "88vh", width: 16, height: 5, borderColor: "rgba(58,88,104,0.5)", animation: `ffDripRipple ${d.dur}s ease-out ${d.delay}s infinite` }} />
           </React.Fragment>
         ))}
       </>)}
