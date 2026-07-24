@@ -19,6 +19,14 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
 - Integrations: Google Places, PayPal, Resend, GA4, Emergent Object Storage, Gemini image gen.
 
 ## Implemented (recent)
+- 2026-06: **Order/Delivery dropdown** — replaced the single "Order on DoorDash"
+  button on the reveal card (and RestaurantCard tiles) with a reusable
+  `OrderDropdown` (DoorDash, Uber Eats, Grubhub, + restaurant order link). Backend
+  added `ubereats_url()`/`grubhub_url()` helpers (core.py), new Restaurant model
+  fields, and populates them in places.py + restaurants.py. Favorites persist the
+  new fields. Verified via testing_agent (100%). Files: `components/OrderDropdown.jsx`,
+  `components/home/RevealStage.jsx`, `components/RestaurantCard.jsx`,
+  `hooks/useFavorites.js`, `backend/core.py|models.py|routes/places.py|routes/restaurants.py`.
 - 2026-06: **Pub Crawl anti-cheat** (tested via curl):
   - Only GPS-auto-checked-in crawls rank on the leaderboard. Manual taps earn the
     badge but show "Unverified — not ranked".
