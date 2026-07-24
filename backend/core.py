@@ -523,5 +523,13 @@ def doordash_url(name, address=""):
     return f"https://www.doordash.com/search/store/{quote_plus(name)}"
 
 
+def ubereats_url(name, address=""):
+    return f"https://www.ubereats.com/search?q={quote_plus(name)}"
+
+
+def grubhub_url(name, address=""):
+    return f"https://www.grubhub.com/search?queryText={quote_plus(name)}"
+
+
 def order_url(name, address=""):
     return f"https://www.google.com/search?q={quote_plus((name + ' ' + address + ' order online delivery').strip())}"

@@ -5,7 +5,7 @@ from typing import List
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Depends
 
-from core import db, rate_limit, maps_url, doordash_url, order_url
+from core import db, rate_limit, maps_url, doordash_url, ubereats_url, grubhub_url, order_url
 from models import Restaurant, RestaurantCreate, ReportCreate, SpinRequest
 from seed_data import apply_filters
 
@@ -28,6 +28,8 @@ async def create_restaurant(payload: RestaurantCreate):
     r = Restaurant(**payload.model_dump())
     r.google_url = maps_url(r.name, r.address)
     r.doordash_url = doordash_url(r.name, r.address)
+    r.ubereats_url = ubereats_url(r.name, r.address)
+    r.grubhub_url = grubhub_url(r.name, r.address)
     r.order_url = order_url(r.name, r.address)
     r.sponsored = False
     r.status = "pending"  # community submissions await admin review

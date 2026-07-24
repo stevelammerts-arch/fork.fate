@@ -6,6 +6,7 @@ import GroupVote from "../GroupVote";
 import CheckInButton from "../CheckInButton";
 import SocialShare from "../SocialShare";
 import BecomeSponsorDialog from "../BecomeSponsorDialog";
+import { OrderDropdown } from "../OrderDropdown";
 import { useLang } from "../../i18n/i18n";
 import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reaperLineFor, lightLineFor } from "../../pages/homeConstants";
 import { buildFateCard } from "../../pages/homeFateCard";
@@ -165,28 +166,8 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
               </p>
             )}
             <div className="flex flex-wrap gap-3">
-              {card.doordash_url && mode !== "shops" && mode !== "fuel" && (
-                <a
-                  href={card.doordash_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-testid="doordash-button"
-                  className="inline-flex items-center gap-2 rounded-full bg-[#E01E26] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
-                >
-                  <ShoppingBag className="h-4 w-4" /> {t("Order on DoorDash")}
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              )}
-              {card.order_url && mode !== "shops" && mode !== "fuel" && (
-                <a
-                  href={card.order_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-testid="order-online-button"
-                  className="inline-flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-2 text-sm font-semibold text-[#0E0E0E] transition-colors hover:bg-[#EDEEF0]"
-                >
-                  <ShoppingBag className="h-4 w-4" /> {t("Order online")}
-                </a>
+              {mode !== "shops" && mode !== "fuel" && (
+                <OrderDropdown card={card} label={mode === "desserts" ? t("Order treats") : t("Order / Delivery")} />
               )}
               {card.google_url && (
                 <a

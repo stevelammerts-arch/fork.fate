@@ -10,7 +10,7 @@ from fastapi.responses import Response
 from core import (
     db, logger, rate_limit, GOOGLE_API_KEY, FALLBACK_IMG,
     PRICE_ENUM_TO_SYMBOL, SYMBOL_ENUMS, pick_placeholder,
-    haversine_miles, prettify_type, maps_url, doordash_url, order_url,
+    haversine_miles, prettify_type, maps_url, doordash_url, ubereats_url, grubhub_url, order_url,
     _ZIP_GEO_CACHE, _PLACES_CACHE, _PLACES_TTL, _google_reserve,
 )
 
@@ -53,6 +53,8 @@ async def fetch_active_sponsors(req: PlacesSearchRequest):
         }
         pub["google_url"] = maps_url(pub["name"], pub["address"])
         pub["doordash_url"] = doordash_url(pub["name"], pub["address"])
+        pub["ubereats_url"] = ubereats_url(pub["name"], pub["address"])
+        pub["grubhub_url"] = grubhub_url(pub["name"], pub["address"])
         pub["order_url"] = order_url(pub["name"], pub["address"])
         out.append(pub)
     # Count one impression per sponsor shown in this search
@@ -167,6 +169,8 @@ def _place_to_result(p: dict, req: PlacesSearchRequest, lat: float, lng: float):
         "sponsored": False,
         "google_url": p.get("googleMapsUri") or maps_url(name, address),
         "doordash_url": doordash_url(name, address),
+        "ubereats_url": ubereats_url(name, address),
+        "grubhub_url": grubhub_url(name, address),
         "order_url": order_url(name, address),
         "open_now": (p.get("currentOpeningHours") or {}).get("openNow", True),
     }
@@ -296,5 +300,7 @@ async def places_search(req: PlacesSearchRequest):
     for r in items:
         r['google_url'] = maps_url(r['name'], r.get('address', ''))
         r['doordash_url'] = doordash_url(r['name'], r.get('address', ''))
+        r['ubereats_url'] = ubereats_url(r['name'], r.get('address', ''))
+        r['grubhub_url'] = grubhub_url(r['name'], r.get('address', ''))
         r['order_url'] = order_url(r['name'], r.get('address', ''))
     return {"source": "curated", "restaurants": merge_sponsors(sponsors, items)}

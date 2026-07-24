@@ -22,6 +22,8 @@ class Restaurant(BaseModel):
     category: str = "food"  # "food" | "drinks"
     google_url: str = ""
     doordash_url: str = ""
+    ubereats_url: str = ""
+    grubhub_url: str = ""
     order_url: str = ""
     open_now: bool = True
     status: str = "approved"  # "approved" | "pending" (community submissions await review)

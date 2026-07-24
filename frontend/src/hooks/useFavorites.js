@@ -46,7 +46,8 @@ export function useFavorites() {
         id: r.id, name: r.name, cuisine: r.cuisine, price: r.price,
         rating: r.rating, distance: r.distance, address: r.address || "",
         image: r.image, category: r.category || "food",
-        google_url: r.google_url, doordash_url: r.doordash_url, order_url: r.order_url,
+        google_url: r.google_url, doordash_url: r.doordash_url,
+        ubereats_url: r.ubereats_url, grubhub_url: r.grubhub_url, order_url: r.order_url,
         open_now: r.open_now,
       };
       return [slim, ...prev];

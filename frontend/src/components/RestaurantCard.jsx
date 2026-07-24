@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { OrderDropdown } from "./OrderDropdown";
 import {
   Star, MapPin, ExternalLink, ShoppingBag, Flag, Heart,
   Beer, Wine, Martini, Target, Music, Gamepad2, CircleDot, Tv, Trophy,
@@ -49,7 +50,7 @@ export function RestaurantCard({ r, onReport, isFavorite, onToggleFavorite }) {
     : r.category === "desserts" ? (DESSERT_ICONS[r.cuisine] || IceCream)
     : null;
   const isDessert = r.category === "desserts";
-  const orderLabel = isDessert ? "Order treats" : "DoorDash";
+  const orderLabel = isDessert ? "Order treats" : "Order";
   return (
     <motion.div
       whileHover={CARD_HOVER}
@@ -133,17 +134,14 @@ export function RestaurantCard({ r, onReport, isFavorite, onToggleFavorite }) {
         </div>
 
         <div className="grid grid-cols-2 gap-2 pt-3">
-          {r.doordash_url && (
-            <a
-              href={r.doordash_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-testid={`doordash-${r.id}`}
-              onClick={(e) => { e.stopPropagation(); trackSponsorClick(r); }}
-              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
-            >
-              <ShoppingBag className="h-4 w-4" /> {orderLabel}
-            </a>
+          {(r.doordash_url || r.ubereats_url || r.grubhub_url || r.order_url) && (
+            <OrderDropdown
+              card={r}
+              label={orderLabel}
+              onOpen={() => trackSponsorClick(r)}
+              triggerTestId={`order-dropdown-${r.id}`}
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
+            />
           )}
           {r.google_url && (
             <a
