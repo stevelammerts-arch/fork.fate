@@ -966,76 +966,29 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 8 tabs no longer fit on one line at phone widths. A single horizontal
-                scroller keeps them as one row — wrapping to three rows read as clutter
-                and pushed the deal button below the fold. */}
-            <div className="-mx-1 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <div className="inline-flex w-max flex-nowrap rounded-full border border-[#E2E4E7] bg-[#EDEEF0] p-1" data-testid="mode-toggle">
-              <button
-                data-testid="mode-food"
-                onClick={() => switchMode("food")}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "food" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
-              >
-                <UtensilsCrossed className="h-4 w-4" />
-                {t("Food")}
-              </button>
-              <button
-                data-testid="mode-drinks"
-                onClick={() => switchMode("drinks")}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "drinks" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
-              >
-                <Coffee className="h-4 w-4" />
-                {t("Drinks")}
-              </button>
-              <button
-                data-testid="mode-bars"
-                onClick={() => switchMode("bars")}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "bars" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
-              >
-                <Beer className="h-4 w-4" />
-                {t("Bars")}
-              </button>
-              <button
-                data-testid="mode-desserts"
-                onClick={() => switchMode("desserts")}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "desserts" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
-              >
-                <IceCream className="h-4 w-4" />
-                {t("Desserts")}
-              </button>
-              <button
-                data-testid="mode-shops"
-                onClick={() => switchMode("shops")}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "shops" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
-              >
-                <ShoppingBag className="h-4 w-4" />
-                {t("Shops")}
-              </button>
-              <button
-                data-testid="mode-fuel"
-                onClick={() => switchMode("fuel")}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "fuel" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
-              >
-                <Fuel className="h-4 w-4" />
-                {t("Fuel")}
-              </button>
-              <button
-                data-testid="mode-explore"
-                onClick={() => switchMode("explore")}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "explore" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
-              >
-                <Mountain className="h-4 w-4" />
-                {t("Explore")}
-              </button>
-              <button
-                data-testid="mode-stay"
-                onClick={() => switchMode("stay")}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "stay" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
-              >
-                <Tent className="h-4 w-4" />
-                {t("Stay")}
-              </button>
-              </div>
+            {/* All 8 tabs stay visible inside one box (4x2 grid). The old horizontal
+                scroller hid Explore/Stay off-screen at phone widths. */}
+            <div className="grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-[#EDEEF0] p-1" data-testid="mode-toggle">
+              {[
+                { key: "food", label: t("Food"), Icon: UtensilsCrossed },
+                { key: "drinks", label: t("Drinks"), Icon: Coffee },
+                { key: "bars", label: t("Bars"), Icon: Beer },
+                { key: "desserts", label: t("Desserts"), Icon: IceCream },
+                { key: "shops", label: t("Shops"), Icon: ShoppingBag },
+                { key: "fuel", label: t("Fuel"), Icon: Fuel },
+                { key: "explore", label: t("Explore"), Icon: Mountain },
+                { key: "stay", label: t("Stay"), Icon: Tent },
+              ].map(({ key, label, Icon }) => (
+                <button
+                  key={key}
+                  data-testid={`mode-${key}`}
+                  onClick={() => switchMode(key)}
+                  className={`flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold leading-none transition-colors ${mode === key ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </button>
+              ))}
             </div>
 
             <Filters

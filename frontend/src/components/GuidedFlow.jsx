@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
-  Utensils, Wine, Beer, IceCream, ShoppingBag, Fuel, MapPin, LocateFixed, ArrowLeft, ArrowRight,
+  Utensils, Wine, Beer, IceCream, ShoppingBag, Fuel, Mountain, Tent, MapPin, LocateFixed, ArrowLeft, ArrowRight,
   Search, Sparkles, Skull, Check, MousePointerClick,
   Snowflake, Sun, Flower2, Leaf, Zap, Cog, Palmtree, Swords,
 } from "lucide-react";
@@ -50,6 +50,8 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: 
     { key: "desserts", label: t("Desserts"), sub: t("Something sweet"), Icon: IceCream },
     { key: "shops", label: t("Shops"), sub: t("Antiques, thrift & more"), Icon: ShoppingBag },
     { key: "fuel", label: t("Fuel"), sub: t("Gas & EV charging"), Icon: Fuel },
+    { key: "explore", label: t("Explore"), sub: t("Parks, trails & fun"), Icon: Mountain },
+    { key: "stay", label: t("Stay"), sub: t("Camping & lodging"), Icon: Tent },
   ];
   const [step, setStep] = useState(0);
   const [mode, setMode] = useState(null);
@@ -103,6 +105,9 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: 
   };
 
   const chips = cuisineMap[mode] || [];
+  // Explore/Stay search further out (a state park is worth the drive) — mirror
+  // the main page's radiusMax so the guide can't cap them at 50 mi.
+  const radiusMax = mode === "explore" || mode === "stay" ? 150 : 50;
 
   return (
     <motion.div
@@ -158,15 +163,15 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: 
                 <p className="font-sans text-xs font-bold uppercase tracking-[0.2em]" style={{ color: accent }}>{t("Step one")}</p>
                 <h2 className={`mt-1 font-serif text-3xl font-bold ${titleColor}`}>{t("What calls to you?")}</h2>
                 <p className={`mt-1 font-sans text-sm ${subColor}`}>{t("Choose your craving to begin the ritual.")}</p>
-                <div className="mt-6 grid grid-cols-2 gap-4">
+                <div className="mt-6 grid grid-cols-2 gap-3">
                   {INTERESTS.map(({ key, label, sub, Icon }) => (
                     <button
                       key={key}
                       onClick={() => pickInterest(key)}
                       data-testid={`guided-interest-${key}`}
-                      className={`group flex aspect-square flex-col items-center justify-center gap-3 rounded-xl border transition-colors duration-200 hover:border-[var(--ff-accent)] hover:bg-[var(--ff-accent-soft)] ${tileIdle}`}
+                      className={`group flex flex-col items-center justify-center gap-2 rounded-xl border px-2 py-4 transition-colors duration-200 hover:border-[var(--ff-accent)] hover:bg-[var(--ff-accent-soft)] ${tileIdle}`}
                     >
-                      <Icon className={`h-9 w-9 transition-colors duration-200 group-hover:text-[var(--ff-accent)] ${iconIdle}`} />
+                      <Icon className={`h-8 w-8 transition-colors duration-200 group-hover:text-[var(--ff-accent)] ${iconIdle}`} />
                       <span className="text-center">
                         <span className={`block font-serif text-lg font-semibold ${titleColor}`}>{label}</span>
                         <span className="block font-sans text-[11px] text-[#6B6B6B]">{sub}</span>
@@ -212,8 +217,8 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: 
                     <p className={`font-sans text-xs font-bold uppercase tracking-[0.2em] ${dark ? "text-[#C0C0C0]" : "text-[#5A6068]"}`}>{t("Search radius")}</p>
                     <span data-testid="guided-radius-value" className="font-serif text-lg font-semibold" style={{ color: accent }}>{radius} <span className="text-sm text-[#6B6B6B]">mi</span></span>
                   </div>
-                  <Slider data-testid="guided-radius-slider" value={[radius]} min={1} max={50} step={1} onValueChange={(v) => setRadius(v[0])} />
-                  <div className="mt-1.5 flex justify-between font-sans text-[10px] font-bold uppercase tracking-wider text-[#6B6B6B]"><span>1 mi</span><span>50 mi</span></div>
+                  <Slider data-testid="guided-radius-slider" value={[radius]} min={1} max={radiusMax} step={1} onValueChange={(v) => setRadius(v[0])} />
+                  <div className="mt-1.5 flex justify-between font-sans text-[10px] font-bold uppercase tracking-wider text-[#6B6B6B]"><span>1 mi</span><span>{radiusMax} mi</span></div>
                 </div>
 
                 <button
