@@ -362,6 +362,7 @@ DECLARED_CUISINES = {
     ],
     "shops": [
         "Craft Store", "Fabric Store", "Art Supply", "Plant Shop", "Garden Center", "Nursery",
+        "Party Supplies", "Home Decor", "Furniture Store", "Candle Shop",
     ],
     "fuel": [
         "Hand Wash Car Wash", "Self-Serve Car Wash", "Detailing",

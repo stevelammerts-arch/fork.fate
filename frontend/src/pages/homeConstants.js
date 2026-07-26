@@ -147,7 +147,7 @@ export const FOOD_GROUPS = [
 export const FOOD_CUISINES = FOOD_GROUPS.flatMap((g) => g.items);
 export const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "Smoothie", "Juice Bar", "Milkshakes", "Kombucha", "Cider", "Hot Chocolate", "Matcha", "Lemonade", "Soda Fountain"];
 export const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Cake Shops", "Custom Cakes", "Wedding Cakes", "Donuts", "Cupcakes", "Candy Shops", "Chocolate", "Crepes", "Cheesecake", "Pie", "Cookies", "Waffles", "Macarons", "Cinnamon Rolls"];
-export const SHOP_CUISINES = ["Antiques", "Thrift Store", "Vintage", "Flea Market", "Farmers Market", "Consignment", "Record Store", "Bookstore", "Pawn Shop", "Gem Store", "Jewelry Store", "Bead Shop", "Quilt Shop", "Yarn Shop", "Craft Store", "Fabric Store", "Art Supply", "Plant Shop", "Garden Center", "Nursery", "Hobby Shop", "Comic Store", "Model Shop", "Trading Cards", "Toy Trains", "LEGO Store", "Toy Store", "Bicycle Shop"];
+export const SHOP_CUISINES = ["Antiques", "Thrift Store", "Vintage", "Flea Market", "Farmers Market", "Consignment", "Record Store", "Bookstore", "Pawn Shop", "Gem Store", "Jewelry Store", "Bead Shop", "Quilt Shop", "Yarn Shop", "Craft Store", "Fabric Store", "Art Supply", "Party Supplies", "Home Decor", "Furniture Store", "Candle Shop", "Plant Shop", "Garden Center", "Nursery", "Hobby Shop", "Comic Store", "Model Shop", "Trading Cards", "Toy Trains", "LEGO Store", "Toy Store", "Bicycle Shop"];
 // Categories where ordering/delivery links make sense. A hiking trail, campground,
 // thrift store or gas station has no delivery, so the Order dropdown must be hidden
 // rather than sending people to a dead-end DoorDash search.
