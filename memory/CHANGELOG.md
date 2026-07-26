@@ -437,3 +437,11 @@ Audio build scripts in /app/scripts/: make_reveal_drums.py, make_cyber_radio.py 
   - Homepage 'Feature your business' band (feature-business-band) above footer: pitch + $29/mo & $290/yr (Save $58/yr) + CTA (feature-business-cta) -> opens sponsor dialog.
   - EN+ES i18n added. testing_agent iteration_62.json: 100% pass, no issues. Frontend compiles.
 ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiques, gas stations, thrift/bookstores etc. ("local businesses roulette"). Modular add: category + Google Places query + cuisine chips.
+
+## 2026-06 — Final UI/category tweak batch (verified, iteration_10)
+- Explore chips: added `Safaris`, `Children's Museums` (homeConstants.js)
+- Shop chips: added `Plant Shop`, `Craft Store` (homeConstants.js)
+- `Skip intro` button restyled as bordered pill, dark green text (rgb(14,74,48)) for contrast (GuidedFlow.jsx)
+- BUGFIX: Google Places results now stamped with `category` = requested category (places.py:185),
+  so delivery/Order buttons no longer leak onto shops/explore/stay/fuel tiles.
+- Verified by testing_agent: 7/7 backend pytest + full E2E frontend (Explore/Shops = 0 order buttons, Food = 6). No console errors.
