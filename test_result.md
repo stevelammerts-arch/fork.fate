@@ -165,3 +165,19 @@ frontend:
 agent_communication:
     -agent: "main"
     -message: "Phase 1 Fate Passport built and smoke-tested manually (created passport M7V3DF, manual stamp worked). Needs full verification incl. GPS-too-far rejection and completion."
+
+## Iteration 13 — Bug: buzzing during shuffle on Summer theme (mobile)
+
+frontend:
+  - task: "Summer shuffle bed /shuffle-seagulls.wav buzzed on phone speakers"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/public/shuffle-seagulls.wav (regenerated via /app/scripts/gen_summer_shuffle.py)"
+    needs_retesting: true
+    status_history:
+      - "ROOT CAUSE: the old asset was effectively a sustained ~1.35 kHz sine drone (spectral peak/median tonality = 6813 over a 2s window) — a pure tone reads as a buzz on small speakers."
+      - "FIX: regenerated as broadband surf noise (120Hz-5kHz, slow swells) + 7 short gliding gull calls with vibrato and fast decay; 90Hz high-pass, 0.6s crossfade loop, peak 0.72. New tonality = 17."
+
+agent_communication:
+    -agent: "main"
+    -message: "Replaced the summer shuffle audio asset. Needs verification that the file serves, decodes, has no sustained tone, and that the summer-theme shuffle still plays it with no console errors."
