@@ -19,6 +19,7 @@ import GuidedFlow from "../components/GuidedFlow";
 import PubCrawlDialog from "../components/PubCrawlDialog";
 import RevealStage from "../components/home/RevealStage";
 import ModeSetup from "../components/home/ModeSetup";
+import TypePicker from "../components/home/TypePicker";
 import ReigningChampBadge from "../components/ReigningChampBadge";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../components/ui/dropdown-menu";
 import {
@@ -271,6 +272,7 @@ export default function Home() {
     setGroupPicks(null);
   };
 
+  const activeCuisineGroups = mode === "explore" ? EXPLORE_GROUPS : mode === "food" ? FOOD_GROUPS : mode === "bars" ? BAR_GROUPS : mode === "fuel" ? FUEL_GROUPS : null;
   const cuisineList = mode === "food" ? FOOD_CUISINES : mode === "drinks" ? DRINK_CUISINES : mode === "bars" ? BAR_CUISINES : mode === "desserts" ? DESSERT_CUISINES : mode === "shops" ? SHOP_CUISINES : mode === "explore" ? EXPLORE_CUISINES : mode === "stay" ? STAY_CUISINES : FUEL_CUISINES;
   // Outdoor recreation and lodging are genuinely further out than dinner — a state
   // park or campground 80 miles away is a reasonable weekend answer, a taco place
@@ -1036,7 +1038,8 @@ export default function Home() {
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
           {/* left: search + filters + spin */}
           <div className="min-w-0 space-y-7">
-            <div className="space-y-2">
+            {/* ZIP + radius live inside the Passport/Group setup panels for those modes. */}
+            <div className={`space-y-2 ${passportMode || groupMode ? "hidden" : ""}`}>
               <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]" style={labelColor ? { color: labelColor } : undefined}>
                 {t("Your ZIP code")} <span className="text-[#B8BCC2]">{t("(optional)")}</span>
               </p>
@@ -1090,7 +1093,7 @@ export default function Home() {
 
             {/* All 8 tabs stay visible inside one box (4x2 grid). The old horizontal
                 scroller hid Explore/Stay off-screen at phone widths. */}
-            <div className="grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-[#EDEEF0] p-1" data-testid="mode-toggle">
+            <div className={`grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-[#EDEEF0] p-1 ${passportMode || groupMode ? "hidden" : ""}`} data-testid="mode-toggle">
               {MODE_TABS.map(({ key, label, Icon }) => (
                 <button
                   key={key}
@@ -1104,7 +1107,9 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="mt-4">
+            {/* In Passport/Group setup the chips live inside that panel, so the main
+                list is hidden — no scrolling up and back down again. */}
+            <div className={`mt-4 ${passportMode || groupMode ? "hidden" : ""}`}>
               {allMode ? (
                 <div className="rounded-2xl border border-[#0E0E0E]/15 bg-[#0E0E0E] px-4 py-3" data-testid="any-mode-banner">
                   <p className="font-sans text-xs font-bold uppercase tracking-wider text-[#F0A24E]">{t("Anything goes")}</p>
@@ -1134,7 +1139,7 @@ export default function Home() {
               {filtersOpen && (
             <Filters
               cuisines={cuisineList}
-              cuisineGroups={mode === "explore" ? EXPLORE_GROUPS : mode === "food" ? FOOD_GROUPS : mode === "bars" ? BAR_GROUPS : mode === "fuel" ? FUEL_GROUPS : null}
+              cuisineGroups={activeCuisineGroups}
               cuisineLabel={cuisineLabel}
               selectedCuisines={selectedCuisines}
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
@@ -1261,10 +1266,20 @@ export default function Home() {
                 <p className="mt-2 font-sans text-sm text-[#3A3F45]" data-testid="passport-selection-summary">
                   {t("Dealing from")} <span className="font-bold text-[#2E7D32]">{modeLabel}</span>
                   {" · "}
-                  {selectedCuisines.length
-                    ? selectedCuisines.join(", ")
-                    : t("any type — pick chips above to narrow it")}
+                  {selectedCuisines.length ? selectedCuisines.join(", ") : t("any type")}
                 </p>
+
+                <div className="mt-3">
+                  <TypePicker
+                    testId="passport-type-picker"
+                    label={cuisineLabel}
+                    cuisines={cuisineList}
+                    cuisineGroups={activeCuisineGroups}
+                    selected={selectedCuisines}
+                    onToggle={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
+                    accent="#2E7D32"
+                  />
+                </div>
 
                 <p className="mb-1.5 mt-4 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("How many stops?")}</p>
                 <div className="flex flex-wrap gap-2">
@@ -1342,8 +1357,19 @@ export default function Home() {
                 <p className="mt-2 font-sans text-sm text-[#3A3F45]" data-testid="group-selection-summary">
                   {t("Dealing from")} <span className="font-bold text-[#E01E26]">{modeLabel}</span>
                   {" · "}
-                  {selectedCuisines.length ? selectedCuisines.join(", ") : t("any type — pick chips above to narrow it")}
+                  {selectedCuisines.length ? selectedCuisines.join(", ") : t("any type")}
                 </p>
+                <div className="mt-3">
+                  <TypePicker
+                    testId="group-type-picker"
+                    label={cuisineLabel}
+                    cuisines={cuisineList}
+                    cuisineGroups={activeCuisineGroups}
+                    selected={selectedCuisines}
+                    onToggle={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
+                    accent="#E01E26"
+                  />
+                </div>
                 <ModeSetup
                   accent="#E01E26"
                   testId="group-setup"
