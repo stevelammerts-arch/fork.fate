@@ -176,6 +176,8 @@ class TestSec002Idempotency:
 # ============== SEC-003 CORS gating ==============
 class TestSec003CORS:
     def test_origin_allowed_default_true(self):
+        import sys
+        sys.path.insert(0, '/app/backend')
         from core import origin_allowed
         assert origin_allowed("https://fork-fate.com") is True
         assert origin_allowed("https://www.fork-fate.com") is True
@@ -221,6 +223,8 @@ class TestSec004PhotoCache:
             assert r.status_code == 404, f"{bad!r} -> {r.status_code}"
 
     def test_cache_constants_importable(self):
+        import sys
+        sys.path.insert(0, '/app/backend')
         from core import _PHOTO_CACHE, _PHOTO_TTL, _PHOTO_CACHE_MAX, _PHOTO_CACHE_MAX_BYTES
         assert isinstance(_PHOTO_CACHE, dict)
         assert _PHOTO_TTL == 86400

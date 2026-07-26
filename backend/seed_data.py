@@ -1,7 +1,20 @@
 """Seed restaurant data and DB seeding for Fork·Fate."""
+import hashlib
 import logging
-from core import db
+import random
+from collections import defaultdict
+
+from core import db, sponsor_fallback_image
 from models import Restaurant
+
+# Preview/dev runs have no GOOGLE_API_KEY, so /places/search falls back to this
+# curated set. Hand-written entries below only cover 1-2 venues for most
+# cuisines, which made a cuisine-filtered deal return a single result and left
+# the reveal card showing "1 more to consider" instead of 3. Every
+# (category, cuisine) pair is topped up to MIN_PER_CUISINE so the deck always
+# has enough depth for the 3 alternatives. Production is unaffected — with a
+# Google key set, real Places results are used and this list is never reached.
+MIN_PER_CUISINE = 4
 
 
 SEED = [
@@ -294,11 +307,86 @@ SEED = [
 ]
 
 
+# --- Curated depth top-up (preview only; see MIN_PER_CUISINE note above) -----
+
+_PLACES = [
+    "Northside", "Harbor", "Old Mill", "Riverside", "Cedar Point", "Lakeview",
+    "Midtown", "Union Square", "Granite", "Willow Creek", "Fox Hollow", "Bayside",
+]
+_STREETS = [
+    "Union St", "Market St", "Cedar Ave", "Harbor Rd", "Mill Ln",
+    "Lakeview Dr", "Granite Way", "Willow Rd", "Fox Hollow Pk", "Bayside Blvd",
+]
+_NAME_TEMPLATES = {
+    "food": ["{p} {c} Kitchen", "{p} {c} House", "{c} on {s}", "The {p} {c} Table"],
+    "drinks": ["{p} {c} Bar", "{c} & Co", "The {p} {c} Room", "{c} on {s}"],
+    "bars": ["The {p} {c} Room", "{p} {c} Tavern", "{c} on {s}", "{p} {c} Social Club"],
+    "desserts": ["{p} {c} Shop", "The {p} {c} Counter", "{c} on {s}", "{p} {c} Parlor"],
+    "shops": ["{p} {c}", "{c} on {s}", "The {p} {c} Co", "{p} {c} Market"],
+    "fuel": ["{p} {c}", "{c} on {s}", "{p} {c} Stop", "{p} {c} Center"],
+}
+_DESCRIPTIONS = {
+    "food": "Neighborhood {c} spot with a short menu and a busy open kitchen.",
+    "drinks": "Easy-going {c} counter with seasonal specials and free wifi.",
+    "bars": "Low-lit {c} hangout with a solid pour list and late hours.",
+    "desserts": "Small-batch {c} made fresh daily, with a takeaway window.",
+    "shops": "Independent {c} packed with finds you won't see anywhere else.",
+    "fuel": "Clean, well-lit {c} with quick in-and-out access off the main road.",
+}
+
+
+def expand_seed(seed):
+    """Deterministically top every (category, cuisine) up to MIN_PER_CUISINE.
+
+    Seeded per group so the generated set is stable across restarts — otherwise
+    the name-based backfill in seed_db() would insert fresh duplicates on every
+    boot.
+    """
+    groups = defaultdict(list)
+    for item in seed:
+        groups[(item.get("category", "food"), item["cuisine"])].append(item)
+
+    taken = {item["name"] for item in seed}
+    extra = []
+    for (category, cuisine), items in sorted(groups.items()):
+        need = MIN_PER_CUISINE - len(items)
+        if need <= 0:
+            continue
+        rng = random.Random(int(hashlib.md5(f"{category}:{cuisine}".encode()).hexdigest(), 16))
+        templates = _NAME_TEMPLATES.get(category, _NAME_TEMPLATES["food"])
+        made = 0
+        for i in range(24):  # bounded: plenty of template/place combinations
+            if made >= need:
+                break
+            place = _PLACES[(i * 5 + len(cuisine)) % len(_PLACES)]
+            street = _STREETS[(i * 3 + len(category)) % len(_STREETS)]
+            name = templates[i % len(templates)].format(p=place, c=cuisine, s=street)
+            if name in taken:
+                continue
+            taken.add(name)
+            extra.append({
+                "name": name,
+                "cuisine": cuisine,
+                "category": category,
+                "price": ["$", "$$", "$$$"][(len(items) + made) % 3],
+                "rating": round(rng.uniform(4.0, 4.9), 1),
+                "distance": round(rng.uniform(0.5, 28.0), 1),
+                "description": _DESCRIPTIONS.get(category, _DESCRIPTIONS["food"]).format(c=cuisine.lower()),
+                "address": f"{rng.randint(2, 180)} {street}",
+                "image": sponsor_fallback_image(category, cuisine, name),
+            })
+            made += 1
+    return extra
+
+
+SEED_ALL = SEED + expand_seed(SEED)
+
+
 async def seed_db():
     count = await db.restaurants.count_documents({})
     if count == 0:
         docs = []
-        for idx, item in enumerate(SEED):
+        for idx, item in enumerate(SEED_ALL):
             r = Restaurant(**item)
             r.open_now = (idx % 4 != 0)  # ~25% shown as closed for the Open-now filter
             doc = r.model_dump()
@@ -311,7 +399,7 @@ async def seed_db():
         # already-seeded DB without duplicating existing spots.
         existing = set(await db.restaurants.distinct("name"))
         new_docs = []
-        for idx, item in enumerate(SEED):
+        for idx, item in enumerate(SEED_ALL):
             if item["name"] in existing:
                 continue
             r = Restaurant(**item)
