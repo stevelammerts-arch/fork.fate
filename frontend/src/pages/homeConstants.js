@@ -1,0 +1,139 @@
+// Pure constants and helpers for the Home page (no React state).
+
+// ── Crawl route helpers (shared by Home reveal + PubCrawlDialog) ──
+const CRAWL_R_MI = 3958.8;
+export function crawlHaversine(a, b) {
+  if (a?.lat == null || b?.lat == null) return Infinity;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return CRAWL_R_MI * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+}
+
+// Greedy nearest-neighbour ordering so the stops form a followable walking path.
+// With a destination, order stops by their progress along origin->destination.
+export function orderCrawlRoute(items, origin, destination) {
+  const hasCoords = items.length > 0 && items.every((s) => s.lat != null && s.lng != null);
+  if (!hasCoords) return [...items].sort((a, b) => (a.distance ?? 999) - (b.distance ?? 999));
+  if (origin?.lat != null && destination?.lat != null) {
+    const dx = destination.lng - origin.lng, dy = destination.lat - origin.lat;
+    const len2 = dx * dx + dy * dy || 1;
+    const t = (s) => ((s.lng - origin.lng) * dx + (s.lat - origin.lat) * dy) / len2;
+    return [...items].sort((a, b) => t(a) - t(b));
+  }
+  const remaining = [...items];
+  const route = [];
+  let cur = origin && origin.lat != null ? origin : remaining[0];
+  while (remaining.length) {
+    let bi = 0, bd = Infinity;
+    for (let i = 0; i < remaining.length; i++) {
+      const d = crawlHaversine(cur, remaining[i]);
+      if (d < bd) { bd = d; bi = i; }
+    }
+    const nx = remaining.splice(bi, 1)[0];
+    route.push(nx); cur = nx;
+  }
+  return route;
+}
+
+
+const STREAK_KEY = "ff_streak";
+const midnight = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+
+export function readStreak() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STREAK_KEY) || "null");
+    if (!raw) return 0;
+    const days = Math.round((midnight(new Date()) - midnight(raw.date)) / 86400000);
+    return days === 0 || days === 1 ? raw.count : 0;
+  } catch { return 0; }
+}
+
+export function bumpStreak() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STREAK_KEY) || "null");
+    let count = 1;
+    if (raw) {
+      const days = Math.round((midnight(new Date()) - midnight(raw.date)) / 86400000);
+      if (days === 0) count = raw.count;
+      else if (days === 1) count = raw.count + 1;
+    }
+    localStorage.setItem(STREAK_KEY, JSON.stringify({ date: new Date().toISOString(), count }));
+    return count;
+  } catch { return 1; }
+}
+
+export const SHUFFLE_INTERVAL_MS = 90;
+export const SHUFFLE_DURATION_MS = 1500;
+export const RESULT_SPRING = { type: "spring", stiffness: 260, damping: 16 };
+export const FLASH_TRANSITION = { duration: 0.08 };
+export const HERO_INITIAL = { opacity: 0, y: 20 };
+export const HERO_ANIMATE = { opacity: 1, y: 0 };
+export const HERO_TRANSITION = { duration: 0.6 };
+export const DETAIL_INITIAL = { opacity: 0, y: 10 };
+export const DETAIL_ANIMATE = { opacity: 1, y: 0 };
+export const DETAIL_TRANSITION = { delay: 0.2 };
+export const SPIN_TAP = { scale: 0.96 };
+
+export const REAPER_LINES = [
+  "The reaper has spoken.",
+  "Fate has been sealed.",
+  "The cards have chosen.",
+  "Destiny points here.",
+  "Your fate is written.",
+];
+export const reaperLineFor = (r) => REAPER_LINES[(r?.name?.length || 0) % REAPER_LINES.length];
+
+// Professional light-mode counterparts to the macabre reaper lines, per category.
+export const LIGHT_LINES = [
+  "Your destination awaits.",
+  "Here's tonight's pick.",
+  "Your table is set.",
+  "A great choice, locked in.",
+  "Bon appétit — go enjoy.",
+];
+const LIGHT_LINES_BY_MODE = {
+  food: ["Your table is set.", "Here's tonight's pick.", "A great choice, locked in.", "Bon appétit — go enjoy."],
+  drinks: ["Your next sip is set.", "Here's your pick.", "A great choice, locked in.", "Cheers to that."],
+  bars: ["Tonight's bar is set.", "Here's your spot.", "A great choice, locked in.", "Enjoy the night."],
+  desserts: ["Your sweet pick is set.", "Here's your treat.", "A great choice, locked in.", "Treat yourself."],
+  shops: ["Your next find awaits.", "Here's your pick.", "A great choice, locked in.", "Happy hunting."],
+  fuel: ["Your pit stop is set.", "Here's your stop.", "A great choice, locked in.", "Fill up and roll out."],
+};
+export const lightLineFor = (r, mode = "food") => {
+  const arr = LIGHT_LINES_BY_MODE[mode] || LIGHT_LINES_BY_MODE.food;
+  return arr[(r?.name?.length || 0) % arr.length];
+};
+
+export const FOOD_CUISINES = [
+  "Italian", "Mexican", "Tex-Mex", "Chinese", "Japanese", "Sushi", "Indian", "Thai", "Korean", "Vietnamese",
+  "Filipino", "Malaysian", "Indonesian", "Chicken Wings", "Fried Chicken", "Burgers", "Steakhouse", "American",
+  "Diner", "Comfort Food", "Southern", "Soul Food", "Cajun", "Mediterranean", "Greek", "Spanish", "French",
+  "Middle Eastern", "Lebanese", "Turkish", "Ethiopian", "Caribbean", "Cuban", "Peruvian", "Brazilian", "Hawaiian",
+  "Seafood", "Poke", "Pizza", "Pasta", "Tacos", "Sandwiches", "Banh Mi", "Deli", "Ramen", "Noodles", "Pho", "Dumplings",
+  "Breakfast", "Brunch", "Salads", "Halal", "Vegan", "Vegetarian", "Gluten Free", "BBQ", "Cafe", "Gastropub",
+  "Fine Dining", "Fusion", "Hot Pot", "Dim Sum", "Buffet", "Food Trucks", "Fast Food", "Tapas",
+];
+export const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "Smoothie", "Juice Bar", "Milkshakes", "Kombucha", "Cider", "Hot Chocolate", "Matcha", "Lemonade", "Soda Fountain"];
+export const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Donuts", "Cupcakes", "Candy Shops", "Chocolate", "Crepes", "Cheesecake", "Pie", "Cookies", "Waffles", "Macarons", "Cinnamon Rolls"];
+export const SHOP_CUISINES = ["Antiques", "Thrift Store", "Vintage", "Flea Market", "Farmers Market", "Consignment", "Record Store", "Bookstore", "Pawn Shop", "Gem Store", "Jewelry Store", "Bead Shop", "Quilt Shop", "Yarn Shop", "Hobby Shop", "Comic Store", "Model Shop", "Trading Cards", "Toy Trains", "LEGO Store", "Toy Store", "Bicycle Shop"];
+export const FUEL_CUISINES = ["Gas Station", "EV Charging", "Truck Stop", "Car Wash", "Touchless Car Wash", "Diesel"];
+export const BAR_CUISINES = [
+  "Brewery", "Beer Garden", "Taproom", "Distillery", "Beer", "Wine", "Winery", "Wine Bar", "Wine Tasting",
+  "Champagne Bar", "Cider House", "Cocktails", "Whiskey", "Liquor", "Liquor Store", "Spirits", "Margaritas", "Tequila Bar",
+  "Mezcal Bar", "Tiki", "Pub", "Gastropub", "Sports Bar", "Irish Bar", "Dive Bar", "Rooftop Bar", "Lounge",
+  "Speakeasy", "Nightclub", "Karaoke", "Bars", "Cigar Bar", "Hookah Lounge", "Live Music", "Jazz Bar",
+  "Piano Bar", "Comedy Club", "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Arcade Bar", "Axe Throwing",
+  "Mini Golf", "Trivia", "Games", "Bowling", "Tapas Bar",
+];
+export const CRAWL_TYPES = [
+  { key: "pubs", label: "Pubs", mode: "bars", cuisine: "Pub", crawl: "Pub Crawl" },
+  { key: "wine", label: "Wineries", mode: "bars", cuisine: "Winery", crawl: "Winery Crawl" },
+  { key: "brewery", label: "Breweries", mode: "bars", cuisine: "Brewery", crawl: "Brewery Crawl" },
+  { key: "tacos", label: "Tacos", mode: "food", cuisine: "Tacos", crawl: "Taco Crawl" },
+  { key: "tapas", label: "Tapas", mode: "food", cuisine: "Tapas", crawl: "Tapas Crawl" },
+  { key: "burgers", label: "Burgers", mode: "food", cuisine: "Burgers", crawl: "Burger Crawl" },
+  { key: "antiques", label: "Antiques", mode: "shops", cuisine: "Antiques", crawl: "Antique Crawl" },
+  { key: "thrift", label: "Thrift", mode: "shops", cuisine: "Thrift Store", crawl: "Thrift Crawl" },
+];
+export const crawlLabelForType = (key) => (CRAWL_TYPES.find((t) => t.key === key)?.crawl) || "Pub Crawl";
