@@ -186,6 +186,64 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
   `/admin/cost-status` already reads the `searches` field (admin.py:179), and the
   deal button already has `data-testid="spin-roulette-button"` (Home.jsx:995).
 
+## Implemented — 2026-07-26 (part 4: shuffle rework + share menu)
+- **USER BUG: "cards just go back and forth, not a real shuffle."** `ShufflingDeck.jsx`
+  animated every card `x: [0, ±96, 0]`, `y: [0,-26,0]` on a 0.72s loop with a FIXED
+  `zIndex: DECK_SIZE - i`. Symmetric out-and-back with no reordering = a wobble.
+  Reworked over two passes (the first pass was still rejected by the user as "looks
+  different, slower, no shuffle noises"):
+  - `riffleKeyframes(i)` — 6-stop split / **HOLD apart** / interleave / overshoot /
+    settle, `RIFFLE_TIMES [0,.22,.34,.66,.84,1]` with a per-segment easing array so it
+    snaps rather than floats. The HOLD phase is what makes two packets readable.
+  - **Corner `transformOrigin`** per packet (`100% 100%` even / `0% 100%` odd) so each
+    half FANS about its inner-bottom corner like cards, instead of sliding like a tile.
+    This was the single biggest contributor to it finally reading as a riffle.
+  - **Stacking order actually rotates**: `cycle` state on a `RIFFLE_MS` interval drives
+    `zIndex: DECK_SIZE - ((i + cycle) % DECK_SIZE)`. Integer z-index only — animating
+    zIndex via `animate` would interpolate to fractional values the browser discards,
+    so it is set via `style`. Interval stops on `landed`.
+  - **RIFFLE_MS 1150 -> 700ms** (user said it got slower); stagger `i * 0.055`.
+  - Measured in-browser: transformOrigins alternate, |translateX| to 80, translateY to
+    -43, cadence 0.727s, z-order reorders, no fractional z-index, no h-scroll at 430px.
+- **USER BUG: "no unique shuffle noises."** The project had NO card audio at all.
+  Synthesised two WAVs into `public/` with numpy: `card-riffle.wav` (0.700s seamless
+  loop matched to RIFFLE_MS — 34 accelerating band-passed noise clicks + a square-up
+  tap) and `card-deal.wav` (0.200s card-down snap). `Home.jsx` gained `cardsRef` +
+  `startCards()`/`stopCards()`; the loop starts on the first flick in BOTH `runShuffle`
+  and `runCrawlShuffle`, plays in EVERY theme at volume 0.5 under the themed ambience,
+  honours `localStorage.ff_muted`, stops on landing, and is cleaned up on unmount.
+- **Shuffle name ticker randomised.** Both shuffle paths did `setFlash(pool[i % len])`,
+  walking the pool IN ORDER so the flickering name looked like it was counting down a
+  list. Now a `nextFlash()` helper picks randomly and never repeats back-to-back.
+- **"More" dropdown renamed to "Share your fate"** (icon MoreHorizontal -> Share2). The
+  inner text-share item was renamed to "Share as text" to avoid duplicating the trigger
+  label; testid `fate-action-share-text` unchanged.
+- FF_BUILD -> **2026.06-283**. Verified by testing_agent iterations 6 and 7, plus two
+  items I self-verified after the harness reported them inconclusive: muted deals
+  construct ZERO audio and still shuffle/reveal correctly, and the crawl path plays
+  card-riffle -> pauses on land -> fires card-deal with no leaked audio elements.
+- Three more testing-agent "missing testid" reports investigated and dismissed as FALSE
+  ALARMS: `crawl-mode-toggle`, `crawl-deal-button` and `spin-roulette-button` all
+  already exist. (Running total: 5 false alarms — verify before acting on these.)
+
+## In progress / UNVERIFIED (do not deploy without testing)
+- Auth hardening from the P3 audit backlog, written but NOT yet verified end-to-end:
+  - **Admin CSRF double-submit**: `set_admin_cookie()` now also issues a readable
+    `ff_csrf` cookie; `require_admin` requires it echoed in `X-CSRF-Token` for
+    cookie-authenticated unsafe methods. Bearer clients are exempt (they can't be
+    CSRF'd). Migration is lockout-proof: enforced only when the cookie is PRESENT,
+    since a real cross-site attack would carry it — set `CSRF_STRICT=true` after all
+    sessions cycle (<=12h) to also reject legacy cookie sessions. Frontend registers
+    an axios request interceptor at `Admin.jsx` module scope.
+  - **Login lockout moved to MongoDB** (`db.login_failures`, atomic `$push` with
+    `$slice`, TTL on `expire_at`) so it survives restarts and is shared across workers;
+    `check/record/clear_login_failures` are now async. Added a 0.5s constant delay on
+    the locked branch so lockout isn't detectable by timing.
+  - **`TRUST_PROXY_CIDRS`** optional allowlist for proxy hops (unset = legacy
+    private/loopback heuristic, so nothing breaks), plus right-to-left X-Forwarded-For
+    parsing that skips our own hops — previously a missing CF-Connecting-IP collapsed
+    every user onto the shared ingress IP.
+
 ## Pending / Backlog
 - **P0 (user action): rotate + restrict the Google API key** `AIzaSyA8-B...TyDI`. It
   was pasted into a chat transcript. Restrict to Places API (New) + Geocoding API
