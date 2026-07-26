@@ -101,3 +101,32 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+## Iteration 10 — Final UI/category tweaks verification (main agent)
+
+frontend:
+  - task: "New chips: Safari (explore), Children's Museums (explore), Plant Shop + Craft Store (shops)"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/homeConstants.js"
+    needs_retesting: true
+  - task: "Skip intro button contrast (pill w/ border, darker text)"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/GuidedFlow.jsx"
+    needs_retesting: true
+  - task: "Order/Delivery button must NOT show on non-food tiles (shops/explore/stay/fuel)"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/RestaurantCard.jsx, /app/frontend/src/components/home/RevealStage.jsx"
+    needs_retesting: true
+
+backend:
+  - task: "Google Places results stamped with req.category"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/places.py"
+    needs_retesting: true
+
+agent_communication:
+    -agent: "main"
+    -message: "Applied final tweak batch (chips, skip contrast, category stamping). Needs verification only; no new features."
