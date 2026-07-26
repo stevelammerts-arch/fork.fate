@@ -1,0 +1,36 @@
+{
+  "summary": "Full punch-list verified end-to-end. Backend: 21 pytests passed (1 skipped) covering new POST /api/crawls/{code}/checkin endpoint (returns {ok:true, expires_in_hours:36}), TTL index expire_at_1 with expireAfterSeconds=0, code index, dual persistence (created_at ISO string + expire_at BSON datetime ~36h ahead), source coercion to 'manual' on invalid values, 422 on stop_index out-of-range (>11 or <0), 422 on lat/lng out-of-range, plus regression on POST/GET/complete/leaderboard crawl routes, admin login/verify, smoke on /, /restaurants, /cuisines, /spin, /places/search (source='curated'), /stats/fates, /stats/fate-dealt, /sponsors/active. Frontend: reveal card renders new FateActionsDropdown with all 10 expected items (fate-actions-trigger, fate-actions-content, fate-action-check-in, fate-action-reviews, fate-action-share-text, fate-action-share-image, fate-action-share-facebook, fate-action-share-x, fate-action-share-whatsapp, fate-action-share-instagram, fate-action-share-copy). Confirmed the four removed pills (rate-on-google-button, check-in-button, share-fate-button, share-fate-image-button) and inline social-share strip are ABSENT inside spin-result-card for all six modes. Reveal card's own order-dropdown-trigger correctly present for food/drinks/bars/desserts and correctly ABSENT for shops/fuel. Primary bug fix VERIFIED: nearby-grid RestaurantCard tiles show NO order-dropdown-* for any shops (6/6) or fuel (6/6) tile, while food/drinks/bars/desserts tiles all render it. FF_BUILD=2026.06-279 present in index.html. No *.keystore or *.aab files in /app/frontend/public; public URLs for /forkfate-upload.keystore and /forkfate-v3.aab return SPA-fallback HTML (not the binary). Rate-limit-60/min test was SKIPPED (informational) because the preview ingress rewrites source IP so all 80 rapid requests hit different buckets — this is an environmental limitation, not a code issue; the dependency Depends(rate_limit(60)) is correctly wired at the route.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter_fateactions_and_checkin.py",
+    "/app/test_reports/pytest/iter_fateactions.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "RevealStage.jsx passes card.google_url onto FateActionsDropdown which correctly hides the 'Reviews & ratings' item when no google_url — good defensive check.",
+    "RestaurantCard.jsx orderable gate now correctly mirrors RevealStage's mode guard by category ('shops'/'fuel'), fixing the reported bug where DoorDash appeared on yarn stores and gas stations.",
+    "crawls.py uses lazy TTL index creation (_ensure_checkin_indexes) with idempotent guard — safe against repeated calls.",
+    "expire_at is written as timezone-aware BSON datetime; TTL index reads it correctly; pymongo returned it as naive-UTC datetime in test which matches Mongo's storage (no tzinfo), handled in test by re-attaching tzinfo."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter_fateactions_and_checkin.py (created)"
+  ],
+  "success_rate": {
+    "backend": "100% (21/21 executed, 1 env-limited skip)",
+    "frontend": "100% (6/6 modes verified, all reveal/tile testid assertions pass)"
+  },
+  "seed_data_creation": "Test-only crawl created with label='TEST_crawl' and check-in stop_ids prefixed 'TEST_'; auto-cleaned in session teardown. Also relied on ~90 pre-seeded curated venues.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Frontend is CRA (yarn start / craco on port 3000) NOT Expo — supervisor 'expo' program is intentionally stopped. Use REACT_APP_BACKEND_URL from /app/frontend/.env for the public URL. MONGO_URL in /app/backend/.env is quoted ('mongodb://localhost:27017'); strip quotes when reading via os.environ in tests. Rate-limit tests cannot be reliably validated through the preview ingress (source IP rewriting) — validate via unit-level call to core.rate_limit if strict enforcement must be proven. GuidedFlow wizard blocks the home page — dismiss by clicking role=button name=/skip/i before interacting with mode/spin buttons.",
+  "rca_of_issue": "Original bug root cause: RestaurantCard.jsx computed `orderable` solely from URL presence (`r.doordash_url || r.ubereats_url || r.grubhub_url || r.order_url`). Because the backend populates those URLs for every seeded venue regardless of category, retail (shops) and fuel tiles incorrectly rendered the Order dropdown. Fix: extended the `orderable` predicate to also require `r.category !== 'shops' && r.category !== 'fuel'`, mirroring RevealStage.jsx's existing `mode !== 'shops' && mode !== 'fuel'` guard. Layout stays clean because the wrapper toggles between `grid-cols-2` (orderable) and `grid-cols-1` (Reviews-only). Verified on 6 shops tiles and 6 fuel tiles: order-dropdown-<id> absent; reviews button remains and layout renders single full-width cell."
+}

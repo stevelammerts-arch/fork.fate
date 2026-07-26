@@ -170,6 +170,25 @@ class CrawlCompletionCreate(BaseModel):
         return v[:12] if v else None
 
 
+class CrawlCheckinCreate(BaseModel):
+    """A single stop check-in during a live crawl.
+
+    Recorded server-side so leaderboard verification can eventually be derived
+    from real arrivals instead of a client-supplied `verified` flag. Rows are
+    ephemeral — a TTL index on `expire_at` drops them automatically.
+    """
+    stop_id: str = Field(default="", max_length=100)
+    stop_index: int = Field(default=0, ge=0, le=11)
+    lat: Optional[float] = Field(default=None, ge=-90, le=90)
+    lng: Optional[float] = Field(default=None, ge=-180, le=180)
+    source: str = "gps"  # "gps" (auto, leaderboard-eligible) | "manual"
+
+    @field_validator("source")
+    @classmethod
+    def _valid_source(cls, v):
+        return v if v in ("gps", "manual") else "manual"
+
+
 class SponsorCreate(BaseModel):
     name: str = Field(min_length=1, max_length=160)
     cuisine: str = Field(min_length=1, max_length=60)

@@ -5,12 +5,35 @@ from fastapi import APIRouter, HTTPException, Depends
 
 from typing import Optional
 
-from core import db, rate_limit
-from models import CrawlCreate, CrawlCompletionCreate
+from core import db, logger, rate_limit
+from models import CrawlCreate, CrawlCompletionCreate, CrawlCheckinCreate
 
 router = APIRouter()
 
 CRAWL_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # no ambiguous chars
+
+# Check-ins are operational breadcrumbs, not history — expire them well after the
+# longest plausible crawl so we aren't retaining a durable log of where users went.
+CHECKIN_TTL_HOURS = 36
+_checkin_index_ready = False
+
+
+async def _ensure_checkin_indexes():
+    """Lazily create the crawl_checkins TTL index (same pattern as stat_dedupe).
+
+    NOTE: `created_at` is stored as an ISO *string* to match the rest of the
+    codebase, and Mongo TTL indexes only act on BSON datetimes — so expiry rides
+    on a separate `expire_at` datetime field written at insert time.
+    """
+    global _checkin_index_ready
+    if _checkin_index_ready:
+        return
+    try:
+        await db.crawl_checkins.create_index("expire_at", expireAfterSeconds=0)
+        await db.crawl_checkins.create_index("code")
+    except Exception as e:
+        logger.warning(f"crawl_checkins index setup failed: {e}")
+    _checkin_index_ready = True
 
 
 def _gen_crawl_code(n: int = 8) -> str:
@@ -128,6 +151,24 @@ async def complete_crawl(payload: CrawlCompletionCreate):
             if (d["duration_seconds"] < my_dur) or (d["duration_seconds"] == my_dur and d.get("stops", 0) > my_stops)
         )
     return {"ok": True, "verified": True, "rank_stops": rank_stops, "rank_fastest": rank_fastest, "total": len(all_docs)}
+
+
+@router.post("/crawls/{code}/checkin", dependencies=[Depends(rate_limit(60))])
+async def record_checkin(code: str, payload: CrawlCheckinCreate):
+    """Record one stop arrival for a crawl. Auto-expires after CHECKIN_TTL_HOURS."""
+    await _ensure_checkin_indexes()
+    now = datetime.now(timezone.utc)
+    await db.crawl_checkins.insert_one({
+        "code": (code or "").strip().upper()[:12],
+        "stop_id": payload.stop_id,
+        "stop_index": payload.stop_index,
+        "lat": payload.lat,
+        "lng": payload.lng,
+        "source": payload.source,
+        "created_at": now.isoformat(),          # ISO string (codebase convention)
+        "expire_at": now + timedelta(hours=CHECKIN_TTL_HOURS),  # BSON datetime -> TTL
+    })
+    return {"ok": True, "expires_in_hours": CHECKIN_TTL_HOURS}
 
 
 @router.get("/crawls/leaderboard")
