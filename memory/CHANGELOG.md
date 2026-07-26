@@ -459,3 +459,15 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   all selected chips into ONE Google textQuery. Now one query per chip (max 4,
   interleaved + de-duped) and each result is relevance-checked against its chip via
   `_CUISINE_TYPE_HINTS` (primaryType/name fragments). Result label = the chip name.
+
+## 2026-06 — Phase 1: Fate Passport (verified, iteration_12)
+- NEW backend routes/passports.py: POST /api/passports, GET /api/passports/{code},
+  POST /{code}/stamp (GPS ring 0.4 mi -> verified, else 409; manual fallback), DELETE stamp.
+  Stamps stored inside the passport doc (persist; no TTL). Models: PassportCreate, PassportStamp.
+- NEW frontend page /p/:code (Passport.jsx) — progress bar, per-stop stamp/undo, directions,
+  completion banner, share; lib/passports.js remembers codes per device.
+- Home: "Fate Passport" toggle + 3-10 stop picker, mutually exclusive with Group/Crawl modes;
+  Deal button becomes "Deal My Passport"; "Your passports" quick links.
+- Also: Fuel tab -> "Fuel & Go" (+ grouped chips), Catering (Food/Style),
+  Cake/Custom/Wedding Cakes (Desserts), Party Supplies/Home Decor/Furniture/Candle Shop (Shops).
+- 14/14 backend pytest + full frontend e2e pass (iteration_12).
