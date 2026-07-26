@@ -48,8 +48,11 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
   const watchRef = useRef(null);
   const promptedRef = useRef(false);
   const lastManualRef = useRef(0);
+  const crawlCodeRef = useRef(code || null);
+  const creatingRef = useRef(null);
+  const postedRef = useRef(new Set());
 
-  useEffect(() => { setCrawlCode(code || null); }, [code]);
+  useEffect(() => { setCrawlCode(code || null); crawlCodeRef.current = code || null; }, [code]);
 
   const reshuffle = () => {
     setRoute(orderRoute(shuffle(results).slice(0, maxStops), origin, destination));
@@ -148,7 +151,10 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
               toast.success(`${t("Arrived at")} ${s.name} ✓`);
             }
           }
-          if (arrived.length) setGpsVisited((g) => ({ ...g, ...Object.fromEntries(arrived.map((s) => [s.id, true])) }));
+          if (arrived.length) {
+            setGpsVisited((g) => ({ ...g, ...Object.fromEntries(arrived.map((s) => [s.id, true])) }));
+            arrived.forEach((s) => postCheckin(s, "gps", p));
+          }
           return changed ? nv : v;
         });
       },
@@ -174,6 +180,8 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
       lastManualRef.current = now;
       setVisited((v) => ({ ...v, [id]: true }));
       setGpsVisited((g) => { if (!g[id]) return g; const ng = { ...g }; delete ng[id]; return ng; });
+      const stop = stops.find((s) => s.id === id);
+      if (stop) postCheckin(stop, "manual");
     } else {
       setVisited((v) => ({ ...v, [id]: false }));
       setGpsVisited((g) => { if (!g[id]) return g; const ng = { ...g }; delete ng[id]; return ng; });
@@ -182,28 +190,70 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
 
   useEffect(() => { if (!autoGps) setLivePos(null); }, [autoGps]);
 
+  const buildStopsPayload = () =>
+    stops.map((s) => ({
+      id: String(s.id ?? ""),
+      name: s.name,
+      cuisine: s.cuisine || "",
+      price: s.price || "",
+      rating: typeof s.rating === "number" ? s.rating : null,
+      distance: s.distance != null && !isNaN(Number(s.distance)) ? Number(s.distance) : null,
+      lat: s.lat != null && !isNaN(Number(s.lat)) ? Number(s.lat) : null,
+      lng: s.lng != null && !isNaN(Number(s.lng)) ? Number(s.lng) : null,
+      open_now: typeof s.open_now === "boolean" ? s.open_now : null,
+      google_url: s.google_url || "",
+    }));
+
+  // The server derives leaderboard eligibility from GPS check-ins keyed by crawl
+  // code, so a crawl must exist server-side before we can log arrivals. Created
+  // silently on the first check-in (no share link is surfaced to the user).
+  // Concurrent callers share the in-flight request so we never create two crawls.
+  const ensureCrawlCode = async () => {
+    if (crawlCodeRef.current) return crawlCodeRef.current;
+    if (creatingRef.current) return creatingRef.current;
+    creatingRef.current = (async () => {
+      const { data } = await axios.post(`${API}/crawls`, { mode, label, stops: buildStopsPayload() });
+      crawlCodeRef.current = data.code;
+      setCrawlCode(data.code);
+      return data.code;
+    })();
+    try {
+      return await creatingRef.current;
+    } finally {
+      creatingRef.current = null;
+    }
+  };
+
+  // Fire-and-forget: a failed check-in must never block the crawl UI. Worst case
+  // the run simply doesn't qualify as verified.
+  const postCheckin = async (stop, source, pos) => {
+    const key = `${source}:${stop.id}`;
+    if (postedRef.current.has(key)) return;
+    postedRef.current.add(key);
+    try {
+      const c = await ensureCrawlCode();
+      if (!c) return;
+      await axios.post(`${API}/crawls/${c}/checkin`, {
+        stop_id: String(stop.id ?? ""),
+        stop_index: Math.max(0, stops.findIndex((s) => s.id === stop.id)),
+        lat: pos?.lat ?? (stop.lat != null ? Number(stop.lat) : null),
+        lng: pos?.lng ?? (stop.lng != null ? Number(stop.lng) : null),
+        source,
+      });
+    } catch (e) {
+      postedRef.current.delete(key); // allow a later retry
+      console.debug("check-in not recorded:", e);
+    }
+  };
+
   const shareCrawl = async () => {
     if (!stops.length || sharing) return;
     setSharing(true);
     try {
-      const { data } = await axios.post(`${API}/crawls`, {
-        mode,
-        label,
-        stops: stops.map((s) => ({
-          id: String(s.id ?? ""),
-          name: s.name,
-          cuisine: s.cuisine || "",
-          price: s.price || "",
-          rating: typeof s.rating === "number" ? s.rating : null,
-          distance: s.distance != null && !isNaN(Number(s.distance)) ? Number(s.distance) : null,
-          lat: s.lat != null && !isNaN(Number(s.lat)) ? Number(s.lat) : null,
-          lng: s.lng != null && !isNaN(Number(s.lng)) ? Number(s.lng) : null,
-          open_now: typeof s.open_now === "boolean" ? s.open_now : null,
-          google_url: s.google_url || "",
-        })),
-      });
-      const link = `${window.location.origin}/c/${data.code}`;
-      setCrawlCode(data.code);
+      // Reuse the code if check-ins already created this crawl, so the shared
+      // link and the recorded arrivals refer to the same crawl.
+      const shareCode = await ensureCrawlCode();
+      const link = `${window.location.origin}/c/${shareCode}`;
       const text = `${t("Join my")} ${label}${crewLine} 🍺\n` +
         stops.map((s, i) => `${i + 1}. ${s.name}`).join("\n") +
         `\n\n${t("Same crawl on your phone:")} ${link}`;

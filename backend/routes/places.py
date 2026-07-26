@@ -12,6 +12,7 @@ from core import (
     PRICE_ENUM_TO_SYMBOL, SYMBOL_ENUMS, pick_placeholder,
     haversine_miles, prettify_type, maps_url, doordash_url, ubereats_url, grubhub_url, order_url,
     _ZIP_GEO_CACHE, _PLACES_CACHE, _PLACES_TTL, _google_reserve,
+    _PHOTO_CACHE, _PHOTO_TTL, _PHOTO_CACHE_MAX, _PHOTO_CACHE_MAX_BYTES,
 )
 
 from models import PlacesSearchRequest
@@ -199,19 +200,50 @@ async def google_places_search(req: PlacesSearchRequest):
 
 @router.get("/places/photo", dependencies=[Depends(rate_limit(200))])
 async def places_photo(name: str):
-    """Proxy Google Places photo bytes so the API key is never exposed to the client."""
+    """Proxy Google Places photo bytes so the API key is never exposed to the client.
+
+    Photo media fetches are billed by Google exactly like searches, so a cache
+    miss must reserve against the same daily budget — otherwise an attacker with
+    a handful of valid photo tokens and rotating IPs could run up the bill past
+    GOOGLE_SEARCH_DAILY_CAP (SEC-004).
+    """
     if not GOOGLE_API_KEY or not re.fullmatch(r"places/[A-Za-z0-9_-]+/photos/[A-Za-z0-9_-]+", name):
         raise HTTPException(status_code=404, detail="Not found")
+
+    now = time.time()
+    hit = _PHOTO_CACHE.get(name)
+    if hit and now - hit[0] < _PHOTO_TTL:
+        return Response(
+            content=hit[1],
+            media_type=hit[2],
+            headers={"Cache-Control": "public, max-age=86400", "X-Photo-Cache": "hit"},
+        )
+
+    if not await _google_reserve():
+        logger.warning("Google daily cap reached — photo proxy refusing new fetch")
+        raise HTTPException(status_code=503, detail="search-budget-exceeded")
+
     url = f"https://places.googleapis.com/v1/{name}/media?maxWidthPx=800&key={GOOGLE_API_KEY}"
     async with httpx.AsyncClient(timeout=15, follow_redirects=True) as http:
         r = await http.get(url)
         if r.status_code != 200:
             raise HTTPException(status_code=404, detail="Photo unavailable")
-        return Response(
-            content=r.content,
-            media_type=r.headers.get("content-type", "image/jpeg"),
-            headers={"Cache-Control": "public, max-age=86400"},
-        )
+        content = r.content
+        ctype = r.headers.get("content-type", "image/jpeg")
+
+    if len(content) <= _PHOTO_CACHE_MAX_BYTES:
+        if len(_PHOTO_CACHE) >= _PHOTO_CACHE_MAX:
+            for k in [k for k, v in list(_PHOTO_CACHE.items()) if now - v[0] >= _PHOTO_TTL]:
+                _PHOTO_CACHE.pop(k, None)
+            while len(_PHOTO_CACHE) >= _PHOTO_CACHE_MAX:
+                _PHOTO_CACHE.pop(next(iter(_PHOTO_CACHE)), None)  # drop oldest inserted
+        _PHOTO_CACHE[name] = (now, content, ctype)
+
+    return Response(
+        content=content,
+        media_type=ctype,
+        headers={"Cache-Control": "public, max-age=86400", "X-Photo-Cache": "miss"},
+    )
 
 
 @router.get("/geocode", dependencies=[Depends(rate_limit(30))])

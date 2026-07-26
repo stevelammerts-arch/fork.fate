@@ -211,7 +211,8 @@ class TestBuildAndSecurity:
     def test_ff_build_bumped(self):
         with open("/app/frontend/public/index.html") as f:
             html = f.read()
-        assert 'FF_BUILD="2026.06-279"' in html
+        # Build bumped in iter2 to 280
+        assert 'FF_BUILD="2026.06-280"' in html
 
     def test_no_keystore_or_aab_in_public(self):
         import glob

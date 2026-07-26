@@ -45,9 +45,16 @@ JWT_AUD = os.environ.get("JWT_AUD", "fork-fate-admin")
 #                     private/loopback hop (i.e. our k8s ingress / CDN edge).
 #   always/never   -> force-trust or force-ignore (escape hatches for other setups).
 TRUST_PROXY_MODE = os.environ.get("TRUST_PROXY_HEADERS", "auto").strip().lower()
-# Origins allowed for CORS + WebAuthn (prod fork-fate.com + Emergent *.preview* subdomains
-# only — no longer trusts arbitrary emergentagent.com service subdomains).
-ALLOWED_ORIGIN_REGEX = r"https://([a-z0-9-]+\.)*fork-fate\.com$|https://[a-z0-9-]+\.preview\.emergentagent\.com$"
+# Origins allowed for CORS + WebAuthn. Production is always fork-fate.com; the
+# Emergent preview subdomains are shared tenancy, so trusting them alongside
+# `allow_credentials=True` is only acceptable in preview. Set
+# ALLOW_PREVIEW_ORIGINS=false in the production secrets to drop the wildcard.
+_PROD_ORIGIN_REGEX = r"https://([a-z0-9-]+\.)*fork-fate\.com$"
+_PREVIEW_ORIGIN_REGEX = r"https://[a-z0-9-]+\.preview\.emergentagent\.com$"
+ALLOW_PREVIEW_ORIGINS = os.environ.get("ALLOW_PREVIEW_ORIGINS", "true").strip().lower() not in ("0", "false", "no")
+ALLOWED_ORIGIN_REGEX = (
+    f"{_PROD_ORIGIN_REGEX}|{_PREVIEW_ORIGIN_REGEX}" if ALLOW_PREVIEW_ORIGINS else _PROD_ORIGIN_REGEX
+)
 _ORIGIN_RE = re.compile(ALLOWED_ORIGIN_REGEX, re.I)
 FALLBACK_IMG = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?crop=entropy&cs=srgb&fm=jpg&q=85"
 
@@ -359,6 +366,13 @@ _ZIP_GEO_CACHE = {}
 # Cache Places search results to cut repeat billed Google calls (key -> (ts, results))
 _PLACES_CACHE = {}
 _PLACES_TTL = 300  # seconds
+# Cache proxied Google photo bytes. Photo media fetches are billed too, so this
+# keeps repeat views of the same venue off the meter (see _google_reserve usage
+# in routes/places.py). Bounded so a long-lived worker can't balloon.
+_PHOTO_CACHE = {}
+_PHOTO_TTL = 86400          # seconds (matches the Cache-Control we send)
+_PHOTO_CACHE_MAX = 150      # entries
+_PHOTO_CACHE_MAX_BYTES = 400_000  # don't cache unusually large images
 
 # Hard daily ceiling on billed Google search/geocode calls (abuse safety net).
 GOOGLE_SEARCH_DAILY_CAP = int(os.environ.get("GOOGLE_SEARCH_DAILY_CAP", "300"))

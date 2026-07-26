@@ -95,15 +95,28 @@ async def _leaderboard_for(match: dict) -> dict:
 async def complete_crawl(payload: CrawlCompletionCreate):
     """Record a crew's finished crawl for the leaderboard (opt-in from the badge dialog).
 
-    Only GPS-verified crews are ranked. A server-side sanity check downgrades any
-    "verified" run whose implied travel speed is physically impossible (> 15 mph),
-    or that lacks the distance/duration needed to validate it. Unverified runs are
-    still recorded (for the badge + community count) but never appear on the board
-    and receive no rank.
+    Verification is derived SERVER-SIDE (SEC-002): a run only ranks when this crawl
+    logged a GPS check-in for every stop via /crawls/{code}/checkin. The client's
+    own `verified` flag is treated as a request, never as proof — so a fabricated
+    POST can no longer buy a top rank. A physical-plausibility check still applies
+    on top: runs implying > 15 mph average, or missing the distance/duration needed
+    to evaluate that, are downgraded. Unverified runs are still recorded (for the
+    badge + community count) but never appear on the board and receive no rank.
     """
-    verified = bool(payload.verified)
     dist = payload.distance
     dur = payload.duration_seconds
+
+    # 1. Client asked to be ranked? 2. Did the server actually see GPS arrivals for
+    # every stop? 3. Is the implied pace physically possible?
+    verified = bool(payload.verified)
+    if verified:
+        gps_stops = await _gps_checkin_count(payload.code)
+        if gps_stops < payload.stops:
+            logger.info(
+                f"Crawl {payload.code} claimed verified with {payload.stops} stops but only "
+                f"{gps_stops} server-side GPS check-ins — downgrading to unverified"
+            )
+            verified = False
     if verified:
         if not (isinstance(dur, int) and dur > 0 and isinstance(dist, (int, float)) and dist >= 0):
             verified = False
@@ -155,20 +168,39 @@ async def complete_crawl(payload: CrawlCompletionCreate):
 
 @router.post("/crawls/{code}/checkin", dependencies=[Depends(rate_limit(60))])
 async def record_checkin(code: str, payload: CrawlCheckinCreate):
-    """Record one stop arrival for a crawl. Auto-expires after CHECKIN_TTL_HOURS."""
+    """Record one stop arrival for a crawl. Auto-expires after CHECKIN_TTL_HOURS.
+
+    Idempotent per (code, stop_id, source) so a retry — or React StrictMode
+    double-invoking an effect — can't inflate the GPS count that
+    /crawls/complete uses to decide whether a run is leaderboard-eligible.
+    """
     await _ensure_checkin_indexes()
     now = datetime.now(timezone.utc)
-    await db.crawl_checkins.insert_one({
-        "code": (code or "").strip().upper()[:12],
-        "stop_id": payload.stop_id,
-        "stop_index": payload.stop_index,
-        "lat": payload.lat,
-        "lng": payload.lng,
-        "source": payload.source,
-        "created_at": now.isoformat(),          # ISO string (codebase convention)
-        "expire_at": now + timedelta(hours=CHECKIN_TTL_HOURS),  # BSON datetime -> TTL
-    })
+    clean_code = (code or "").strip().upper()[:12]
+    await db.crawl_checkins.update_one(
+        {"code": clean_code, "stop_id": payload.stop_id, "source": payload.source},
+        {
+            "$setOnInsert": {"created_at": now.isoformat()},  # ISO string (codebase convention)
+            "$set": {
+                "stop_index": payload.stop_index,
+                "lat": payload.lat,
+                "lng": payload.lng,
+                "expire_at": now + timedelta(hours=CHECKIN_TTL_HOURS),  # BSON datetime -> TTL
+            },
+        },
+        upsert=True,
+    )
     return {"ok": True, "expires_in_hours": CHECKIN_TTL_HOURS}
+
+
+async def _gps_checkin_count(code: str) -> int:
+    """How many distinct stops this crawl auto-checked-in at via GPS."""
+    if not code:
+        return 0
+    stop_ids = await db.crawl_checkins.distinct(
+        "stop_id", {"code": code.strip().upper()[:12], "source": "gps"}
+    )
+    return len([s for s in stop_ids if s])
 
 
 @router.get("/crawls/leaderboard")

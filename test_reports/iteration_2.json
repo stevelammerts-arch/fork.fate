@@ -1,0 +1,43 @@
+{
+  "summary": "SEC-002/003/004 verified. Extended pytest suite: 41 total (18 new in test_iter_sec002_003_004.py + 23 existing in test_iter_fateactions_and_checkin.py). 40/41 pass on a clean run; the single failure (TestAdmin.test_login_and_verify) is a KNOWN environment-side effect of iter1's TestCheckin.test_rate_limit_60_per_min hammering 80 rapid POSTs against the shared per-IP bucket (`_RL_BUCKETS[ip]` in core.rate_limit is keyed only by IP, so it globally spikes the count across ALL rate-limited routes on the same worker for the 60s window). Re-tested admin login in isolation after cooldown: 200 OK (confirmed via curl). Not an app regression. SEC-002 verification matrix (a-f) all pass: verified=true is stripped server-side unless _gps_checkin_count(code) >= stops with only source='gps' counting; impossible-pace >15mph still downgrades; missing code -> unverified; manual check-ins do NOT count. SEC-002 idempotency: 5 repeated POSTs -> exactly 1 doc; gps+manual for same stop_id -> 2 docs (different source); created_at unchanged on repost, expire_at refreshed. TTL indexes intact (expire_at_1 expireAfterSeconds=0, code_1). SEC-003: origin_allowed default returns True for fork-fate.com, www.fork-fate.com, preview.emergentagent.com and False for evil.com; subprocess reimport with ALLOW_PREVIEW_ORIGINS=false correctly drops the preview wildcard while keeping fork-fate.com allowed. SEC-004: /places/photo returns 404 without GOOGLE_API_KEY, rejects path-traversal/malformed names, cache constants importable from core, code inspection confirms _google_reserve() precedes the httpx fetch on miss and X-Photo-Cache header is set to 'hit'/'miss' on the respective branches, eviction branch present. Build: FF_BUILD=\"2026.06-280\" present. Cleanup: no imports of CheckInButton in /app/frontend/src/**/*.jsx and /app/frontend/src/components/CheckInButton.jsx does not exist. Frontend PubCrawlDialog wiring code-verified: buildStopsPayload, ensureCrawlCode (creatingRef dedupe), postCheckin (postedRef Set with retry-on-failure), MANUAL_MIN_GAP_MS=30000, shareCrawl calls ensureCrawlCode -> one code per session for both check-ins and share link.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "core.rate_limit", "issue": "The in-memory per-IP bucket _RL_BUCKETS is keyed only by IP, not by (IP, route), so a burst on one rate-limited route (e.g. /crawls/{code}/checkin, 60/min) consumes the budget of every other rate-limited route (/crawls at 30/min, /admin/login at 30/min) on the same worker for the sliding 60s window. This surfaces as flaky 429s in the pytest suite when tests share an IP. Pre-existing (iter1), out of iter2 scope, but worth noting for the audit's per-worker rate limiter P3."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter_sec002_003_004.py",
+    "/app/backend/tests/test_iter_fateactions_and_checkin.py",
+    "/app/test_reports/pytest/iter_sec002.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "crawls.complete_crawl correctly discards client-provided verified=True when server-side GPS count < stops, then still applies the >15mph downgrade — order is right (auth first, then physics).",
+    "record_checkin uses upsert with $setOnInsert for created_at and $set for expire_at, which is exactly right for TTL refresh + immutable creation timestamp; key is (code, stop_id, source) so gps and manual don't collide.",
+    "_gps_checkin_count uses distinct() on stop_id with source='gps' filter — cannot be inflated even if the upsert regressed, defense-in-depth.",
+    "core.ALLOWED_ORIGIN_REGEX is built once at import time from ALLOW_PREVIEW_ORIGINS; the compiled _ORIGIN_RE is used everywhere. The env-gate design (default True) preserves preview while giving prod a clean opt-out.",
+    "places.places_photo reserves against _google_reserve() BEFORE httpx.get on cache miss (SEC-004 intent), returns X-Photo-Cache 'hit'/'miss' correctly, and skips caching for responses > _PHOTO_CACHE_MAX_BYTES.",
+    "PubCrawlDialog.ensureCrawlCode dedupes concurrent callers via creatingRef promise, and postCheckin's postedRef.delete(key) on failure allows a retry — good; also removes the risk of a failed check-in silently blocking the checkbox toggle (fire-and-forget catch block wraps the post).",
+    "Preview ingress (Cloudflare) rewrites ACAO to '*' with allow-credentials:true on all responses regardless of origin. This is an infrastructure-layer concern, not the app's CORSMiddleware behavior (which is correctly restricted via ALLOWED_ORIGIN_REGEX). Browsers reject '*'+credentials, so it's not an exploitable open CORS in practice, but it does mask the app's own origin gating over the wire in this preview. Flagging for the ops layer, not for E1."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter_sec002_003_004.py (created — 18 new tests)",
+    "/app/backend/tests/test_iter_fateactions_and_checkin.py (FF_BUILD assertion bumped 279 -> 280)"
+  ],
+  "success_rate": {
+    "backend": "97.5% (40/41 in one run; the 1 failure is a shared-IP rate-limit bleed from iter1's stress test, admin login re-verified 200 OK in isolation)",
+    "frontend": "Code-verified 100% for the PubCrawlDialog wiring helpers (ensureCrawlCode/postCheckin/buildStopsPayload); end-to-end UI drive-through the dialog was not completed via Playwright because the Plan a Crawl entry requires bars mode + Pub Crawls toggle + scroll + button click and hit the 3-attempt loop guard. Backend endpoints exercised by the dialog are fully covered by pytest."
+  },
+  "seed_data_creation": "Test crawl created with label='TEST_sec2' and stop_ids TS1/TS2/TS3/TS_upsert/TS_dual/TS_ttl. Auto-cleaned in session teardown (crawls, crawl_checkins, crawl_completions matching TEST_sec2 / ^TS).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Pytest addopts pins -n 2 --dist loadscope from /app/backend/pytest.ini — run serial with `-n 0` (NOT `-p no:xdist`). REACT_APP_BACKEND_URL must be exported before running because tests assert on it. The rate-limit test in test_iter_fateactions_and_checkin.py::TestCheckin::test_rate_limit_60_per_min will poison the shared per-IP bucket for ~60s on the ingress-observed IP, causing 429s on any admin/crawl POST that runs immediately after — schedule that test last or add a 65s cooldown before other suites. Frontend crawl dialog navigation path: Skip intro -> click 'Bars' pill -> fill ZIP placeholder -> scroll down ~1500px -> ensure 'Pub Crawls & more' toggle is on -> click 'Plan a Crawl' button -> wait ~7s for the plan modal to render.",
+  "rca_of_issue": "N/A — all SEC-002/003/004 acceptance criteria met, no new bugs."
+}
