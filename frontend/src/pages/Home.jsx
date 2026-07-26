@@ -23,7 +23,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import {
   readStreak, bumpStreak,
   HERO_INITIAL, HERO_ANIMATE, HERO_TRANSITION, SPIN_TAP,
-  FOOD_CUISINES, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, SHOP_CUISINES, FUEL_CUISINES, EXPLORE_CUISINES, STAY_CUISINES, CRAWL_TYPES, crawlLabelForType, orderCrawlRoute,
+  FOOD_CUISINES, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, SHOP_CUISINES, FUEL_CUISINES, EXPLORE_CUISINES, EXPLORE_GROUPS, STAY_CUISINES, CRAWL_TYPES, crawlLabelForType, orderCrawlRoute,
 } from "./homeConstants";
 import { Input } from "../components/ui/input";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "../components/ui/accordion";
@@ -993,6 +993,7 @@ export default function Home() {
 
             <Filters
               cuisines={cuisineList}
+              cuisineGroups={mode === "explore" ? EXPLORE_GROUPS : null}
               cuisineLabel={mode === "food" ? t("Cuisine") : mode === "drinks" ? t("Drink type") : mode === "bars" ? t("Bar type") : mode === "desserts" ? t("Dessert type") : mode === "shops" ? t("Shop type") : mode === "explore" ? t("Activity") : mode === "stay" ? t("Stay type") : t("Fuel type")}
               selectedCuisines={selectedCuisines}
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}

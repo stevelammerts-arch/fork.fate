@@ -128,22 +128,41 @@ export const NO_DELIVERY_CATEGORIES = ["shops", "fuel", "explore", "stay"];
 export const supportsDelivery = (category) => !NO_DELIVERY_CATEGORIES.includes(category);
 
 export const FUEL_CUISINES = ["Gas Station", "EV Charging", "Truck Stop", "Car Wash", "Touchless Car Wash", "Diesel"];
-// Things to DO. Outdoor recreation first (the original ask), then indoor/rainy-day
-// attractions so the tab still has answers in winter or bad weather.
-export const EXPLORE_CUISINES = [
-  "State Parks", "National Parks", "Nature Preserves", "Hiking Trails", "Mountain Biking",
-  "Fishing Spots", "Boat Launches", "Hunting Land", "Scenic Overlooks", "Waterfalls",
-  "Botanical Gardens", "Hot Springs", "Caves", "Beaches", "Lakes",
-  "Swimming Holes", "Swimming Beaches", "Public Pools", "Aquatic Centers",
-  "Zoos", "Safaris", "Aquariums", "Museums", "Children's Museums", "Science Centers",
-  "Art Galleries", "Historic Sites", "Planetariums",
-  "Mini Golf", "Go-Karts", "Bowling", "Arcades", "Escape Rooms", "Axe Throwing",
-  "Zip Lines", "Climbing Gyms", "Skate Parks", "Water Parks", "Drive-In Theaters",
-  "Theme Parks", "Amusement Parks", "Fairgrounds",
-  "Gyms", "Fitness Centers", "Yoga Studios", "Pickleball Courts", "Tennis Courts",
-  "Trampoline Parks", "Playgrounds", "Splash Pads", "Petting Zoos",
-  "Disc Golf", "Horseback Riding", "Kayak Rentals", "ATV Trails", "Farms & Orchards",
+// Things to DO. The list outgrew a single A–Z wall of chips, so it's declared in
+// four sub-groups (rendered as labelled sections by Filters) — much faster to scan
+// than 55 alphabetised pills. EXPLORE_CUISINES is derived so the two can't drift.
+export const EXPLORE_GROUPS = [
+  {
+    label: "Outdoors",
+    items: [
+      "State Parks", "National Parks", "Nature Preserves", "Hiking Trails", "Mountain Biking",
+      "Fishing Spots", "Boat Launches", "Hunting Land", "Scenic Overlooks", "Waterfalls",
+      "Botanical Gardens", "Hot Springs", "Caves", "Beaches", "Lakes",
+      "Disc Golf", "Horseback Riding", "Kayak Rentals", "ATV Trails", "Farms & Orchards",
+    ],
+  },
+  {
+    label: "Swimming",
+    items: ["Swimming Holes", "Swimming Beaches", "Public Pools", "Aquatic Centers", "Water Parks", "Splash Pads"],
+  },
+  {
+    label: "Attractions",
+    items: [
+      "Zoos", "Safaris", "Petting Zoos", "Aquariums", "Museums", "Children's Museums",
+      "Science Centers", "Art Galleries", "Historic Sites", "Planetariums",
+      "Theme Parks", "Amusement Parks", "Fairgrounds", "Drive-In Theaters",
+    ],
+  },
+  {
+    label: "Active & Games",
+    items: [
+      "Mini Golf", "Go-Karts", "Bowling", "Arcades", "Escape Rooms", "Axe Throwing",
+      "Zip Lines", "Climbing Gyms", "Skate Parks", "Trampoline Parks", "Playgrounds",
+      "Gyms", "Fitness Centers", "Yoga Studios", "Pickleball Courts", "Tennis Courts",
+    ],
+  },
 ];
+export const EXPLORE_CUISINES = EXPLORE_GROUPS.flatMap((g) => g.items);
 // Somewhere to sleep. NOTE: Airbnb/Vrbo are deliberately absent — they're closed
 // marketplaces with no public search API and no Google Places coverage, so they
 // cannot be dealt like the other options. KOA, RV parks and cabins are findable.
