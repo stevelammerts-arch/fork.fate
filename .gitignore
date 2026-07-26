@@ -138,3 +138,12 @@ frontend/node_modules/.cache/default-development/54.pack
 frontend/node_modules/.cache/default-development/56.pack
 frontend/node_modules/.cache/default-development/6.pack
 frontend/node_modules/.cache/default-development/12.pack
+
+# Android signing material & build bundles — MUST NEVER be committed or served
+*.keystore
+*.jks
+*.aab
+*.apk
+private_build_assets/
+build_aab/
+**/ORIGINAL-signing-key-info.txt

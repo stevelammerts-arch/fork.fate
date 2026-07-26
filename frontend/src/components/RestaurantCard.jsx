@@ -51,6 +51,12 @@ export function RestaurantCard({ r, onReport, isFavorite, onToggleFavorite }) {
     : null;
   const isDessert = r.category === "desserts";
   const orderLabel = isDessert ? "Order treats" : "Order";
+  // Delivery makes no sense for retail/fuel stops (a yarn store isn't on DoorDash).
+  // Mirrors the reveal card's `mode !== "shops" && mode !== "fuel"` guard.
+  const orderable =
+    r.category !== "shops" &&
+    r.category !== "fuel" &&
+    !!(r.doordash_url || r.ubereats_url || r.grubhub_url || r.order_url);
   return (
     <motion.div
       whileHover={CARD_HOVER}
@@ -133,8 +139,8 @@ export function RestaurantCard({ r, onReport, isFavorite, onToggleFavorite }) {
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 pt-3">
-          {(r.doordash_url || r.ubereats_url || r.grubhub_url || r.order_url) && (
+        <div className={`grid gap-2 pt-3 ${orderable ? "grid-cols-2" : "grid-cols-1"}`}>
+          {orderable && (
             <OrderDropdown
               card={r}
               label={orderLabel}

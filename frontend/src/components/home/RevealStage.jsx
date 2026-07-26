@@ -1,12 +1,11 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { Dices, Store, Heart, Star, MapPin, ShoppingBag, Fuel, UtensilsCrossed, Skull, ExternalLink, Share2, ImageDown, RotateCcw, Flag } from "lucide-react";
+import { Dices, Store, Heart, Star, MapPin, ShoppingBag, Fuel, UtensilsCrossed, Skull, RotateCcw, Flag } from "lucide-react";
 import GroupVote from "../GroupVote";
-import CheckInButton from "../CheckInButton";
-import SocialShare from "../SocialShare";
 import BecomeSponsorDialog from "../BecomeSponsorDialog";
 import { OrderDropdown } from "../OrderDropdown";
+import { FateActionsDropdown } from "../FateActionsDropdown";
 import { useLang } from "../../i18n/i18n";
 import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reaperLineFor, lightLineFor } from "../../pages/homeConstants";
 import { buildFateCard } from "../../pages/homeFateCard";
@@ -169,19 +168,11 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
               {mode !== "shops" && mode !== "fuel" && (
                 <OrderDropdown card={card} label={mode === "desserts" ? t("Order treats") : t("Order / Delivery")} />
               )}
-              {card.google_url && (
-                <a
-                  href={card.google_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-testid="rate-on-google-button"
-                  className="inline-flex items-center gap-2 rounded-full bg-[#0E0E0E] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]"
-                >
-                  <Star className="h-4 w-4 fill-[#E01E26] text-[#E01E26]" /> {t("Reviews & ratings")}
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              )}
-              <CheckInButton card={card} />
+              <FateActionsDropdown
+                card={card}
+                onShareText={shareFate}
+                onShareImage={shareFateImage}
+              />
               <button
                 onClick={onReSpin}
                 data-testid="respin-button"
@@ -190,29 +181,12 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
                 <Dices className="h-4 w-4" /> {t("Shuffle again")}
               </button>
               <button
-                onClick={shareFate}
-                data-testid="share-fate-button"
-                className="inline-flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-2 text-sm font-semibold text-[#0E0E0E] transition-colors hover:bg-[#EDEEF0]"
-              >
-                <Share2 className="h-4 w-4" /> {t("Share your fate")}
-              </button>
-              <button
-                onClick={shareFateImage}
-                data-testid="share-fate-image-button"
-                className="inline-flex items-center gap-2 rounded-full bg-[#0E0E0E] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]"
-              >
-                <ImageDown className="h-4 w-4" /> {t("Share as image")}
-              </button>
-              <button
                 onClick={onReset}
                 data-testid="reset-spin-button"
                 className="inline-flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-2 text-sm font-semibold text-[#0E0E0E] transition-colors hover:bg-[#EDEEF0]"
               >
                 <RotateCcw className="h-4 w-4" /> {t("Clear")}
               </button>
-            </div>
-            <div className="border-t border-[#E2E4E7] pt-3">
-              <SocialShare card={card} />
             </div>
             {(() => {
               const MERCH = {
