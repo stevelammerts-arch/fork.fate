@@ -125,7 +125,15 @@ export default function Passport() {
       if (d.completed_at && d.stamped === d.total) toast.success("Passport complete — every stop stamped! 🏆");
       else toast.success(`Stamped: ${stop.name}`);
     } catch (e) {
-      toast.error(e.response?.data?.detail || "Couldn't stamp that stop");
+      // Too far away (or no location at all — common in a desktop preview): don't
+      // dead-end them, offer the manual stamp right there in the toast.
+      const tooFar = e.response?.status === 409;
+      toast.error(e.response?.data?.detail || "Couldn't stamp that stop", {
+        action:
+          tooFar && body.source === "gps"
+            ? { label: "Stamp anyway", onClick: () => postStamp(stop, { stop_id: stop.id, source: "manual" }) }
+            : undefined,
+      });
     } finally {
       setBusy("");
     }
@@ -144,7 +152,8 @@ export default function Passport() {
         toast.error(
           err.code === err.PERMISSION_DENIED
             ? "Location denied — you can still stamp manually"
-            : "Couldn't read your location — stamp manually instead"
+            : "Couldn't read your location — stamp manually instead",
+          { action: { label: "Stamp manually", onClick: () => postStamp(stop, { stop_id: stop.id, source: "manual" }) } }
         );
       },
       { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }

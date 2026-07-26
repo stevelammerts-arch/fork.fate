@@ -10,19 +10,42 @@ export function stampStyle(id = "") {
   return { ink: INKS[h % INKS.length], deg, angle: (deg * Math.PI) / 180 };
 }
 
-function arcText(ctx, text, radius, startAngle, endAngle, size) {
-  const chars = [...text];
-  const step = (endAngle - startAngle) / Math.max(chars.length - 1, 1);
+/**
+ * Letters laid along a circle, spaced by their real widths so long venue names
+ * don't collide. `flip` draws the run clockwise with upright letters for the
+ * bottom of the ring (otherwise the date reads upside down).
+ */
+function arcText(ctx, text, radius, centerAngle, size, flip = false) {
   ctx.font = `700 ${size}px Manrope, system-ui, sans-serif`;
   ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const chars = [...text];
+  const widths = chars.map((c) => ctx.measureText(c).width + size * 0.08);
+  const total = widths.reduce((a, b) => a + b, 0);
+  const dir = flip ? -1 : 1;
+  let a = centerAngle - (dir * total) / (2 * radius);
   chars.forEach((ch, i) => {
-    const a = startAngle + step * i;
+    const step = widths[i] / radius;
+    a += (dir * step) / 2;
     ctx.save();
     ctx.translate(Math.cos(a) * radius, Math.sin(a) * radius);
-    ctx.rotate(a + Math.PI / 2);
+    ctx.rotate(a + (flip ? -Math.PI / 2 : Math.PI / 2));
     ctx.fillText(ch, 0, 0);
     ctx.restore();
+    a += (dir * step) / 2;
   });
+}
+
+/** Fit a name to the top arc: trim first, then shrink until it stays in the band. */
+function fitArc(ctx, text, radius, maxSize, maxSweep) {
+  let size = maxSize;
+  for (let i = 0; i < 8; i++) {
+    ctx.font = `700 ${size}px Manrope, system-ui, sans-serif`;
+    const w = ctx.measureText(text).width + text.length * size * 0.08;
+    if (w / radius <= maxSweep) break;
+    size *= 0.9;
+  }
+  return size;
 }
 
 /** Stamp one impression on a canvas, centred at (cx, cy). */
@@ -34,36 +57,45 @@ export function stampOnCanvas(ctx, cx, cy, radius, { name = "", date = "", id = 
   ctx.globalAlpha = 0.86;
   ctx.strokeStyle = ink;
   ctx.fillStyle = ink;
-  ctx.lineWidth = Math.max(3, radius * 0.05);
+  ctx.lineWidth = Math.max(2, radius * 0.045);
 
   ctx.beginPath();
   ctx.arc(0, 0, radius, 0, Math.PI * 2);
   ctx.stroke();
   ctx.beginPath();
-  ctx.arc(0, 0, radius * 0.82, 0, Math.PI * 2);
+  ctx.arc(0, 0, radius * 0.78, 0, Math.PI * 2);
   ctx.stroke();
 
-  const short = name.length > 22 ? `${name.slice(0, 21)}…` : name;
-  arcText(ctx, short.toUpperCase(), radius * 0.66, Math.PI * 1.28, Math.PI * 1.72, radius * 0.15);
-  arcText(ctx, date, radius * 0.66, Math.PI * 0.75, Math.PI * 0.25, radius * 0.15);
+  // Name rides the top of the ring band, date the bottom.
+  const band = radius * 0.89;
+  const short = name.length > 26 ? `${name.slice(0, 25)}…` : name;
+  const nameSize = fitArc(ctx, short.toUpperCase(), band, radius * 0.15, Math.PI * 0.95);
+  arcText(ctx, short.toUpperCase(), band, -Math.PI / 2, nameSize);
+  if (date) arcText(ctx, date, band, Math.PI / 2, radius * 0.13, true);
 
   ctx.textAlign = "center";
-  ctx.font = `800 ${radius * 0.26}px Manrope, system-ui, sans-serif`;
-  ctx.fillText(kicker, 0, radius * 0.08);
-  ctx.font = `700 ${radius * 0.13}px Manrope, system-ui, sans-serif`;
-  ctx.fillText("FORK · FATE", 0, radius * 0.32);
+  ctx.textBaseline = "alphabetic";
+  ctx.font = `800 ${radius * 0.24}px Manrope, system-ui, sans-serif`;
+  ctx.fillText(kicker, 0, radius * 0.02);
+  ctx.font = `700 ${radius * 0.12}px Manrope, system-ui, sans-serif`;
+  ctx.fillText("FORK · FATE", 0, radius * 0.26);
+
+  // Star flourishes either side of the middle line, like a real entry stamp.
+  ctx.font = `700 ${radius * 0.16}px Manrope, system-ui, sans-serif`;
+  ctx.fillText("✦", -radius * 0.52, radius * 0.02);
+  ctx.fillText("✦", radius * 0.52, radius * 0.02);
 
   // Ink gaps, so it reads as rubber-stamped rather than printed.
-  ctx.globalAlpha = 1;
-  ctx.strokeStyle = "rgba(255,252,244,0.85)";
-  ctx.lineWidth = radius * 0.06;
+  ctx.globalAlpha = 0.75;
+  ctx.strokeStyle = "rgba(255,252,244,0.9)";
+  ctx.lineWidth = radius * 0.035;
   ctx.beginPath();
-  ctx.moveTo(-radius * 0.95, -radius * 0.35);
-  ctx.lineTo(radius * 0.5, -radius * 0.55);
+  ctx.moveTo(-radius * 0.95, -radius * 0.42);
+  ctx.lineTo(radius * 0.45, -radius * 0.58);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(-radius * 0.6, radius * 0.58);
-  ctx.lineTo(radius * 0.9, radius * 0.3);
+  ctx.moveTo(-radius * 0.5, radius * 0.62);
+  ctx.lineTo(radius * 0.92, radius * 0.42);
   ctx.stroke();
   ctx.restore();
 }
