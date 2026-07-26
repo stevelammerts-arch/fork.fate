@@ -3,34 +3,40 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Skull, Cog } from "lucide-react";
 
 const DECK_SIZE = 5;
-// One riffle cycle: split -> arc -> interleave -> square up.
-const RIFFLE_MS = 1150;
+// One riffle cycle. Kept deliberately brisk — a slow ease reads as floating, not shuffling.
+const RIFFLE_MS = 700;
 
-// Per-card riffle choreography. The old animation moved every card out and straight
-// back on the same path (x: [0, ±96, 0]) with a fixed stacking order, which reads as a
-// wobble rather than a shuffle. A riffle needs three things this now does:
-//   1. the deck splits into two halves that travel opposite ways,
-//   2. each half ARCS (lifts, tilts, scales up as it passes nearer the viewer)
-//      instead of sliding flat, and
-//   3. the halves interleave and the stacking order actually CHANGES between cycles
-//      (see `cycle` below) — without reordering, no amount of motion looks like a shuffle.
-// Values are derived from the card index so the deck stays deterministic (no re-randomising
-// on every React render) while still avoiding two rigid, identical-looking groups.
+// Per-card riffle choreography. The original animation slid every card out and straight
+// back on one path (x: [0, ±96, 0]) with a FIXED stacking order, which reads as a wobble.
+// A riffle needs four things this now does:
+//   1. the deck SPLITS into two packets travelling opposite ways, and visibly HOLDS
+//      apart so you actually see two halves (the phase the old version never had),
+//   2. each packet FANS around its inner-bottom corner (see transformOrigin below)
+//      rather than sliding flat — that pivot is what makes it look like cards, not tiles,
+//   3. the halves snap back and INTERLEAVE on a staggered per-card delay, and
+//   4. the stacking order actually CHANGES between cycles (see `cycle`) — without
+//      reordering, no amount of motion looks like a shuffle.
+// Derived from the card index so the deck is deterministic across renders while still
+// avoiding two rigid, identical-looking groups.
 function riffleKeyframes(i) {
-  const dir = i % 2 === 0 ? -1 : 1;      // alternate halves
-  const spread = 78 + (i % 3) * 11;      // how far the half fans out
-  const lift = -(28 + (i % 4) * 8);      // arc height
-  const tilt = dir * (13 + (i % 3) * 4); // fan rotation
-  const rest = (i - 2) * 3;              // squared-up resting tilt
+  const dir = i % 2 === 0 ? -1 : 1;      // which packet this card belongs to
+  const spread = 62 + (i % 3) * 9;       // how far the packet fans out
+  const fan = dir * (18 + (i % 3) * 5);  // fan rotation about the corner pivot
+  const peak = -30 - (i % 4) * 6;        // arc height as it passes nearest the viewer
+  const hold = -12 - (i % 3) * 5;        // lift while held apart
+  const rest = (i - 2) * 2.5;            // squared-up resting tilt
   return {
-    x: [0, dir * spread, dir * spread * 0.34, dir * 5, 0],
-    y: [0, lift * 0.55, lift, -5, 0],
-    rotate: [rest, tilt, tilt * 0.45, dir * -2, rest],
-    scale: [1, 1.02, 1.06, 0.99, 1],
+    //     stacked   split        hold         interleave            overshoot  settle
+    x: [0, dir * spread, dir * spread, dir * spread * 0.18, dir * 3, 0],
+    y: [0, hold, hold, peak, 4, 0],
+    rotate: [rest, fan, fan, fan * 0.3, dir * -1.5, rest],
+    scale: [1, 1.01, 1.01, 1.05, 0.985, 1],
     opacity: 1,
   };
 }
-const RIFFLE_TIMES = [0, 0.28, 0.5, 0.78, 1];
+// 6 keyframes -> 5 timing stops and 5 easings. Snap out, hold, snap in, compress, settle.
+const RIFFLE_TIMES = [0, 0.22, 0.34, 0.66, 0.84, 1];
+const RIFFLE_EASE = ["easeOut", "linear", "easeIn", "easeOut", "easeInOut"];
 
 // Branded card back shown on every shuffling card (photo only appears on the landed winner)
 function CardBack({ light, seasonItem, theme }) {
@@ -222,7 +228,14 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
             <motion.div
               key={(c?.id || "c") + i}
               className={`absolute inset-0 overflow-hidden rounded-2xl border-2 shadow-2xl ${season ? "bg-[#F5F0E6] shadow-black/10" : light ? "border-[#D9C9A8] bg-[#F5F0E6] shadow-black/10" : "border-[#E01E26] bg-[#0E0E0E] shadow-black/30"}`}
-              style={{ zIndex: landed ? DECK_SIZE - i : DECK_SIZE - ((i + cycle) % DECK_SIZE), ...(season && seasonAccent ? { borderColor: seasonAccent } : {}), ...(theme === "fantasy" ? { borderColor: "#E6B23A" } : {}) }}
+              style={{
+                zIndex: landed ? DECK_SIZE - i : DECK_SIZE - ((i + cycle) % DECK_SIZE),
+                // Pivot on the corner facing the centre of the deck so each packet fans
+                // open like real cards instead of sliding like a flat tile.
+                transformOrigin: landed ? "50% 50%" : (i % 2 === 0 ? "100% 100%" : "0% 100%"),
+                ...(season && seasonAccent ? { borderColor: seasonAccent } : {}),
+                ...(theme === "fantasy" ? { borderColor: "#E6B23A" } : {}),
+              }}
               animate={
                 landed
                   ? {
@@ -241,10 +254,10 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
                       duration: RIFFLE_MS / 1000,
                       times: RIFFLE_TIMES,
                       repeat: Infinity,
-                      ease: "easeInOut",
-                      // Tight cascade so the halves riffle together rather than
-                      // looking like five cards wobbling independently.
-                      delay: i * 0.045,
+                      ease: RIFFLE_EASE,
+                      // Staggered so the packets interleave card-by-card rather than
+                      // slamming together as two solid blocks.
+                      delay: i * 0.055,
                     }
               }
             >

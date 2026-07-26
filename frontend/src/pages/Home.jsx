@@ -102,7 +102,27 @@ export default function Home() {
   const lastPickRef = useRef(null);
   const thunderRef = useRef(null);
   const grooveRef = useRef(null);
-  useEffect(() => () => { if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e) { /* ignore */ } grooveRef.current = null; } }, []);
+  // Card-riffle sound layered under every shuffle, in all themes. Synthesised loop
+  // matched to the deck's RIFFLE_MS cycle, kept quiet enough to sit beneath the
+  // themed ambience rather than fight it.
+  const cardsRef = useRef(null);
+  const stopCards = () => {
+    if (cardsRef.current) {
+      try { cardsRef.current.pause(); } catch (e) { /* ignore */ }
+      cardsRef.current = null;
+    }
+  };
+  const startCards = () => {
+    try {
+      if (localStorage.getItem("ff_muted") === "1") return;
+      stopCards();
+      cardsRef.current = new Audio("/card-riffle.wav");
+      cardsRef.current.loop = true;
+      cardsRef.current.volume = 0.5;
+      cardsRef.current.play().catch(() => {});
+    } catch (e) { cardsRef.current = null; }
+  };
+  useEffect(() => () => { stopCards(); if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e) { /* ignore */ } grooveRef.current = null; } }, []);
   const { favorites, isFavorite, toggleFavorite, removeFavorite } = useFavorites();
   const [showGuided, setShowGuided] = useState(true);
   const [faqOpen, setFaqOpen] = useState(false);
@@ -273,6 +293,8 @@ export default function Home() {
           setFlashHit(true);
           // Thunder boom + 3x screen flash hit exactly as the winner is revealed
           try {
+            stopCards();
+            playSound("/card-deal.wav", 0.85);  // crisp card-down snap on the reveal
             if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e2) { /* ignore */ } grooveRef.current = null; }
             if (thunderRef.current) { thunderRef.current.currentTime = 0; thunderRef.current.play().catch(() => {}); }
             else playSound(light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3", 1.0);
@@ -292,8 +314,9 @@ export default function Home() {
         }, 140);
       }
     };
-    // Let the voice cue lead in before the deck starts shuffling
-    shuffleRef.current = setTimeout(step, 1200);
+    // Let the voice cue lead in before the deck starts shuffling; the card-riffle
+    // sound starts with the first flick so audio and motion begin together.
+    shuffleRef.current = setTimeout(() => { startCards(); step(); }, 1200);
   };
 
   const doSearch = async (cuisinesArg, pricesArg, categoryArg, coordsArg = coords, opts = {}) => {
@@ -456,6 +479,8 @@ export default function Home() {
         setFlash(winner || nextFlash());
         setFlashHit(true);
         try {
+          stopCards();
+          playSound("/card-deal.wav", 0.85);
           if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e2) { /* ignore */ } grooveRef.current = null; }
           playSound(theme === "tiki" ? "/reveal-drums-boom.wav" : theme === "cyber" ? "/reveal-electric.wav" : theme === "spring" ? "/reveal-koto.wav" : theme === "steam" ? "/reveal-steam.wav" : theme === "winter" ? "/reveal-santa.wav" : theme === "fall" ? "/reveal-owl.wav" : theme === "fantasy" ? "/reveal-dragon.mp3" : "/reveal-thunder-v4.mp3", 1.0);
         } catch (e) { /* audio */ }
@@ -469,7 +494,7 @@ export default function Home() {
         }, 1400);
       }
     };
-    shuffleRef.current = setTimeout(step, 1000);
+    shuffleRef.current = setTimeout(() => { startCards(); step(); }, 1000);
   };
 
   const dealCrawl = async () => {
