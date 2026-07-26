@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { OrderDropdown } from "./OrderDropdown";
+import { supportsDelivery } from "../pages/homeConstants";
 import {
   Star, MapPin, ExternalLink, ShoppingBag, Flag, Heart,
   Beer, Wine, Martini, Target, Music, Gamepad2, CircleDot, Tv, Trophy,
@@ -45,7 +46,7 @@ const DESSERT_ICONS = {
   "Frozen Yogurt": Donut,
 };
 
-export function RestaurantCard({ r, onReport, isFavorite, onToggleFavorite }) {
+export function RestaurantCard({ r, onReport, isFavorite, onToggleFavorite, mode }) {
   const VibeIcon = r.category === "bars" ? (BAR_ICONS[r.cuisine] || Trophy)
     : r.category === "desserts" ? (DESSERT_ICONS[r.cuisine] || IceCream)
     : null;
@@ -53,11 +54,11 @@ export function RestaurantCard({ r, onReport, isFavorite, onToggleFavorite }) {
   const orderLabel = isDessert ? "Order treats" : "Order";
   // Delivery makes no sense for retail/fuel stops (a yarn store isn't on DoorDash).
   // Mirrors the reveal card's `mode !== "shops" && mode !== "fuel"` guard.
+  // Prefer the venue's own category, but fall back to the active tab: live Google
+  // results have historically arrived without a category, which made an
+  // `r.category !== "shops"` style check silently pass and re-expose delivery links.
   const orderable =
-    r.category !== "shops" &&
-    r.category !== "fuel" &&
-    r.category !== "explore" &&
-    r.category !== "stay" &&
+    supportsDelivery(r.category ?? mode) &&
     !!(r.doordash_url || r.ubereats_url || r.grubhub_url || r.order_url);
   return (
     <motion.div

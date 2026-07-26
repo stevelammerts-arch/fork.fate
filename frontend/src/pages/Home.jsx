@@ -966,7 +966,11 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="inline-flex flex-wrap justify-center rounded-full border border-[#E2E4E7] bg-[#EDEEF0] p-1" data-testid="mode-toggle">
+            {/* 8 tabs no longer fit on one line at phone widths. A single horizontal
+                scroller keeps them as one row — wrapping to three rows read as clutter
+                and pushed the deal button below the fold. */}
+            <div className="-mx-1 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="inline-flex w-max flex-nowrap rounded-full border border-[#E2E4E7] bg-[#EDEEF0] p-1" data-testid="mode-toggle">
               <button
                 data-testid="mode-food"
                 onClick={() => switchMode("food")}
@@ -1031,6 +1035,7 @@ export default function Home() {
                 <Tent className="h-4 w-4" />
                 {t("Stay")}
               </button>
+              </div>
             </div>
 
             <Filters
@@ -1272,7 +1277,7 @@ export default function Home() {
           </div>
           <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3" data-testid="restaurant-grid">
             {sortedResults.slice(0, 6).map((r) => (
-              <RestaurantCard key={r.id} r={r} onReport={reportClosed} isFavorite={isFavorite(r)} onToggleFavorite={toggleFavorite} />
+              <RestaurantCard key={r.id} r={r} mode={mode} onReport={reportClosed} isFavorite={isFavorite(r)} onToggleFavorite={toggleFavorite} />
             ))}
           </div>
         </section>

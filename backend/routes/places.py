@@ -178,6 +178,11 @@ def _place_to_result(p: dict, req: PlacesSearchRequest, lat: float, lng: float):
         "image": pick_placeholder(req.category, name),
         "photo_url": photo_url,
         "sponsored": False,
+        # Stamp the searched category onto every Google result. Without it the
+        # frontend's delivery guards (`r.category !== "shops"` etc.) silently passed
+        # for ALL live results, because the field simply didn't exist — so shops and
+        # fuel tiles were showing DoorDash links again as soon as a Google key was set.
+        "category": req.category,
         "google_url": p.get("googleMapsUri") or maps_url(name, address),
         "doordash_url": doordash_url(name, address),
         "ubereats_url": ubereats_url(name, address),

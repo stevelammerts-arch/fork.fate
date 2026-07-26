@@ -7,7 +7,7 @@ import BecomeSponsorDialog from "../BecomeSponsorDialog";
 import { OrderDropdown } from "../OrderDropdown";
 import { FateActionsDropdown } from "../FateActionsDropdown";
 import { useLang } from "../../i18n/i18n";
-import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reaperLineFor, lightLineFor } from "../../pages/homeConstants";
+import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reaperLineFor, lightLineFor, supportsDelivery } from "../../pages/homeConstants";
 import { buildFateCard } from "../../pages/homeFateCard";
 import { trackEvent } from "../../lib/analytics";
 
@@ -165,7 +165,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
               </p>
             )}
             <div className="flex flex-wrap gap-3">
-              {mode !== "shops" && mode !== "fuel" && mode !== "explore" && mode !== "stay" && (
+              {supportsDelivery(mode) && (
                 <OrderDropdown card={card} label={mode === "desserts" ? t("Order treats") : t("Order / Delivery")} />
               )}
               <FateActionsDropdown

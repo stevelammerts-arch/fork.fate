@@ -41,7 +41,7 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: 
   const trackBg = dark ? "bg-[#2A2A2A]" : "bg-black/10";
   const chipIdle = dark ? "border-[#2A2A2A] bg-[#1C1C1C] text-[#A0A0A0]" : "border-black/10 bg-black/[0.03] text-[#3A3F45]";
   const backBtn = dark ? "text-[#C0C0C0] hover:text-white" : "text-[#5A6068] hover:text-[#0E0E0E]";
-  const skipIdle = dark ? "border-[#3A3A3A] bg-white/5 text-white" : "border-black/15 bg-black/[0.04] text-[#0E0E0E]";
+  const skipIdle = dark ? "border-white/40 bg-white/15 text-white" : "border-black/30 bg-white text-[#0E0E0E]";
 
   const INTERESTS = [
     { key: "food", label: t("Food"), sub: t("Restaurants & eats"), Icon: Utensils },

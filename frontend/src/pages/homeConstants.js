@@ -118,7 +118,15 @@ export const FOOD_CUISINES = [
 ];
 export const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "Smoothie", "Juice Bar", "Milkshakes", "Kombucha", "Cider", "Hot Chocolate", "Matcha", "Lemonade", "Soda Fountain"];
 export const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Donuts", "Cupcakes", "Candy Shops", "Chocolate", "Crepes", "Cheesecake", "Pie", "Cookies", "Waffles", "Macarons", "Cinnamon Rolls"];
-export const SHOP_CUISINES = ["Antiques", "Thrift Store", "Vintage", "Flea Market", "Farmers Market", "Consignment", "Record Store", "Bookstore", "Pawn Shop", "Gem Store", "Jewelry Store", "Bead Shop", "Quilt Shop", "Yarn Shop", "Hobby Shop", "Comic Store", "Model Shop", "Trading Cards", "Toy Trains", "LEGO Store", "Toy Store", "Bicycle Shop"];
+export const SHOP_CUISINES = ["Antiques", "Thrift Store", "Vintage", "Flea Market", "Farmers Market", "Consignment", "Record Store", "Bookstore", "Pawn Shop", "Gem Store", "Jewelry Store", "Bead Shop", "Quilt Shop", "Yarn Shop", "Craft Store", "Fabric Store", "Art Supply", "Plant Shop", "Garden Center", "Nursery", "Hobby Shop", "Comic Store", "Model Shop", "Trading Cards", "Toy Trains", "LEGO Store", "Toy Store", "Bicycle Shop"];
+// Categories where ordering/delivery links make sense. A hiking trail, campground,
+// thrift store or gas station has no delivery, so the Order dropdown must be hidden
+// rather than sending people to a dead-end DoorDash search.
+// Single source of truth — this guard was previously duplicated inline in RevealStage
+// and RestaurantCard and leaked a third time when Explore/Stay were added.
+export const NO_DELIVERY_CATEGORIES = ["shops", "fuel", "explore", "stay"];
+export const supportsDelivery = (category) => !NO_DELIVERY_CATEGORIES.includes(category);
+
 export const FUEL_CUISINES = ["Gas Station", "EV Charging", "Truck Stop", "Car Wash", "Touchless Car Wash", "Diesel"];
 // Things to DO. Outdoor recreation first (the original ask), then indoor/rainy-day
 // attractions so the tab still has answers in winter or bad weather.
@@ -126,9 +134,11 @@ export const EXPLORE_CUISINES = [
   "State Parks", "National Parks", "Nature Preserves", "Hiking Trails", "Mountain Biking",
   "Fishing Spots", "Boat Launches", "Hunting Land", "Scenic Overlooks", "Waterfalls",
   "Botanical Gardens", "Hot Springs", "Caves", "Beaches", "Lakes",
-  "Zoos", "Aquariums", "Museums", "Art Galleries", "Historic Sites",
+  "Zoos", "Safaris", "Aquariums", "Museums", "Children's Museums", "Science Centers",
+  "Art Galleries", "Historic Sites", "Planetariums",
   "Mini Golf", "Go-Karts", "Bowling", "Arcades", "Escape Rooms", "Axe Throwing",
   "Zip Lines", "Climbing Gyms", "Skate Parks", "Water Parks", "Drive-In Theaters",
+  "Trampoline Parks", "Playgrounds", "Splash Pads", "Petting Zoos",
   "Disc Golf", "Horseback Riding", "Kayak Rentals", "ATV Trails", "Farms & Orchards",
 ];
 // Somewhere to sleep. NOTE: Airbnb/Vrbo are deliberately absent — they're closed
