@@ -1,74 +1,100 @@
-from fastapi import FastAPI, APIRouter
-from dotenv import load_dotenv
-from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
+"""Fork·Fate API entrypoint: wires routers, CORS, startup/shutdown."""
 import os
-import logging
-from pathlib import Path
-from pydantic import BaseModel, Field
-from typing import List
-import uuid
-from datetime import datetime
+import asyncio
+from datetime import datetime, timezone
+from fastapi import FastAPI, APIRouter
+from starlette.middleware.cors import CORSMiddleware
 
+from core import client, logger, ALLOWED_ORIGIN_REGEX
+from seed_data import seed_db
+from routes import restaurants, stats, crawls, places, sponsors, admin, passkey, merch
+from routes.sponsors import reconcile_sponsors
 
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
-
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
-
-# Create the main app without a prefix
 app = FastAPI()
-
-# Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+api_router.include_router(restaurants.router)
+api_router.include_router(stats.router)
+api_router.include_router(crawls.router)
+api_router.include_router(places.router)
+api_router.include_router(sponsors.router)
+api_router.include_router(admin.router)
+api_router.include_router(passkey.router)
+api_router.include_router(merch.router)
 
-# Define Models
-class StatusCheck(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
-
-class StatusCheckCreate(BaseModel):
-    client_name: str
-
-# Add your routes to the router instead of directly to app
-@api_router.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.dict()
-    status_obj = StatusCheck(**status_dict)
-    _ = await db.status_checks.insert_one(status_obj.dict())
-    return status_obj
-
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    status_checks = await db.status_checks.find().to_list(1000)
-    return [StatusCheck(**status_check) for status_check in status_checks]
-
-# Include the router in the main app
 app.include_router(api_router)
 
+
+@app.middleware("http")
+async def security_headers(request, call_next):
+    resp = await call_next(request)
+    resp.headers["X-Content-Type-Options"] = "nosniff"
+    resp.headers["X-Frame-Options"] = "DENY"
+    resp.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    resp.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
+    # API responses never embed active content; lock them down completely.
+    resp.headers.setdefault("Content-Security-Policy", "default-src 'none'; img-src 'self'; frame-ancestors 'none'")
+    return resp
+
+# Restrict CORS to the app's own domains (prod fork-fate.com + Emergent preview subdomains).
+# Extra explicit origins can be added via the CORS_ORIGINS env (comma-separated).
+_extra_origins = [o.strip() for o in os.environ.get('CORS_ORIGINS', '').split(',') if o.strip() and o.strip() != '*']
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
+    allow_origins=_extra_origins,
+    allow_origin_regex=ALLOWED_ORIGIN_REGEX,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+
+async def _reconcile_loop():
+    """Daily background job: auto-pause lapsed/cancelled sponsors (webhook alternative)."""
+    while True:
+        try:
+            res = await reconcile_sponsors()
+            if res.get("checked"):
+                logger.info(f"Daily sponsor reconcile: {res}")
+        except Exception as e:
+            logger.warning(f"Reconcile loop error: {e}")
+        await asyncio.sleep(24 * 60 * 60)
+
+
+async def _monthly_summary_loop():
+    """Auto-send the sponsor summary email on the 1st of each month (idempotent)."""
+    from core import send_email, db
+    from routes.admin import build_sponsor_summary
+    while True:
+        try:
+            now = datetime.now(timezone.utc)
+            if now.day == 1:
+                tag = now.strftime("%Y-%m")
+                already = await db.config.find_one({"key": "summary_sent", "month": tag})
+                if not already:
+                    subject, html = await build_sponsor_summary()
+                    if await send_email(subject, html):
+                        await db.config.update_one(
+                            {"key": "summary_sent", "month": tag},
+                            {"$set": {"sent_at": now.isoformat()}}, upsert=True)
+                        logger.info(f"Sent monthly sponsor summary for {tag}")
+        except Exception as e:
+            logger.warning(f"Monthly summary loop error: {e}")
+        await asyncio.sleep(6 * 60 * 60)
+
+
+@app.on_event("startup")
+async def startup_event():
+    await seed_db()
+    try:
+        from core import init_storage
+        await init_storage()
+        logger.info("Object storage initialized")
+    except Exception as e:
+        logger.error(f"Object storage init failed: {e}")
+    asyncio.create_task(_reconcile_loop())
+    asyncio.create_task(_monthly_summary_loop())
+
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

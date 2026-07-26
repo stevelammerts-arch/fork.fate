@@ -1,0 +1,178 @@
+{
+  "app_name": "Fork·Fate",
+  "personality": "6 Glass / Luxe DARK fused with 3 Editorial typography",
+  "personality_one_liner": "A cinematic, suspenseful roulette experience where dark, macabre aesthetics meet premium, glass-layered native interaction.",
+  "color": {
+    "surface": "#0B0B0B",
+    "onSurface": "#F7F7F7",
+    "surfaceSecondary": "#1A1A1A",
+    "onSurfaceSecondary": "#E0E0E0",
+    "surfaceTertiary": "#262626",
+    "onSurfaceTertiary": "#CCCCCC",
+    "surfaceInverse": "#F2F2F2",
+    "onSurfaceInverse": "#0B0B0B",
+    "brand": "#E01E26",
+    "brandPrimary": "#E01E26",
+    "onBrandPrimary": "#FFFFFF",
+    "brandSecondary": "#B3181E",
+    "onBrandSecondary": "#FFFFFF",
+    "brandTertiary": "#4D0A0D",
+    "onBrandTertiary": "#FFD1D3",
+    "success": "#287D3C",
+    "onSuccess": "#FFFFFF",
+    "warning": "#B28600",
+    "onWarning": "#FFFFFF",
+    "error": "#D32F2F",
+    "onError": "#FFFFFF",
+    "info": "#4A4A4A",
+    "onInfo": "#FFFFFF",
+    "border": "#2E2E2E",
+    "borderStrong": "#4D4D4D",
+    "divider": "#1F1F1F"
+  },
+  "typography": {
+    "displayFontFamily": "CormorantGaramond_500Medium",
+    "textFontFamily": "Manrope_500Medium",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Generous vertical breathing room. Cards never flush to edge (use md/lg margin). Empty space is deliberate.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 20,
+    "pill": 999
+  },
+  "shadow_tier": "0 (Rely on blur, glass, and layered depth instead of traditional drop shadows per Glass/Luxe guidelines)",
+  "navigation": "bottom_tabs",
+  "icon_set": "Phosphor",
+  "glassmorphism": {
+    "enabled": true,
+    "do's": [
+      "Use glass for sticky headers over scrolling content",
+      "Use glass for bottom tab bar and bottom-sheet handles",
+      "Use glass overlays heavily on the Fate Card over the venue imagery",
+      "Combine blur with ≥75% tinted base underneath for readability"
+    ],
+    "dont's": [
+      "Never blur body text regions, form fields, or cards in dense lists",
+      "Avoid applying glass if it competes directly with another frosted surface (limit 2 per screen)"
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "haptics": {
+    "events": {
+      "deal_press": "impactHeavy",
+      "shuffle_tick": "selection",
+      "reveal_card": "notificationSuccess",
+      "chip_select": "selection",
+      "tab_press": "impactLight",
+      "add_to_crawl": "impactMedium",
+      "crawl_checkin": "notificationSuccess"
+    }
+  },
+  "screens": [
+    {
+      "name": "Deal (Home)",
+      "purpose": "Configure constraints and commit to letting fate decide.",
+      "states": {
+        "loading": "Centered spinner + skeleton chips",
+        "empty": "N/A",
+        "error": "Failed to get location or connection error. Readable message + Retry CTA."
+      },
+      "layout": "Safe-area respecting header with user location. Horizontally scrolling chip row for quick filters (Food, Drinks). Full-bleed layout where the primary 'DEAL' CTA is huge, pinned to the bottom thumb zone with a glass gradient behind it. Tapping 'Filters' opens a native bottom sheet (@gorhom/bottom-sheet) for price/distance."
+    },
+    {
+      "name": "Shuffle + Reveal (Fate Card)",
+      "purpose": "Build suspense and deliver the chosen venue.",
+      "states": {
+        "loading": "N/A (Animation masks the network call)",
+        "empty": "N/A",
+        "error": "Oops, fate is blocked. Retry button."
+      },
+      "layout": "Presented as a fullScreenModal. Phase 1: Reanimated shuffling cards (transforms and opacity for 60fps), triggered with rapid 'selection' haptics. Phase 2: Card lands, flips, and expands to full screen. The card is a full-bleed photo with a heavy bottom-to-top gradient scrim (0% transparent -> 90% surfaceInverse). Details (name, price, rating) and floating actions (Maps, Order) sit on the bottom 40% of the screen."
+    },
+    {
+      "name": "Nearby",
+      "purpose": "Browse alternative results if fate's pick wasn't accepted.",
+      "states": {
+        "loading": "Skeleton grid",
+        "empty": "Grim Reaper illustration ('Fate found nothing in this wasteland') + clear filters CTA.",
+        "error": "Error fetching nearby places + Retry CTA."
+      },
+      "layout": "Standard scrolling grid (2 columns for compact cards or single column for detailed rows). Sticky header with segmented control / sort filters. Each card uses a brandTertiary tinted gradient for depth."
+    },
+    {
+      "name": "Pub Crawl",
+      "purpose": "Build, track, and complete a multi-stop route.",
+      "states": {
+        "loading": "Skeleton timeline",
+        "empty": "Illustration of empty glass/bar + 'Start a Crawl' primary CTA.",
+        "error": "Failed to load route + Retry CTA."
+      },
+      "layout": "Timeline view with vertical dashed connecting lines. Each stop is a row. Live progress tracking mode switches the active row to a 'Glass' elevated surface with a check-in button and live timer. Bottom of screen holds a sticky CTA for 'Share Code'."
+    },
+    {
+      "name": "Leaderboard",
+      "purpose": "Social proof and competitive rankings.",
+      "states": {
+        "loading": "Skeleton list",
+        "empty": "No one has survived this crawl yet. Be the first.",
+        "error": "Leaderboard offline + Retry CTA."
+      },
+      "layout": "Sticky glass header with segmented control (Global / This Week / This Crawl). Dense, readable list layout. Top 3 ranks have a subtle glass highlight or brandTertiary tint. User's own rank is pinned to the bottom above the tab bar."
+    }
+  ],
+  "images": {
+    "fate_card_bg": {
+      "url": "https://images.unsplash.com/photo-1709548145082-04d0cde481d4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTF8MHwxfHNlYXJjaHwxfHxkYXJrJTIwY2luZW1hdGljJTIwcmVzdGF1cmFudCUyMGludGVyaW9yfGVufDB8fHx8MTc4NTAyNzQ2Mnww&ixlib=rb-4.1.0&q=85",
+      "dark": "https://images.unsplash.com/photo-1709548145082-04d0cde481d4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTF8MHwxfHNlYXJjaHwxfHxkYXJrJTIwY2luZW1hdGljJTIwcmVzdGF1cmFudCUyMGludGVyaW9yfGVufDB8fHx8MTc4NTAyNzQ2Mnww&ixlib=rb-4.1.0&q=85",
+      "alt": "Dark cinematic restaurant interior for dark mode background"
+    },
+    "fate_card_bg_light": {
+      "url": "https://images.unsplash.com/photo-1597290282695-edc43d0e7129?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1ODh8MHwxfHNlYXJjaHwxfHxjb2NrdGFpbCUyMGJhciUyMG5pZ2h0fGVufDB8fHx8MTc4NTAyNzQ2Mnww&ixlib=rb-4.1.0&q=85",
+      "dark": "https://images.unsplash.com/photo-1709548145082-04d0cde481d4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTF8MHwxfHNlYXJjaHwxfHxkYXJrJTIwY2luZW1hdGljJTIwcmVzdGF1cmFudCUyMGludGVyaW9yfGVufDB8fHx8MTc4NTAyNzQ2Mnww&ixlib=rb-4.1.0&q=85",
+      "alt": "Bright cocktail bar for light mode background"
+    },
+    "empty_state_reaper": {
+      "url": "https://images.pexels.com/photos/14162769/pexels-photo-14162769.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "dark": "https://images.pexels.com/photos/14162769/pexels-photo-14162769.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "alt": "Shadowy figure in a cloak for macabre empty states"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Follow the 'Glass / Luxe DARK' personality mixed with Editorial typography. Cormorant Garamond is for headings (max weight 500), Manrope is for body (max weight 500).",
+    "Ensure dark mode is the primary focus but follow the mapped colors for a clean Light Mode swap. Avoid pure black/white clashes.",
+    "For the Shuffle/Reveal interaction, utilize `react-native-reanimated` optimizing transform and opacity for 60fps. Bind Haptic feedback to the animation progress (see haptics map).",
+    "All Fate Cards (venue images) MUST have a heavy vertical gradient scrim (bottom to top, 0% to 90% opacity of surfaceInverse) to guarantee text legibility on top of the image.",
+    "Use @gorhom/bottom-sheet for the main 'Filter' sheet on the Deal Screen, integrating a glass handle and smooth native interaction.",
+    "Do NOT use any shades of blue, indigo, or purple. Stick to the Reaper Dark palette (Near black, greys, and the signature #E01E26 Red accent).",
+    "No emojis in the UI. Use Phosphor icons consistently.",
+    "Implement the 'DEAL' button as a sticky, full-width CTA pinned at the bottom, above the tab bar, surrounded by a glass overlay so scrollable content naturally flows behind it."
+  ]
+}
