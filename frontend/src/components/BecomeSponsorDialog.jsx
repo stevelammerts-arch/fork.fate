@@ -14,7 +14,10 @@ import {
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const EMAIL = "steve@fork-fate.com";
-const CATEGORIES = ["food", "drinks", "bars", "desserts", "shops"];
+// Must cover every tab a sponsor could appear under, since sponsored results are
+// injected into the matching category's shuffle. "fuel" was missing before Explore/Stay
+// were added, so a gas station could never buy placement at all.
+const CATEGORIES = ["food", "drinks", "bars", "desserts", "shops", "fuel", "explore", "stay"];
 const PRICES = ["$", "$$", "$$$", "$$$$"];
 const EMPTY = { name: "", category: "food", cuisine: "", price: "$$", address: "", website: "", image: "", contact_email: "" };
 

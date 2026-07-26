@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, Search, ExternalLink, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, Flame, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, ArrowRight, Swords } from "lucide-react";
+import { Dices, Star, MapPin, Search, ExternalLink, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, Flame, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, ArrowRight, Swords, Mountain, Tent } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -23,7 +23,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import {
   readStreak, bumpStreak,
   HERO_INITIAL, HERO_ANIMATE, HERO_TRANSITION, SPIN_TAP,
-  FOOD_CUISINES, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, SHOP_CUISINES, FUEL_CUISINES, CRAWL_TYPES, crawlLabelForType, orderCrawlRoute,
+  FOOD_CUISINES, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, SHOP_CUISINES, FUEL_CUISINES, EXPLORE_CUISINES, STAY_CUISINES, CRAWL_TYPES, crawlLabelForType, orderCrawlRoute,
 } from "./homeConstants";
 import { Input } from "../components/ui/input";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "../components/ui/accordion";
@@ -208,7 +208,11 @@ export default function Home() {
     setGroupPicks(null);
   };
 
-  const cuisineList = mode === "food" ? FOOD_CUISINES : mode === "drinks" ? DRINK_CUISINES : mode === "bars" ? BAR_CUISINES : mode === "desserts" ? DESSERT_CUISINES : mode === "shops" ? SHOP_CUISINES : FUEL_CUISINES;
+  const cuisineList = mode === "food" ? FOOD_CUISINES : mode === "drinks" ? DRINK_CUISINES : mode === "bars" ? BAR_CUISINES : mode === "desserts" ? DESSERT_CUISINES : mode === "shops" ? SHOP_CUISINES : mode === "explore" ? EXPLORE_CUISINES : mode === "stay" ? STAY_CUISINES : FUEL_CUISINES;
+  // Outdoor recreation and lodging are genuinely further out than dinner — a state
+  // park or campground 80 miles away is a reasonable weekend answer, a taco place
+  // 80 miles away is not. Default stays 50 for every tab.
+  const radiusMax = mode === "explore" || mode === "stay" ? 150 : 100;
 
   const runShuffle = (pool) => {
     setResult(null);
@@ -589,7 +593,7 @@ export default function Home() {
       <AnimatePresence>
         {showGuided && (
           <GuidedFlow
-            cuisineMap={{ food: FOOD_CUISINES, drinks: DRINK_CUISINES, bars: BAR_CUISINES, desserts: DESSERT_CUISINES, shops: SHOP_CUISINES, fuel: FUEL_CUISINES }}
+            cuisineMap={{ food: FOOD_CUISINES, drinks: DRINK_CUISINES, bars: BAR_CUISINES, desserts: DESSERT_CUISINES, shops: SHOP_CUISINES, fuel: FUEL_CUISINES, explore: EXPLORE_CUISINES, stay: STAY_CUISINES }}
             onSeal={sealFate}
             onSkip={finishGuided}
             theme={theme}
@@ -883,10 +887,10 @@ export default function Home() {
           className="max-w-2xl"
         >
           <p className="font-sans text-sm font-extrabold tracking-[0.25em] uppercase text-[#E01E26]">
-            {mode === "food" ? t("Can't decide where to eat?") : mode === "drinks" ? t("Can't decide what to sip?") : mode === "bars" ? t("Can't decide where to drink?") : mode === "desserts" ? t("Craving something sweet?") : mode === "shops" ? t("Feeling like a treasure hunt?") : t("Need to fill up or charge?")}
+            {mode === "food" ? t("Can't decide where to eat?") : mode === "drinks" ? t("Can't decide what to sip?") : mode === "bars" ? t("Can't decide where to drink?") : mode === "desserts" ? t("Craving something sweet?") : mode === "shops" ? t("Feeling like a treasure hunt?") : mode === "explore" ? t("Can't decide what to do?") : mode === "stay" ? t("Need somewhere to stay?") : t("Need to fill up or charge?")}
           </p>
           <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl" style={ambCfg ? { color: ambCfg.sky, textShadow: theme === "cyber" ? "0 0 12px rgba(199,125,255,0.6)" : undefined } : undefined}>
-            {mode === "food" ? t("Let fate pick tonight's table.") : mode === "drinks" ? t("Let fate pick your next sip.") : mode === "bars" ? t("Let fate pick tonight's bar.") : mode === "desserts" ? t("Let fate pick your sweet treat.") : mode === "shops" ? t("Let fate pick your next find.") : t("Let fate pick your pit stop.")}
+            {mode === "food" ? t("Let fate pick tonight's table.") : mode === "drinks" ? t("Let fate pick your next sip.") : mode === "bars" ? t("Let fate pick tonight's bar.") : mode === "desserts" ? t("Let fate pick your sweet treat.") : mode === "shops" ? t("Let fate pick your next find.") : mode === "explore" ? t("Let fate pick your next adventure.") : mode === "stay" ? t("Let fate pick tonight's basecamp.") : t("Let fate pick your pit stop.")}
           </h1>
           <p className="mt-4 font-sans text-base font-semibold leading-relaxed text-[#0E0E0E]" style={ambCfg ? { color: ambCfg.sky, opacity: 0.92 } : undefined}>
             {mode === "food"
@@ -899,6 +903,10 @@ export default function Home() {
               ? t("Ice cream, bakery, candy or froyo? Set your filters and hit Deal — we'll shuffle nearby dessert spots and pick your treat.")
               : mode === "shops"
               ? t("Antiques, thrift, vintage or a hobby shop? Set your filters and hit Deal — we'll shuffle nearby shops and pick your next find.")
+              : mode === "explore"
+              ? t("A state park, a hiking trail, a waterfall — or mini golf if it's raining? Set your filters and hit Deal, and we'll shuffle what's out there and pick your next adventure.")
+              : mode === "stay"
+              ? t("A campground, an RV site, a cabin or a cosy inn? Set your filters and hit Deal — we'll shuffle nearby places to stay and pick tonight's basecamp.")
               : t("Gas or an EV charger? Set your filters and hit Deal — we'll shuffle nearby stations and pick your pit stop.")}
           </p>
         </motion.div>
@@ -946,14 +954,14 @@ export default function Home() {
                   data-testid="radius-slider"
                   value={[radius]}
                   min={0}
-                  max={50}
+                  max={radiusMax}
                   step={1}
                   onValueChange={(v) => setRadius(v[0])}
                   aria-label="Search radius in miles"
                 />
                 <div className="mt-1.5 flex justify-between font-sans text-[10px] font-bold uppercase tracking-wider text-[#B8BCC2]">
                   <span>0 mi</span>
-                  <span>50 mi</span>
+                  <span>{radiusMax} mi</span>
                 </div>
               </div>
             </div>
@@ -1007,11 +1015,27 @@ export default function Home() {
                 <Fuel className="h-4 w-4" />
                 {t("Fuel")}
               </button>
+              <button
+                data-testid="mode-explore"
+                onClick={() => switchMode("explore")}
+                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "explore" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+              >
+                <Mountain className="h-4 w-4" />
+                {t("Explore")}
+              </button>
+              <button
+                data-testid="mode-stay"
+                onClick={() => switchMode("stay")}
+                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-colors ${mode === "stay" ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+              >
+                <Tent className="h-4 w-4" />
+                {t("Stay")}
+              </button>
             </div>
 
             <Filters
               cuisines={cuisineList}
-              cuisineLabel={mode === "food" ? t("Cuisine") : mode === "drinks" ? t("Drink type") : mode === "bars" ? t("Bar type") : mode === "desserts" ? t("Dessert type") : mode === "shops" ? t("Shop type") : t("Fuel type")}
+              cuisineLabel={mode === "food" ? t("Cuisine") : mode === "drinks" ? t("Drink type") : mode === "bars" ? t("Bar type") : mode === "desserts" ? t("Dessert type") : mode === "shops" ? t("Shop type") : mode === "explore" ? t("Activity") : mode === "stay" ? t("Stay type") : t("Fuel type")}
               selectedCuisines={selectedCuisines}
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
               labelColor={labelColor}
@@ -1274,7 +1298,7 @@ export default function Home() {
               </div>
               <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">{t("1. Pick your craving")}</h3>
               <p className="mt-2 font-sans text-sm text-[#6B7075]">
-                {t("Choose Food, Drinks, Bars, or Desserts, then narrow it down with cuisine chips and toggles like \"Open now\" and \"Gluten free\" to match the mood.")}
+                {t("Choose Food, Drinks, Bars, Desserts, Shops, Fuel, Explore or Stay — then narrow it down with type chips and toggles like \"Open now\" to match the mood.")}
               </p>
             </div>
             <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6" data-testid="step-2">
@@ -1283,7 +1307,7 @@ export default function Home() {
               </div>
               <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">{t("2. Set your location")}</h3>
               <p className="mt-2 font-sans text-sm text-[#6B7075]">
-                {t("Enter a ZIP code or tap \"Use my location\" and Fork·Fate pulls real, nearby restaurants within 50 miles using live Google data.")}
+                {t("Enter a ZIP code or tap \"Use my location\" and Fork·Fate pulls real, nearby places using live Google data — up to 100 miles out, or 150 for Explore and Stay, since a state park is worth the drive.")}
               </p>
             </div>
             <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6" data-testid="step-3">
@@ -1292,7 +1316,7 @@ export default function Home() {
               </div>
               <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">{t("3. Deal your fate")}</h3>
               <p className="mt-2 font-sans text-sm text-[#6B7075]">
-                {t("Hit the button and watch the deck shuffle to reveal tonight's pick — with directions, reviews, delivery links, and a few more spots to consider if you want a re-roll.")}
+                {t("Hit the button and watch the deck shuffle to reveal your pick — with directions, reviews, delivery links where they apply, and a few more spots to consider if you want a re-roll.")}
               </p>
             </div>
           </div>
@@ -1315,12 +1339,14 @@ export default function Home() {
           {faqOpen && (
           <Accordion type="single" collapsible className="mt-4 w-full animate-in fade-in slide-in-from-top-2 duration-300" data-testid="faq-section">
             {[
-              { q: t("How does Fork·Fate pick a restaurant?"), a: t("After you set your filters, Fork·Fate gathers matching local spots and randomly deals one from the deck. Every deal is a fresh shuffle, so you'll discover places you might never have chosen yourself.") },
-              { q: t("Is Fork·Fate free to use?"), a: t("Yes — Fork·Fate is completely free. There's no account, no signup, and no paywall. Just open it, shuffle, and go eat.") },
+              { q: t("How does Fork·Fate pick a place?"), a: t("After you set your filters, Fork·Fate gathers matching local spots and randomly deals one from the deck. Every deal is a fresh shuffle, so you'll discover places you might never have chosen yourself.") },
+              { q: t("Is Fork·Fate free to use?"), a: t("Yes — Fork·Fate is completely free. There's no account, no signup, and no paywall. Just open it, shuffle, and go.") },
               { q: t("Do I need to create an account?"), a: t("No login required. You can start spinning the moment the page loads, on your phone or desktop.") },
-              { q: t("How do you find nearby places?"), a: t("Fork·Fate uses live Google Places data based on your ZIP code or device location, so results reflect real, currently-listed restaurants, bars, and dessert shops around you.") },
+              { q: t("What are the Explore and Stay tabs?"), a: t("Explore deals you something to DO — state and national parks, hiking and biking trails, fishing spots, waterfalls and scenic overlooks, plus rainy-day picks like museums, bowling, mini golf and escape rooms. Stay deals you somewhere to sleep — campgrounds, RV parks and KOAs, cabins, yurts, lodges and inns. Both search further out than the food tabs, since a park or campsite is usually worth the drive.") },
+              { q: t("Why can't I order delivery from every result?"), a: t("Delivery links only appear where they make sense. A restaurant or dessert shop gets DoorDash, Uber Eats and Grubhub links; a hiking trail, campground, thrift store or gas station doesn't — so Fork·Fate hides them instead of sending you to a dead end.") },
+              { q: t("How do you find nearby places?"), a: t("Fork·Fate uses live Google Places data based on your ZIP code or device location, so results reflect real, currently-listed places around you — restaurants and bars, shops, parks and trails, and campgrounds alike.") },
               { q: t("Can I add my favorite local spot?"), a: t("Absolutely. Tap \"Add spot\" to submit a place you love. Community submissions are quickly reviewed before they join the roulette pool.") },
-              { q: t("Can I install Fork·Fate as an app?"), a: t("Yes — tap \"Download app\" to install Fork·Fate as a PWA on your home screen for one-tap access whenever hunger strikes.") },
+              { q: t("Can I install Fork·Fate as an app?"), a: t("Yes — tap \"Download app\" to install Fork·Fate as a PWA on your home screen for one-tap access whenever you can't decide.") },
             ].map((item, i) => (
               <AccordionItem key={item.q} value={`faq-${i}`} className="border-[#E2E4E7]" data-testid={`faq-item-${i}`}>
                 <AccordionTrigger className="text-left font-serif text-base text-[#0E0E0E] hover:no-underline">

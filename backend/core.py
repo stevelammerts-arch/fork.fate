@@ -85,6 +85,17 @@ def _u(u):
 
 
 PLACEHOLDER_IMGS = {
+    "explore": [
+        _u("https://images.unsplash.com/photo-1441974231531-c6227db76b6e"),
+        _u("https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05"),
+        _u("https://images.unsplash.com/photo-1501554728187-ce583db33af7"),
+        _u("https://images.unsplash.com/photo-1533240332313-0db49b459ad6"),
+    ],
+    "stay": [
+        _u("https://images.unsplash.com/photo-1504280390367-361c6d9f38f4"),
+        _u("https://images.unsplash.com/photo-1510312305653-8ed496efae75"),
+        _u("https://images.unsplash.com/photo-1449158743715-0a90ebb6d2d8"),
+    ],
     "food": [
         _u("https://images.unsplash.com/photo-1565895405140-6b9830a88c19"),
         _u("https://images.unsplash.com/photo-1564759296729-771e78c26df7"),
@@ -643,7 +654,7 @@ def haversine_miles(lat1, lon1, lat2, lon2):
 
 def prettify_type(t, category="food"):
     if not t:
-        return {"drinks": "Cafe", "bars": "Bar", "desserts": "Dessert Shop", "shops": "Shop", "fuel": "Gas Station"}.get(category, "Restaurant")
+        return {"drinks": "Cafe", "bars": "Bar", "desserts": "Dessert Shop", "shops": "Shop", "fuel": "Gas Station", "explore": "Attraction", "stay": "Lodging"}.get(category, "Restaurant")
     return t.replace("_restaurant", "").replace("_", " ").title()
 
 

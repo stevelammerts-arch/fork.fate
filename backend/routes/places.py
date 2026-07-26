@@ -120,6 +120,16 @@ def _build_text_query(req: PlacesSearchRequest) -> str:
         return (cuisines or "antique thrift vintage consignment resale shop").strip()
     if req.category == "fuel":
         return (cuisines or "gas station ev charging station").strip()
+    # "explore" = things to DO (outdoor recreation + local attractions). No suffix is
+    # appended: these queries are already place-type phrases ("hiking trail",
+    # "state park") and bolting a noun on the end pushes Google toward businesses
+    # ABOUT the activity (outfitters, gear shops) instead of the place itself.
+    if req.category == "explore":
+        return (cuisines or "state park hiking trail campground scenic overlook museum").strip()
+    # "stay" = somewhere to sleep. Lodging is its own tab rather than an `explore`
+    # cuisine because it needs different copy and has no delivery/price semantics.
+    if req.category == "stay":
+        return (cuisines or "campground rv park cabin rental lodge motel").strip()
     return (cuisines + " restaurant").strip()
 
 

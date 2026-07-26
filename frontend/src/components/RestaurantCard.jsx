@@ -56,6 +56,8 @@ export function RestaurantCard({ r, onReport, isFavorite, onToggleFavorite }) {
   const orderable =
     r.category !== "shops" &&
     r.category !== "fuel" &&
+    r.category !== "explore" &&
+    r.category !== "stay" &&
     !!(r.doordash_url || r.ubereats_url || r.grubhub_url || r.order_url);
   return (
     <motion.div

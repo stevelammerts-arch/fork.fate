@@ -45,7 +45,7 @@ class RestaurantCreate(BaseModel):
     @field_validator("category")
     @classmethod
     def _valid_category(cls, v):
-        return v if v in ("food", "drinks", "bars", "desserts", "shops", "fuel") else "food"
+        return v if v in ("food", "drinks", "bars", "desserts", "shops", "fuel", "explore", "stay") else "food"
 
 
 class SpinRequest(BaseModel):
@@ -82,7 +82,7 @@ class PlacesSearchRequest(BaseModel):
     price_levels: List[str] = Field(default_factory=list, max_length=6)
     category: str = "food"
     open_now: bool = False
-    radius_miles: float = Field(default=50.0, ge=1, le=50)
+    radius_miles: float = Field(default=50.0, ge=1, le=150)
 
     @field_validator("zip_code")
     @classmethod
@@ -96,7 +96,7 @@ class PlacesSearchRequest(BaseModel):
     @field_validator("category")
     @classmethod
     def _valid_category(cls, v):
-        return v if v in ("food", "drinks", "bars", "desserts", "shops", "fuel") else "food"
+        return v if v in ("food", "drinks", "bars", "desserts", "shops", "fuel", "explore", "stay") else "food"
 
 
 class AdminLogin(BaseModel):
@@ -204,7 +204,7 @@ class SponsorCreate(BaseModel):
     @field_validator("category")
     @classmethod
     def _valid_category_sc(cls, v):
-        return v if v in ("food", "drinks", "bars", "desserts", "shops", "fuel") else "food"
+        return v if v in ("food", "drinks", "bars", "desserts", "shops", "fuel", "explore", "stay") else "food"
 
 
 class SponsorUpdate(BaseModel):
@@ -245,7 +245,7 @@ class SponsorSubscribe(BaseModel):
     @field_validator("category")
     @classmethod
     def _valid_cat_sub(cls, v):
-        return v if v in ("food", "drinks", "bars", "desserts", "shops", "fuel") else "food"
+        return v if v in ("food", "drinks", "bars", "desserts", "shops", "fuel", "explore", "stay") else "food"
 
     @field_validator("contact_email")
     @classmethod

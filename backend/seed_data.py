@@ -324,6 +324,8 @@ _NAME_TEMPLATES = {
     "desserts": ["{p} {c} Shop", "The {p} {c} Counter", "{c} on {s}", "{p} {c} Parlor"],
     "shops": ["{p} {c}", "{c} on {s}", "The {p} {c} Co", "{p} {c} Market"],
     "fuel": ["{p} {c}", "{c} on {s}", "{p} {c} Stop", "{p} {c} Center"],
+    "explore": ["{p} {c}", "{c} at {p}", "{p} {c} Area", "{c} off {s}"],
+    "stay": ["{p} {c}", "{c} at {p}", "{p} {c} Retreat", "{c} off {s}"],
 }
 _DESCRIPTIONS = {
     "food": "Neighborhood {c} spot with a short menu and a busy open kitchen.",
@@ -332,6 +334,29 @@ _DESCRIPTIONS = {
     "desserts": "Small-batch {c} made fresh daily, with a takeaway window.",
     "shops": "Independent {c} packed with finds you won't see anywhere else.",
     "fuel": "Clean, well-lit {c} with quick in-and-out access off the main road.",
+    "explore": "Well-kept {c} with marked access, parking and room to spread out.",
+    "stay": "Quiet {c} with clean facilities and easy access to the main road.",
+}
+
+# Categories whose chip lists exist only in the frontend — there are no hand-written
+# venues for them, so declare the (category, cuisine) pairs here and let expand_seed
+# generate the full MIN_PER_CUISINE set. Keep in sync with EXPLORE_CUISINES and
+# STAY_CUISINES in frontend/src/pages/homeConstants.js.
+DECLARED_CUISINES = {
+    "explore": [
+        "State Parks", "National Parks", "Nature Preserves", "Hiking Trails", "Mountain Biking",
+        "Fishing Spots", "Boat Launches", "Hunting Land", "Scenic Overlooks", "Waterfalls",
+        "Botanical Gardens", "Hot Springs", "Caves", "Beaches", "Lakes",
+        "Zoos", "Aquariums", "Museums", "Art Galleries", "Historic Sites",
+        "Mini Golf", "Go-Karts", "Bowling", "Arcades", "Escape Rooms", "Axe Throwing",
+        "Zip Lines", "Climbing Gyms", "Skate Parks", "Water Parks", "Drive-In Theaters",
+        "Disc Golf", "Horseback Riding", "Kayak Rentals", "ATV Trails", "Farms & Orchards",
+    ],
+    "stay": [
+        "Campgrounds", "RV Parks", "KOA", "State Park Camping", "Primitive Sites", "Group Camping",
+        "Cabins", "Yurts", "Glamping", "Treehouses", "Lodges", "Bed & Breakfast",
+        "Inns", "Motels", "Hotels", "Hostels",
+    ],
 }
 
 
@@ -345,6 +370,10 @@ def expand_seed(seed):
     groups = defaultdict(list)
     for item in seed:
         groups[(item.get("category", "food"), item["cuisine"])].append(item)
+    # Ensure declared-but-unseeded categories get a full generated set.
+    for category, cuisines in DECLARED_CUISINES.items():
+        for cuisine in cuisines:
+            groups.setdefault((category, cuisine), [])
 
     taken = {item["name"] for item in seed}
     extra = []

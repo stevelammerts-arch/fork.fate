@@ -4,7 +4,9 @@ import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
-const CATEGORIES = ["food", "drinks", "bars", "desserts"];
+// Keep in sync with BecomeSponsorDialog's CATEGORIES — this list was missing shops
+// and fuel, so an admin could not create a sponsor for either.
+const CATEGORIES = ["food", "drinks", "bars", "desserts", "shops", "fuel", "explore", "stay"];
 const PRICES = ["$", "$$", "$$$", "$$$$"];
 
 export function SponsorForm({ form, set, saving, addSponsor }) {

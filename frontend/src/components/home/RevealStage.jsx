@@ -165,7 +165,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
               </p>
             )}
             <div className="flex flex-wrap gap-3">
-              {mode !== "shops" && mode !== "fuel" && (
+              {mode !== "shops" && mode !== "fuel" && mode !== "explore" && mode !== "stay" && (
                 <OrderDropdown card={card} label={mode === "desserts" ? t("Order treats") : t("Order / Delivery")} />
               )}
               <FateActionsDropdown

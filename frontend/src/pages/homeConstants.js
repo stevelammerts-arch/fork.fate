@@ -99,6 +99,8 @@ const LIGHT_LINES_BY_MODE = {
   desserts: ["Your sweet pick is set.", "Here's your treat.", "A great choice, locked in.", "Treat yourself."],
   shops: ["Your next find awaits.", "Here's your pick.", "A great choice, locked in.", "Happy hunting."],
   fuel: ["Your pit stop is set.", "Here's your stop.", "A great choice, locked in.", "Fill up and roll out."],
+  explore: ["Your next adventure is set.", "Here's where you're headed.", "A great choice, locked in.", "Go get outside."],
+  stay: ["Tonight's basecamp is set.", "Here's where you're staying.", "A great choice, locked in.", "Rest easy."],
 };
 export const lightLineFor = (r, mode = "food") => {
   const arr = LIGHT_LINES_BY_MODE[mode] || LIGHT_LINES_BY_MODE.food;
@@ -118,6 +120,25 @@ export const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "S
 export const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Donuts", "Cupcakes", "Candy Shops", "Chocolate", "Crepes", "Cheesecake", "Pie", "Cookies", "Waffles", "Macarons", "Cinnamon Rolls"];
 export const SHOP_CUISINES = ["Antiques", "Thrift Store", "Vintage", "Flea Market", "Farmers Market", "Consignment", "Record Store", "Bookstore", "Pawn Shop", "Gem Store", "Jewelry Store", "Bead Shop", "Quilt Shop", "Yarn Shop", "Hobby Shop", "Comic Store", "Model Shop", "Trading Cards", "Toy Trains", "LEGO Store", "Toy Store", "Bicycle Shop"];
 export const FUEL_CUISINES = ["Gas Station", "EV Charging", "Truck Stop", "Car Wash", "Touchless Car Wash", "Diesel"];
+// Things to DO. Outdoor recreation first (the original ask), then indoor/rainy-day
+// attractions so the tab still has answers in winter or bad weather.
+export const EXPLORE_CUISINES = [
+  "State Parks", "National Parks", "Nature Preserves", "Hiking Trails", "Mountain Biking",
+  "Fishing Spots", "Boat Launches", "Hunting Land", "Scenic Overlooks", "Waterfalls",
+  "Botanical Gardens", "Hot Springs", "Caves", "Beaches", "Lakes",
+  "Zoos", "Aquariums", "Museums", "Art Galleries", "Historic Sites",
+  "Mini Golf", "Go-Karts", "Bowling", "Arcades", "Escape Rooms", "Axe Throwing",
+  "Zip Lines", "Climbing Gyms", "Skate Parks", "Water Parks", "Drive-In Theaters",
+  "Disc Golf", "Horseback Riding", "Kayak Rentals", "ATV Trails", "Farms & Orchards",
+];
+// Somewhere to sleep. NOTE: Airbnb/Vrbo are deliberately absent — they're closed
+// marketplaces with no public search API and no Google Places coverage, so they
+// cannot be dealt like the other options. KOA, RV parks and cabins are findable.
+export const STAY_CUISINES = [
+  "Campgrounds", "RV Parks", "KOA", "State Park Camping", "Primitive Sites", "Group Camping",
+  "Cabins", "Yurts", "Glamping", "Treehouses", "Lodges", "Bed & Breakfast",
+  "Inns", "Motels", "Hotels", "Hostels",
+];
 export const BAR_CUISINES = [
   "Brewery", "Beer Garden", "Taproom", "Distillery", "Beer", "Wine", "Winery", "Wine Bar", "Wine Tasting",
   "Champagne Bar", "Cider House", "Cocktails", "Whiskey", "Liquor", "Liquor Store", "Spirits", "Margaritas", "Tequila Bar",
