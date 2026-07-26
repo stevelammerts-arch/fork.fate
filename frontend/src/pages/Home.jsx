@@ -110,6 +110,9 @@ export default function Home() {
   const [filtersOpen, setFiltersOpen] = useState(true);
   // "Double or Nothing": one reroll, but the new pick is final.
   const [locked, setLocked] = useState(false);
+  // Set by the backend only for Explore searches with no chips picked — the deck
+  // is biased by the forecast, so we say so instead of silently changing results.
+  const [weather, setWeather] = useState(null);
 
   // Turning on a special mode reveals its panel BELOW the toggles, so bring it
   // into view — users were otherwise left scrolling to find the deal button.
@@ -399,6 +402,7 @@ export default function Home() {
       });
       setResults(data.restaurants);
       setSource(data.source);
+      setWeather(data.weather || null);
       if (!data.restaurants.length) {
         toast.error("No spots match those filters — try loosening them");
         return;
@@ -1134,6 +1138,16 @@ export default function Home() {
                 {results.length > 0 && (
                   <span className="font-sans text-sm text-[#6B7075]">
                     {results.length} {results.length !== 1 ? t("spots nearby") : t("spot nearby")}
+                  </span>
+                )}
+                {weather && (
+                  <span
+                    data-testid="weather-chip"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[#CFE0F5] bg-[#EEF5FE] px-3 py-1.5 font-sans text-xs font-bold text-[#245C97]"
+                  >
+                    {{ indoor: "🌧️", water: "🔥", snow: "❄️", outdoor: "☀️" }[weather.bias]}
+                    {t(weather.label)} {weather.temp_f}° ·{" "}
+                    {{ indoor: t("indoor picks"), water: t("water picks"), snow: t("snow picks"), outdoor: t("outdoor picks") }[weather.bias]}
                   </span>
                 )}
               </div>

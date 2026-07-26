@@ -18,6 +18,7 @@ from core import (
 )
 
 from models import PlacesSearchRequest
+from routes.weather import weather_snapshot
 
 router = APIRouter()
 
@@ -28,6 +29,15 @@ _NON_SHOP_TYPES = (
     "winery", "food", "meal", "steak", "grill", "diner", "pizz", "deli",
     "night_club", "ice_cream", "dessert", "donut", "fast_food", "sandwich",
 )
+
+# Explore with no chips picked: let the sky choose the kind of outing. Anything the
+# user explicitly selects always wins over this.
+WEATHER_DEFAULT_QUERIES = {
+    "outdoor": "state park hiking trail scenic overlook botanical garden playground",
+    "indoor": "museum aquarium science center bowling arcade indoor climbing gym",
+    "water": "swimming hole public pool water park splash pad lake beach",
+    "snow": "ski resort snow tubing ice skating museum indoor climbing gym",
+}
 
 
 async def fetch_active_sponsors(req: PlacesSearchRequest):
@@ -127,7 +137,7 @@ def _build_text_query(category: str, cuisines: list) -> str:
     # "state park") and bolting a noun on the end pushes Google toward businesses
     # ABOUT the activity (outfitters, gear shops) instead of the place itself.
     if category == "explore":
-        return (joined or "state park hiking trail campground scenic overlook museum").strip()
+        return (joined or WEATHER_DEFAULT_QUERIES["outdoor"]).strip()
     # "stay" = somewhere to sleep. Lodging is its own tab rather than an `explore`
     # cuisine because it needs different copy and has no delivery/price semantics.
     if category == "stay":
@@ -285,7 +295,13 @@ async def google_places_search(req: PlacesSearchRequest):
         lat, lng = await _resolve_latlng(http, req)
         # Cap the fan-out: each query is a billed Google call.
         chips = (req.cuisines or [])[:_MAX_CUISINE_QUERIES]
-        queries = [(c, _build_text_query(req.category, [c])) for c in chips] or [(None, _build_text_query(req.category, []))]
+        wx = None
+        if req.category == "explore" and not chips:
+            # Nothing picked, so let the forecast choose the kind of outing.
+            wx = await weather_snapshot(lat, lng)
+        queries = [(c, _build_text_query(req.category, [c])) for c in chips] or [
+            (None, WEATHER_DEFAULT_QUERIES[wx["bias"]] if wx else _build_text_query(req.category, []))
+        ]
 
         async def run(cuisine, text_query, needs_budget):
             # The first query's budget was already reserved by cached_google_search.
@@ -328,7 +344,7 @@ async def google_places_search(req: PlacesSearchRequest):
                     continue
                 seen.add(key)
                 out.append(r)
-        return out
+        return out, wx
 
 
 @router.get("/places/photo", dependencies=[Depends(rate_limit(200))])
@@ -436,9 +452,12 @@ async def places_search(req: PlacesSearchRequest):
     sponsors = await fetch_active_sponsors(req)
     if GOOGLE_API_KEY and (req.zip_code or (req.lat is not None and req.lng is not None)):
         try:
-            results = await cached_google_search(req)
+            results, wx = await cached_google_search(req)
             if results:
-                return {"source": "google", "restaurants": merge_sponsors(sponsors, results)}
+                out = {"source": "google", "restaurants": merge_sponsors(sponsors, results)}
+                if wx:
+                    out["weather"] = wx
+                return out
         except HTTPException as e:
             if e.status_code == 400:
                 raise
