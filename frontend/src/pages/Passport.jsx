@@ -2,8 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "sonner";
-import { MapPin, Check, Share2, Stamp, LocateFixed, ArrowLeft, Trophy, Undo2, ExternalLink, Trash2 } from "lucide-react";
+import { MapPin, Check, Share2, Stamp, LocateFixed, ArrowLeft, Trophy, Undo2, ExternalLink, Trash2, Camera, Download } from "lucide-react";
 import { rememberPassport, forgetPassport } from "../lib/passports";
+import { fileToResizedDataUrl, buildAwardImage } from "../lib/passportAward";
+import InkStampThumb from "../components/InkStampThumb";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -30,6 +32,62 @@ export default function Passport() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [awarding, setAwarding] = useState(false);
+
+  const photoUrl = (stopId) => `${API}/passports/${code}/photo/${encodeURIComponent(stopId)}?v=${data?.stamped ?? 0}`;
+
+  // Selfie: resize in the browser, then stamp-with-photo or attach to an existing stamp.
+  const onPickPhoto = async (stop, file) => {
+    if (!file) return;
+    setBusy(stop.id);
+    try {
+      const photo = await fileToResizedDataUrl(file);
+      const stamped = (data?.stamps || []).some((s) => s.stop_id === stop.id);
+      const { data: d } = stamped
+        ? await axios.post(`${API}/passports/${code}/photo/${encodeURIComponent(stop.id)}`, { photo })
+        : await axios.post(`${API}/passports/${code}/stamp`, { stop_id: stop.id, source: "manual", photo });
+      setData(d);
+      toast.success(stamped ? "Photo added" : `Stamped with a photo: ${stop.name}`);
+    } catch (e) {
+      toast.error(e.response?.data?.detail || "Couldn't save that photo");
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const makeAward = async (shareIt) => {
+    setAwarding(true);
+    try {
+      const withPhotos = (data.stamps || []).filter((s) => s.has_photo).map((s) => photoUrl(s.stop_id));
+      const stampedStops = data.stops.map((s) => {
+        const st = (data.stamps || []).find((x) => x.stop_id === s.id);
+        return { name: s.name, id: s.id, date: st ? new Date(st.stamped_at).toLocaleDateString() : "" };
+      });
+      const blob = await buildAwardImage({
+        title: data.label || MODE_LABELS[data.mode] || "Fate Passport",
+        code: data.code,
+        stops: stampedStops,
+        photoUrls: withPhotos,
+        completedAt: data.completed_at,
+      });
+      const file = new File([blob], `forkfate-passport-${data.code}.png`, { type: "image/png" });
+      if (shareIt && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: "Fork·Fate Passport", text: "Passport complete." });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.name;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        toast.success("Award saved to your device");
+      }
+    } catch {
+      toast.error("Couldn't build your award");
+    } finally {
+      setAwarding(false);
+    }
+  };
 
   const deletePassport = async () => {
     if (!confirmDelete) { setConfirmDelete(true); return; }
@@ -163,7 +221,8 @@ export default function Passport() {
             {data.label || MODE_LABELS[data.mode] || "Fate Passport"}
           </h1>
           <p className="mt-1 font-sans text-sm text-[#6B7075]">
-            Stamp each stop as you get there — take days or weeks. Code <span className="font-bold text-[#0E0E0E]">{data.code}</span>
+            Crawls are one day — a passport is collected over time. Stamp each stop as you get there. Code{" "}
+            <span className="font-bold text-[#0E0E0E]">{data.code}</span>
           </p>
 
           <div className="mt-5 flex items-center gap-3">
@@ -174,11 +233,31 @@ export default function Passport() {
           </div>
 
           {done && (
-            <div className="mt-5 flex items-center gap-3 rounded-2xl border-2 border-[#F0A24E] bg-[#FBF3E7] p-4" data-testid="passport-complete-banner">
-              <Trophy className="h-7 w-7 shrink-0 text-[#B26A12]" />
-              <div>
-                <p className="font-serif text-lg font-bold text-[#0E0E0E]">Passport complete</p>
-                <p className="font-sans text-sm text-[#6B7075]">Every stop stamped. Share it and start another.</p>
+            <div className="mt-5 rounded-2xl border-2 border-[#F0A24E] bg-[#FBF3E7] p-4" data-testid="passport-complete-banner">
+              <div className="flex items-center gap-3">
+                <Trophy className="h-7 w-7 shrink-0 text-[#B26A12]" />
+                <div>
+                  <p className="font-serif text-lg font-bold text-[#0E0E0E]">Passport complete</p>
+                  <p className="font-sans text-sm text-[#6B7075]">Every stop stamped. Take your award and start another.</p>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  onClick={() => makeAward(true)}
+                  disabled={awarding}
+                  data-testid="passport-award-share"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#B26A12] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#8A5210] disabled:opacity-60"
+                >
+                  <Share2 className="h-4 w-4" /> {awarding ? "Building…" : "Share my award"}
+                </button>
+                <button
+                  onClick={() => makeAward(false)}
+                  disabled={awarding}
+                  data-testid="passport-award-download"
+                  className="inline-flex items-center gap-2 rounded-full border-2 border-[#B26A12] bg-white px-4 py-2.5 text-sm font-bold text-[#B26A12] hover:bg-[#F6E7CF] disabled:opacity-60"
+                >
+                  <Download className="h-4 w-4" /> Download
+                </button>
               </div>
             </div>
           )}
@@ -197,8 +276,7 @@ export default function Passport() {
                 <div className="flex items-start gap-3">
                   <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-serif text-sm font-bold ${on ? "bg-[#2E7D32] text-white" : "bg-[#EDEEF0] text-[#6B7075]"}`}>
                     {on ? <Check className="h-4 w-4" /> : i + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
+                  </span>                  <div className="min-w-0 flex-1">
                     <p className="truncate font-serif text-lg font-bold text-[#0E0E0E]">{s.name}</p>
                     <p className="truncate font-sans text-sm text-[#6B7075]">
                       {[s.cuisine, s.price, s.distance != null ? `${s.distance} mi` : null].filter(Boolean).join(" · ")}
@@ -209,6 +287,19 @@ export default function Passport() {
                       </p>
                     )}
                   </div>
+                  {stamp?.has_photo && (
+                    <img
+                      src={photoUrl(s.id)}
+                      alt=""
+                      data-testid={`passport-photo-${i}`}
+                      className="h-16 w-16 shrink-0 rounded-xl border border-[#2E7D32]/30 object-cover"
+                    />
+                  )}
+                  {on && (
+                    <span className="shrink-0" data-testid={`passport-inkstamp-${i}`}>
+                      <InkStampThumb name={s.name} id={s.id} date={new Date(stamp?.stamped_at || Date.now()).toLocaleDateString()} />
+                    </span>
+                  )}
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -220,6 +311,21 @@ export default function Passport() {
                   >
                     <MapPin className="h-4 w-4" /> Directions <ExternalLink className="h-3.5 w-3.5 text-[#9AA0A6]" />
                   </a>
+                  <label
+                    data-testid={`passport-selfie-${i}`}
+                    className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[#E2E4E7] bg-white px-4 py-2 text-sm font-bold text-[#0E0E0E] hover:bg-[#EDEEF0] ${busy === s.id ? "opacity-60" : ""}`}
+                  >
+                    <Camera className="h-4 w-4" />
+                    {stamp?.has_photo ? "Retake" : "Selfie"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      disabled={busy === s.id}
+                      onChange={(e) => { onPickPhoto(s, e.target.files?.[0]); e.target.value = ""; }}
+                    />
+                  </label>
                   {on ? (
                     <button
                       onClick={() => unstamp(s)}

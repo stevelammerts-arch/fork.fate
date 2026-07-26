@@ -113,6 +113,11 @@ export default function Home() {
   // Set by the backend only for Explore searches with no chips picked — the deck
   // is biased by the forecast, so we say so instead of silently changing results.
   const [weather, setWeather] = useState(null);
+  // Tapping the lit category tab turns it off: "anything goes" deals from the four
+  // everyday categories at once instead of forcing a choice.
+  const [allMode, setAllMode] = useState(false);
+  const ANY_CATEGORIES = ["food", "drinks", "bars", "desserts"];
+  // PASSPORT_CATEGORIES is derived from MODE_TABS below (defined after it).
 
   // Turning on a special mode reveals its panel BELOW the toggles, so bring it
   // into view — users were otherwise left scrolling to find the deal button.
@@ -245,6 +250,9 @@ export default function Home() {
     { key: "stay", label: t("Stay"), Icon: Tent },
   ];
   const modeLabel = MODE_TABS.find((m) => m.key === mode)?.label || mode;
+  // Every category can be a passport: a brewery tour or a museum run can stretch
+  // over a whole day (or a summer), which is a passport, not a one-night crawl.
+  const PASSPORT_CATEGORIES = MODE_TABS.map((m) => m.key);
   const cuisineLabel = mode === "food" ? t("Cuisine") : mode === "drinks" ? t("Drink type") : mode === "bars" ? t("Bar type") : mode === "desserts" ? t("Dessert type") : mode === "shops" ? t("Shop type") : mode === "explore" ? t("Activity") : mode === "stay" ? t("Stay type") : t("Fuel type");
 
   const switchMode = (m) => {    if (m === mode) return;
@@ -390,16 +398,33 @@ export default function Home() {
     }
     setLoading(true);
     try {
-      const { data } = await axios.post(`${API}/places/search`, {
+      const cats = allMode && !crawlMode && !passportMode ? ANY_CATEGORIES : [categoryArg];
+      const body = {
         zip_code: coordsArg ? null : z || null,
         lat: coordsArg?.lat ?? null,
         lng: coordsArg?.lng ?? null,
-        cuisines: cuisinesArg,
         price_levels: pricesArg,
-        category: categoryArg,
         open_now: openNow,
         radius_miles: rad,
-      });
+      };
+      const batches = await Promise.all(
+        cats.map((c) =>
+          axios
+            .post(`${API}/places/search`, { ...body, category: c, cuisines: cats.length > 1 ? [] : cuisinesArg })
+            .then((r) => r.data)
+            .catch(() => ({ restaurants: [], source: "curated" }))
+        )
+      );
+      // Interleave so one category can't dominate the deck.
+      const seen = new Set();
+      const merged = [];
+      for (let i = 0; i < 25; i++) {
+        for (const b of batches) {
+          const r = b.restaurants?.[i];
+          if (r && !seen.has(r.id)) { seen.add(r.id); merged.push(r); }
+        }
+      }
+      const data = { restaurants: merged, source: batches[0]?.source || "curated", weather: cats.length === 1 ? batches[0]?.weather : null };
       setResults(data.restaurants);
       setSource(data.source);
       setWeather(data.weather || null);
@@ -984,7 +1009,7 @@ export default function Home() {
           className="max-w-2xl"
         >
           <p className="font-sans text-sm font-extrabold tracking-[0.25em] uppercase text-[#E01E26]">
-            {mode === "food" ? t("Can't decide where to eat?") : mode === "drinks" ? t("Can't decide what to sip?") : mode === "bars" ? t("Can't decide where to drink?") : mode === "desserts" ? t("Craving something sweet?") : mode === "shops" ? t("Feeling like a treasure hunt?") : mode === "explore" ? t("Can't decide what to do?") : mode === "stay" ? t("Need somewhere to stay?") : t("Need to fill up or get moving?")}
+            {allMode ? t("Can't decide on anything?") : mode === "food" ? t("Can't decide where to eat?") : mode === "drinks" ? t("Can't decide what to sip?") : mode === "bars" ? t("Can't decide where to drink?") : mode === "desserts" ? t("Craving something sweet?") : mode === "shops" ? t("Feeling like a treasure hunt?") : mode === "explore" ? t("Can't decide what to do?") : mode === "stay" ? t("Need somewhere to stay?") : t("Need to fill up or get moving?")}
           </p>
           <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl" style={ambCfg ? { color: ambCfg.sky, textShadow: theme === "cyber" ? "0 0 12px rgba(199,125,255,0.6)" : undefined } : undefined}>
             {mode === "food" ? t("Let fate pick tonight's table.") : mode === "drinks" ? t("Let fate pick your next sip.") : mode === "bars" ? t("Let fate pick tonight's bar.") : mode === "desserts" ? t("Let fate pick your sweet treat.") : mode === "shops" ? t("Let fate pick your next find.") : mode === "explore" ? t("Let fate pick your next adventure.") : mode === "stay" ? t("Let fate pick tonight's basecamp.") : t("Let fate pick your pit stop.")}
@@ -1070,8 +1095,8 @@ export default function Home() {
                 <button
                   key={key}
                   data-testid={`mode-${key}`}
-                  onClick={() => switchMode(key)}
-                  className={`flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold leading-none transition-colors ${mode === key ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+                  onClick={() => { if (mode === key && !allMode) { setAllMode(true); setResult(null); setGroupPicks(null); } else { setAllMode(false); switchMode(key); } }}
+                  className={`flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold leading-none transition-colors ${mode === key && !allMode ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
                 >
                   <Icon className="h-4 w-4" />
                   {label}
@@ -1080,6 +1105,15 @@ export default function Home() {
             </div>
 
             <div className="mt-4">
+              {allMode ? (
+                <div className="rounded-2xl border border-[#0E0E0E]/15 bg-[#0E0E0E] px-4 py-3" data-testid="any-mode-banner">
+                  <p className="font-sans text-xs font-bold uppercase tracking-wider text-[#F0A24E]">{t("Anything goes")}</p>
+                  <p className="mt-0.5 font-sans text-sm text-white">
+                    {t("No category — dealing from Food, Drinks, Bars & Desserts. Tap a tab to narrow it.")}
+                  </p>
+                </div>
+              ) : (
+              <>
               <button
                 type="button"
                 data-testid="filters-toggle"
@@ -1106,6 +1140,8 @@ export default function Home() {
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
               labelColor={labelColor}
             />
+              )}
+              </>
               )}
             </div>
 
@@ -1185,7 +1221,7 @@ export default function Home() {
               <button
                 type="button"
                 data-testid="passport-mode-toggle"
-                onClick={() => { setPassportMode((v) => { const n = !v; if (n) { setGroupMode(false); setCrawlMode(false); } return n; }); setMyPassports(readPassports()); setResult(null); setGroupPicks(null); }}
+                onClick={() => { setPassportMode((v) => { const n = !v; if (n) { setGroupMode(false); setCrawlMode(false); setAllMode(false); if (!PASSPORT_CATEGORIES.includes(mode)) switchMode("explore"); } return n; }); setMyPassports(readPassports()); setResult(null); setGroupPicks(null); }}
                 className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${passportMode ? "border-[#2E7D32] bg-[#2E7D32] text-white" : "border-[#2E7D32] bg-white text-[#2E7D32] hover:bg-[#E8F3E9]"}`}
               >
                 <Stamp className="h-4 w-4" />
@@ -1209,12 +1245,12 @@ export default function Home() {
               <div className="mt-2 w-full basis-full rounded-2xl border border-[#2E7D32]/30 bg-[#F1F8F2] p-4" data-testid="passport-picker">
                 <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Pick a category")}</p>
                 <div className="grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-white p-1" data-testid="passport-category-picker">
-                  {MODE_TABS.map(({ key, label, Icon }) => (
+                  {MODE_TABS.filter((m) => PASSPORT_CATEGORIES.includes(m.key)).map(({ key, label, Icon }) => (
                     <button
                       key={key}
                       type="button"
                       data-testid={`passport-category-${key}`}
-                      onClick={() => switchMode(key)}
+                      onClick={() => { setAllMode(false); switchMode(key); }}
                       className={`flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold leading-none transition-colors ${mode === key ? "bg-[#2E7D32] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
                     >
                       <Icon className="h-4 w-4" />
@@ -1245,7 +1281,7 @@ export default function Home() {
                   ))}
                 </div>
                 <p className="mt-3 font-sans text-sm text-[#6B7075]">
-                  {t("Fate deals your stops, then you stamp each one as you get there — over days or weeks. Your passport lives at its own link.")}
+                  {t("A crawl is one day — a passport is collected over time. Fate deals your stops, you stamp each one as you get there, and a finished passport earns a stamped award you can share.")}
                 </p>
                 {myPassports.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2" data-testid="my-passports">
@@ -1266,7 +1302,7 @@ export default function Home() {
                   accent="#2E7D32"
                   testId="passport-setup"
                   steps={[
-                    t("Pick your category — Stay for camping, Explore for parks and trails, Food for meals."),
+                    t("Pick any category — a brewery tour, a park run, a summer of diners."),
                     t("Choose how many stops and where to search."),
                     t("Deal it — then stamp each stop as you get there, over days or weeks."),
                   ]}
@@ -1295,7 +1331,7 @@ export default function Home() {
                       key={key}
                       type="button"
                       data-testid={`group-category-${key}`}
-                      onClick={() => switchMode(key)}
+                      onClick={() => { setAllMode(false); switchMode(key); }}
                       className={`flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold leading-none transition-colors ${mode === key ? "bg-[#E01E26] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
                     >
                       <Icon className="h-4 w-4" />

@@ -213,11 +213,33 @@ class PassportStamp(BaseModel):
     lat: Optional[float] = Field(default=None, ge=-90, le=90)
     lng: Optional[float] = Field(default=None, ge=-180, le=180)
     source: str = "gps"  # "gps" (verified on site) | "manual"
+    photo: Optional[str] = None  # data URL, resized client-side
 
     @field_validator("source")
     @classmethod
     def _valid_stamp_source(cls, v):
         return v if v in ("gps", "manual") else "manual"
+
+    @field_validator("photo")
+    @classmethod
+    def _valid_photo(cls, v):
+        if v is None:
+            return None
+        if not v.startswith(("data:image/jpeg;base64,", "data:image/png;base64,", "data:image/webp;base64,")):
+            raise ValueError("Photo must be a JPEG, PNG or WebP data URL")
+        # ~1.4 MB of base64 ≈ 1 MB of image; the client resizes to well under this.
+        if len(v) > 1_400_000:
+            raise ValueError("Photo is too large — try a smaller image")
+        return v
+
+
+class PassportPhoto(BaseModel):
+    photo: str
+
+    @field_validator("photo")
+    @classmethod
+    def _valid_photo(cls, v):
+        return PassportStamp._valid_photo(v)
 
 
 class SponsorCreate(BaseModel):

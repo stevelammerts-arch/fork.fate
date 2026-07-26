@@ -4,13 +4,14 @@ A crawl is one night; a passport is the slow version (parks, trails, museums,
 breweries) collected over days or weeks. Stamps live inside the passport doc so
 they persist — unlike crawl check-ins, which are ephemeral breadcrumbs.
 """
+import base64
 import secrets
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 
 from core import db, haversine_miles, rate_limit
-from models import PassportCreate, PassportStamp
+from models import PassportCreate, PassportPhoto, PassportStamp
 
 router = APIRouter()
 
@@ -26,7 +27,9 @@ def _gen_code(n: int = 6) -> str:
 
 def _public(doc: dict) -> dict:
     stops = doc.get("stops", [])
-    stamps = doc.get("stamps", [])
+    # Photos are heavy — the list only advertises which stops have one; the bytes
+    # come from /passports/{code}/photo/{stop_id}.
+    stamps = [{k: v for k, v in s.items() if k != "photo"} | {"has_photo": bool(s.get("photo"))} for s in doc.get("stamps", [])]
     return {
         "code": doc["code"],
         "mode": doc.get("mode", "explore"),
@@ -97,11 +100,41 @@ async def stamp_passport(code: str, payload: PassportStamp):
 
     now = datetime.now(timezone.utc).isoformat()
     stamp = {"stop_id": payload.stop_id, "stamped_at": now, "verified": verified}
+    if payload.photo:
+        stamp["photo"] = payload.photo
     update = {"$push": {"stamps": stamp}}
     if len(doc.get("stamps", [])) + 1 >= len(doc.get("stops", [])):
         update["$set"] = {"completed_at": now}
     await db.passports.update_one({"code": doc["code"]}, update)
     return {**_public(await _get_or_404(doc["code"])), "just_stamped": stamp}
+
+
+@router.post("/passports/{code}/photo/{stop_id}", dependencies=[Depends(rate_limit(40))])
+async def add_stop_photo(code: str, stop_id: str, payload: PassportPhoto):
+    """Attach (or replace) the selfie for a stop that's already stamped."""
+    doc = await _get_or_404(code)
+    if not any(s.get("stop_id") == stop_id for s in doc.get("stamps", [])):
+        raise HTTPException(status_code=409, detail="Stamp the stop first, then add your photo")
+    await db.passports.update_one(
+        {"code": doc["code"], "stamps.stop_id": stop_id},
+        {"$set": {"stamps.$.photo": payload.photo}},
+    )
+    return _public(await _get_or_404(doc["code"]))
+
+
+@router.get("/passports/{code}/photo/{stop_id}")
+async def get_stop_photo(code: str, stop_id: str):
+    doc = await _get_or_404(code)
+    stamp = next((s for s in doc.get("stamps", []) if s.get("stop_id") == stop_id), None)
+    if not stamp or not stamp.get("photo"):
+        raise HTTPException(status_code=404, detail="No photo for that stop")
+    header, _, b64 = stamp["photo"].partition(",")
+    media = header.split(":")[1].split(";")[0] if ":" in header else "image/jpeg"
+    try:
+        raw = base64.b64decode(b64)
+    except Exception:
+        raise HTTPException(status_code=500, detail="Stored photo is corrupt") from None
+    return Response(content=raw, media_type=media, headers={"Cache-Control": "private, max-age=3600"})
 
 
 @router.delete("/passports/{code}", dependencies=[Depends(rate_limit(30))])
