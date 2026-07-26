@@ -347,6 +347,8 @@ DECLARED_CUISINES = {
         "State Parks", "National Parks", "Nature Preserves", "Hiking Trails", "Mountain Biking",
         "Fishing Spots", "Boat Launches", "Hunting Land", "Scenic Overlooks", "Waterfalls",
         "Botanical Gardens", "Hot Springs", "Caves", "Beaches", "Lakes",
+        "Rock Climbing", "Ski Resorts", "Snow Tubing",
+        "Boat Rentals", "Jet Ski Rentals", "Paddleboard Rentals",
         "Swimming Holes", "Swimming Beaches", "Public Pools", "Aquatic Centers",
         "Zoos", "Safaris", "Aquariums", "Museums", "Children's Museums", "Science Centers",
         "Art Galleries", "Historic Sites", "Planetariums",
@@ -359,6 +361,10 @@ DECLARED_CUISINES = {
     ],
     "shops": [
         "Craft Store", "Fabric Store", "Art Supply", "Plant Shop", "Garden Center", "Nursery",
+    ],
+    "fuel": [
+        "Scooter Rentals", "Scooter Share", "Bike Rentals", "Bike Share",
+        "Bus Stations", "Train Stations", "Park & Ride",
     ],
     "stay": [
         "Campgrounds", "RV Parks", "KOA", "State Park Camping", "Primitive Sites", "Group Camping",

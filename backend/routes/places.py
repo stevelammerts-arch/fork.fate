@@ -1,7 +1,9 @@
 """Google Places search (cost-capped) + photo proxy, and sponsor merging."""
+import asyncio
 import re
 import time
 import uuid
+from itertools import zip_longest
 import httpx
 from urllib.parse import quote_plus
 from fastapi import APIRouter, HTTPException, Depends
@@ -101,41 +103,99 @@ async def _resolve_latlng(http, req: PlacesSearchRequest):
     return latlng
 
 
-def _build_text_query(req: PlacesSearchRequest) -> str:
+def _build_text_query(category: str, cuisines: list) -> str:
     """Compose the Google textQuery from the category + selected cuisines."""
-    cuisines = " ".join(req.cuisines)
-    if req.category == "drinks":
-        return ((cuisines or "coffee boba tea smoothie") + " cafe drinks").strip()
-    if req.category == "bars":
-        if not req.cuisines:
+    joined = " ".join(cuisines)
+    if category == "drinks":
+        return ((joined or "coffee boba tea smoothie") + " cafe drinks").strip()
+    if category == "bars":
+        if not cuisines:
             return "bar pub liquor store"
         # Liquor / package stores aren't "bars" — don't force the bar/pub suffix,
         # which would bury them in the results.
-        if "liquor store" in cuisines.lower():
-            return cuisines.strip()
-        return (cuisines + " bar pub").strip()
-    if req.category == "desserts":
-        return ((cuisines or "dessert ice cream bakery") + " dessert shop").strip()
-    if req.category == "shops":
-        return (cuisines or "antique thrift vintage consignment resale shop").strip()
-    if req.category == "fuel":
-        return (cuisines or "gas station ev charging station").strip()
+        if "liquor store" in joined.lower():
+            return joined.strip()
+        return (joined + " bar pub").strip()
+    if category == "desserts":
+        return ((joined or "dessert ice cream bakery") + " dessert shop").strip()
+    if category == "shops":
+        return (joined or "antique thrift vintage consignment resale shop").strip()
+    if category == "fuel":
+        return (joined or "gas station ev charging station").strip()
     # "explore" = things to DO (outdoor recreation + local attractions). No suffix is
     # appended: these queries are already place-type phrases ("hiking trail",
     # "state park") and bolting a noun on the end pushes Google toward businesses
     # ABOUT the activity (outfitters, gear shops) instead of the place itself.
-    if req.category == "explore":
-        return (cuisines or "state park hiking trail campground scenic overlook museum").strip()
+    if category == "explore":
+        return (joined or "state park hiking trail campground scenic overlook museum").strip()
     # "stay" = somewhere to sleep. Lodging is its own tab rather than an `explore`
     # cuisine because it needs different copy and has no delivery/price semantics.
-    if req.category == "stay":
-        return (cuisines or "campground rv park cabin rental lodge motel").strip()
-    return (cuisines + " restaurant").strip()
+    if category == "stay":
+        return (joined or "campground rv park cabin rental lodge motel").strip()
+    return (joined + " restaurant").strip()
 
 
-def _build_search_payload(req: PlacesSearchRequest, lat: float, lng: float) -> dict:
+# Selecting two chips used to produce ONE mashed-up query ("Breakfast Filipino
+# restaurant"), which Google keyword-matches loosely — that's how Subway turned up
+# under Breakfast + Filipino. Each chip now gets its own query, and results are
+# checked against the chip below. Fragments are matched against Google's
+# primaryType and the place name; a chip with no entry here isn't checkable
+# (e.g. "Comfort Food") and keeps every result, as before.
+_CUISINE_TYPE_HINTS = {
+    # food
+    "italian": ("italian",), "mexican": ("mexican", "taqueria"), "tex-mex": ("mexican", "tex mex"),
+    "chinese": ("chinese", "szechuan", "cantonese"), "japanese": ("japanese", "izakaya"),
+    "sushi": ("sushi", "japanese"), "indian": ("indian",), "thai": ("thai",), "korean": ("korean",),
+    "vietnamese": ("vietnamese", "pho"), "filipino": ("filipino",), "malaysian": ("malaysian",),
+    "indonesian": ("indonesian",), "chicken wings": ("wing", "chicken"), "fried chicken": ("chicken",),
+    "burgers": ("hamburger", "burger"), "steakhouse": ("steak",), "diner": ("diner",),
+    "southern": ("southern", "soul"), "soul food": ("soul", "southern"), "cajun": ("cajun", "creole"),
+    "mediterranean": ("mediterranean",), "greek": ("greek",), "spanish": ("spanish", "tapas"),
+    "french": ("french",), "middle eastern": ("middle_eastern", "middle eastern", "halal", "shawarma"),
+    "lebanese": ("lebanese", "middle_eastern"), "turkish": ("turkish",), "ethiopian": ("ethiopian", "african"),
+    "caribbean": ("caribbean", "jamaican"), "cuban": ("cuban",), "peruvian": ("peruvian",),
+    "brazilian": ("brazilian",), "hawaiian": ("hawaiian", "poke"), "seafood": ("seafood", "fish", "oyster", "crab"),
+    "poke": ("poke", "hawaiian"), "pizza": ("pizza",), "pasta": ("italian", "pasta"),
+    "tacos": ("mexican", "taco"), "sandwiches": ("sandwich", "deli", "sub"), "banh mi": ("vietnamese", "banh mi"),
+    "deli": ("deli", "sandwich"), "ramen": ("ramen", "japanese"), "noodles": ("noodle", "ramen", "pho"),
+    "pho": ("pho", "vietnamese"), "dumplings": ("dumpling", "chinese"), "breakfast": ("breakfast", "brunch", "diner", "pancake"),
+    "brunch": ("brunch", "breakfast"), "salads": ("salad",), "halal": ("halal", "middle_eastern"),
+    "vegan": ("vegan", "vegetarian"), "vegetarian": ("vegetarian", "vegan"),
+    "bbq": ("barbecue", "bbq", "smokehouse"), "cafe": ("cafe", "coffee"), "gastropub": ("pub", "gastropub", "bar"),
+    "hot pot": ("hot pot", "hotpot", "chinese"), "dim sum": ("dim sum", "chinese"), "buffet": ("buffet",),
+    "food trucks": ("food truck", "truck"), "fast food": ("fast_food",), "tapas": ("tapas", "spanish"),
+    # bars
+    "brewery": ("brewery", "brewpub", "brewing"), "beer garden": ("beer", "biergarten", "garten"),
+    "taproom": ("tap", "brewery"), "distillery": ("distillery", "distilling"), "beer": ("beer", "brewery", "pub"),
+    "wine": ("wine",), "winery": ("winery", "vineyard", "wine"), "wine bar": ("wine",), "wine tasting": ("wine", "vineyard"),
+    "champagne bar": ("champagne", "wine"), "cider house": ("cider",), "cocktails": ("cocktail", "bar", "lounge"),
+    "whiskey": ("whiskey", "whisky", "bourbon"), "liquor": ("liquor",), "liquor store": ("liquor", "wine", "package"),
+    "spirits": ("liquor", "spirits", "distillery"), "margaritas": ("mexican", "margarita", "cantina"),
+    "tequila bar": ("tequila", "mexican", "cantina"), "mezcal bar": ("mezcal", "mexican"), "tiki": ("tiki", "polynesian"),
+    "pub": ("pub", "tavern"), "sports bar": ("sports", "bar"), "irish bar": ("irish", "pub"),
+    "dive bar": ("bar", "tavern"), "rooftop bar": ("rooftop", "bar"), "lounge": ("lounge", "bar"),
+    "speakeasy": ("speakeasy", "cocktail", "bar"), "nightclub": ("night_club", "nightclub", "club"),
+    "karaoke": ("karaoke",), "cigar bar": ("cigar",), "hookah lounge": ("hookah", "shisha"),
+    "live music": ("live music", "music", "concert"), "jazz bar": ("jazz",), "piano bar": ("piano",),
+    "comedy club": ("comedy",), "arcade bar": ("arcade", "barcade"), "bowling": ("bowling",),
+    "mini golf": ("golf", "putt"), "axe throwing": ("axe",), "pool": ("pool", "billiard"), "darts": ("dart",),
+}
+
+
+_MAX_CUISINE_QUERIES = 4
+
+def _matches_cuisine(p: dict, cuisine: str) -> bool:
+    hints = _CUISINE_TYPE_HINTS.get((cuisine or "").lower())
+    if not hints:
+        return True
+    ptype = (p.get("primaryType") or "").lower().replace("_", " ")
+    name = ((p.get("displayName") or {}).get("text") or "").lower()
+    return any(h.replace("_", " ") in ptype or h.replace("_", " ") in name for h in hints)
+
+
+def _build_search_payload(req: PlacesSearchRequest, lat: float, lng: float, text_query: str) -> dict:
     payload = {
-        "textQuery": _build_text_query(req),
+        "textQuery": text_query,
         "locationBias": {"circle": {"center": {"latitude": lat, "longitude": lng}, "radius": min(req.radius_miles * 1609.34, 50000.0)}},
         "maxResultCount": 20,
     }
@@ -146,7 +206,7 @@ def _build_search_payload(req: PlacesSearchRequest, lat: float, lng: float) -> d
     return payload
 
 
-def _place_to_result(p: dict, req: PlacesSearchRequest, lat: float, lng: float):
+def _place_to_result(p: dict, req: PlacesSearchRequest, lat: float, lng: float, cuisine: str | None = None):
     """Map one Google place to a result dict, or None if it should be filtered out."""
     ploc = p.get("location") or {}
     plat, plng = ploc.get("latitude"), ploc.get("longitude")
@@ -166,7 +226,7 @@ def _place_to_result(p: dict, req: PlacesSearchRequest, lat: float, lng: float):
     return {
         "id": str(uuid.uuid4()),
         "name": name,
-        "cuisine": prettify_type(p.get("primaryType"), req.category),
+        "cuisine": cuisine or prettify_type(p.get("primaryType"), req.category),
         "price": PRICE_ENUM_TO_SYMBOL.get(p.get("priceLevel"), "$$"),
         "rating": float(p.get("rating") or 0.0),
         "distance": round(dist, 1),
@@ -193,23 +253,59 @@ def _place_to_result(p: dict, req: PlacesSearchRequest, lat: float, lng: float):
 
 
 async def google_places_search(req: PlacesSearchRequest):
+    """One Google text search per selected chip, merged.
+
+    A single mashed query ("Breakfast Filipino restaurant") let Google return
+    places matching neither chip, so each chip is searched separately and its
+    results are relevance-checked against that chip (see _matches_cuisine).
+    """
     async with httpx.AsyncClient(timeout=15) as http:
         lat, lng = await _resolve_latlng(http, req)
-        pres = await http.post(
-            "https://places.googleapis.com/v1/places:searchText",
-            headers={
-                "X-Goog-Api-Key": GOOGLE_API_KEY,
-                "X-Goog-FieldMask": _PLACES_FIELD_MASK,
-                "Content-Type": "application/json",
-            },
-            json=_build_search_payload(req, lat, lng),
-        )
-        pd = pres.json()
-        if "error" in pd:
-            logger.warning(f"Places API error: {str(pd['error'])[:300]}")
-            raise HTTPException(status_code=502, detail="Places search is temporarily unavailable")
-        out = [r for p in pd.get("places", []) if (r := _place_to_result(p, req, lat, lng))]
-        out.sort(key=lambda r: r["distance"])
+        # Cap the fan-out: each query is a billed Google call.
+        chips = (req.cuisines or [])[:_MAX_CUISINE_QUERIES]
+        queries = [(c, _build_text_query(req.category, [c])) for c in chips] or [(None, _build_text_query(req.category, []))]
+
+        async def run(cuisine, text_query, needs_budget):
+            # The first query's budget was already reserved by cached_google_search.
+            if needs_budget and not await _google_reserve():
+                return []
+            pres = await http.post(
+                "https://places.googleapis.com/v1/places:searchText",
+                headers={
+                    "X-Goog-Api-Key": GOOGLE_API_KEY,
+                    "X-Goog-FieldMask": _PLACES_FIELD_MASK,
+                    "Content-Type": "application/json",
+                },
+                json=_build_search_payload(req, lat, lng, text_query),
+            )
+            pd = pres.json()
+            if "error" in pd:
+                logger.warning(f"Places API error: {str(pd['error'])[:300]}")
+                if len(queries) == 1:
+                    raise HTTPException(status_code=502, detail="Places search is temporarily unavailable")
+                return []
+            out = []
+            for p in pd.get("places", []):
+                if cuisine and not _matches_cuisine(p, cuisine):
+                    continue
+                if r := _place_to_result(p, req, lat, lng, cuisine):
+                    out.append(r)
+            return out
+
+        batches = await asyncio.gather(*[run(c, q, i > 0) for i, (c, q) in enumerate(queries)])
+
+        # Interleave the per-chip batches so one chip can't dominate the deck,
+        # de-duping places that matched more than one chip.
+        seen, out = set(), []
+        for row in zip_longest(*batches):
+            for r in row:
+                if r is None:
+                    continue
+                key = (r["name"].lower(), r.get("address", "").lower())
+                if key in seen:
+                    continue
+                seen.add(key)
+                out.append(r)
         return out
 
 

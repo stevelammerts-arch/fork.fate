@@ -445,3 +445,17 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - BUGFIX: Google Places results now stamped with `category` = requested category (places.py:185),
   so delivery/Order buttons no longer leak onto shops/explore/stay/fuel tiles.
 - Verified by testing_agent: 7/7 backend pytest + full E2E frontend (Explore/Shops = 0 order buttons, Food = 6). No console errors.
+
+## 2026-06 — Chip grouping, guided tour parity, per-chip Google queries
+- Tabs: 8 modes now render as one 4x2 grid box (all visible, no horizontal scroll).
+- Guided tour: Explore + Stay tiles added (8 total); radius max 150 mi for those two;
+  Step 3 chips grouped with per-group "+N more" (new `groupMap` prop).
+- Filters.jsx: new `cuisineGroups` prop + ChipSection (limit 10/group). Grouped:
+  Food (7 groups), Bars (5), Explore (4). Other tabs stay flat A–Z.
+- New Explore chips: swimming (Holes/Beaches/Public Pools/Aquatic Centers),
+  Theme/Amusement Parks + Fairgrounds, Gyms/Fitness/Yoga/Pickleball/Tennis,
+  Rock Climbing, Ski Resorts, Snow Tubing, Boat/Jet Ski/Paddleboard Rentals.
+- BUGFIX (user report: "Breakfast + Filipino returned Subway"): places.py used to mash
+  all selected chips into ONE Google textQuery. Now one query per chip (max 4,
+  interleaved + de-duped) and each result is relevance-checked against its chip via
+  `_CUISINE_TYPE_HINTS` (primaryType/name fragments). Result label = the chip name.

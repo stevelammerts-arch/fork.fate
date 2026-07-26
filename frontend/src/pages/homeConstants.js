@@ -156,7 +156,17 @@ export const SHOP_CUISINES = ["Antiques", "Thrift Store", "Vintage", "Flea Marke
 export const NO_DELIVERY_CATEGORIES = ["shops", "fuel", "explore", "stay"];
 export const supportsDelivery = (category) => !NO_DELIVERY_CATEGORIES.includes(category);
 
-export const FUEL_CUISINES = ["Gas Station", "EV Charging", "Truck Stop", "Car Wash", "Touchless Car Wash", "Diesel"];
+// The Fuel tab covers "keep moving" stops, so it's grouped: pumps/chargers,
+// wash & service, and getting-around options (scooters, transit).
+export const FUEL_GROUPS = [
+  { label: "Fuel & Charging", items: ["Gas Station", "EV Charging", "Diesel", "Truck Stop"] },
+  { label: "Wash & Service", items: ["Car Wash", "Touchless Car Wash"] },
+  {
+    label: "Getting Around",
+    items: ["Scooter Rentals", "Scooter Share", "Bike Rentals", "Bike Share", "Bus Stations", "Train Stations", "Park & Ride"],
+  },
+];
+export const FUEL_CUISINES = FUEL_GROUPS.flatMap((g) => g.items);
 // Things to DO. The list outgrew a single A–Z wall of chips, so it's declared in
 // four sub-groups (rendered as labelled sections by Filters) — much faster to scan
 // than 55 alphabetised pills. EXPLORE_CUISINES is derived so the two can't drift.
@@ -167,7 +177,9 @@ export const EXPLORE_GROUPS = [
       "State Parks", "National Parks", "Nature Preserves", "Hiking Trails", "Mountain Biking",
       "Fishing Spots", "Boat Launches", "Hunting Land", "Scenic Overlooks", "Waterfalls",
       "Botanical Gardens", "Hot Springs", "Caves", "Beaches", "Lakes",
-      "Disc Golf", "Horseback Riding", "Kayak Rentals", "ATV Trails", "Farms & Orchards",
+      "Rock Climbing", "Ski Resorts", "Snow Tubing",
+      "Boat Rentals", "Kayak Rentals", "Jet Ski Rentals", "Paddleboard Rentals",
+      "Disc Golf", "Horseback Riding", "ATV Trails", "Farms & Orchards",
     ],
   },
   {
