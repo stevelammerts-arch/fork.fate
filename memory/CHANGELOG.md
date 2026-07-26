@@ -471,3 +471,14 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Also: Fuel tab -> "Fuel & Go" (+ grouped chips), Catering (Food/Style),
   Cake/Custom/Wedding Cakes (Desserts), Party Supplies/Home Decor/Furniture/Candle Shop (Shops).
 - 14/14 backend pytest + full frontend e2e pass (iteration_12).
+
+## 2026-06 — UX fixes (iterations 13-15, all verified)
+- Summer theme buzz: /shuffle-seagulls.wav was a sustained ~1.35kHz sine drone
+  (tonality 6813). Regenerated as surf noise + short gull glides (tonality 17).
+  Generator: /app/scripts/gen_summer_shuffle.py
+- Special modes were unusable on mobile (had to scroll up to Deal/radius/location):
+  new components/home/ModeSetup.jsx puts a 3-step guide + ZIP + Use-my-location +
+  radius + that mode's own Deal button inside each panel; main Deal button hides while
+  a mode is active; panel auto-scrolls into view. Crawl panel got a guide + own radius.
+- Passport/Group panels now include their own 8-category picker + "Dealing from X · types"
+  summary (user dealt a Food passport thinking it was camping). MODE_TABS is now one array.
