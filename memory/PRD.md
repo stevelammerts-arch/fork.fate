@@ -158,7 +158,38 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
   SameSite=Lax); rate limiter + login lockout are per-worker in-memory (weaken with
   >1 worker); `cf-connecting-ip` trusted for any private TCP peer.
 
+## Implemented — 2026-07-26 (part 3: preview parity + "1 more to consider" fix)
+- **USER BUG: reveal card showed "1 more to consider" instead of "3".** Not a code
+  regression — `alternatives = deck.filter(...).slice(0, 3)` in RevealStage.jsx was
+  never touched. Root cause: preview had no `GOOGLE_API_KEY`, so /places/search
+  always served curated seed data, and **66 of 69 (category, cuisine) pairs had only
+  1-2 venues** — so any cuisine filter collapsed the deck to 1-2 items. With no
+  cuisine filter it already showed 3 correctly.
+- **Fix A — deeper curated seed.** `seed_data.py` gained `MIN_PER_CUISINE = 4` and a
+  deterministic `expand_seed()` that tops every (category, cuisine) group up to 4,
+  with `SEED_ALL = SEED + expand_seed(SEED)` consumed by `seed_db()`. **94 -> 276
+  venues.** Determinism matters: `seed_db()` backfills by NAME on every boot, so a
+  random generator would insert fresh duplicates each restart. Verified idempotent
+  across 3 restarts (276 docs, 0 duplicate names). Generated venues are never
+  sponsored; the original 94 hand-written entries are untouched.
+- **Fix B — `GOOGLE_API_KEY` set in preview** (user-supplied 2026-07-26). Preview now
+  returns `source: "google"` with ~20 live results, matching production. Geocoding
+  API + Places API (New) both confirmed. ⚠️ The key was pasted into chat — treat as
+  exposed, rotate + restrict. Preview now bills the user's Google account, capped by
+  `GOOGLE_SEARCH_DAILY_CAP=300`/day (shared across search, geocode and — since
+  SEC-004 — the photo proxy).
+- Verified by testing_agent iteration 5: **86/86 backend assertions + 58 legacy
+  pass / 1 skip / 0 fail**; browser confirms "3 MORE TO CONSIDER" with exactly 3
+  tiles. New suite `backend/tests/test_iter5_seed_expansion.py`. Testing agent also
+  fixed a `sys.path` import bug in the iter2 suite (test-only).
+- Two testing-agent "minor notes" investigated and dismissed as FALSE ALARMS:
+  `/admin/cost-status` already reads the `searches` field (admin.py:179), and the
+  deal button already has `data-testid="spin-roulette-button"` (Home.jsx:995).
+
 ## Pending / Backlog
+- **P0 (user action): rotate + restrict the Google API key** `AIzaSyA8-B...TyDI`. It
+  was pasted into a chat transcript. Restrict to Places API (New) + Geocoding API
+  only, and prefer a SEPARATE key for preview vs production.
 - **P0 (user action): rotate the leaked Android upload key.** Play Console → Setup →
   App integrity → App signing → Request upload key reset. Then add the new SHA-256
   fingerprint to `frontend/public/.well-known/assetlinks.json` and redeploy.
