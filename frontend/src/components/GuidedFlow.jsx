@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -23,7 +23,44 @@ const SEAL_ICONS = {
   cyber: Zap, steam: Cog, tiki: Palmtree, light: Sparkles, fantasy: Swords,
 };
 
-export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: accentProp }) {
+// One chip section — its own "+N more" so a 60-chip category stays scannable.
+function GuidedChips({ items, limit, groupKey, selected, toggle, accent, chipIdle, t }) {
+  const [showAll, setShowAll] = useState(false);
+  useEffect(() => { setShowAll(false); }, [groupKey]);
+
+  const visible = showAll ? items : items.slice(0, limit);
+  const hidden = items.length - visible.length;
+  return (
+    <>
+      {visible.map((c) => {
+        const on = selected.includes(c);
+        return (
+          <button
+            key={c}
+            onClick={() => toggle(c)}
+            data-testid={`guided-chip-${c}`}
+            style={on ? { backgroundColor: accent, borderColor: "transparent" } : undefined}
+            className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-200 ${on ? "text-white" : `hover:border-[var(--ff-accent)] ${chipIdle}`}`}
+          >
+            {on && <Check className="mr-1 inline h-3.5 w-3.5" />}{c}
+          </button>
+        );
+      })}
+      {items.length > limit && (
+        <button
+          onClick={() => setShowAll((s) => !s)}
+          data-testid={`guided-chips-more-${groupKey}`}
+          style={{ color: accent, borderColor: `${accent}99` }}
+          className="rounded-full border border-dashed bg-transparent px-4 py-2 text-sm font-semibold transition-colors hover:bg-[var(--ff-accent-soft)]"
+        >
+          {showAll ? t("Show less") : `+ ${hidden} ${t("more")}`}
+        </button>
+      )}
+    </>
+  );
+}
+
+export default function GuidedFlow({ cuisineMap, groupMap = {}, onSeal, onSkip, theme, accent: accentProp }) {
   const { t } = useLang();
 
   // ---- Theme resolution ---------------------------------------------------
@@ -61,8 +98,6 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: 
   const [radius, setRadius] = useState(25);
   const [cuisines, setCuisines] = useState([]);
   const [sealed, setSealed] = useState(false);
-  const [showAllChips, setShowAllChips] = useState(false);
-  const CHIP_PREVIEW = 9;
 
   const total = 4;
   const playTurn = (vol = 0.5) => {
@@ -105,6 +140,8 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: 
   };
 
   const chips = cuisineMap[mode] || [];
+  const groups = groupMap[mode] || null;
+  const chipProps = { selected: cuisines, toggle: toggleCuisine, accent, chipIdle, t };
   // Explore/Stay search further out (a state park is worth the drive) — mirror
   // the main page's radiusMax so the guide can't cap them at 50 mi.
   const radiusMax = mode === "explore" || mode === "stay" ? 150 : 50;
@@ -239,30 +276,20 @@ export default function GuidedFlow({ cuisineMap, onSeal, onSkip, theme, accent: 
                 <p className="font-sans text-xs font-bold uppercase tracking-[0.2em]" style={{ color: accent }}>{t("Step three")}</p>
                 <h2 className={`mt-1 font-serif text-3xl font-bold ${titleColor}`}>{t("Narrow the fates")}</h2>
                 <p className={`mt-1 font-sans text-sm ${subColor}`}>{t("Pick any that tempt you — or let fate surprise you.")}</p>
-                <div className="mt-6 flex max-h-[42vh] flex-wrap gap-2.5 overflow-y-auto pr-1">
-                  {(showAllChips ? chips : chips.slice(0, CHIP_PREVIEW)).map((c) => {
-                    const on = cuisines.includes(c);
-                    return (
-                      <button
-                        key={c}
-                        onClick={() => toggleCuisine(c)}
-                        data-testid={`guided-chip-${c}`}
-                        style={on ? { backgroundColor: accent, borderColor: "transparent" } : undefined}
-                        className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-200 ${on ? "text-white" : `hover:border-[var(--ff-accent)] ${chipIdle}`}`}
-                      >
-                        {on && <Check className="mr-1 inline h-3.5 w-3.5" />}{c}
-                      </button>
-                    );
-                  })}
-                  {chips.length > CHIP_PREVIEW && (
-                    <button
-                      onClick={() => setShowAllChips((s) => !s)}
-                      data-testid="guided-chips-more"
-                      style={{ color: accent, borderColor: `${accent}99` }}
-                      className="rounded-full border border-dashed bg-transparent px-4 py-2 text-sm font-semibold transition-colors hover:bg-[var(--ff-accent-soft)]"
-                    >
-                      {showAllChips ? t("Show less") : `+ ${chips.length - CHIP_PREVIEW} ${t("more")}`}
-                    </button>
+                <div className="mt-6 max-h-[42vh] space-y-5 overflow-y-auto pr-1">
+                  {groups ? (
+                    groups.map((g) => (
+                      <div key={g.label}>
+                        <p className={`mb-2 font-sans text-[11px] font-bold uppercase tracking-[0.18em] ${dark ? "text-[#C0C0C0]" : "text-[#5A6068]"}`}>{t(g.label)}</p>
+                        <div className="flex flex-wrap gap-2.5">
+                          <GuidedChips items={g.items} limit={6} groupKey={g.label} {...chipProps} />
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex flex-wrap gap-2.5">
+                      <GuidedChips items={chips} limit={9} groupKey={mode} {...chipProps} />
+                    </div>
                   )}
                 </div>
                 <div className="mt-7 flex gap-3">

@@ -107,15 +107,44 @@ export const lightLineFor = (r, mode = "food") => {
   return arr[(r?.name?.length || 0) % arr.length];
 };
 
-export const FOOD_CUISINES = [
-  "Italian", "Mexican", "Tex-Mex", "Chinese", "Japanese", "Sushi", "Indian", "Thai", "Korean", "Vietnamese",
-  "Filipino", "Malaysian", "Indonesian", "Chicken Wings", "Fried Chicken", "Burgers", "Steakhouse", "American",
-  "Diner", "Comfort Food", "Southern", "Soul Food", "Cajun", "Mediterranean", "Greek", "Spanish", "French",
-  "Middle Eastern", "Lebanese", "Turkish", "Ethiopian", "Caribbean", "Cuban", "Peruvian", "Brazilian", "Hawaiian",
-  "Seafood", "Poke", "Pizza", "Pasta", "Tacos", "Sandwiches", "Banh Mi", "Deli", "Ramen", "Noodles", "Pho", "Dumplings",
-  "Breakfast", "Brunch", "Salads", "Halal", "Vegan", "Vegetarian", "Gluten Free", "BBQ", "Cafe", "Gastropub",
-  "Fine Dining", "Fusion", "Hot Pot", "Dim Sum", "Buffet", "Food Trucks", "Fast Food", "Tapas",
+// Food is 60+ chips — declared in scannable sub-groups (rendered as labelled
+// sections by Filters) instead of one A–Z wall. FOOD_CUISINES is derived.
+export const FOOD_GROUPS = [
+  {
+    label: "American & Comfort",
+    items: [
+      "American", "Diner", "Comfort Food", "Southern", "Soul Food", "Cajun", "BBQ",
+      "Burgers", "Fried Chicken", "Chicken Wings", "Steakhouse", "Sandwiches", "Deli",
+      "Seafood", "Hawaiian",
+    ],
+  },
+  { label: "Pizza & Pasta", items: ["Pizza", "Pasta", "Italian"] },
+  {
+    label: "Asian",
+    items: [
+      "Chinese", "Japanese", "Sushi", "Korean", "Thai", "Vietnamese", "Banh Mi", "Pho",
+      "Ramen", "Noodles", "Dumplings", "Dim Sum", "Hot Pot", "Poke", "Filipino",
+      "Malaysian", "Indonesian", "Indian",
+    ],
+  },
+  {
+    label: "Latin & Caribbean",
+    items: ["Mexican", "Tex-Mex", "Tacos", "Cuban", "Caribbean", "Peruvian", "Brazilian", "Spanish", "Tapas"],
+  },
+  {
+    label: "Mediterranean & Middle Eastern",
+    items: ["Mediterranean", "Greek", "French", "Middle Eastern", "Lebanese", "Turkish", "Ethiopian", "Halal"],
+  },
+  {
+    label: "Breakfast & Lighter",
+    items: ["Breakfast", "Brunch", "Cafe", "Salads", "Vegan", "Vegetarian", "Gluten Free"],
+  },
+  {
+    label: "Style",
+    items: ["Fine Dining", "Gastropub", "Fusion", "Buffet", "Food Trucks", "Fast Food"],
+  },
 ];
+export const FOOD_CUISINES = FOOD_GROUPS.flatMap((g) => g.items);
 export const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "Smoothie", "Juice Bar", "Milkshakes", "Kombucha", "Cider", "Hot Chocolate", "Matcha", "Lemonade", "Soda Fountain"];
 export const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Donuts", "Cupcakes", "Candy Shops", "Chocolate", "Crepes", "Cheesecake", "Pie", "Cookies", "Waffles", "Macarons", "Cinnamon Rolls"];
 export const SHOP_CUISINES = ["Antiques", "Thrift Store", "Vintage", "Flea Market", "Farmers Market", "Consignment", "Record Store", "Bookstore", "Pawn Shop", "Gem Store", "Jewelry Store", "Bead Shop", "Quilt Shop", "Yarn Shop", "Craft Store", "Fabric Store", "Art Supply", "Plant Shop", "Garden Center", "Nursery", "Hobby Shop", "Comic Store", "Model Shop", "Trading Cards", "Toy Trains", "LEGO Store", "Toy Store", "Bicycle Shop"];
@@ -171,14 +200,36 @@ export const STAY_CUISINES = [
   "Cabins", "Yurts", "Glamping", "Treehouses", "Lodges", "Bed & Breakfast",
   "Inns", "Motels", "Hotels", "Hostels",
 ];
-export const BAR_CUISINES = [
-  "Brewery", "Beer Garden", "Taproom", "Distillery", "Beer", "Wine", "Winery", "Wine Bar", "Wine Tasting",
-  "Champagne Bar", "Cider House", "Cocktails", "Whiskey", "Liquor", "Liquor Store", "Spirits", "Margaritas", "Tequila Bar",
-  "Mezcal Bar", "Tiki", "Pub", "Gastropub", "Sports Bar", "Irish Bar", "Dive Bar", "Rooftop Bar", "Lounge",
-  "Speakeasy", "Nightclub", "Karaoke", "Bars", "Cigar Bar", "Hookah Lounge", "Live Music", "Jazz Bar",
-  "Piano Bar", "Comedy Club", "Pool", "Darts", "Volleyball", "Music", "Pickle Ball", "Arcade Bar", "Axe Throwing",
-  "Mini Golf", "Trivia", "Games", "Bowling", "Tapas Bar",
+export const BAR_GROUPS = [
+  {
+    label: "Beer & Cider",
+    items: ["Brewery", "Beer Garden", "Taproom", "Beer", "Pub", "Gastropub", "Irish Bar", "Cider House"],
+  },
+  {
+    label: "Wine & Spirits",
+    items: [
+      "Wine", "Winery", "Wine Bar", "Wine Tasting", "Champagne Bar", "Distillery",
+      "Whiskey", "Spirits", "Liquor", "Liquor Store", "Cocktails", "Margaritas",
+      "Tequila Bar", "Mezcal Bar",
+    ],
+  },
+  {
+    label: "Vibe",
+    items: [
+      "Dive Bar", "Rooftop Bar", "Lounge", "Speakeasy", "Tiki", "Sports Bar", "Nightclub",
+      "Bars", "Cigar Bar", "Hookah Lounge", "Tapas Bar",
+    ],
+  },
+  {
+    label: "Music & Shows",
+    items: ["Live Music", "Jazz Bar", "Piano Bar", "Karaoke", "Comedy Club", "Music"],
+  },
+  {
+    label: "Bar Games",
+    items: ["Pool", "Darts", "Trivia", "Games", "Arcade Bar", "Axe Throwing", "Mini Golf", "Bowling", "Volleyball", "Pickle Ball"],
+  },
 ];
+export const BAR_CUISINES = BAR_GROUPS.flatMap((g) => g.items);
 export const CRAWL_TYPES = [
   { key: "pubs", label: "Pubs", mode: "bars", cuisine: "Pub", crawl: "Pub Crawl" },
   { key: "wine", label: "Wineries", mode: "bars", cuisine: "Winery", crawl: "Winery Crawl" },

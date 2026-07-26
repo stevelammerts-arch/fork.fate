@@ -45,7 +45,7 @@ export default function Filters({
             key={g.label}
             label={g.label}
             items={g.items}
-            limit={8}
+            limit={10}
             labelColor={labelColor}
             selectedCuisines={selectedCuisines}
             toggleCuisine={toggleCuisine}
