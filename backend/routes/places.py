@@ -184,12 +184,29 @@ _CUISINE_TYPE_HINTS = {
 
 _MAX_CUISINE_QUERIES = 4
 
+# Sightseeing chips are English words that businesses also use in their names
+# ("The Lighthouse Restaurant", "Lighthouse Care and Counseling"), so for these the
+# place's Google primaryType must ALSO look like an attraction.
+_SIGHTSEEING_CHIPS = {
+    "lighthouses", "national monuments", "landmarks", "observation decks", "roadside attractions",
+    "historic sites", "scenic overlooks", "waterfalls",
+}
+_ATTRACTION_TYPE_FRAGMENTS = (
+    "tourist", "attraction", "landmark", "historical", "monument", "observation",
+    "park", "museum", "cultural", "point_of_interest", "beach", "natural",
+)
+
+
 def _matches_cuisine(p: dict, cuisine: str) -> bool:
-    hints = _CUISINE_TYPE_HINTS.get((cuisine or "").lower())
+    key = (cuisine or "").lower()
+    ptype = (p.get("primaryType") or "").lower()
+    if key in _SIGHTSEEING_CHIPS and not any(f in ptype for f in _ATTRACTION_TYPE_FRAGMENTS):
+        return False
+    hints = _CUISINE_TYPE_HINTS.get(key)
     if not hints:
         return True
-    ptype = (p.get("primaryType") or "").lower().replace("_", " ")
     name = ((p.get("displayName") or {}).get("text") or "").lower()
+    ptype = ptype.replace("_", " ")
     return any(h.replace("_", " ") in ptype or h.replace("_", " ") in name for h in hints)
 
 
@@ -213,9 +230,10 @@ def _place_to_result(p: dict, req: PlacesSearchRequest, lat: float, lng: float, 
     dist = haversine_miles(lat, lng, plat, plng) if plat is not None and plng is not None else 0.0
     if dist > req.radius_miles:
         return None
-    # Shops roulette must not surface food/drink venues that merely match a
-    # store-ish keyword (e.g. "Vinyl Steakhouse" under Record Store).
-    if req.category == "shops":
+    # Shops/Explore/Fuel roulettes must not surface food/drink venues that merely
+    # match a keyword (e.g. "Vinyl Steakhouse" under Record Store, or "The
+    # Lighthouse Restaurant" under Lighthouses).
+    if req.category in ("shops", "explore", "fuel"):
         ptype = (p.get("primaryType") or "").lower()
         if any(k in ptype for k in _NON_SHOP_TYPES):
             return None

@@ -351,6 +351,7 @@ DECLARED_CUISINES = {
         "Boat Rentals", "Jet Ski Rentals", "Paddleboard Rentals",
         "Swimming Holes", "Swimming Beaches", "Public Pools", "Aquatic Centers",
         "Zoos", "Safaris", "Aquariums", "Museums", "Children's Museums", "Science Centers",
+        "National Monuments", "Landmarks", "Observation Decks", "Lighthouses", "Roadside Attractions",
         "Art Galleries", "Historic Sites", "Planetariums",
         "Mini Golf", "Go-Karts", "Bowling", "Arcades", "Escape Rooms", "Axe Throwing",
         "Zip Lines", "Climbing Gyms", "Skate Parks", "Water Parks", "Drive-In Theaters",

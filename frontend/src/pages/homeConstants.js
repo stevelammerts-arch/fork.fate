@@ -191,6 +191,7 @@ export const EXPLORE_GROUPS = [
     items: [
       "Zoos", "Safaris", "Petting Zoos", "Aquariums", "Museums", "Children's Museums",
       "Science Centers", "Art Galleries", "Historic Sites", "Planetariums",
+      "National Monuments", "Landmarks", "Observation Decks", "Lighthouses", "Roadside Attractions",
       "Theme Parks", "Amusement Parks", "Fairgrounds", "Drive-In Theaters",
     ],
   },
