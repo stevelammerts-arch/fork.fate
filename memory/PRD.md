@@ -113,15 +113,61 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
     is registered for the preview domain.
   - File: `backend/routes/passkey.py`.
 
+## Implemented — 2026-07-26 (part 2: security-audit remediation)
+- **SEC-002 — leaderboard anti-cheat now server-derived.** `/api/crawls/complete`
+  no longer trusts the client's `verified` flag. It calls `_gps_checkin_count(code)`
+  and keeps `verified` only when DISTINCT `source="gps"` check-ins >= submitted
+  `stops`; the >15mph implied-speed downgrade still applies on top. No code, or
+  manual-only check-ins, => unranked. `POST /crawls/{code}/checkin` became an
+  UPSERT on (code, stop_id, source) so replaying it can't inflate the GPS count
+  (`created_at` via $setOnInsert, `expire_at` refreshed each post).
+  Frontend: `PubCrawlDialog.jsx` gained `buildStopsPayload()`, `ensureCrawlCode()`
+  (silently creates the crawl on first check-in, dedupes concurrent callers via
+  `creatingRef`) and `postCheckin()` (fire-and-forget, dedupes via `postedRef`,
+  releases the key on failure to allow retry). `shareCrawl()` now routes through
+  `ensureCrawlCode()` so the shared /c/<code> link and the recorded check-ins use
+  ONE code — previously sharing could mint a second.
+- **SEC-003 — CORS preview wildcard env-gated.** `ALLOWED_ORIGIN_REGEX` is composed
+  from `ALLOW_PREVIEW_ORIGINS` (default "true"). Set it to **false in production
+  secrets** to drop `*.preview.emergentagent.com` as a credentialed origin.
+  Safe default: unset behaves exactly as before, so deploying can't break preview.
+- **SEC-004 — photo proxy metered + cached.** `/api/places/photo` now reserves each
+  cache MISS against the shared Google daily budget via `_google_reserve()` and
+  serves repeats from a bounded in-process cache (`_PHOTO_CACHE`, 24h TTL, 150
+  entries, skips >400KB bodies). Responses carry `X-Photo-Cache: hit|miss`.
+- **BUG (pre-existing, found via testing) — rate limiter was global per IP.**
+  `rate_limit()` keyed its deque on the client IP ALONE, so every endpoint shared
+  one counter and the tightest limit governed the whole API: ~10 photo loads
+  (limit 200) would 429 a later sponsor subscribe (limit 5). Now keyed on
+  `(route.path_format, ip)` — the path TEMPLATE, so `/crawls/{code}/checkin` can't
+  mint an unbounded keyspace by varying the param. The admin brute-force lockout
+  (`_LOGIN_FAILURES`) stays IP-only, which is correct.
+- Removed now-unused `components/CheckInButton.jsx` (moved to
+  `/app/.template-expo/CheckInButton.jsx.unused`). FF_BUILD -> **2026.06-280**.
+- Verified by testing_agent iterations 2 and 3: **58 passed / 1 informational skip /
+  0 failed**. Suites: `backend/tests/test_iter_fateactions_and_checkin.py`,
+  `test_iter_sec002_003_004.py`, `test_iter_ratelimit_isolation.py`.
+
+## Known / out of scope
+- Ops layer: the Cloudflare/ingress in PREVIEW rewrites `access-control-allow-origin: *`
+  with `allow-credentials: true` on responses regardless of origin. The app's own
+  CORSMiddleware gating is correct (proven by the SEC-003 tests) and browsers reject
+  `*`+credentials, so it isn't exploitable — but it masks the app's origin gating
+  over the wire in preview. Not an app bug.
+- Remaining audit P3s: no CSRF token on cookie-auth admin writes (mitigated by
+  SameSite=Lax); rate limiter + login lockout are per-worker in-memory (weaken with
+  >1 worker); `cf-connecting-ip` trusted for any private TCP peer.
+
 ## Pending / Backlog
 - **P0 (user action): rotate the leaked Android upload key.** Play Console → Setup →
   App integrity → App signing → Request upload key reset. Then add the new SHA-256
   fingerprint to `frontend/public/.well-known/assetlinks.json` and redeploy.
-- **P1: wire PubCrawlDialog check-ins to POST /api/crawls/{code}/checkin**, then derive
-  `verified` server-side in /api/crawls/complete (closes SEC-002).
-- P2: env-gate the `*.preview.emergentagent.com` CORS wildcard out of prod (SEC-003).
-- P2: count `/api/places/photo` against the Google daily cap + cache (SEC-004).
-- P3: prune now-unused `components/CheckInButton.jsx`.
+- **P1: wire PubCrawlDialog check-ins to POST /api/crawls/{code}/checkin** — DONE
+  2026-07-26 (see part 2 above); SEC-002 closed.
+- P2: env-gate the `*.preview.emergentagent.com` CORS wildcard out of prod — DONE
+  (SEC-003). ACTION: set `ALLOW_PREVIEW_ORIGINS=false` in the PRODUCTION secrets.
+- P2: count `/api/places/photo` against the Google daily cap + cache — DONE (SEC-004).
+- P3: prune now-unused `components/CheckInButton.jsx` — DONE.
 - Deploy policy: **all production deploys are on hold during Google Play closed
   testing**, EXCEPT the keystore removal, which the user approved shipping immediately.
 - P1: **Live Print-on-Demand checkout** (Printful) for `/shop` — currently "Notify me"
