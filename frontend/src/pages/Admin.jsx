@@ -14,6 +14,21 @@ import { SponsorList } from "../components/admin/SponsorList";
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 // Admin session lives in an HttpOnly cookie set by the backend; send it on every request.
 const WC = { withCredentials: true };
+
+// CSRF double-submit: the backend issues a readable `ff_csrf` cookie alongside the
+// HttpOnly session cookie and requires it echoed back in X-CSRF-Token on every
+// state-changing admin request. A cross-site page can make the browser SEND our
+// cookies but cannot READ them, so it can't produce this header.
+// Registered at module scope so it installs once when the admin bundle loads.
+const CSRF_UNSAFE = ["post", "put", "patch", "delete"];
+axios.interceptors.request.use((config) => {
+  if (CSRF_UNSAFE.includes((config.method || "get").toLowerCase())) {
+    const match = document.cookie.match(/(?:^|;\s*)ff_csrf=([^;]+)/);
+    if (match) config.headers["X-CSRF-Token"] = decodeURIComponent(match[1]);
+  }
+  return config;
+});
+
 const EMPTY = { name: "", cuisine: "", price: "$$", category: "food", address: "", description: "", image: "", active: true };
 
 export default function Admin() {

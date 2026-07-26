@@ -26,11 +26,11 @@ def _monthly_value(sponsor) -> float:
 @router.post("/admin/login", dependencies=[Depends(rate_limit(10))])
 async def admin_login(payload: AdminLogin, request: Request, response: Response):
     ip = client_ip(request)
-    check_login_lockout(ip)  # per-IP failed-attempt lockout + generous global backstop
+    await check_login_lockout(ip)  # per-IP failed-attempt lockout + generous global backstop
     if not ADMIN_PASSWORD or not hmac.compare_digest(payload.password, ADMIN_PASSWORD):
-        record_login_failure(ip)
+        await record_login_failure(ip)
         raise HTTPException(status_code=401, detail="Incorrect password")
-    clear_login_failures(ip)
+    await clear_login_failures(ip)
     set_admin_cookie(response, create_admin_token())
     return {"ok": True}
 

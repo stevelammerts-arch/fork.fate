@@ -7,6 +7,9 @@ import os
 import re
 import time
 import math
+import hmac
+import secrets
+import asyncio
 import ipaddress
 import jwt
 import httpx
@@ -45,6 +48,22 @@ JWT_AUD = os.environ.get("JWT_AUD", "fork-fate-admin")
 #                     private/loopback hop (i.e. our k8s ingress / CDN edge).
 #   always/never   -> force-trust or force-ignore (escape hatches for other setups).
 TRUST_PROXY_MODE = os.environ.get("TRUST_PROXY_HEADERS", "auto").strip().lower()
+# Optional explicit allowlist of proxy CIDRs (comma-separated). When set, ONLY peers
+# inside these ranges may supply forwarded headers — this is stricter and safer than
+# the legacy "any private/loopback peer" heuristic, because anything else running
+# inside the cluster could otherwise spoof CF-Connecting-IP and defeat both the rate
+# limiter and the admin login lockout. Unset => legacy behaviour, so nothing breaks.
+# Populate with the k8s pod/service ranges plus Cloudflare's published IPs
+# (https://www.cloudflare.com/ips-v4).
+_TRUST_PROXY_CIDRS = []
+for _c in os.environ.get("TRUST_PROXY_CIDRS", "").split(","):
+    _c = _c.strip()
+    if not _c:
+        continue
+    try:
+        _TRUST_PROXY_CIDRS.append(ipaddress.ip_network(_c, strict=False))
+    except ValueError:
+        logging.getLogger(__name__).warning(f"ignoring invalid TRUST_PROXY_CIDRS entry: {_c}")
 # Origins allowed for CORS + WebAuthn. Production is always fork-fate.com; the
 # Emergent preview subdomains are shared tenancy, so trusting them alongside
 # `allow_credentials=True` is only acceptable in preview. Set
@@ -222,25 +241,65 @@ def create_admin_token():
 ADMIN_COOKIE = "ff_admin"
 ADMIN_COOKIE_MAX_AGE = 12 * 60 * 60  # matches the 12h token expiry
 
+# CSRF: double-submit cookie. SameSite=Lax alone left cookie-authenticated admin
+# writes exposed (Lax still permits top-level form POSTs and doesn't cover every
+# browser). A readable (non-HttpOnly) token cookie is issued alongside the session
+# and must be echoed back in the X-CSRF-Token header — an attacker's page can send
+# the victim's cookies but cannot read them to set the header.
+# Deliberately NOT HttpOnly: the SPA has to read it. That's safe because it's not a
+# credential on its own — it's only meaningful when paired with the session cookie.
+CSRF_COOKIE = "ff_csrf"
+CSRF_HEADER = "x-csrf-token"
+# Set CSRF_STRICT=true once all live sessions have cycled (<=12h after deploy) to
+# also reject cookie sessions that predate this change and so carry no CSRF cookie.
+CSRF_STRICT = os.environ.get("CSRF_STRICT", "false").strip().lower() in ("1", "true", "yes")
+_CSRF_SAFE_METHODS = {"GET", "HEAD", "OPTIONS", "TRACE"}
+
 
 def set_admin_cookie(response: Response, token: str):
     response.set_cookie(
         key=ADMIN_COOKIE, value=token, httponly=True, secure=True,
         samesite="lax", max_age=ADMIN_COOKIE_MAX_AGE, path="/",
     )
+    csrf = secrets.token_urlsafe(32)
+    response.set_cookie(
+        key=CSRF_COOKIE, value=csrf, httponly=False, secure=True,
+        samesite="lax", max_age=ADMIN_COOKIE_MAX_AGE, path="/",
+    )
+    return csrf
 
 
 def clear_admin_cookie(response: Response):
     response.delete_cookie(key=ADMIN_COOKIE, path="/", samesite="lax", secure=True, httponly=True)
+    response.delete_cookie(key=CSRF_COOKIE, path="/", samesite="lax", secure=True, httponly=False)
 
 
 def require_admin(request: Request):
-    token = request.cookies.get(ADMIN_COOKIE)
-    if not token:
-        auth = request.headers.get("Authorization", "")
-        token = auth[7:] if auth.startswith("Bearer ") else None
+    # Cookie takes precedence, matching the original resolution order.
+    cookie_token = request.cookies.get(ADMIN_COOKIE)
+    auth = request.headers.get("Authorization", "")
+    bearer_token = auth[7:] if auth.startswith("Bearer ") else None
+    token = cookie_token or bearer_token
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
+
+    # CSRF only applies to ambient-credential (cookie) auth on state-changing methods.
+    # Bearer clients send an explicit header a cross-site page cannot forge, so they
+    # are exempt — that keeps existing API clients working.
+    if cookie_token and request.method not in _CSRF_SAFE_METHODS:
+        sent = request.headers.get(CSRF_HEADER)
+        expected = request.cookies.get(CSRF_COOKIE)
+        if expected:
+            if not sent or not hmac.compare_digest(str(expected), str(sent)):
+                raise HTTPException(status_code=403, detail="CSRF token missing or invalid")
+        elif CSRF_STRICT:
+            raise HTTPException(status_code=403, detail="CSRF token missing")
+        else:
+            # Session predates the CSRF rollout. A genuine cross-site attack WOULD
+            # carry the cookie (browsers send all cookies for the domain), so absence
+            # means a legacy session rather than an attack. Expires within 12h.
+            logger.info(f"admin write without CSRF cookie (legacy session): {request.url.path}")
+
     try:
         payload = jwt.decode(
             token, JWT_SECRET, algorithms=[JWT_ALG],
@@ -260,11 +319,20 @@ def origin_allowed(origin: str) -> bool:
     return bool(origin and _ORIGIN_RE.match(origin.strip()))
 
 
+def _is_infra_hop(ip) -> bool:
+    """Is this address one of our own proxy hops (so not a real client)?"""
+    if _TRUST_PROXY_CIDRS:
+        return any(ip in net for net in _TRUST_PROXY_CIDRS)
+    return ip.is_private or ip.is_loopback
+
+
 def peer_is_trusted_proxy(request: Request) -> bool:
     """Whether the direct TCP peer is a trusted proxy hop, so we may believe its
-    forwarded headers (CF-Connecting-IP, X-Forwarded-Host). In 'auto' mode we trust
-    only private/loopback peers — a public peer means the request reached us directly
-    off-CDN, where client-supplied headers are forgeable and must be ignored."""
+    forwarded headers (CF-Connecting-IP, X-Forwarded-Host). When TRUST_PROXY_CIDRS is
+    configured we require the peer to be inside one of those ranges. Otherwise we fall
+    back to the legacy heuristic: trust only private/loopback peers — a public peer
+    means the request reached us directly off-CDN, where client-supplied headers are
+    forgeable and must be ignored."""
     if TRUST_PROXY_MODE == "always":
         return True
     if TRUST_PROXY_MODE == "never":
@@ -276,7 +344,7 @@ def peer_is_trusted_proxy(request: Request) -> bool:
         ip = ipaddress.ip_address(peer)
     except ValueError:
         return False
-    return ip.is_private or ip.is_loopback
+    return _is_infra_hop(ip)
 
 
 def _request_origin(request: Request) -> str:
@@ -317,24 +385,44 @@ def rp_id_and_origin(request: Request):
 # Admin-login brute-force protection.
 # Per-IP failed-attempt lockout so a single attacker can only lock THEMSELVES out —
 # not the legitimate admin. A generous global backstop still bounds distributed floods.
-_LOGIN_FAILURES = defaultdict(list)   # ip -> [failure timestamps]
+# State lives in MongoDB (see check_login_lockout) so it survives restarts and is
+# shared across workers.
 _LOGIN_FAIL_MAX = 8                    # failures per IP within the window -> locked
 _LOGIN_FAIL_WINDOW = 300              # seconds; failures older than this are forgotten
 _ADMIN_LOGIN_GLOBAL = {"window_start": 0.0, "count": 0}
 _GLOBAL_MAX = 240                     # total attempts / window (distributed-flood backstop)
 _GLOBAL_WINDOW = 60
+_LOGIN_LOCK_INDEX_READY = False
 
 
-def check_login_lockout(ip: str):
+async def _ensure_login_indexes():
+    global _LOGIN_LOCK_INDEX_READY
+    if _LOGIN_LOCK_INDEX_READY:
+        return
+    try:
+        await db.login_failures.create_index("expire_at", expireAfterSeconds=0)
+    except Exception as e:
+        logger.warning(f"login_failures index setup failed: {e}")
+    _LOGIN_LOCK_INDEX_READY = True
+
+
+async def check_login_lockout(ip: str):
     """Raise 429 if this IP has too many recent failures, or if the generous global
-    backstop is exceeded. Call before verifying the password."""
+    backstop is exceeded. Call before verifying the password.
+
+    Failure state lives in MongoDB so the lockout survives a restart and is shared
+    across workers — an in-process dict reset on every deploy and protected only the
+    one worker that happened to see the failures. The high-volume generic rate limiter
+    stays in memory; this path is low-volume and security-critical, so a round trip
+    is worth it.
+    """
+    await _ensure_login_indexes()
     now = time.time()
-    fails = [t for t in _LOGIN_FAILURES.get(ip, []) if now - t < _LOGIN_FAIL_WINDOW]
-    if fails:
-        _LOGIN_FAILURES[ip] = fails
-    else:
-        _LOGIN_FAILURES.pop(ip, None)
+    doc = await db.login_failures.find_one({"_id": ip}, {"fails": 1})
+    fails = [t for t in (doc or {}).get("fails", []) if now - t < _LOGIN_FAIL_WINDOW]
     if len(fails) >= _LOGIN_FAIL_MAX:
+        # Constant delay so "locked" isn't distinguishable from "wrong password" by timing.
+        await asyncio.sleep(0.5)
         raise HTTPException(status_code=429, detail="Too many failed attempts. Please try again in a few minutes.")
     g = _ADMIN_LOGIN_GLOBAL
     if now - g["window_start"] > _GLOBAL_WINDOW:
@@ -345,16 +433,21 @@ def check_login_lockout(ip: str):
         raise HTTPException(status_code=429, detail="Login temporarily busy, please retry shortly.")
 
 
-def record_login_failure(ip: str):
-    _LOGIN_FAILURES[ip].append(time.time())
-    if len(_LOGIN_FAILURES) > _RL_MAX_KEYS:
-        cutoff = time.time() - _LOGIN_FAIL_WINDOW
-        for k in [k for k, v in list(_LOGIN_FAILURES.items()) if not any(t > cutoff for t in v)]:
-            _LOGIN_FAILURES.pop(k, None)
+async def record_login_failure(ip: str):
+    """Append a failure timestamp atomically. $slice bounds the array so a sustained
+    attack can't grow the document, and expire_at lets a TTL index reap idle rows."""
+    await db.login_failures.update_one(
+        {"_id": ip},
+        {
+            "$push": {"fails": {"$each": [time.time()], "$slice": -(_LOGIN_FAIL_MAX * 2)}},
+            "$set": {"expire_at": datetime.now(timezone.utc) + timedelta(seconds=_LOGIN_FAIL_WINDOW * 4)},
+        },
+        upsert=True,
+    )
 
 
-def clear_login_failures(ip: str):
-    _LOGIN_FAILURES.pop(ip, None)
+async def clear_login_failures(ip: str):
+    await db.login_failures.delete_one({"_id": ip})
 
 
 # Simple in-memory per-IP rate limiter (coarse abuse/cost protection)
@@ -472,13 +565,30 @@ def client_ip(request: Request) -> str:
     """Trusted client IP. Behind our ingress/CDN, CF-Connecting-IP / True-Client-IP are
     set by the trusted hop. We only believe them when the direct TCP peer is a trusted
     proxy (see peer_is_trusted_proxy); a direct public peer means the headers are
-    client-forgeable, so we use the TCP peer instead. The client-supplied X-Forwarded-For
-    is never trusted (forgeable -> rate-limit bypass)."""
+    client-forgeable, so we use the TCP peer instead.
+
+    X-Forwarded-For is only consulted as a LAST resort behind a trusted peer, and is
+    parsed right-to-left skipping our own infrastructure hops. Taking the leftmost
+    value would be forgeable (a client can prepend anything); walking from the right
+    yields the first address our infrastructure didn't add. Without this, a missing
+    CF-Connecting-IP collapses every user onto the shared ingress IP, which would let
+    one visitor exhaust everybody's rate limit.
+    """
     if peer_is_trusted_proxy(request):
         for h in ("cf-connecting-ip", "true-client-ip"):
             v = request.headers.get(h)
             if v and v.strip():
                 return v.strip()
+        xff = request.headers.get("x-forwarded-for")
+        if xff:
+            for candidate in reversed([p.strip() for p in xff.split(",") if p.strip()]):
+                try:
+                    ip = ipaddress.ip_address(candidate)
+                except ValueError:
+                    continue
+                if _is_infra_hop(ip):
+                    continue  # one of our own hops — keep walking left
+                return candidate
     return request.client.host if request.client else "unknown"
 
 
