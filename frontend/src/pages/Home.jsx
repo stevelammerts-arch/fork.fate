@@ -39,6 +39,21 @@ import { ShufflingDeck } from "../components/ShufflingDeck";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+// Themed ambience that plays during the shuffle: [src, volume, loop].
+// All beds are synthesized band-limited noise (see scripts/gen_theme_beds.py) —
+// earlier versions held pure tones or near-Nyquist junk that phone speakers
+// reproduced as a buzz or zap.
+const SHUFFLE_LOOPS = {
+  tiki: ["/reveal-drums-groove.wav", 1.0, false],
+  cyber: ["/reveal-cyber-radio.wav", 0.8, true],
+  summer: ["/shuffle-seagulls.wav", 0.7, true],
+  steam: ["/shuffle-jacobs.wav", 0.85, true],
+  spring: ["/shuffle-spring.wav", 0.8, true],
+  winter: ["/shuffle-winter.wav", 0.8, true],
+  fall: ["/shuffle-fall.wav", 0.8, true],
+  fantasy: ["/shuffle-dragon.wav", 0.85, true],
+};
+
 
 export default function Home() {
   const { theme } = useTheme();
@@ -90,6 +105,11 @@ export default function Home() {
   const [passportMode, setPassportMode] = useState(false);
   const [passportSize, setPassportSize] = useState(5);
   const [myPassports, setMyPassports] = useState(() => readPassports());
+  // The chip list is long; collapse it once fate has spoken so the reveal card
+  // isn't buried under filters.
+  const [filtersOpen, setFiltersOpen] = useState(true);
+  // "Double or Nothing": one reroll, but the new pick is final.
+  const [locked, setLocked] = useState(false);
 
   // Turning on a special mode reveals its panel BELOW the toggles, so bring it
   // into view — users were otherwise left scrolling to find the deal button.
@@ -222,6 +242,7 @@ export default function Home() {
     { key: "stay", label: t("Stay"), Icon: Tent },
   ];
   const modeLabel = MODE_TABS.find((m) => m.key === mode)?.label || mode;
+  const cuisineLabel = mode === "food" ? t("Cuisine") : mode === "drinks" ? t("Drink type") : mode === "bars" ? t("Bar type") : mode === "desserts" ? t("Dessert type") : mode === "shops" ? t("Shop type") : mode === "explore" ? t("Activity") : mode === "stay" ? t("Stay type") : t("Fuel type");
 
   const switchMode = (m) => {    if (m === mode) return;
     setMode(m);
@@ -249,6 +270,8 @@ export default function Home() {
     setResult(null);
     setGroupPicks(null);
     setSpinning(true);
+    setLocked(false);
+    setFiltersOpen(false);
     setFlashHit(false);
     setRevealFlash(false);
     // Preload the reveal sound now (inside the click gesture) so it reliably plays.
@@ -262,7 +285,7 @@ export default function Home() {
         thunderRef.current.volume = 1.0;
         thunderRef.current.load();
         // Themed ambience that starts during the shuffle. [src, volume, loop]
-        const loop = { tiki: ["/reveal-drums-groove.wav", 1.0, false], cyber: ["/reveal-cyber-radio.wav", 0.8, true], summer: ["/shuffle-seagulls.wav", 0.7, true], steam: ["/shuffle-jacobs.wav", 0.85, true], spring: ["/shuffle-spring.wav", 0.8, true], winter: ["/shuffle-winter.wav", 0.8, true], fall: ["/shuffle-fall.wav", 0.8, true], fantasy: ["/shuffle-dragon.mp3", 0.85, true] }[theme];
+        const loop = SHUFFLE_LOOPS[theme];
         if (loop) {
           grooveRef.current = new Audio(loop[0]);
           grooveRef.current.loop = loop[2];
@@ -505,7 +528,7 @@ export default function Home() {
     setRevealFlash(false);
     if (theme === "tiki") { grooveRef.current = playSound("/reveal-drums-groove.wav", 1.0); }
     else {
-      const loopSrc = { cyber: "/reveal-cyber-radio.wav", summer: "/shuffle-seagulls.wav", steam: "/shuffle-jacobs.wav", spring: "/shuffle-spring.wav", winter: "/shuffle-winter.wav", fall: "/shuffle-fall.wav", fantasy: "/shuffle-dragon.mp3" }[theme];
+      const loopSrc = SHUFFLE_LOOPS[theme]?.[0];
       const loopVol = { cyber: 0.8, summer: 0.7, steam: 0.85, spring: 0.8, winter: 0.8, fall: 0.8, fantasy: 0.85 }[theme];
       if (loopSrc) {
         try {
@@ -626,6 +649,18 @@ export default function Home() {
 
   const reSpin = () => {
     if (results.length) { trackEvent("respin", { category: mode, theme }); runShuffle(results); }
+  };
+
+  // One reroll, no takebacks — the whole point is that you can't shop around after.
+  const doubleOrNothing = () => {
+    const pool = results.filter((r) => r.id !== result?.id);
+    if (!pool.length) return;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    trackEvent("double_or_nothing", { category: mode, theme });
+    playSound("/card-deal.wav", 0.9);
+    setResult(pick);
+    setLocked(true);
+    toast.success(`${t("Locked in by fate")}: ${pick.name}`, { description: t("You took the dare — no takebacks.") });
   };
 
   const dealFromFavorites = () => {
@@ -1040,14 +1075,35 @@ export default function Home() {
               ))}
             </div>
 
+            <div className="mt-4">
+              <button
+                type="button"
+                data-testid="filters-toggle"
+                onClick={() => setFiltersOpen((o) => !o)}
+                className="flex w-full items-center justify-between gap-3 rounded-2xl border border-[#E2E4E7] bg-white px-4 py-3 text-left transition-colors hover:bg-[#F7F8F9]"
+              >
+                <span className="min-w-0">
+                  <span className="block font-sans text-xs font-bold uppercase tracking-wider text-[#6B7075]">
+                    {cuisineLabel}
+                  </span>
+                  <span className="mt-0.5 block truncate font-sans text-sm font-semibold text-[#0E0E0E]">
+                    {selectedCuisines.length ? selectedCuisines.join(", ") : t("Any type — tap to choose")}
+                  </span>
+                </span>
+                <ChevronDown className={`h-5 w-5 shrink-0 text-[#6B7075] transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {filtersOpen && (
             <Filters
               cuisines={cuisineList}
               cuisineGroups={mode === "explore" ? EXPLORE_GROUPS : mode === "food" ? FOOD_GROUPS : mode === "bars" ? BAR_GROUPS : mode === "fuel" ? FUEL_GROUPS : null}
-              cuisineLabel={mode === "food" ? t("Cuisine") : mode === "drinks" ? t("Drink type") : mode === "bars" ? t("Bar type") : mode === "desserts" ? t("Dessert type") : mode === "shops" ? t("Shop type") : mode === "explore" ? t("Activity") : mode === "stay" ? t("Stay type") : t("Fuel type")}
+              cuisineLabel={cuisineLabel}
               selectedCuisines={selectedCuisines}
               toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
               labelColor={labelColor}
             />
+              )}
+            </div>
 
             <button
               type="button"
@@ -1416,7 +1472,7 @@ export default function Home() {
               )}
             </AnimatePresence>
             <div ref={resultRef} className="relative z-10 min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
-              <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} light={light} theme={theme} onReset={() => { setResult(null); setGroupPicks(null); }} onReSpin={reSpin} onReport={reportClosed} onPick={setResult} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} />
+              <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} light={light} theme={theme} onReset={() => { setResult(null); setGroupPicks(null); setLocked(false); }} onReSpin={reSpin} onReport={reportClosed} onPick={setResult} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} onDare={doubleOrNothing} dareAvailable={results.length > 1} locked={locked} />
             </div>
           </div>
         </div>

@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "sonner";
-import { MapPin, Check, Share2, Stamp, LocateFixed, ArrowLeft, Trophy, Undo2, ExternalLink } from "lucide-react";
-import { rememberPassport } from "../lib/passports";
+import { MapPin, Check, Share2, Stamp, LocateFixed, ArrowLeft, Trophy, Undo2, ExternalLink, Trash2 } from "lucide-react";
+import { rememberPassport, forgetPassport } from "../lib/passports";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -29,6 +29,21 @@ export default function Passport() {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const deletePassport = async () => {
+    if (!confirmDelete) { setConfirmDelete(true); return; }
+    setBusy("delete");
+    try {
+      await axios.delete(`${API}/passports/${code}`);
+      forgetPassport(code);
+      toast.success("Passport deleted");
+      navigate("/");
+    } catch {
+      toast.error("Couldn't delete that passport");
+      setBusy("");
+    }
+  };
 
   const load = useCallback(async () => {
     try {
@@ -240,6 +255,25 @@ export default function Passport() {
             );
           })}
         </div>
+      </div>
+
+      <div className="mx-auto mt-8 w-full max-w-2xl px-5">
+        <button
+          onClick={deletePassport}
+          disabled={busy === "delete"}
+          data-testid="passport-delete"
+          className={`inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-60 ${
+            confirmDelete ? "border-[#E01E26] bg-[#E01E26] text-white hover:bg-[#B3141A]" : "border-[#E2E4E7] bg-white text-[#6B7075] hover:bg-[#EDEEF0]"
+          }`}
+        >
+          <Trash2 className="h-4 w-4" />
+          {confirmDelete ? "Tap again to delete forever" : "Delete this passport"}
+        </button>
+        {confirmDelete && (
+          <button onClick={() => setConfirmDelete(false)} className="ml-2 text-sm font-bold text-[#6B7075] underline">
+            Cancel
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,18 +1,20 @@
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { Dices, Store, Heart, Star, MapPin, ShoppingBag, Fuel, UtensilsCrossed, Skull, RotateCcw, Flag } from "lucide-react";
+import { Dices, Store, Heart, Star, MapPin, ShoppingBag, Fuel, UtensilsCrossed, Skull, RotateCcw, Flag, Swords, Lock } from "lucide-react";
 import GroupVote from "../GroupVote";
 import BecomeSponsorDialog from "../BecomeSponsorDialog";
 import { OrderDropdown } from "../OrderDropdown";
 import { FateActionsDropdown } from "../FateActionsDropdown";
 import { useLang } from "../../i18n/i18n";
-import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reaperLineFor, lightLineFor, supportsDelivery } from "../../pages/homeConstants";
+import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reaperLineFor, lightLineFor, supportsDelivery, cardImage } from "../../pages/homeConstants";
 import { buildFateCard } from "../../pages/homeFateCard";
 import { trackEvent } from "../../lib/analytics";
 
-export default function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, theme, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite }) {
+export default function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, theme, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite, onDare, dareAvailable, locked }) {
   const { t } = useLang();
+  const [confirmingDare, setConfirmingDare] = useState(false);
   if (!result && groupPicks && groupPicks.length > 0) {
     return <GroupVote picks={groupPicks} onReSpin={onReSpin} onWinner={onPick} />;
   }
@@ -43,7 +45,8 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   }
 
   const card = result;
-  const alternatives = deck.filter((d) => d.id !== card.id).slice(0, 3);
+  // Once the dare is taken the pick is final — no alternatives, no re-shuffle.
+  const alternatives = locked ? [] : deck.filter((d) => d.id !== card.id).slice(0, 3);
   const shareFate = async () => {
     const text = `Fate picked ${card.name} (${card.cuisine} · ${card.price})${card.distance ? ` — ${card.distance} mi away` : ""}. Shuffle your own fate on Fork·Fate!`;
     const url = window.location.origin;
@@ -173,13 +176,34 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
                 onShareText={shareFate}
                 onShareImage={shareFateImage}
               />
-              <button
-                onClick={onReSpin}
-                data-testid="respin-button"
-                className="inline-flex items-center gap-2 rounded-full bg-[#E01E26] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
-              >
-                <Dices className="h-4 w-4" /> {t("Shuffle again")}
-              </button>
+              {locked ? (
+                <span
+                  data-testid="locked-badge"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#0E0E0E] px-4 py-2 text-sm font-bold text-[#F0A24E]"
+                >
+                  <Lock className="h-4 w-4" /> {t("Locked in by fate")}
+                </span>
+              ) : (
+                <button
+                  onClick={onReSpin}
+                  data-testid="respin-button"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#E01E26] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
+                >
+                  <Dices className="h-4 w-4" /> {t("Shuffle again")}
+                </button>
+              )}
+              {!locked && dareAvailable && (
+                <button
+                  onClick={() => { if (confirmingDare) { setConfirmingDare(false); onDare?.(); } else setConfirmingDare(true); }}
+                  onBlur={() => setConfirmingDare(false)}
+                  data-testid="double-or-nothing-button"
+                  title={t("One reroll — but you have to accept whatever comes up")}
+                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors ${confirmingDare ? "bg-[#B26A12] text-white hover:bg-[#8A5210]" : "border-2 border-[#F0A24E] bg-[#FBF3E7] text-[#B26A12] hover:bg-[#F6E7CF]"}`}
+                >
+                  <Swords className="h-4 w-4" />
+                  {confirmingDare ? t("Tap again — no takebacks") : t("Double or Nothing")}
+                </button>
+              )}
               <button
                 onClick={onReset}
                 data-testid="reset-spin-button"
@@ -188,6 +212,11 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
                 <RotateCcw className="h-4 w-4" /> {t("Clear")}
               </button>
             </div>
+            {locked && (
+              <p className="font-sans text-sm text-[#6B7075]" data-testid="locked-note">
+                {t("You took the dare — this one's final. Hit Clear to start a whole new deal.")}
+              </p>
+            )}
             {(() => {
               const MERCH = {
                 fantasy: { key: "dragon-scene", accent: "#E6B23A", label: "Dragon's Hoard" },
@@ -236,7 +265,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
                     >
                       <span className="relative shrink-0">
                         <img
-                          src={alt.image}
+                          src={cardImage(alt)}
                           alt={alt.name}
                           className="h-[72px] w-[72px] rounded-xl object-cover transition-transform duration-200 group-hover:scale-[1.04]"
                         />

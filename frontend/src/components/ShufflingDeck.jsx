@@ -1,6 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Skull, Cog } from "lucide-react";
+import { cardImage } from "../pages/homeConstants";
 
 const DECK_SIZE = 5;
 // One riffle cycle. Kept deliberately brisk — a slow ease reads as floating, not shuffling.
@@ -223,7 +224,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
           {deck.map((c, i) => {
             // Once landed, render only the winning card — no backing cards to peek out as lines
             if (landed && i !== 0) return null;
-            const showPhoto = landed && i === 0 && c?.image;
+            const showPhoto = landed && i === 0 && cardImage(c);
             return (
             <motion.div
               key={(c?.id || "c") + i}
@@ -262,7 +263,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
               }
             >
               {showPhoto ? (
-                <CardFront src={c.image} light={light} />
+                <CardFront src={cardImage(c)} light={light} />
               ) : (
                 <CardBack light={light} theme={theme} seasonItem={season && seasonItems ? seasonItems[i % seasonItems.length] : null} />
               )}

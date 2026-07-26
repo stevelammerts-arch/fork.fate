@@ -20,3 +20,9 @@ export function rememberPassport(p) {
     localStorage.setItem(KEY, JSON.stringify(list.slice(0, MAX)));
   } catch { /* storage unavailable */ }
 }
+
+export function forgetPassport(code) {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(readPassports().filter((x) => x.code !== code)));
+  } catch { /* storage unavailable */ }
+}

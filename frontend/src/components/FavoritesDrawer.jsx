@@ -5,6 +5,7 @@ import {
 } from "./ui/sheet";
 import { useTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
+import { cardImage } from "../pages/homeConstants";
 
 export default function FavoritesDrawer({ favorites, onRemove, onDeal, groupMode }) {
   const [open, setOpen] = useState(false);
@@ -96,7 +97,7 @@ export default function FavoritesDrawer({ favorites, onRemove, onDeal, groupMode
                 data-testid={`favorite-item-${r.id}`}
                 className={`flex items-center gap-3 rounded-2xl border p-2 ${P.item}`}
               >
-                <img src={r.image} alt={r.name} className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+                <img src={cardImage(r)} alt={r.name} className="h-14 w-14 shrink-0 rounded-xl object-cover" />
                 <div className="min-w-0 flex-1">
                   <p className={`truncate font-serif text-base font-medium leading-tight ${P.title}`}>{r.name}</p>
                   <p className={`mt-0.5 flex items-center gap-2 font-sans text-xs ${P.muted}`}>

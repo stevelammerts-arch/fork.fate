@@ -140,6 +140,21 @@ const STEAM_JET = Array.from({ length: 7 }).map((_, i) => ({
   delay: -(i * 0.5),
 }));
 
+// Second, lazier jet venting from the lower pipe on the left of the wall art.
+const STEAM_JET_LOW = Array.from({ length: 6 }).map((_, i) => ({
+  size: 28 + (i % 3) * 14,
+  dur: 3.8 + (i % 3) * 0.8,
+  delay: -(i * 0.65) - 0.3,
+}));
+
+
+// Third jet: low vent between the cabinet and the table — the most visible one
+// on a phone, where the upper pipes sit near the top edge.
+const STEAM_JET_FLOOR = Array.from({ length: 6 }).map((_, i) => ({
+  size: 36 + (i % 3) * 16,
+  dur: 4.2 + (i % 3) * 0.9,
+  delay: -(i * 0.8) - 0.15,
+}));
 
 const CYBER_CARS = [
   // Distant traffic — small & high up, feels far away
@@ -280,6 +295,38 @@ export function AmbianceScene({ theme, cfg }) {
         <div className="absolute z-[2]" style={{ left: "59.5%", top: "16vw" }} data-testid="steam-jet">
           {STEAM_JET.map((p, i) => (
             <div key={`jet-${i}`} className="absolute -translate-x-1/2 rounded-full" style={{ width: p.size, height: p.size, background: "radial-gradient(circle, rgba(255,250,240,0.7), rgba(255,250,240,0) 70%)", filter: "blur(2px)", animation: `ffSteam ${p.dur}s ease-in ${p.delay}s infinite` }} />
+          ))}
+        </div>
+      )}
+      {/* Two extra vents anchored to the open pipe mouths painted in the wall art.
+          The box below reproduces the wall image's object-cover geometry
+          (848x1264, centred, top-aligned) so the puffs stay on the pipes at any
+          screen size — percentages here are image coordinates, not viewport ones. */}
+      {cfg.steam && (
+        <div
+          className="pointer-events-none absolute z-[3]"
+          data-testid="steam-vents"
+          style={{
+            left: "50%",
+            top: 0,
+            transform: "translateX(-50%)",
+            width: "max(100vw, calc(100vh * 0.67089))",
+            height: "max(100vh, calc(100vw * 1.49057))",
+          }}
+        >
+          {[
+            { id: "low", left: "45.4%", top: "80.7%", puffs: STEAM_JET_LOW },
+            { id: "floor", left: "55.7%", top: "80.7%", puffs: STEAM_JET_FLOOR },
+          ].map((v) => (
+            <div key={v.id} className="absolute" style={{ left: v.left, top: v.top }} data-testid={`steam-jet-${v.id}`}>
+              {v.puffs.map((p, i) => (
+                <div
+                  key={`${v.id}-${i}`}
+                  className="absolute -translate-x-1/2 rounded-full"
+                  style={{ width: p.size, height: p.size, background: "radial-gradient(circle, rgba(255,248,236,0.6), rgba(255,248,236,0) 72%)", filter: "blur(3px)", animation: `ffSteam ${p.dur}s ease-in ${p.delay}s infinite` }}
+                />
+              ))}
+            </div>
           ))}
         </div>
       )}

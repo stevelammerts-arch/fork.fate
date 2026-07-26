@@ -104,6 +104,14 @@ async def stamp_passport(code: str, payload: PassportStamp):
     return {**_public(await _get_or_404(doc["code"])), "just_stamped": stamp}
 
 
+@router.delete("/passports/{code}", dependencies=[Depends(rate_limit(30))])
+async def delete_passport(code: str):
+    """Users own their passports — a code holder can delete the whole quest."""
+    doc = await _get_or_404(code)
+    await db.passports.delete_one({"code": doc["code"]})
+    return {"deleted": doc["code"]}
+
+
 @router.delete("/passports/{code}/stamp/{stop_id}", dependencies=[Depends(rate_limit(60))])
 async def unstamp_passport(code: str, stop_id: str):
     """Undo a mis-tapped stamp (and re-open a passport that was marked complete)."""

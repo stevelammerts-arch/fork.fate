@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Star, MapPin, Users, Trophy, Plus, RotateCcw, Dices } from "lucide-react";
 import { useLang } from "../i18n/i18n";
+import { cardImage } from "../pages/homeConstants";
 
 // Group mode: everyone votes on 3 fate-dealt candidates (unlimited votes each), highest tally wins.
 export default function GroupVote({ picks, onReSpin, onWinner }) {
@@ -47,7 +48,7 @@ export default function GroupVote({ picks, onReSpin, onWinner }) {
               }`}
             >
               <div className="relative">
-                <img src={p.image} alt={p.name} className="h-16 w-16 shrink-0 rounded-xl object-cover" />
+                <img src={cardImage(p)} alt={p.name} className="h-16 w-16 shrink-0 rounded-xl object-cover" />
                 {leading && (
                   <span className="absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full bg-[#E01E26] text-white">
                     <Trophy className="h-3.5 w-3.5" />

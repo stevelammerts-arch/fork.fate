@@ -214,3 +214,44 @@ frontend:
 agent_communication:
     -agent: "main"
     -message: "Verify a Stay/camping passport actually returns campgrounds (not restaurants) and the summary reflects the chosen category."
+
+## Iteration 16 — batch: audio artifacts (all themes), placeholder photos, filter collapse, Double or Nothing, passport delete, extra steam jet
+
+frontend:
+  - task: "Themed shuffle beds regenerated artifact-free (buzz/zap reports on summer, cyber, dragon)"
+    implemented: true
+    working: "NA"
+    file: "/app/scripts/gen_theme_beds.py, /app/scripts/audit_audio.py, /app/frontend/public/shuffle-*.wav, reveal-cyber-radio.wav; Home.jsx SHUFFLE_LOOPS"
+    needs_retesting: true
+    status_history:
+      - "ROOT CAUSES via audit: sustained pure tones (summer 6813, steam 2139, dragon 1137 tonality), near-Nyquist aliasing energy (cyber ~22kHz), and loop-seam discontinuities."
+      - "FIX: all beds are noise-dominant, FFT band-limited 70Hz-9kHz, crossfade-looped and faded to zero at both ends. fantasy now uses /shuffle-dragon.wav (was .mp3). SHUFFLE_LOOPS constant replaces two duplicated theme->audio maps."
+  - task: "Results showed generic hiking placeholder images instead of the real Google photo (user: 'searched splash pads, other choices all had hiking backgrounds')"
+    implemented: true
+    working: "NA"
+    file: "homeConstants.js cardImage(), RevealStage.jsx, RestaurantCard.jsx, ShufflingDeck.jsx, GroupVote.jsx, FavoritesDrawer.jsx"
+    needs_retesting: true
+  - task: "Chip/filter section collapses after a deal (user request)"
+    implemented: true
+    working: "NA"
+    file: "Home.jsx (filters-toggle)"
+    needs_retesting: true
+  - task: "Phase 2 — Double or Nothing: one reroll, result is final (locks out re-shuffle + alternatives)"
+    implemented: true
+    working: "NA"
+    file: "Home.jsx (doubleOrNothing, locked), RevealStage.jsx (double-or-nothing-button, locked-badge, locked-note)"
+    needs_retesting: true
+  - task: "Users can delete a passport"
+    implemented: true
+    working: "NA"
+    file: "backend/routes/passports.py (DELETE /passports/{code}), Passport.jsx (passport-delete), lib/passports.js (forgetPassport)"
+    needs_retesting: true
+  - task: "Extra steam cloud from the lower pipe (steampunk theme)"
+    implemented: true
+    working: "NA"
+    file: "ThemeScenes.jsx (STEAM_JET_LOW, data-testid steam-jet-low)"
+    needs_retesting: true
+
+agent_communication:
+    -agent: "main"
+    -message: "Large batch. Audio must be verified numerically with /app/scripts/audit_audio.py thresholds. Photo fix: every dealt card/alternative/nearby tile must use photo_url when present."

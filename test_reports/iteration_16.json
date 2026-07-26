@@ -1,0 +1,30 @@
+{
+  "summary": "Iteration 16 verified all six items in the request against the live preview at fate-mobile-build.preview.emergentagent.com. (1) Audio audit via /app/scripts/audit_audio.py on shuffle-seagulls, shuffle-jacobs, shuffle-dragon (.wav), reveal-cyber-radio, shuffle-spring, shuffle-winter, shuffle-fall: all seven meet the criteria — passband tonality max 857 (< 1000 ceiling — shuffle-dragon is the loudest at 857), near-Nyquist fraction 0.0000-0.0001 (< 0.02), 0 clicks, loop-seam jump 0.000 (< 0.05). Every file also served HTTP 200 from the preview origin, /shuffle-dragon.wav present, /shuffle-dragon.mp3 also still present (harmless leftover). (2) Theme audio wiring: with ff_theme='cyber' a Food deal requested /reveal-cyber-radio.wav; with ff_theme='fantasy' it requested /shuffle-dragon.wav (NOT .mp3); with ff_theme='summer' it requested /shuffle-seagulls.wav. No console errors observed on any theme run. (3) Alternatives photos: on an Explore-mode deal at ZIP 10001 the main reveal card and 100% (3/3) of alternative-* tiles rendered /api/places/photo?... URLs — 0 unsplash placeholders. (4) Filters collapse: after clicking spin-roulette-button the chip section collapsed (cuisine chips no longer visible); the filters-toggle header shows 'Any type — tap to choose' or the selected chip; clicking it re-opens the chip section. (5) Double or Nothing: with several results, first tap on double-or-nothing-button changed its label to 'Tap again — no takebacks'; second tap swapped to a different result and rendered locked-badge ('Locked in by fate'), removed respin-button, removed alternatives-section, and rendered locked-note. reset-spin-button (Clear) returned to idle state where a new deal restored normal buttons (Order/Delivery + Shuffle again + Double or Nothing + Clear). (6) Passport delete: created passport /p/89YT3E (mode=explore, size=3, zip=10001); passport-delete two-tap ('Delete this passport' -> 'Tap again to delete forever' -> deletes) navigated to /, GET /api/passports/89YT3E returns 404, and the code no longer appears in Home 'Your passports' list. Backend regression test also confirms DELETE on an unknown code returns 404. (7) Steampunk vents: with ff_theme='steam' the steam-vents wrapper contains both steam-jet-low and steam-jet-floor, both positioned at 80.7% of viewport height (>55% requirement), and the original steam-jet is still present. No console/page errors during any test run.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_16.json",
+    "/app/backend/tests/test_iter16_passport_delete_audio.py",
+    "/app/test_reports/pytest/iter16.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "shuffle-dragon.wav passband tonality is 857 — well under the 1000 threshold specified in the review, but ~15x higher than every other bed in the set (17-84). Not a failure now, but if a future tweak nudges it past 1000 the drone report will come back. Non-blocking.",
+    "/app/frontend/public/shuffle-dragon.mp3 is still shipped (200 OK) even though nothing in Home.jsx references it any more (SHUFFLE_LOOPS.fantasy = shuffle-dragon.wav). Could be pruned to save ~ file weight, but keeping it is safe.",
+    "Home.jsx is now 1703 lines — filter-collapse, mode toggles, panels and SHUFFLE_LOOPS live in one file. Extracting the filters/panels was already flagged in iteration 15 and is still worth doing."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter16_passport_delete_audio.py"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "One passport was created and then deleted end-to-end (/p/89YT3E, mode=explore, size=3, zip=10001). Live Google Places calls were kept to one Food deal per theme (cyber, fantasy, summer), one Explore deal (splash-pads-adjacent) and one passport creation — modest usage per the request note.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Fork·Fate is a React CRA web app (not Expo) — use REACT_APP_BACKEND_URL from /app/frontend/.env, base URL https://fate-mobile-build.preview.emergentagent.com. Theme is selected via localStorage.ff_theme = 'cyber' | 'fantasy' | 'summer' | 'steam' | 'winter' | 'fall' | 'spring' | 'dark' | 'tiki' (then reload). Mode buttons use data-testid=`mode-<key>` (NOT `mode-toggle-<key>`) — the wrapper is `mode-toggle`. Chip section starts open and auto-collapses on deal; re-open via filters-toggle. Double or Nothing lives on the reveal card and needs two taps; the locked reveal replaces the respin button with locked-badge and removes alternatives-section. Passport delete is a two-tap button (data-testid=passport-delete) that also removes the code from the Home 'my-passports' list on return. Steam theme paints extra vents via data-testid=steam-vents (containing steam-jet-low, steam-jet-floor) alongside the original data-testid=steam-jet.",
+  "rca_of_issue": ""
+}

@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { OrderDropdown } from "./OrderDropdown";
-import { supportsDelivery } from "../pages/homeConstants";
+import { supportsDelivery, cardImage } from "../pages/homeConstants";
 import {
   Star, MapPin, ExternalLink, ShoppingBag, Flag, Heart,
   Beer, Wine, Martini, Target, Music, Gamepad2, CircleDot, Tv, Trophy,
@@ -78,7 +78,7 @@ export function RestaurantCard({ r, onReport, isFavorite, onToggleFavorite, mode
           className="block h-full w-full"
         >
           <img
-            src={r.image}
+            src={cardImage(r)}
             alt={r.name}
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />

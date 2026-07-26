@@ -156,6 +156,11 @@ export const SHOP_CUISINES = ["Antiques", "Thrift Store", "Vintage", "Flea Marke
 export const NO_DELIVERY_CATEGORIES = ["shops", "fuel", "explore", "stay"];
 export const supportsDelivery = (category) => !NO_DELIVERY_CATEGORIES.includes(category);
 
+// Always prefer the venue's real Google photo; `image` is only a category
+// placeholder (all Explore fallbacks are hiking shots, which looked wrong on
+// splash pads, museums and gyms).
+export const cardImage = (r) => r?.photo_url || r?.image;
+
 // The Fuel tab covers "keep moving" stops, so it's grouped: pumps/chargers,
 // wash & service, and getting-around options (scooters, transit).
 export const FUEL_GROUPS = [
