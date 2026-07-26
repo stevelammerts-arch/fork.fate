@@ -368,6 +368,8 @@ DECLARED_CUISINES = {
         "Scooter Rentals", "Scooter Share", "Bike Rentals", "Bike Share",
         "Bus Stations", "Train Stations", "Park & Ride",
     ],
+    "desserts": ["Cake Shops", "Custom Cakes", "Wedding Cakes"],
+    "food": ["Catering"],
     "stay": [
         "Campgrounds", "RV Parks", "KOA", "State Park Camping", "Primitive Sites", "Group Camping",
         "Cabins", "Yurts", "Glamping", "Treehouses", "Lodges", "Bed & Breakfast",

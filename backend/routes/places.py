@@ -164,6 +164,10 @@ _CUISINE_TYPE_HINTS = {
     "bbq": ("barbecue", "bbq", "smokehouse"), "cafe": ("cafe", "coffee"), "gastropub": ("pub", "gastropub", "bar"),
     "hot pot": ("hot pot", "hotpot", "chinese"), "dim sum": ("dim sum", "chinese"), "buffet": ("buffet",),
     "food trucks": ("food truck", "truck"), "fast food": ("fast_food",), "tapas": ("tapas", "spanish"),
+    "catering": ("catering", "caterer"),
+    # desserts
+    "cake shops": ("cake", "bakery", "pastry"), "custom cakes": ("cake", "bakery", "pastry"),
+    "wedding cakes": ("cake", "bakery", "pastry"),
     # bars
     "brewery": ("brewery", "brewpub", "brewing"), "beer garden": ("beer", "biergarten", "garten"),
     "taproom": ("tap", "brewery"), "distillery": ("distillery", "distilling"), "beer": ("beer", "brewery", "pub"),
