@@ -197,3 +197,20 @@ frontend:
 agent_communication:
     -agent: "main"
     -message: "Verify no mode requires scrolling above the panel to deal, and that all three modes still function end-to-end."
+
+## Iteration 15 — Bug: unclear what category a Passport is dealt from
+
+frontend:
+  - task: "Passport (and Group) panels now contain their own 8-category picker + a 'Dealing from <Category> · <types>' summary line"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Home.jsx"
+    needs_retesting: true
+    status_history:
+      - "USER REPORT: 'Add pick a category to the passport. I ran what I thought was a camping run but restaurants popped up. Unclear what is being chosen.'"
+      - "ROOT CAUSE: the category tab grid lives ABOVE the mode panel, so with the panel scrolled into view the active category (default Food) was off-screen and never re-confirmed."
+      - "FIX: MODE_TABS extracted to one array; passport-category-picker + group-category-picker render the same 8 categories inside their panels (active = green/red), plus a live summary line showing the category and selected type chips. Guide step 1 now names Stay = camping, Explore = parks/trails."
+
+agent_communication:
+    -agent: "main"
+    -message: "Verify a Stay/camping passport actually returns campgrounds (not restaurants) and the summary reflects the chosen category."

@@ -208,8 +208,22 @@ export default function Home() {
   const toggle = (setter, arr, val) =>
     setter(arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val]);
 
-  const switchMode = (m) => {
-    if (m === mode) return;
+  // One source of truth for the 8 category tabs — reused by the main tab grid and
+  // by the Passport panel, which needs its own visible category picker (users
+  // couldn't tell what category a passport was being dealt from).
+  const MODE_TABS = [
+    { key: "food", label: t("Food"), Icon: UtensilsCrossed },
+    { key: "drinks", label: t("Drinks"), Icon: Coffee },
+    { key: "bars", label: t("Bars"), Icon: Beer },
+    { key: "desserts", label: t("Desserts"), Icon: IceCream },
+    { key: "shops", label: t("Shops"), Icon: ShoppingBag },
+    { key: "fuel", label: t("Fuel & Go"), Icon: Fuel },
+    { key: "explore", label: t("Explore"), Icon: Mountain },
+    { key: "stay", label: t("Stay"), Icon: Tent },
+  ];
+  const modeLabel = MODE_TABS.find((m) => m.key === mode)?.label || mode;
+
+  const switchMode = (m) => {    if (m === mode) return;
     setMode(m);
     setSelectedCuisines([]);
     setResults([]);
@@ -1013,16 +1027,7 @@ export default function Home() {
             {/* All 8 tabs stay visible inside one box (4x2 grid). The old horizontal
                 scroller hid Explore/Stay off-screen at phone widths. */}
             <div className="grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-[#EDEEF0] p-1" data-testid="mode-toggle">
-              {[
-                { key: "food", label: t("Food"), Icon: UtensilsCrossed },
-                { key: "drinks", label: t("Drinks"), Icon: Coffee },
-                { key: "bars", label: t("Bars"), Icon: Beer },
-                { key: "desserts", label: t("Desserts"), Icon: IceCream },
-                { key: "shops", label: t("Shops"), Icon: ShoppingBag },
-                { key: "fuel", label: t("Fuel & Go"), Icon: Fuel },
-                { key: "explore", label: t("Explore"), Icon: Mountain },
-                { key: "stay", label: t("Stay"), Icon: Tent },
-              ].map(({ key, label, Icon }) => (
+              {MODE_TABS.map(({ key, label, Icon }) => (
                 <button
                   key={key}
                   data-testid={`mode-${key}`}
@@ -1132,7 +1137,30 @@ export default function Home() {
 
             {passportMode && (
               <div className="mt-2 w-full basis-full rounded-2xl border border-[#2E7D32]/30 bg-[#F1F8F2] p-4" data-testid="passport-picker">
-                <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("How many stops?")}</p>
+                <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Pick a category")}</p>
+                <div className="grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-white p-1" data-testid="passport-category-picker">
+                  {MODE_TABS.map(({ key, label, Icon }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      data-testid={`passport-category-${key}`}
+                      onClick={() => switchMode(key)}
+                      className={`flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold leading-none transition-colors ${mode === key ? "bg-[#2E7D32] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-2 font-sans text-sm text-[#3A3F45]" data-testid="passport-selection-summary">
+                  {t("Dealing from")} <span className="font-bold text-[#2E7D32]">{modeLabel}</span>
+                  {" · "}
+                  {selectedCuisines.length
+                    ? selectedCuisines.join(", ")
+                    : t("any type — pick chips above to narrow it")}
+                </p>
+
+                <p className="mb-1.5 mt-4 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("How many stops?")}</p>
                 <div className="flex flex-wrap gap-2">
                   {[3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                     <button
@@ -1168,7 +1196,7 @@ export default function Home() {
                   accent="#2E7D32"
                   testId="passport-setup"
                   steps={[
-                    t("Pick your category tab and any type chips above."),
+                    t("Pick your category — Stay for camping, Explore for parks and trails, Food for meals."),
                     t("Choose how many stops and where to search."),
                     t("Deal it — then stamp each stop as you get there, over days or weeks."),
                   ]}
@@ -1190,12 +1218,31 @@ export default function Home() {
 
             {groupMode && (
               <div className="mt-2 w-full basis-full rounded-2xl border border-[#E01E26]/30 bg-[#FDF6F6] p-4" data-testid="group-picker">
-                <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Group mode")}</p>
+                <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Pick a category")}</p>
+                <div className="grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-white p-1" data-testid="group-category-picker">
+                  {MODE_TABS.map(({ key, label, Icon }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      data-testid={`group-category-${key}`}
+                      onClick={() => switchMode(key)}
+                      className={`flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold leading-none transition-colors ${mode === key ? "bg-[#E01E26] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-2 font-sans text-sm text-[#3A3F45]" data-testid="group-selection-summary">
+                  {t("Dealing from")} <span className="font-bold text-[#E01E26]">{modeLabel}</span>
+                  {" · "}
+                  {selectedCuisines.length ? selectedCuisines.join(", ") : t("any type — pick chips above to narrow it")}
+                </p>
                 <ModeSetup
                   accent="#E01E26"
                   testId="group-setup"
                   steps={[
-                    t("Pick your category tab and any type chips above."),
+                    t("Pick your category — Stay for camping, Explore for parks and trails, Food for meals."),
                     t("Set where to search and how far."),
                     t("Deal 3 spots at once, then let the group vote."),
                   ]}

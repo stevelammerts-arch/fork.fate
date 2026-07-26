@@ -1,0 +1,23 @@
+{
+  "summary": "Verified the new in-panel category pickers for Passport and Group panels (fix for user report: 'ran a camping run but restaurants popped up'). Passport panel exposes passport-category-picker with all 8 category buttons, an accurate passport-selection-summary, and stays in two-way sync with the main mode-toggle. End-to-end camping run (Stay + size 4, ZIP 18360) produced 4 lodging stops (Campground, Hotel, Camping Resort, Camping Cabin) — verified both in the UI and via GET /api/passports/QWPX9G. Explore run (size 3, ZIP 18360) produced State Park / Scenic Spot stops (no restaurants). Group panel exposes group-category-picker + group-selection-summary; Group Stay deal at ZIP 10001 dealt 3 lodging picks (Rv Park, Campground, Motel). Chip regression: selecting Stay tab chip 'Campgrounds' updates summary to 'Dealing from Stay · Campgrounds' (drops 'any type'). Main spin-roulette-button is correctly hidden while Passport/Group/Crawl mode is on; mutual exclusion between the three modes works; plain Food deal via spin-roulette-button still works (dealt Altair Restaurant NYC). No console errors at 390x844.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_15.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home.jsx is >1200 lines and getting hard to maintain; consider extracting the Passport picker and Group picker into their own components (they share the MODE_TABS grid + summary structure). Non-blocking.",
+    "passport-category-picker and group-category-picker share ~identical markup — a small `<CategoryPicker />` wrapper would DRY this up."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "Two live passports created for verification: /p/QWPX9G (Stay, ZIP 18360, 4 stops) and /p/8YJS2L (Explore, ZIP 18360, 3 stops). Also triggered one Group Stay deal and one plain Food deal; both used live Google Places (billed key) so calls were kept to a single run each per the request note.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Fork·Fate is a React CRA web app (not Expo) despite the mobile-first system prompt — use REACT_APP_BACKEND_URL from /app/frontend/.env, base URL https://fate-mobile-build.preview.emergentagent.com. The Passport/Group panels contain their own category pickers (passport-category-<key>, group-category-<key>) that stay bidirectionally in sync with the main mode-toggle tab grid. Backend endpoint GET /api/passports/{code} returns the stops so a category regression can be verified server-side by checking each stop's cuisine field. GuidedFlow overlay appears on every fresh load — dismiss with data-testid=\"guided-skip\" before interacting with the home page.",
+  "rca_of_issue": "User reported 'Ran a camping run but restaurants popped up'. Root cause was that the 8-category tab grid (data-testid=mode-toggle) sat above the Passport panel; once the panel scrolled into view the active category (default Food) was off-screen, so users dealt a Food passport thinking it was camping. Fix (already in place by main agent) adds a self-contained category picker + live selection summary inside each mode's panel. Verified: choosing Stay in the passport-category-picker sets mode=stay on both the panel and main tab grid, and the resulting passport contains only lodging cuisines (Campground/Hotel/Cabin/Resort) — no restaurants."
+}
