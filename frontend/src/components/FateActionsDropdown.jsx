@@ -72,7 +72,7 @@ export function FateActionsDropdown({
       external: true,
       onSelect: () => window.open(card.google_url, "_blank", "noopener,noreferrer"),
     },
-    { key: "share-text", label: t("Share your fate"), Icon: Share2, onSelect: onShareText },
+    { key: "share-text", label: t("Share as text"), Icon: Share2, onSelect: onShareText },
     { key: "share-image", label: t("Share as image"), Icon: ImageDown, onSelect: onShareImage },
   ].filter(Boolean);
 
@@ -108,7 +108,7 @@ export function FateActionsDropdown({
           onClick={(e) => e.stopPropagation()}
           className={className || "inline-flex items-center gap-2 rounded-full bg-[#0E0E0E] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#2A2A2A]"}
         >
-          <MoreHorizontal className="h-4 w-4" /> {t("More")}
+          <Share2 className="h-4 w-4" /> {t("Share your fate")}
           <ChevronDown className="h-3.5 w-3.5" />
         </button>
       </DropdownMenuTrigger>

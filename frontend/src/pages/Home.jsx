@@ -251,8 +251,17 @@ export default function Home() {
     let i = 0;
     let delay = 55; // fast start
     const maxDelay = 300; // slow end
+    // Random name on each flick. Walking the pool in order (pool[i % len]) made the
+    // ticker look like it was counting down a list instead of shuffling a deck.
+    let lastFlashIdx = -1;
+    const nextFlash = () => {
+      let idx = Math.floor(Math.random() * pool.length);
+      if (pool.length > 1 && idx === lastFlashIdx) idx = (idx + 1) % pool.length;
+      lastFlashIdx = idx;
+      return pool[idx];
+    };
     const step = () => {
-      setFlash(pool[i % pool.length]);
+      setFlash(nextFlash());
       i++;
       delay = delay * 1.16 + 4; // ease-out: each flick a bit slower
       if (delay < maxDelay) {
@@ -430,14 +439,21 @@ export default function Home() {
     let i = 0;
     let delay = 55;
     const maxDelay = 230;
+    let lastFlashIdx = -1;
+    const nextFlash = () => {
+      let idx = Math.floor(Math.random() * pool.length);
+      if (pool.length > 1 && idx === lastFlashIdx) idx = (idx + 1) % pool.length;
+      lastFlashIdx = idx;
+      return pool[idx];
+    };
     const step = () => {
-      setFlash(pool[i % pool.length]);
+      setFlash(nextFlash());
       i++;
       delay = delay * 1.16 + 4;
       if (delay < maxDelay) {
         shuffleRef.current = setTimeout(step, delay);
       } else {
-        setFlash(winner || pool[i % pool.length]);
+        setFlash(winner || nextFlash());
         setFlashHit(true);
         try {
           if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e2) { /* ignore */ } grooveRef.current = null; }

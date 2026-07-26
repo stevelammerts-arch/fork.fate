@@ -3,6 +3,34 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Skull, Cog } from "lucide-react";
 
 const DECK_SIZE = 5;
+// One riffle cycle: split -> arc -> interleave -> square up.
+const RIFFLE_MS = 1150;
+
+// Per-card riffle choreography. The old animation moved every card out and straight
+// back on the same path (x: [0, ±96, 0]) with a fixed stacking order, which reads as a
+// wobble rather than a shuffle. A riffle needs three things this now does:
+//   1. the deck splits into two halves that travel opposite ways,
+//   2. each half ARCS (lifts, tilts, scales up as it passes nearer the viewer)
+//      instead of sliding flat, and
+//   3. the halves interleave and the stacking order actually CHANGES between cycles
+//      (see `cycle` below) — without reordering, no amount of motion looks like a shuffle.
+// Values are derived from the card index so the deck stays deterministic (no re-randomising
+// on every React render) while still avoiding two rigid, identical-looking groups.
+function riffleKeyframes(i) {
+  const dir = i % 2 === 0 ? -1 : 1;      // alternate halves
+  const spread = 78 + (i % 3) * 11;      // how far the half fans out
+  const lift = -(28 + (i % 4) * 8);      // arc height
+  const tilt = dir * (13 + (i % 3) * 4); // fan rotation
+  const rest = (i - 2) * 3;              // squared-up resting tilt
+  return {
+    x: [0, dir * spread, dir * spread * 0.34, dir * 5, 0],
+    y: [0, lift * 0.55, lift, -5, 0],
+    rotate: [rest, tilt, tilt * 0.45, dir * -2, rest],
+    scale: [1, 1.02, 1.06, 0.99, 1],
+    opacity: 1,
+  };
+}
+const RIFFLE_TIMES = [0, 0.28, 0.5, 0.78, 1];
 
 // Branded card back shown on every shuffling card (photo only appears on the landed winner)
 function CardBack({ light, seasonItem, theme }) {
@@ -129,6 +157,17 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
     : base
   ).slice(0, DECK_SIZE);
   const label = flash?.name;
+  // Rotates the stacking order once per riffle so cards genuinely pass over and under
+  // each other and come back in a different order — the part that makes it read as a
+  // shuffle instead of a wobble. Integer z-index only (never interpolated, which would
+  // produce fractional values the browser discards).
+  const [cycle, setCycle] = React.useState(0);
+  React.useEffect(() => {
+    if (landed) return;
+    const id = setInterval(() => setCycle((c) => c + 1), RIFFLE_MS);
+    return () => clearInterval(id);
+  }, [landed]);
+  React.useEffect(() => { if (landed) setCycle(0); }, [landed]);
   return (
     <div className="grid h-full min-h-[400px] place-items-center" data-testid="shuffling-deck">
       <div className="flex flex-col items-center gap-8">
@@ -183,7 +222,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
             <motion.div
               key={(c?.id || "c") + i}
               className={`absolute inset-0 overflow-hidden rounded-2xl border-2 shadow-2xl ${season ? "bg-[#F5F0E6] shadow-black/10" : light ? "border-[#D9C9A8] bg-[#F5F0E6] shadow-black/10" : "border-[#E01E26] bg-[#0E0E0E] shadow-black/30"}`}
-              style={{ zIndex: DECK_SIZE - i, ...(season && seasonAccent ? { borderColor: seasonAccent } : {}), ...(theme === "fantasy" ? { borderColor: "#E6B23A" } : {}) }}
+              style={{ zIndex: landed ? DECK_SIZE - i : DECK_SIZE - ((i + cycle) % DECK_SIZE), ...(season && seasonAccent ? { borderColor: seasonAccent } : {}), ...(theme === "fantasy" ? { borderColor: "#E6B23A" } : {}) }}
               animate={
                 landed
                   ? {
@@ -193,18 +232,20 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
                       scale: i === 0 ? 1.05 : 0.96,
                       opacity: i === 0 ? 1 : 0,
                     }
-                  : {
-                      x: [0, i % 2 === 0 ? -96 : 96, 0],
-                      y: [0, -26, 0],
-                      rotate: [(i - 2) * 4, i % 2 === 0 ? -17 : 17, (i - 2) * 4],
-                      scale: [1, 0.97, 1],
-                      opacity: 1,
-                    }
+                  : riffleKeyframes(i)
               }
               transition={
                 landed
                   ? { type: "spring", stiffness: 320, damping: 22 }
-                  : { duration: 0.72, repeat: Infinity, ease: "easeInOut", delay: i * 0.1 }
+                  : {
+                      duration: RIFFLE_MS / 1000,
+                      times: RIFFLE_TIMES,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      // Tight cascade so the halves riffle together rather than
+                      // looking like five cards wobbling independently.
+                      delay: i * 0.045,
+                    }
               }
             >
               {showPhoto ? (

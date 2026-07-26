@@ -1,0 +1,40 @@
+{
+  "summary": "Iteration 6 frontend tests PASS. Primary shuffle-riffle fix verified: cards genuinely reorder (z-order samples ['4','3','2','1','5'] then ['3','2','1','5','4']), z-indexes are integers, 5 cards show 5 distinct translateX values at the same instant (cascade), and translateY arc peak reaches ~-44.8px (well beyond old -26). Flash-label ticker no longer walks the pool in order — 11 distinct random names before landing on the actual winner 'Daily Provisions - Manhattan West' which matches spin-result-card. Dropdown trigger renamed correctly to 'Share your fate' (Share2 icon), all 9 items present with correct testIDs & labels, no menu item is still labelled 'Share your fate' (dedupe verified), 'Share as text' rename present with unchanged testid. Crawl regression: riffle also cascades on Plan-a-Crawl path, deck lands, Your Pub Crawl route dialog opens with 6 stops and map. FF_BUILD=2026.06-282, supervisor expo RUNNING, no horizontal scrollbar at 430px, no console/page errors captured during crawl flow.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/tmp/after_land.png",
+    "/tmp/dropdown.png",
+    "/tmp/crawl_final.png"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ShufflingDeck.jsx line 225: z-index is computed as `DECK_SIZE - ((i + cycle) % DECK_SIZE)` which correctly yields integers (1..5). Setting zIndex via the framer-motion `style` prop rather than `animate` avoids interpolation — confirmed integer values in DOM (getComputedStyle().zIndex returned strings like '4','3','2','1','5' with zero decimals).",
+    "ShufflingDeck.jsx line 217-220: `if (landed && i !== 0) return null` correctly unmounts the 4 non-winner cards on land, so no stray backing cards can peek out. Post-land, `[data-testid=\"shuffling-deck\"]` is itself unmounted (replaced by RestaurantCard/spin-result-card), so the setInterval cycle is auto-cleaned up by React on unmount as well as by the effect's `if (landed) return` guard — no interval leak.",
+    "Home.jsx runShuffle (line 257-262) and runCrawlShuffle (line 443-449) both implement identical `nextFlash()` helpers using Math.random + last-index avoidance. Sampled sequence during a real deal: [Catria, Russ & Daughters, In Common NYC, Roma Pizza, Capizzi, Junior's, Bellhop, Chi Restaurant, Jacob's Pickles, Daily Provisions] — clearly random, not walking pool order.",
+    "FateActionsDropdown.jsx trigger uses Share2 icon + 'Share your fate' label (line 111). The inner text-share item is now labelled 'Share as text' with testid `fate-action-share-text` unchanged (line 75). No duplicate 'Share your fate' inside the menu (verified programmatically)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (per request)", "frontend": "100%"},
+  "seed_data_creation": "None — used existing curated seed (ZIP 10001, default food category). One /api/places/search call was made against the live Google key during initial deal + one during crawl deal (well under 20-call cap).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Frontend is CRA served by supervisor as `expo`. Test at 430x900. Skip intro first, then fill placeholder 'e.g. 10001' with '10001' and click [data-testid=spin-roulette-button]. Shuffle takes ~1.2s lead-in + several seconds — allow 45s for spin-result-card. To inspect the deck animation, poll getComputedStyle on `[data-testid=\"shuffling-deck\"] div.absolute.inset-0.overflow-hidden` — DOMMatrixReadOnly(cs.transform).e/.f give translateX/Y. Post-land the shuffling-deck node is unmounted and replaced by spin-result-card (so `card-front` inside shuffling-deck won't be queryable after land — that's expected). Crawl flow: click 'Pub Crawls & more' toggle, then 'Plan a Crawl' at bottom of the page.",
+  "rca_of_issue": "N/A — all three user requests implemented correctly on this iteration.",
+  "measured_shuffle_evidence": {
+    "z_order_samples": [["4","3","2","1","5"], ["4","3","2","1","5"], ["4","3","2","1","5"], ["3","2","1","5","4"]],
+    "z_index_all_integers": true,
+    "translateY_min_observed": -44.84,
+    "translateX_range_observed": [-70.6, 65.8],
+    "distinct_tx_across_cards_at_t0": 5,
+    "flash_label_sequence": ["Catria Cucina and Bar","Russ & Daughters","In Common NYC - A Breakfast & Brunch Restaurant","Roma Pizza & restaurant","Capizzi","Junior's Restaurant & Bakery","Bellhop","Chi Restaurant & Bar","Jacob's Pickles Moynihan","Daily Provisions - Manhattan West"],
+    "final_flash_equals_result_card_name": true,
+    "horizontal_scroll_at_430px": false,
+    "ff_build": "2026.06-282"
+  }
+}
