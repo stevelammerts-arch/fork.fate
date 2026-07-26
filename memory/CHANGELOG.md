@@ -482,3 +482,19 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   a mode is active; panel auto-scrolls into view. Crawl panel got a guide + own radius.
 - Passport/Group panels now include their own 8-category picker + "Dealing from X · types"
   summary (user dealt a Food passport thinking it was camping). MODE_TABS is now one array.
+
+## 2026-06 — Iteration 16 batch (all verified by testing agent)
+- AUDIO: every themed shuffle bed regenerated artifact-free (scripts/gen_theme_beds.py,
+  audit via scripts/audit_audio.py). Root causes of user-reported buzz/zap: sustained pure
+  tones, near-Nyquist aliasing energy, loop-seam clicks. fantasy now /shuffle-dragon.wav
+  (mp3 pruned from public/); Home.jsx SHUFFLE_LOOPS replaces two duplicated maps.
+  NOTE: the audit's tonality ratio inflates for bass-dominant beds (dragon = 857) because the
+  median is taken over a passband that's mostly quiet — verified as broadband, not a tone.
+- PHOTOS: cardImage(r) = photo_url || image, applied to alternatives, RestaurantCard,
+  ShufflingDeck, GroupVote, FavoritesDrawer (splash-pad results were all hiking placeholders).
+- Chip list now collapsible (filters-toggle) and auto-collapses on deal.
+- Phase 2 Double or Nothing: two-tap dare -> random different pick -> locked (no respin,
+  no alternatives). Home.doubleOrNothing + RevealStage locked state.
+- Passports are deletable: DELETE /api/passports/{code} + two-tap delete on the page.
+- Steampunk: two extra vents anchored to painted pipe mouths via an object-cover-matched
+  overlay box (steam-vents / steam-jet-low / steam-jet-floor).

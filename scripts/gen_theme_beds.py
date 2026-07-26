@@ -130,8 +130,9 @@ def fantasy():
     cave = rms_norm(band(rng.normal(0, 1, n), 700, 3200), 0.045) * (0.6 + 0.4 * np.sin(2 * np.pi * 0.09 * t + 1.4))
     shimmer = rms_norm(band(rng.normal(0, 1, n), 3200, 8000), 0.03) * (0.5 + 0.5 * np.sin(2 * np.pi * 0.07 * t))
     flaps = bursts(n, (1.2, 3.0, 6.4, 9.1, 12.2), 0.5, 45, 320, 0.7, 7.5, rng)
-    embers = pings(n, (2.4, 5.5, 10.6), (330.0, 415.0), 0.07, 22.0, rng)
-    finish(breath + cave + shimmer + flaps + embers, "shuffle-dragon.wav")
+    # No tonal accents here — the low breath already dominates the spectrum, and
+    # adding pings pushed this bed's tonality 15x above the rest of the set.
+    finish(breath + cave + shimmer + flaps, "shuffle-dragon.wav")
 
 
 # ------------------------------------------------------------------ cyber ----
