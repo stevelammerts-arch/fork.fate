@@ -485,8 +485,16 @@ def client_ip(request: Request) -> str:
 def rate_limit(max_requests: int, window_seconds: int = 60):
     def _dep(request: Request):
         ip = client_ip(request)
+        # Bucket per (route, IP), not per IP. A single shared bucket meant the
+        # tightest limit on the app governed every endpoint — e.g. loading a
+        # handful of photos (limit 200) would 429 a later sponsor subscribe
+        # (limit 5), because both read the same counter. Keyed on the route's
+        # path TEMPLATE so path params can't explode the keyspace.
+        route = request.scope.get("route")
+        scope_key = getattr(route, "path_format", None) or request.url.path
+        key = (scope_key, ip)
         now = time.time()
-        bucket = _RL_BUCKETS[ip]
+        bucket = _RL_BUCKETS[key]
         while bucket and bucket[0] < now - window_seconds:
             bucket.popleft()
         if len(bucket) >= max_requests:
