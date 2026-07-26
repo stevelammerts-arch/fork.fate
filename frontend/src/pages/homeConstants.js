@@ -160,7 +160,7 @@ export const supportsDelivery = (category) => !NO_DELIVERY_CATEGORIES.includes(c
 // wash & service, and getting-around options (scooters, transit).
 export const FUEL_GROUPS = [
   { label: "Fuel & Charging", items: ["Gas Station", "EV Charging", "Diesel", "Truck Stop"] },
-  { label: "Wash & Service", items: ["Car Wash", "Touchless Car Wash"] },
+  { label: "Wash & Service", items: ["Car Wash", "Touchless Car Wash", "Hand Wash Car Wash", "Self-Serve Car Wash", "Detailing"] },
   {
     label: "Getting Around",
     items: ["Scooter Rentals", "Scooter Share", "Bike Rentals", "Bike Share", "Bus Stations", "Train Stations", "Park & Ride"],

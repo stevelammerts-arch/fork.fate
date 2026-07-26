@@ -363,6 +363,7 @@ DECLARED_CUISINES = {
         "Craft Store", "Fabric Store", "Art Supply", "Plant Shop", "Garden Center", "Nursery",
     ],
     "fuel": [
+        "Hand Wash Car Wash", "Self-Serve Car Wash", "Detailing",
         "Scooter Rentals", "Scooter Share", "Bike Rentals", "Bike Share",
         "Bus Stations", "Train Stations", "Park & Ride",
     ],

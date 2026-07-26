@@ -888,7 +888,7 @@ export default function Home() {
           className="max-w-2xl"
         >
           <p className="font-sans text-sm font-extrabold tracking-[0.25em] uppercase text-[#E01E26]">
-            {mode === "food" ? t("Can't decide where to eat?") : mode === "drinks" ? t("Can't decide what to sip?") : mode === "bars" ? t("Can't decide where to drink?") : mode === "desserts" ? t("Craving something sweet?") : mode === "shops" ? t("Feeling like a treasure hunt?") : mode === "explore" ? t("Can't decide what to do?") : mode === "stay" ? t("Need somewhere to stay?") : t("Need to fill up or charge?")}
+            {mode === "food" ? t("Can't decide where to eat?") : mode === "drinks" ? t("Can't decide what to sip?") : mode === "bars" ? t("Can't decide where to drink?") : mode === "desserts" ? t("Craving something sweet?") : mode === "shops" ? t("Feeling like a treasure hunt?") : mode === "explore" ? t("Can't decide what to do?") : mode === "stay" ? t("Need somewhere to stay?") : t("Need to fill up or get moving?")}
           </p>
           <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl" style={ambCfg ? { color: ambCfg.sky, textShadow: theme === "cyber" ? "0 0 12px rgba(199,125,255,0.6)" : undefined } : undefined}>
             {mode === "food" ? t("Let fate pick tonight's table.") : mode === "drinks" ? t("Let fate pick your next sip.") : mode === "bars" ? t("Let fate pick tonight's bar.") : mode === "desserts" ? t("Let fate pick your sweet treat.") : mode === "shops" ? t("Let fate pick your next find.") : mode === "explore" ? t("Let fate pick your next adventure.") : mode === "stay" ? t("Let fate pick tonight's basecamp.") : t("Let fate pick your pit stop.")}
@@ -908,7 +908,7 @@ export default function Home() {
               ? t("A state park, a hiking trail, a waterfall — or mini golf if it's raining? Set your filters and hit Deal, and we'll shuffle what's out there and pick your next adventure.")
               : mode === "stay"
               ? t("A campground, an RV site, a cabin or a cosy inn? Set your filters and hit Deal — we'll shuffle nearby places to stay and pick tonight's basecamp.")
-              : t("Gas or an EV charger? Set your filters and hit Deal — we'll shuffle nearby stations and pick your pit stop.")}
+              : t("Gas, a charger, a scooter or the next bus? Set your filters and hit Deal — we'll shuffle nearby stops and pick your pit stop.")}
           </p>
         </motion.div>
 
@@ -976,7 +976,7 @@ export default function Home() {
                 { key: "bars", label: t("Bars"), Icon: Beer },
                 { key: "desserts", label: t("Desserts"), Icon: IceCream },
                 { key: "shops", label: t("Shops"), Icon: ShoppingBag },
-                { key: "fuel", label: t("Fuel"), Icon: Fuel },
+                { key: "fuel", label: t("Fuel & Go"), Icon: Fuel },
                 { key: "explore", label: t("Explore"), Icon: Mountain },
                 { key: "stay", label: t("Stay"), Icon: Tent },
               ].map(({ key, label, Icon }) => (
@@ -1258,7 +1258,7 @@ export default function Home() {
               </div>
               <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">{t("1. Pick your craving")}</h3>
               <p className="mt-2 font-sans text-sm text-[#6B7075]">
-                {t("Choose Food, Drinks, Bars, Desserts, Shops, Fuel, Explore or Stay — then narrow it down with type chips and toggles like \"Open now\" to match the mood.")}
+                {t("Choose Food, Drinks, Bars, Desserts, Shops, Fuel & Go, Explore or Stay — then narrow it down with type chips and toggles like \"Open now\" to match the mood.")}
               </p>
             </div>
             <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6" data-testid="step-2">
@@ -1303,7 +1303,7 @@ export default function Home() {
               { q: t("Is Fork·Fate free to use?"), a: t("Yes — Fork·Fate is completely free. There's no account, no signup, and no paywall. Just open it, shuffle, and go.") },
               { q: t("Do I need to create an account?"), a: t("No login required. You can start spinning the moment the page loads, on your phone or desktop.") },
               { q: t("What are the Explore and Stay tabs?"), a: t("Explore deals you something to DO — state and national parks, hiking and biking trails, fishing spots, waterfalls and scenic overlooks, plus rainy-day picks like museums, bowling, mini golf and escape rooms. Stay deals you somewhere to sleep — campgrounds, RV parks and KOAs, cabins, yurts, lodges and inns. Both search further out than the food tabs, since a park or campsite is usually worth the drive.") },
-              { q: t("Why can't I order delivery from every result?"), a: t("Delivery links only appear where they make sense. A restaurant or dessert shop gets DoorDash, Uber Eats and Grubhub links; a hiking trail, campground, thrift store or gas station doesn't — so Fork·Fate hides them instead of sending you to a dead end.") },
+              { q: t("Why can't I order delivery from every result?"), a: t("Delivery links only appear where they make sense. A restaurant or dessert shop gets DoorDash, Uber Eats and Grubhub links; a hiking trail, campground, thrift store, gas station or bus stop doesn't — so Fork·Fate hides them instead of sending you to a dead end.") },
               { q: t("How do you find nearby places?"), a: t("Fork·Fate uses live Google Places data based on your ZIP code or device location, so results reflect real, currently-listed places around you — restaurants and bars, shops, parks and trails, and campgrounds alike.") },
               { q: t("Can I add my favorite local spot?"), a: t("Absolutely. Tap \"Add spot\" to submit a place you love. Community submissions are quickly reviewed before they join the roulette pool.") },
               { q: t("Can I install Fork·Fate as an app?"), a: t("Yes — tap \"Download app\" to install Fork·Fate as a PWA on your home screen for one-tap access whenever you can't decide.") },

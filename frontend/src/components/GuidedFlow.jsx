@@ -86,7 +86,7 @@ export default function GuidedFlow({ cuisineMap, groupMap = {}, onSeal, onSkip, 
     { key: "bars", label: t("Bars"), sub: t("Cocktails & nightlife"), Icon: Beer },
     { key: "desserts", label: t("Desserts"), sub: t("Something sweet"), Icon: IceCream },
     { key: "shops", label: t("Shops"), sub: t("Antiques, thrift & more"), Icon: ShoppingBag },
-    { key: "fuel", label: t("Fuel"), sub: t("Gas & EV charging"), Icon: Fuel },
+    { key: "fuel", label: t("Fuel & Go"), sub: t("Gas, EV & getting around"), Icon: Fuel },
     { key: "explore", label: t("Explore"), sub: t("Parks, trails & fun"), Icon: Mountain },
     { key: "stay", label: t("Stay"), sub: t("Camping & lodging"), Icon: Tent },
   ];
