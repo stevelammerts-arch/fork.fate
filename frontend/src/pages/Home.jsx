@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, Search, ExternalLink, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, Flame, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, ArrowRight, Swords, Mountain, Tent } from "lucide-react";
+import { Dices, Star, MapPin, Search, ExternalLink, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, Flame, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, ArrowRight, Swords, Mountain, Tent, Stamp } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -31,6 +31,7 @@ import { Slider } from "../components/ui/slider";
 import { useTheme, setTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
 import { trackEvent } from "../lib/analytics";
+import { readPassports } from "../lib/passports";
 import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene } from "../components/ThemeScenes";
 import { ReaperScene } from "../components/ReaperScene";
 import { ShufflingDeck } from "../components/ShufflingDeck";
@@ -40,6 +41,7 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export default function Home() {
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const { t, lang, setLang } = useLang();
   const ambCfg = AMBIANCE[theme] || null;
   const light = !(theme === "dark" || ambCfg);
@@ -84,6 +86,9 @@ export default function Home() {
   const [addOpen, setAddOpen] = useState(false);
   const [groupPicks, setGroupPicks] = useState(null);
   const [crawlMode, setCrawlMode] = useState(false);
+  const [passportMode, setPassportMode] = useState(false);
+  const [passportSize, setPassportSize] = useState(5);
+  const [myPassports, setMyPassports] = useState(() => readPassports());
   const [crawlType, setCrawlType] = useState("pubs");
   const [zipB, setZipB] = useState("");
   const [coordsB, setCoordsB] = useState(null);
@@ -347,6 +352,32 @@ export default function Home() {
       setSource(data.source);
       if (!data.restaurants.length) {
         toast.error("No spots match those filters — try loosening them");
+        return;
+      }
+      // Passport mode: bank N stops as a multi-day quest instead of one reveal.
+      if (passportMode) {
+        const size = Math.min(passportSize, data.restaurants.length);
+        if (size < 3) {
+          toast.error("Need at least 3 nearby spots for a passport — try a wider radius");
+          return;
+        }
+        setResult(null);
+        setGroupPicks(null);
+        const picked = [...data.restaurants].sort(() => Math.random() - 0.5).slice(0, size);
+        try {
+          const { data: p } = await axios.post(`${API}/passports`, {
+            mode: categoryArg,
+            label: "",
+            stops: picked.map((r) => ({
+              id: r.id, name: r.name, cuisine: r.cuisine, price: r.price, rating: r.rating,
+              distance: r.distance, lat: r.lat, lng: r.lng, open_now: r.open_now, google_url: r.google_url,
+            })),
+          });
+          trackEvent("passport_created", { category: categoryArg, stops: size });
+          navigate(`/p/${p.code}`);
+        } catch (err) {
+          toast.error(err.response?.data?.detail || "Couldn't create that passport");
+        }
         return;
       }
       // Crawl mode skips the single-reveal shuffle and opens a multi-stop route window.
@@ -1025,7 +1056,7 @@ export default function Home() {
                   className="inline-flex items-center gap-3 rounded-full border-2 border-[#0E0E0E] bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
                 >
                   <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
-                  {loading ? t("Finding spots…") : spinning ? t("Shuffling…") : groupMode ? (light ? t("Pick 3 Spots") : t("Deal 3 Fates!")) : (light ? t("Shuffle the Deck") : t("Deal Your Fate!"))}
+                  {loading ? t("Finding spots…") : spinning ? t("Shuffling…") : passportMode ? t("Deal My Passport") : groupMode ? (light ? t("Pick 3 Spots") : t("Deal 3 Fates!")) : (light ? t("Shuffle the Deck") : t("Deal Your Fate!"))}
                 </motion.button>
                 {results.length > 0 && (
                   <span className="font-sans text-sm text-[#6B7075]">
@@ -1041,7 +1072,7 @@ export default function Home() {
               <button
                 type="button"
                 data-testid="group-mode-toggle"
-                onClick={() => { setGroupMode((v) => { const n = !v; if (n) setCrawlMode(false); return n; }); setResult(null); setGroupPicks(null); }}
+                onClick={() => { setGroupMode((v) => { const n = !v; if (n) { setCrawlMode(false); setPassportMode(false); } return n; }); setResult(null); setGroupPicks(null); }}
                 className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${groupMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
               >
                 <Users className="h-4 w-4" />
@@ -1054,13 +1085,26 @@ export default function Home() {
               <button
                 type="button"
                 data-testid="crawl-mode-toggle"
-                onClick={() => { setCrawlMode((v) => { const n = !v; if (n) setGroupMode(false); return n; }); if (!crawlMode) applyCrawlType(CRAWL_TYPES[0]); setResult(null); setGroupPicks(null); }}
+                onClick={() => { setCrawlMode((v) => { const n = !v; if (n) { setGroupMode(false); setPassportMode(false); } return n; }); if (!crawlMode) applyCrawlType(CRAWL_TYPES[0]); setResult(null); setGroupPicks(null); }}
                 className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${crawlMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E01E26] bg-white text-[#E01E26] hover:bg-[#FCECEC]"}`}
               >
                 <Beer className="h-4 w-4" />
                 {t("Pub Crawls & more")}
                 <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${crawlMode ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
                   <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${crawlMode ? "translate-x-3" : ""}`} />
+                </span>
+              </button>
+
+              <button
+                type="button"
+                data-testid="passport-mode-toggle"
+                onClick={() => { setPassportMode((v) => { const n = !v; if (n) { setGroupMode(false); setCrawlMode(false); } return n; }); setMyPassports(readPassports()); setResult(null); setGroupPicks(null); }}
+                className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${passportMode ? "border-[#2E7D32] bg-[#2E7D32] text-white" : "border-[#2E7D32] bg-white text-[#2E7D32] hover:bg-[#E8F3E9]"}`}
+              >
+                <Stamp className="h-4 w-4" />
+                {t("Fate Passport")}
+                <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${passportMode ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
+                  <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${passportMode ? "translate-x-3" : ""}`} />
                 </span>
               </button>
 
@@ -1073,6 +1117,42 @@ export default function Home() {
               </Link>
             </div>
             </div>
+
+            {passportMode && (
+              <div className="mt-2 w-full basis-full rounded-2xl border border-[#2E7D32]/30 bg-[#F1F8F2] p-4" data-testid="passport-picker">
+                <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("How many stops?")}</p>
+                <div className="flex flex-wrap gap-2">
+                  {[3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      data-testid={`passport-size-${n}`}
+                      onClick={() => setPassportSize(n)}
+                      className={`min-w-[44px] rounded-full border px-4 py-2 text-sm font-bold transition-colors ${passportSize === n ? "border-[#2E7D32] bg-[#2E7D32] text-white" : "border-[#E2E4E7] bg-white text-[#6B7075] hover:bg-[#EDEEF0]"}`}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-3 font-sans text-sm text-[#6B7075]">
+                  {t("Fate deals your stops, then you stamp each one as you get there — over days or weeks. Your passport lives at its own link.")}
+                </p>
+                {myPassports.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2" data-testid="my-passports">
+                    <span className="self-center text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Your passports")}</span>
+                    {myPassports.map((p) => (
+                      <Link
+                        key={p.code}
+                        to={`/p/${p.code}`}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-[#2E7D32]/40 bg-white px-3 py-1.5 text-sm font-bold text-[#2E7D32] hover:bg-[#E8F3E9]"
+                      >
+                        <Stamp className="h-3.5 w-3.5" /> {p.code}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {crawlMode && (
               <div className="mt-2 w-full basis-full rounded-2xl border border-[#E01E26]/30 bg-[#FDF6F6] p-4" data-testid="crawl-type-picker">

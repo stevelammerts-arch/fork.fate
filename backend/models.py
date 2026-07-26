@@ -189,6 +189,37 @@ class CrawlCheckinCreate(BaseModel):
         return v if v in ("gps", "manual") else "manual"
 
 
+class PassportCreate(BaseModel):
+    """A multi-day quest: N stops you stamp over days or weeks."""
+    mode: str = "explore"
+    label: str = Field(default="", max_length=40)
+    stops: List[CrawlStop] = Field(default_factory=list)
+
+    @field_validator("mode")
+    @classmethod
+    def _valid_passport_mode(cls, v):
+        return v if v in ("food", "drinks", "bars", "desserts", "shops", "fuel", "explore", "stay") else "explore"
+
+    @field_validator("stops")
+    @classmethod
+    def _valid_passport_stops(cls, v):
+        if not v or len(v) < 3:
+            raise ValueError("A passport needs at least 3 stops")
+        return v[:10]
+
+
+class PassportStamp(BaseModel):
+    stop_id: str = Field(min_length=1, max_length=100)
+    lat: Optional[float] = Field(default=None, ge=-90, le=90)
+    lng: Optional[float] = Field(default=None, ge=-180, le=180)
+    source: str = "gps"  # "gps" (verified on site) | "manual"
+
+    @field_validator("source")
+    @classmethod
+    def _valid_stamp_source(cls, v):
+        return v if v in ("gps", "manual") else "manual"
+
+
 class SponsorCreate(BaseModel):
     name: str = Field(min_length=1, max_length=160)
     cuisine: str = Field(min_length=1, max_length=60)

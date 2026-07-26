@@ -130,3 +130,38 @@ backend:
 agent_communication:
     -agent: "main"
     -message: "Applied final tweak batch (chips, skip contrast, category stamping). Needs verification only; no new features."
+
+## Iteration 12 — Fate Passport (Phase 1) + chip/category additions
+
+backend:
+  - task: "Passports API: POST /api/passports, GET /api/passports/{code}, POST /{code}/stamp (gps radius 0.4mi + manual), DELETE /{code}/stamp/{stop_id}"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/passports.py, /app/backend/models.py, /app/backend/server.py"
+    needs_retesting: true
+  - task: "Per-chip Google queries + relevance guard (Breakfast+Filipino no longer returns Subway); Explore/Fuel never return food venues"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/places.py"
+    needs_retesting: true
+
+frontend:
+  - task: "Passport mode toggle + stop-count picker (3-10) on Home; creates passport and routes to /p/:code; My Passports links"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Home.jsx, /app/frontend/src/lib/passports.js"
+    needs_retesting: true
+  - task: "Passport page: progress bar, GPS stamp / manual stamp / undo, completion banner, share"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Passport.jsx, /app/frontend/src/App.js"
+    needs_retesting: true
+  - task: "Fuel tab renamed 'Fuel & Go' + grouped chips; new chips across Explore/Shops/Desserts/Food"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/homeConstants.js"
+    needs_retesting: true
+
+agent_communication:
+    -agent: "main"
+    -message: "Phase 1 Fate Passport built and smoke-tested manually (created passport M7V3DF, manual stamp worked). Needs full verification incl. GPS-too-far rejection and completion."
