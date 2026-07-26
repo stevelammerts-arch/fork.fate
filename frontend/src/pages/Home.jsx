@@ -18,6 +18,7 @@ import { useFavorites } from "../hooks/useFavorites";
 import GuidedFlow from "../components/GuidedFlow";
 import PubCrawlDialog from "../components/PubCrawlDialog";
 import RevealStage from "../components/home/RevealStage";
+import ModeSetup from "../components/home/ModeSetup";
 import ReigningChampBadge from "../components/ReigningChampBadge";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../components/ui/dropdown-menu";
 import {
@@ -89,6 +90,17 @@ export default function Home() {
   const [passportMode, setPassportMode] = useState(false);
   const [passportSize, setPassportSize] = useState(5);
   const [myPassports, setMyPassports] = useState(() => readPassports());
+
+  // Turning on a special mode reveals its panel BELOW the toggles, so bring it
+  // into view — users were otherwise left scrolling to find the deal button.
+  useEffect(() => {
+    const id = passportMode ? "passport-picker" : groupMode ? "group-picker" : crawlMode ? "crawl-type-picker" : null;
+    if (!id) return;
+    const timer = setTimeout(() => {
+      document.querySelector(`[data-testid="${id}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 120);
+    return () => clearTimeout(timer);
+  }, [passportMode, groupMode, crawlMode]);
   const [crawlType, setCrawlType] = useState("pubs");
   const [zipB, setZipB] = useState("");
   const [coordsB, setCoordsB] = useState(null);
@@ -1045,7 +1057,7 @@ export default function Home() {
               </span>
             </button>
 
-            {!crawlMode && (
+            {!crawlMode && !passportMode && !groupMode && (
               <div className="flex flex-wrap items-center gap-4">
                 <motion.button
                   data-testid="spin-roulette-button"
@@ -1151,11 +1163,72 @@ export default function Home() {
                     ))}
                   </div>
                 )}
+
+                <ModeSetup
+                  accent="#2E7D32"
+                  testId="passport-setup"
+                  steps={[
+                    t("Pick your category tab and any type chips above."),
+                    t("Choose how many stops and where to search."),
+                    t("Deal it — then stamp each stop as you get there, over days or weeks."),
+                  ]}
+                  zip={zip}
+                  setZip={setZip}
+                  coords={coords}
+                  setCoords={setCoords}
+                  onUseLocation={useMyLocation}
+                  geoLoading={geoLoading}
+                  radius={radius}
+                  setRadius={setRadius}
+                  radiusMax={radiusMax}
+                  busy={spinning || loading}
+                  cta={loading ? t("Finding spots…") : t("Deal My Passport")}
+                  onCta={spin}
+                />
+              </div>
+            )}
+
+            {groupMode && (
+              <div className="mt-2 w-full basis-full rounded-2xl border border-[#E01E26]/30 bg-[#FDF6F6] p-4" data-testid="group-picker">
+                <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Group mode")}</p>
+                <ModeSetup
+                  accent="#E01E26"
+                  testId="group-setup"
+                  steps={[
+                    t("Pick your category tab and any type chips above."),
+                    t("Set where to search and how far."),
+                    t("Deal 3 spots at once, then let the group vote."),
+                  ]}
+                  zip={zip}
+                  setZip={setZip}
+                  coords={coords}
+                  setCoords={setCoords}
+                  onUseLocation={useMyLocation}
+                  geoLoading={geoLoading}
+                  radius={radius}
+                  setRadius={setRadius}
+                  radiusMax={radiusMax}
+                  busy={spinning || loading}
+                  cta={loading ? t("Finding spots…") : spinning ? t("Shuffling…") : (light ? t("Pick 3 Spots") : t("Deal 3 Fates!"))}
+                  onCta={spin}
+                />
               </div>
             )}
 
             {crawlMode && (
               <div className="mt-2 w-full basis-full rounded-2xl border border-[#E01E26]/30 bg-[#FDF6F6] p-4" data-testid="crawl-type-picker">
+                <ol className="mb-4 space-y-1.5">
+                  {[
+                    t("Pick the kind of crawl you want."),
+                    t("Set your start (and an optional end point) plus how far to search."),
+                    t("Deal the crawl — we'll order the stops into a walkable route."),
+                  ].map((s, i) => (
+                    <li key={i} className="flex gap-2.5 font-sans text-sm text-[#3A3F45]">
+                      <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#E01E26] text-[11px] font-bold text-white">{i + 1}</span>
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ol>
                 <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Pick your crawl")}</p>
                 <div className="flex flex-wrap gap-2">
                   {CRAWL_TYPES.map((t) => (
@@ -1217,6 +1290,20 @@ export default function Home() {
                     <button type="button" onClick={() => { setZipB(""); setCoordsB(null); }} data-testid="crawl-clear-b"
                       className="text-xs font-semibold text-[#9AA0A6] underline underline-offset-2 hover:text-[#E01E26]">{t("clear")}</button>
                   )}
+                </div>
+
+                <div className="mt-4 rounded-xl border border-[#E2E4E7] bg-white px-4 py-3" data-testid="crawl-radius-control">
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="font-sans text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Search radius")}</p>
+                    <span data-testid="crawl-radius-value" className="font-serif text-lg font-semibold text-[#E01E26]">
+                      {radius} <span className="text-sm text-[#6B7075]">mi</span>
+                    </span>
+                  </div>
+                  <Slider data-testid="crawl-radius-slider" value={[radius]} min={1} max={radiusMax} step={1} onValueChange={(v) => setRadius(v[0])} aria-label="Search radius in miles" />
+                  <div className="mt-1.5 flex justify-between font-sans text-[10px] font-bold uppercase tracking-wider text-[#B8BCC2]">
+                    <span>1 mi</span>
+                    <span>{radiusMax} mi</span>
+                  </div>
                 </div>
 
                 <motion.button

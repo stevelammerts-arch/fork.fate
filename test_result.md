@@ -181,3 +181,19 @@ frontend:
 agent_communication:
     -agent: "main"
     -message: "Replaced the summer shuffle audio asset. Needs verification that the file serves, decodes, has no sustained tone, and that the summer-theme shuffle still plays it with no console errors."
+
+## Iteration 14 — UX bug: special modes required scrolling up to Deal / radius / location
+
+frontend:
+  - task: "Each special mode (Passport / Group / Crawl) is now self-contained: its own numbered guide, ZIP + Use my location, radius slider and its own Deal button inside the panel; panel auto-scrolls into view; the main Deal button is hidden while a mode is active"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/home/ModeSetup.jsx (new), /app/frontend/src/pages/Home.jsx"
+    needs_retesting: true
+    status_history:
+      - "USER REPORT: 'When doing passport, you have to scroll up to deal, then scroll up farther for radius and location. Not very clear to users and may be the same for other crawls and group search. They should have a separate guide each.'"
+      - "FIX: new ModeSetup component; passport + group panels get guide/location/radius/CTA; crawl panel gets a guide + its own radius (it already had ZIP A/B and its own deal button); main spin button hidden when crawlMode || passportMode || groupMode; effect scrolls the active panel into view."
+
+agent_communication:
+    -agent: "main"
+    -message: "Verify no mode requires scrolling above the panel to deal, and that all three modes still function end-to-end."
