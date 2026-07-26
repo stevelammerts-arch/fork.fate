@@ -6,6 +6,7 @@ import { MapPin, Check, Share2, Stamp, LocateFixed, ArrowLeft, Trophy, Undo2, Ex
 import { rememberPassport, forgetPassport } from "../lib/passports";
 import { fileToResizedDataUrl, buildAwardImage } from "../lib/passportAward";
 import InkStampThumb from "../components/InkStampThumb";
+import PassportBookReveal from "../components/PassportBookReveal";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -33,8 +34,43 @@ export default function Passport() {
   const [busy, setBusy] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [awarding, setAwarding] = useState(false);
+  const [holderVersion, setHolderVersion] = useState(0);
+  const [nameDraft, setNameDraft] = useState(null);
+  const [bookOpen, setBookOpen] = useState(false);
+  const [award, setAward] = useState(null);
 
   const photoUrl = (stopId) => `${API}/passports/${code}/photo/${encodeURIComponent(stopId)}?v=${data?.stamped ?? 0}`;
+  const holderPhotoUrl = () => `${API}/passports/${code}/holder-photo?v=${holderVersion}`;
+
+  // The ID page: your own passport photo and the name printed on the award.
+  const saveHolder = async (fields) => {
+    setBusy("holder");
+    try {
+      const { data: d } = await axios.post(`${API}/passports/${code}/holder`, {
+        name: fields.name ?? data?.holder_name ?? "",
+        photo: fields.photo,
+      });
+      setData(d);
+      setHolderVersion((v) => v + 1);
+      toast.success(fields.photo ? "Passport photo saved" : "Name saved");
+    } catch (e) {
+      toast.error(e.response?.data?.detail || "Couldn't save your ID page");
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const onPickHolderPhoto = async (file) => {
+    if (!file) return;
+    setBusy("holder");
+    try {
+      const photo = await fileToResizedDataUrl(file);
+      await saveHolder({ photo });
+    } catch {
+      setBusy("");
+      toast.error("Couldn't read that photo");
+    }
+  };
 
   // Selfie: resize in the browser, then stamp-with-photo or attach to an existing stamp.
   const onPickPhoto = async (stop, file) => {
@@ -55,21 +91,42 @@ export default function Passport() {
     }
   };
 
+  // The award is a canvas render; build it once per (stamp/photo) state and reuse
+  // for the book reveal, sharing and saving.
+  const buildBlob = async (d) => {
+    const withPhotos = (d.stamps || []).filter((s) => s.has_photo).map((s) => photoUrl(s.stop_id));
+    const stampedStops = d.stops.map((s) => {
+      const st = (d.stamps || []).find((x) => x.stop_id === s.id);
+      return { name: s.name, id: s.id, date: st ? new Date(st.stamped_at).toLocaleDateString() : "" };
+    });
+    return buildAwardImage({
+      title: d.label || MODE_LABELS[d.mode] || "Fate Passport",
+      code: d.code,
+      stops: stampedStops,
+      photoUrls: withPhotos,
+      completedAt: d.completed_at,
+      holderName: d.holder_name || "",
+      holderPhotoUrl: d.has_holder_photo ? holderPhotoUrl() : "",
+    });
+  };
+
+  const openBook = async (d = data) => {
+    setAwarding(true);
+    try {
+      const blob = await buildBlob(d);
+      setAward({ blob, url: URL.createObjectURL(blob) });
+      setBookOpen(true);
+    } catch {
+      toast.error("Couldn't build your award");
+    } finally {
+      setAwarding(false);
+    }
+  };
+
   const makeAward = async (shareIt) => {
     setAwarding(true);
     try {
-      const withPhotos = (data.stamps || []).filter((s) => s.has_photo).map((s) => photoUrl(s.stop_id));
-      const stampedStops = data.stops.map((s) => {
-        const st = (data.stamps || []).find((x) => x.stop_id === s.id);
-        return { name: s.name, id: s.id, date: st ? new Date(st.stamped_at).toLocaleDateString() : "" };
-      });
-      const blob = await buildAwardImage({
-        title: data.label || MODE_LABELS[data.mode] || "Fate Passport",
-        code: data.code,
-        stops: stampedStops,
-        photoUrls: withPhotos,
-        completedAt: data.completed_at,
-      });
+      const blob = award?.blob || (await buildBlob(data));
       const file = new File([blob], `forkfate-passport-${data.code}.png`, { type: "image/png" });
       if (shareIt && navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], title: "Fork·Fate Passport", text: "Passport complete." });
@@ -115,6 +172,11 @@ export default function Passport() {
 
   useEffect(() => { load(); }, [load]);
 
+  // A new stamp or a new photo makes the cached award stale.
+  useEffect(() => {
+    setAward((a) => { if (a) URL.revokeObjectURL(a.url); return null; });
+  }, [data?.stamped, holderVersion]);
+
   const stampedIds = new Set((data?.stamps || []).map((s) => s.stop_id));
 
   const postStamp = async (stop, body) => {
@@ -122,8 +184,10 @@ export default function Passport() {
     try {
       const { data: d } = await axios.post(`${API}/passports/${code}/stamp`, body);
       setData(d);
-      if (d.completed_at && d.stamped === d.total) toast.success("Passport complete — every stop stamped! 🏆");
-      else toast.success(`Stamped: ${stop.name}`);
+      if (d.completed_at && d.stamped === d.total) {
+        toast.success("Passport complete — every stop stamped! 🏆");
+        openBook(d);
+      } else toast.success(`Stamped: ${stop.name}`);
     } catch (e) {
       // Too far away (or no location at all — common in a desktop preview): don't
       // dead-end them, offer the manual stamp right there in the toast.
@@ -252,10 +316,18 @@ export default function Passport() {
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 <button
+                  onClick={() => openBook()}
+                  disabled={awarding}
+                  data-testid="passport-award-open"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#B26A12] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#8A5210] disabled:opacity-60"
+                >
+                  <Stamp className="h-4 w-4" /> {awarding ? "Opening…" : "Open my passport"}
+                </button>
+                <button
                   onClick={() => makeAward(true)}
                   disabled={awarding}
                   data-testid="passport-award-share"
-                  className="inline-flex items-center gap-2 rounded-full bg-[#B26A12] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#8A5210] disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-full border-2 border-[#B26A12] bg-white px-4 py-2.5 text-sm font-bold text-[#B26A12] hover:bg-[#F6E7CF] disabled:opacity-60"
                 >
                   <Share2 className="h-4 w-4" /> {awarding ? "Building…" : "Share my award"}
                 </button>
@@ -270,6 +342,56 @@ export default function Passport() {
               </div>
             </div>
           )}
+        </div>
+
+        <div className="mt-5 rounded-3xl border border-[#E2E4E7] bg-white p-5" data-testid="passport-id-page">
+          <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#6B7075]">Your ID page</p>
+          <p className="mt-1 font-sans text-sm text-[#6B7075]">
+            Add your photo and name — they are printed on the passport award you share.
+          </p>
+          <div className="mt-4 flex items-start gap-4">
+            <label
+              data-testid="holder-photo-picker"
+              className={`grid h-28 w-24 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-xl border-2 border-dashed border-[#C9CDD3] bg-[#F7F8F9] text-center ${busy === "holder" ? "opacity-60" : "hover:border-[#E01E26]"}`}
+            >
+              {data.has_holder_photo ? (
+                <img src={holderPhotoUrl()} alt="Your passport photo" data-testid="holder-photo" className="h-full w-full object-cover" />
+              ) : (
+                <span className="flex flex-col items-center gap-1 px-2 font-sans text-[11px] font-bold text-[#6B7075]">
+                  <Camera className="h-5 w-5" /> Add photo
+                </span>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                capture="user"
+                className="hidden"
+                disabled={busy === "holder"}
+                onChange={(e) => { onPickHolderPhoto(e.target.files?.[0]); e.target.value = ""; }}
+              />
+            </label>
+            <div className="min-w-0 flex-1">
+              <label className="block font-sans text-xs font-bold uppercase tracking-wider text-[#6B7075]" htmlFor="holder-name">
+                Name on passport
+              </label>
+              <input
+                id="holder-name"
+                data-testid="holder-name-input"
+                value={nameDraft ?? data.holder_name ?? ""}
+                onChange={(e) => setNameDraft(e.target.value.slice(0, 32))}
+                placeholder="Fate Traveller"
+                className="mt-1.5 w-full rounded-xl border border-[#E2E4E7] bg-white px-3 py-2.5 font-sans text-sm text-[#0E0E0E] outline-none focus:border-[#E01E26]"
+              />
+              <button
+                onClick={() => { saveHolder({ name: nameDraft ?? "" }); setNameDraft(null); }}
+                disabled={busy === "holder" || nameDraft === null || nameDraft === (data.holder_name || "")}
+                data-testid="holder-name-save"
+                className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#0E0E0E] px-4 py-2 text-sm font-bold text-white hover:bg-[#2A2A2A] disabled:opacity-40"
+              >
+                <Check className="h-4 w-4" /> Save name
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="mt-5 space-y-3">
@@ -390,6 +512,17 @@ export default function Passport() {
           </button>
         )}
       </div>
+
+      <PassportBookReveal
+        open={bookOpen}
+        awardUrl={award?.url}
+        code={data.code}
+        holderName={data.holder_name}
+        busy={awarding}
+        onClose={() => setBookOpen(false)}
+        onShare={() => makeAward(true)}
+        onDownload={() => makeAward(false)}
+      />
     </div>
   );
 }

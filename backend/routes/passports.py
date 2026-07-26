@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Response
 
 from core import db, haversine_miles, rate_limit
-from models import PassportCreate, PassportPhoto, PassportStamp
+from models import PassportCreate, PassportHolder, PassportPhoto, PassportStamp
 
 router = APIRouter()
 
@@ -40,6 +40,8 @@ def _public(doc: dict) -> dict:
         "total": len(stops),
         "completed_at": doc.get("completed_at"),
         "created_at": doc.get("created_at"),
+        "holder_name": doc.get("holder_name", ""),
+        "has_holder_photo": bool(doc.get("holder_photo")),
     }
 
 
@@ -122,19 +124,42 @@ async def add_stop_photo(code: str, stop_id: str, payload: PassportPhoto):
     return _public(await _get_or_404(doc["code"]))
 
 
-@router.get("/passports/{code}/photo/{stop_id}")
-async def get_stop_photo(code: str, stop_id: str):
-    doc = await _get_or_404(code)
-    stamp = next((s for s in doc.get("stamps", []) if s.get("stop_id") == stop_id), None)
-    if not stamp or not stamp.get("photo"):
-        raise HTTPException(status_code=404, detail="No photo for that stop")
-    header, _, b64 = stamp["photo"].partition(",")
+def _image_response(data_url: str) -> Response:
+    header, _, b64 = data_url.partition(",")
     media = header.split(":")[1].split(";")[0] if ":" in header else "image/jpeg"
     try:
         raw = base64.b64decode(b64)
     except Exception:
         raise HTTPException(status_code=500, detail="Stored photo is corrupt") from None
     return Response(content=raw, media_type=media, headers={"Cache-Control": "private, max-age=3600"})
+
+
+@router.get("/passports/{code}/photo/{stop_id}")
+async def get_stop_photo(code: str, stop_id: str):
+    doc = await _get_or_404(code)
+    stamp = next((s for s in doc.get("stamps", []) if s.get("stop_id") == stop_id), None)
+    if not stamp or not stamp.get("photo"):
+        raise HTTPException(status_code=404, detail="No photo for that stop")
+    return _image_response(stamp["photo"])
+
+
+@router.post("/passports/{code}/holder", dependencies=[Depends(rate_limit(40))])
+async def set_holder(code: str, payload: PassportHolder):
+    """The ID page — the traveller's own portrait and name, printed on the award."""
+    doc = await _get_or_404(code)
+    fields = {"holder_name": payload.name.strip()}
+    if payload.photo:
+        fields["holder_photo"] = payload.photo
+    await db.passports.update_one({"code": doc["code"]}, {"$set": fields})
+    return _public(await _get_or_404(doc["code"]))
+
+
+@router.get("/passports/{code}/holder-photo")
+async def get_holder_photo(code: str):
+    doc = await _get_or_404(code)
+    if not doc.get("holder_photo"):
+        raise HTTPException(status_code=404, detail="No passport photo yet")
+    return _image_response(doc["holder_photo"])
 
 
 @router.delete("/passports/{code}", dependencies=[Depends(rate_limit(30))])

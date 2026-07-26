@@ -242,6 +242,17 @@ class PassportPhoto(BaseModel):
         return PassportStamp._valid_photo(v)
 
 
+class PassportHolder(BaseModel):
+    """The ID page: the traveller's own portrait and the name on the passport."""
+    name: str = Field(default="", max_length=32)
+    photo: Optional[str] = None
+
+    @field_validator("photo")
+    @classmethod
+    def _valid_photo(cls, v):
+        return PassportStamp._valid_photo(v)
+
+
 class SponsorCreate(BaseModel):
     name: str = Field(min_length=1, max_length=160)
     cuisine: str = Field(min_length=1, max_length=60)
