@@ -1,0 +1,39 @@
+{
+  "summary": "Rate-limit isolation bug fix VERIFIED. Iter1 (23) + Iter2 (18) + new iter3 (18) = 59 tests total; 58 passed, 1 skipped (the informational checkin rate-limit test that self-skips when the preview ingress rewrites source IP — unchanged behavior). ZERO failures. Headline: TestAdmin::test_login_and_verify now PASSES on a serial run of the full iter1+iter2 regression suite WITHOUT any cooldown between classes — this is the exact outcome E1 predicted as proof the (route, IP) tuple keying fix works. Cross-route isolation verified in both directions on localhost:8001 (bypassing ingress IP rewrite): 45 rapid POSTs to /api/stats/fate-dealt (limit 120) does not trip the 10-req /api/admin/login limit, and vice versa. 100 fate-dealt posts do not affect /api/reports (30), /api/crawls (30) or /api/merch/notify (20). Per-route enforcement confirmed: 70 rapid POSTs to /api/crawls/{code}/checkin DID trigger 429 (limit 60), and while checkin was 429'd, /api/crawls/leaderboard + /api/stats/fate-dealt still returned 200 (429 is properly scoped). Path-template keying verified: 70 posts spread across 35 distinct crawl codes all shared ONE bucket and triggered 429 past 60 total — proving request.scope['route'].path_format (not url.path) is used, so an attacker cannot mint unlimited buckets by varying path params. Memory-bound purge iterates the new tuple keys correctly (static code inspection + in-process runtime purge exercising >_RL_MAX_KEYS empty deques with no exception). Admin brute-force lockout regression: still IP-keyed and still trips — 8 wrong passwords produces 429, correct password within threshold clears failures and returns 200. Backend smoke: /api/, /restaurants, /cuisines, /spin, /places/search (source='curated' preserved), /stats/fates, /sponsors/active, /crawls create/get/404/complete, /crawls/leaderboard all 200. FF_BUILD is still 2026.06-280 in index.html (iter3 is backend-only, unchanged as required).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter_ratelimit_isolation.py",
+    "/app/test_reports/pytest/iter3_ratelimit.xml",
+    "/app/test_reports/pytest/iter3_regression.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "core.rate_limit correctly derives scope_key = getattr(request.scope['route'], 'path_format', None) or request.url.path — the fallback to url.path only fires if a request somehow arrives without a matched route (edge case; harmless because unmatched routes wouldn't reach the dependency anyway).",
+    "The purge loop `for k in [k for k, v in list(_RL_BUCKETS.items()) if not v]:` iterates a materialized snapshot list, so dropping tuple keys from _RL_BUCKETS mid-iteration is safe (no RuntimeError). Confirmed via runtime smoke test.",
+    "_LOGIN_FAILURES is intentionally left keyed on IP alone — this is CORRECT for brute-force protection (whole-IP lockout is the point). Its purge branch is unchanged and still works: `if len(_LOGIN_FAILURES) > _RL_MAX_KEYS`.",
+    "The fix is minimal and surgical: only the bucket key expression changed inside rate_limit()'s inner function. No public API, response shape, or 429 error message changed. Zero risk of breaking downstream clients.",
+    "One subtle observation (not a bug, worth noting): if two routes ever share the same path_format (they don't today), they'd share a bucket. The current router has no such collisions, but if E1 later adds a duplicate path with a different method, that would be worth revisiting.",
+    "Preview ingress IP rewrite still masks per-IP behavior over the public URL — this is why test_rate_limit_60_per_min in iter1 self-skips. Not something to fix; the informative skip is the correct response, and all iter3 rate-limit tests deliberately hit http://localhost:8001 to sidestep it."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter_ratelimit_isolation.py (NEW — 18 tests covering cross-route isolation, per-route enforcement, path-template keying, purge, brute-force regression, backend smoke, FF_BUILD unchanged)"
+  ],
+  "success_rate": {
+    "backend": "100% (18/18 iter3 + 40/41 iter1+iter2, 1 skip = informational only; the previously-failing TestAdmin::test_login_and_verify now passes clean on a full serial run)",
+    "frontend": "not tested per scope (backend-only iteration); FF_BUILD unchanged at 2026.06-280 as required"
+  },
+  "seed_data_creation": "Ephemeral crawls with label prefix TEST_iter3_* and stop_ids prefix TR_* / TR1 / TR2 — cleaned by session-autouse teardown (crawl_checkins, crawl_completions, crawls). Also one /api/reports row (restaurant_id='TEST_iter3_rid') — schema has no cleanup fixture for reports; if E1 wants it purged, `db.reports.delete_many({'restaurant_id': 'TEST_iter3_rid'})`.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "The rate-limit fix (core.rate_limit line ~493-495) keys buckets on (route.path_format, ip). All rate-limit assertions in test_iter_ratelimit_isolation.py deliberately hit http://localhost:8001 (NOT the public URL) because the preview ingress rewrites the source IP unpredictably — public-URL rate-limit tests are non-deterministic. Each rate-limit test calls _restart_backend() (sudo supervisorctl restart backend) to guarantee empty _RL_BUCKETS + _LOGIN_FAILURES; that adds ~2s per test but makes assertions clean. If you add more rate-limit tests, follow the same pattern (localhost + restart-before). Do NOT modify /app/backend/pytest.ini addopts. Run this suite with `-n 0` for serial (xdist parallelism plus the shared backend restart would race). The final teardown restarts backend one more time, so any lockout state leaves clean.",
+  "rca_of_issue": "N/A — iter3 is a fix verification pass. The RCA of the original 429 bleed was already captured in iter2's minor issue (_RL_BUCKETS keyed on IP alone). Fix RCA: rate_limit() dependency now computes `scope_key = getattr(request.scope.get('route'), 'path_format', None) or request.url.path` and uses `key = (scope_key, ip)`. Using path_format (the pattern, e.g. '/api/crawls/{code}/checkin') rather than url.path (the concrete '/api/crawls/AAA111/checkin') prevents attackers from bypassing the per-route ceiling by varying path params. Memory bound preserved: the same _RL_MAX_KEYS=10000 purge branch works over tuple keys (list-materialized iteration + .pop() by key). Brute-force lockout (_LOGIN_FAILURES) intentionally NOT changed — whole-IP lockout is the correct semantics there."
+}

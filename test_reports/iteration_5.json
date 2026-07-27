@@ -1,0 +1,41 @@
+{
+  "summary": "Iteration 5 (backend seed expansion + live GOOGLE_API_KEY) verified end-to-end. USER-REPORTED BUG confirmed fixed: at 430x900, food+Italian reveal card now shows '3 MORE TO CONSIDER' with exactly 3 precise alternative tiles (data-testid=alternative-<id> excluding alternative-sponsored-*). Verified via browser + screenshot on the live preview URL. Extended the iter5 pytest suite: 28/28 pass (seed count exactly 276, 0 duplicate names, expand_seed deterministic across two calls, backend restart x3 idempotent — count stays 276, every (category,cuisine) pair >=4 docs in Mongo, curated fallback path spot-check via subprocess with GOOGLE_API_KEY='' returns >=4 for food/Italian, bars/Beer, desserts/Ice Cream, all generated docs meet quality bar — price in {$,$$,$$$}, rating 4.0-4.9, distance 0.5-28.0, non-sponsored, non-empty name/cuisine/category/description/address/image; the three original sponsors 'Olive & Ember', 'Harborline', 'Ember & Oak BBQ' remain sponsored=true; filter tests exercised against SEED_ALL+apply_filters directly to avoid burning Google quota). Google-live checks: /api/geocode?zip=10001 -> lat 40.7537, lng -73.9992 (within 0.05 of target); POST /api/places/search with category=food/zip=10001 returns source='google' with 20 results and every expected field (name, cuisine, price, rating, distance, lat, lng, image, photo_url, google_url, doordash_url, ubereats_url, grubhub_url, order_url, open_now); GOOGLE_SEARCH_DAILY_CAP env is '300'; db.config {key:'google_budget', date:<today>} field is 'searches' (NOT 'count') — verified that a cache-miss increments 'searches' by 1 and an immediate identical repeat is served from the 5-min cache and does NOT increment. Photo proxy with the key set: /api/places/photo?name=<real photos/... ref from a search> returns 200 image bytes with header X-Photo-Cache: miss on first call and X-Photo-Cache: hit on immediate repeat WITHOUT bumping the search budget counter; malformed name (e.g. 'not-a-valid-photo-ref') still 404s. Three legacy suites re-run: test_iter_fateactions_and_checkin.py, test_iter_sec002_003_004.py, test_iter_ratelimit_isolation.py -> 58 passed, 1 skipped (rate-limit-60/min test can't trigger through ingress IP rewrite), 0 failed. Fixed 2 legacy failures by adding `sys.path.insert(0,'/app/backend')` before `from core import ...` in test_iter_sec002_003_004.py (module resolution only — no app change). FF_BUILD still '2026.06-280' in /app/frontend/public/index.html. Total Google calls consumed for the run: ~10 (well under the 20 budget). Regression signals intact: reveal card fate-actions-trigger dropdown present, order dropdown present for food mode reveal.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/checkins (rate limit)", "issue": "60/min per-IP rate-limit test in test_iter_fateactions_and_checkin.py TestCheckin::test_rate_limit_60_per_min still skips with 'rate limit not triggered (likely ingress IP rewrite); codes={200}'. Not a regression — same behavior as iter 3/4. Consider trusting X-Forwarded-For / CF-Connecting-IP so per-user 429s work through Cloudflare."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_5.json",
+    "/app/test_reports/pytest/iter5_final.xml",
+    "/app/test_reports/pytest/iter5_regressions_final.xml",
+    "/app/backend/tests/test_iter5_seed_expansion.py"
+  ],
+  "action_items": [
+    "The 'Shuffle the Deck' button in the ZIP screen still has NO data-testid. Adding e.g. testID='deal-button' would remove the get_by_text dependency and speed up all future browser tests (flagged in iter 4 as well).",
+    "In db.config the daily Google budget counter field is named 'searches', not 'count'. If any dashboard / admin panel reads 'count', it will silently show 0. Confirm the admin UI and any monitoring/alerting reads doc['searches'].",
+    "Optional: normalize rate-limit keying to honor the Cloudflare/ingress client-IP header so /api/checkins 60/min truly enforces per-user, not per-edge-node."
+  ],
+  "critical_code_review_comments": [
+    "seed_data.expand_seed uses a per-(category,cuisine) hashlib.md5-seeded Random and a bounded 24-iteration name-template loop; that's genuinely deterministic across restarts and across in-process re-invocations — verified by test_expand_seed_deterministic. Good.",
+    "seed_db()'s backfill-by-name path is safe with SEED_ALL because expand_seed is deterministic. If a future change made the generator non-deterministic (e.g. dropped the md5 seed) the backfill would insert fresh dupes on every boot. Consider adding a unique index on db.restaurants.name to make that class of regression a hard failure instead of silent duplication.",
+    "The generator sets 'category' explicitly and never marks a doc sponsored=True. TestSeedQuality.test_generated_docs_valid checks this — good. But there's no test guarding that a future edit doesn't accidentally re-key the daily budget field back to 'count'; the JS/Python code should have a single named constant for that key."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter5_seed_expansion.py (replaced Google-hitting depth/filter tests with DB+subprocess assertions; added TestGoogleLive geocode/source/fields/budget-counter tests and TestPhotoProxy miss/hit/malformed tests; fixed budget field name from 'count' to 'searches')",
+    "/app/backend/tests/test_iter_sec002_003_004.py (added `sys.path.insert(0, '/app/backend')` before `from core import ...` in TestSec003CORS.test_origin_allowed_default_true and TestSec004PhotoCache.test_cache_constants_importable — resolves ModuleNotFoundError under pytest rootdir=/app/backend)"
+  ],
+  "success_rate": {"backend": "100% (86/86 real assertions, 1 skip that is a known ingress rewrite)", "frontend": "100% on the primary bug verification"},
+  "seed_data_creation": "None. Verified against the already-seeded 276-doc collection.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "GOOGLE_API_KEY is LIVE and every /api/places/search, /api/geocode and /api/places/photo cache-miss is BILLED. Reuse identical payloads (5-min cache) or query Mongo directly instead of looping the API. The daily budget doc in db.config uses field 'searches' (NOT 'count') and 'date' formatted YYYY-MM-DD UTC. When running the legacy test files, set REACT_APP_BACKEND_URL=<public preview URL> in the shell env — they still key off that name; test_iter5_seed_expansion.py reads EXPO_BACKEND_URL. pytest.ini activates xdist by default; the iter5 file has ordering dependencies (backend-restart test can trip photo/budget tests running in parallel) — run with `-n0` for stability. FF_BUILD must stay 2026.06-280 for iter 5. The 'Shuffle the Deck' button still has no data-testid; select by visible text.",
+  "rca_of_issue": "USER BUG '1 more to consider' → RCA confirmed: preview served curated fallback (no GOOGLE_API_KEY at the time) and 66/69 (category,cuisine) pairs in the old 94-venue seed had 1-2 rows, so RevealStage's `deck.filter(...).slice(0,3)` produced 1 alternative for most cuisines. Two-part fix by the developer: (A) seed_data.expand_seed deterministically tops every (category,cuisine) to MIN_PER_CUISINE=4 → 276 total docs, and (B) live GOOGLE_API_KEY makes /api/places/search hit Google Places (20 results per call). Verified in-browser at 430x900 for food+Italian: alternatives header reads '3 MORE TO CONSIDER' and exactly 3 alternative-<id> tiles render."
+}

@@ -1,0 +1,23 @@
+{
+  "summary": "Iteration 4 (frontend-only, process-management fix) verified end-to-end. Supervisor now owns port 3000 via the shim /app/frontend/node_modules/.bin/expo, which execs `yarn craco start`. `supervisorctl status expo` = RUNNING (pid 4355, healthy across a restart). localhost:3000 and the public preview URL both return 200 with <title>Fork·Fate — Restaurant Roulette</title>. Resilience test passed: after `supervisorctl restart expo`, CRA compiled and both URLs returned 200 within ~5s of readiness, and the shim file is still present and executable (mode 0755). Exactly ONE listener on port 3000 (node PID 4065 → craco → yarn → shim → supervisor expo chain); no orphan craco/react-scripts processes. At 430x900 the home screen renders correctly: Fork·Fate header, ZIP input, Use my location, radius slider (50 mi), all six category chips (Food/Drinks/Bars/Desserts/Shops/Fuel). GuidedFlow wizard's 'Skip intro' works. E2E core loop passes: selecting Food + ZIP 10001 + 'Shuffle the Deck' → shuffle animation → reveal card (`spin-result-card`) with `fate-actions-trigger`; POST /api/places/search returns 200 with source='curated'. Service Worker registers and is active; FF_BUILD 2026.06-280 cache-buster does NOT reload-loop (page settled for 15s; `ff_build_reloaded` session guard stayed null on a first-ever install, which is correct — the guard only sets when the build string changes from a previously stored value). Zero console errors and zero uncaught page errors on load and through the reveal. Regression signals intact: FF_BUILD string still 2026.06-280 in index.html; food mode reveal shows Order/Delivery dropdown; fate-actions-trigger present on reveal card.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_4.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Shim /app/frontend/node_modules/.bin/expo lives inside node_modules — a `yarn install` / `rm -rf node_modules` would delete it and break the preview again. Consider moving the shim to a persistent location (e.g. /usr/local/bin/expo or /app/scripts/expo-shim.sh) and symlinking/pointing supervisor at it, or add a postinstall hook to recreate it.",
+    "Curated dataset returns 0 results for `mode=food, zip=10001, radius_miles=50` via direct API call (source='curated', count=0). The UI still rendered a reveal card ('Saffron Route') — likely because the frontend passes additional params (e.g. resolved lat/lng, cuisine filters) that the raw ZIP-only payload does not. Not a regression, but worth confirming the /api/places/search contract still supports ZIP-only fallback for external integrations."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (per request)", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Frontend is now supervisor-managed as program `expo` (shim execs craco). Use `sudo supervisorctl restart expo` — do NOT run yarn start. Logs: /var/log/supervisor/expo.out.log. CRA rebuild ~5-60s; poll for 'Compiled successfully' or just curl localhost:3000. Public URL: https://fate-mobile-build.preview.emergentagent.com. Home page opens a 4-step GuidedFlow — use `data-testid=\"relaunch-guided-button\"` context or the visible 'Skip intro' link (get_by_text). The Deal button is labeled 'Shuffle the Deck' (no data-testid on it as of this iter — worth adding one, e.g. `deal-button`). Category chip testids: mode-food, mode-drinks, mode-bars, mode-desserts, mode-shops, mode-fuel. Reveal card testid: spin-result-card. Fate actions button testid: fate-actions-trigger.",
+  "rca_of_issue": "N/A — this iteration was a fix verification, not a bug hunt. The original 'Preview isn't working' RCA (unmanaged `yarn start` killed on pod restart while supervisor's read-only expo program failed with 'expo: command not found') has been correctly addressed by installing the shim binary at /app/frontend/node_modules/.bin/expo."
+}

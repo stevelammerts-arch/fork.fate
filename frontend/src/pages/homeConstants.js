@@ -1,0 +1,261 @@
+// Pure constants and helpers for the Home page (no React state).
+
+// ── Crawl route helpers (shared by Home reveal + PubCrawlDialog) ──
+const CRAWL_R_MI = 3958.8;
+export function crawlHaversine(a, b) {
+  if (a?.lat == null || b?.lat == null) return Infinity;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return CRAWL_R_MI * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+}
+
+// Greedy nearest-neighbour ordering so the stops form a followable walking path.
+// With a destination, order stops by their progress along origin->destination.
+export function orderCrawlRoute(items, origin, destination) {
+  const hasCoords = items.length > 0 && items.every((s) => s.lat != null && s.lng != null);
+  if (!hasCoords) return [...items].sort((a, b) => (a.distance ?? 999) - (b.distance ?? 999));
+  if (origin?.lat != null && destination?.lat != null) {
+    const dx = destination.lng - origin.lng, dy = destination.lat - origin.lat;
+    const len2 = dx * dx + dy * dy || 1;
+    const t = (s) => ((s.lng - origin.lng) * dx + (s.lat - origin.lat) * dy) / len2;
+    return [...items].sort((a, b) => t(a) - t(b));
+  }
+  const remaining = [...items];
+  const route = [];
+  let cur = origin && origin.lat != null ? origin : remaining[0];
+  while (remaining.length) {
+    let bi = 0, bd = Infinity;
+    for (let i = 0; i < remaining.length; i++) {
+      const d = crawlHaversine(cur, remaining[i]);
+      if (d < bd) { bd = d; bi = i; }
+    }
+    const nx = remaining.splice(bi, 1)[0];
+    route.push(nx); cur = nx;
+  }
+  return route;
+}
+
+
+const STREAK_KEY = "ff_streak";
+const midnight = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+
+export function readStreak() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STREAK_KEY) || "null");
+    if (!raw) return 0;
+    const days = Math.round((midnight(new Date()) - midnight(raw.date)) / 86400000);
+    return days === 0 || days === 1 ? raw.count : 0;
+  } catch { return 0; }
+}
+
+export function bumpStreak() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STREAK_KEY) || "null");
+    let count = 1;
+    if (raw) {
+      const days = Math.round((midnight(new Date()) - midnight(raw.date)) / 86400000);
+      if (days === 0) count = raw.count;
+      else if (days === 1) count = raw.count + 1;
+    }
+    localStorage.setItem(STREAK_KEY, JSON.stringify({ date: new Date().toISOString(), count }));
+    return count;
+  } catch { return 1; }
+}
+
+export const SHUFFLE_INTERVAL_MS = 90;
+export const SHUFFLE_DURATION_MS = 1500;
+export const RESULT_SPRING = { type: "spring", stiffness: 260, damping: 16 };
+export const FLASH_TRANSITION = { duration: 0.08 };
+export const HERO_INITIAL = { opacity: 0, y: 20 };
+export const HERO_ANIMATE = { opacity: 1, y: 0 };
+export const HERO_TRANSITION = { duration: 0.6 };
+export const DETAIL_INITIAL = { opacity: 0, y: 10 };
+export const DETAIL_ANIMATE = { opacity: 1, y: 0 };
+export const DETAIL_TRANSITION = { delay: 0.2 };
+export const SPIN_TAP = { scale: 0.96 };
+
+export const REAPER_LINES = [
+  "The reaper has spoken.",
+  "Fate has been sealed.",
+  "The cards have chosen.",
+  "Destiny points here.",
+  "Your fate is written.",
+];
+export const reaperLineFor = (r) => REAPER_LINES[(r?.name?.length || 0) % REAPER_LINES.length];
+
+// Professional light-mode counterparts to the macabre reaper lines, per category.
+export const LIGHT_LINES = [
+  "Your destination awaits.",
+  "Here's tonight's pick.",
+  "Your table is set.",
+  "A great choice, locked in.",
+  "Bon appétit — go enjoy.",
+];
+const LIGHT_LINES_BY_MODE = {
+  food: ["Your table is set.", "Here's tonight's pick.", "A great choice, locked in.", "Bon appétit — go enjoy."],
+  drinks: ["Your next sip is set.", "Here's your pick.", "A great choice, locked in.", "Cheers to that."],
+  bars: ["Tonight's bar is set.", "Here's your spot.", "A great choice, locked in.", "Enjoy the night."],
+  desserts: ["Your sweet pick is set.", "Here's your treat.", "A great choice, locked in.", "Treat yourself."],
+  shops: ["Your next find awaits.", "Here's your pick.", "A great choice, locked in.", "Happy hunting."],
+  fuel: ["Your pit stop is set.", "Here's your stop.", "A great choice, locked in.", "Fill up and roll out."],
+  explore: ["Your next adventure is set.", "Here's where you're headed.", "A great choice, locked in.", "Go get outside."],
+  stay: ["Tonight's basecamp is set.", "Here's where you're staying.", "A great choice, locked in.", "Rest easy."],
+};
+export const lightLineFor = (r, mode = "food") => {
+  const arr = LIGHT_LINES_BY_MODE[mode] || LIGHT_LINES_BY_MODE.food;
+  return arr[(r?.name?.length || 0) % arr.length];
+};
+
+// Food is 60+ chips — declared in scannable sub-groups (rendered as labelled
+// sections by Filters) instead of one A–Z wall. FOOD_CUISINES is derived.
+export const FOOD_GROUPS = [
+  {
+    label: "American & Comfort",
+    items: [
+      "American", "Diner", "Comfort Food", "Southern", "Soul Food", "Cajun", "BBQ",
+      "Burgers", "Fried Chicken", "Chicken Wings", "Steakhouse", "Sandwiches", "Deli",
+      "Seafood", "Hawaiian",
+    ],
+  },
+  { label: "Pizza & Pasta", items: ["Pizza", "Pasta", "Italian"] },
+  {
+    label: "Asian",
+    items: [
+      "Chinese", "Japanese", "Sushi", "Korean", "Thai", "Vietnamese", "Banh Mi", "Pho",
+      "Ramen", "Noodles", "Dumplings", "Dim Sum", "Hot Pot", "Poke", "Filipino",
+      "Malaysian", "Indonesian", "Indian",
+    ],
+  },
+  {
+    label: "Latin & Caribbean",
+    items: ["Mexican", "Tex-Mex", "Tacos", "Cuban", "Caribbean", "Peruvian", "Brazilian", "Spanish", "Tapas"],
+  },
+  {
+    label: "Mediterranean & Middle Eastern",
+    items: ["Mediterranean", "Greek", "French", "Middle Eastern", "Lebanese", "Turkish", "Ethiopian", "Halal"],
+  },
+  {
+    label: "Breakfast & Lighter",
+    items: ["Breakfast", "Brunch", "Cafe", "Salads", "Vegan", "Vegetarian", "Gluten Free"],
+  },
+  {
+    label: "Style",
+    items: ["Fine Dining", "Gastropub", "Fusion", "Buffet", "Food Trucks", "Fast Food", "Catering"],
+  },
+];
+export const FOOD_CUISINES = FOOD_GROUPS.flatMap((g) => g.items);
+export const DRINK_CUISINES = ["Coffee", "Espresso", "Boba Tea", "Tea House", "Smoothie", "Juice Bar", "Milkshakes", "Kombucha", "Cider", "Hot Chocolate", "Matcha", "Lemonade", "Soda Fountain"];
+export const DESSERT_CUISINES = ["Ice Cream", "Gelato", "Frozen Yogurt", "Bakery", "Cake Shops", "Custom Cakes", "Wedding Cakes", "Donuts", "Cupcakes", "Candy Shops", "Chocolate", "Crepes", "Cheesecake", "Pie", "Cookies", "Waffles", "Macarons", "Cinnamon Rolls"];
+export const SHOP_CUISINES = ["Antiques", "Thrift Store", "Vintage", "Flea Market", "Farmers Market", "Consignment", "Record Store", "Bookstore", "Pawn Shop", "Gem Store", "Jewelry Store", "Bead Shop", "Quilt Shop", "Yarn Shop", "Craft Store", "Fabric Store", "Art Supply", "Party Supplies", "Home Decor", "Furniture Store", "Candle Shop", "Plant Shop", "Garden Center", "Nursery", "Hobby Shop", "Comic Store", "Model Shop", "Trading Cards", "Toy Trains", "LEGO Store", "Toy Store", "Bicycle Shop"];
+// Categories where ordering/delivery links make sense. A hiking trail, campground,
+// thrift store or gas station has no delivery, so the Order dropdown must be hidden
+// rather than sending people to a dead-end DoorDash search.
+// Single source of truth — this guard was previously duplicated inline in RevealStage
+// and RestaurantCard and leaked a third time when Explore/Stay were added.
+export const NO_DELIVERY_CATEGORIES = ["shops", "fuel", "explore", "stay"];
+export const supportsDelivery = (category) => !NO_DELIVERY_CATEGORIES.includes(category);
+
+// Always prefer the venue's real Google photo; `image` is only a category
+// placeholder (all Explore fallbacks are hiking shots, which looked wrong on
+// splash pads, museums and gyms).
+export const cardImage = (r) => r?.photo_url || r?.image;
+
+// The Fuel tab covers "keep moving" stops, so it's grouped: pumps/chargers,
+// wash & service, and getting-around options (scooters, transit).
+export const FUEL_GROUPS = [
+  { label: "Fuel & Charging", items: ["Gas Station", "EV Charging", "Diesel", "Truck Stop"] },
+  { label: "Wash & Service", items: ["Car Wash", "Touchless Car Wash", "Hand Wash Car Wash", "Self-Serve Car Wash", "Detailing"] },
+  {
+    label: "Getting Around",
+    items: ["Scooter Rentals", "Scooter Share", "Bike Rentals", "Bike Share", "Bus Stations", "Train Stations", "Park & Ride"],
+  },
+];
+export const FUEL_CUISINES = FUEL_GROUPS.flatMap((g) => g.items);
+// Things to DO. The list outgrew a single A–Z wall of chips, so it's declared in
+// four sub-groups (rendered as labelled sections by Filters) — much faster to scan
+// than 55 alphabetised pills. EXPLORE_CUISINES is derived so the two can't drift.
+export const EXPLORE_GROUPS = [
+  {
+    label: "Outdoors",
+    items: [
+      "State Parks", "National Parks", "Nature Preserves", "Hiking Trails", "Mountain Biking",
+      "Fishing Spots", "Boat Launches", "Hunting Land", "Scenic Overlooks", "Waterfalls",
+      "Botanical Gardens", "Hot Springs", "Caves", "Beaches", "Lakes",
+      "Rock Climbing", "Ski Resorts", "Snow Tubing",
+      "Boat Rentals", "Kayak Rentals", "Jet Ski Rentals", "Paddleboard Rentals",
+      "Disc Golf", "Horseback Riding", "ATV Trails", "Farms & Orchards",
+    ],
+  },
+  {
+    label: "Swimming",
+    items: ["Swimming Holes", "Swimming Beaches", "Public Pools", "Aquatic Centers", "Water Parks", "Splash Pads"],
+  },
+  {
+    label: "Attractions",
+    items: [
+      "Zoos", "Safaris", "Petting Zoos", "Aquariums", "Museums", "Children's Museums",
+      "Science Centers", "Art Galleries", "Historic Sites", "Planetariums",
+      "National Monuments", "Landmarks", "Observation Decks", "Lighthouses", "Roadside Attractions",
+      "Theme Parks", "Amusement Parks", "Fairgrounds", "Drive-In Theaters",
+    ],
+  },
+  {
+    label: "Active & Games",
+    items: [
+      "Mini Golf", "Go-Karts", "Bowling", "Arcades", "Escape Rooms", "Axe Throwing",
+      "Zip Lines", "Climbing Gyms", "Skate Parks", "Trampoline Parks", "Playgrounds",
+      "Gyms", "Fitness Centers", "Yoga Studios", "Pickleball Courts", "Tennis Courts",
+    ],
+  },
+];
+export const EXPLORE_CUISINES = EXPLORE_GROUPS.flatMap((g) => g.items);
+// Somewhere to sleep. NOTE: Airbnb/Vrbo are deliberately absent — they're closed
+// marketplaces with no public search API and no Google Places coverage, so they
+// cannot be dealt like the other options. KOA, RV parks and cabins are findable.
+export const STAY_CUISINES = [
+  "Campgrounds", "RV Parks", "KOA", "State Park Camping", "Primitive Sites", "Group Camping",
+  "Cabins", "Yurts", "Glamping", "Treehouses", "Lodges", "Bed & Breakfast",
+  "Inns", "Motels", "Hotels", "Hostels",
+];
+export const BAR_GROUPS = [
+  {
+    label: "Beer & Cider",
+    items: ["Brewery", "Beer Garden", "Taproom", "Beer", "Pub", "Gastropub", "Irish Bar", "Cider House"],
+  },
+  {
+    label: "Wine & Spirits",
+    items: [
+      "Wine", "Winery", "Wine Bar", "Wine Tasting", "Champagne Bar", "Distillery",
+      "Whiskey", "Spirits", "Liquor", "Liquor Store", "Cocktails", "Margaritas",
+      "Tequila Bar", "Mezcal Bar",
+    ],
+  },
+  {
+    label: "Vibe",
+    items: [
+      "Dive Bar", "Rooftop Bar", "Lounge", "Speakeasy", "Tiki", "Sports Bar", "Nightclub",
+      "Bars", "Cigar Bar", "Hookah Lounge", "Tapas Bar",
+    ],
+  },
+  {
+    label: "Music & Shows",
+    items: ["Live Music", "Jazz Bar", "Piano Bar", "Karaoke", "Comedy Club", "Music"],
+  },
+  {
+    label: "Bar Games",
+    items: ["Pool", "Darts", "Trivia", "Games", "Arcade Bar", "Axe Throwing", "Mini Golf", "Bowling", "Volleyball", "Pickle Ball"],
+  },
+];
+export const BAR_CUISINES = BAR_GROUPS.flatMap((g) => g.items);
+export const CRAWL_TYPES = [
+  { key: "pubs", label: "Pubs", mode: "bars", cuisine: "Pub", crawl: "Pub Crawl" },
+  { key: "wine", label: "Wineries", mode: "bars", cuisine: "Winery", crawl: "Winery Crawl" },
+  { key: "brewery", label: "Breweries", mode: "bars", cuisine: "Brewery", crawl: "Brewery Crawl" },
+  { key: "tacos", label: "Tacos", mode: "food", cuisine: "Tacos", crawl: "Taco Crawl" },
+  { key: "tapas", label: "Tapas", mode: "food", cuisine: "Tapas", crawl: "Tapas Crawl" },
+  { key: "burgers", label: "Burgers", mode: "food", cuisine: "Burgers", crawl: "Burger Crawl" },
+  { key: "antiques", label: "Antiques", mode: "shops", cuisine: "Antiques", crawl: "Antique Crawl" },
+  { key: "thrift", label: "Thrift", mode: "shops", cuisine: "Thrift Store", crawl: "Thrift Crawl" },
+];
+export const crawlLabelForType = (key) => (CRAWL_TYPES.find((t) => t.key === key)?.crawl) || "Pub Crawl";

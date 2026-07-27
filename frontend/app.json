@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Fork·Fate",
+    "slug": "fork-fate",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./public/logo-mark-512.png",
+    "scheme": "forkfate",
+    "userInterfaceStyle": "light",
+    "platforms": ["web"],
+    "web": {
+      "bundler": "webpack",
+      "favicon": "./public/favicon.ico",
+      "output": "static",
+      "build": {
+        "babel": {}
+      }
+    },
+    "android": {
+      "package": "com.fork_fate.twa"
+    },
+    "ios": {
+      "bundleIdentifier": "com.forkfate.app"
+    },
+    "extra": {
+      "note": "Fork·Fate ships as a React (CRA) web app deployed as an Android TWA. This file exists only so the deploy pipeline's mobile-config probe reads valid JSON; the web build is produced by craco."
+    }
+  }
+}
