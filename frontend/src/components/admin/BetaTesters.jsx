@@ -1,25 +1,55 @@
-import { Trash2, Mail } from "lucide-react";
+import { Trash2, Mail, Download } from "lucide-react";
 import { toast } from "sonner";
 
 export function BetaTesters({ betaTesters, optInLink, setOptInLink, emailAllTesters, deleteBeta }) {
+  const exportCsv = () => {
+    if (!betaTesters.length) return;
+    // Standard CSV: header row + one row per tester. Email is quoted defensively
+    // in case Gmail ever allows commas in the local-part (it doesn't today, but
+    // future-proofing costs nothing here).
+    const escape = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const header = "email,created_at\n";
+    const rows = betaTesters.map((x) => `${escape(x.email)},${escape(x.created_at || "")}`).join("\n");
+    const blob = new Blob([header + rows + "\n"], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const stamp = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `fork-fate-beta-testers-${stamp}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${betaTesters.length} testers`);
+  };
+
   return (
     <section className="md:col-span-2" data-testid="beta-testers-section">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <h2 className="font-serif text-xl text-[#0E0E0E]">Android beta testers</h2>
         <span data-testid="beta-count-badge" className={`rounded-full px-2.5 py-0.5 text-xs font-bold text-white ${betaTesters.length >= 12 ? "bg-[#1AA85B]" : "bg-[#E01E26]"}`}>
           {betaTesters.length}/12
         </span>
         {betaTesters.length > 0 && (
-          <button
-            data-testid="copy-beta-emails-btn"
-            onClick={() => {
-              navigator.clipboard?.writeText(betaTesters.map((x) => x.email).join(", "));
-              toast.success("All tester emails copied");
-            }}
-            className="ml-auto rounded-full border border-[#E2E4E7] bg-white px-3 py-1 text-xs font-bold text-[#0E0E0E] hover:bg-[#F5F6F7]"
-          >
-            Copy all emails
-          </button>
+          <>
+            <button
+              data-testid="copy-beta-emails-btn"
+              onClick={() => {
+                navigator.clipboard?.writeText(betaTesters.map((x) => x.email).join(", "));
+                toast.success("All tester emails copied");
+              }}
+              className="ml-auto rounded-full border border-[#E2E4E7] bg-white px-3 py-1 text-xs font-bold text-[#0E0E0E] hover:bg-[#F5F6F7]"
+            >
+              Copy all emails
+            </button>
+            <button
+              data-testid="export-beta-csv-btn"
+              onClick={exportCsv}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E4E7] bg-white px-3 py-1 text-xs font-bold text-[#0E0E0E] hover:bg-[#F5F6F7]"
+            >
+              <Download className="h-3.5 w-3.5" /> Export CSV
+            </button>
+          </>
         )}
       </div>
       <p className="mt-1 text-xs text-[#6B7075]">
