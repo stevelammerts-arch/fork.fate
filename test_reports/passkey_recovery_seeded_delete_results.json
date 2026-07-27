@@ -1,0 +1,93 @@
+{
+  "base": "https://web-fate-launch.preview.emergentagent.com",
+  "steps": [
+    {
+      "name": "available_before_delete_seeded_old_passkey",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "available": true
+      }
+    },
+    {
+      "name": "password_login_with_old_passkey_present",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "ok": true
+      },
+      "headers": {
+        "cookie_names": [
+          "__cf_bm",
+          "ff_admin",
+          "ff_csrf"
+        ]
+      }
+    },
+    {
+      "name": "status_shows_old_passkey_present",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "registered": true,
+        "count": 1
+      }
+    },
+    {
+      "name": "delete_old_passkey_after_password_login",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "ok": true
+      }
+    },
+    {
+      "name": "status_after_delete_no_passkeys",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "registered": false,
+        "count": 0
+      }
+    },
+    {
+      "name": "available_after_delete_false",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "available": false
+      }
+    },
+    {
+      "name": "register_options_available_after_delete",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "challenge": "ppNXNLDo1KyPwk3uhKQnRA3XTmRSRdkxMy0h4soaKBrwOxDymlZLY-PwgqPl1RBTKalSYFVf1bOkxeY9n3a-hA",
+        "rp": {
+          "name": "Fork\u00b7Fate Admin",
+          "id": "web-fate-launch.preview.emergentagent.com"
+        },
+        "user": {
+          "id": "Zm9yay1mYXRlLWFkbWlu",
+          "name": "admin",
+          "displayName": "Fork\u00b7Fate Admin"
+        },
+        "pubKeyCredParams": [
+          {
+            "type": "public-key",
+            "alg": -8
+          },
+          {
+            "type": "public-key",
+            "alg": -7
+          },
+          {
+            "type": "public-key",
+            "alg": -257
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "base": "https://web-fate-launch.preview.emergentagent.com",
+  "steps": [
+    {
+      "name": "public_passkey_available",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "available": false
+      }
+    },
+    {
+      "name": "wrong_password_rejected",
+      "ok": true,
+      "status": 401,
+      "data": {
+        "detail": "Incorrect password"
+      },
+      "headers": {
+        "set_cookie_contains_ff_admin": false
+      }
+    },
+    {
+      "name": "correct_password_login_sets_cookies",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "ok": true
+      },
+      "headers": {
+        "set_cookie_has_ff_admin": true,
+        "set_cookie_has_ff_csrf": true,
+        "cookie_names": [
+          "__cf_bm",
+          "ff_admin",
+          "ff_csrf"
+        ]
+      }
+    },
+    {
+      "name": "admin_verify_after_password_login",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "ok": true
+      }
+    },
+    {
+      "name": "passkey_status_after_password_login",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "registered": false,
+        "count": 0
+      }
+    },
+    {
+      "name": "passkey_register_options_after_password_login",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "challenge": "bzR638iavQPfZ2zl5FELg-rUNez6ASxrJVxaSlNRVhSz5DMrd7Iw_oSxENHUfp7lhEHGELOyYq7sTJT_TF-SLw",
+        "rp": {
+          "name": "Fork\u00b7Fate Admin",
+          "id": "web-fate-launch.preview.emergentagent.com"
+        },
+        "user": {
+          "id": "Zm9yay1mYXRlLWFkbWlu",
+          "name": "admin",
+          "displayName": "Fork\u00b7Fate Admin"
+        },
+        "pubKeyCredParams": [
+          {
+            "type": "public-key",
+            "alg": -8
+          },
+          {
+            "type": "public-key",
+            "alg": -7
+          },
+          {
+            "type": "public-key",
+            "alg": -257
+          }
+        ]
+      }
+    },
+    {
+      "name": "passkey_delete_after_password_login",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "ok": true
+      }
+    },
+    {
+      "name": "passkey_status_after_delete",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "registered": false,
+        "count": 0
+      }
+    },
+    {
+      "name": "passkey_register_options_after_delete",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "challenge": "-LP2UQ_8liiDUesYLfEWrBYMQ8-4on8GTGU4lCnlnhEou-ks63vX7jtpp0CAI3s1jRGO23GZ8rC-5tWpUicK_Q",
+        "rp": {
+          "name": "Fork\u00b7Fate Admin",
+          "id": "web-fate-launch.preview.emergentagent.com"
+        },
+        "user": {
+          "id": "Zm9yay1mYXRlLWFkbWlu",
+          "name": "admin",
+          "displayName": "Fork\u00b7Fate Admin"
+        },
+        "pubKeyCredParams": [
+          {
+            "type": "public-key",
+            "alg": -8
+          },
+          {
+            "type": "public-key",
+            "alg": -7
+          },
+          {
+            "type": "public-key",
+            "alg": -257
+          }
+        ]
+      }
+    },
+    {
+      "name": "admin_logout",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "ok": true
+      }
+    }
+  ]
+}

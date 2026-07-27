@@ -1,0 +1,47 @@
+{
+  "verdict": "fixed",
+  "user_reported_bug": "Woops, I lost finger print log in to admin",
+  "summary": "Verified the lost-passkey recovery path on preview: /admin always exposes the password field, password login works even when a passkey button is present, admin passkey status/delete/register-options endpoints work after password login, and wrong password is rejected without auth cookies. No relevant testing skill found; WebAuthn/auth playbook call was attempted but timed out, so validation used direct code review plus UI/API evidence.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/test_passkey_recovery_api.py",
+    "/app/test_reports/passkey_recovery_api_results.json",
+    "/app/test_reports/seed_dummy_passkey.py",
+    "/app/test_reports/test_passkey_recovery_seeded_delete.py",
+    "/app/test_reports/passkey_recovery_seeded_delete_results.json",
+    "/app/test_reports/bug_verification_21.json",
+    "/app/test_reports/iteration_21.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "AdminLogin renders data-testid=admin-password-input unconditionally before the optional passkey button, so the password fallback is not gated by passkey availability.",
+    "POST /api/admin/login compares against ADMIN_PASSWORD and sets ff_admin + ff_csrf cookies on success; require_admin accepts those cookies for passkey management endpoints.",
+    "GET /api/admin/passkey/register-options and DELETE /api/admin/passkey are correctly gated by require_admin, allowing password-authenticated recovery/removal of old passkeys. DELETE removes passkeys for the current RP ID."
+  ],
+  "updated_files": [
+    "/app/test_reports/test_passkey_recovery_api.py",
+    "/app/test_reports/passkey_recovery_api_results.json",
+    "/app/test_reports/seed_dummy_passkey.py",
+    "/app/test_reports/test_passkey_recovery_seeded_delete.py",
+    "/app/test_reports/passkey_recovery_seeded_delete_results.json",
+    "/app/test_reports/bug_verification_21.json",
+    "/app/test_reports/iteration_21.json"
+  ],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "100%"
+  },
+  "seed_data_creation": "Seeded one QA dummy passkey for RP ID web-fate-launch.preview.emergentagent.com to prove the login screen shows both passkey and password options simultaneously; then verified DELETE /api/admin/passkey removed it and status returned registered=false,count=0.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Focused only on admin lost-passkey recovery. Latest report is iteration_21. Preview URL: https://web-fate-launch.preview.emergentagent.com. Admin password came from /app/memory/test_credentials.md. Final preview passkey status after cleanup was registered=false,count=0 for this RP ID.",
+  "rca_of_the_issue": "No product defect reproduced. The user-visible recovery path works: visit /admin, ignore unavailable/lost fingerprint login, enter ForkFate!Admin2026, then use the dashboard passkey management/API to remove the old passkey and begin registering a new one. Repro evidence: UI test with a seeded registered passkey showed password input visible/enabled next to the passkey button and password login unlocked the dashboard; API tests showed wrong password 401, correct password 200 with cookies, passkey status/delete/register-options all 200 after password login. Backend logs showed the expected 401/200/GET/DELETE calls for this flow."
+}
