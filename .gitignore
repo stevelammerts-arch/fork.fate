@@ -148,3 +148,4 @@ private_build_assets/
 build_aab/
 **/ORIGINAL-signing-key-info.txt
 frontend/node_modules/.cache/default-development/18.pack
+frontend/node_modules/.cache/default-development/34.pack

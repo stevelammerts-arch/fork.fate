@@ -42,6 +42,7 @@ def _public(doc: dict) -> dict:
         "created_at": doc.get("created_at"),
         "holder_name": doc.get("holder_name", ""),
         "has_holder_photo": bool(doc.get("holder_photo")),
+        "published_at": doc.get("published_at"),
     }
 
 
@@ -70,6 +71,31 @@ async def _get_or_404(code: str) -> dict:
     if not doc:
         raise HTTPException(status_code=404, detail="Passport not found")
     return doc
+
+
+@router.get("/passports/wall")
+async def passport_wall(limit: int = 40):
+    """The public wall: finished passports their owners chose to post."""
+    limit = max(1, min(limit, 60))
+    cursor = (
+        db.passports.find({"published_at": {"$ne": None}}, {"_id": 0, "wall_thumb": 0, "holder_photo": 0, "stamps": 0})
+        .sort("published_at", -1)
+        .limit(limit)
+    )
+    return {
+        "items": [
+            {
+                "code": d["code"],
+                "mode": d.get("mode", "explore"),
+                "label": d.get("label", ""),
+                "holder_name": d.get("holder_name", ""),
+                "stops": len(d.get("stops", [])),
+                "completed_at": d.get("completed_at"),
+                "published_at": d.get("published_at"),
+            }
+            async for d in cursor
+        ]
+    }
 
 
 @router.get("/passports/{code}")
@@ -160,6 +186,34 @@ async def get_holder_photo(code: str):
     if not doc.get("holder_photo"):
         raise HTTPException(status_code=404, detail="No passport photo yet")
     return _image_response(doc["holder_photo"])
+
+
+@router.post("/passports/{code}/publish", dependencies=[Depends(rate_limit(20))])
+async def publish_passport(code: str, payload: PassportPhoto):
+    """Post a finished passport to the public wall (the award thumbnail travels with it)."""
+    doc = await _get_or_404(code)
+    if not doc.get("completed_at"):
+        raise HTTPException(status_code=409, detail="Finish every stop before posting to the wall")
+    await db.passports.update_one(
+        {"code": doc["code"]},
+        {"$set": {"wall_thumb": payload.photo, "published_at": datetime.now(timezone.utc).isoformat()}},
+    )
+    return _public(await _get_or_404(doc["code"]))
+
+
+@router.delete("/passports/{code}/publish", dependencies=[Depends(rate_limit(20))])
+async def unpublish_passport(code: str):
+    doc = await _get_or_404(code)
+    await db.passports.update_one({"code": doc["code"]}, {"$set": {"published_at": None}, "$unset": {"wall_thumb": ""}})
+    return _public(await _get_or_404(doc["code"]))
+
+
+@router.get("/passports/{code}/wall-thumb")
+async def get_wall_thumb(code: str):
+    doc = await _get_or_404(code)
+    if not doc.get("wall_thumb") or not doc.get("published_at"):
+        raise HTTPException(status_code=404, detail="Not on the wall")
+    return _image_response(doc["wall_thumb"])
 
 
 @router.delete("/passports/{code}", dependencies=[Depends(rate_limit(30))])

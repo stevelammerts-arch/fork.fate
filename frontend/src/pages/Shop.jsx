@@ -11,16 +11,16 @@ import { trackEvent } from "../lib/analytics";
 import { useLang } from "../i18n/i18n";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-const FRONT = "/merch-front-logo.jpg";
+const FRONT = "/merch-front-subtle.jpg";
 
 const DESIGNS = [
-  { key: "dragon-scene",   theme: "Dragon's Hoard", style: "Scene",    back: "/merch-scene-dragon.jpg",      accent: "#E6B23A", blurb: "The red dragon brooding over its glittering hoard." },
+  { key: "dragon-scene",   theme: "Dragon's Hoard", style: "Scene",    back: "/merch-scene-dragon.jpg",      accent: "#E6B23A", front: "/merch-front-dragon.jpg", blurb: "The red dragon brooding over its glittering hoard." },
   { key: "reaper-crypt",   theme: "The Reaper",     style: "Crypt",    back: "/merch-scene-reaper-env.jpg",  accent: "#E01E26", blurb: "The Reaper serving fate in his moonlit graveyard." },
   { key: "reaper-classic", theme: "The Reaper",     style: "Classic",  back: "/merch-reaper.jpg",            accent: "#E01E26", blurb: "The gothic Reaper crest — bold and iconic." },
-  { key: "cyber-scene",    theme: "Neon Nights",    style: "Scene",    back: "/merch-scene-cyber.jpg",       accent: "#22E0E0", front: "/merch-front-cyber.jpg", blurb: "A rain-slicked neon skyline that never sleeps." },
-  { key: "dragon-classic", theme: "Dragon's Hoard", style: "Classic",  back: "/merch-dragon.jpg",            accent: "#E6B23A", blurb: "A fierce dragon over gold — big-print statement." },
+  { key: "cyber-scene",    theme: "Neon Nights",    style: "Scene",    back: "/merch-scene-cyber.jpg",       accent: "#22E0E0", front: "/merch-front-cyber-subtle.jpg", blurb: "A rain-slicked neon skyline that never sleeps." },
+  { key: "dragon-classic", theme: "Dragon's Hoard", style: "Classic",  back: "/merch-dragon.jpg",            accent: "#E6B23A", front: "/merch-front-dragon.jpg", blurb: "A fierce dragon over gold — big-print statement." },
   { key: "tiki-scene",     theme: "Tiki Lounge",    style: "Scene",    back: "/merch-scene-tiki.jpg",        accent: "#F0A24E", blurb: "Warm torchlit tiki bar, straight off the island." },
-  { key: "cyber-classic",  theme: "Neon Nights",    style: "Classic",  back: "/merch-cyber.jpg",             accent: "#22E0E0", front: "/merch-front-cyber.jpg", blurb: "Neon fork + skyline synthwave graphic." },
+  { key: "cyber-classic",  theme: "Neon Nights",    style: "Classic",  back: "/merch-cyber.jpg",             accent: "#22E0E0", front: "/merch-front-cyber-subtle.jpg", blurb: "Neon fork + skyline synthwave graphic." },
   { key: "tiki-classic",   theme: "Tiki Lounge",    style: "Classic",  back: "/merch-tiki.jpg",              accent: "#F0A24E", blurb: "Carved tiki mask + palms — tropical bold." },
 ];
 

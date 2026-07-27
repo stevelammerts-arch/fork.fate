@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, Search, ExternalLink, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, Flame, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, ArrowRight, Swords, Mountain, Tent, Stamp } from "lucide-react";
+import { Dices, Star, MapPin, Search, ExternalLink, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, Flame, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, ArrowRight, Swords, Mountain, Tent, Stamp, Globe2 } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -746,7 +746,13 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:gap-3 md:px-12 md:py-6">
           <div className="flex items-center gap-2 md:gap-3">
             <div className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-1 md:h-16 md:w-16 ${light ? "bg-[#F5F0E6] ring-[#E4E4E7]" : "bg-black ring-white/25"}`}>
-              <img src={theme === "cyber" ? "/cyber-neon-logo.png" : (light ? "/logo-mark-light.png" : "/logo-mark.png")} alt="Fork·Fate logo" className={`h-12 w-12 object-contain md:h-16 md:w-16 ${theme === "cyber" ? "p-0.5" : "scale-110"}`} />
+              <img
+                src={theme === "cyber" ? "/cyber-neon-logo.png" : (light ? "/logo-mark-light.png" : "/logo-mark.png")}
+                alt="Fork·Fate logo"
+                /* Dragon's Hoard gets the gold-foil crest from the passport cover. */
+                style={theme === "fantasy" ? { filter: "grayscale(1) sepia(1) saturate(2.6) hue-rotate(-12deg) brightness(1.05) contrast(1.1)" } : undefined}
+                className={`h-12 w-12 object-contain md:h-16 md:w-16 ${theme === "cyber" ? "p-0.5" : "scale-110"}`}
+              />
               <motion.div
                 className="pointer-events-none absolute inset-0"
                 initial={{ x: "-130%" }}
@@ -1242,6 +1248,14 @@ export default function Home() {
                 className="inline-flex items-center gap-2.5 rounded-full border-2 border-[#F0A24E] bg-white px-4 py-2.5 text-sm font-bold text-[#B26A12] transition-colors hover:bg-[#FBF3E7]"
               >
                 <Trophy className="h-4 w-4" /> {t("Champions")}
+              </Link>
+
+              <Link
+                to="/wall"
+                data-testid="passport-wall-link"
+                className="inline-flex items-center gap-2.5 rounded-full border-2 border-[#2E7D32] bg-white px-4 py-2.5 text-sm font-bold text-[#2E7D32] transition-colors hover:bg-[#E8F3E9]"
+              >
+                <Globe2 className="h-4 w-4" /> {t("Passport Wall")}
               </Link>
             </div>
             </div>

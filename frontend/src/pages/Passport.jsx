@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "sonner";
-import { MapPin, Check, Share2, Stamp, LocateFixed, ArrowLeft, Trophy, Undo2, ExternalLink, Trash2, Camera, Download } from "lucide-react";
+import { MapPin, Check, Share2, Stamp, LocateFixed, ArrowLeft, Trophy, Undo2, ExternalLink, Trash2, Camera, Download, Globe2 } from "lucide-react";
 import { rememberPassport, forgetPassport } from "../lib/passports";
-import { fileToResizedDataUrl, buildAwardImage } from "../lib/passportAward";
+import { fileToResizedDataUrl, buildAwardImage, blobToThumbDataUrl } from "../lib/passportAward";
 import InkStampThumb from "../components/InkStampThumb";
 import PassportBookReveal from "../components/PassportBookReveal";
 
@@ -141,6 +141,27 @@ export default function Passport() {
       }
     } catch {
       toast.error("Couldn't build your award");
+    } finally {
+      setAwarding(false);
+    }
+  };
+
+  const togglePublish = async () => {
+    setAwarding(true);
+    try {
+      if (data.published_at) {
+        const { data: d } = await axios.delete(`${API}/passports/${code}/publish`);
+        setData(d);
+        toast.success("Taken off the wall");
+      } else {
+        const blob = award?.blob || (await buildBlob(data));
+        const thumb = await blobToThumbDataUrl(blob);
+        const { data: d } = await axios.post(`${API}/passports/${code}/publish`, { photo: thumb });
+        setData(d);
+        toast.success("Posted to the Passport Wall 🎉");
+      }
+    } catch (e) {
+      toast.error(e.response?.data?.detail || "Couldn't update the wall");
     } finally {
       setAwarding(false);
     }
@@ -289,6 +310,16 @@ export default function Passport() {
         </div>
 
         <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6 shadow-sm">
+          {/* Gold-foil crest, like the one embossed on the cover. */}
+          <div className="mb-4 flex flex-col items-center">
+            <img
+              src="/logo-mark-512.png"
+              alt="Fork·Fate"
+              data-testid="passport-crest"
+              className="h-20 w-20 drop-shadow-[0_2px_6px_rgba(120,80,20,0.35)]"
+              style={{ filter: "grayscale(1) sepia(1) saturate(2.6) hue-rotate(-12deg) brightness(1.05) contrast(1.1)" }}
+            />
+          </div>
           <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#E01E26]">Fate Passport</p>
           <h1 className="mt-1 font-serif text-3xl font-bold text-[#0E0E0E]" data-testid="passport-title">
             {data.label || MODE_LABELS[data.mode] || "Fate Passport"}
@@ -339,6 +370,26 @@ export default function Passport() {
                 >
                   <Download className="h-4 w-4" /> Download
                 </button>
+                <button
+                  onClick={togglePublish}
+                  disabled={awarding}
+                  data-testid="passport-publish"
+                  className={`inline-flex items-center gap-2 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-60 ${
+                    data.published_at
+                      ? "border-[#2E7D32] bg-[#2E7D32] text-white hover:bg-[#25642A]"
+                      : "border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"
+                  }`}
+                >
+                  <Globe2 className="h-4 w-4" />
+                  {data.published_at ? "On the wall — remove" : "Post to the wall"}
+                </button>
+                <Link
+                  to="/wall"
+                  data-testid="passport-wall-link"
+                  className="inline-flex items-center gap-2 rounded-full px-3 py-2.5 text-sm font-bold text-[#6B7075] underline hover:text-[#0E0E0E]"
+                >
+                  See the wall
+                </Link>
               </div>
             </div>
           )}

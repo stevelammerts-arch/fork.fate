@@ -18,6 +18,18 @@ export async function fileToResizedDataUrl(file) {
   return canvas.toDataURL("image/jpeg", JPEG_QUALITY);
 }
 
+/** Shrink the finished award into a light JPEG for the public wall. */
+export async function blobToThumbDataUrl(blob, width = 620) {
+  const bitmap = await createImageBitmap(blob);
+  const h = Math.round((bitmap.height / bitmap.width) * width);
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = h;
+  canvas.getContext("2d").drawImage(bitmap, 0, 0, width, h);
+  bitmap.close?.();
+  return canvas.toDataURL("image/jpeg", 0.72);
+}
+
 const loadImg = (src) =>
   new Promise((resolve) => {
     const img = new Image();

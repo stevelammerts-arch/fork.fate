@@ -5,6 +5,7 @@ import Admin from "./pages/Admin";
 import SponsorStatus from "./pages/SponsorStatus";
 import SharedCrawl from "./pages/SharedCrawl";
 import Passport from "./pages/Passport";
+import Wall from "./pages/Wall";
 import Leaderboard from "./pages/Leaderboard";
 import LegalPage from "./pages/LegalPage";
 import Shop from "./pages/Shop";
@@ -21,6 +22,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/c/:code" element={<SharedCrawl />} />
           <Route path="/p/:code" element={<Passport />} />
+          <Route path="/wall" element={<Wall />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/admin" element={<Admin />} />
