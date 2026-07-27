@@ -26,6 +26,25 @@ const mapsUrl = (s) =>
   safeHttp(s.google_url) ||
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.name} ${s.address || ""}`.trim())}`;
 
+/** Numbered section header — the three things to do, in order, so none get missed. */
+function Step({ n, title, hint, done }) {
+  return (
+    <div className="mt-6 flex items-start gap-3" data-testid={`passport-step-${n}`}>
+      <span
+        className={`grid h-8 w-8 shrink-0 place-items-center rounded-full font-serif text-sm font-bold ${
+          done ? "bg-[#2E7D32] text-white" : "bg-[#0E0E0E] text-white"
+        }`}
+      >
+        {done ? <Check className="h-4 w-4" /> : n}
+      </span>
+      <div className="min-w-0">
+        <p className="font-serif text-xl font-bold leading-tight text-[#0E0E0E]">{title}</p>
+        <p className="font-sans text-sm text-[#6B7075]">{hint}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function Passport() {
   const { code } = useParams();
   const navigate = useNavigate();
@@ -193,6 +212,9 @@ export default function Passport() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Deep links and freshly dealt passports should always land on step 1.
+  useEffect(() => { window.scrollTo(0, 0); }, [code]);
+
   // A new stamp or a new photo makes the cached award stale.
   useEffect(() => {
     setAward((a) => { if (a) URL.revokeObjectURL(a.url); return null; });
@@ -335,69 +357,12 @@ export default function Passport() {
             </div>
             <span className="font-serif text-lg font-bold text-[#0E0E0E]" data-testid="passport-progress">{data.stamped}/{data.total}</span>
           </div>
-
-          {done && (
-            <div className="mt-5 rounded-2xl border-2 border-[#F0A24E] bg-[#FBF3E7] p-4" data-testid="passport-complete-banner">
-              <div className="flex items-center gap-3">
-                <Trophy className="h-7 w-7 shrink-0 text-[#B26A12]" />
-                <div>
-                  <p className="font-serif text-lg font-bold text-[#0E0E0E]">Passport complete</p>
-                  <p className="font-sans text-sm text-[#6B7075]">Every stop stamped. Take your award and start another.</p>
-                </div>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button
-                  onClick={() => openBook()}
-                  disabled={awarding}
-                  data-testid="passport-award-open"
-                  className="inline-flex items-center gap-2 rounded-full bg-[#B26A12] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#8A5210] disabled:opacity-60"
-                >
-                  <Stamp className="h-4 w-4" /> {awarding ? "Opening…" : "Open my passport"}
-                </button>
-                <button
-                  onClick={() => makeAward(true)}
-                  disabled={awarding}
-                  data-testid="passport-award-share"
-                  className="inline-flex items-center gap-2 rounded-full border-2 border-[#B26A12] bg-white px-4 py-2.5 text-sm font-bold text-[#B26A12] hover:bg-[#F6E7CF] disabled:opacity-60"
-                >
-                  <Share2 className="h-4 w-4" /> {awarding ? "Building…" : "Share my award"}
-                </button>
-                <button
-                  onClick={() => makeAward(false)}
-                  disabled={awarding}
-                  data-testid="passport-award-download"
-                  className="inline-flex items-center gap-2 rounded-full border-2 border-[#B26A12] bg-white px-4 py-2.5 text-sm font-bold text-[#B26A12] hover:bg-[#F6E7CF] disabled:opacity-60"
-                >
-                  <Download className="h-4 w-4" /> Download
-                </button>
-                <button
-                  onClick={togglePublish}
-                  disabled={awarding}
-                  data-testid="passport-publish"
-                  className={`inline-flex items-center gap-2 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-60 ${
-                    data.published_at
-                      ? "border-[#2E7D32] bg-[#2E7D32] text-white hover:bg-[#25642A]"
-                      : "border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"
-                  }`}
-                >
-                  <Globe2 className="h-4 w-4" />
-                  {data.published_at ? "On the wall — remove" : "Post to the wall"}
-                </button>
-                <Link
-                  to="/wall"
-                  data-testid="passport-wall-link"
-                  className="inline-flex items-center gap-2 rounded-full px-3 py-2.5 text-sm font-bold text-[#6B7075] underline hover:text-[#0E0E0E]"
-                >
-                  See the wall
-                </Link>
-              </div>
-            </div>
-          )}
         </div>
 
-        <div className="mt-5 rounded-3xl border border-[#E2E4E7] bg-white p-5" data-testid="passport-id-page">
-          <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#6B7075]">Your ID page</p>
-          <p className="mt-1 font-sans text-sm text-[#6B7075]">
+        <Step n={1} title="Your ID page" hint="Your photo and name are printed on the award you share." done={data.has_holder_photo || !!data.holder_name} />
+
+        <div className="mt-3 rounded-3xl border border-[#E2E4E7] bg-white p-5" data-testid="passport-id-page">
+          <p className="font-sans text-sm text-[#6B7075]">
             Add your photo and name — they are printed on the passport award you share.
           </p>
           <div className="mt-4 flex items-start gap-4">
@@ -445,7 +410,14 @@ export default function Passport() {
           </div>
         </div>
 
-        <div className="mt-5 space-y-3">
+        <Step
+          n={2}
+          title="Stamp your stops"
+          hint="Tap “I’m here” at each place — or stamp it manually. A selfie is optional."
+          done={done}
+        />
+
+        <div className="mt-3 space-y-3">
           {data.stops.map((s, i) => {
             const on = stampedIds.has(s.id);
             const stamp = (data.stamps || []).find((x) => x.stop_id === s.id);
@@ -543,6 +515,76 @@ export default function Passport() {
             );
           })}
         </div>
+
+        <Step n={3} title="Claim your award" hint="Open your finished passport, share it, and post it to the wall." done={done} />
+
+        {done ? (
+          <div className="mt-3 rounded-3xl border-2 border-[#F0A24E] bg-[#FBF3E7] p-5" data-testid="passport-complete-banner">
+            <div className="flex items-center gap-3">
+              <Trophy className="h-7 w-7 shrink-0 text-[#B26A12]" />
+              <div>
+                <p className="font-serif text-lg font-bold text-[#0E0E0E]">Passport complete</p>
+                <p className="font-sans text-sm text-[#6B7075]">Every stop stamped. Take your award and start another.</p>
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                onClick={() => openBook()}
+                disabled={awarding}
+                data-testid="passport-award-open"
+                className="inline-flex items-center gap-2 rounded-full bg-[#B26A12] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#8A5210] disabled:opacity-60"
+              >
+                <Stamp className="h-4 w-4" /> {awarding ? "Opening…" : "Open my passport"}
+              </button>
+              <button
+                onClick={() => makeAward(true)}
+                disabled={awarding}
+                data-testid="passport-award-share"
+                className="inline-flex items-center gap-2 rounded-full border-2 border-[#B26A12] bg-white px-4 py-2.5 text-sm font-bold text-[#B26A12] hover:bg-[#F6E7CF] disabled:opacity-60"
+              >
+                <Share2 className="h-4 w-4" /> {awarding ? "Building…" : "Share my award"}
+              </button>
+              <button
+                onClick={() => makeAward(false)}
+                disabled={awarding}
+                data-testid="passport-award-download"
+                className="inline-flex items-center gap-2 rounded-full border-2 border-[#B26A12] bg-white px-4 py-2.5 text-sm font-bold text-[#B26A12] hover:bg-[#F6E7CF] disabled:opacity-60"
+              >
+                <Download className="h-4 w-4" /> Download
+              </button>
+              <button
+                onClick={togglePublish}
+                disabled={awarding}
+                data-testid="passport-publish"
+                className={`inline-flex items-center gap-2 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-60 ${
+                  data.published_at
+                    ? "border-[#2E7D32] bg-[#2E7D32] text-white hover:bg-[#25642A]"
+                    : "border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"
+                }`}
+              >
+                <Globe2 className="h-4 w-4" />
+                {data.published_at ? "On the wall — remove" : "Post to the wall"}
+              </button>
+              <Link
+                to="/wall"
+                data-testid="passport-wall-link"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-2.5 text-sm font-bold text-[#6B7075] underline hover:text-[#0E0E0E]"
+              >
+                See the wall
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-3 rounded-3xl border border-dashed border-[#D5D8DC] bg-white p-5 text-center" data-testid="passport-award-locked">
+            <Trophy className="mx-auto h-7 w-7 text-[#C9CDD3]" />
+            <p className="mt-2 font-sans text-sm text-[#6B7075]">
+              {data.total - data.stamped} more {data.total - data.stamped === 1 ? "stop" : "stops"} and your stamped award unlocks.
+            </p>
+            <Link to="/wall" className="mt-2 inline-block text-sm font-bold text-[#6B7075] underline hover:text-[#0E0E0E]">
+              See finished passports
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="mx-auto mt-8 w-full max-w-2xl px-5">

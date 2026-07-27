@@ -166,8 +166,9 @@ function polaroid(ctx, img, x, y, w, h, tiltDeg) {
 }
 
 /**
- * 1080x1350 PNG Blob of an open passport: ID page (traveller's photo + details)
- * on the left, an ink stamp per stop on the right, creased down the middle.
+ * 1400x1000 PNG Blob of an open passport spread (two handheld-book pages): ID
+ * page (traveller's photo + details) on the left, an ink stamp per stop on the
+ * right, creased down the middle.
  * stops: [{ name, id, date }]
  */
 export async function buildAwardImage({
@@ -179,8 +180,10 @@ export async function buildAwardImage({
   holderName = "",
   holderPhotoUrl = "",
 }) {
-  const W = 1080;
-  const H = 1350;
+  // A real passport spread is wider than it is tall (two 88x125mm pages side by
+  // side), so the award is landscape — it reads as a handheld book, not a poster.
+  const W = 1400;
+  const H = 1000;
   const c = document.createElement("canvas");
   c.width = W;
   c.height = H;
@@ -277,9 +280,11 @@ export async function buildAwardImage({
     ctx.fillText("ON THE ROAD", leftX + 44, y + 16);
     const strip = shots.slice(0, 3);
     const gap = 12;
-    const cw = (pageW - 88 - gap * (strip.length - 1)) / strip.length;
-    const ch = Math.min(cw * 1.15, bottom - (y + 34) - 56);
-    strip.forEach((img, i) => polaroid(ctx, img, leftX + 44 + i * (cw + gap), y + 34, cw, ch, i % 2 ? 1.6 : -1.6));
+    const avail = bottom - (y + 34) - 76;
+    const ch = Math.max(90, avail);
+    const cw = Math.min((pageW - 88 - gap * (strip.length - 1)) / strip.length, ch * 0.78);
+    const x0 = leftX + (pageW - (cw * strip.length + gap * (strip.length - 1))) / 2;
+    strip.forEach((img, i) => polaroid(ctx, img, x0 + i * (cw + gap), y + 34, cw, ch, i % 2 ? 1.6 : -1.6));
   }
 
   ctx.textAlign = "center";
@@ -301,7 +306,7 @@ export async function buildAwardImage({
 
   const areaTop = top + 108;
   const areaH = bottom - 40 - areaTop;
-  const cols = stops.length <= 3 ? 1 : 2;
+  const cols = stops.length <= 2 ? 1 : 2;
   const rowCount = Math.ceil(stops.length / cols);
   const cellW = (pageW - 40) / cols;
   const cellH = areaH / rowCount;
