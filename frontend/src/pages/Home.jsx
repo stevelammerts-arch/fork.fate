@@ -1134,7 +1134,7 @@ export default function Home() {
               cuisineGroups={activeCuisineGroups}
               cuisineLabel={cuisineLabel}
               selectedCuisines={selectedCuisines}
-              toggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
+              toggleCuisine={(c) => { toggle(setSelectedCuisines, selectedCuisines, c); setFiltersOpen(false); }}
               labelColor={labelColor}
             />
               )}
