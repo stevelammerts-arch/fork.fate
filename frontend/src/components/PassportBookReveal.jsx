@@ -106,11 +106,10 @@ export default function PassportBookReveal({ open, awardUrl, code, holderName, o
                   <div className="flex flex-col items-center gap-2 text-center">
                     <span className="font-sans text-[9px] font-bold uppercase tracking-[0.35em] text-[#C79A5B]">Fork · Fate</span>
                     <img
-                      src="/logo-mark-512.png"
+                      src="/logo-crest-gold.png"
                       alt=""
                       data-testid="passport-cover-crest"
                       className="h-20 w-20 drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
-                      style={{ filter: "grayscale(1) sepia(1) saturate(2.6) hue-rotate(-12deg) brightness(1.05) contrast(1.1)" }}
                     />
                     <span className="font-serif text-xl font-bold tracking-wide text-[#E7C79A]">PASSPORT</span>
                     <span className="font-sans text-[10px] font-bold uppercase tracking-[0.25em] text-[#8E6A44]">

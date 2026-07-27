@@ -105,7 +105,7 @@ export default function InstallHelper() {
         </button>
         <div className="flex items-start gap-3 pr-6">
           <span className="mt-0.5 block h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-black">
-            <img src="/logo-mark.png" alt="" className="h-10 w-10 scale-110 object-contain" />
+            <img src="/logo-crest.png" alt="" className="h-10 w-10 object-contain" />
           </span>
           <div className="min-w-0">
             <p className="font-serif text-base font-bold text-white">{t("Add Fork·Fate to your home screen")}</p>

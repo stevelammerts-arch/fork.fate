@@ -49,15 +49,19 @@ function fitArc(ctx, text, radius, maxSize, maxSweep) {
 }
 
 /** Stamp one impression on a canvas, centred at (cx, cy). */
-export function stampOnCanvas(ctx, cx, cy, radius, { name = "", date = "", id = "", kicker = "VISITED" }) {
+export function stampOnCanvas(ctx, cx, cy, radius, { name = "", date = "", id = "", kicker, verified = true }) {
   const { ink, angle } = stampStyle(id);
+  const label = kicker || (verified ? "VISITED" : "SELF-REPORTED");
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(angle);
-  ctx.globalAlpha = 0.86;
-  ctx.strokeStyle = ink;
-  ctx.fillStyle = ink;
-  ctx.lineWidth = Math.max(2, radius * 0.045);
+  // A self-reported stop is drawn faint with a broken ring — it reads as a
+  // provisional stamp next to the solid ones you earned on site.
+  ctx.globalAlpha = verified ? 0.86 : 0.45;
+  ctx.strokeStyle = verified ? ink : "#6E6257";
+  ctx.fillStyle = verified ? ink : "#6E6257";
+  ctx.lineWidth = Math.max(2, radius * (verified ? 0.045 : 0.03));
+  if (!verified) ctx.setLineDash([radius * 0.12, radius * 0.09]);
 
   ctx.beginPath();
   ctx.arc(0, 0, radius, 0, Math.PI * 2);
@@ -65,6 +69,7 @@ export function stampOnCanvas(ctx, cx, cy, radius, { name = "", date = "", id = 
   ctx.beginPath();
   ctx.arc(0, 0, radius * 0.78, 0, Math.PI * 2);
   ctx.stroke();
+  ctx.setLineDash([]);
 
   // Name rides the top of the ring band, date the bottom.
   const band = radius * 0.89;
@@ -75,8 +80,9 @@ export function stampOnCanvas(ctx, cx, cy, radius, { name = "", date = "", id = 
 
   ctx.textAlign = "center";
   ctx.textBaseline = "alphabetic";
-  ctx.font = `800 ${radius * 0.24}px Manrope, system-ui, sans-serif`;
-  ctx.fillText(kicker, 0, radius * 0.02);
+  const kickSize = label.length > 9 ? radius * 0.15 : radius * 0.24;
+  ctx.font = `800 ${kickSize}px Manrope, system-ui, sans-serif`;
+  ctx.fillText(label, 0, radius * 0.02);
   ctx.font = `700 ${radius * 0.12}px Manrope, system-ui, sans-serif`;
   ctx.fillText("FORK · FATE", 0, radius * 0.26);
 
@@ -86,7 +92,7 @@ export function stampOnCanvas(ctx, cx, cy, radius, { name = "", date = "", id = 
   ctx.fillText("✦", radius * 0.52, radius * 0.02);
 
   // Ink gaps, so it reads as rubber-stamped rather than printed.
-  ctx.globalAlpha = 0.75;
+  ctx.globalAlpha = verified ? 0.75 : 0.4;
   ctx.strokeStyle = "rgba(255,252,244,0.9)";
   ctx.lineWidth = radius * 0.035;
   ctx.beginPath();

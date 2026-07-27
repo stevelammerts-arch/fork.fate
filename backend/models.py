@@ -212,6 +212,7 @@ class PassportStamp(BaseModel):
     stop_id: str = Field(min_length=1, max_length=100)
     lat: Optional[float] = Field(default=None, ge=-90, le=90)
     lng: Optional[float] = Field(default=None, ge=-180, le=180)
+    accuracy: Optional[float] = Field(default=None, ge=0, le=100000)  # metres, from the browser
     source: str = "gps"  # "gps" (verified on site) | "manual"
     photo: Optional[str] = None  # data URL, resized client-side
 

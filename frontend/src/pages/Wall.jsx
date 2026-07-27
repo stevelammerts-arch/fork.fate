@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { ArrowLeft, Stamp, Globe2 } from "lucide-react";
+import { ArrowLeft, Stamp, Globe2, ShieldCheck } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -41,7 +41,7 @@ export default function Wall() {
             Finished passports
           </h1>
           <p className="mt-1 font-sans text-sm text-[#6B7075]">
-            Every stop stamped, every award earned. Finish one of your own and post it here.
+            Every stop stamped on site with GPS. Finish one of your own and post it here.
           </p>
         </div>
 
@@ -83,6 +83,9 @@ export default function Wall() {
                     {p.label || MODE_LABELS[p.mode] || "Fate Passport"} · {p.stops} stops
                     {p.completed_at ? ` · ${new Date(p.completed_at).toLocaleDateString()}` : ""}
                   </p>
+                  <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#E8F3E9] px-2.5 py-1 font-sans text-[11px] font-bold uppercase tracking-wider text-[#2E7D32]">
+                    <ShieldCheck className="h-3.5 w-3.5" /> Verified on site
+                  </span>
                 </div>
               </Link>
             ))}

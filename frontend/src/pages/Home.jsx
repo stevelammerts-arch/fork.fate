@@ -747,10 +747,8 @@ export default function Home() {
           <div className="flex items-center gap-2 md:gap-3">
             <div className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-1 md:h-16 md:w-16 ${light ? "bg-[#F5F0E6] ring-[#E4E4E7]" : "bg-black ring-white/25"}`}>
               <img
-                src={theme === "cyber" ? "/cyber-neon-logo.png" : (light ? "/logo-mark-light.png" : "/logo-mark.png")}
+                src={theme === "cyber" ? "/cyber-neon-logo.png" : theme === "fantasy" ? "/logo-crest-gold.png" : (light ? "/logo-mark-light.png" : "/logo-mark.png")}
                 alt="Fork·Fate logo"
-                /* Dragon's Hoard gets the gold-foil crest from the passport cover. */
-                style={theme === "fantasy" ? { filter: "grayscale(1) sepia(1) saturate(2.6) hue-rotate(-12deg) brightness(1.05) contrast(1.1)" } : undefined}
                 className={`h-12 w-12 object-contain md:h-16 md:w-16 ${theme === "cyber" ? "p-0.5" : "scale-110"}`}
               />
               <motion.div
@@ -1665,6 +1663,8 @@ export default function Home() {
               { q: t("What are the Explore and Stay tabs?"), a: t("Explore deals you something to DO — state and national parks, hiking and biking trails, fishing spots, waterfalls and scenic overlooks, plus rainy-day picks like museums, bowling, mini golf and escape rooms. Stay deals you somewhere to sleep — campgrounds, RV parks and KOAs, cabins, yurts, lodges and inns. Both search further out than the food tabs, since a park or campsite is usually worth the drive.") },
               { q: t("Why can't I order delivery from every result?"), a: t("Delivery links only appear where they make sense. A restaurant or dessert shop gets DoorDash, Uber Eats and Grubhub links; a hiking trail, campground, thrift store, gas station or bus stop doesn't — so Fork·Fate hides them instead of sending you to a dead end.") },
               { q: t("How do you find nearby places?"), a: t("Fork·Fate uses live Google Places data based on your ZIP code or device location, so results reflect real, currently-listed places around you — restaurants and bars, shops, parks and trails, and campgrounds alike.") },
+              { q: t("What's the difference between a crawl and a Fate Passport?"), a: t("A crawl is one outing: fate deals 3–6 stops in a followable route, you hit them in order the same day, check each off and claim a badge. A Fate Passport is collected over time — days, weeks or a whole summer. Fate deals up to 10 stops in any category (parks, breweries, diners, museums, campgrounds), you stamp each one as you actually get there, and when the last stop is stamped your passport opens into a shareable award with a real ink stamp for every stop.") },
+              { q: t("How does stamping a passport work — and can people fake it?"), a: t("Tap \"I'm here\" at a stop and your phone's location is checked against the place: get within about half a mile and it's stamped on site. You can always stamp manually if GPS struggles indoors or deep in a park, but those stops are marked self-reported and print as faint stamps on your award. We also reject impossible stamps (two stops 40 miles apart a minute apart), and only passports stamped on site at every stop earn the verified seal or can be posted to the public Passport Wall.") },
               { q: t("Can I add my favorite local spot?"), a: t("Absolutely. Tap \"Add spot\" to submit a place you love. Community submissions are quickly reviewed before they join the roulette pool.") },
               { q: t("Can I install Fork·Fate as an app?"), a: t("Yes — tap \"Download app\" to install Fork·Fate as a PWA on your home screen for one-tap access whenever you can't decide.") },
             ].map((item, i) => (
@@ -1738,7 +1738,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 pb-28 pt-8 md:flex-row md:px-12 md:pb-20">
           <div className="flex items-center gap-2.5">
             <span className={`relative block h-8 w-8 overflow-hidden rounded-full ${light ? "bg-[#F5F0E6]" : "bg-black"}`}>
-              <img src={light ? "/logo-mark-light.png" : "/logo-mark.png"} alt="" className="h-8 w-8 scale-110 object-contain" />
+              <img src={light ? "/logo-mark-light.png" : "/logo-crest.png"} alt="" className="h-8 w-8 object-contain" />
             </span>
             <span className={`font-serif text-lg font-semibold ${light ? "text-[#2A2118]" : "text-white"}`}>Fork·Fate</span>
           </div>

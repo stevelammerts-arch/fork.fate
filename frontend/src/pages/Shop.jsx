@@ -80,7 +80,7 @@ export default function Shop() {
       <header className="sticky top-0 z-20 border-b border-white/10 bg-[#0B0B0C]/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
           <Link to="/" data-testid="shop-home-link" className="flex items-center gap-2.5">
-            <img src="/logo-mark.png" alt="Fork·Fate" className="h-9 w-9 rounded-full" />
+            <img src="/logo-crest.png" alt="Fork·Fate" className="h-9 w-9" />
             <span className="font-serif text-xl font-bold tracking-tight">Fork<span className="text-[#E01E26]">·</span>Fate</span>
           </Link>
           <Link to="/" data-testid="shop-back-link" className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-bold transition-colors hover:bg-white/10">

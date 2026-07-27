@@ -179,6 +179,7 @@ export async function buildAwardImage({
   completedAt,
   holderName = "",
   holderPhotoUrl = "",
+  fullyVerified = false,
 }) {
   // A real passport spread is wider than it is tall (two 88x125mm pages side by
   // side), so the award is landscape — it reads as a handheld book, not a poster.
@@ -315,8 +316,30 @@ export async function buildAwardImage({
   stops.forEach((s, i) => {
     const cx = rightX + 20 + (i % cols) * cellW + cellW / 2;
     const cy = areaTop + Math.floor(i / cols) * cellH + cellH / 2;
-    stampOnCanvas(ctx, cx, cy, radius, { name: s.name, date: s.date || when, id: s.id || s.name });
+    stampOnCanvas(ctx, cx, cy, radius, {
+      name: s.name,
+      date: s.date || when,
+      id: s.id || s.name,
+      verified: s.verified !== false,
+    });
   });
+
+  // The seal only appears when every stop was stamped on site.
+  if (fullyVerified) {
+    ctx.save();
+    ctx.translate(rightX + pageW - 96, bottom - 74);
+    ctx.rotate(-0.12);
+    ctx.strokeStyle = "#2E5D3B";
+    ctx.fillStyle = "#2E5D3B";
+    ctx.globalAlpha = 0.8;
+    ctx.lineWidth = 3;
+    roundRect(ctx, -104, -26, 208, 52, 8);
+    ctx.stroke();
+    ctx.textAlign = "center";
+    ctx.font = "800 20px Manrope, system-ui, sans-serif";
+    ctx.fillText("VERIFIED ON SITE", 0, 7);
+    ctx.restore();
+  }
 
   return new Promise((resolve) => c.toBlob(resolve, "image/png"));
 }

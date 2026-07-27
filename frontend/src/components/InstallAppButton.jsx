@@ -81,7 +81,7 @@ export default function InstallAppButton() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-serif text-2xl">
               <span className="relative block h-8 w-8 overflow-hidden rounded-full bg-black">
-                <img src="/logo-mark.png" alt="" className="h-8 w-8 scale-110 object-contain" />
+                <img src="/logo-crest.png" alt="" className="h-8 w-8 object-contain" />
               </span>
               {t("Add to your iPhone")}
             </DialogTitle>

@@ -12,12 +12,14 @@ import Shop from "./pages/Shop";
 import { Toaster } from "./components/ui/sonner";
 import { LangProvider } from "./i18n/i18n";
 import InstallHelper from "./components/InstallHelper";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   return (
     <div className="App">
       <LangProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/c/:code" element={<SharedCrawl />} />

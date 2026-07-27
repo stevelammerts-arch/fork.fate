@@ -19,6 +19,12 @@ PASSPORT_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # no ambiguous char
 # A GPS stamp must be taken at the place. State parks and trailheads are huge and
 # phone GPS drifts, so the ring is generous — manual stamping exists for the rest.
 GPS_STAMP_RADIUS_MILES = 0.4
+# Anti-cheat. A stamp only counts as "verified on site" if the phone actually knew
+# where it was, and if you could plausibly have travelled there since the last
+# stamp. Manual stamps are always allowed but are marked self-reported.
+GPS_ACCURACY_LIMIT_M = 300
+MIN_SECONDS_BETWEEN_STAMPS = 60
+MAX_TRAVEL_MPH = 80
 
 
 def _gen_code(n: int = 6) -> str:
@@ -30,6 +36,7 @@ def _public(doc: dict) -> dict:
     # Photos are heavy — the list only advertises which stops have one; the bytes
     # come from /passports/{code}/photo/{stop_id}.
     stamps = [{k: v for k, v in s.items() if k != "photo"} | {"has_photo": bool(s.get("photo"))} for s in doc.get("stamps", [])]
+    verified = sum(1 for s in stamps if s.get("verified"))
     return {
         "code": doc["code"],
         "mode": doc.get("mode", "explore"),
@@ -37,6 +44,10 @@ def _public(doc: dict) -> dict:
         "stops": stops,
         "stamps": stamps,
         "stamped": len(stamps),
+        "verified": verified,
+        # Only a passport stamped on site at every stop can wear the seal — or go
+        # on the public wall.
+        "fully_verified": bool(stops) and verified == len(stops),
         "total": len(stops),
         "completed_at": doc.get("completed_at"),
         "created_at": doc.get("created_at"),
@@ -113,6 +124,8 @@ async def stamp_passport(code: str, payload: PassportStamp):
         return {**_public(doc), "already_stamped": True}
 
     verified = False
+    note = None
+    now_dt = datetime.now(timezone.utc)
     if payload.source == "gps":
         if payload.lat is None or payload.lng is None:
             raise HTTPException(status_code=400, detail="A GPS stamp needs your location")
@@ -125,16 +138,56 @@ async def stamp_passport(code: str, payload: PassportStamp):
                 detail=f"You're about {miles:.1f} mi away — get closer, or stamp it manually",
             )
         verified = True
+        # A fix this fuzzy can't prove you were there — it still stamps, just
+        # self-reported.
+        if payload.accuracy is not None and payload.accuracy > GPS_ACCURACY_LIMIT_M:
+            verified = False
+            note = "Your GPS was too fuzzy to verify — stamped as self-reported"
 
-    now = datetime.now(timezone.utc).isoformat()
+    # Couldn't-have-got-there check: nobody stamps two stops 40 miles apart in a
+    # minute, and nobody stamps an entire passport in one breath.
+    previous = sorted(doc.get("stamps", []), key=lambda s: s.get("stamped_at", ""))
+    if previous:
+        last = previous[-1]
+        try:
+            elapsed = (now_dt - datetime.fromisoformat(last["stamped_at"])).total_seconds()
+        except (KeyError, ValueError):
+            elapsed = MIN_SECONDS_BETWEEN_STAMPS
+        if elapsed < MIN_SECONDS_BETWEEN_STAMPS:
+            raise HTTPException(
+                status_code=429,
+                detail=f"Slow down — wait {int(MIN_SECONDS_BETWEEN_STAMPS - elapsed)}s before stamping the next stop",
+            )
+        last_stop = next((s for s in doc.get("stops", []) if s.get("id") == last.get("stop_id")), None)
+        if (
+            verified
+            and last.get("verified")
+            and last_stop
+            and last_stop.get("lat") is not None
+            and stop.get("lat") is not None
+        ):
+            gap = haversine_miles(last_stop["lat"], last_stop["lng"], stop["lat"], stop["lng"])
+            needed = gap / MAX_TRAVEL_MPH * 3600
+            if elapsed < needed:
+                raise HTTPException(
+                    status_code=409,
+                    detail=(
+                        f"That's {gap:.0f} mi from your last stamp in {int(elapsed / 60)} min — "
+                        "no one travels that fast. Try again when you get there."
+                    ),
+                )
+
+    now = now_dt.isoformat()
     stamp = {"stop_id": payload.stop_id, "stamped_at": now, "verified": verified}
+    if payload.accuracy is not None:
+        stamp["accuracy_m"] = round(payload.accuracy)
     if payload.photo:
         stamp["photo"] = payload.photo
     update = {"$push": {"stamps": stamp}}
     if len(doc.get("stamps", [])) + 1 >= len(doc.get("stops", [])):
         update["$set"] = {"completed_at": now}
     await db.passports.update_one({"code": doc["code"]}, update)
-    return {**_public(await _get_or_404(doc["code"])), "just_stamped": stamp}
+    return {**_public(await _get_or_404(doc["code"])), "just_stamped": stamp, "note": note}
 
 
 @router.post("/passports/{code}/photo/{stop_id}", dependencies=[Depends(rate_limit(40))])
@@ -194,6 +247,11 @@ async def publish_passport(code: str, payload: PassportPhoto):
     doc = await _get_or_404(code)
     if not doc.get("completed_at"):
         raise HTTPException(status_code=409, detail="Finish every stop before posting to the wall")
+    if not _public(doc)["fully_verified"]:
+        raise HTTPException(
+            status_code=409,
+            detail="The wall is for passports stamped on site — every stop needs a GPS stamp",
+        )
     await db.passports.update_one(
         {"code": doc["code"]},
         {"$set": {"wall_thumb": payload.photo, "published_at": datetime.now(timezone.utc).isoformat()}},

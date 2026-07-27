@@ -29,7 +29,7 @@ const mapsUrl = (s) =>
 /** Numbered section header — the three things to do, in order, so none get missed. */
 function Step({ n, title, hint, done }) {
   return (
-    <div className="mt-6 flex items-start gap-3" data-testid={`passport-step-${n}`}>
+    <div className="mt-6 flex items-start gap-3" id={`step-${n}`} data-testid={`passport-step-${n}`}>
       <span
         className={`grid h-8 w-8 shrink-0 place-items-center rounded-full font-serif text-sm font-bold ${
           done ? "bg-[#2E7D32] text-white" : "bg-[#0E0E0E] text-white"
@@ -41,6 +41,54 @@ function Step({ n, title, hint, done }) {
         <p className="font-serif text-xl font-bold leading-tight text-[#0E0E0E]">{title}</p>
         <p className="font-sans text-sm text-[#6B7075]">{hint}</p>
       </div>
+    </div>
+  );
+}
+
+const jumpTo = (n) => document.getElementById(`step-${n}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+/** Sticky guide: which of the three steps are done, and one tap to each. */
+function StepGuide({ steps }) {
+  const next = steps.find((s) => !s.done);
+  return (
+    <div
+      className="sticky top-0 z-20 -mx-5 mb-1 border-b border-[#E2E4E7] bg-[#F7F8F9]/95 px-5 py-2.5 backdrop-blur"
+      data-testid="passport-step-guide"
+    >
+      <div className="flex items-center gap-2">
+        {steps.map((s) => (
+          <button
+            key={s.n}
+            onClick={() => jumpTo(s.n)}
+            data-testid={`passport-guide-${s.n}`}
+            className={`flex min-w-0 flex-1 items-center gap-1.5 rounded-full border px-2.5 py-2 text-left transition-colors ${
+              s.done
+                ? "border-[#2E7D32]/40 bg-[#E8F3E9] text-[#2E7D32]"
+                : s.n === next?.n
+                ? "border-[#E01E26] bg-white text-[#0E0E0E]"
+                : "border-[#E2E4E7] bg-white text-[#6B7075]"
+            }`}
+          >
+            <span
+              className={`grid h-5 w-5 shrink-0 place-items-center rounded-full text-[10px] font-bold ${
+                s.done ? "bg-[#2E7D32] text-white" : s.n === next?.n ? "bg-[#E01E26] text-white" : "bg-[#EDEEF0] text-[#6B7075]"
+              }`}
+            >
+              {s.done ? "✓" : s.n}
+            </span>
+            <span className="truncate font-sans text-[11px] font-bold uppercase tracking-wider">{s.short}</span>
+          </button>
+        ))}
+      </div>
+      {next && (
+        <button
+          onClick={() => jumpTo(next.n)}
+          data-testid="passport-next-step"
+          className="mt-1.5 font-sans text-xs font-bold text-[#E01E26] underline"
+        >
+          Next: {next.cta} →
+        </button>
+      )}
     </div>
   );
 }
@@ -116,7 +164,12 @@ export default function Passport() {
     const withPhotos = (d.stamps || []).filter((s) => s.has_photo).map((s) => photoUrl(s.stop_id));
     const stampedStops = d.stops.map((s) => {
       const st = (d.stamps || []).find((x) => x.stop_id === s.id);
-      return { name: s.name, id: s.id, date: st ? new Date(st.stamped_at).toLocaleDateString() : "" };
+      return {
+        name: s.name,
+        id: s.id,
+        date: st ? new Date(st.stamped_at).toLocaleDateString() : "",
+        verified: !!st?.verified,
+      };
     });
     return buildAwardImage({
       title: d.label || MODE_LABELS[d.mode] || "Fate Passport",
@@ -126,6 +179,7 @@ export default function Passport() {
       completedAt: d.completed_at,
       holderName: d.holder_name || "",
       holderPhotoUrl: d.has_holder_photo ? holderPhotoUrl() : "",
+      fullyVerified: !!d.fully_verified,
     });
   };
 
@@ -227,6 +281,7 @@ export default function Passport() {
     try {
       const { data: d } = await axios.post(`${API}/passports/${code}/stamp`, body);
       setData(d);
+      if (d.note) toast.warning(d.note);
       if (d.completed_at && d.stamped === d.total) {
         toast.success("Passport complete — every stop stamped! 🏆");
         openBook(d);
@@ -253,7 +308,14 @@ export default function Passport() {
     }
     setBusy(stop.id);
     navigator.geolocation.getCurrentPosition(
-      (pos) => postStamp(stop, { stop_id: stop.id, lat: pos.coords.latitude, lng: pos.coords.longitude, source: "gps" }),
+      (pos) =>
+        postStamp(stop, {
+          stop_id: stop.id,
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+          source: "gps",
+        }),
       (err) => {
         setBusy("");
         toast.error(
@@ -318,6 +380,7 @@ export default function Passport() {
 
   const pct = data.total ? Math.round((data.stamped / data.total) * 100) : 0;
   const done = data.stamped >= data.total && data.total > 0;
+  const idDone = !!(data.has_holder_photo || data.holder_name);
 
   return (
     <div className="min-h-screen bg-[#F7F8F9] pb-16">
@@ -331,15 +394,22 @@ export default function Passport() {
           </button>
         </div>
 
+        <StepGuide
+          steps={[
+            { n: 1, short: "ID page", cta: "add your photo & name", done: idDone },
+            { n: 2, short: `Stops ${data.stamped}/${data.total}`, cta: "stamp your next stop", done },
+            { n: 3, short: "Award", cta: "open your finished passport", done: !!data.published_at || (done && !!award) },
+          ]}
+        />
+
         <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6 shadow-sm">
           {/* Gold-foil crest, like the one embossed on the cover. */}
           <div className="mb-4 flex flex-col items-center">
             <img
-              src="/logo-mark-512.png"
+              src="/logo-crest-gold.png"
               alt="Fork·Fate"
               data-testid="passport-crest"
               className="h-20 w-20 drop-shadow-[0_2px_6px_rgba(120,80,20,0.35)]"
-              style={{ filter: "grayscale(1) sepia(1) saturate(2.6) hue-rotate(-12deg) brightness(1.05) contrast(1.1)" }}
             />
           </div>
           <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#E01E26]">Fate Passport</p>
@@ -359,7 +429,7 @@ export default function Passport() {
           </div>
         </div>
 
-        <Step n={1} title="Your ID page" hint="Your photo and name are printed on the award you share." done={data.has_holder_photo || !!data.holder_name} />
+        <Step n={1} title="Your ID page" hint="Your photo and name are printed on the award you share." done={idDone} />
 
         <div className="mt-3 rounded-3xl border border-[#E2E4E7] bg-white p-5" data-testid="passport-id-page">
           <p className="font-sans text-sm text-[#6B7075]">
@@ -451,7 +521,7 @@ export default function Passport() {
                   )}
                   {on && (
                     <span className="shrink-0" data-testid={`passport-inkstamp-${i}`}>
-                      <InkStampThumb name={s.name} id={s.id} date={new Date(stamp?.stamped_at || Date.now()).toLocaleDateString()} />
+                      <InkStampThumb name={s.name} id={s.id} verified={!!stamp?.verified} date={new Date(stamp?.stamped_at || Date.now()).toLocaleDateString()} />
                     </span>
                   )}
                 </div>
@@ -524,7 +594,11 @@ export default function Passport() {
               <Trophy className="h-7 w-7 shrink-0 text-[#B26A12]" />
               <div>
                 <p className="font-serif text-lg font-bold text-[#0E0E0E]">Passport complete</p>
-                <p className="font-sans text-sm text-[#6B7075]">Every stop stamped. Take your award and start another.</p>
+                <p className="font-sans text-sm text-[#6B7075]">
+                  {data.fully_verified
+                    ? "Every stop stamped on site — your award carries the verified seal."
+                    : `${data.verified}/${data.total} stamped on site. Self-reported stops show as faint stamps, and the wall is on-site only.`}
+                </p>
               </div>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -554,9 +628,10 @@ export default function Passport() {
               </button>
               <button
                 onClick={togglePublish}
-                disabled={awarding}
+                disabled={awarding || (!data.published_at && !data.fully_verified)}
                 data-testid="passport-publish"
-                className={`inline-flex items-center gap-2 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-60 ${
+                title={!data.fully_verified ? "The wall is for passports stamped on site at every stop" : undefined}
+                className={`inline-flex items-center gap-2 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-40 ${
                   data.published_at
                     ? "border-[#2E7D32] bg-[#2E7D32] text-white hover:bg-[#25642A]"
                     : "border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"
