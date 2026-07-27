@@ -314,8 +314,9 @@ export default function Home() {
         grooveRef.current = null;
       }
     } catch (e) { thunderRef.current = null; grooveRef.current = null; }
-    // Dark mode plays a spoken voice cue before the deck shuffles; themed shuffles stay clean.
-    if (!light && theme !== "cyber" && theme !== "tiki" && theme !== "steam" && theme !== "fantasy") playSound("/reveal-voice-v5.mp3", 1.0);
+    // Dark mode plays a spoken voice cue before the deck shuffles ONLY when there
+    // is no themed shuffle ambience — otherwise the voice would fight the theme sound.
+    if (!light && !SHUFFLE_LOOPS[theme]) playSound("/reveal-voice-v5.mp3", 1.0);
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
     // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
@@ -390,8 +391,9 @@ export default function Home() {
       }
     };
     // Let the voice cue lead in before the deck starts shuffling; the card-riffle
-    // sound starts with the first flick so audio and motion begin together.
-    shuffleRef.current = setTimeout(() => { startCards(); step(); }, 1200);
+    // sound starts with the first flick so audio and motion begin together — but only
+    // when there is no themed shuffle ambience (so themed sounds play clean).
+    shuffleRef.current = setTimeout(() => { if (!SHUFFLE_LOOPS[theme]) startCards(); step(); }, 1200);
   };
 
   const doSearch = async (cuisinesArg, pricesArg, categoryArg, coordsArg = coords, opts = {}) => {
@@ -613,7 +615,7 @@ export default function Home() {
         }, 1400);
       }
     };
-    shuffleRef.current = setTimeout(() => { startCards(); step(); }, 1000);
+    shuffleRef.current = setTimeout(() => { if (!SHUFFLE_LOOPS[theme]) startCards(); step(); }, 1000);
   };
 
   const dealCrawl = async () => {
