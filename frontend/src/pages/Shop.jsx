@@ -22,7 +22,10 @@ const DESIGNS = [
   { key: "tiki-scene",     theme: "Tiki Lounge",    style: "Scene",    back: "/merch-scene-tiki.jpg",        accent: "#F0A24E", blurb: "Warm torchlit tiki bar, straight off the island." },
   { key: "cyber-classic",  theme: "Neon Nights",    style: "Classic",  back: "/merch-cyber.jpg",             accent: "#22E0E0", front: "/merch-front-cyber-subtle.jpg", blurb: "Neon fork + skyline synthwave graphic." },
   { key: "tiki-classic",   theme: "Tiki Lounge",    style: "Classic",  back: "/merch-tiki.jpg",              accent: "#F0A24E", blurb: "Carved tiki mask + palms — tropical bold." },
-  { key: "spring-petals",  theme: "Spring Bloom",   style: "White tee", back: "/merch-spring-petals.jpg",    accent: "#E48AA8", front: "/merch-spring-petals.jpg", blurb: "Watercolor cherry blossom petals drifting down a crisp white tee." },
+  { key: "spring-petals",  theme: "Spring Bloom",   style: "Petals",   back: "/merch-spring-petals.jpg",     accent: "#E48AA8", front: "/merch-spring-petals.jpg",     blurb: "Watercolor cherry blossom petals drifting down a crisp white tee." },
+  { key: "spring-tree",    theme: "Spring Bloom",   style: "Blossom tree", back: "/merch-spring-tree.jpg",   accent: "#E48AA8", front: "/merch-spring-tree.jpg",       blurb: "The full watercolor cherry blossom tree from the app's spring scene." },
+  { key: "spring-scene",   theme: "Spring Bloom",   style: "Full scene",   back: "/merch-spring-scene-back.jpg", accent: "#E48AA8", front: "/merch-front-ff-spring.jpg", blurb: "Full spring scene on the back — pagoda, blossom tree and drifting petals. Rose-gold FF badge on the front." },
+  { key: "fall-scene",     theme: "Autumn Fall",    style: "Full scene",   back: "/merch-fall-scene-back.jpg",  accent: "#C56A1F", front: "/merch-front-ff-fall.jpg",     blurb: "Full autumn scene on the back — maple tree, scarecrow, jack-o-lanterns and owl under a full moon. Classic FF badge on the front." },
 ];
 
 const PRODUCTS = [
