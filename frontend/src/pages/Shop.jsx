@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { ArrowLeft, BellRing, Shirt, Coffee, Image as ImageIcon, Sticker, Sparkles } from "lucide-react";
+import { ArrowLeft, BellRing, Shirt, Coffee, Image as ImageIcon, Sticker, Sparkles, ExternalLink } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../components/ui/dialog";
@@ -12,6 +12,7 @@ import { useLang } from "../i18n/i18n";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const FRONT = "/merch-front-subtle.jpg";
+const SHOPIFY_URL = "https://fork-fate.myshopify.com";
 
 const DESIGNS = [
   { key: "dragon-scene",   theme: "Dragon's Hoard", style: "Scene",    back: "/merch-scene-dragon.jpg",      accent: "#E6B23A", front: "/merch-front-dragon.jpg", blurb: "The red dragon brooding over its glittering hoard." },
@@ -97,7 +98,7 @@ export default function Shop() {
         <div className="pointer-events-none absolute inset-0 opacity-30" style={{ background: "radial-gradient(ellipse at 30% 0%, rgba(224,30,38,0.35), transparent 55%), radial-gradient(ellipse at 85% 20%, rgba(230,178,58,0.25), transparent 55%)" }} />
         <div className="relative mx-auto max-w-6xl px-5 py-14 sm:py-20">
           <span className="inline-flex items-center gap-2 rounded-full border border-[#E6B23A]/40 bg-[#E6B23A]/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-[#E6B23A]">
-            <Sparkles className="h-3.5 w-3.5" /> {t("Dropping soon")}
+            <Sparkles className="h-3.5 w-3.5" /> {t("Now shipping")}
           </span>
           <h1 className="mt-5 max-w-2xl font-serif text-4xl font-bold leading-[1.05] sm:text-5xl lg:text-6xl">
             {t("Wear your fate.")}
@@ -105,6 +106,19 @@ export default function Shop() {
           <p className="mt-4 max-w-xl font-sans text-base text-white/70 sm:text-lg">
             {t("The FF crest on the chest, your favorite Fork·Fate world on the back. Premium print-on-demand tees, hoodies, mugs, posters & stickers — ")}<span className="font-semibold text-white">{t("Let Fate Decide.")}</span>
           </p>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <a
+              href={SHOPIFY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="shop-shopify-cta"
+              onClick={() => trackEvent("shop_shopify_click", { placement: "hero" })}
+              className="inline-flex items-center gap-2 rounded-full bg-[#E6B23A] px-6 py-3 text-base font-bold text-black transition-transform hover:-translate-y-0.5 hover:brightness-110"
+            >
+              {t("Shop the collection")} <ExternalLink className="h-4 w-4" />
+            </a>
+            <span className="text-xs text-white/45">{t("Opens fork-fate.myshopify.com")}</span>
+          </div>
           <div className="mt-7 flex flex-wrap gap-2.5">
             {PRODUCTS.map(({ k, n, p, Icon }) => (
               <span key={k} className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/5 px-3.5 py-2 text-sm text-white/80">
@@ -145,14 +159,24 @@ export default function Shop() {
                   ))}
                 </div>
                 <div className="mt-3 text-[11px] font-bold uppercase tracking-wider text-white/40">{t("Sizes")} {SIZES.join(" · ")}</div>
-                <Button
+                <a
+                  href={SHOPIFY_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid={`shop-buy-${d.key}`}
+                  onClick={() => trackEvent("shop_shopify_click", { design: d.key, placement: "design_card" })}
+                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full font-bold text-black transition-transform hover:-translate-y-0.5 hover:brightness-110"
+                  style={{ backgroundColor: d.accent, padding: "0.65rem 1rem" }}
+                >
+                  {t("Buy on Shopify")} <ExternalLink className="h-4 w-4" />
+                </a>
+                <button
                   data-testid={`shop-notify-${d.key}`}
                   onClick={() => setActive(d)}
-                  className="mt-4 w-full gap-2 rounded-full font-bold text-black hover:brightness-110"
-                  style={{ backgroundColor: d.accent }}
+                  className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-white/12 bg-white/[0.03] px-4 py-2 text-xs font-semibold text-white/60 transition-colors hover:bg-white/[0.06] hover:text-white/80"
                 >
-                  <BellRing className="h-4 w-4" /> {t("Notify me when it drops")}
-                </Button>
+                  <BellRing className="h-3.5 w-3.5" /> {t("Or notify me when this drops")}
+                </button>
               </div>
             </motion.div>
           ))}
