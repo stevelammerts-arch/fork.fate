@@ -1,0 +1,145 @@
+{
+  "source": "MCP browser automation run 20260727_215732 on preview URL",
+  "pass": true,
+  "note": "Audio() was intercepted during real Deal flows with ff_muted=0 and ZIP 10001. All expected theme audio was constructed; no deleted refs and no failed/bad audio HTTP responses were observed.",
+  "themes": {
+    "cyber": {
+      "constructed": [
+        "/reveal-electric.wav",
+        "/reveal-cyber-radio.wav",
+        "/card-deal.wav"
+      ],
+      "audio_http": [
+        {
+          "path": "/reveal-electric.wav",
+          "status": 206,
+          "content_length": "101472"
+        },
+        {
+          "path": "/reveal-cyber-radio.wav",
+          "status": 206,
+          "content_length": "2352044"
+        },
+        {
+          "path": "/card-deal.wav",
+          "status": 206,
+          "content_length": "44144"
+        }
+      ]
+    },
+    "fall": {
+      "constructed": [
+        "/reveal-owl.wav",
+        "/shuffle-fall.wav",
+        "/card-deal.wav"
+      ],
+      "audio_http": [
+        {
+          "path": "/reveal-owl.wav",
+          "status": 206,
+          "content_length": "308744"
+        },
+        {
+          "path": "/shuffle-fall.wav",
+          "status": 206,
+          "content_length": "1323044"
+        },
+        {
+          "path": "/card-deal.wav",
+          "status": 206,
+          "content_length": "44144"
+        }
+      ]
+    },
+    "light": {
+      "constructed": [
+        "/reveal-tada.wav",
+        "/card-deal.wav"
+      ],
+      "audio_http": [
+        {
+          "path": "/reveal-tada.wav",
+          "status": 206,
+          "content_length": "90890"
+        }
+      ]
+    },
+    "fantasy": {
+      "constructed": [
+        "/reveal-dragon.mp3",
+        "/shuffle-dragon.mp3",
+        "/card-deal.wav"
+      ],
+      "audio_http": [
+        {
+          "path": "/shuffle-dragon.mp3",
+          "status": 206,
+          "content_length": "607712"
+        },
+        {
+          "path": "/reveal-dragon.mp3",
+          "status": 206,
+          "content_length": "178560"
+        },
+        {
+          "path": "/card-deal.wav",
+          "status": 206,
+          "content_length": "44144"
+        }
+      ]
+    },
+    "tiki": {
+      "constructed": [
+        "/reveal-drums-boom.wav",
+        "/reveal-drums-groove.wav",
+        "/card-deal.wav"
+      ]
+    },
+    "summer": {
+      "constructed": [
+        "/reveal-tada.wav",
+        "/shuffle-seagulls.wav",
+        "/card-deal.wav"
+      ],
+      "audio_http": [
+        {
+          "path": "/shuffle-seagulls.wav",
+          "status": 206,
+          "content_length": "1058444"
+        }
+      ]
+    },
+    "steam": {
+      "constructed": [
+        "/reveal-steam.wav",
+        "/shuffle-jacobs.wav",
+        "/card-deal.wav"
+      ]
+    },
+    "spring": {
+      "constructed": [
+        "/reveal-koto.wav",
+        "/shuffle-spring.wav",
+        "/card-deal.wav"
+      ]
+    },
+    "winter": {
+      "constructed": [
+        "/reveal-santa.wav",
+        "/shuffle-winter.wav",
+        "/card-deal.wav"
+      ]
+    },
+    "dark": {
+      "constructed": [
+        "/reveal-thunder-v4.mp3",
+        "/reveal-voice-v5.mp3",
+        "/card-deal.wav"
+      ]
+    }
+  },
+  "unexpected_deleted_refs": [],
+  "bad_audio_http": [],
+  "failed_audio_requests": [],
+  "console_log": "/root/.emergent/automation_output/20260727_215732/console_20260727_215732.log"
+}

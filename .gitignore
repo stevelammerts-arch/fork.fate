@@ -89,3 +89,5 @@ frontend/node_modules/.cache/default-development/4.pack
 credentials.json
 *.key
 .credentials
+frontend/node_modules/.cache/default-development/6.pack
+tmp/fork-fate-repo/.git/objects/pack/pack-2ee044f7020fde5bc3b4cd3e707865931a74e9ce.pack

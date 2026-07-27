@@ -1,0 +1,56 @@
+{
+  "verdict": "fixed",
+  "user_reported_bug": "Everything looks good cyberpunk, light, and maybe fall has the wrong shuffle noise",
+  "summary": "No relevant testing skill found. Focused verification confirmed the reported wrong theme-audio issue is fixed: cyber uses the restored /reveal-cyber-radio.wav original, fall uses restored /shuffle-fall.wav, light reveal uses restored /reveal-tada.wav, and fantasy uses /shuffle-dragon.mp3. Real UI Deal flows across cyber/fall/light/fantasy plus tiki/summer/steam/spring/winter/dark constructed the expected audio with no audio-file 404s or deleted-file references.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Direct deleted audio URL check",
+        "issue": "Ancillary check: direct GET /shuffle-dragon.wav and /card-riffle.wav returns the React app shell as 200 text/html due SPA fallback, not HTTP 404. The files are absent locally and runtime shuffles do not request them, so this does not reproduce the user's wrong-audio symptom.",
+        "affected_selectors": []
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/tests/audio_theme_restore_test_plan_iteration_22.txt",
+    "/app/tests/verify_audio_assets_iteration22.py",
+    "/app/test_reports/audio_assets_iteration22_results.json",
+    "/app/test_reports/audio_runtime_iteration22_results.json",
+    "/app/test_reports/audio_code_refs_iteration22.json",
+    "/app/test_reports/bug_verification_22.json",
+    "/app/test_reports/iteration_22.json"
+  ],
+  "action_items": [
+    "Optional hardening only: if strict HTTP 404s for removed .wav/.mp3 paths are required, adjust frontend/static routing so missing audio extensions do not fall back to index.html. No runtime shuffle currently references those deleted files."
+  ],
+  "critical_code_review_comments": [
+    "Home.jsx SHUFFLE_LOOPS.fantasy now points to /shuffle-dragon.mp3; grep/code check found no /shuffle-dragon.wav or /card-riffle.wav references in Home.jsx.",
+    "Local restored assets match expected originals: reveal-cyber-radio.wav 2,352,044 bytes SHA 8d4b346e16e6..., shuffle-fall.wav 1,323,044 bytes SHA e7e0aba0e4e3..., reveal-tada.wav 90,890 bytes SHA 1a538e9360f0..., shuffle-seagulls.wav 1,058,444 bytes; shuffle-dragon.wav and card-riffle.wav are absent locally.",
+    "Preview restored-asset GETs returned 200 with expected sizes/SHA prefixes for reveal-cyber-radio.wav, shuffle-fall.wav, reveal-tada.wav, shuffle-dragon.mp3, and shuffle-seagulls.wav.",
+    "Runtime Audio() interception during real Deal flows showed cyber /reveal-cyber-radio.wav, fall /shuffle-fall.wav, light /reveal-tada.wav, fantasy /shuffle-dragon.mp3; tiki/summer/steam/spring/winter/dark also played expected theme sounds. No audio HTTP status >=400 and no failed audio requests were captured."
+  ],
+  "updated_files": [
+    "/app/tests/audio_theme_restore_test_plan_iteration_22.txt",
+    "/app/tests/verify_audio_assets_iteration22.py",
+    "/app/test_reports/audio_assets_iteration22_results.json",
+    "/app/test_reports/audio_runtime_iteration22_results.json",
+    "/app/test_reports/audio_code_refs_iteration22.json",
+    "/app/test_reports/bug_verification_22.json",
+    "/app/test_reports/iteration_22.json"
+  ],
+  "success_rate": {
+    "backend": "N/A - frontend-only audio bug",
+    "frontend": "100% for affected shuffle/reveal audio flow; ancillary direct deleted-file URL 404 check returns SPA 200 HTML"
+  },
+  "seed_data_creation": "No persistent seed data created. Browser localStorage was temporarily set per theme (ff_theme and ff_muted=0); ZIP 10001 was used for real Deal flows.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iteration 22 focused only on restored theme audio. Skill lookup with 'cyberpunk light fall shuffle audio' found no relevant testing skill. Runtime evidence is summarized in /app/test_reports/audio_runtime_iteration22_results.json; asset proof is in /app/test_reports/audio_assets_iteration22_results.json. No APIs were mocked.",
+  "rca_of_the_issue": "The prior branch had synthesized audio assets and a fantasy .wav reference. The current workspace restores original audio files from main and changes fantasy shuffle to /shuffle-dragon.mp3. Repro path tested: set theme in localStorage, unmute, skip guided intro, enter ZIP 10001, click Deal, intercept Audio() and audio network responses through reveal. The reported wrong noises for cyber/light/fall no longer reproduce."
+}

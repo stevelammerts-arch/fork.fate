@@ -1,0 +1,121 @@
+{
+  "base_url": "https://web-fate-launch.preview.emergentagent.com",
+  "local": {
+    "reveal-cyber-radio.wav": {
+      "exists": true,
+      "bytes": 2352044,
+      "sha256_prefix": "8d4b346e16e63840",
+      "size_ok": true,
+      "sha_ok": true
+    },
+    "shuffle-fall.wav": {
+      "exists": true,
+      "bytes": 1323044,
+      "sha256_prefix": "e7e0aba0e4e3561d",
+      "size_ok": true,
+      "sha_ok": true
+    },
+    "reveal-tada.wav": {
+      "exists": true,
+      "bytes": 90890,
+      "sha256_prefix": "1a538e9360f010ea",
+      "size_ok": true,
+      "sha_ok": true
+    },
+    "shuffle-dragon.mp3": {
+      "exists": true,
+      "bytes": 607712,
+      "sha256_prefix": "1f24f5f8cb3d4278",
+      "size_ok": true,
+      "sha_ok": true
+    },
+    "shuffle-seagulls.wav": {
+      "exists": true,
+      "bytes": 1058444,
+      "sha256_prefix": "5dbe6e260ff5e8b9",
+      "size_ok": true,
+      "sha_ok": true
+    },
+    "shuffle-dragon.wav": {
+      "exists": false,
+      "expected_missing": true
+    },
+    "card-riffle.wav": {
+      "exists": false,
+      "expected_missing": true
+    }
+  },
+  "http": {
+    "reveal-cyber-radio.wav": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/reveal-cyber-radio.wav",
+      "status": 200,
+      "content_length_header": "2352044",
+      "bytes": 2352044,
+      "sha256_prefix": "8d4b346e16e63840",
+      "status_ok": true,
+      "size_ok": true,
+      "sha_ok": true
+    },
+    "shuffle-fall.wav": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/shuffle-fall.wav",
+      "status": 200,
+      "content_length_header": "1323044",
+      "bytes": 1323044,
+      "sha256_prefix": "e7e0aba0e4e3561d",
+      "status_ok": true,
+      "size_ok": true,
+      "sha_ok": true
+    },
+    "reveal-tada.wav": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/reveal-tada.wav",
+      "status": 200,
+      "content_length_header": "90890",
+      "bytes": 90890,
+      "sha256_prefix": "1a538e9360f010ea",
+      "status_ok": true,
+      "size_ok": true,
+      "sha_ok": true
+    },
+    "shuffle-dragon.mp3": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/shuffle-dragon.mp3",
+      "status": 200,
+      "content_length_header": "607712",
+      "bytes": 607712,
+      "sha256_prefix": "1f24f5f8cb3d4278",
+      "status_ok": true,
+      "size_ok": true,
+      "sha_ok": true
+    },
+    "shuffle-seagulls.wav": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/shuffle-seagulls.wav",
+      "status": 200,
+      "content_length_header": "1058444",
+      "bytes": 1058444,
+      "sha256_prefix": "5dbe6e260ff5e8b9",
+      "status_ok": true,
+      "size_ok": true,
+      "sha_ok": true
+    },
+    "shuffle-dragon.wav": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/shuffle-dragon.wav",
+      "status": 200,
+      "content_length_header": null,
+      "bytes": 13538,
+      "sha256_prefix": "351016883cd2146d",
+      "status_ok": false
+    },
+    "card-riffle.wav": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/card-riffle.wav",
+      "status": 200,
+      "content_length_header": null,
+      "bytes": 13538,
+      "sha256_prefix": "75c42858d83c055b",
+      "status_ok": false
+    }
+  },
+  "pass": false,
+  "failures": [
+    "http should 404 shuffle-dragon.wav: {'url': 'https://web-fate-launch.preview.emergentagent.com/shuffle-dragon.wav', 'status': 200, 'content_length_header': None, 'bytes': 13538, 'sha256_prefix': '351016883cd2146d', 'status_ok': False}",
+    "http should 404 card-riffle.wav: {'url': 'https://web-fate-launch.preview.emergentagent.com/card-riffle.wav', 'status': 200, 'content_length_header': None, 'bytes': 13538, 'sha256_prefix': '75c42858d83c055b', 'status_ok': False}"
+  ]
+}

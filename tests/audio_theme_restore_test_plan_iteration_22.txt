@@ -1,0 +1,34 @@
+Focused test plan for iteration 22: Fork.Fate restored theme audio
+
+Skill lookup: search_skills("cyberpunk light fall shuffle audio") returned no relevant testing skill found. No relevant testing skill found.
+
+Exact bug reported by user:
+- "Everything looks good cyberpunk, light, and maybe fall has the wrong shuffle noise".
+- User-visible contract: theme-specific shuffle/reveal audio must use the user's original uploaded recordings, not synthesized replacement files, and no missing/deleted audio should be requested during shuffle/reveal.
+
+Affected user flow:
+- Main restaurant roulette page (/): set theme, unmute, enter ZIP/select default food flow, press Deal, observe shuffle ambience and reveal sound.
+- Themes to prove: cyber, fall, light, fantasy. Also spot-check other theme sounds: tiki, summer, steam, spring, winter, dark/reaper.
+
+Changed files / code to inspect:
+- /app/frontend/public/*.wav/*.mp3 restored/deleted audio assets, especially reveal-cyber-radio.wav, shuffle-fall.wav, reveal-tada.wav, shuffle-dragon.mp3, shuffle-seagulls.wav, deleted shuffle-dragon.wav/card-riffle.wav.
+- /app/frontend/src/pages/Home.jsx SHUFFLE_LOOPS and reveal sound logic around runShuffle.
+- /app/frontend/src/hooks/useTheme.js for exact localStorage key (ff_theme) and allowed theme values.
+- git status/recent history for fix scope.
+
+Direct proof needed for fixed verdict:
+1. Local file sizes/SHA prefixes match expected originals for cyber/fall/light/fantasy/summer and deleted files are absent.
+2. Preview HTTP GETs return 200 with expected content-length/SHA prefixes for restored audio and 404 for deleted synth-only files.
+3. Browser runtime Audio() interception during real UI Deal flows shows:
+   - cyber shuffle constructs /reveal-cyber-radio.wav (and no 404)
+   - fall shuffle constructs /shuffle-fall.wav (and no 404)
+   - light reveal constructs /reveal-tada.wav (and no 404)
+   - fantasy shuffle constructs /shuffle-dragon.mp3, not /shuffle-dragon.wav (and no 404)
+4. Console/network has no audio-file 404s while shuffling cyber/fall/light/fantasy and spot-checked other themes.
+
+Important edge cases around this flow:
+- ff_muted must be 0, otherwise no Audio() instances are created.
+- Light detection uses theme='light' in ff_theme; not ff-light/ff-theme.
+- card-deal.wav is allowed at reveal; reveal-voice-v5.mp3 is allowed lead-in for dark/non-excluded themes.
+- card-riffle.wav and shuffle-dragon.wav 404 are expected only for direct GET, not during runtime shuffles.
+- Browser autoplay may reject play(); we only need Audio src construction/load requests from click gesture, not audible playback in the test container.

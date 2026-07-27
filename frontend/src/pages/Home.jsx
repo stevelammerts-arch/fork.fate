@@ -52,7 +52,7 @@ const SHUFFLE_LOOPS = {
   spring: ["/shuffle-spring.wav", 0.8, true],
   winter: ["/shuffle-winter.wav", 0.8, true],
   fall: ["/shuffle-fall.wav", 0.8, true],
-  fantasy: ["/shuffle-dragon.wav", 0.85, true],
+  fantasy: ["/shuffle-dragon.mp3", 0.85, true],
 };
 
 
