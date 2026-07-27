@@ -22,6 +22,7 @@ const DESIGNS = [
   { key: "tiki-scene",     theme: "Tiki Lounge",    style: "Scene",    back: "/merch-scene-tiki.jpg",        accent: "#F0A24E", blurb: "Warm torchlit tiki bar, straight off the island." },
   { key: "cyber-classic",  theme: "Neon Nights",    style: "Classic",  back: "/merch-cyber.jpg",             accent: "#22E0E0", front: "/merch-front-cyber-subtle.jpg", blurb: "Neon fork + skyline synthwave graphic." },
   { key: "tiki-classic",   theme: "Tiki Lounge",    style: "Classic",  back: "/merch-tiki.jpg",              accent: "#F0A24E", blurb: "Carved tiki mask + palms — tropical bold." },
+  { key: "spring-petals",  theme: "Spring Bloom",   style: "White tee", back: "/merch-spring-petals.jpg",    accent: "#E48AA8", front: "/merch-spring-petals.jpg", blurb: "Watercolor cherry blossom petals drifting down a crisp white tee." },
 ];
 
 const PRODUCTS = [
