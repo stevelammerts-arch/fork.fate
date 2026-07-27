@@ -70,9 +70,13 @@ for _c in os.environ.get("TRUST_PROXY_CIDRS", "").split(","):
 # ALLOW_PREVIEW_ORIGINS=false in the production secrets to drop the wildcard.
 _PROD_ORIGIN_REGEX = r"https://([a-z0-9-]+\.)*fork-fate\.com$"
 _PREVIEW_ORIGIN_REGEX = r"https://[a-z0-9-]+\.preview\.emergentagent\.com$"
+# Emergent's own deployment host (used when the custom domain isn't in play yet,
+# e.g. during a fresh deploy before DNS cutover, or when hitting the raw URL directly).
+_EMERGENT_HOST_REGEX = r"https://[a-z0-9-]+\.emergent\.host$"
 ALLOW_PREVIEW_ORIGINS = os.environ.get("ALLOW_PREVIEW_ORIGINS", "true").strip().lower() not in ("0", "false", "no")
 ALLOWED_ORIGIN_REGEX = (
-    f"{_PROD_ORIGIN_REGEX}|{_PREVIEW_ORIGIN_REGEX}" if ALLOW_PREVIEW_ORIGINS else _PROD_ORIGIN_REGEX
+    f"{_PROD_ORIGIN_REGEX}|{_EMERGENT_HOST_REGEX}|{_PREVIEW_ORIGIN_REGEX}" if ALLOW_PREVIEW_ORIGINS
+    else f"{_PROD_ORIGIN_REGEX}|{_EMERGENT_HOST_REGEX}"
 )
 _ORIGIN_RE = re.compile(ALLOWED_ORIGIN_REGEX, re.I)
 FALLBACK_IMG = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?crop=entropy&cs=srgb&fm=jpg&q=85"
