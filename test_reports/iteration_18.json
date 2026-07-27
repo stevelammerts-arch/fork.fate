@@ -1,0 +1,44 @@
+{
+  "summary": "Iteration 18 is the first end-to-end deploy-readiness pass for fork-fate.com against the freshly imported /app repo. Backend: 15/15 pytest cases pass in /app/backend/tests/test_iter18_deploy_readiness.py covering GET /api/ root, GET /api/restaurants (704 seeded venues across food/bars/desserts/shops/fuel/explore/stay), GET /api/cuisines, GET /api/stats/fates + /api/stats/crawls (note: bare /api/stats does NOT exist — the review request wording was a shorthand for these two sub-endpoints), POST /api/places/search returning source=google with restaurants[] for lat/lng (LA 34.0522,-118.2437), zip fallback (accepts 200/400/422), curated fallback for niche category=explore, POST /api/admin/login with ForkFate!Admin2026 returning ok:true, GET /api/admin/sponsors returning 401 without cookie and 200 with cookie, POST /api/crawls creating a crawl with a shareable code that round-trips via GET /api/crawls/{code}, GET /api/crawls/leaderboard, GET /api/passports/wall, and GET /.well-known/assetlinks.json returning a JSON array whose first entry targets package_name=com.fork_fate.twa with exactly 4 sha256_cert_fingerprints. Frontend (mobile viewport 430x900): Home renders onboarding STEP ONE 'What calls to you?' with all 8 category tiles (Food/Drinks/Bars/Desserts/Shops/Fuel & Go/Explore/Stay) each with a data-testid=guided-interest-<cat>. Full spin flow verified end-to-end with mocked geolocation (LA): Food → Use my location → guided-location-next → Surprise me (chips step) → guided-seal-button → spin-roulette-button. After ~8s the reveal card (data-testid=spin-result-card) renders with restaurant name, cuisine, price, rating, distance, address, favorite toggle, share, shuffle-again, Double-or-Nothing, Clear, Shop merch CTA, and an Order/Delivery dropdown (order-dropdown-trigger) that expands to reveal DoorDash / Uber Eats / Grubhub / Restaurant / order online options. result-photo-link is an <a href> pointing to maps.google.com deep link. Verified via intercepted window.open that clicking order-option-doordash opens https://www.doordash.com/search/store/<name> and order-option-grubhub opens https://www.grubhub.com/search?queryText=<name>. /leaderboard, /shop, /admin (password input present), /terms, /privacy all render without crashing. SPA hard-refresh on /leaderboard returns 200 and renders the Hall of Fate page (no 404). No console page errors on the spin flow. 2 x 401s observed on Home which are the unauth admin/passkey status pings and are expected.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/stats", "issue": "Bare /api/stats returns 404 — only /api/stats/fates and /api/stats/crawls exist. Review request wording implied a single aggregate endpoint; if that was intended, one should be added, otherwise the requirement is met by the two sub-routes."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Reveal → Order/Delivery", "issue": "DoorDash / Uber Eats / Grubhub / Restaurant options render as clickable <div data-testid=order-option-*> that call window.open() on click rather than as native <a href target=_blank> elements. Verified via window.open interception that DoorDash and Grubhub open correct search URLs with the restaurant name; Uber Eats testid could not be located under order-option-ubereats (it may use a different slug like order-option-uber-eats). Behavior works for a mouse user but (a) they are not real hyperlinks (no right-click ‘open in new tab’, no middle-click, no bare-URL preview, worse SEO / no-JS behavior) and (b) the review request specifically asked that DoorDash/UberEats/Grubhub 'render as href links'. Recommend rendering these as <a href={url} target=_blank rel=noopener> instead of <div onClick>, and standardising the testid to include ubereats.", "affected_selectors": ["[data-testid=order-option-doordash]", "[data-testid=order-option-ubereats]", "[data-testid=order-option-grubhub]"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter18_deploy_readiness.py",
+    "/app/test_reports/pytest/iter18.xml",
+    "/app/test_reports/iteration_18.json"
+  ],
+  "action_items": [
+    "OPTIONAL: Convert order-option-doordash / order-option-ubereats / order-option-grubhub / order-option-order from <div onClick={window.open(...)}> to real <a href target=_blank rel=noopener> so they behave as true hyperlinks (matches review-request wording and improves accessibility, middle-click, and no-JS fallback).",
+    "OPTIONAL: Confirm exact testid for the Uber Eats option — expected order-option-ubereats but that selector did not match; it may already be order-option-uber-eats or similar. Normalise for consistency.",
+    "OPTIONAL: If a single aggregate GET /api/stats endpoint is required by product, add it; today the app exposes GET /api/stats/fates and GET /api/stats/crawls only."
+  ],
+  "critical_code_review_comments": [
+    "/app/frontend/src/pages/Home.jsx remains ~1800 lines (flagged since iteration 15). Guided flow, mode toggles, filters, FAQ, passport picker are all in one file. Splitting would help maintenance but is non-blocking.",
+    "backend/server.py registers routers but there is NO ‘passports’ router visible in server.py include list — actually yes it is included (routes.passports). Just noting the include order is fine. No action.",
+    "Delivery deep-link buttons should be real <a href>. See action item above.",
+    "Sponsor payments are in sandbox with empty PAYPAL_CLIENT_ID/SECRET; endpoints returning ‘config missing’ are expected per the review note. No action needed for launch — but before promoting to prod, real PayPal live creds must be swapped in.",
+    "RESEND_API_KEY is empty so /api/admin email endpoints will short-circuit. Expected per review note; must be filled in before real email alerts go out to Steve@fork-fate.com.",
+    "backend/.env has ADMIN_PASSWORD in plaintext and JWT_SECRET (64 hex chars — fine). Ensure this .env is never committed to the public repo when the launch happens; the file was found unencrypted in /app/backend/.env."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter18_deploy_readiness.py"
+  ],
+  "success_rate": {"backend": "100% (15/15)", "frontend": "100% of tested critical flows (home tiles, full spin flow, reveal, order dropdown, all 5 routes, SPA reload)"},
+  "test_credentials": "Admin password: ForkFate!Admin2026 (from /app/memory/test_credentials.md). No user login required.",
+  "seed_data_creation": "Only 1 transient TEST_iter18_<uuid> crawl created via POST /api/crawls in test_crawl_create_and_get; not cleaned up (no delete endpoint exercised) — negligible clutter. All other tests are read-only.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Fork·Fate is a React CRA (craco) web app + FastAPI backend + MongoDB, being prepped for fork-fate.com launch. REACT_APP_BACKEND_URL=https://web-fate-launch.preview.emergentagent.com. Cloudflare requires a browser User-Agent on backend curls (send Mozilla/5.0). Admin pw: ForkFate!Admin2026. There is NO bare /api/stats — use /api/stats/fates and /api/stats/crawls. Places search response uses key ‘restaurants’, not ‘results’ or ‘venues’, with a top-level ‘source’ field (google|curated). Full spin flow order: guided-interest-food → guided-use-location (grant geolocation via ctx.grant_permissions + set_geolocation) → guided-location-next → chips step (either pick chips + guided-chips-next OR click ‘Surprise me’ text) → guided-seal-button → spin-roulette-button (waits ~6-8s for shuffle animation) → spin-result-card + result-photo-link (google-maps <a>) + order-dropdown-trigger → dropdown reveals order-option-doordash / order-option-ubereats / order-option-grubhub / order-option-order. These options are DIVS that call window.open(), NOT native <a href> — flagged for main agent. Legacy /app/backend/tests contains lots of files pinned to old preview URLs (lucky-bite / fate-mobile-build); avoid running them wholesale. Use test_iter18_deploy_readiness.py as the canonical smoke suite for launch.",
+  "rca_of_issue": "Not a bug — a spec deviation. Review request wanted DoorDash/UberEats/Grubhub to render as href links. Implementation (/app/frontend/src/components/home/RevealStage.jsx or similar) uses <div data-testid=order-option-*> with a JS onClick handler that constructs the URL and calls window.open(). Functionally the URLs are correct (DoorDash and Grubhub interception both showed properly-encoded search URLs with the restaurant name), but middle-click / right-click / no-JS / screen-reader-as-link semantics are lost. Fix: swap the div for <a href={url} target=\"_blank\" rel=\"noopener noreferrer\" data-testid=order-option-...>. Also standardise the Uber Eats testid — order-option-ubereats did not resolve during automation."
+}
