@@ -1,0 +1,108 @@
+{
+  "wav": "/app/frontend/public/shuffle-seagulls.wav",
+  "sr": 44100,
+  "duration_sec": 11.35,
+  "rms": 0.11930964721359241,
+  "peak": 0.71990966796875,
+  "seam_jump": 0.0,
+  "audit_text": "shuffle-seagulls.wav: 11.35s sr=44100 rms=0.119 peak=0.720\n  tonality max=9 (DRONE if > 400)\n  near-Nyquist frac max=0.0871 (HF if > 0.02)\n  clicks=0 at \n  loop seam jump=0.000 (CLICK if > 0.05)",
+  "audit_tonality_max": 9,
+  "audit_hf_max": 0.0871,
+  "audit_reported_seam": 0.0,
+  "surf_low_frac_100_900hz": 0.2959132694973293,
+  "surf_hiss_frac_2200_5000hz": 0.19097708758528895,
+  "call_windows": [
+    {
+      "peak_frac": 0.006502497148781776,
+      "tonality": 24.691493046148683,
+      "flatness": 0.43002093413821113,
+      "occupied_bw_90hz": 6232.0,
+      "centroid_hz": 2581.926650834631,
+      "start_sec": 0.75,
+      "hi_lo_ratio": 3.1795573314351
+    },
+    {
+      "peak_frac": 0.011669181369799794,
+      "tonality": 56.848132525089504,
+      "flatness": 0.37215913734853767,
+      "occupied_bw_90hz": 5908.0,
+      "centroid_hz": 2245.52654858682,
+      "start_sec": 1.0,
+      "hi_lo_ratio": 3.1627217161396217
+    },
+    {
+      "peak_frac": 0.009230880558411802,
+      "tonality": 36.846819896562565,
+      "flatness": 0.4327108233182492,
+      "occupied_bw_90hz": 6352.0,
+      "centroid_hz": 2633.1340263413967,
+      "start_sec": 2.3,
+      "hi_lo_ratio": 3.21427807225712
+    },
+    {
+      "peak_frac": 0.006811082594248226,
+      "tonality": 29.52834002431187,
+      "flatness": 0.39349398552718173,
+      "occupied_bw_90hz": 6068.0,
+      "centroid_hz": 2436.1718951946414,
+      "start_sec": 6.4,
+      "hi_lo_ratio": 3.835637423975121
+    },
+    {
+      "peak_frac": 0.006674235554873676,
+      "tonality": 25.220931693318015,
+      "flatness": 0.44173568425199544,
+      "occupied_bw_90hz": 6192.0,
+      "centroid_hz": 2675.723800763153,
+      "start_sec": 7.95,
+      "hi_lo_ratio": 3.6099522266556505
+    },
+    {
+      "peak_frac": 0.0077259675751907815,
+      "tonality": 34.86646866601336,
+      "flatness": 0.3860371747805941,
+      "occupied_bw_90hz": 5804.0,
+      "centroid_hz": 2372.4529075224573,
+      "start_sec": 8.2,
+      "hi_lo_ratio": 4.197519172852653
+    },
+    {
+      "peak_frac": 0.006824296844083911,
+      "tonality": 27.57497971531275,
+      "flatness": 0.42320121774805475,
+      "occupied_bw_90hz": 6124.0,
+      "centroid_hz": 2622.755559710506,
+      "start_sec": 9.25,
+      "hi_lo_ratio": 4.238007434488946
+    },
+    {
+      "peak_frac": 0.011036098426739659,
+      "tonality": 52.78064283612874,
+      "flatness": 0.3689019914780662,
+      "occupied_bw_90hz": 5940.0,
+      "centroid_hz": 2275.4876000111713,
+      "start_sec": 9.45,
+      "hi_lo_ratio": 3.175731363002499
+    }
+  ],
+  "median_call_metrics": {
+    "peak_frac": 0.007275132209637346,
+    "tonality": 32.19740434516262,
+    "flatness": 0.40834760163761824,
+    "occupied_bw_90hz": 6096.0,
+    "centroid_hz": 2509.049273014636,
+    "hi_lo_ratio": 3.412115149456385
+  },
+  "checks": {
+    "file_exists": true,
+    "duration_reasonable_10s_plus": true,
+    "audit_tonality_lt_400": true,
+    "loop_seam_jump_lt_0_02": true,
+    "surf_low_band_present": true,
+    "surf_hiss_band_present": true,
+    "gull_windows_detected": true,
+    "gulls_not_narrow_sine_peak": true,
+    "gulls_broadband_noise_like": true
+  },
+  "pass": true
+}
