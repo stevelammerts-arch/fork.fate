@@ -1,0 +1,113 @@
+{
+  "frontend_url": "https://web-fate-launch.preview.emergentagent.com/",
+  "skill_lookup": "No relevant testing skill found.",
+  "method": "Mobile viewport browser automation with Audio constructor/play interception before page load; ff_muted=0; theme localStorage set per run; guided intro skipped; ZIP 10001; spin/deal clicked.",
+  "forbidden": "/card-riffle.wav",
+  "all_ok": true,
+  "results": [
+    {
+      "theme": "summer",
+      "shuffle_seen": true,
+      "result_seen": true,
+      "popup_samples": [
+        "SHUFFLING\u2026",
+        "SHUFFLING\u2026\n\nThe Bronx Brewery & Hudson Yards Kitchen"
+      ],
+      "unique_audio_srcs": [
+        "https://web-fate-launch.preview.emergentagent.com/reveal-tada.wav",
+        "https://web-fate-launch.preview.emergentagent.com/shuffle-seagulls.wav",
+        "https://web-fate-launch.preview.emergentagent.com/card-deal.wav"
+      ],
+      "played_srcs": [
+        "https://web-fate-launch.preview.emergentagent.com/shuffle-seagulls.wav",
+        "https://web-fate-launch.preview.emergentagent.com/card-deal.wav",
+        "https://web-fate-launch.preview.emergentagent.com/reveal-tada.wav"
+      ],
+      "forbidden_card_riffle_present": false,
+      "expected_present": {
+        "/shuffle-seagulls.wav": true,
+        "/card-deal.wav": true,
+        "/reveal-tada.wav": true
+      },
+      "ok": true
+    },
+    {
+      "theme": "dark",
+      "shuffle_seen": true,
+      "result_seen": true,
+      "popup_samples": [
+        "FORK \u00b7 FATE x5 / SHUFFLING THE DECK",
+        "FORK \u00b7 FATE x5 / SHUFFLING THE DECK / The Bronx Brewery & Hudson Yards Kitchen"
+      ],
+      "unique_audio_srcs": [
+        "https://web-fate-launch.preview.emergentagent.com/reveal-thunder-v4.mp3",
+        "https://web-fate-launch.preview.emergentagent.com/reveal-voice-v5.mp3",
+        "https://web-fate-launch.preview.emergentagent.com/card-deal.wav"
+      ],
+      "played_srcs": [
+        "https://web-fate-launch.preview.emergentagent.com/reveal-voice-v5.mp3",
+        "https://web-fate-launch.preview.emergentagent.com/card-deal.wav",
+        "https://web-fate-launch.preview.emergentagent.com/reveal-thunder-v4.mp3"
+      ],
+      "forbidden_card_riffle_present": false,
+      "expected_present": {
+        "/reveal-voice-v5.mp3": true,
+        "/card-deal.wav": true,
+        "/reveal-thunder-v4.mp3": true
+      },
+      "ok": true
+    },
+    {
+      "theme": "winter",
+      "shuffle_seen": true,
+      "result_seen": true,
+      "popup_samples": [
+        "SHUFFLING\u2026",
+        "SHUFFLING\u2026\n\nAltair Restaurant NYC"
+      ],
+      "unique_audio_srcs": [
+        "https://web-fate-launch.preview.emergentagent.com/reveal-santa.wav",
+        "https://web-fate-launch.preview.emergentagent.com/shuffle-winter.wav",
+        "https://web-fate-launch.preview.emergentagent.com/card-deal.wav"
+      ],
+      "played_srcs": [
+        "https://web-fate-launch.preview.emergentagent.com/shuffle-winter.wav",
+        "https://web-fate-launch.preview.emergentagent.com/card-deal.wav",
+        "https://web-fate-launch.preview.emergentagent.com/reveal-santa.wav"
+      ],
+      "forbidden_card_riffle_present": false,
+      "expected_present": {
+        "/shuffle-winter.wav": true,
+        "/card-deal.wav": true,
+        "/reveal-santa.wav": true
+      },
+      "ok": true
+    },
+    {
+      "theme": "tiki",
+      "shuffle_seen": true,
+      "result_seen": true,
+      "popup_samples": [
+        "SHUFFLING THE DECK",
+        "SHUFFLING THE DECK\n\nKahlo"
+      ],
+      "unique_audio_srcs": [
+        "https://web-fate-launch.preview.emergentagent.com/reveal-drums-boom.wav",
+        "https://web-fate-launch.preview.emergentagent.com/reveal-drums-groove.wav",
+        "https://web-fate-launch.preview.emergentagent.com/card-deal.wav"
+      ],
+      "played_srcs": [
+        "https://web-fate-launch.preview.emergentagent.com/reveal-drums-groove.wav",
+        "https://web-fate-launch.preview.emergentagent.com/card-deal.wav",
+        "https://web-fate-launch.preview.emergentagent.com/reveal-drums-boom.wav"
+      ],
+      "forbidden_card_riffle_present": false,
+      "expected_present": {
+        "/reveal-drums-groove.wav": true,
+        "/card-deal.wav": true,
+        "/reveal-drums-boom.wav": true
+      },
+      "ok": true
+    }
+  ]
+}

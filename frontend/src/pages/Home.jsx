@@ -152,27 +152,11 @@ export default function Home() {
   const lastPickRef = useRef(null);
   const thunderRef = useRef(null);
   const grooveRef = useRef(null);
-  // Card-riffle sound layered under every shuffle, in all themes. Synthesised loop
-  // matched to the deck's RIFFLE_MS cycle, kept quiet enough to sit beneath the
-  // themed ambience rather than fight it.
-  const cardsRef = useRef(null);
-  const stopCards = () => {
-    if (cardsRef.current) {
-      try { cardsRef.current.pause(); } catch (e) { /* ignore */ }
-      cardsRef.current = null;
-    }
-  };
-  const startCards = () => {
-    try {
-      if (localStorage.getItem("ff_muted") === "1") return;
-      stopCards();
-      cardsRef.current = new Audio("/card-riffle.wav");
-      cardsRef.current.loop = true;
-      cardsRef.current.volume = 0.5;
-      cardsRef.current.play().catch(() => {});
-    } catch (e) { cardsRef.current = null; }
-  };
-  useEffect(() => () => { stopCards(); if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e) { /* ignore */ } grooveRef.current = null; } }, []);
+  // Card-riffle synthesised layer was removed — it produced a buzzing artefact on
+  // mobile speakers underneath every theme's shuffle. Theme ambience now plays clean.
+  const stopCards = () => {};
+  const startCards = () => {};
+  useEffect(() => () => { if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e) { /* ignore */ } grooveRef.current = null; } }, []);
   const { favorites, isFavorite, toggleFavorite, removeFavorite } = useFavorites();
   const [showGuided, setShowGuided] = useState(true);
   const [faqOpen, setFaqOpen] = useState(false);
