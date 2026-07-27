@@ -89,7 +89,10 @@ async def passport_wall(limit: int = 40):
     """The public wall: finished passports their owners chose to post."""
     limit = max(1, min(limit, 60))
     cursor = (
-        db.passports.find({"published_at": {"$ne": None}}, {"_id": 0, "wall_thumb": 0, "holder_photo": 0, "stamps": 0})
+        db.passports.find(
+            {"published_at": {"$ne": None}},
+            {"_id": 0, "wall_thumb": 0, "holder_photo": 0, "stamps.photo": 0},
+        )
         .sort("published_at", -1)
         .limit(limit)
     )
@@ -101,6 +104,7 @@ async def passport_wall(limit: int = 40):
                 "label": d.get("label", ""),
                 "holder_name": d.get("holder_name", ""),
                 "stops": len(d.get("stops", [])),
+                "verified": sum(1 for s in d.get("stamps", []) if s.get("verified")) if d.get("stamps") else 0,
                 "completed_at": d.get("completed_at"),
                 "published_at": d.get("published_at"),
             }
@@ -152,7 +156,7 @@ async def stamp_passport(code: str, payload: PassportStamp):
         try:
             elapsed = (now_dt - datetime.fromisoformat(last["stamped_at"])).total_seconds()
         except (KeyError, ValueError):
-            elapsed = MIN_SECONDS_BETWEEN_STAMPS
+            elapsed = 0  # unreadable timestamp — fail closed and make them wait
         if elapsed < MIN_SECONDS_BETWEEN_STAMPS:
             raise HTTPException(
                 status_code=429,

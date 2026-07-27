@@ -18,7 +18,7 @@ import { useFavorites } from "../hooks/useFavorites";
 import GuidedFlow from "../components/GuidedFlow";
 import PubCrawlDialog from "../components/PubCrawlDialog";
 import RevealStage from "../components/home/RevealStage";
-import ModeSetup from "../components/home/ModeSetup";
+import ModeSetup, { StepList } from "../components/home/ModeSetup";
 import TypePicker from "../components/home/TypePicker";
 import ReigningChampBadge from "../components/ReigningChampBadge";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../components/ui/dropdown-menu";
@@ -120,13 +120,17 @@ export default function Home() {
   const ANY_CATEGORIES = ["food", "drinks", "bars", "desserts"];
   // PASSPORT_CATEGORIES is derived from MODE_TABS below (defined after it).
 
-  // Turning on a special mode reveals its panel BELOW the toggles, so bring it
-  // into view — users were otherwise left scrolling to find the deal button.
+  // Turning on a special mode reveals its panel BELOW the toggles. Land on the
+  // panel's TOP (block: "center" dropped users into the middle of the form, past
+  // the how-it-works steps), leaving a little breathing room above it.
   useEffect(() => {
     const id = passportMode ? "passport-picker" : groupMode ? "group-picker" : crawlMode ? "crawl-type-picker" : null;
     if (!id) return;
     const timer = setTimeout(() => {
-      document.querySelector(`[data-testid="${id}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      const el = document.querySelector(`[data-testid="${id}"]`);
+      if (!el) return;
+      const top = el.getBoundingClientRect().top + window.scrollY - 16;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
     }, 120);
     return () => clearTimeout(timer);
   }, [passportMode, groupMode, crawlMode]);
@@ -1260,7 +1264,20 @@ export default function Home() {
 
             {passportMode && (
               <div className="mt-2 w-full basis-full rounded-2xl border border-[#2E7D32]/30 bg-[#F1F8F2] p-4" data-testid="passport-picker">
-                <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Pick a category")}</p>
+                <p className="font-serif text-xl font-bold text-[#0E0E0E]">{t("Fate Passport")}</p>
+                <p className="mt-1 font-sans text-sm text-[#3A3F45]">
+                  {t("A crawl is one day — a passport is collected over time. Fate deals your stops, you stamp each one as you get there, and a finished passport earns a stamped award you can share.")}
+                </p>
+                <StepList
+                  testId="passport-steps"
+                  accent="#2E7D32"
+                  steps={[
+                    t("Pick any category — a brewery tour, a park run, a summer of diners."),
+                    t("Choose how many stops and where to search."),
+                    t("Deal it — then stamp each stop as you get there, over days or weeks."),
+                  ]}
+                />
+                <p className="mb-1.5 mt-4 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Pick a category")}</p>
                 <div className="grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-white p-1" data-testid="passport-category-picker">
                   {MODE_TABS.filter((m) => PASSPORT_CATEGORIES.includes(m.key)).map(({ key, label, Icon }) => (
                     <button
@@ -1307,9 +1324,6 @@ export default function Home() {
                     </button>
                   ))}
                 </div>
-                <p className="mt-3 font-sans text-sm text-[#6B7075]">
-                  {t("A crawl is one day — a passport is collected over time. Fate deals your stops, you stamp each one as you get there, and a finished passport earns a stamped award you can share.")}
-                </p>
                 {myPassports.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2" data-testid="my-passports">
                     <span className="self-center text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Your passports")}</span>
@@ -1328,11 +1342,6 @@ export default function Home() {
                 <ModeSetup
                   accent="#2E7D32"
                   testId="passport-setup"
-                  steps={[
-                    t("Pick any category — a brewery tour, a park run, a summer of diners."),
-                    t("Choose how many stops and where to search."),
-                    t("Deal it — then stamp each stop as you get there, over days or weeks."),
-                  ]}
                   zip={zip}
                   setZip={setZip}
                   coords={coords}
@@ -1351,7 +1360,17 @@ export default function Home() {
 
             {groupMode && (
               <div className="mt-2 w-full basis-full rounded-2xl border border-[#E01E26]/30 bg-[#FDF6F6] p-4" data-testid="group-picker">
-                <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Pick a category")}</p>
+                <p className="font-serif text-xl font-bold text-[#0E0E0E]">{t("Group Mode")}</p>
+                <StepList
+                  testId="group-steps"
+                  accent="#E01E26"
+                  steps={[
+                    t("Pick your category — Stay for camping, Explore for parks and trails, Food for meals."),
+                    t("Set where to search and how far."),
+                    t("Deal 3 spots at once, then let the group vote."),
+                  ]}
+                />
+                <p className="mb-1.5 mt-4 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Pick a category")}</p>
                 <div className="grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-white p-1" data-testid="group-category-picker">
                   {MODE_TABS.map(({ key, label, Icon }) => (
                     <button
@@ -1385,11 +1404,6 @@ export default function Home() {
                 <ModeSetup
                   accent="#E01E26"
                   testId="group-setup"
-                  steps={[
-                    t("Pick your category — Stay for camping, Explore for parks and trails, Food for meals."),
-                    t("Set where to search and how far."),
-                    t("Deal 3 spots at once, then let the group vote."),
-                  ]}
                   zip={zip}
                   setZip={setZip}
                   coords={coords}

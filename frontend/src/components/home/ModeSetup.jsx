@@ -11,6 +11,27 @@ import { useLang } from "../../i18n/i18n";
  * Before this existed the panels sat BELOW the main Deal button, so turning a
  * mode on meant scrolling up to Deal and further up again for ZIP/radius.
  */
+/** The numbered how-it-works list for a mode panel — shown at the very top so
+ *  nobody starts filling the form before they know the flow. */
+export function StepList({ steps, accent = "#E01E26", testId = "mode-steps" }) {
+  if (!steps?.length) return null;
+  return (
+    <ol className="mt-3 space-y-1.5 rounded-2xl border border-black/5 bg-white p-4" data-testid={testId}>
+      {steps.map((s, i) => (
+        <li key={i} className="flex gap-2.5 font-sans text-sm text-[#3A3F45]">
+          <span
+            className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px] font-bold text-white"
+            style={{ backgroundColor: accent }}
+          >
+            {i + 1}
+          </span>
+          <span>{s}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export default function ModeSetup({
   accent = "#E01E26",
   steps = [],

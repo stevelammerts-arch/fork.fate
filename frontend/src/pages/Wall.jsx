@@ -83,8 +83,13 @@ export default function Wall() {
                     {p.label || MODE_LABELS[p.mode] || "Fate Passport"} · {p.stops} stops
                     {p.completed_at ? ` · ${new Date(p.completed_at).toLocaleDateString()}` : ""}
                   </p>
-                  <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#E8F3E9] px-2.5 py-1 font-sans text-[11px] font-bold uppercase tracking-wider text-[#2E7D32]">
-                    <ShieldCheck className="h-3.5 w-3.5" /> Verified on site
+                  <span
+                    className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-sans text-[11px] font-bold uppercase tracking-wider ${
+                      p.verified >= p.stops ? "bg-[#E8F3E9] text-[#2E7D32]" : "bg-[#EDEEF0] text-[#6B7075]"
+                    }`}
+                  >
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                    {p.verified >= p.stops ? "Verified on site" : `${p.verified}/${p.stops} on site`}
                   </span>
                 </div>
               </Link>
