@@ -86,6 +86,7 @@ export default function Home() {
   }, [themeHint]);
   const [mode, setMode] = useState("food");
   const [zip, setZip] = useState("");
+  const [destination, setDestination] = useState("");
   const [coords, setCoords] = useState(null);
   const [geoLoading, setGeoLoading] = useState(false);
   const [selectedCuisines, setSelectedCuisines] = useState([]);
@@ -391,6 +392,7 @@ export default function Home() {
       const cats = allMode && !crawlMode && !passportMode ? ANY_CATEGORIES : [categoryArg];
       const body = {
         zip_code: coordsArg ? null : z || null,
+        place_query: coordsArg || z ? null : (destination.trim() || null),
         lat: coordsArg?.lat ?? null,
         lng: coordsArg?.lng ?? null,
         price_levels: pricesArg,
@@ -1336,6 +1338,9 @@ export default function Home() {
                   setRadius={setRadius}
                   radiusMax={radiusMax}
                   busy={spinning || loading}
+                  showDestination
+                  destination={destination}
+                  setDestination={setDestination}
                   cta={loading ? t("Finding spots…") : t("Deal My Passport")}
                   onCta={spin}
                 />

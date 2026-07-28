@@ -76,6 +76,7 @@ class SponsorshipRequest(BaseModel):
 
 class PlacesSearchRequest(BaseModel):
     zip_code: Optional[str] = None
+    place_query: Optional[str] = Field(default=None, max_length=120)  # free text: "Omaha Nebraska", "Yellowstone National Park", etc.
     lat: Optional[float] = Field(default=None, ge=-90, le=90)
     lng: Optional[float] = Field(default=None, ge=-180, le=180)
     cuisines: List[str] = Field(default_factory=list, max_length=25)
@@ -92,6 +93,14 @@ class PlacesSearchRequest(BaseModel):
         if not re.fullmatch(r"\d{5}", v.strip()):
             raise ValueError("zip_code must be a 5-digit US ZIP")
         return v.strip()
+
+    @field_validator("place_query")
+    @classmethod
+    def _clean_place_query(cls, v):
+        if v is None:
+            return None
+        v = v.strip()
+        return v or None
 
     @field_validator("category")
     @classmethod

@@ -134,8 +134,9 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
             aria-pressed={plan === "monthly"}
             className={`relative rounded-2xl border p-4 text-center transition-colors ${plan === "monthly" ? "border-[#E01E26] bg-[#E01E26]/5 ring-1 ring-[#E01E26]" : "border-[#E2E4E7] bg-[#F5F6F7] hover:border-[#D5D8DC]"}`}
           >
+            <span className="absolute -top-2 left-2 rounded-full bg-[#E6B23A] px-2 py-0.5 font-sans text-[10px] font-bold text-black" data-testid="sponsor-monthly-founder">{t("Founder")}</span>
             <p className="font-sans text-xs font-bold uppercase tracking-wide text-[#6B7075]">{t("Monthly")}</p>
-            <p className="mt-1 font-serif text-2xl font-semibold text-[#0E0E0E]">$29<span className="text-sm text-[#6B7075]">/{t("mo")}</span></p>
+            <p className="mt-1 font-serif text-2xl font-semibold text-[#0E0E0E]">$19<span className="text-sm text-[#6B7075]">/{t("mo")}</span> <span className="ml-1 align-middle text-xs text-[#8A8F95] line-through">$29</span></p>
             <p className="mt-1 font-sans text-[11px] font-semibold text-[#E01E26]">{t("First month FREE")}</p>
           </button>
           <button
@@ -145,14 +146,14 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
             aria-pressed={plan === "yearly"}
             className={`relative rounded-2xl border p-4 text-center transition-colors ${plan === "yearly" ? "border-[#E01E26] bg-[#E01E26]/5 ring-1 ring-[#E01E26]" : "border-[#E2E4E7] bg-[#F5F6F7] hover:border-[#D5D8DC]"}`}
           >
-            <span className="absolute -top-2 right-2 rounded-full bg-[#E01E26] px-2 py-0.5 font-sans text-[10px] font-bold text-white" data-testid="sponsor-yearly-savings">{t("Save $58/yr")}</span>
+            <span className="absolute -top-2 right-2 rounded-full bg-[#E01E26] px-2 py-0.5 font-sans text-[10px] font-bold text-white" data-testid="sponsor-yearly-savings">{t("Save $38/yr")}</span>
             <p className="font-sans text-xs font-bold uppercase tracking-wide text-[#6B7075]">{t("Yearly")}</p>
-            <p className="mt-1 font-serif text-2xl font-semibold text-[#0E0E0E]">$290<span className="text-sm text-[#6B7075]">/{t("yr")}</span></p>
+            <p className="mt-1 font-serif text-2xl font-semibold text-[#0E0E0E]">$190<span className="text-sm text-[#6B7075]">/{t("yr")}</span> <span className="ml-1 align-middle text-xs text-[#8A8F95] line-through">$290</span></p>
             <p className="mt-1 font-sans text-[11px] font-semibold text-[#E01E26]">{t("2 months free")}</p>
           </button>
         </div>
         <p className="text-center font-sans text-xs text-[#8A8F95]" data-testid="sponsor-plan-note">
-          {plan === "yearly" ? t("Billed $290 today, then annually · cancel anytime") : t("Free first month, then $29/month · cancel anytime")}
+          {plan === "yearly" ? t("Billed $190 today, then annually · cancel anytime") : t("Free first month, then $19/month · cancel anytime")}
         </p>
 
         <div className="space-y-3 py-1">

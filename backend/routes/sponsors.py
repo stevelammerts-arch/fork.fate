@@ -166,12 +166,13 @@ async def _ensure_paypal_product(http: httpx.AsyncClient, h: dict) -> str:
 
 def _plan_spec(period: str, product_id: str) -> dict:
     """PayPal billing-plan body for the given period.
-    monthly: free first month, then $29/mo. yearly: $290/yr charged up front, no trial."""
+    monthly: free first month, then $19/mo (founder's discount).
+    yearly: $190/yr charged up front, no trial."""
     if period == "yearly":
         return {
             "product_id": product_id,
-            "name": "Fork·Fate Sponsor — $290/yr",
-            "description": "Sponsored placement on Fork·Fate. Billed $290/year (2 months free).",
+            "name": "Fork·Fate Sponsor — $190/yr (Founder's price)",
+            "description": "Sponsored placement on Fork·Fate. Founder's launch price — billed $190/year (2 months free).",
             "billing_cycles": [
                 {"frequency": {"interval_unit": "YEAR", "interval_count": 1}, "tenure_type": "REGULAR",
                  "sequence": 1, "total_cycles": 0,
@@ -186,8 +187,8 @@ def _plan_spec(period: str, product_id: str) -> dict:
         }
     return {
         "product_id": product_id,
-        "name": "Fork·Fate Sponsor — $29/mo",
-        "description": "Sponsored placement on Fork·Fate. First month free, then $29/month.",
+        "name": "Fork·Fate Sponsor — $19/mo (Founder's price)",
+        "description": "Sponsored placement on Fork·Fate. Founder's launch price — first month free, then $19/month.",
         "billing_cycles": [
             {"frequency": {"interval_unit": "MONTH", "interval_count": 1}, "tenure_type": "TRIAL",
              "sequence": 1, "total_cycles": 1,

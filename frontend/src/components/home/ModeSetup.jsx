@@ -50,6 +50,9 @@ export default function ModeSetup({
   busy = false,
   showRadius = true,
   showCta = true,
+  showDestination = false,
+  destination = "",
+  setDestination,
   testId = "mode-setup",
 }) {
   const { t } = useLang();
@@ -103,6 +106,24 @@ export default function ModeSetup({
               {geoLoading ? t("Locating…") : coords ? t("Using your location") : t("Use my location")}
             </button>
           </div>
+          {showDestination && (
+            <>
+              <p className="mb-1.5 mt-3 font-sans text-xs font-bold uppercase tracking-wider text-[#6B7075]">
+                {t("Or destination")} <span className="text-[#B8BCC2]">{t("(optional)")}</span>
+              </p>
+              <div className="flex items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-1.5 focus-within:border-[#0E0E0E]">
+                <Search className="h-4 w-4 shrink-0 text-[#6B7075]" />
+                <Input
+                  data-testid={`${testId}-destination`}
+                  value={destination}
+                  onChange={(e) => { setDestination(e.target.value); setCoords(null); if (e.target.value) setZip(""); }}
+                  placeholder={t("e.g. Omaha, Nebraska or Yellowstone")}
+                  className="border-0 bg-transparent px-1 text-base font-semibold text-[#0E0E0E] shadow-none focus-visible:ring-0"
+                />
+              </div>
+              <p className="mt-1 font-sans text-[11px] text-[#8A8F95]">{t("Type a city, town, park, or landmark — anything Google Maps understands.")}</p>
+            </>
+          )}
         </>
       )}
 

@@ -38,8 +38,8 @@ PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID')
 PAYPAL_SECRET = os.environ.get('PAYPAL_SECRET')
 PAYPAL_WEBHOOK_ID = os.environ.get('PAYPAL_WEBHOOK_ID')
 PAYPAL_BASE = "https://api-m.paypal.com" if PAYPAL_ENV == "live" else "https://api-m.sandbox.paypal.com"
-SPONSOR_PRICE = "29.00"
-SPONSOR_PRICE_ANNUAL = "290.00"  # 2 months free vs 12 × monthly
+SPONSOR_PRICE = "19.00"          # Founder's launch discount (was $29/mo)
+SPONSOR_PRICE_ANNUAL = "190.00"  # 2 months free vs 12 × monthly (10 × $19)
 JWT_ALG = "HS256"
 JWT_ISS = os.environ.get("JWT_ISS", "fork-fate")
 JWT_AUD = os.environ.get("JWT_AUD", "fork-fate-admin")

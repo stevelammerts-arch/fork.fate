@@ -1,0 +1,54 @@
+{
+  "summary": "Tested new optional destination (place_query) field on Passport picker. Verified backend geocoding via Google address param, priority ordering, validation, and frontend wiring. 8/9 backend tests pass; 1 failure exposed a genuine backend cache-key bug. Frontend correctly posts place_query and receives real Omaha results, but ZIP->destination mutual exclusion is one-way (bug).",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "POST /api/places/search",
+        "issue": "_places_cache_key() in routes/places.py does NOT include place_query in the cache tuple. Two requests with different place_query values but the same (category, zip_code=None, lat=None, lng=None, radius, cuisines, price_levels, open_now) collide and the second request returns results from the FIRST destination. Reproduced live: POST {category:'drinks', place_query:'anothergibberishzzzz'} returned cached San Diego results from the earlier {category:'drinks', place_query:'San Diego California'} call, and POST {category:'food', place_query:'gibberishxxxx999notaplace'} returned cached Omaha results from a prior Omaha query instead of returning 400. This also means when a user changes their typed destination they may get results for a totally different place (very confusing) AND the invalid-input 400 protection is silently bypassed for the TTL window (default 60s+).",
+        "priority": "HIGH",
+        "fix": "Add req.place_query (lowercased or as-is) to the tuple returned by _places_cache_key in /app/backend/routes/places.py line 447-453."
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "ModeSetup (Passport picker)",
+        "issue": "Mutual-exclusion between ZIP and destination is one-way. Typing in destination correctly clears zip (line 119: setZip('')), but typing in the ZIP field does NOT clear destination. Repro: enter 'Omaha Nebraska' in destination, then type '90210' in ZIP — destination still reads 'Omaha Nebraska'. Spec: 'typing a ZIP clears the destination field (mutually exclusive input)'.",
+        "selector": "[data-testid=\"passport-setup-zip\"] onChange in /app/frontend/src/components/home/ModeSetup.jsx line 89",
+        "priority": "MEDIUM",
+        "fix": "In the ZIP <Input> onChange handler add `if (setDestination) setDestination('');` so it mirrors the destination -> zip clearing."
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_place_query_destination.py",
+    "/app/test_reports/pytest/place_query_results.xml"
+  ],
+  "action_items": [
+    "Fix backend cache-key: include place_query in _places_cache_key() (routes/places.py ~L447). This causes wrong-city results AND masks the 400 validation for invalid queries.",
+    "Fix frontend ZIP input to also clear destination on change (ModeSetup.jsx L89) to make mutual exclusion symmetric per spec."
+  ],
+  "critical_code_review_comments": [
+    "routes/places.py _places_cache_key omits place_query — different destinations share a cache slot (bug).",
+    "routes/places.py _resolve_latlng caches place_query lookups in _ZIP_GEO_CACHE (a global dict). This is fine for lat/lng resolution but keys and zip keys share a namespace; today ZIPs are 5-digit strings and place_query is lowercased free text, so collisions are unlikely, but it would be safer to use a separate cache dict for text queries.",
+    "The invalid place_query 400 error message ('Try adding a state or country.') is friendly — good UX.",
+    "Frontend correctly gates the API payload: place_query is only sent when coords and zip are empty (Home.jsx L395). Good."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_place_query_destination.py (new)"
+  ],
+  "success_rate": {
+    "backend": "89% (8/9 tests pass; the one failure is a real backend cache bug, not a test issue)",
+    "frontend": "80% (destination shows on Passport only, posts place_query correctly, dest->zip clearing works, but zip->dest clearing missing)"
+  },
+  "test_credentials": "N/A",
+  "seed_data_creation": "None",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "After main agent fixes: (1) verify _places_cache_key now includes place_query by running the failing test test_invalid_place_query_returns_400 in isolation AND after a successful place_query call — it must still return 400. (2) verify typing '90210' in passport-setup-zip clears passport-setup-destination. Backend pytest file already committed at /app/backend/tests/test_place_query_destination.py. Passport-only destination input, Google geocoding fallback (Omaha, San Diego), priority (lat/lng > zip > place_query), 422 max_length, and whitespace trimming were all confirmed working.",
+  "rca of the issue": "Cache-key bug: _places_cache_key(req) hashes only category+zip+rounded lat/lng+radius+cuisines+price_levels+open_now. When zip=None, lat/lng=None (destination-only path), every distinct place_query with the same other fields maps to the SAME tuple key, so cached_google_search returns whichever destination was cached first for the _PLACES_TTL window. Consequence 1: user changes destination text but sees stale results from prior destination. Consequence 2: invalid place_query that SHOULD 400 during geocode is short-circuited by the cache hit and returns 200 with foreign results. Fix: add (req.place_query or '').lower() into the tuple."
+}

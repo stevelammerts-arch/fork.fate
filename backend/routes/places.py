@@ -90,27 +90,51 @@ _PLACES_FIELD_MASK = (
 
 
 async def _resolve_latlng(http, req: PlacesSearchRequest):
-    """Return (lat, lng) from explicit coords or a (cached/billed) ZIP geocode."""
+    """Return (lat, lng) from explicit coords, a (cached/billed) ZIP geocode,
+    or a free-text place query like 'Omaha Nebraska' or 'Yellowstone'."""
     if req.lat is not None and req.lng is not None:
         return req.lat, req.lng
-    cached = _ZIP_GEO_CACHE.get(req.zip_code)
-    if cached:
-        return cached
-    # The geocode leg is a separate billed Google call — reserve it against
-    # today's cap so cold-ZIP searches can't quietly double our spend.
-    if not await _google_reserve():
-        raise HTTPException(status_code=503, detail="search-budget-exceeded")
-    geo = await http.get("https://maps.googleapis.com/maps/api/geocode/json", params={
-        "components": f"postal_code:{req.zip_code}|country:US",
-        "key": GOOGLE_API_KEY,
-    })
-    gd = geo.json()
-    if gd.get("status") != "OK" or not gd.get("results"):
-        raise HTTPException(status_code=400, detail="Could not find that ZIP code")
-    loc = gd["results"][0]["geometry"]["location"]
-    latlng = (loc["lat"], loc["lng"])
-    _ZIP_GEO_CACHE[req.zip_code] = latlng
-    return latlng
+    # Prefer ZIP path when both are provided (5-digit ZIP is more precise).
+    if req.zip_code:
+        cached = _ZIP_GEO_CACHE.get(req.zip_code)
+        if cached:
+            return cached
+        # The geocode leg is a separate billed Google call — reserve it against
+        # today's cap so cold-ZIP searches can't quietly double our spend.
+        if not await _google_reserve():
+            raise HTTPException(status_code=503, detail="search-budget-exceeded")
+        geo = await http.get("https://maps.googleapis.com/maps/api/geocode/json", params={
+            "components": f"postal_code:{req.zip_code}|country:US",
+            "key": GOOGLE_API_KEY,
+        })
+        gd = geo.json()
+        if gd.get("status") != "OK" or not gd.get("results"):
+            raise HTTPException(status_code=400, detail="Could not find that ZIP code")
+        loc = gd["results"][0]["geometry"]["location"]
+        latlng = (loc["lat"], loc["lng"])
+        _ZIP_GEO_CACHE[req.zip_code] = latlng
+        return latlng
+    # Free-text destination (city, state, landmark) — geocode via Google's
+    # 'address' param which accepts anything a user might type into Google Maps.
+    if req.place_query:
+        cache_key = req.place_query.lower()
+        cached = _ZIP_GEO_CACHE.get(cache_key)
+        if cached:
+            return cached
+        if not await _google_reserve():
+            raise HTTPException(status_code=503, detail="search-budget-exceeded")
+        geo = await http.get("https://maps.googleapis.com/maps/api/geocode/json", params={
+            "address": req.place_query,
+            "key": GOOGLE_API_KEY,
+        })
+        gd = geo.json()
+        if gd.get("status") != "OK" or not gd.get("results"):
+            raise HTTPException(status_code=400, detail=f"Couldn't find '{req.place_query}'. Try adding a state or country.")
+        loc = gd["results"][0]["geometry"]["location"]
+        latlng = (loc["lat"], loc["lng"])
+        _ZIP_GEO_CACHE[cache_key] = latlng
+        return latlng
+    raise HTTPException(status_code=400, detail="Provide a location, ZIP code, or destination")
 
 
 def _build_text_query(category: str, cuisines: list) -> str:
@@ -450,7 +474,7 @@ async def cached_google_search(req: PlacesSearchRequest):
 @router.post("/places/search", dependencies=[Depends(rate_limit(20))])
 async def places_search(req: PlacesSearchRequest):
     sponsors = await fetch_active_sponsors(req)
-    if GOOGLE_API_KEY and (req.zip_code or (req.lat is not None and req.lng is not None)):
+    if GOOGLE_API_KEY and (req.zip_code or req.place_query or (req.lat is not None and req.lng is not None)):
         try:
             results, wx = await cached_google_search(req)
             if results:
