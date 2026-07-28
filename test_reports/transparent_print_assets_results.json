@@ -1,0 +1,278 @@
+{
+  "base_url": "https://web-fate-launch.preview.emergentagent.com/downloads",
+  "expected_files": [
+    "01-spring-petals-CHEST-12x14-WHITE-TRANSPARENT.png",
+    "02-spring-tree-CHEST-12x14-WHITE-TRANSPARENT.png",
+    "03-spring-scene-BACK-14x18-WHITE-TRANSPARENT.png",
+    "04-fall-scene-BACK-14x18-WHITE-TRANSPARENT.png",
+    "05-spring-FF-badge-CHEST-3x3-WHITE-TRANSPARENT.png",
+    "06-fall-FF-badge-CHEST-3x3-WHITE-TRANSPARENT.png",
+    "07-reaper-crypt-BACK-14x18-TRANSPARENT.png",
+    "08-reaper-classic-BACK-14x18-TRANSPARENT.png",
+    "09-forkfate-circular-logo-BLACK-TRANSPARENT.png"
+  ],
+  "zip": {
+    "url": "https://web-fate-launch.preview.emergentagent.com/downloads/fork-fate-transparent-print-files.zip",
+    "status_code": 200,
+    "content_type": "application/zip",
+    "size_bytes": 61042099,
+    "size_mb": 58.21,
+    "contained_files": [
+      "01-spring-petals-CHEST-12x14-WHITE-TRANSPARENT.png",
+      "02-spring-tree-CHEST-12x14-WHITE-TRANSPARENT.png",
+      "03-spring-scene-BACK-14x18-WHITE-TRANSPARENT.png",
+      "04-fall-scene-BACK-14x18-WHITE-TRANSPARENT.png",
+      "05-spring-FF-badge-CHEST-3x3-WHITE-TRANSPARENT.png",
+      "06-fall-FF-badge-CHEST-3x3-WHITE-TRANSPARENT.png",
+      "07-reaper-crypt-BACK-14x18-TRANSPARENT.png",
+      "08-reaper-classic-BACK-14x18-TRANSPARENT.png",
+      "09-forkfate-circular-logo-BLACK-TRANSPARENT.png"
+    ]
+  },
+  "pngs": {
+    "01-spring-petals-CHEST-12x14-WHITE-TRANSPARENT.png": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/downloads/01-spring-petals-CHEST-12x14-WHITE-TRANSPARENT.png",
+      "status_code": 200,
+      "content_type": "image/png",
+      "size_bytes": 2760068,
+      "sha256": "d3cb7a2bf5f736769ea2606a04d9a2cdeebcc44d29c2254fc4ca9ec5a88352a3",
+      "mode": "RGBA",
+      "size": [
+        3600,
+        4200
+      ],
+      "dpi": [
+        299.9994,
+        299.9994
+      ],
+      "has_rgba": true,
+      "unique_alpha_values": [
+        0,
+        255
+      ],
+      "hard_alpha_only": true,
+      "transparent_pct": 88.63200396825397,
+      "dpi_300": true
+    },
+    "02-spring-tree-CHEST-12x14-WHITE-TRANSPARENT.png": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/downloads/02-spring-tree-CHEST-12x14-WHITE-TRANSPARENT.png",
+      "status_code": 200,
+      "content_type": "image/png",
+      "size_bytes": 4763906,
+      "sha256": "2c5b658669c0b76264e4bb00b06d50b5384bd8b8e52964b5a6ec7411a467f27f",
+      "mode": "RGBA",
+      "size": [
+        3600,
+        4200
+      ],
+      "dpi": [
+        299.9994,
+        299.9994
+      ],
+      "has_rgba": true,
+      "unique_alpha_values": [
+        0,
+        255
+      ],
+      "hard_alpha_only": true,
+      "transparent_pct": 83.01920634920636,
+      "dpi_300": true
+    },
+    "03-spring-scene-BACK-14x18-WHITE-TRANSPARENT.png": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/downloads/03-spring-scene-BACK-14x18-WHITE-TRANSPARENT.png",
+      "status_code": 200,
+      "content_type": "image/png",
+      "size_bytes": 17110136,
+      "sha256": "720dd4d79603518f15298f6a337e4456b36c239901201c33f97e479f90e875d7",
+      "mode": "RGBA",
+      "size": [
+        4200,
+        5400
+      ],
+      "dpi": [
+        299.9994,
+        299.9994
+      ],
+      "has_rgba": true,
+      "unique_alpha_values": [
+        0,
+        255
+      ],
+      "hard_alpha_only": true,
+      "transparent_pct": 47.90187389770723,
+      "dpi_300": true
+    },
+    "04-fall-scene-BACK-14x18-WHITE-TRANSPARENT.png": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/downloads/04-fall-scene-BACK-14x18-WHITE-TRANSPARENT.png",
+      "status_code": 200,
+      "content_type": "image/png",
+      "size_bytes": 19524022,
+      "sha256": "d6c7abcff6759dbff74b2f16f41b48705c962a147afa91c69f2fbe5d2c97f15a",
+      "mode": "RGBA",
+      "size": [
+        4200,
+        5400
+      ],
+      "dpi": [
+        299.9994,
+        299.9994
+      ],
+      "has_rgba": true,
+      "unique_alpha_values": [
+        0,
+        255
+      ],
+      "hard_alpha_only": true,
+      "transparent_pct": 21.282460317460316,
+      "dpi_300": true
+    },
+    "05-spring-FF-badge-CHEST-3x3-WHITE-TRANSPARENT.png": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/downloads/05-spring-FF-badge-CHEST-3x3-WHITE-TRANSPARENT.png",
+      "status_code": 200,
+      "content_type": "image/png",
+      "size_bytes": 595742,
+      "sha256": "9d11e83da5ca4bfb93fdfbc2ae770bb1f3767e611ec0161eea5ff347c542bc7d",
+      "mode": "RGBA",
+      "size": [
+        900,
+        900
+      ],
+      "dpi": [
+        299.9994,
+        299.9994
+      ],
+      "has_rgba": true,
+      "unique_alpha_values": [
+        0,
+        255
+      ],
+      "hard_alpha_only": true,
+      "transparent_pct": 42.7383950617284,
+      "dpi_300": true
+    },
+    "06-fall-FF-badge-CHEST-3x3-WHITE-TRANSPARENT.png": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/downloads/06-fall-FF-badge-CHEST-3x3-WHITE-TRANSPARENT.png",
+      "status_code": 200,
+      "content_type": "image/png",
+      "size_bytes": 795482,
+      "sha256": "b537b017d3a04172be7217ef0ca13e22adef9d5a3a071a443af783eeea119f58",
+      "mode": "RGBA",
+      "size": [
+        900,
+        900
+      ],
+      "dpi": [
+        299.9994,
+        299.9994
+      ],
+      "has_rgba": true,
+      "unique_alpha_values": [
+        0,
+        255
+      ],
+      "hard_alpha_only": true,
+      "transparent_pct": 42.745432098765434,
+      "dpi_300": true
+    },
+    "07-reaper-crypt-BACK-14x18-TRANSPARENT.png": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/downloads/07-reaper-crypt-BACK-14x18-TRANSPARENT.png",
+      "status_code": 200,
+      "content_type": "image/png",
+      "size_bytes": 6880353,
+      "sha256": "631cc478ce53157ca218802c7bff8e6707a653527686b7fd96be557a54d9e9a0",
+      "mode": "RGBA",
+      "size": [
+        4200,
+        5400
+      ],
+      "dpi": [
+        299.9994,
+        299.9994
+      ],
+      "has_rgba": true,
+      "unique_alpha_values": [
+        0,
+        255
+      ],
+      "hard_alpha_only": true,
+      "transparent_pct": 81.1452204585538,
+      "dpi_300": true
+    },
+    "08-reaper-classic-BACK-14x18-TRANSPARENT.png": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/downloads/08-reaper-classic-BACK-14x18-TRANSPARENT.png",
+      "status_code": 200,
+      "content_type": "image/png",
+      "size_bytes": 6152210,
+      "sha256": "9ef63753d6160a7921a791ac2f16bdcc8a5a8e4a5d871f1f0bbf46333ef134ef",
+      "mode": "RGBA",
+      "size": [
+        4200,
+        5400
+      ],
+      "dpi": [
+        299.9994,
+        299.9994
+      ],
+      "has_rgba": true,
+      "unique_alpha_values": [
+        0,
+        255
+      ],
+      "hard_alpha_only": true,
+      "transparent_pct": 90.18792328042328,
+      "dpi_300": true
+    },
+    "09-forkfate-circular-logo-BLACK-TRANSPARENT.png": {
+      "url": "https://web-fate-launch.preview.emergentagent.com/downloads/09-forkfate-circular-logo-BLACK-TRANSPARENT.png",
+      "status_code": 200,
+      "content_type": "image/png",
+      "size_bytes": 3014521,
+      "sha256": "89b7038304509938004eb3ef9acdc4cdb7cab01ef0d4b85bfe5c781ec3352160",
+      "mode": "RGBA",
+      "size": [
+        3600,
+        3600
+      ],
+      "dpi": [
+        299.9994,
+        299.9994
+      ],
+      "has_rgba": true,
+      "unique_alpha_values": [
+        0,
+        255
+      ],
+      "hard_alpha_only": true,
+      "transparent_pct": 80.9283950617284,
+      "dpi_300": true
+    }
+  },
+  "local": {
+    "downloads_transparent_pngs": [
+      "01-spring-petals-CHEST-12x14-WHITE-TRANSPARENT.png",
+      "02-spring-tree-CHEST-12x14-WHITE-TRANSPARENT.png",
+      "03-spring-scene-BACK-14x18-WHITE-TRANSPARENT.png",
+      "04-fall-scene-BACK-14x18-WHITE-TRANSPARENT.png",
+      "05-spring-FF-badge-CHEST-3x3-WHITE-TRANSPARENT.png",
+      "06-fall-FF-badge-CHEST-3x3-WHITE-TRANSPARENT.png",
+      "07-reaper-crypt-BACK-14x18-TRANSPARENT.png",
+      "08-reaper-classic-BACK-14x18-TRANSPARENT.png",
+      "09-forkfate-circular-logo-BLACK-TRANSPARENT.png"
+    ],
+    "print_files_transparent_pngs": [
+      "01-spring-petals-CHEST-12x14-WHITE-TRANSPARENT.png",
+      "02-spring-tree-CHEST-12x14-WHITE-TRANSPARENT.png",
+      "03-spring-scene-BACK-14x18-WHITE-TRANSPARENT.png",
+      "04-fall-scene-BACK-14x18-WHITE-TRANSPARENT.png",
+      "05-spring-FF-badge-CHEST-3x3-WHITE-TRANSPARENT.png",
+      "06-fall-FF-badge-CHEST-3x3-WHITE-TRANSPARENT.png",
+      "07-reaper-crypt-BACK-14x18-TRANSPARENT.png",
+      "08-reaper-classic-BACK-14x18-TRANSPARENT.png",
+      "09-forkfate-circular-logo-BLACK-TRANSPARENT.png"
+    ],
+    "zip_exists_downloads": true,
+    "zip_exists_print_files": false,
+    "source_download_sha_mismatches": []
+  },
+  "failures": []
+}
