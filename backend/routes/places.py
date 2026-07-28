@@ -447,8 +447,9 @@ async def geocode_zip(zip: str):
 def _places_cache_key(req: PlacesSearchRequest):
     lat = round(req.lat, 3) if req.lat is not None else None
     lng = round(req.lng, 3) if req.lng is not None else None
+    place_q = (req.place_query or "").strip().lower() or None
     return (
-        req.category, req.zip_code, lat, lng, round(req.radius_miles, 1),
+        req.category, req.zip_code, place_q, lat, lng, round(req.radius_miles, 1),
         tuple(sorted(req.cuisines or [])), tuple(sorted(req.price_levels or [])), bool(req.open_now),
     )
 

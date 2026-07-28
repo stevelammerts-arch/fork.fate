@@ -1,0 +1,42 @@
+{
+  "verdict": "fixed",
+  "user_reported_bug": "Cache key collision on place_query field + ZIP input doesn't clear destination field (mutual exclusion is one-way)",
+  "summary": "No relevant testing skill found. Focused verification confirms both iteration_24 regressions are fixed: place_query is now part of the backend cache key, invalid destination queries are not served stale cached results, distinct destination searches return distinct city venues, and Passport ZIP/destination fields clear each other symmetrically in the real UI.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_place_query_destination.py",
+    "/app/test_reports/scripts/verify_iteration25_backend.py",
+    "/app/test_reports/scripts/verify_iteration25_frontend.py",
+    "/app/test_reports/scripts/verify_iteration25_forced_fallback.py"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Skill lookup completed before testing: no relevant testing skill found.",
+    "Code inspection confirmed /app/backend/routes/places.py _places_cache_key includes normalized req.place_query, preventing destination-only cache collisions.",
+    "Code inspection confirmed /app/frontend/src/components/home/ModeSetup.jsx ZIP onChange clears destination when a ZIP value is typed, while destination onChange still clears ZIP."
+  ],
+  "updated_files": [
+    "/app/test_reports/scripts/verify_iteration25_backend.py",
+    "/app/test_reports/scripts/verify_iteration25_frontend.py",
+    "/app/test_reports/scripts/verify_iteration25_forced_fallback.py",
+    "/app/test_reports/bug_verification_25.json",
+    "/app/test_reports/iteration_25.json"
+  ],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "100%"
+  },
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend evidence: pytest /app/backend/tests/test_place_query_destination.py passed 9/9. Focused live API script verified San Diego drinks then stillanotherbogusquery999 returns HTTP 400 with detail, Portland Oregon and Miami Florida return distinct Google venue signatures, place_query max_length returns 422, ZIP and lat/lng priority override place_query, no-location curated fallback returns curated results, and a forced Google failure falls back to curated. Frontend evidence: browser automation on preview opened Fate Passport and verified destination->ZIP clears destination and ZIP->destination clears ZIP using data-testid='passport-setup-destination' and data-testid='passport-setup-zip'.",
+  "rca_of_the_issue": "Original cache collision occurred because destination-only requests shared the same cache tuple when category/radius/filters matched but place_query differed. The fix adds normalized place_query to the tuple. Original UI issue occurred because destination input cleared ZIP, but ZIP input did not clear destination; ZIP onChange now mirrors that clearing behavior."
+}

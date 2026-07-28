@@ -86,7 +86,7 @@ export default function ModeSetup({
               <Input
                 data-testid={`${testId}-zip`}
                 value={coords ? "" : zip}
-                onChange={(e) => { const v = e.target.value.replace(/[^\d]/g, "").slice(0, 5); setZip(v); setCoords(null); if (v.length === 5) e.target.blur(); }}
+                onChange={(e) => { const v = e.target.value.replace(/[^\d]/g, "").slice(0, 5); setZip(v); setCoords(null); if (v && setDestination) setDestination(""); if (v.length === 5) e.target.blur(); }}
                 placeholder={coords ? t("Using your location") : "e.g. 10001"}
                 inputMode="numeric"
                 className="border-0 bg-transparent px-1 text-base font-semibold text-[#0E0E0E] shadow-none focus-visible:ring-0"
