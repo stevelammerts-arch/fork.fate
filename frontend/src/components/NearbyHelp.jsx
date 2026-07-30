@@ -24,7 +24,6 @@ const CATEGORIES = [
   { id: "vet",         label: "Vet",         hint: "Animal hospital",           Icon: Truck,      accent: "#B26A12" },
   { id: "pharmacy",    label: "Pharmacy",    hint: "24-hr chemist",             Icon: Pill,       accent: "#0E7C4A" },
   { id: "food_bank",   label: "Food Bank & Pantry", hint: "Pantries, soup kitchens, meals", Icon: HandHeart, accent: "#0E7C4A" },
-  { id: "gas",         label: "Gas",         hint: "Nearest fuel",              Icon: Fuel,       accent: "#4A5B6E" },
 ];
 
 export default function NearbyHelp({ light = false, zip = "", lat = null, lng = null }) {
@@ -66,7 +65,7 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
         <button
           type="button"
           data-testid="nearby-help-trigger"
-          title="Need help? — ER, urgent care, dentist, vet, pharmacy, gas"
+          title="Need help? — ER, urgent care, dentist, vet, pharmacy, food bank"
           aria-label="Need help"
           className={`inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${
             light ? "border-[#E4E4E7] text-[#0E0E0E] hover:bg-[#F7F7F8]" : "border-white/20 text-white hover:bg-white/10"
