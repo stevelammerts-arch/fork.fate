@@ -11,12 +11,16 @@
 - **End-to-end verified**: test chain sponsor created → showed in `/coupons/chains-nearby` but was correctly excluded from `/places/search` fate deck.
 
 **Need Help? sheet:**
-- **Trigger renamed** "Nearby help" → **"Need Help?"** in the header (per user request).
-- **6-category grid** (ER, urgent care, dentist, vet, pharmacy, gas) → top-3 nearest via `GET /api/places/essentials` (Google Places, distance-ranked).
-- **Crisis lifelines strip** (always visible below chip picker, gated to normal search mode): tel:988 · 988 press 1 (Veterans Crisis) · text 838255.
+- **In-sheet location controls**: ZIP input (auto-cleans to 5 digits) + "Use my location" button (geolocation API). Users can open the sheet fresh without having typed a ZIP in the main search first — critical for crisis moments.
+- **Radius selector**: 5 / 10 / 25 / 50 mile chips (default 25). Sent to backend as `radius_mi`; clamped 1–100 and converted to Google's `locationBias.circle.radius`. Changing radius clears the results cache so a re-tap fetches fresh.
+- **Trigger label** always visible on mobile (was hidden `sm:inline`).
+- **Trigger renamed** "Nearby help" → **"Need Help?"** in the header.
+- **6-category grid** (ER, urgent care, dentist, vet, pharmacy, food bank & pantry) — gas removed since it's covered by the main "Fuel & Go" tab.
+- **Non-shuffle flow** — plain list of the 3 closest results per category, direct call-and-directions actions, no roulette animation (deliberately different from the main app).
+- **Crisis lifelines strip** below chip picker: tel:988 · 988 press 1 (Veterans Crisis) · text 838255.
 - **Inline sheet disclaimer**: "Not a medical/dental/vet service. In a life-threatening emergency, call 911."
-- **Legal page**: new Section 4 "Nearby Help — Emergency, Medical & Care Listings" with the "not liable for diagnosis, treatment, care, outcome, delay, or harm" language. Sections 5–11 renumbered.
-- **Veteran-owned & managed** mention added to footer (gold-amber, uppercase pill).
+- **Legal page**: new Section 4 "Nearby Help — Emergency, Medical & Care Listings" with "not liable for diagnosis, treatment, care, outcome, delay, or harm" language.
+- **Veteran-owned & managed** mention in footer.
 
 **Sponsor Coupon System (previous):**
 - Coupon model, `<CouponReveal>` tap-to-reveal (winner + compact badge on alternates), `POST /api/sponsors/{id}/coupon-copy` deduped tracking, admin form fields.

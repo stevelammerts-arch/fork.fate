@@ -475,14 +475,19 @@ ESSENTIALS_QUERIES = {
 
 @router.get("/places/essentials", dependencies=[Depends(rate_limit(20))])
 async def places_essentials(lat: float | None = None, lng: float | None = None,
-                             zip: str | None = None, categories: str = ""):
+                             zip: str | None = None, categories: str = "",
+                             radius_mi: float = 25.0):
     """Return top-3 nearest venues per requested essentials category.
 
     Query params:
       - lat/lng OR zip (5-digit US) — one is required
-      - categories: comma-separated subset of er|urgent_care|dentist|vet|pharmacy|gas
-                    (empty = all six)
+      - categories: comma-separated subset of er|urgent_care|dentist|vet|pharmacy|food_bank|gas
+                    (empty = all)
+      - radius_mi: search radius in miles (default 25, clamped 1-100)
     """
+    # Clamp radius and convert to meters for Google's locationBias.circle
+    radius_mi = max(1.0, min(100.0, float(radius_mi or 25)))
+    radius_m = int(radius_mi * 1609.34)
     # Resolve location
     if lat is None or lng is None:
         if not zip or not re.fullmatch(r"\d{5}", zip.strip()):
@@ -530,7 +535,7 @@ async def places_essentials(lat: float | None = None, lng: float | None = None,
                 json={
                     "textQuery": ESSENTIALS_QUERIES[cat],
                     "locationBias": {
-                        "circle": {"center": {"latitude": lat, "longitude": lng}, "radius": 40000},
+                        "circle": {"center": {"latitude": lat, "longitude": lng}, "radius": radius_m},
                     },
                     "maxResultCount": 8,
                     "rankPreference": "DISTANCE",

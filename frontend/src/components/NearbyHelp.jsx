@@ -40,6 +40,7 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
     (lat != null && lng != null) ? { lat, lng } : null
   );
   const [locating, setLocating] = useState(false);
+  const [radiusMi, setRadiusMi] = useState(25);        // 5 | 10 | 25 | 50 miles
 
   const effectiveCoords = sheetCoords || ((lat != null && lng != null) ? { lat, lng } : null);
   const effectiveZip = (sheetZip || zip || "").trim();
@@ -79,10 +80,15 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
     setLoading(true); setError("");
     try {
       const params = new URLSearchParams();
-      if (lat != null && lng != null) { params.set("lat", lat); params.set("lng", lng); }
-      else if (zip) { params.set("zip", zip); }
-      else { setError("Set a ZIP or share location first, then reopen this."); setLoading(false); return; }
+      if (effectiveCoords?.lat != null && effectiveCoords?.lng != null) {
+        params.set("lat", effectiveCoords.lat); params.set("lng", effectiveCoords.lng);
+      } else if (effectiveZip && effectiveZip.length === 5) {
+        params.set("zip", effectiveZip);
+      } else {
+        setError("Enter a ZIP or tap Use my location above."); setLoading(false); return;
+      }
       params.set("categories", catId);
+      params.set("radius_mi", String(radiusMi));
       const { data: resp } = await axios.get(`${API}/places/essentials?${params.toString()}`);
       setData((prev) => ({ ...prev, [catId]: resp.categories?.[catId] || [] }));
     } catch (e) {
@@ -90,7 +96,7 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
     } finally {
       setLoading(false);
     }
-  }, [zip, lat, lng, data]);
+  }, [effectiveZip, effectiveCoords, radiusMi, data]);
 
   const pickCategory = (catId) => {
     setSelected(catId);
@@ -163,6 +169,28 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
               {effectiveCoords ? "Using your current location" : `Searching near ${effectiveZip}`}
             </p>
           )}
+
+          {/* Radius chips — control how far to search from the anchor point */}
+          <div className="mt-3 flex flex-wrap items-center gap-1.5" data-testid="nearby-help-radius">
+            <span className="mr-1 font-sans text-[10px] font-bold uppercase tracking-[0.14em] text-[#6B7075]">
+              Within
+            </span>
+            {[5, 10, 25, 50].map((mi) => (
+              <button
+                key={mi}
+                type="button"
+                onClick={() => { setRadiusMi(mi); setData({}); }}
+                data-testid={`nearby-help-radius-${mi}`}
+                className={`rounded-full px-3 py-1 font-sans text-xs font-bold transition-colors ${
+                  radiusMi === mi
+                    ? "bg-[#0E0E0E] text-white"
+                    : "border border-[#E2E4E7] bg-white text-[#6B7075] hover:border-[#0E0E0E] hover:text-[#0E0E0E]"
+                }`}
+              >
+                {mi} mi
+              </button>
+            ))}
+          </div>
 
           {!selected && (
             <div className="mt-5 grid grid-cols-2 gap-3" data-testid="nearby-help-grid">
