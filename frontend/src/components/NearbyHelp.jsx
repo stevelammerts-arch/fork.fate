@@ -48,20 +48,35 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
   const useMyLocation = () => {
     if (!navigator.geolocation) { setError("Location isn't available on this device."); return; }
     setLocating(true); setError("");
+    // Hard safety timer — some browsers silently drop the geolocation prompt
+    // (permission previously denied, insecure context, iframe policy blocked)
+    // and never fire either callback, leaving the button stuck on "Locating…".
+    let done = false;
+    const finish = (fn) => { if (done) return; done = true; fn(); };
+    const failsafe = setTimeout(() => {
+      finish(() => {
+        setLocating(false);
+        setError("Location request timed out — enter a ZIP below.");
+      });
+    }, 10000);
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      (pos) => finish(() => {
+        clearTimeout(failsafe);
         setSheetCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setSheetZip("");
         setData({});          // clear cached rows — new location means new results
         setLocating(false);
-      },
-      (e) => {
+      }),
+      (e) => finish(() => {
+        clearTimeout(failsafe);
         setLocating(false);
         setError(e.code === 1
-          ? "Location permission denied — enter a ZIP below."
-          : "Couldn't get your location — enter a ZIP below.");
-      },
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+          ? "Location permission denied — enter a ZIP below or allow location access in your browser settings."
+          : e.code === 2
+          ? "Your device couldn't determine location — enter a ZIP below."
+          : "Location request timed out — enter a ZIP below.");
+      }),
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
     );
   };
 
@@ -165,8 +180,17 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
             </button>
           </div>
           {(effectiveCoords || (effectiveZip && effectiveZip.length === 5)) && (
-            <p className="mt-1.5 font-sans text-[11px] text-[#6B7075]" data-testid="nearby-help-location-hint">
+            <p className="mt-1.5 font-sans text-[11px] text-[#0E7C4A]" data-testid="nearby-help-location-hint">
               {effectiveCoords ? "Using your current location" : `Searching near ${effectiveZip}`}
+            </p>
+          )}
+          {/* Location errors surface here even before a category is picked */}
+          {error && !selected && (
+            <p
+              className="mt-1.5 rounded-xl bg-[#FCF4F4] px-3 py-2 font-sans text-xs font-bold text-[#E01E26]"
+              data-testid="nearby-help-location-error"
+            >
+              {error}
             </p>
           )}
 
