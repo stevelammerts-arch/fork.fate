@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, Search, ExternalLink, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, Flame, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, ArrowRight, Swords, Mountain, Tent, Stamp, Globe2 } from "lucide-react";
+import { Dices, Star, MapPin, Search, ExternalLink, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, Flame, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, ArrowRight, Swords, Mountain, Tent, Stamp, Globe2, Phone } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import AddRestaurantDialog from "../components/AddRestaurantDialog";
@@ -14,6 +14,7 @@ import AndroidBetaBanner from "../components/AndroidBetaBanner";
 import SocialShare from "../components/SocialShare";
 import CheckUpdatesButton from "../components/CheckUpdatesButton";
 import FavoritesDrawer from "../components/FavoritesDrawer";
+import NearbyHelp from "../components/NearbyHelp";
 import { useFavorites } from "../hooks/useFavorites";
 import GuidedFlow from "../components/GuidedFlow";
 import PubCrawlDialog from "../components/PubCrawlDialog";
@@ -839,6 +840,12 @@ export default function Home() {
             >
               <ShoppingBag className="h-4 w-4 text-[#E01E26]" /> <span>{t("Shop")}</span>
             </Link>
+            <NearbyHelp
+              light={light}
+              zip={zip}
+              lat={coords?.lat ?? null}
+              lng={coords?.lng ?? null}
+            />
             <ReigningChampBadge light={light} />
             <button
               onClick={toggleMuted}
@@ -1147,6 +1154,43 @@ export default function Home() {
               </>
               )}
             </div>
+
+            {/* Crisis lifelines — always visible below the chip picker so anyone
+                who lands on the page while struggling sees help immediately.
+                Numbers are US-standard (988 dial code, launched July 2022). */}
+            {!crawlMode && !passportMode && !groupMode && (
+              <div
+                className="rounded-2xl border border-[#F0A24E] bg-[#FFF7E6] px-4 py-3"
+                data-testid="crisis-hotlines"
+              >
+                <p className="mb-1.5 font-sans text-[10px] font-bold uppercase tracking-[0.18em] text-[#8A5210]">
+                  If you or someone you know is in crisis
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <a
+                    href="tel:988"
+                    data-testid="crisis-hotline-988"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#0E0E0E] px-3.5 py-1.5 font-sans text-xs font-bold text-white hover:bg-[#2A2A2A]"
+                  >
+                    <Phone className="h-3.5 w-3.5" /> 988 · Suicide & Crisis Lifeline
+                  </a>
+                  <a
+                    href="tel:988,1"
+                    data-testid="crisis-hotline-veterans"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#0E0E0E] px-3.5 py-1.5 font-sans text-xs font-bold text-white hover:bg-[#2A2A2A]"
+                  >
+                    <Phone className="h-3.5 w-3.5" /> 988 press 1 · Veterans Crisis Line
+                  </a>
+                  <a
+                    href="sms:838255"
+                    data-testid="crisis-hotline-veterans-text"
+                    className="inline-flex items-center gap-2 rounded-full border border-[#0E0E0E] px-3.5 py-1.5 font-sans text-xs font-bold text-[#0E0E0E] hover:bg-[#0E0E0E] hover:text-white"
+                  >
+                    Text 838255
+                  </a>
+                </div>
+              </div>
+            )}
 
             <button
               type="button"
@@ -1752,6 +1796,12 @@ export default function Home() {
           <div className="order-3 flex flex-col items-center gap-1.5 md:order-2">
             <p className={`font-sans text-xs ${light ? "text-[#6E6355]" : "text-[#8A8F95]"}`}>
               © {new Date().getFullYear()} {t("Fork·Fate — let fate decide. All rights reserved.")}
+            </p>
+            <p
+              data-testid="veteran-owned-mention"
+              className={`inline-flex items-center gap-1.5 font-sans text-[11px] font-bold uppercase tracking-[0.14em] ${light ? "text-[#8A5210]" : "text-[#E6B23A]"}`}
+            >
+              <span aria-hidden="true">★</span> Veteran-owned & managed <span aria-hidden="true">★</span>
             </p>
             <div className="flex items-center gap-3">
               <a
