@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import axios from "axios";
 import {
-  Heart, Stethoscope, Cross, Truck, Fuel, Pill, MapPin, Phone, ExternalLink, LifeBuoy, AlertTriangle, HandHeart,
+  Heart, Stethoscope, Cross, Truck, Fuel, Pill, MapPin, Phone, ExternalLink, LifeBuoy, AlertTriangle, HandHeart, LocateFixed,
 } from "lucide-react";
 import {
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription,
@@ -32,6 +32,47 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
   const [data, setData] = useState({});                // { catId: rows[] }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // Sheet-local location — lets someone open the sheet without having typed a
+  // ZIP in the main search yet (critical for someone opening the app in a
+  // crisis moment). Falls back to the props from Home when empty.
+  const [sheetZip, setSheetZip] = useState(zip || "");
+  const [sheetCoords, setSheetCoords] = useState(
+    (lat != null && lng != null) ? { lat, lng } : null
+  );
+  const [locating, setLocating] = useState(false);
+
+  const effectiveCoords = sheetCoords || ((lat != null && lng != null) ? { lat, lng } : null);
+  const effectiveZip = (sheetZip || zip || "").trim();
+
+  const useMyLocation = () => {
+    if (!navigator.geolocation) { setError("Location isn't available on this device."); return; }
+    setLocating(true); setError("");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setSheetCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setSheetZip("");
+        setData({});          // clear cached rows — new location means new results
+        setLocating(false);
+      },
+      (e) => {
+        setLocating(false);
+        setError(e.code === 1
+          ? "Location permission denied — enter a ZIP below."
+          : "Couldn't get your location — enter a ZIP below.");
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+    );
+  };
+
+  const onZipChange = (v) => {
+    const digits = v.replace(/[^0-9]/g, "").slice(0, 5);
+    setSheetZip(digits);
+    if (digits.length === 5 || digits.length === 0) {
+      // ZIP changed → clear cached rows and any previously-set coords
+      setSheetCoords(null);
+      setData({});
+    }
+  };
 
   const fetchCategory = useCallback(async (catId) => {
     if (data[catId]) return;                            // cached
@@ -88,6 +129,40 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
               The 3 closest options for each urgent need. Sourced from Google Places.
             </SheetDescription>
           </SheetHeader>
+
+          {/* Location controls — always accessible so anyone can open the
+              sheet fresh without first typing a ZIP in the main search. */}
+          <div className="mt-4 flex flex-wrap items-center gap-2" data-testid="nearby-help-location">
+            <div className="relative flex-1 min-w-[130px]">
+              <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8A8F95]" />
+              <input
+                type="tel"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={5}
+                value={sheetZip}
+                onChange={(e) => onZipChange(e.target.value)}
+                placeholder="ZIP code"
+                data-testid="nearby-help-zip-input"
+                className="w-full rounded-full border border-[#E2E4E7] bg-white py-2.5 pl-9 pr-3 font-sans text-sm text-[#0E0E0E] outline-none focus:border-[#0E0E0E]"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={useMyLocation}
+              disabled={locating}
+              data-testid="nearby-help-use-location"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#0E0E0E] bg-white px-3.5 py-2 font-sans text-xs font-bold text-[#0E0E0E] hover:bg-[#0E0E0E] hover:text-white disabled:opacity-60"
+            >
+              <LocateFixed className="h-3.5 w-3.5" />
+              {locating ? "Locating…" : "Use my location"}
+            </button>
+          </div>
+          {(effectiveCoords || (effectiveZip && effectiveZip.length === 5)) && (
+            <p className="mt-1.5 font-sans text-[11px] text-[#6B7075]" data-testid="nearby-help-location-hint">
+              {effectiveCoords ? "Using your current location" : `Searching near ${effectiveZip}`}
+            </p>
+          )}
 
           {!selected && (
             <div className="mt-5 grid grid-cols-2 gap-3" data-testid="nearby-help-grid">
