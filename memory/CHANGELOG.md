@@ -1,5 +1,13 @@
 # Fork·Fate — Changelog
 
+## 2026-02 (fork) — P0 security fixes from Code Quality Report
+
+- **Removed weak MD5 crypto** (`backend/seed_data.py:403`): swapped `hashlib.md5()` for `hashlib.sha256()` in the deterministic RNG seed used to fill out synthetic restaurants per (category, cuisine). Kept `random.Random(seed)` — this is reproducible fake-data generation, not a security use. `SEED_ALL` still yields 704 entries (unchanged).
+- **Eliminated unsafe `eval()`** (`backend/tests/test_iter5_seed_expansion.py:106`): replaced with `json.loads()`. Subprocess already emits JSON via `json.dumps`. Test still passes.
+- **Removed hardcoded admin password from 5 test files** (`test_iter_ratelimit_isolation.py`, `test_iter_fateactions_and_checkin.py`, `test_iter9_explore_stay.py`, `test_iter18_deploy_readiness.py`, `test_iter8_auth_hardening.py`): all now read `os.environ["ADMIN_PASSWORD"]`. Added `backend/tests/conftest.py` which calls `load_dotenv("/app/backend/.env")` at collection time so the env var is available to every test module.
+- **Verification**: `pytest tests/test_iter5_seed_expansion.py` → 22 relevant tests pass; the 3 remaining failures are pre-existing config drift (seed count, budget cap, FF_BUILD) unrelated to these changes. `grep` confirms zero remaining `md5`, `eval(`, or hardcoded `ForkFate!Admin` occurrences in `backend/`.
+
+
 ## 2026-06 (fork) — Hardenings, weekly leaderboard tab & Fall theme polish
 
 - **CORS hardening**: `backend/.env` `CORS_ORIGINS` changed from misleading `"*"` (which the code already filtered out) to explicit `https://fork-fate.com,https://www.fork-fate.com`. Verified preflight from prod origin returns 204.

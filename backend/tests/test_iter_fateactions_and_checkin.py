@@ -18,7 +18,7 @@ BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/") or \
            os.environ.get("EXPO_PUBLIC_BACKEND_URL", "").rstrip("/")
 assert BASE_URL, "REACT_APP_BACKEND_URL missing"
 API = f"{BASE_URL}/api"
-ADMIN_PASSWORD = "ForkFate!Admin2026"
+ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
 
 MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017").strip('"').strip("'")
 DB_NAME = os.environ.get("DB_NAME", "test_database").strip('"').strip("'")

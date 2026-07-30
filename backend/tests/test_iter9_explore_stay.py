@@ -7,7 +7,7 @@ import requests
 
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://fate-mobile-build.preview.emergentagent.com").rstrip("/")
 API = f"{BASE_URL}/api"
-ADMIN_PASSWORD = "ForkFate!Admin2026"
+ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
 
 
 @pytest.fixture(scope="session")

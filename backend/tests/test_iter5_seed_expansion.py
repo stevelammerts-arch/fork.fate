@@ -1,4 +1,5 @@
 """Iteration 5 — verify curated seed depth-up-to-4 change (bug: '1 more to consider')."""
+import json
 import os
 import subprocess
 import time
@@ -103,7 +104,7 @@ class TestDataDepth:
         env['GOOGLE_API_KEY'] = ""
         p = subprocess.run(["python", "-c", code], capture_output=True, text=True, env=env, timeout=15)
         assert p.returncode == 0, p.stderr
-        data = eval(p.stdout.strip().splitlines()[-1])
+        data = json.loads(p.stdout.strip().splitlines()[-1])
         for k, n in data.items():
             assert n >= 4, f"{k} curated depth {n} < 4"
 

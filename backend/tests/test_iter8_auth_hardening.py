@@ -6,7 +6,7 @@ import pytest
 import requests
 
 BASE = "http://localhost:8001"
-PWD = "ForkFate!Admin2026"
+PWD = os.environ["ADMIN_PASSWORD"]
 
 
 def _clear_lockout():

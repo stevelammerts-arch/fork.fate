@@ -5,7 +5,7 @@ import requests
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://web-fate-launch.preview.emergentagent.com').rstrip('/')
 UA = {"User-Agent": "Mozilla/5.0 (Iter18Test)"}
-ADMIN_PW = "ForkFate!Admin2026"
+ADMIN_PW = os.environ["ADMIN_PASSWORD"]
 
 
 @pytest.fixture(scope="module")

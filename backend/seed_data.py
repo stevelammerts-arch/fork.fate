@@ -400,7 +400,9 @@ def expand_seed(seed):
         need = MIN_PER_CUISINE - len(items)
         if need <= 0:
             continue
-        rng = random.Random(int(hashlib.md5(f"{category}:{cuisine}".encode()).hexdigest(), 16))
+        # SHA-256 is used only to derive a deterministic seed for the RNG below
+        # (non-cryptographic use — reproducible fake-data generation).
+        rng = random.Random(int(hashlib.sha256(f"{category}:{cuisine}".encode()).hexdigest(), 16))
         templates = _NAME_TEMPLATES.get(category, _NAME_TEMPLATES["food"])
         made = 0
         for i in range(24):  # bounded: plenty of template/place combinations

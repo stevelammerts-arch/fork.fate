@@ -30,7 +30,7 @@ from pymongo import MongoClient
 LOCAL = "http://localhost:8001"
 API = f"{LOCAL}/api"
 
-ADMIN_PASSWORD = "ForkFate!Admin2026"
+ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
 
 MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017").strip("\"'")
 DB_NAME = os.environ.get("DB_NAME", "test_database").strip("\"'")
