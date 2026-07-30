@@ -1,14 +1,29 @@
 # Fork·Fate — Changelog
 
-## 2026-02 (fork) — Dragon claw overlay, weekly-impressions tile & P0 security fixes
+## 2026-02 (fork) — Sponsor coupons, social/print cards, dragon claw & security
 
-- **Dragon claw on shuffle-land (Dragon's Hoard theme)**: added a photoreal dragon-claw overlay that grips the winning card at the deck-landing moment — same pattern as the DARK theme's skeleton-hand. Asset `/public/dragon-claw.png` generated via Gemini Nano Banana, alpha-keyed with PIL (removed the JPEG-baked checker so it's a true transparent PNG). Wired in `ShufflingDeck.jsx` behind `landed && theme === "fantasy"` with `translate(-50%, calc(-50% - 20px))` so the top hook talon aligns with the card's top edge.
-- **Admin "Impressions this week" tile**: new `GET /api/admin/sponsors/impressions-week` returns rolling 7-day sponsor-impression counts + top-5 sponsors. Each `/places/search` and `/sponsors/active` hit now also appends a doc to `sponsor_impression_events` (TTL 35 days) so the rollup stays cheap. `StatsPanel.jsx` renders the tile with total, unique-sponsor count and top-5 bar chart — real ROI numbers for pitching the $19/mo Founder tier.
+**Sponsor Coupon System (new):**
+- **Coupon model** (`backend/models.py`): `Coupon` — `code`, `description`, `discount_type` (percent|fixed|free_item|bogo|custom), `discount_value`, `terms`, `expires_at`. Added as an optional `coupon` field on `SponsorCreate` and `SponsorUpdate`.
+- **Public exposure**: `/api/places/search` now includes `coupon` on each sponsored result so the reveal card can render it.
+- **`CouponReveal` component** (`components/home/CouponReveal.jsx`): tap-to-reveal amber pill with `Ticket` icon. Sealed state on the winning card teases the offer + "Tap to reveal"; revealed state shows the code + `Copy` button (with a `Check` state) and terms/expiry. Compact badge variant renders on the 3 alternates.
+- **Copy tracking**: `POST /api/sponsors/{id}/coupon-copy` deduped per (sponsor, IP) on a 5-min window; increments `coupon_copies` on the sponsor doc.
+- **Admin form** (`components/admin/SponsorForm.jsx`): added coupon block (code, discount type, value, expiry, description, terms) with a Clear button.
+- **E2E verified**: admin PATCH → sponsor with coupon → `/places/search` returns it → reveal component renders on winner + alternates.
 
-- **Removed weak MD5 crypto** (`backend/seed_data.py:403`): swapped `hashlib.md5()` for `hashlib.sha256()` in the deterministic RNG seed used to fill out synthetic restaurants per (category, cuisine). Kept `random.Random(seed)` — this is reproducible fake-data generation, not a security use. `SEED_ALL` still yields 704 entries (unchanged).
-- **Eliminated unsafe `eval()`** (`backend/tests/test_iter5_seed_expansion.py:106`): replaced with `json.loads()`. Subprocess already emits JSON via `json.dumps`. Test still passes.
-- **Removed hardcoded admin password from 5 test files** (`test_iter_ratelimit_isolation.py`, `test_iter_fateactions_and_checkin.py`, `test_iter9_explore_stay.py`, `test_iter18_deploy_readiness.py`, `test_iter8_auth_hardening.py`): all now read `os.environ["ADMIN_PASSWORD"]`. Added `backend/tests/conftest.py` which calls `load_dotenv("/app/backend/.env")` at collection time so the env var is available to every test module.
-- **Verification**: `pytest tests/test_iter5_seed_expansion.py` → 22 relevant tests pass; the 3 remaining failures are pre-existing config drift (seed count, budget cap, FF_BUILD) unrelated to these changes. `grep` confirms zero remaining `md5`, `eval(`, or hardcoded `ForkFate!Admin` occurrences in `backend/`.
+**"Find us on Fork·Fate" social/print card (new):**
+- **Generator** (`backend/sponsor_card.py`): PIL + qrcode. Produces:
+  - 1080×1080 PNG (Instagram square)
+  - 1080×1920 PNG (Story/Reel vertical)
+  - Letter PDF @ 300 DPI (print-ready)
+- **Card design**: dark brand background with warm gold radial glow; top gold tagline `FIND US & GET A COUPON AT FORK-FATE.COM` (or "FIND US ON FORK-FATE.COM" if no coupon); red divider; big serif sponsor name; cuisine · price subtitle; centered QR (points to `https://fork-fate.com/?sponsor={id}`); red "USE CODE X" pill; Fork·Fate logo mark bottom-right.
+- **Route**: `GET /api/sponsors/{id}/social-card?format=square|story|pdf` (public, rate-limited 30/min). All 3 formats verified serving 200.
+- **Fonts**: installed `fonts-dejavu-core` so serif+sans render at proper sizes.
+
+**Dragon claw on shuffle-land** (Dragon's Hoard theme): photoreal dragon paw grips the winning card at the deck-landing moment, mirrors skeleton-hand pattern. Asset generated via Nano Banana, alpha-keyed to true transparent PNG. Positioning tuned to +/-20px so the top hook talon sits at the card's top edge.
+
+**Admin "Impressions this week" tile**: new `/api/admin/sponsors/impressions-week` + event-log with 35-day TTL + top-5 bar chart in `StatsPanel.jsx`.
+
+**P0 security fixes**: MD5→SHA-256 in `seed_data.py`; `eval()`→`json.loads()` in tests; hardcoded admin passwords in 5 test files → `os.environ["ADMIN_PASSWORD"]` + `conftest.py`.
 
 
 ## 2026-06 (fork) — Hardenings, weekly leaderboard tab & Fall theme polish

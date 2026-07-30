@@ -416,6 +416,31 @@ async def sponsor_click(sponsor_id: str, request: Request):
     return {"ok": r.modified_count > 0}
 
 
+@router.get("/sponsors/{sponsor_id}/social-card", dependencies=[Depends(rate_limit(30))])
+async def sponsor_social_card(sponsor_id: str, format: str = "square"):
+    """Generate a Find-us-on-Fork·Fate marketing card for the sponsor.
+
+    Public route — the sponsor themselves and their social/print flows call
+    this. `format` can be 'square' (1080x1080 PNG), 'story' (1080x1920 PNG),
+    or 'pdf' (print-ready letter PDF).
+    """
+    if format not in ("square", "story", "pdf"):
+        raise HTTPException(status_code=400, detail="format must be square|story|pdf")
+    sponsor = await db.sponsors.find_one({"id": sponsor_id, "active": True}, {"_id": 0})
+    if not sponsor:
+        raise HTTPException(status_code=404, detail="Sponsor not found")
+    from sponsor_card import generate_sponsor_card
+    data, mime, filename = generate_sponsor_card(sponsor, format)
+    return Response(
+        content=data,
+        media_type=mime,
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Cache-Control": "public, max-age=300",
+        },
+    )
+
+
 @router.get("/sponsors/subscription-status", dependencies=[Depends(rate_limit(30))])
 async def sponsor_subscription_status(subscription_id: str):
     s = await db.sponsors.find_one({"subscription_id": subscription_id})
