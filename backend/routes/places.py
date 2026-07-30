@@ -41,7 +41,17 @@ WEATHER_DEFAULT_QUERIES = {
 
 
 async def fetch_active_sponsors(req: PlacesSearchRequest):
-    docs = await db.sponsors.find({"active": True, "category": req.category}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    # Only "local" tier sponsors occupy fate-deck slots. Chain-coupon-only
+    # sponsors are surfaced through /api/coupons/chains-nearby as a bonus
+    # offer strip beside the winner — they never crowd out local hidden gems.
+    docs = await db.sponsors.find(
+        {
+            "active": True,
+            "category": req.category,
+            "$or": [{"tier": "local"}, {"tier": {"$exists": False}}, {"tier": None}],
+        },
+        {"_id": 0},
+    ).sort("created_at", -1).to_list(100)
     out = []
     for s in docs:
         if req.cuisines and s['cuisine'] not in req.cuisines:
@@ -459,6 +469,7 @@ ESSENTIALS_QUERIES = {
     "vet": "veterinarian emergency animal hospital",
     "pharmacy": "24 hour pharmacy",
     "gas": "gas station",
+    "food_bank": "food bank food pantry community kitchen soup kitchen",
 }
 
 

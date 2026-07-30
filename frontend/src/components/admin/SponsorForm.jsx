@@ -55,6 +55,17 @@ export function SponsorForm({ form, set, saving, addSponsor }) {
           <p className="text-xs text-[#8A8F95]">Tip: match a cuisine chip name so it shows when that filter is on.</p>
         </div>
         <div className="space-y-1.5">
+          <Label>Placement tier</Label>
+          <Select value={form.tier || "local"} onValueChange={(v) => set("tier", v)}>
+            <SelectTrigger data-testid="sponsor-tier-select"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="local">Local — appears in fate deck ($19/mo)</SelectItem>
+              <SelectItem value="chain_coupon_only">National chain — coupon-only ($499/mo)</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-[#8A8F95]">Local sponsors get slots in the reveal card. National chains show as bonus coupons beside a local winner — they never crowd out hidden gems.</p>
+        </div>
+        <div className="space-y-1.5">
           <Label htmlFor="s-addr">Address</Label>
           <Input id="s-addr" data-testid="sponsor-address-input" value={form.address} onChange={(e) => set("address", e.target.value)} placeholder="123 Main St" />
         </div>

@@ -29,7 +29,7 @@ axios.interceptors.request.use((config) => {
   return config;
 });
 
-const EMPTY = { name: "", cuisine: "", price: "$$", category: "food", address: "", description: "", image: "", active: true };
+const EMPTY = { name: "", cuisine: "", price: "$$", category: "food", address: "", description: "", image: "", active: true, tier: "local", coupon: null };
 
 export default function Admin() {
   const [authed, setAuthed] = useState(false);

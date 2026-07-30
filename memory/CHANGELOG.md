@@ -1,29 +1,30 @@
 # Fork·Fate — Changelog
 
-## 2026-02 (fork) — Sponsor coupons, social/print cards, dragon claw & security
+## 2026-02 (fork) — Local vs. chain tier split, Need Help sheet, coupons, social card
 
-**Sponsor Coupon System (new):**
-- **Coupon model** (`backend/models.py`): `Coupon` — `code`, `description`, `discount_type` (percent|fixed|free_item|bogo|custom), `discount_value`, `terms`, `expires_at`. Added as an optional `coupon` field on `SponsorCreate` and `SponsorUpdate`.
-- **Public exposure**: `/api/places/search` now includes `coupon` on each sponsored result so the reveal card can render it.
-- **`CouponReveal` component** (`components/home/CouponReveal.jsx`): tap-to-reveal amber pill with `Ticket` icon. Sealed state on the winning card teases the offer + "Tap to reveal"; revealed state shows the code + `Copy` button (with a `Check` state) and terms/expiry. Compact badge variant renders on the 3 alternates.
-- **Copy tracking**: `POST /api/sponsors/{id}/coupon-copy` deduped per (sponsor, IP) on a 5-min window; increments `coupon_copies` on the sponsor doc.
-- **Admin form** (`components/admin/SponsorForm.jsx`): added coupon block (code, discount type, value, expiry, description, terms) with a Clear button.
-- **E2E verified**: admin PATCH → sponsor with coupon → `/places/search` returns it → reveal component renders on winner + alternates.
+**Sponsorship tier split (local vs. national chain):**
+- **New `tier` field on Sponsor** (`local` | `chain_coupon_only`; default `local`, existing rows treated as local via `$or` in the query so nothing breaks).
+- **Fate deck query** (`places.py::fetch_active_sponsors`) now filters to `tier=local`. National chains **never** occupy a slot in the winner or 3 alternates — protects the local hidden-gem brand.
+- **New public endpoint** `GET /api/coupons/chains-nearby?category=X&limit=N` returns randomized chain coupons for the current category.
+- **New `<ChainCouponStrip>`** on the reveal card renders 1 bonus chain coupon as a subtle blue-gray strip beside the local winner: "Bonus offer nearby · {chain name}". Chains ride shotgun, users still see local first.
+- **Admin `SponsorForm` tier selector**: "Local — appears in fate deck ($19/mo)" vs "National chain — coupon-only ($499/mo)". Copy explicitly frames the local-first positioning.
+- **End-to-end verified**: test chain sponsor created → showed in `/coupons/chains-nearby` but was correctly excluded from `/places/search` fate deck.
 
-**"Find us on Fork·Fate" social/print card (new):**
-- **Generator** (`backend/sponsor_card.py`): PIL + qrcode. Produces:
-  - 1080×1080 PNG (Instagram square)
-  - 1080×1920 PNG (Story/Reel vertical)
-  - Letter PDF @ 300 DPI (print-ready)
-- **Card design**: dark brand background with warm gold radial glow; top gold tagline `FIND US & GET A COUPON AT FORK-FATE.COM` (or "FIND US ON FORK-FATE.COM" if no coupon); red divider; big serif sponsor name; cuisine · price subtitle; centered QR (points to `https://fork-fate.com/?sponsor={id}`); red "USE CODE X" pill; Fork·Fate logo mark bottom-right.
-- **Route**: `GET /api/sponsors/{id}/social-card?format=square|story|pdf` (public, rate-limited 30/min). All 3 formats verified serving 200.
-- **Fonts**: installed `fonts-dejavu-core` so serif+sans render at proper sizes.
+**Need Help? sheet:**
+- **Trigger renamed** "Nearby help" → **"Need Help?"** in the header (per user request).
+- **6-category grid** (ER, urgent care, dentist, vet, pharmacy, gas) → top-3 nearest via `GET /api/places/essentials` (Google Places, distance-ranked).
+- **Crisis lifelines strip** (always visible below chip picker, gated to normal search mode): tel:988 · 988 press 1 (Veterans Crisis) · text 838255.
+- **Inline sheet disclaimer**: "Not a medical/dental/vet service. In a life-threatening emergency, call 911."
+- **Legal page**: new Section 4 "Nearby Help — Emergency, Medical & Care Listings" with the "not liable for diagnosis, treatment, care, outcome, delay, or harm" language. Sections 5–11 renumbered.
+- **Veteran-owned & managed** mention added to footer (gold-amber, uppercase pill).
 
-**Dragon claw on shuffle-land** (Dragon's Hoard theme): photoreal dragon paw grips the winning card at the deck-landing moment, mirrors skeleton-hand pattern. Asset generated via Nano Banana, alpha-keyed to true transparent PNG. Positioning tuned to +/-20px so the top hook talon sits at the card's top edge.
+**Sponsor Coupon System (previous):**
+- Coupon model, `<CouponReveal>` tap-to-reveal (winner + compact badge on alternates), `POST /api/sponsors/{id}/coupon-copy` deduped tracking, admin form fields.
 
-**Admin "Impressions this week" tile**: new `/api/admin/sponsors/impressions-week` + event-log with 35-day TTL + top-5 bar chart in `StatsPanel.jsx`.
+**"Find us on Fork·Fate" social/print card (previous):**
+- `GET /api/sponsors/{id}/social-card?format=square|story|pdf` — PIL + qrcode. Coupon-aware tagline: "FIND US & GET A COUPON AT FORK-FATE.COM".
 
-**P0 security fixes**: MD5→SHA-256 in `seed_data.py`; `eval()`→`json.loads()` in tests; hardcoded admin passwords in 5 test files → `os.environ["ADMIN_PASSWORD"]` + `conftest.py`.
+**Dragon claw on shuffle-land, admin weekly-impressions tile, and P0 security fixes** — previously landed.
 
 
 ## 2026-06 (fork) — Hardenings, weekly leaderboard tab & Fall theme polish

@@ -298,11 +298,20 @@ class SponsorCreate(BaseModel):
     distance: float = Field(default=0.5, ge=0, le=100)
     active: bool = True
     coupon: Optional[Coupon] = None
+    # "local" — occupies fate-deck slots (locals only, protects the hidden-gem brand).
+    # "chain_coupon_only" — national chain; NEVER appears as a slot in the reveal,
+    # only surfaces as a bonus coupon strip beside the local winner.
+    tier: str = Field(default="local", max_length=20)
 
     @field_validator("category")
     @classmethod
     def _valid_category_sc(cls, v):
         return v if v in ("food", "drinks", "bars", "desserts", "shops", "fuel", "explore", "stay") else "food"
+
+    @field_validator("tier")
+    @classmethod
+    def _valid_tier_sc(cls, v):
+        return v if v in ("local", "chain_coupon_only") else "local"
 
 
 class SponsorUpdate(BaseModel):
@@ -317,6 +326,7 @@ class SponsorUpdate(BaseModel):
     distance: Optional[float] = Field(default=None, ge=0, le=100)
     active: Optional[bool] = None
     coupon: Optional[Coupon] = None
+    tier: Optional[str] = Field(default=None, max_length=20)
 
 
 class SponsorClick(BaseModel):

@@ -407,6 +407,47 @@ async def sponsor_coupon_copy(sponsor_id: str, request: Request):
     return {"ok": r.modified_count > 0}
 
 
+@router.get("/coupons/chains-nearby", dependencies=[Depends(rate_limit(60))])
+async def coupons_chains_nearby(category: str = "food", limit: int = 1):
+    """Bonus chain coupons for the reveal card.
+
+    National-chain sponsors buy the `chain_coupon_only` tier — they NEVER
+    occupy a slot in the fate deck (that stays local-first). Instead the
+    frontend calls this endpoint after a spin and renders 1 chain coupon as
+    a bonus offer strip beside the winner, so users get an extra deal without
+    the roulette feeling like an ad-fest.
+
+    Returns at most `limit` (capped at 3) coupons for the given category.
+    Randomized per-request so the same chain doesn't hog every spin.
+    """
+    import random
+    limit = max(1, min(3, int(limit)))
+    docs = await db.sponsors.find(
+        {
+            "active": True,
+            "category": category,
+            "tier": "chain_coupon_only",
+            "coupon": {"$ne": None},
+        },
+        {"_id": 0},
+    ).to_list(50)
+    docs = [d for d in docs if (d.get("coupon") or {}).get("code")]
+    if not docs:
+        return {"coupons": []}
+    random.shuffle(docs)
+    out = []
+    for s in docs[:limit]:
+        out.append({
+            "id": s.get("id"),
+            "name": s.get("name"),
+            "cuisine": s.get("cuisine"),
+            "image": s.get("image") or "",
+            "address": s.get("address", ""),
+            "coupon": s.get("coupon"),
+        })
+    return {"coupons": out}
+
+
 @router.post("/sponsors/{sponsor_id}/click", dependencies=[Depends(rate_limit(60))])
 async def sponsor_click(sponsor_id: str, request: Request):
     """Count a click from the marquee / result card toward a sponsor's stats."""
