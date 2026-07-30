@@ -7,6 +7,7 @@ import GroupVote from "../GroupVote";
 import BecomeSponsorDialog from "../BecomeSponsorDialog";
 import { OrderDropdown } from "../OrderDropdown";
 import { FateActionsDropdown } from "../FateActionsDropdown";
+import { CouponReveal } from "./CouponReveal";
 import { useLang } from "../../i18n/i18n";
 import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reaperLineFor, lightLineFor, supportsDelivery, cardImage } from "../../pages/homeConstants";
 import { buildFateCard } from "../../pages/homeFateCard";
@@ -153,6 +154,9 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
                 {t("Closed right now — shuffle again for an open spot.")}
               </p>
             )}
+            {card.sponsored && card.coupon && card.coupon.code && (
+              <CouponReveal sponsorId={card.id} coupon={card.coupon} />
+            )}
             <div className="flex items-center gap-5 text-sm text-[#0E0E0E]">
               <span className="flex items-center gap-1.5 font-semibold">
                 <Star className="h-4 w-4 fill-[#E01E26] text-[#E01E26]" />
@@ -292,6 +296,9 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
                             <MapPin className="h-3.5 w-3.5" /> {alt.distance} mi
                           </span>
                         </span>
+                        {alt.sponsored && alt.coupon && alt.coupon.code && (
+                          <CouponReveal sponsorId={alt.id} coupon={alt.coupon} variant="compact" />
+                        )}
                         <span className="mt-1.5 inline-flex items-center gap-1 font-sans text-xs font-bold uppercase tracking-wide text-[#B8BCC2] transition-colors group-hover:text-[#E01E26]">
                           <Dices className="h-3.5 w-3.5" /> Pick this
                         </span>

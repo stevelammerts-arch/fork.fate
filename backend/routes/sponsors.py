@@ -391,6 +391,22 @@ async def active_sponsors(request: Request):
     return {"sponsors": out}
 
 
+@router.post("/sponsors/{sponsor_id}/coupon-copy", dependencies=[Depends(rate_limit(60))])
+async def sponsor_coupon_copy(sponsor_id: str, request: Request):
+    """Count a coupon-code copy toward the sponsor's redemption stats.
+
+    Deduped per (sponsor, IP) on a 5-minute window so a user tapping Copy
+    repeatedly doesn't inflate the count.
+    """
+    if not await _stat_first_seen(f"cpn:{sponsor_id}:{client_ip(request)}", _CLICK_TTL):
+        return {"ok": True}
+    r = await db.sponsors.update_one(
+        {"id": sponsor_id, "active": True, "coupon": {"$ne": None}},
+        {"$inc": {"coupon_copies": 1}},
+    )
+    return {"ok": r.modified_count > 0}
+
+
 @router.post("/sponsors/{sponsor_id}/click", dependencies=[Depends(rate_limit(60))])
 async def sponsor_click(sponsor_id: str, request: Request):
     """Count a click from the marquee / result card toward a sponsor's stats."""

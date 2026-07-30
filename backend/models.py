@@ -263,6 +263,29 @@ class PassportHolder(BaseModel):
         return PassportStamp._valid_photo(v)
 
 
+class Coupon(BaseModel):
+    """Optional coupon a sponsor can attach to their venue card.
+
+    Shown as a tap-to-reveal on the winning fate card AND on the 3 alternates,
+    with a copyable code and clear expiry. All fields optional so we can render
+    a partial coupon (e.g. code + description only).
+    """
+    model_config = ConfigDict(extra="ignore")
+
+    code: str = Field(min_length=1, max_length=32)
+    description: str = Field(min_length=1, max_length=140)
+    # "percent" | "fixed" | "free_item" | "bogo" | "custom"
+    discount_type: str = Field(default="percent", max_length=20)
+    discount_value: float = Field(default=0, ge=0, le=100000)
+    terms: str = Field(default="", max_length=500)
+    expires_at: Optional[str] = Field(default=None, max_length=40)  # ISO date
+
+    @field_validator("discount_type")
+    @classmethod
+    def _valid_discount_type(cls, v):
+        return v if v in ("percent", "fixed", "free_item", "bogo", "custom") else "custom"
+
+
 class SponsorCreate(BaseModel):
     name: str = Field(min_length=1, max_length=160)
     cuisine: str = Field(min_length=1, max_length=60)
@@ -274,6 +297,7 @@ class SponsorCreate(BaseModel):
     rating: float = Field(default=4.7, ge=0, le=5)
     distance: float = Field(default=0.5, ge=0, le=100)
     active: bool = True
+    coupon: Optional[Coupon] = None
 
     @field_validator("category")
     @classmethod
@@ -292,6 +316,7 @@ class SponsorUpdate(BaseModel):
     rating: Optional[float] = Field(default=None, ge=0, le=5)
     distance: Optional[float] = Field(default=None, ge=0, le=100)
     active: Optional[bool] = None
+    coupon: Optional[Coupon] = None
 
 
 class SponsorClick(BaseModel):

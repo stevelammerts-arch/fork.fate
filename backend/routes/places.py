@@ -63,6 +63,7 @@ async def fetch_active_sponsors(req: PlacesSearchRequest):
             "sponsored": True,
             "open_now": s.get("open_now", True),
             "image": s.get("image") or FALLBACK_IMG,
+            "coupon": s.get("coupon"),
         }
         pub["google_url"] = maps_url(pub["name"], pub["address"])
         pub["doordash_url"] = doordash_url(pub["name"], pub["address"])

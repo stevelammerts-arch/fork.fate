@@ -150,6 +150,7 @@ async def create_sponsor(payload: SponsorCreate):
     doc['open_now'] = True
     doc['impressions'] = 0
     doc['clicks'] = 0
+    doc['coupon_copies'] = 0
     doc['created_at'] = datetime.now(timezone.utc).isoformat()
     await db.sponsors.insert_one(doc)
     doc.pop('_id', None)
