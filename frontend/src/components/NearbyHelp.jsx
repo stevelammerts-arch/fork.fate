@@ -73,7 +73,7 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
           }`}
         >
           <LifeBuoy className="h-4 w-4 text-[#E01E26]" />
-          <span className="hidden sm:inline">Need Help?</span>
+          <span>Need Help?</span>
         </button>
       </SheetTrigger>
       <SheetContent
