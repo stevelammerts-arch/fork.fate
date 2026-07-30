@@ -26,6 +26,37 @@ _IMPRESSION_TTL = 60      # count one impression batch per IP per minute
 _CLICK_TTL = 300          # count one click per (sponsor, IP) per 5 minutes
 _dedupe_index_ready = False
 
+# Weekly impressions time-series: one doc per impression bump, `ts` = event time.
+# TTL of 35 days keeps enough history for the /admin "This Week" tile without
+# unbounded growth. The lifetime `impressions` counter on the sponsor doc is
+# the source of truth for all-time stats; this collection is purely for the
+# 7-day rollup.
+_IMPRESSION_EVENT_TTL_DAYS = 35
+_impression_event_index_ready = False
+
+
+async def _log_impression_events(sponsor_ids: list[str]) -> None:
+    """Insert one event doc per sponsor for the 7-day rollup. Best-effort."""
+    global _impression_event_index_ready
+    if not sponsor_ids:
+        return
+    if not _impression_event_index_ready:
+        try:
+            await db.sponsor_impression_events.create_index(
+                "ts", expireAfterSeconds=_IMPRESSION_EVENT_TTL_DAYS * 86400)
+            await db.sponsor_impression_events.create_index("sponsor_id")
+        except Exception:
+            pass
+        _impression_event_index_ready = True
+    now = datetime.now(timezone.utc)
+    try:
+        await db.sponsor_impression_events.insert_many(
+            [{"sponsor_id": sid, "ts": now} for sid in sponsor_ids],
+            ordered=False,
+        )
+    except Exception as e:  # pragma: no cover - telemetry must never break /search
+        logger.debug(f"impression event log failed: {e}")
+
 
 async def _stat_first_seen(key: str, ttl: int) -> bool:
     """True if this key hasn't been counted within its TTL window (atomic, cross-worker)."""
@@ -356,6 +387,7 @@ async def active_sponsors(request: Request):
     ids = [s["id"] for s in out if s.get("id")]
     if ids and await _stat_first_seen(f"imp:{client_ip(request)}", _IMPRESSION_TTL):
         await db.sponsors.update_many({"id": {"$in": ids}}, {"$inc": {"impressions": 1}})
+        await _log_impression_events(ids)
     return {"sponsors": out}
 
 

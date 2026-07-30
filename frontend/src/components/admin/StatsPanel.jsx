@@ -1,4 +1,4 @@
-import { ShieldCheck, Gauge, Mail } from "lucide-react";
+import { ShieldCheck, Gauge, Mail, TrendingUp } from "lucide-react";
 
 function CostCard({ cost, emailing, sendSummaryEmail }) {
   const used = cost?.used ?? 0;
@@ -80,7 +80,11 @@ function CostCard({ cost, emailing, sendSummaryEmail }) {
   );
 }
 
-export function StatsPanel({ stats, cost, emailing, sendSummaryEmail }) {
+export function StatsPanel({ stats, cost, weekly, emailing, sendSummaryEmail }) {
+  const weeklyTotal = weekly?.total_impressions_7d ?? 0;
+  const weeklyUnique = weekly?.unique_sponsors_7d ?? 0;
+  const weeklyTop = weekly?.top ?? [];
+  const weeklyMax = weeklyTop.length ? Math.max(...weeklyTop.map((t) => t.count)) : 0;
   return (
     <>
       {/* Revenue / subscriber overview */}
@@ -106,6 +110,60 @@ export function StatsPanel({ stats, cost, emailing, sendSummaryEmail }) {
             <p className="mt-1 font-serif text-3xl font-semibold text-[#0E0E0E]" data-testid="stat-engagement-value">{(stats?.total_clicks ?? 0).toLocaleString()}</p>
             <p className="mt-0.5 font-sans text-xs text-[#8A8F95]">clicks · {(stats?.total_impressions ?? 0).toLocaleString()} views</p>
           </div>
+        </div>
+      </section>
+
+      {/* This-week impressions rollup — real ROI numbers to show sponsors */}
+      <section className="md:col-span-2" data-testid="weekly-impressions-overview">
+        <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E01E26]">
+                <TrendingUp className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h2 className="font-serif text-xl text-[#0E0E0E]">Impressions this week</h2>
+                <p className="font-sans text-xs text-[#6B7075]">Rolling 7-day sponsor views · use these numbers when pitching</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="font-serif text-3xl font-semibold text-[#0E0E0E]" data-testid="weekly-impressions-total">
+                {weeklyTotal.toLocaleString()}
+              </p>
+              <p className="font-sans text-xs text-[#8A8F95]" data-testid="weekly-impressions-unique">
+                across {weeklyUnique} sponsor{weeklyUnique === 1 ? "" : "s"}
+              </p>
+            </div>
+          </div>
+
+          {weeklyTop.length === 0 ? (
+            <p className="mt-5 font-sans text-sm text-[#8A8F95]" data-testid="weekly-impressions-empty">
+              No sponsor impressions logged in the last 7 days yet.
+            </p>
+          ) : (
+            <div className="mt-5 border-t border-[#EDEEF0] pt-4" data-testid="weekly-impressions-top">
+              <p className="mb-3 font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#6B7075]">Top sponsors (7d)</p>
+              <div className="space-y-2.5">
+                {weeklyTop.map((t) => {
+                  const pct = weeklyMax ? Math.max(4, Math.round((t.count / weeklyMax) * 100)) : 0;
+                  return (
+                    <div key={t.sponsor_id} data-testid={`weekly-sponsor-${t.sponsor_id}`}>
+                      <div className="flex items-center justify-between font-sans text-xs">
+                        <span className="truncate pr-3 text-[#0E0E0E]">{t.name}</span>
+                        <span className="font-semibold text-[#0E0E0E]">{t.count.toLocaleString()}</span>
+                      </div>
+                      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[#EDEEF0]">
+                        <div
+                          className="h-full rounded-full bg-[#E01E26] transition-all duration-500"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

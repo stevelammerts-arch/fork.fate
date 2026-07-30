@@ -39,6 +39,7 @@ export default function Admin() {
   const [authLoading, setAuthLoading] = useState(false);
   const [sponsors, setSponsors] = useState([]);
   const [stats, setStats] = useState(null);
+  const [weekly, setWeekly] = useState(null);
   const [cost, setCost] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [betaTesters, setBetaTesters] = useState([]);
@@ -92,6 +93,15 @@ export default function Admin() {
     try {
       const { data } = await axios.get(`${API}/admin/sponsors/stats`, WC);
       setStats(data);
+    } catch (e) {
+      if (e.response?.status === 401) logout();
+    }
+  }, [logout]);
+
+  const loadWeekly = useCallback(async () => {
+    try {
+      const { data } = await axios.get(`${API}/admin/sponsors/impressions-week`, WC);
+      setWeekly(data);
     } catch (e) {
       if (e.response?.status === 401) logout();
     }
@@ -152,8 +162,8 @@ export default function Admin() {
   }, []);
 
   useEffect(() => {
-    if (authed) { loadSponsors(); loadSubmissions(); loadStats(); loadCost(); loadBeta(); loadMerch(); }
-  }, [authed, loadSponsors, loadSubmissions, loadStats, loadCost, loadBeta, loadMerch]);
+    if (authed) { loadSponsors(); loadSubmissions(); loadStats(); loadWeekly(); loadCost(); loadBeta(); loadMerch(); }
+  }, [authed, loadSponsors, loadSubmissions, loadStats, loadWeekly, loadCost, loadBeta, loadMerch]);
 
   // Show the passkey button on the login screen only when one is registered.
   useEffect(() => {
@@ -367,7 +377,7 @@ export default function Admin() {
       </header>
 
       <main className="mx-auto grid max-w-5xl gap-8 px-6 pt-8 md:grid-cols-[360px_1fr]">
-        <StatsPanel stats={stats} cost={cost} emailing={emailing} sendSummaryEmail={sendSummaryEmail} />
+        <StatsPanel stats={stats} cost={cost} weekly={weekly} emailing={emailing} sendSummaryEmail={sendSummaryEmail} />
         <BetaTesters
           betaTesters={betaTesters}
           optInLink={optInLink}

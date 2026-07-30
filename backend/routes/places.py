@@ -73,7 +73,9 @@ async def fetch_active_sponsors(req: PlacesSearchRequest):
     # Count one impression per sponsor shown in this search
     ids = [s['id'] for s in out if s.get('id')]
     if ids:
+        from routes.sponsors import _log_impression_events
         await db.sponsors.update_many({"id": {"$in": ids}}, {"$inc": {"impressions": 1}})
+        await _log_impression_events(ids)
     return out
 
 

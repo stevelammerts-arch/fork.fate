@@ -2,7 +2,7 @@
 import uuid
 import hmac
 from typing import List
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, HTTPException, Depends, Request, Response
 
 from core import (db, rate_limit, require_admin, create_admin_token, client_ip,
@@ -101,6 +101,44 @@ async def sponsor_stats():
         "price": price,
         "total_impressions": total_impressions,
         "total_clicks": total_clicks,
+    }
+
+
+@router.get("/admin/sponsors/impressions-week", dependencies=[Depends(require_admin)])
+async def sponsor_impressions_week():
+    """Sponsor impressions over the trailing 7 days.
+
+    Aggregates the `sponsor_impression_events` collection (TTL 35 days). Returns
+    a total count, an anchor "since" timestamp, and the top 5 sponsors by
+    weekly impressions with their display name so the admin can show real ROI
+    numbers to prospective sponsors.
+    """
+    since = datetime.now(timezone.utc) - timedelta(days=7)
+    pipeline = [
+        {"$match": {"ts": {"$gte": since}}},
+        {"$group": {"_id": "$sponsor_id", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+    ]
+    rows = await db.sponsor_impression_events.aggregate(pipeline).to_list(500)
+    total = sum(int(r.get("count", 0)) for r in rows)
+
+    top_ids = [r["_id"] for r in rows[:5] if r.get("_id")]
+    name_by_id: dict[str, str] = {}
+    if top_ids:
+        docs = await db.sponsors.find(
+            {"id": {"$in": top_ids}}, {"_id": 0, "id": 1, "name": 1}
+        ).to_list(len(top_ids))
+        name_by_id = {d["id"]: d.get("name", "—") for d in docs}
+    top = [
+        {"sponsor_id": r["_id"], "name": name_by_id.get(r["_id"], "(deleted)"),
+         "count": int(r["count"])}
+        for r in rows[:5] if r.get("_id")
+    ]
+    return {
+        "since": since.isoformat(),
+        "total_impressions_7d": total,
+        "unique_sponsors_7d": len(rows),
+        "top": top,
     }
 
 
