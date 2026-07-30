@@ -250,7 +250,7 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
               <div className="mb-2 flex items-center gap-2">
                 <Shield className="h-4 w-4 text-[#1E3A6F]" />
                 <span className="font-sans text-[11px] font-bold uppercase tracking-[0.16em] text-[#1E3A6F]">
-                  Built by a disabled veteran, for the community
+                  Built by a disabled Air Force veteran, for the community
                 </span>
               </div>
               <p className="mb-2.5 font-sans text-xs leading-snug text-[#334155]">
