@@ -21,6 +21,7 @@ import RevealStage from "../components/home/RevealStage";
 import ModeSetup, { StepList } from "../components/home/ModeSetup";
 import TypePicker from "../components/home/TypePicker";
 import ReigningChampBadge from "../components/ReigningChampBadge";
+import { haptic } from "../lib/pwa";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../components/ui/dropdown-menu";
 import {
   readStreak, bumpStreak,
@@ -351,6 +352,9 @@ export default function Home() {
         setFlash(chosen);
         shuffleRef.current = setTimeout(() => {
           setFlashHit(true);
+          // Physical "clunk" haptic on the card-drop moment. Feels native on
+          // iOS wrapper + Android; no-op harmless in browsers without vibrate.
+          haptic(20);
           // Thunder boom + 3x screen flash hit exactly as the winner is revealed
           try {
             stopCards();
