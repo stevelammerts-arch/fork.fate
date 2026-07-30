@@ -1,6 +1,9 @@
 # Fork·Fate — Changelog
 
-## 2026-02 (fork) — P0 security fixes from Code Quality Report
+## 2026-02 (fork) — Dragon claw overlay, weekly-impressions tile & P0 security fixes
+
+- **Dragon claw on shuffle-land (Dragon's Hoard theme)**: added a photoreal dragon-claw overlay that grips the winning card at the deck-landing moment — same pattern as the DARK theme's skeleton-hand. Asset `/public/dragon-claw.png` generated via Gemini Nano Banana, alpha-keyed with PIL (removed the JPEG-baked checker so it's a true transparent PNG). Wired in `ShufflingDeck.jsx` behind `landed && theme === "fantasy"` with `translate(-50%, calc(-50% - 20px))` so the top hook talon aligns with the card's top edge.
+- **Admin "Impressions this week" tile**: new `GET /api/admin/sponsors/impressions-week` returns rolling 7-day sponsor-impression counts + top-5 sponsors. Each `/places/search` and `/sponsors/active` hit now also appends a doc to `sponsor_impression_events` (TTL 35 days) so the rollup stays cheap. `StatsPanel.jsx` renders the tile with total, unique-sponsor count and top-5 bar chart — real ROI numbers for pitching the $19/mo Founder tier.
 
 - **Removed weak MD5 crypto** (`backend/seed_data.py:403`): swapped `hashlib.md5()` for `hashlib.sha256()` in the deterministic RNG seed used to fill out synthetic restaurants per (category, cuisine). Kept `random.Random(seed)` — this is reproducible fake-data generation, not a security use. `SEED_ALL` still yields 704 entries (unchanged).
 - **Eliminated unsafe `eval()`** (`backend/tests/test_iter5_seed_expansion.py:106`): replaced with `json.loads()`. Subprocess already emits JSON via `json.dumps`. Test still passes.
