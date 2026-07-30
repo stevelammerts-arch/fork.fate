@@ -1,0 +1,40 @@
+{
+  "verdict": "fixed",
+  "user_reported_bug": "Just published. At the bottom of the pages it still reads $29 a month",
+  "summary": "No relevant testing skill found. Focused regression verification passed: the preview homepage bottom sponsorship CTA now shows $19/month, sponsor tiles/dialog/Spanish/terms use $19/$190 with only intentional $29/$290 strikethrough discount indicators, and backend PayPal plan specs use 19.00/190.00.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/tests/bug_verification_sponsor_pricing_ui.py",
+    "/app/tests/bug_verification_sponsor_pricing_backend.py",
+    "/app/tests/bug_verification_sponsor_pricing_bundle_scan.py"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "PayPal credentials are blank in preview, so an actual PayPal subscription creation was not executed; backend pricing was verified by importing _plan_spec and checking generated monthly/yearly plan bodies. This does not affect the reported public-copy bug.",
+    "Uncommitted product changes remain in frontend/src/pages/Home.jsx, frontend/src/pages/LegalPage.jsx, and frontend/src/i18n/i18n.js; frontend/yarn.lock is also untracked."
+  ],
+  "updated_files": [
+    "/app/tests/bug_verification_sponsor_pricing_ui.py",
+    "/app/tests/bug_verification_sponsor_pricing_backend.py",
+    "/app/tests/bug_verification_sponsor_pricing_bundle_scan.py",
+    "/app/test_reports/bug_verification_26.json",
+    "/app/test_reports/iteration_26.json"
+  ],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "100%"
+  },
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Focused tests run on https://web-fate-launch.preview.emergentagent.com. Browser automation verified homepage bottom CTA, feature-business sponsor tile, BecomeSponsorDialog monthly/yearly notes, Spanish i18n strings, and /terms. Bundle scan fetched 6 preview HTML/JS assets and found no stale $29/month, $290/year, Save $58, Ahorra $58, or $29/mes strings; remaining $29/$290 hits are intentional strikethrough discount indicators.",
+  "rca_of_the_issue": "Regression was missed hardcoded marketing/legal/i18n pricing copy after sponsor price changed from $29/$290 to founder pricing $19/$190. Current fix updates the remaining public strings while keeping $29/$290 only as crossed-out discount anchors."
+}

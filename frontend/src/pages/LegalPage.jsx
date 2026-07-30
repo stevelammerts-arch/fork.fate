@@ -29,7 +29,7 @@ const TERMS = [
   {
     h: "4. Sponsorships & Billing",
     p: [
-      "Businesses may purchase sponsored placement for $29/month, with the first month free. Subscriptions are billed automatically through PayPal until cancelled.",
+      "Businesses may purchase sponsored placement for $19/month or $190/year (founder's launch pricing — subject to change), with the first month free. Subscriptions are billed automatically through PayPal until cancelled.",
       "You may cancel a sponsorship at any time through your PayPal account; cancellation stops future billing but does not refund the current period. Sponsored placement is clearly labeled as \u201cSponsored.\u201d",
     ],
   },

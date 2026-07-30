@@ -1708,9 +1708,9 @@ export default function Home() {
                   {t("Sponsored spots appear first when locals shuffle for a place to eat, drink or treat themselves. Fixed monthly price, no bidding, cancel anytime.")}
                 </p>
                 <div className={`mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 font-sans text-sm ${light ? "text-[#0E0E0E]" : "text-white"}`}>
-                  <span className="flex items-baseline gap-1.5"><span className="font-serif text-2xl font-bold">$29</span><span className="text-[#9A9FA5]">/{t("mo")}</span></span>
+                  <span className="flex items-baseline gap-1.5"><span className="font-serif text-2xl font-bold">$19</span><span className="text-[#9A9FA5]">/{t("mo")}</span> <span className="text-xs text-[#9A9FA5] line-through">$29</span></span>
                   <span className="text-[#6B7075]">{t("or")}</span>
-                  <span className="flex items-baseline gap-1.5"><span className="font-serif text-2xl font-bold">$290</span><span className="text-[#9A9FA5]">/{t("yr")}</span> <span className="rounded-full bg-[#E01E26] px-2 py-0.5 text-[10px] font-bold">{t("Save $58/yr")}</span></span>
+                  <span className="flex items-baseline gap-1.5"><span className="font-serif text-2xl font-bold">$190</span><span className="text-[#9A9FA5]">/{t("yr")}</span> <span className="text-xs text-[#9A9FA5] line-through">$290</span> <span className="rounded-full bg-[#E01E26] px-2 py-0.5 text-[10px] font-bold">{t("Save $38/yr")}</span></span>
                 </div>
               </div>
               <button
@@ -1785,7 +1785,7 @@ export default function Home() {
           <div className="order-2 flex flex-col items-center gap-2 md:order-3 md:items-end" data-testid="sponsorship-cta">
             <BecomeSponsorDialog />
             <p className={`font-sans text-xs font-bold ${light ? "text-[#4F6F47]" : "text-[#E01E26]"}`}>
-              $29/month — <span className={light ? "text-[#2A2118]" : "text-white"}>first month FREE</span>
+              $19/month — <span className={light ? "text-[#2A2118]" : "text-white"}>first month FREE</span>
             </p>
           </div>
         </div>
