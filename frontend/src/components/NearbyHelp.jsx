@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import axios from "axios";
 import {
-  Heart, Stethoscope, Cross, Truck, Fuel, Pill, MapPin, Phone, ExternalLink, LifeBuoy, AlertTriangle, HandHeart, LocateFixed,
+  Heart, Stethoscope, Cross, Truck, Fuel, Pill, MapPin, Phone, ExternalLink, LifeBuoy, AlertTriangle, HandHeart, LocateFixed, Shield,
 } from "lucide-react";
 import {
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription,
@@ -20,6 +20,7 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const CATEGORIES = [
   { id: "er",          label: "ER",          hint: "Emergency room / hospital", Icon: Cross,      accent: "#E01E26" },
   { id: "urgent_care", label: "Urgent Care", hint: "Walk-in clinic",            Icon: Stethoscope,accent: "#E01E26" },
+  { id: "va",          label: "VA Health",   hint: "VA hospital & clinics",     Icon: Shield,     accent: "#1E3A6F" },
   { id: "dentist",     label: "Dentist",     hint: "24-hr / emergency",         Icon: Heart,      accent: "#B26A12" },
   { id: "vet",         label: "Vet",         hint: "Animal hospital",           Icon: Truck,      accent: "#B26A12" },
   { id: "pharmacy",    label: "Pharmacy",    hint: "24-hr chemist",             Icon: Pill,       accent: "#0E7C4A" },
@@ -234,6 +235,52 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
                   </span>
                 </button>
               ))}
+            </div>
+          )}
+
+          {/* Veteran-owned mission strip with the Veterans Crisis Line pinned
+              visible so a fellow vet in crisis never has to dig into a
+              category to find the number. Shown only on the tile grid view,
+              hidden while a category's results are being browsed. */}
+          {!selected && (
+            <div
+              className="mt-5 rounded-2xl border border-[#1E3A6F] bg-[#F4F7FB] p-4"
+              data-testid="veteran-mission-strip"
+            >
+              <div className="mb-2 flex items-center gap-2">
+                <Shield className="h-4 w-4 text-[#1E3A6F]" />
+                <span className="font-sans text-[11px] font-bold uppercase tracking-[0.16em] text-[#1E3A6F]">
+                  Built by a disabled veteran, for the community
+                </span>
+              </div>
+              <p className="mb-2.5 font-sans text-xs leading-snug text-[#334155]">
+                If you're a fellow vet or service member in crisis, help is one tap away — 24/7, confidential, free.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <a
+                  href="tel:988,1"
+                  data-testid="veteran-mission-call"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#1E3A6F] px-3.5 py-2 font-sans text-xs font-bold text-white hover:bg-[#152A52]"
+                >
+                  <Phone className="h-3.5 w-3.5" /> Call 988 · Press 1
+                </a>
+                <a
+                  href="sms:838255"
+                  data-testid="veteran-mission-text"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#1E3A6F] px-3.5 py-2 font-sans text-xs font-bold text-[#1E3A6F] hover:bg-[#1E3A6F] hover:text-white"
+                >
+                  Text 838255
+                </a>
+                <a
+                  href="https://www.veteranscrisisline.net/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="veteran-mission-chat"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#1E3A6F] px-3.5 py-2 font-sans text-xs font-bold text-[#1E3A6F] hover:bg-[#1E3A6F] hover:text-white"
+                >
+                  Chat online <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
             </div>
           )}
 

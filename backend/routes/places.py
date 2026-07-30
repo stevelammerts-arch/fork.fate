@@ -470,6 +470,7 @@ ESSENTIALS_QUERIES = {
     "pharmacy": "24 hour pharmacy",
     "gas": "gas station",
     "food_bank": "food bank food pantry community kitchen soup kitchen",
+    "va": "VA hospital veterans affairs medical center outpatient clinic",
 }
 
 
