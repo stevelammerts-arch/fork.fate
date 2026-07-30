@@ -23,7 +23,7 @@ const CATEGORIES = [
   { id: "dentist",     label: "Dentist",     hint: "24-hr / emergency",         Icon: Heart,      accent: "#B26A12" },
   { id: "vet",         label: "Vet",         hint: "Animal hospital",           Icon: Truck,      accent: "#B26A12" },
   { id: "pharmacy",    label: "Pharmacy",    hint: "24-hr chemist",             Icon: Pill,       accent: "#0E7C4A" },
-  { id: "food_bank",   label: "Food Bank",   hint: "Pantries & meal programs",  Icon: HandHeart,  accent: "#0E7C4A" },
+  { id: "food_bank",   label: "Food Bank & Pantry", hint: "Pantries, soup kitchens, meals", Icon: HandHeart, accent: "#0E7C4A" },
   { id: "gas",         label: "Gas",         hint: "Nearest fuel",              Icon: Fuel,       accent: "#4A5B6E" },
 ];
 
