@@ -86,28 +86,15 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   };
   return (
     <AnimatePresence mode="wait">
-      <div className="relative" data-testid="reveal-card-wrap">
-        {theme === "fantasy" && (
-          <>
-            <img
-              src="/dragon-claw.png"
-              alt=""
-              aria-hidden="true"
-              data-testid="dragon-claw-overlay"
-              className="pointer-events-none absolute inset-0 z-20 h-full w-full select-none object-contain"
-              style={{ transform: "scale(1.14)", transformOrigin: "center" }}
-            />
-          </>
-        )}
-        <motion.div
-          key={`res-${card.id}`}
-          initial={{ opacity: 0, scale: 0.96, rotate: -2 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          exit={{ opacity: 0, scale: 0.98 }}
-          transition={RESULT_SPRING}
-          className="overflow-hidden rounded-2xl"
-          data-testid="spin-result-card"
-        >
+      <motion.div
+        key={`res-${card.id}`}
+        initial={{ opacity: 0, scale: 0.96, rotate: -2 }}
+        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+        exit={{ opacity: 0, scale: 0.98 }}
+        transition={RESULT_SPRING}
+        className="overflow-hidden rounded-2xl"
+        data-testid="spin-result-card"
+      >
         <div className="relative h-64 overflow-hidden rounded-2xl">
           <a
             href={card.google_url}
@@ -323,7 +310,6 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
           </motion.div>
         )}
       </motion.div>
-      </div>
     </AnimatePresence>
   );
 }

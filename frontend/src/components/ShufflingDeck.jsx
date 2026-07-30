@@ -200,6 +200,27 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
                 />
               </motion.div>
             )}
+            {landed && theme === "fantasy" && (
+              <motion.div
+                className="pointer-events-none absolute left-1/2 top-1/2 z-50"
+                style={{ transform: "translate(-50%, calc(-50% - 60px))" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+                data-testid="dragon-claw-overlay"
+              >
+                <motion.img
+                  src="/dragon-claw.png"
+                  alt=""
+                  className="w-[310px] max-w-none select-none"
+                  style={{ filter: "drop-shadow(0 10px 16px rgba(0,0,0,0.55))" }}
+                  initial={{ scale: 1.2, rotate: -3 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: "spring", stiffness: 240, damping: 18 }}
+                />
+              </motion.div>
+            )}
           </AnimatePresence>
           {landed && theme === "cyber" && (
             <motion.div
