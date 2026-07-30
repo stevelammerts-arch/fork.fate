@@ -238,6 +238,36 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
             </div>
           )}
 
+          {/* Crisis lifelines pinned inside Need Help so anyone in crisis
+              lands on them the moment they open the sheet. Veteran-specific
+              contacts get their own strip below, tied to the mission line. */}
+          {!selected && (
+            <div
+              className="mt-5 rounded-2xl border border-[#F0A24E] bg-[#FFF7E6] p-4"
+              data-testid="crisis-hotlines"
+            >
+              <p className="mb-2 font-sans text-[11px] font-bold uppercase tracking-[0.16em] text-[#8A5210]">
+                If you or someone you know is in crisis
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <a
+                  href="tel:988"
+                  data-testid="crisis-hotline-988"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#0E0E0E] px-3.5 py-2 font-sans text-xs font-bold text-white hover:bg-[#2A2A2A]"
+                >
+                  <Phone className="h-3.5 w-3.5" /> 988 · Suicide & Crisis Lifeline
+                </a>
+                <a
+                  href="sms:741741&body=HOME"
+                  data-testid="crisis-hotline-text-home"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#0E0E0E] px-3.5 py-2 font-sans text-xs font-bold text-[#0E0E0E] hover:bg-[#0E0E0E] hover:text-white"
+                >
+                  Text HOME to 741741
+                </a>
+              </div>
+            </div>
+          )}
+
           {/* Veteran-owned mission strip with the Veterans Crisis Line pinned
               visible so a fellow vet in crisis never has to dig into a
               category to find the number. Shown only on the tile grid view,

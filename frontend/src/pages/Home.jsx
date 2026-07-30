@@ -1155,43 +1155,6 @@ export default function Home() {
               )}
             </div>
 
-            {/* Crisis lifelines — always visible below the chip picker so anyone
-                who lands on the page while struggling sees help immediately.
-                Numbers are US-standard (988 dial code, launched July 2022). */}
-            {!crawlMode && !passportMode && !groupMode && (
-              <div
-                className="rounded-2xl border border-[#F0A24E] bg-[#FFF7E6] px-4 py-3"
-                data-testid="crisis-hotlines"
-              >
-                <p className="mb-1.5 font-sans text-[10px] font-bold uppercase tracking-[0.18em] text-[#8A5210]">
-                  If you or someone you know is in crisis
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <a
-                    href="tel:988"
-                    data-testid="crisis-hotline-988"
-                    className="inline-flex items-center gap-2 rounded-full bg-[#0E0E0E] px-3.5 py-1.5 font-sans text-xs font-bold text-white hover:bg-[#2A2A2A]"
-                  >
-                    <Phone className="h-3.5 w-3.5" /> 988 · Suicide & Crisis Lifeline
-                  </a>
-                  <a
-                    href="tel:988,1"
-                    data-testid="crisis-hotline-veterans"
-                    className="inline-flex items-center gap-2 rounded-full bg-[#0E0E0E] px-3.5 py-1.5 font-sans text-xs font-bold text-white hover:bg-[#2A2A2A]"
-                  >
-                    <Phone className="h-3.5 w-3.5" /> 988 press 1 · Veterans Crisis Line
-                  </a>
-                  <a
-                    href="sms:838255"
-                    data-testid="crisis-hotline-veterans-text"
-                    className="inline-flex items-center gap-2 rounded-full border border-[#0E0E0E] px-3.5 py-1.5 font-sans text-xs font-bold text-[#0E0E0E] hover:bg-[#0E0E0E] hover:text-white"
-                  >
-                    Text 838255
-                  </a>
-                </div>
-              </div>
-            )}
-
             <button
               type="button"
               data-testid="open-now-toggle"
