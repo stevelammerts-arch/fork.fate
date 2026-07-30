@@ -27,20 +27,28 @@ const TERMS = [
     ],
   },
   {
-    h: "4. Sponsorships & Billing",
+    h: "4. Nearby Help — Emergency, Medical & Care Listings",
+    p: [
+      "Fork\u00b7Fate\u2019s \u201cNearby Help\u201d feature surfaces publicly listed emergency rooms, urgent care clinics, dentists, veterinarians, pharmacies, and gas stations near you, sourced from third-party data providers such as Google Places. These listings are provided for convenience only and are not endorsements, referrals, or recommendations.",
+      "Fork\u00b7Fate is not a medical, dental, veterinary, or emergency service. We do not verify the credentials, licensing, hours, availability, quality, safety, or fitness of any listed provider. We are not responsible or liable for any diagnosis, treatment, care, outcome, injury, illness, cost, delay, or harm arising from your use of any provider found through the Service.",
+      "In a life-threatening emergency, always dial 911 (or your local emergency number). Always confirm a provider\u2019s hours, address, insurance, and availability directly before traveling.",
+    ],
+  },
+  {
+    h: "5. Sponsorships & Billing",
     p: [
       "Businesses may purchase sponsored placement for $19/month or $190/year (founder's launch pricing — subject to change), with the first month free. Subscriptions are billed automatically through PayPal until cancelled.",
       "You may cancel a sponsorship at any time through your PayPal account; cancellation stops future billing but does not refund the current period. Sponsored placement is clearly labeled as \u201cSponsored.\u201d",
     ],
   },
   {
-    h: "5. User Submissions",
+    h: "6. User Submissions",
     p: [
       "You may submit local spots or report issues. Submissions are reviewed before appearing and may be edited or removed at our discretion. Do not submit false, unlawful, or infringing content.",
     ],
   },
   {
-    h: "6. Intellectual Property",
+    h: "7. Intellectual Property",
     p: [
       "All content, design, code, artwork, and branding of Fork\u00b7Fate are \u00a9 Fork\u00b7Fate and protected by copyright and other laws. \u201cFork\u00b7Fate\u201d and its logo are trademarks of their owner. You may not copy, reproduce, or reuse them without permission.",
     ],
@@ -52,19 +60,19 @@ const TERMS = [
     ],
   },
   {
-    h: "8. Limitation of Liability",
+    h: "9. Limitation of Liability",
     p: [
       "To the fullest extent permitted by law, Fork\u00b7Fate and its owners shall not be liable for any indirect, incidental, or consequential damages arising from your use of the Service.",
     ],
   },
   {
-    h: "9. Changes to These Terms",
+    h: "10. Changes to These Terms",
     p: [
       "We may update these Terms from time to time. Continued use of the Service after changes take effect constitutes acceptance of the revised Terms.",
     ],
   },
   {
-    h: "10. Contact",
+    h: "11. Contact",
     p: [`Questions about these Terms? Email us at ${CONTACT}.`],
   },
 ];

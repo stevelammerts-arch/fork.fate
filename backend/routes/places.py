@@ -447,6 +447,112 @@ async def geocode_zip(zip: str):
     return {"lat": loc["lat"], "lng": loc["lng"]}
 
 
+# ─── Essentials (Nearby Help) ─────────────────────────────────────────────────
+# Non-roulette safety flow: given a location, return the 3 nearest venues for
+# each requested emergency/urgent category (ER, urgent care, dentist, vet,
+# pharmacy, gas station). No sponsor merging, no cuisine filters — just the
+# nearest, sorted by driving distance.
+ESSENTIALS_QUERIES = {
+    "er": "emergency room hospital",
+    "urgent_care": "urgent care walk-in clinic",
+    "dentist": "24 hour dentist emergency dental",
+    "vet": "veterinarian emergency animal hospital",
+    "pharmacy": "24 hour pharmacy",
+    "gas": "gas station",
+}
+
+
+@router.get("/places/essentials", dependencies=[Depends(rate_limit(20))])
+async def places_essentials(lat: float | None = None, lng: float | None = None,
+                             zip: str | None = None, categories: str = ""):
+    """Return top-3 nearest venues per requested essentials category.
+
+    Query params:
+      - lat/lng OR zip (5-digit US) — one is required
+      - categories: comma-separated subset of er|urgent_care|dentist|vet|pharmacy|gas
+                    (empty = all six)
+    """
+    # Resolve location
+    if lat is None or lng is None:
+        if not zip or not re.fullmatch(r"\d{5}", zip.strip()):
+            raise HTTPException(status_code=400, detail="Provide lat/lng or a 5-digit US ZIP")
+        cached = _ZIP_GEO_CACHE.get(zip.strip())
+        if cached:
+            lat, lng = cached
+        else:
+            if not GOOGLE_API_KEY:
+                raise HTTPException(status_code=503, detail="Geocoding unavailable")
+            if not await _google_reserve():
+                raise HTTPException(status_code=503, detail="search-budget-exceeded")
+            async with httpx.AsyncClient(timeout=15) as http:
+                geo = await http.get("https://maps.googleapis.com/maps/api/geocode/json", params={
+                    "components": f"postal_code:{zip.strip()}|country:US", "key": GOOGLE_API_KEY,
+                })
+                gd = geo.json()
+                if gd.get("status") != "OK" or not gd.get("results"):
+                    raise HTTPException(status_code=400, detail="Could not find that ZIP code")
+                loc = gd["results"][0]["geometry"]["location"]
+                lat, lng = loc["lat"], loc["lng"]
+                _ZIP_GEO_CACHE[zip.strip()] = (lat, lng)
+
+    wanted = [c.strip() for c in categories.split(",") if c.strip()] or list(ESSENTIALS_QUERIES.keys())
+    wanted = [c for c in wanted if c in ESSENTIALS_QUERIES]
+    if not wanted:
+        return {"lat": lat, "lng": lng, "categories": {}}
+
+    if not GOOGLE_API_KEY:
+        return {"lat": lat, "lng": lng, "categories": {c: [] for c in wanted}}
+
+    field_mask = "places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.currentOpeningHours.openNow,places.internationalPhoneNumber,places.websiteUri"
+
+    async def one_category(cat: str):
+        if not await _google_reserve():
+            return cat, []
+        async with httpx.AsyncClient(timeout=20) as http:
+            r = await http.post(
+                "https://places.googleapis.com/v1/places:searchText",
+                headers={
+                    "X-Goog-Api-Key": GOOGLE_API_KEY,
+                    "X-Goog-FieldMask": field_mask,
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "textQuery": ESSENTIALS_QUERIES[cat],
+                    "locationBias": {
+                        "circle": {"center": {"latitude": lat, "longitude": lng}, "radius": 40000},
+                    },
+                    "maxResultCount": 8,
+                    "rankPreference": "DISTANCE",
+                },
+            )
+            pd = r.json()
+            if "error" in pd:
+                logger.warning(f"Essentials {cat} error: {str(pd['error'])[:200]}")
+                return cat, []
+            rows = []
+            for p in (pd.get("places") or [])[:3]:
+                loc_v = p.get("location") or {}
+                lat2 = loc_v.get("latitude"); lng2 = loc_v.get("longitude")
+                miles = round(haversine_miles(lat, lng, lat2, lng2), 1) if lat2 and lng2 else None
+                name = (p.get("displayName") or {}).get("text") or ""
+                addr = p.get("formattedAddress") or ""
+                rows.append({
+                    "name": name,
+                    "address": addr,
+                    "distance": miles,
+                    "phone": p.get("internationalPhoneNumber") or "",
+                    "website": p.get("websiteUri") or "",
+                    "open_now": ((p.get("currentOpeningHours") or {}).get("openNow")),
+                    "rating": p.get("rating"),
+                    "reviews": p.get("userRatingCount"),
+                    "maps_url": maps_url(name, addr),
+                })
+            return cat, rows
+
+    results = await asyncio.gather(*[one_category(c) for c in wanted])
+    return {"lat": lat, "lng": lng, "categories": dict(results)}
+
+
 def _places_cache_key(req: PlacesSearchRequest):
     lat = round(req.lat, 3) if req.lat is not None else None
     lng = round(req.lng, 3) if req.lng is not None else None
