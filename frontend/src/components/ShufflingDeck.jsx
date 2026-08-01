@@ -203,7 +203,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
             {landed && theme === "fantasy" && (
               <motion.div
                 className="pointer-events-none absolute left-1/2 top-1/2 z-50"
-                style={{ transform: "translate(calc(-50% - 14px), calc(-50% - 18px))" }}
+                style={{ transform: "translate(calc(-50% - 8px), calc(-50% - 18px))" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
