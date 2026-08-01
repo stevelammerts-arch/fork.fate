@@ -15,6 +15,7 @@ import CheckUpdatesButton from "../components/CheckUpdatesButton";
 import FavoritesDrawer from "../components/FavoritesDrawer";
 import NearbyHelp from "../components/NearbyHelp";
 import { useFavorites } from "../hooks/useFavorites";
+import { useShake, requestMotionPermission } from "../hooks/useShake";
 import GuidedFlow from "../components/GuidedFlow";
 import PubCrawlDialog from "../components/PubCrawlDialog";
 import RevealStage from "../components/home/RevealStage";
@@ -110,6 +111,9 @@ export default function Home() {
   const [filtersOpen, setFiltersOpen] = useState(true);
   // "Double or Nothing": one reroll, but the new pick is final.
   const [locked, setLocked] = useState(false);
+  // Rare-fate scratch surprise ("scratch" | null) + swipe-to-reroll budget.
+  const [surpriseReveal, setSurpriseReveal] = useState(null);
+  const [rerollsLeft, setRerollsLeft] = useState(3);
   // Set by the backend only for Explore searches with no chips picked — the deck
   // is biased by the forecast, so we say so instead of silently changing results.
   const [weather, setWeather] = useState(null);
@@ -192,6 +196,7 @@ export default function Home() {
     setRadius(r);
     setSelectedCuisines(cuisines);
     setMysticalReveal(true);
+    requestMotionPermission();
     finishGuided();
     trackEvent("seal_fate", { category: m, radius_mi: r, cuisine_count: (cuisines || []).length, theme });
     doSearch(cuisines, [], m, c || null, { zipArg: z || "", radiusArg: r });
@@ -266,9 +271,43 @@ export default function Home() {
   // 80 miles away is not. Default stays 50 for every tab.
   const radiusMax = mode === "explore" || mode === "stay" ? 150 : 100;
 
+  // Every ~15 deal taps (13-17, jittered per cycle, persisted per device) fate
+  // arrives as a RARE scratch card instead of the usual shuffle reveal.
+  const shouldRareFate = () => {
+    try {
+      const taps = parseInt(localStorage.getItem("ff_deal_taps") || "0", 10) + 1;
+      let target = parseInt(localStorage.getItem("ff_rare_at") || "0", 10);
+      if (!target) target = 13 + Math.floor(Math.random() * 5);
+      if (taps >= target) {
+        localStorage.setItem("ff_deal_taps", "0");
+        localStorage.setItem("ff_rare_at", String(13 + Math.floor(Math.random() * 5)));
+        return true;
+      }
+      localStorage.setItem("ff_deal_taps", String(taps));
+      localStorage.setItem("ff_rare_at", String(target));
+      return false;
+    } catch (e) {
+      return Math.random() < 1 / 15;
+    }
+  };
+
+  // Scratch completed: unveil with the full reveal fanfare (boom + flash).
+  const surpriseDone = () => {
+    setSurpriseReveal(null);
+    haptic(20);
+    try {
+      if (thunderRef.current) { thunderRef.current.currentTime = 0; thunderRef.current.play().catch(() => {}); }
+      else playSound(light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3", 1.0);
+    } catch (e) { /* audio unavailable */ }
+    setRevealFlash(true);
+    setTimeout(() => setRevealFlash(false), 1400);
+    trackEvent("rare_fate_scratched", { category: mode, theme });
+  };
+
   const runShuffle = (pool) => {
     setResult(null);
     setGroupPicks(null);
+    setSurpriseReveal(null);
     setSpinning(true);
     setLocked(false);
     setFiltersOpen(false);
@@ -326,6 +365,25 @@ export default function Home() {
       chosen = pick();
     }
     lastPickRef.current = chosen?.id ?? null;
+    // RARE FATE: skip the ticker (it would flash the winner's name) — after a
+    // short dramatic beat, present the card hidden under themed scratch foil.
+    if (!groupMode && shouldRareFate()) {
+      shuffleRef.current = setTimeout(() => {
+        try {
+          playSound("/card-deal.wav", 0.85);
+          if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e3) { /* ignore */ } grooveRef.current = null; }
+        } catch (e) { /* audio unavailable */ }
+        haptic(20);
+        setResult(chosen);
+        setSurpriseReveal("scratch");
+        setSpinning(false);
+        setFlash(null);
+        axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
+        setStreak(bumpStreak());
+        trackEvent("deal_result", { category: mode, theme, group: false, rare: true });
+      }, 900);
+      return;
+    }
     let i = 0;
     let delay = 55; // fast start
     const maxDelay = 300; // slow end
@@ -469,6 +527,7 @@ export default function Home() {
         return;
       }
       runShuffle(data.restaurants);
+      setRerollsLeft(3);
     } catch (e) {
       toast.error(e.response?.data?.detail || "Search failed");
     } finally {
@@ -476,7 +535,16 @@ export default function Home() {
     }
   };
 
-  const spin = () => { doSearch(selectedCuisines, [], mode); };
+  const spin = () => { requestMotionPermission(); doSearch(selectedCuisines, [], mode); };
+
+  // Shake the phone to shuffle (once filters/location are in place). The hook
+  // no-ops on devices without motion sensors; iOS permission is requested from
+  // inside the Deal-button gesture above.
+  useShake(() => {
+    if (spinning || loading || showGuided || showCrawl) return;
+    if (!zip.trim() && !coords) return;
+    doSearch(selectedCuisines, [], mode);
+  }, !spinning && !loading);
 
   const useMyLocation = () => {
     if (!navigator.geolocation) {
@@ -673,6 +741,15 @@ export default function Home() {
     if (results.length) { trackEvent("respin", { category: mode, theme }); runShuffle(results); }
   };
 
+  // Swipe-left on the reveal photo: budgeted "tempt fate again" (3 per deal).
+  const swipeReroll = () => {
+    if (!rerollsLeft || !results.length) return;
+    setRerollsLeft((n) => n - 1);
+    haptic(12);
+    trackEvent("swipe_reroll", { category: mode, theme, remaining: rerollsLeft - 1 });
+    runShuffle(results);
+  };
+
   // One reroll, no takebacks — the whole point is that you can't shop around after.
   const doubleOrNothing = () => {
     const pool = results.filter((r) => r.id !== result?.id);
@@ -689,6 +766,7 @@ export default function Home() {
     if (spinning || loading || !favorites.length) return;
     setSource("favorites");
     setResults(favorites);
+    setRerollsLeft(3);
     lastPickRef.current = null;
     runShuffle(favorites);
   };
@@ -1540,7 +1618,7 @@ export default function Home() {
               )}
             </AnimatePresence>
             <div ref={resultRef} className="relative z-10 min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
-              <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} light={light} theme={theme} onReset={() => { setResult(null); setGroupPicks(null); setLocked(false); }} onReSpin={reSpin} onReport={reportClosed} onPick={setResult} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} onDare={doubleOrNothing} dareAvailable={results.length > 1} locked={locked} />
+              <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} light={light} theme={theme} onReset={() => { setResult(null); setGroupPicks(null); setLocked(false); setSurpriseReveal(null); setRerollsLeft(3); }} onReSpin={reSpin} onReport={reportClosed} onPick={setResult} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} onDare={doubleOrNothing} dareAvailable={results.length > 1} locked={locked} rerollsLeft={rerollsLeft} onSwipeReroll={swipeReroll} surprise={surpriseReveal} onSurpriseDone={surpriseDone} />
             </div>
           </div>
         </div>

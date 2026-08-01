@@ -12,7 +12,7 @@ const MIN_VOTES_TO_SHOW = 5;
  * server-side IP dedupe). The community % only shows once a spot has 5+ votes
  * so early spots aren't branded by a single grumpy diner.
  */
-export function ReactionBar({ placeId, light = true }) {
+export function ReactionBar({ placeId }) {
   const [counts, setCounts] = useState(null);
   const [myVote, setMyVote] = useState(() => {
     try { return localStorage.getItem(`ff_rxn_${placeId}`); } catch (e) { return null; }

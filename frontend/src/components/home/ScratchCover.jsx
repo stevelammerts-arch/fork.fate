@@ -1,14 +1,35 @@
 import { useEffect, useRef } from "react";
 
+// Theme-matched foil palettes so the scratch surface always belongs to the
+// active world: gold for Dragon's Hoard, bone-ash for Reaper, neon chrome
+// for cyber, brass for steampunk, sunset for tiki, seasonal accents, and a
+// classic red lotto foil for light mode.
+const FOILS = {
+  fantasy: { stops: ["#C89B3C", "#F2D98A", "#E6B23A", "#A87A24"], text: "#5C3D0E" },
+  dark: { stops: ["#5A5E64", "#C9CDD2", "#9BA1A8", "#3E4247"], text: "#17191C" },
+  cyber: { stops: ["#153B3B", "#6FF7F7", "#22E0E0", "#3A1D5C"], text: "#062121" },
+  steam: { stops: ["#8A5B2B", "#D9A85C", "#C08A3E", "#6E4218"], text: "#3B2410" },
+  tiki: { stops: ["#B3541E", "#F0A24E", "#E0813A", "#7E3413"], text: "#4A1F0B" },
+  fall: { stops: ["#9C4A1A", "#E8A24C", "#D97B2C", "#6E3311"], text: "#45200A" },
+  winter: { stops: ["#4A7A9C", "#CFE8F5", "#9CC8E0", "#33586F"], text: "#1B3648" },
+  spring: { stops: ["#B25A78", "#F5C9D8", "#E098B4", "#8A3F5C"], text: "#5C2038" },
+  summer: { stops: ["#1E8A8A", "#9CE8E0", "#4CC8C0", "#136060"], text: "#0A3D3D" },
+  light: { stops: ["#B3141A", "#F26B70", "#E01E26", "#8E0E13"], text: "#FFFFFF" },
+};
+
+export function foilForTheme(theme) {
+  return FOILS[theme] || FOILS.light;
+}
+
 /**
  * Scratch-off overlay: covers its parent (which must be position:relative)
- * with a gold-foil canvas the user scratches away with finger/mouse. Once
- * ~45% of the surface is cleared, calls onDone() and fades out.
+ * with a themed foil canvas the user scratches away with finger/mouse. Once
+ * `threshold` of the surface is cleared, calls onDone() and fades out.
  *
  * Progress is tracked on a coarse 16px grid (cheap, no getImageData reads
  * per frame).
  */
-export function ScratchCover({ onDone, label = "Scratch to reveal" }) {
+export function ScratchCover({ onDone, label = "Scratch to reveal", theme = "light", threshold = 0.45, radius = 22 }) {
   const canvasRef = useRef(null);
   const doneRef = useRef(false);
 
@@ -23,26 +44,25 @@ export function ScratchCover({ onDone, label = "Scratch to reveal" }) {
     const ctx = canvas.getContext("2d");
     ctx.scale(dpr, dpr);
     const w = rect.width, h = rect.height;
+    const foil = foilForTheme(theme);
 
-    // Gold-foil fill with a subtle diagonal sheen + speckle texture.
+    // Foil fill with a diagonal sheen + speckle texture.
     const grad = ctx.createLinearGradient(0, 0, w, h);
-    grad.addColorStop(0, "#C89B3C");
-    grad.addColorStop(0.45, "#F2D98A");
-    grad.addColorStop(0.55, "#E6B23A");
-    grad.addColorStop(1, "#A87A24");
+    const n = foil.stops.length;
+    foil.stops.forEach((c, i) => grad.addColorStop(i / (n - 1), c));
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
     ctx.globalAlpha = 0.08;
-    for (let i = 0; i < 180; i++) {
-      ctx.fillStyle = Math.random() > 0.5 ? "#fff" : "#5c3d0e";
+    for (let i = 0; i < 220; i++) {
+      ctx.fillStyle = Math.random() > 0.5 ? "#fff" : "#000";
       ctx.fillRect(Math.random() * w, Math.random() * h, 1.5, 1.5);
     }
     ctx.globalAlpha = 1;
-    ctx.fillStyle = "#5C3D0E";
-    ctx.font = "bold 12px sans-serif";
+    ctx.fillStyle = foil.text;
+    ctx.font = "bold 13px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(`✦ ${label} ✦`, w / 2, h / 2);
+    ctx.fillText(`✦ ${label} ✦`, w / 2, Math.min(h / 2, 120));
 
     // Scratch state
     const cell = 16;
@@ -54,7 +74,7 @@ export function ScratchCover({ onDone, label = "Scratch to reveal" }) {
     const scratchAt = (x, y) => {
       ctx.globalCompositeOperation = "destination-out";
       ctx.beginPath();
-      ctx.arc(x, y, 22, 0, Math.PI * 2);
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.fill();
       ctx.globalCompositeOperation = "source-over";
       // Mark a 3x3 cell neighbourhood as cleared.
@@ -63,7 +83,7 @@ export function ScratchCover({ onDone, label = "Scratch to reveal" }) {
         const gx = cx + dx, gy = cy + dy;
         if (gx >= 0 && gy >= 0 && gx < cols && gy < rows) hit.add(gy * cols + gx);
       }
-      if (!doneRef.current && hit.size / totalCells >= 0.45) {
+      if (!doneRef.current && hit.size / totalCells >= threshold) {
         doneRef.current = true;
         canvas.style.transition = "opacity 0.45s ease";
         canvas.style.opacity = "0";
@@ -88,7 +108,7 @@ export function ScratchCover({ onDone, label = "Scratch to reveal" }) {
       canvas.removeEventListener("pointerup", up);
       canvas.removeEventListener("pointercancel", up);
     };
-  }, [onDone, label]);
+  }, [onDone, label, theme, threshold, radius]);
 
   return (
     <canvas

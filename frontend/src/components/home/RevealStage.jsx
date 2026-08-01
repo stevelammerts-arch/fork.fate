@@ -10,12 +10,13 @@ import { FateActionsDropdown } from "../FateActionsDropdown";
 import { CouponReveal } from "./CouponReveal";
 import { ChainCouponStrip } from "./ChainCouponStrip";
 import { ReactionBar } from "./ReactionBar";
+import { ScratchCover } from "./ScratchCover";
 import { useLang } from "../../i18n/i18n";
 import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reaperLineFor, lightLineFor, supportsDelivery, cardImage } from "../../pages/homeConstants";
 import { buildFateCard } from "../../pages/homeFateCard";
 import { trackEvent } from "../../lib/analytics";
 
-export default function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, theme, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite, onDare, dareAvailable, locked, rerollsLeft = 0, onSwipeReroll }) {
+export default function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, theme, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite, onDare, dareAvailable, locked, rerollsLeft = 0, onSwipeReroll, surprise = null, onSurpriseDone }) {
   const { t } = useLang();
   const [confirmingDare, setConfirmingDare] = useState(false);
   if (!result && groupPicks && groupPicks.length > 0) {
@@ -50,8 +51,10 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   const card = result;
   // Once the dare is taken the pick is final — no alternatives, no re-shuffle.
   const alternatives = locked ? [] : deck.filter((d) => d.id !== card.id).slice(0, 3);
+  // Rare fate: the winner arrives hidden under themed foil — scratch to unveil.
+  const foiled = surprise === "scratch";
   // Swipe-to-reroll: drag the photo header left to tempt fate again (budgeted).
-  const swipeEnabled = !locked && rerollsLeft > 0 && deck.length > 1 && !!onSwipeReroll;
+  const swipeEnabled = !locked && !foiled && rerollsLeft > 0 && deck.length > 1 && !!onSwipeReroll;
   const shareFate = async () => {
     const text = `Fate picked ${card.name} (${card.cuisine} · ${card.price})${card.distance ? ` — ${card.distance} mi away` : ""}. Shuffle your own fate on Fork·Fate!`;
     const url = window.location.origin;
@@ -100,7 +103,15 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
         className="overflow-hidden rounded-2xl"
         data-testid="spin-result-card"
       >
-        <div className="relative h-64 overflow-hidden rounded-2xl">
+        <motion.div
+          className="relative h-64 overflow-hidden rounded-2xl"
+          data-testid="reveal-photo-header"
+          drag={swipeEnabled ? "x" : false}
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.4}
+          dragSnapToOrigin
+          onDragEnd={(e, info) => { if (swipeEnabled && info.offset.x < -90) onSwipeReroll(); }}
+        >
           <a
             href={card.google_url}
             target="_blank"
@@ -140,10 +151,32 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
             <h3 className="mt-2 font-serif text-4xl font-medium leading-none text-white drop-shadow">
               {card.name}
             </h3>
+            {swipeEnabled && (
+              <span
+                data-testid="swipe-reroll-hint"
+                className="mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 font-sans text-[10px] font-bold uppercase tracking-wide text-white/90"
+              >
+                ← {t("Swipe to tempt fate")} · {rerollsLeft} {t("left")}
+              </span>
+            )}
           </div>
-        </div>
+          {foiled && (
+            <>
+              <div className="pointer-events-none absolute left-1/2 top-4 z-20 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/70 px-4 py-1.5 font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#E6B23A]" data-testid="rare-fate-badge">
+                ✦ {t("Rare fate")} ✦
+              </div>
+              <ScratchCover
+                onDone={onSurpriseDone}
+                label={t("Scratch to unveil your fate")}
+                theme={theme}
+                threshold={0.35}
+                radius={30}
+              />
+            </>
+          )}
+        </motion.div>
 
-        {result && (
+        {result && !foiled && (
           <motion.div
             initial={DETAIL_INITIAL}
             animate={DETAIL_ANIMATE}
@@ -153,6 +186,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
             <p className={`flex items-center gap-2 font-serif text-xl font-bold italic ${light ? "text-[#A31621]" : "text-[#E01E26]"}`} data-testid="reaper-line">
               {light ? (mode === "shops" ? <ShoppingBag className="h-4 w-4" /> : mode === "fuel" ? <Fuel className="h-4 w-4" /> : <UtensilsCrossed className="h-4 w-4" />) : <Skull className="h-4 w-4" />} {light ? lightLineFor(card, mode) : reaperLineFor(card)}
             </p>
+            <ReactionBar placeId={card.id} />
             {!card.open_now && (
               <p data-testid="closed-reroll-hint" className="rounded-xl bg-[#FCF4F4] px-3 py-2 font-sans text-xs font-bold text-[#E01E26]">
                 {t("Closed right now — shuffle again for an open spot.")}

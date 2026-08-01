@@ -1,0 +1,45 @@
+{
+  "summary": "Iteration 32 — Phase 1 interactivity (swipe-to-reroll, reaction voting, rare-fate scratch reveal, theme foils, coupon scratch). Backend reactions endpoints: 7/7 pytest passing (fresh IDs, IP dedupe, 422 validation, GET/POST correctness). Frontend: reveal card, reaction bar, swipe-to-reroll (3→2→1→hidden with actual card changes), rare-fate scratch reveal, theme-colored foils (summer teal & fantasy gold verified via canvas pixel sampling), post-scratch reveal, shuffle-again, favorites toggle — all working. Local sponsored coupon (CouponReveal sealed) did not surface organically (no local sponsor with coupon.code in surfaced results); skipped per instructions.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_reactions_iter32.py",
+    "/app/test_reports/pytest/reactions_iter32.xml",
+    "/app/test_reports/browser_iter32/"
+  ],
+  "action_items": [
+    "TESTID NAMING MISMATCH (informational only): review_request referenced [data-testid='deal-button']; actual testid in Home.jsx line 1223 is 'spin-roulette-button'. Not a bug — tests updated to use the real id. Suggest documenting canonical testids for future test agents.",
+    "Local sponsored card surfaced (Corner Deli & Co with sponsored ribbon) but no CouponReveal (sealed) rendered — the local sponsor has no coupon.code populated. If E1 wants to guarantee the coupon-scratch flow renders on organic deals near ZIP 10001, seed a local sponsor with coupon fields; otherwise this feature stays untested in preview. Rendered chain 'Bonus offer nearby' (ChainCouponStrip) was present on all reveals as expected."
+  ],
+  "critical_code_review_comments": [
+    "Home.jsx is 1857 lines — should be split into smaller modules (rare-fate logic, shuffle path, filters, deal button) to stay under the 700-line guideline.",
+    "shouldRareFate() calls Math.random inside a localStorage-persisted counter — good; but the fallback 'Math.random() < 1/15' path can never trigger extra rare fates if localStorage throws inside the try (return path). Minor edge case only.",
+    "ReactionBar optimistic bump is not rolled back if the POST fails with a non-dedupe error — user sees a phantom vote. Consider surfacing at least a subtle indicator or refetching on error.",
+    "RevealStage.jsx has grown past 360 lines with multiple concerns (reveal card, alternates, merch CTA, sponsor CTA) — candidate for extraction.",
+    "ScratchCover hardcodes threshold cell size (16) and radius default (22) — acceptable, but the theme lookup silently falls back to 'light' foil when an unknown theme is passed, which the report_request intentionally probes (fantasy→gold ✓, summer→teal ✓)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_reactions_iter32.py (new)"
+  ],
+  "success_rate": {"backend": "100% (7/7)", "frontend": "100% of testable flows (shake-to-shuffle skipped per scope; coupon-sealed skipped — no local sponsor with coupon.code surfaced)"},
+  "test_credentials": "None required",
+  "seed_data_creation": "None; test uses fresh uuid-derived place_ids (TEST_rxn_*) to avoid IP-dedupe collisions with the pod IP.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "PointerEvents (dispatched via page.evaluate) are required to test framer-motion drag — playwright's page.mouse.down/move/up alone does NOT trigger framer's drag detection on the reveal-photo-header. Same PointerEvent pattern works for ScratchCover canvas. Deal button testid is 'spin-roulette-button' (not 'deal-button'). Rare-fate storage (ff_deal_taps=14, ff_rare_at=15) must be set AFTER page load AND after Skip-intro but BEFORE clicking spin. Theme change (ff_theme='fantasy') requires a page reload to take effect.",
+  "verification_evidence": {
+    "backend_reactions": "7/7 pytest passing incl. dedupe (2nd vote same IP → counted:false), 422 on invalid vote & missing place_id, pct=100 for 1 up, pct=0 for 1 down, unknown place returns {up:0,down:0,total:0,pct:null}",
+    "reveal_testids_present": ["spin-result-card","reveal-photo-header","reaction-bar","reaction-up","reaction-down","swipe-reroll-hint","reaper-line","respin-button","result-favorite-toggle"],
+    "reaction_click": "aria-pressed=true on chosen, both buttons disabled=true after vote — correct",
+    "swipe_reroll_hint_sequence": "'3 left' → '2 left' → '1 left' → HIDDEN after 3rd swipe (verified with card names changing: Buffalo Junction → The Green Fork → Corner Deli & Co → Union Square Seafood Kitchen)",
+    "rare_fate_summer_foil_rgba_corners": "[[39,145,144,255],[56,163,158,255],[112,199,194,255],[23,103,102,255]] — teal/aqua ✓",
+    "rare_fate_fantasy_foil_rgba_corners": "[[203,159,66,255],[211,161,51,255],[229,198,114,255],[172,126,37,255]] — gold ✓",
+    "foiled_details_hidden": "reaper-line + reaction-bar both HIDDEN while foil present; both APPEAR after scratch threshold reached (35%)",
+    "shuffle_again": "reveal card re-renders with new pick",
+    "favorites_toggle": "aria-pressed toggles false→true"
+  }
+}
