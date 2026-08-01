@@ -336,8 +336,12 @@ export default function Home() {
         grooveRef.current = null;
       }
     } catch (e) { thunderRef.current = null; grooveRef.current = null; }
+    // Decide the rare-fate surprise up front so the audio can adapt: the rare
+    // rituals bring their own sounds (cymbal swell, wheel tick), so the spoken
+    // voice cue must not talk over them.
+    const rareFate = !groupMode && shouldRareFate();
     // Dark mode plays a spoken voice cue before the deck shuffles; themed shuffles stay clean.
-    if (!light && theme !== "cyber" && theme !== "tiki" && theme !== "steam" && theme !== "fantasy") playSound("/reveal-voice-v5.mp3", 1.0);
+    if (!light && !rareFate && theme !== "cyber" && theme !== "tiki" && theme !== "steam" && theme !== "fantasy") playSound("/reveal-voice-v5.mp3", 1.0);
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
     // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
@@ -368,12 +372,12 @@ export default function Home() {
     // RARE FATE: skip the ticker (it would flash the winner's name) — after a
     // short dramatic beat, present the winner hidden behind a surprise ritual:
     // themed scratch foil, or a Magic 8-ball the user must shake.
-    if (!groupMode && shouldRareFate()) {
-      const pool = ["scratch", "8ball", "wheel"];
-      let variant = pool[Math.floor(Math.random() * pool.length)];
+    if (rareFate) {
+      const pool2 = ["scratch", "8ball", "wheel"];
+      let variant = pool2[Math.floor(Math.random() * pool2.length)];
       try {
         const forced = localStorage.getItem("ff_rare_force");
-        if (pool.includes(forced)) variant = forced;
+        if (pool2.includes(forced)) variant = forced;
       } catch (e) { /* ignore */ }
       shuffleRef.current = setTimeout(() => {
         try {

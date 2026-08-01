@@ -269,6 +269,10 @@ User-directed refinements this session:
   on shake. `photo` prop = card.photo_url || card.image. Gothic serif hints.
 - **/dev/rare preview page** (unlisted route, `RarePreview.jsx`): live demos of all
   three rituals with Replay buttons — user can preview there.
+- **Voice/SFX collision fix** (user report: Reaper "behold your fate" voice drowned
+  the 8-ball shake sound): rare-fate decision (`rareFate`) is now computed BEFORE the
+  dark-theme voice cue in runShuffle, and the voice is skipped when a rare ritual is
+  incoming (rituals bring their own audio). FF_BUILD 2026.06-299.
 - **8-ball shake SFX** (user-uploaded reverse cymbal swell → `/public/8ball-shake.mp3`,
   6s): plays in Magic8Ball trigger() as the ink dissipates (respects ff_muted).
   FF_BUILD 2026.06-297.
