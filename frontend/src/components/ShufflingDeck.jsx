@@ -228,9 +228,9 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
                     clipPath: "inset(0 0 22% 0)",
                     WebkitClipPath: "inset(0 0 22% 0)",
                     // Stretch a hair horizontally so the right-side fingers
-                    // reach a touch further out to the right (matches how a
-                    // real claw's fingers splay when gripping something).
-                    transform: "scaleX(1.06)",
+                    // reach further out to the right (matches how a real
+                    // claw's fingers splay when gripping something).
+                    transform: "scaleX(1.12)",
                     transformOrigin: "center",
                   }}
                   initial={{ scale: 1.2, rotate: -3 }}
