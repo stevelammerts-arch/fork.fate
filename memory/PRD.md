@@ -249,6 +249,34 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
     parsing that skips our own hops — previously a missing CF-Connecting-IP collapsed
     every user onto the shared ingress IP.
 
+## Completed 2026-08-03 — Rare Fate Rituals expansion (wheel, gothic, ink 8-ball)
+User-directed refinements this session:
+- **Wheel of Fate** (`WheelOfFate.jsx`, third rare variant): user-specified design —
+  BLACK/RED/WHITE roulette segments, RED Fork·Fate crest (`/logo-crest.png`) hub,
+  GOTHIC undertone (wrought-iron rim + rivets, dagger pointer, serif italic labels,
+  candlelit red vignette). Flick to spin (velocity >90 deg/s) or "tap to spin"
+  fallback; rigged to land on the pre-chosen winner (R ≡ -winnerCenter mod 360,
+  4 turns, 4.4s ease-out). 4/6/8 segments from deck names. Tested iter_34: 5/5 PASS
+  incl. rigged-landing verification.
+- **ThemeCardFrame** (`ScratchCover.jsx` export): deck-card double inset border
+  (accentForTheme map) + dark rim (for contrast on gold foil) now frames ALL rare
+  reveals — user asked for "the borders the shuffle cards have".
+- **Scratch threshold 0.65** (was 0.35): user reported auto-reveal at half-scratched.
+  Verified: 50% does NOT reveal, ~80% does. Renamed testids:
+  `rare-fate-scratch-cover` / `coupon-scratch-cover`.
+- **Magic 8-Ball smoky ink** (user request): window now shows the fate PHOTO under
+  layered ink (full-coverage base + 3 swirling blobs + floating "8") that dissipates
+  on shake. `photo` prop = card.photo_url || card.image. Gothic serif hints.
+- **/dev/rare preview page** (unlisted route, `RarePreview.jsx`): live demos of all
+  three rituals with Replay buttons — user can preview there.
+- Variant pool now ["scratch","8ball","wheel"] random each rare trigger;
+  QA override `ff_rare_force` accepts all three. FF_BUILD 2026.06-294.
+- E2E NOTE for future agents: React onClick/pointer handlers need synthesized
+  PointerEvent+MouseEvent sequences via page.evaluate (documented in iter_33/34
+  context_for_next_testing_agent).
+- Ink-8ball visual verified via /dev/rare screenshots; full 8-ball flow was tested
+  in iter_33 (mechanics unchanged — only window contents changed).
+
 ## Completed 2026-08-02/03 — Phase 1 Interactivity (user-approved plan)
 User approved a 3-phase interactivity roadmap. Phase 1 built + tested:
 - **Swipe-to-reroll** (`RevealStage.jsx` draggable photo header): swipe left >90px

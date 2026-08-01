@@ -1,16 +1,22 @@
 import { useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useShake } from "../../hooks/useShake";
 import { haptic } from "../../lib/pwa";
 
 /**
- * Magic 8-Ball rare reveal: the winner hides inside the ball. The user must
- * SHAKE their phone (devicemotion, permission already requested at deal tap)
- * — or, on desktop, rattle the ball by dragging it back and forth — to make
- * the answer float up in the classic blue triangle. Then onDone() unveils
- * the full card with the usual fanfare.
+ * Magic 8-Ball rare reveal: the winner hides inside the ball behind swirling
+ * ink. The user must SHAKE their phone (devicemotion, permission already
+ * requested at deal tap) — or, on desktop, rattle the ball by dragging it
+ * back and forth — to make the ink dissipate and unveil the fate photo in
+ * the viewing window. Then onDone() unveils the full card.
  */
-export function Magic8Ball({ name, onDone }) {
+const INK_BLOBS = [
+  { size: 64, x: -8, y: -6, from: "#0A1024", dur: 5.2 },
+  { size: 52, x: 12, y: 8, from: "#141E3E", dur: 4.1 },
+  { size: 44, x: -4, y: 12, from: "#060B1C", dur: 6.0 },
+];
+
+export function Magic8Ball({ name, photo, onDone }) {
   // idle -> shaking -> answer
   const [stage, setStage] = useState("idle");
   const stageRef = useRef("idle");
@@ -80,33 +86,63 @@ export function Magic8Ball({ name, onDone }) {
             : { repeat: Infinity, duration: 3.2, ease: "easeInOut" }
         }
       >
-        {/* Viewing window */}
-        <div className="grid h-[74px] w-[74px] place-items-center overflow-hidden rounded-full bg-[#060D1F] shadow-[inset_0_4px_12px_rgba(0,0,0,0.9)]">
-          <AnimatePresence mode="wait">
-            {stage === "answer" ? (
-              <motion.div
-                key="answer"
-                initial={{ y: 46, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 140, damping: 16 }}
-                className="grid h-14 w-14 place-items-center"
-                data-testid="magic-8ball-answer"
-                style={{ clipPath: "polygon(50% 0%, 100% 100%, 0% 100%)", background: "linear-gradient(180deg,#1D4ED8,#172B7A)" }}
-              >
-                <span className="mt-4 max-w-[52px] text-center font-sans text-[8px] font-bold uppercase leading-tight text-white">
-                  {name || "Fate awaits"}
-                </span>
-              </motion.div>
-            ) : (
-              <motion.span
-                key="eight"
-                exit={{ opacity: 0, y: 20 }}
-                className="grid h-9 w-9 place-items-center rounded-full bg-white font-serif text-xl font-bold text-black"
-              >
-                8
-              </motion.span>
-            )}
-          </AnimatePresence>
+        {/* Viewing window: the fate photo sits beneath swirling ink that
+            dissipates once the ball is shaken. */}
+        <div className="relative h-[74px] w-[74px] overflow-hidden rounded-full bg-[#060D1F] shadow-[inset_0_4px_12px_rgba(0,0,0,0.9)]">
+          {photo && (
+            <img
+              src={photo}
+              alt=""
+              data-testid="magic-8ball-answer"
+              className="absolute inset-0 h-full w-full rounded-full object-cover"
+              draggable={false}
+            />
+          )}
+          {!photo && stage === "answer" && (
+            <div className="absolute inset-0 grid place-items-center" data-testid="magic-8ball-answer">
+              <span className="max-w-[60px] text-center font-serif text-[9px] font-bold italic leading-tight text-white">
+                {name || "Fate awaits"}
+              </span>
+            </div>
+          )}
+          {/* Smoky ink: a full-coverage base layer + swirling blobs on top */}
+          <motion.div
+            className="absolute inset-0 rounded-full"
+            style={{ background: "radial-gradient(circle at 45% 40%, #0C142C 0%, #060B1C 60%, #030614 100%)" }}
+            animate={stage === "idle" ? { opacity: 1 } : { opacity: 0, scale: 1.6, filter: "blur(8px)" }}
+            transition={stage === "idle" ? { duration: 0.2 } : { duration: 1.5, delay: 0.25, ease: "easeOut" }}
+          />
+          {INK_BLOBS.map((b, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                width: b.size, height: b.size,
+                left: `calc(50% - ${b.size / 2}px + ${b.x}px)`,
+                top: `calc(50% - ${b.size / 2}px + ${b.y}px)`,
+                background: `radial-gradient(circle at 40% 35%, ${b.from} 0%, #030614 68%, rgba(3,6,20,0) 100%)`,
+              }}
+              animate={
+                stage === "idle"
+                  ? { x: [0, 6, -5, 3, 0], y: [0, -4, 5, -3, 0], scale: [1, 1.08, 0.96, 1.05, 1], opacity: 0.98, filter: "blur(1px)" }
+                  : { opacity: 0, scale: 2.1, filter: "blur(10px)" }
+              }
+              transition={
+                stage === "idle"
+                  ? { repeat: Infinity, duration: b.dur, ease: "easeInOut" }
+                  : { duration: 1.3, delay: i * 0.18, ease: "easeOut" }
+              }
+            />
+          ))}
+          {/* The white 8 floats on the ink and sinks away on shake */}
+          <motion.span
+            className="absolute left-1/2 top-1/2 grid h-9 w-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white font-serif text-xl font-bold text-black"
+            animate={stage === "idle" ? { opacity: 1, y: "-50%" } : { opacity: 0, y: "10%" }}
+            transition={stage === "idle" ? { duration: 0.2 } : { duration: 0.7, ease: "easeIn" }}
+            style={{ x: "-50%" }}
+          >
+            8
+          </motion.span>
         </div>
       </motion.div>
       <p className="pointer-events-none px-6 text-center font-serif text-sm font-semibold italic text-[#C7CACE]" data-testid="magic-8ball-hint">
