@@ -75,6 +75,11 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
   login lockout; `cf-connecting-ip` trusted for any private TCP peer.
 
 ## Pending / Backlog
+- **P1 (user decision): confirm chain-tier pricing** — agent set $99/mo · $990/yr
+  as sensible defaults; adjust `SPONSOR_PRICE_CHAIN[_ANNUAL]` in core.py + the
+  displayed prices in `SponsorChains.jsx`/`BecomeSponsorDialog.jsx` if changed.
+- P2: 'Check again' button on /sponsor/success when polling ends in 'pending'
+  (testing-agent suggestion, iter_31).
 
 ## Tech Stack
 - Frontend: React + Tailwind + framer-motion, react-i18next (`t()`), PWA.
@@ -245,6 +250,37 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
     every user onto the shared ingress IP.
 
 ## Completed 2026-08-02 (this session)
+- **Chain Pitch Page** (`/sponsor/chains`, `SponsorChains.jsx`): dark landing page for
+  national chains — hero, live fates counter, 3-step how-it-works, perks list,
+  pricing card ($99/mo · $990/yr = 2 months free). CTAs open `BecomeSponsorDialog`
+  in chain mode. NOTE: chain pricing ($99/$990) was agent-chosen — user should
+  confirm before production deploy. Backend: `_plan_spec`/`ensure_paypal_plan` grew
+  a `tier` param (config keys `paypal_plan_chain[_annual]`); `SponsorSubscribe`
+  model has `tier` + `coupon`; subscribe rejects chain tier without coupon code (400).
+- **Chain-mode sponsor dialog** (`BecomeSponsorDialog.jsx` `tier` prop): chain shows
+  $99/$990 plans (no free month) + required coupon section (code auto-uppercase,
+  description, optional terms); local mode unchanged (regression-tested).
+- **Card Download Buttons** (`SponsorStatus.jsx`): active success page shows a
+  "Your marketing kit" block with 3 downloads (square/story/pdf) hitting
+  `GET /api/sponsors/{id}/social-card?format=X`. `subscription-status` endpoint now
+  returns `sponsor_id` (active subs only — no leak for pending).
+- **Sponsor welcome-cards email** (`sponsors.py send_sponsor_welcome_cards`):
+  on PayPal activation (webhook ACTIVATED + status-poll fallback path) emails the 3
+  card formats as base64 Resend attachments to `contact_email`. Idempotent: claims
+  `cards_email_sent` flag atomically, releases on failure for retry.
+  `core.send_email` now accepts `attachments`. CANNOT be delivery-tested in preview
+  (RESEND_API_KEY + PayPal keys are EMPTY in preview env — send path unit-verified,
+  works in production where keys exist).
+- Seeded PREVIEW-ONLY test sponsor: id `test-chain-sponsor-1`, subscription
+  `I-TESTSUB123`, active chain tier, coupon FORK20 — handy for previewing the chain
+  coupon strip; delete when no longer needed.
+- Testing agent iteration_31: backend 11/11 pytest (new suite
+  `backend/tests/test_chain_sponsor_iter31.py`), frontend 100%. FF_BUILD 2026.06-289.
+- Earlier this session (see below): dragon claw two-layer fix (iter_29) + pulsing
+  reveal glow (iter_30), both user-approved. User confirmed the existing
+  `reveal-dragon.mp3` already covers the clawed-reveal sound.
+
+## Completed 2026-08-02 (earlier: claw + glow)
 - **Dragon claw REBUILT as two-layer grip & USER-APPROVED** (`ShufflingDeck.jsx`
   ~lines 203-254). Root cause of all prior misalignment: the CSS centered the PNG on
   the card and clipped the palm, and inline `transform` strings on `motion.img` were
