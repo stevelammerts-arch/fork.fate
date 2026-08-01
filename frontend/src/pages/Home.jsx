@@ -66,9 +66,9 @@ export default function Home() {
   const seasonCfg = SEASONS[theme] || null;
   const season = seasonCfg ? theme : null;
   const auraAccent = ambCfg ? ambCfg.accent : (seasonCfg ? seasonCfg.hint : "#E01E26");
-  const auraBg = theme === "dark"
-    ? "conic-gradient(from 0deg, #E01E26, #0b0b0b, #7a0c10, #000000, #E01E26)"
-    : `conic-gradient(from 0deg, ${auraAccent}, rgba(255,255,255,0) 25%, ${auraAccent} 50%, rgba(255,255,255,0) 75%, ${auraAccent})`;
+  // Flashy reveal aura: accent color with white-hot streaks so every theme
+  // gets bright rotating flashes (dark red, cyber teal, tiki orange, etc.).
+  const auraBg = `conic-gradient(from 0deg, ${auraAccent}, #ffffff 10%, ${auraAccent} 22%, rgba(255,255,255,0) 34%, ${auraAccent} 48%, #ffffff 58%, ${auraAccent} 72%, rgba(255,255,255,0) 86%, ${auraAccent})`;
   const ghost = light
     ? "border-[#E4E4E7] text-[#3F3F46] hover:bg-[#F4F4F5]"
     : "border-white/25 text-white hover:bg-white/10";
@@ -1530,19 +1530,14 @@ export default function Home() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.4 }}
-                  className="pointer-events-none absolute -inset-3"
+                  className="pointer-events-none absolute -inset-4"
                 >
+                  {/* Single pulsing glow behind the reveal window */}
                   <motion.div
-                    className="absolute inset-0 rounded-[32px]"
-                    style={{ background: auraBg, filter: "blur(16px)" }}
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 5, ease: "linear" }}
-                  />
-                  <motion.div
-                    className="absolute inset-[9px] rounded-[26px] border-2"
-                    style={{ borderColor: auraAccent }}
-                    animate={{ opacity: [0.35, 0.95, 0.35], boxShadow: [`0 0 22px ${auraAccent}66`, `0 0 55px ${auraAccent}f0`, `0 0 22px ${auraAccent}66`] }}
-                    transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+                    className="absolute inset-0 rounded-[36px]"
+                    style={{ background: auraAccent, filter: "blur(28px)" }}
+                    animate={{ opacity: [0.35, 0.85, 0.35], scale: [0.98, 1.03, 0.98] }}
+                    transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
                   />
                 </motion.div>
               )}
