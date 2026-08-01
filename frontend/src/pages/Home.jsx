@@ -374,7 +374,7 @@ export default function Home() {
             axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
             setStreak(bumpStreak());
             trackEvent("deal_result", { category: mode, theme, group: !!groupMode });
-          }, 1600);
+          }, 2400);
         }, 140);
       }
     };
