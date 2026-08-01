@@ -227,10 +227,11 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
                     // sponsor/venue name. 22% keeps palm + talons intact.
                     clipPath: "inset(0 0 22% 0)",
                     WebkitClipPath: "inset(0 0 22% 0)",
-                    // Stretch a hair horizontally so the right-side fingers
-                    // reach further out to the right (matches how a real
-                    // claw's fingers splay when gripping something).
-                    transform: "scaleX(1.12)",
+                    // Stretch the claw horizontally so the right-side
+                    // fingers reach past the card's outer gold border, not
+                    // stopping at the inner red line. Single flat PNG so
+                    // this also splays the thumb outward on the left.
+                    transform: "scaleX(1.22)",
                     transformOrigin: "center",
                   }}
                   initial={{ scale: 1.2, rotate: -3 }}
