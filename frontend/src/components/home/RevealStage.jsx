@@ -9,12 +9,13 @@ import { OrderDropdown } from "../OrderDropdown";
 import { FateActionsDropdown } from "../FateActionsDropdown";
 import { CouponReveal } from "./CouponReveal";
 import { ChainCouponStrip } from "./ChainCouponStrip";
+import { ReactionBar } from "./ReactionBar";
 import { useLang } from "../../i18n/i18n";
 import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reaperLineFor, lightLineFor, supportsDelivery, cardImage } from "../../pages/homeConstants";
 import { buildFateCard } from "../../pages/homeFateCard";
 import { trackEvent } from "../../lib/analytics";
 
-export default function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, theme, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite, onDare, dareAvailable, locked }) {
+export default function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, theme, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite, onDare, dareAvailable, locked, rerollsLeft = 0, onSwipeReroll }) {
   const { t } = useLang();
   const [confirmingDare, setConfirmingDare] = useState(false);
   if (!result && groupPicks && groupPicks.length > 0) {
@@ -49,6 +50,8 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   const card = result;
   // Once the dare is taken the pick is final — no alternatives, no re-shuffle.
   const alternatives = locked ? [] : deck.filter((d) => d.id !== card.id).slice(0, 3);
+  // Swipe-to-reroll: drag the photo header left to tempt fate again (budgeted).
+  const swipeEnabled = !locked && rerollsLeft > 0 && deck.length > 1 && !!onSwipeReroll;
   const shareFate = async () => {
     const text = `Fate picked ${card.name} (${card.cuisine} · ${card.price})${card.distance ? ` — ${card.distance} mi away` : ""}. Shuffle your own fate on Fork·Fate!`;
     const url = window.location.origin;

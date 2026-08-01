@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { Ticket, Copy, Check } from "lucide-react";
+import { ScratchCover } from "./ScratchCover";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -71,29 +72,32 @@ export function CouponReveal({ sponsorId, coupon, variant = "full" }) {
 
   if (!revealed) {
     return (
-      <button
-        type="button"
-        onClick={doReveal}
+      <div
         data-testid={`coupon-reveal-sealed-${sponsorId}`}
-        className="group relative flex w-full items-center justify-between gap-3 rounded-2xl border-2 border-dashed border-[#F0A24E] bg-gradient-to-r from-[#FFF4CC] to-[#FFE1A6] px-4 py-3 text-left transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(178,106,18,0.18)]"
+        className="relative overflow-hidden rounded-2xl"
+        title="Scratch to reveal your code"
       >
-        <span className="flex items-center gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#B26A12] text-white">
-            <Ticket className="h-5 w-5" />
-          </span>
-          <span className="flex flex-col">
-            <span className="font-sans text-[10px] font-bold uppercase tracking-[0.18em] text-[#8A5210]">
-              Deal unlocked by fate
+        {/* The real coupon sits underneath; the gold foil above gets scratched off. */}
+        <div className="rounded-2xl border-2 border-dashed border-[#F0A24E] bg-gradient-to-r from-[#FFF4CC] to-[#FFE1A6] px-4 py-4">
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#B26A12] text-white">
+              <Ticket className="h-5 w-5" />
             </span>
-            <span className="font-serif text-base font-medium leading-snug text-[#0E0E0E]">
-              {savingsLabel()} — {coupon.description}
-            </span>
-          </span>
-        </span>
-        <span className="shrink-0 rounded-full bg-[#0E0E0E] px-3 py-1.5 font-sans text-[11px] font-bold text-white transition-transform group-hover:scale-105">
-          Tap to reveal
-        </span>
-      </button>
+            <div className="flex flex-col">
+              <span className="font-sans text-[10px] font-bold uppercase tracking-[0.18em] text-[#8A5210]">
+                Deal unlocked by fate
+              </span>
+              <span className="font-serif text-base font-medium leading-snug text-[#0E0E0E]">
+                {savingsLabel()} — {coupon.description}
+              </span>
+              <span className="mt-1 font-mono text-xl font-bold tracking-wider text-[#0E0E0E]">
+                {coupon.code}
+              </span>
+            </div>
+          </div>
+        </div>
+        <ScratchCover onDone={doReveal} label="Scratch to reveal your deal" />
+      </div>
     );
   }
 
