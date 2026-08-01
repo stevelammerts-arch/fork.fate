@@ -1305,21 +1305,24 @@ export default function Home() {
                 </span>
               </button>
 
-              <Link
-                to="/leaderboard"
-                data-testid="crawl-champions-link"
-                className="inline-flex items-center gap-2.5 rounded-full border-2 border-[#F0A24E] bg-white px-4 py-2.5 text-sm font-bold text-[#B26A12] transition-colors hover:bg-[#FBF3E7]"
-              >
-                <Trophy className="h-4 w-4" /> {t("Champions")}
-              </Link>
+              {/* Champions + Passport Wall stay paired on one line */}
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/leaderboard"
+                  data-testid="crawl-champions-link"
+                  className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-[#F0A24E] bg-white px-4 py-2.5 text-sm font-bold text-[#B26A12] transition-colors hover:bg-[#FBF3E7]"
+                >
+                  <Trophy className="h-4 w-4" /> {t("Champions")}
+                </Link>
 
-              <Link
-                to="/wall"
-                data-testid="passport-wall-link"
-                className="inline-flex items-center gap-2.5 rounded-full border-2 border-[#2E7D32] bg-white px-4 py-2.5 text-sm font-bold text-[#2E7D32] transition-colors hover:bg-[#E8F3E9]"
-              >
-                <Globe2 className="h-4 w-4" /> {t("Passport Wall")}
-              </Link>
+                <Link
+                  to="/wall"
+                  data-testid="passport-wall-link"
+                  className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-[#2E7D32] bg-white px-4 py-2.5 text-sm font-bold text-[#2E7D32] transition-colors hover:bg-[#E8F3E9]"
+                >
+                  <Globe2 className="h-4 w-4" /> {t("Passport Wall")}
+                </Link>
+              </div>
             </div>
             </div>
 

@@ -23,7 +23,7 @@ function segPath(a0, a1, r) {
  * it free-spins with decay and is quietly rigged to land the pointer on
  * the already-chosen winner. Then onDone() unveils the card.
  */
-export function WheelOfFate({ names = [], winner, onDone }) {
+export function WheelOfFate({ names = [], winner, onDone, autoSpin = false }) {
   const [stage, setStage] = useState("idle"); // idle | spinning | done
   const rotation = useMotionValue(0);
   const wheelRef = useRef(null);
@@ -32,6 +32,14 @@ export function WheelOfFate({ names = [], winner, onDone }) {
 
   // Stop the tick if the overlay unmounts mid-spin.
   useEffect(() => () => { try { tickRef.current?.pause(); } catch (e) { /* ignore */ } }, []);
+
+  // Demo mode (/dev/rare): spin by itself shortly after mounting.
+  const spinToRef = useRef(null);
+  useEffect(() => {
+    if (!autoSpin) return;
+    const t = setTimeout(() => spinToRef.current?.(1), 1400);
+    return () => clearTimeout(t);
+  }, [autoSpin]);
 
   const stopTick = () => {
     const a = tickRef.current;
@@ -91,6 +99,7 @@ export function WheelOfFate({ names = [], winner, onDone }) {
       },
     });
   };
+  spinToRef.current = spinTo;
 
   const angleAt = (e) => {
     const r = wheelRef.current.getBoundingClientRect();

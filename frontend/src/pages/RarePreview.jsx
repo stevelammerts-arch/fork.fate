@@ -64,7 +64,7 @@ export default function RarePreview() {
           </DemoCard>
           <DemoCard title="Wheel of Fate" resetKey="wheel" onReset={() => bump("wheel")}>
             <div key={keys.wheel} className="absolute inset-0">
-              <WheelOfFate names={MOCK_NAMES} winner={WINNER} onDone={() => {}} />
+              <WheelOfFate names={MOCK_NAMES} winner={WINNER} onDone={() => {}} autoSpin />
               <ThemeCardFrame theme="dark" />
             </div>
           </DemoCard>
