@@ -244,6 +244,23 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
     parsing that skips our own hops — previously a missing CF-Connecting-IP collapsed
     every user onto the shared ingress IP.
 
+## Completed 2026-08-01 (this session)
+- **Dragon claw alignment FIXED & VERIFIED** (`ShufflingDeck.jsx`): wrapper translateY
+  `calc(-50% - 14px)` → `calc(-50% - 4px)`; inner img `scaleX(1.20)` → `scaleX(1.32)`.
+  Testing agent iteration_28: ALL 3 criteria PASS (thumb overflows ~67px past left gold
+  border, 3 right claws overflow right border, top talon flush at card top edge).
+  `FF_BUILD` bumped to `2026.06-287` for cache busting. Note for future tests: the
+  primary CTA testid is `spin-roulette-button` (NOT `deal-button`).
+- **Google Play AGP 9.0 warning — advisory answered**: app is a PWABuilder TWA wrapper
+  (`com.forkfate.twa`), no native Android code in repo. Warning is a soft advisory,
+  not a blocker. Remedy when convenient: regenerate the package on pwabuilder.com
+  (uses current AGP/targetSdk), bump versionCode, upload new .aab with SAME signing key.
+- **Linter engine error FIXED**: ESLint 9 was installed with no config file at all,
+  crashing the platform lint hook. Added `/app/frontend/eslint.config.js` (flat config,
+  warnings-only except syntax-level errors). Also fixed 4 real `no-dupe-keys` bugs in
+  `src/i18n/i18n.js` (duplicate Spanish translation keys — kept the later-wins values
+  to preserve runtime behavior). Lint now passes: 0 errors.
+
 ## Pending / Backlog
 - **P0 (user action): rotate + restrict the Google API key** `AIzaSyA8-B...TyDI`. It
   was pasted into a chat transcript. Restrict to Places API (New) + Geocoding API

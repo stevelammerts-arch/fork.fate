@@ -28,7 +28,6 @@ export const ES = {
   "Unmute": "Activar sonido",
 
   // Hero
-  "Can't decide where to eat?": "¿No sabes dónde comer?",
   "Let fate decide.": "Deja que el destino decida.",
   "Spin the deck and let Fork·Fate deal you a real local restaurant, bar, or dessert spot near you.": "Gira el mazo y deja que Fork·Fate te reparta un restaurante, bar o postre local de verdad cerca de ti.",
 
@@ -48,7 +47,6 @@ export const ES = {
   "Coming to Android!": "¡Pronto en Android!",
   "Want early access? Join the beta.": "¿Quieres acceso anticipado? Únete a la beta.",
   "Your Gmail:": "Tu Gmail:",
-  "Notify me": "Avísame",
   "Sending…": "Enviando…",
   "You're on the list! We'll add you to the Android beta shortly. 🎉": "¡Estás en la lista! Te añadiremos a la beta de Android pronto. 🎉",
   "Feature your business here": "Anuncia tu negocio aquí",
@@ -110,7 +108,6 @@ export const ES = {
   "Deal a Crawl!": "¡Reparte una ruta!",
   "fates dealt": "destinos repartidos",
   "crawls survived": "rutas superadas",
-  "day streak": "días de racha",
   "Nearby spots": "Lugares cercanos",
   "Featured": "Destacados",
   "Closest": "Más cercanos",
@@ -231,7 +228,6 @@ export const ES = {
   "Step two": "Paso dos",
   "Where shall fate look?": "¿Dónde buscará el destino?",
   "Enter ZIP": "Ingresa el código postal",
-  "or": "o",
   "Location set": "Ubicación fijada",
   "Continue": "Continuar",
   "Step three": "Paso tres",
