@@ -244,7 +244,34 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
     parsing that skips our own hops — previously a missing CF-Connecting-IP collapsed
     every user onto the shared ingress IP.
 
-## Completed 2026-08-01 (this session)
+## Completed 2026-08-02 (this session)
+- **Dragon claw REBUILT as two-layer grip & USER-APPROVED** (`ShufflingDeck.jsx`
+  ~lines 203-254). Root cause of all prior misalignment: the CSS centered the PNG on
+  the card and clipped the palm, and inline `transform` strings on `motion.img` were
+  silently OVERWRITTEN by framer-motion's animated scale (scaleX tweaks never applied).
+  New approach: `/dragon-claw.png` rendered TWICE with complementary clip-path
+  polygons — palm slice at z-1 BEHIND the card (z-5), talon/thumb/fingers at z-50 in
+  front. Geometry computed from alpha-channel measurements
+  (`/app/scripts/measure_claw_window.py`): img 323px wide, framer `scaleY: 1.12`,
+  wrapper `translate(calc(-50% - 2px), calc(-50% + 18px))`. Seams on near-transparent
+  rows (png y≈868 / x≈216). Testing agent iteration_29: 100% (all 5 visual criteria +
+  z-order + dark-theme skeleton-hand regression). Static harness at
+  `/app/frontend/public/claw_test.html` mirrors exact CSS (authoritative reference).
+  NOTE: original claw art restored — user LIKES the top talon. Backups:
+  `/app/scripts/dragon_claw_prev_landscape.png` (original), `claw_cand1.png` (unused
+  regen). Do NOT regenerate the PNG without asking.
+- **Mystical aura simplified to single pulsing glow & VERIFIED** (`Home.jsx` ~1524):
+  removed rotating conic-gradient rect + border ring; now ONE accent-colored blurred
+  (28px) rect pulsing opacity 0.35→0.85 / scale 0.98→1.03 @1.6s behind the reveal
+  panel. Adapts to theme accent (gold on fantasy, etc.). Dead `auraBg` const removed.
+  Testing agent iteration_30: 100% on default + fantasy, no console errors.
+  User iterated: "more flashy" → then settled on "just a pulsing glow" — final state
+  is the simple pulse. `FF_BUILD` bumped to `2026.06-288`.
+- Screenshot-tool limitation discovered: it does NOT execute interaction scripts in
+  this environment (returns initial-page frame only). Use testing_agent for any
+  flow-dependent visual checks; `claw_test.html` for static claw geometry.
+
+## Completed 2026-08-01 (previous session)
 - **Dragon claw alignment FIXED & VERIFIED** (`ShufflingDeck.jsx`): wrapper translateY
   `calc(-50% - 14px)` → `calc(-50% - 4px)`; inner img `scaleX(1.20)` → `scaleX(1.32)`.
   Testing agent iteration_28: ALL 3 criteria PASS (thumb overflows ~67px past left gold

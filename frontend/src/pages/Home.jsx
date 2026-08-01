@@ -66,9 +66,6 @@ export default function Home() {
   const seasonCfg = SEASONS[theme] || null;
   const season = seasonCfg ? theme : null;
   const auraAccent = ambCfg ? ambCfg.accent : (seasonCfg ? seasonCfg.hint : "#E01E26");
-  // Flashy reveal aura: accent color with white-hot streaks so every theme
-  // gets bright rotating flashes (dark red, cyber teal, tiki orange, etc.).
-  const auraBg = `conic-gradient(from 0deg, ${auraAccent}, #ffffff 10%, ${auraAccent} 22%, rgba(255,255,255,0) 34%, ${auraAccent} 48%, #ffffff 58%, ${auraAccent} 72%, rgba(255,255,255,0) 86%, ${auraAccent})`;
   const ghost = light
     ? "border-[#E4E4E7] text-[#3F3F46] hover:bg-[#F4F4F5]"
     : "border-white/25 text-white hover:bg-white/10";
