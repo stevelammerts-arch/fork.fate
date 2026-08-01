@@ -301,7 +301,7 @@ export default function Home() {
     } catch (e) { /* audio unavailable */ }
     setRevealFlash(true);
     setTimeout(() => setRevealFlash(false), 1400);
-    trackEvent("rare_fate_scratched", { category: mode, theme });
+    trackEvent("rare_fate_revealed", { category: mode, theme });
   };
 
   const runShuffle = (pool) => {
@@ -366,8 +366,14 @@ export default function Home() {
     }
     lastPickRef.current = chosen?.id ?? null;
     // RARE FATE: skip the ticker (it would flash the winner's name) — after a
-    // short dramatic beat, present the card hidden under themed scratch foil.
+    // short dramatic beat, present the winner hidden behind a surprise ritual:
+    // themed scratch foil, or a Magic 8-ball the user must shake.
     if (!groupMode && shouldRareFate()) {
+      let variant = Math.random() < 0.5 ? "scratch" : "8ball";
+      try {
+        const forced = localStorage.getItem("ff_rare_force");
+        if (forced === "scratch" || forced === "8ball") variant = forced;
+      } catch (e) { /* ignore */ }
       shuffleRef.current = setTimeout(() => {
         try {
           playSound("/card-deal.wav", 0.85);
@@ -375,12 +381,12 @@ export default function Home() {
         } catch (e) { /* audio unavailable */ }
         haptic(20);
         setResult(chosen);
-        setSurpriseReveal("scratch");
+        setSurpriseReveal(variant);
         setSpinning(false);
         setFlash(null);
         axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
         setStreak(bumpStreak());
-        trackEvent("deal_result", { category: mode, theme, group: false, rare: true });
+        trackEvent("deal_result", { category: mode, theme, group: false, rare: variant });
       }, 900);
       return;
     }

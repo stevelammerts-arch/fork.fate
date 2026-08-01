@@ -11,6 +11,7 @@ import { CouponReveal } from "./CouponReveal";
 import { ChainCouponStrip } from "./ChainCouponStrip";
 import { ReactionBar } from "./ReactionBar";
 import { ScratchCover } from "./ScratchCover";
+import { Magic8Ball } from "./Magic8Ball";
 import { useLang } from "../../i18n/i18n";
 import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reaperLineFor, lightLineFor, supportsDelivery, cardImage } from "../../pages/homeConstants";
 import { buildFateCard } from "../../pages/homeFateCard";
@@ -51,10 +52,11 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   const card = result;
   // Once the dare is taken the pick is final — no alternatives, no re-shuffle.
   const alternatives = locked ? [] : deck.filter((d) => d.id !== card.id).slice(0, 3);
-  // Rare fate: the winner arrives hidden under themed foil — scratch to unveil.
-  const foiled = surprise === "scratch";
+  // Rare fate: the winner arrives hidden — under themed scratch foil, or
+  // inside a Magic 8-ball the user has to shake.
+  const covered = surprise === "scratch" || surprise === "8ball";
   // Swipe-to-reroll: drag the photo header left to tempt fate again (budgeted).
-  const swipeEnabled = !locked && !foiled && rerollsLeft > 0 && deck.length > 1 && !!onSwipeReroll;
+  const swipeEnabled = !locked && !covered && rerollsLeft > 0 && deck.length > 1 && !!onSwipeReroll;
   const shareFate = async () => {
     const text = `Fate picked ${card.name} (${card.cuisine} · ${card.price})${card.distance ? ` — ${card.distance} mi away` : ""}. Shuffle your own fate on Fork·Fate!`;
     const url = window.location.origin;
@@ -160,7 +162,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
               </span>
             )}
           </div>
-          {foiled && (
+          {surprise === "scratch" && (
             <>
               <div className="pointer-events-none absolute left-1/2 top-4 z-20 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/70 px-4 py-1.5 font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#E6B23A]" data-testid="rare-fate-badge">
                 ✦ {t("Rare fate")} ✦
@@ -174,9 +176,12 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
               />
             </>
           )}
+          {surprise === "8ball" && (
+            <Magic8Ball name={card.name} onDone={onSurpriseDone} />
+          )}
         </motion.div>
 
-        {result && !foiled && (
+        {result && !covered && (
           <motion.div
             initial={DETAIL_INITIAL}
             animate={DETAIL_ANIMATE}

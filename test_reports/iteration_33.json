@@ -1,0 +1,27 @@
+{
+  "summary": "Phase 1 frontend testing for Magic 8-Ball rare-fate variant. All 3 scenarios passed: (1) 8-ball rare reveal triggers with QA override, overlay+badge+ball+hint render over photo header, details (reaper-line/reaction-bar) hidden while overlay up; cursor-rattle via dispatched PointerEvents fires the trigger, blue answer triangle appears with restaurant name ('Hudson Yards Tavern'), and ~2.1s later overlay dismisses and full card + details + reaction bar unveil correctly. (2) Scratch variant smoke via ff_rare_force='scratch' — scratch-cover renders over photo header, no 8-ball overlay. (3) Normal deal (ff_deal_taps=0, no force) runs the ticker shuffle and lands with details visible, no rare overlay.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/browser_iter33_8ball_idle.png",
+    "/app/test_reports/browser_iter33_8ball_answer.png"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor testability nit: `data-testid=\"scratch-cover\"` is shared by both the rare-fate ScratchCover (over the photo header) AND the sponsor CouponReveal's gold foil inside the details card (same component reused). A scoped selector like `[data-testid=\"reveal-photo-header\"] [data-testid=\"scratch-cover\"]` is needed to disambiguate in tests. Consider a distinct testid (e.g., 'rare-fate-scratch-cover' vs 'coupon-scratch-cover') for clearer QA.",
+    "Magic8Ball.jsx cursor-rattle threshold (3 flips + >350px within 1.5s) works reliably when PointerEvents are dispatched directly on the overlay element; playwright's synthetic mouse alone does not — this is expected but worth documenting in a code comment for future test authors.",
+    "Magic8Ball.jsx has no early-exit if `name` prop is empty/undefined; low risk since parent always passes card.name, but a defensive guard would prevent an empty triangle in edge cases."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100% (3/3 scenarios)"},
+  "test_credentials": "none required",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Preview: https://web-fate-launch.preview.emergentagent.com. Deal button: [data-testid='spin-roulette-button']. To force rare variant: after Skip-intro + before clicking spin, set localStorage ff_deal_taps='14', ff_rare_at='15', ff_rare_force='8ball'|'scratch'. Cursor rattle for 8-ball MUST be dispatched via page.evaluate as PointerEvents (pointerdown w/ buttons:1, ~7 alternating pointermove events at cx±80, pointerup) directly on [data-testid='magic-8ball-overlay'] — playwright's mouse API alone doesn't set buttons=1 in React's onPointerMove. Answer triangle testid: [data-testid='magic-8ball-answer']. NOTE: `[data-testid='scratch-cover']` also appears inside the sponsor CouponReveal in the normal reveal card, so scope to the photo header when asserting rare-fate scratch. Set ff_build='2026.06-291' + sessionStorage ff_build_reloaded='1' to bypass cache-bust reload. Set ff_muted='1' to silence audio during tests.",
+  "rca of the issue": "No bugs found."
+}
