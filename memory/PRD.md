@@ -249,6 +249,17 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
     parsing that skips our own hops — previously a missing CF-Connecting-IP collapsed
     every user onto the shared ingress IP.
 
+## Completed 2026-08-03 (later) — polish batch
+- Wheel demo `autoSpin` prop: /dev/rare wheel spins itself 1.4s after mount (verified
+  iter_35 with rotation-matrix assertions + screenshots at midspin/settled).
+- Champions + Passport Wall links paired in one flex row (`Home.jsx` ~1308) — same
+  line at desktop AND 390px mobile (0px Y delta, iter_35).
+- Rare-fate voice skip (Reaper "behold your fate" no longer plays over ritual audio)
+  verified via code inspect in iter_35. FF_BUILD 2026.06-300.
+- Screenshot-tool NOTE: custom playwright scripts do NOT execute (nav+default
+  screenshot only) — use testing_agent for ANY timed/interactive capture; its
+  screenshots land in /app/test_reports/screenshots/ and can be shown to the user.
+
 ## Completed 2026-08-03 — Rare Fate Rituals expansion (wheel, gothic, ink 8-ball)
 User-directed refinements this session:
 - **Wheel of Fate** (`WheelOfFate.jsx`, third rare variant): user-specified design —
