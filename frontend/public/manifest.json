@@ -27,8 +27,14 @@
   "id": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "theme_color": "#000000",
-  "background_color": "#000000",
+  "theme_color": "#0E0E0E",
+  "background_color": "#0E0E0E",
+  "categories": ["food", "lifestyle", "entertainment"],
+  "shortcuts": [
+    { "name": "Deal a Fate", "short_name": "Deal", "url": "/?deal=1", "description": "Shuffle for a restaurant near you" },
+    { "name": "Need Help", "short_name": "Help", "url": "/?help=1", "description": "Find urgent care, ER, food banks nearby" },
+    { "name": "Shop", "short_name": "Shop", "url": "/shop", "description": "Fork·Fate merch" }
+  ],
   "lang": "en",
   "dir": "auto"
 }
