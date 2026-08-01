@@ -1,0 +1,38 @@
+{
+  "summary": "Visual verification of Dragon's Hoard shuffle-landing dragon-claw overlay positioning. Set localStorage ff_theme=fantasy and ff_guided_seen=1, filled ZIP 10001, clicked Deal, captured the [data-testid=\"dragon-claw-overlay\"] element during the landed=true window, and measured against the card-front (reveal card). Confirmed the wrapper bbox extends well past the card on all sides; however, VISUAL inspection of the rendered PNG pixels shows the claw fingertips still sit approximately AT (not clearly outside) the card's left and right gold borders, and the top hook talon still floats visibly above the card top edge (not 'at or just over').",
+  "measurements": {
+    "dragon-claw-overlay_bbox": {"x": 805, "y": 278.41, "width": 310, "height": 415.17, "right": 1115, "bottom": 693.59},
+    "card-front_bbox": {"x": 871.86, "y": 365.75, "width": 181.12, "height": 291.70, "right": 1052.98, "bottom": 657.45},
+    "wrapper_overflow_px": {"left": 66.86, "right": 62.02, "top": 87.34, "bottom": 36.14},
+    "note": "Wrapper bbox overflows on all sides, but wrapper includes PNG transparent padding. Actual rendered claw pixels visually align differently — see visual observations."
+  },
+  "visual_observations": {
+    "left_thumb_claw": "Fingertip/black claw tip sits AT the card's left gold border edge — NOT visibly extending outside/beyond it to the left. Requirement (a) NOT clearly met.",
+    "right_three_claws": "The 3 right-side claw tips sit approximately AT the right gold border, with only marginal (<5px) extension past it. Requirement (b) partially met at best.",
+    "top_hook_talon": "The top-center hook talon is clearly floating in empty space ABOVE the card top edge (approx 15-25px gap between talon base and top gold border). The 4px downward bump from calc(-50% - 18px) to calc(-50% - 14px) was insufficient. Requirement (c) NOT met — user's earlier complaint persists."
+  },
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "ShufflingDeck dragon-claw overlay", "issue": "Top hook talon still floats above card top edge (~15-25px gap) — 4px downward translate delta was insufficient. Try calc(-50% + 0px) or calc(-50% - 4px) to sit talon at/just over top border.", "selector": "[data-testid=\"dragon-claw-overlay\"]", "priority": "HIGH"},
+      {"component": "ShufflingDeck dragon-claw inner img", "issue": "scaleX(1.20) not enough to push thumb + right-side claws visibly OUTSIDE card borders — fingertips are AT the edge, not overflowing. Try scaleX(1.30-1.35) or reduce card width relative to claw wrapper.", "selector": "[data-testid=\"dragon-claw-overlay\"] img", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/screenshots/claw_full.png", "/app/test_reports/screenshots/claw_zoom.png"],
+  "action_items": [
+    "Reduce vertical offset further so top talon sits AT card top edge: change transform Y translate from calc(-50% - 14px) toward calc(-50% - 4px) or calc(-50%).",
+    "Increase inner img scaleX from 1.20 to ~1.30-1.35 so thumb + right claws visibly overflow past card gold borders (currently fingertips sit ON the border, not outside)."
+  ],
+  "critical_code_review_comments": [
+    "Position tuning is purely visual — recommend adding a debug outline mode (dev-only) around dragon-claw-overlay and card-front to iterate faster without needing screenshots each time."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "33% (1 of 3 requirements met — overflow direction is correct in wrapper bbox but rendered claw pixels don't overflow far enough; top talon still floats)"},
+  "seed_data_creation": "None",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "The dragon-claw overlay bbox math shows overflow on all sides, but the actual PNG claw pixels sit at/near the card border rather than clearly outside. Use claw_zoom.png in /app/test_reports/screenshots to visually verify. Card-front bbox: x=871.86 y=365.75 w=181.12 h=291.70. Overlay bbox: x=805 y=278.41 w=310 h=415.17. To trigger: localStorage ff_theme=fantasy + ff_guided_seen=1, fill ZIP 10001, click deal-button, poll for [data-testid=\"dragon-claw-overlay\"] ~3s.",
+  "rca of the issue": "Wrapper element correctly overflows card bounds in all directions, but the actual rendered claw graphics (transparent PNG with claws near edges) still land AT the card gold border rather than clearly OUTSIDE it because scaleX(1.20) is not aggressive enough relative to the card width (181px) vs claw wrapper width (310px). Top talon: 4px downward nudge (18→14) leaves ~15-25px visual gap between talon base and card top edge — needs another ~10-20px downward."
+}

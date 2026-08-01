@@ -203,7 +203,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
             {landed && theme === "fantasy" && (
               <motion.div
                 className="pointer-events-none absolute left-1/2 top-1/2 z-50"
-                style={{ transform: "translate(-50%, calc(-50% - 18px))" }}
+                style={{ transform: "translate(-50%, calc(-50% - 14px))" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -227,7 +227,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
                     // Small horizontal splay so the thumb and 3 finger claws
                     // each drift a hair outward from center — reads more
                     // like an open grip than a pinch.
-                    transform: "scaleX(1.10)",
+                    transform: "scaleX(1.20)",
                   }}
                   initial={{ scale: 1.2, rotate: -3 }}
                   animate={{ scale: 1, rotate: 0 }}
