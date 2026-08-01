@@ -203,11 +203,17 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
             {landed && theme === "fantasy" && (
               <motion.div
                 className="pointer-events-none absolute left-1/2 top-1/2 z-50"
-                style={{ transform: "translate(-50%, calc(-50% - 80px))" }}
+                style={{ transform: "translate(-50%, calc(-50% - 50px))" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.4 }}
+                // Fast exit — the reveal card transitions in right after
+                // the deck lands, and the claw is anchored to the smaller
+                // deck size. If it lingers into the reveal, it looks like
+                // the dragon is clutching only the photo area rather than
+                // the whole reveal card. Snap it away before the reveal
+                // begins so users only see the claw over the deck card.
+                transition={{ duration: 0.12 }}
                 data-testid="dragon-claw-overlay"
               >
                 <motion.img
