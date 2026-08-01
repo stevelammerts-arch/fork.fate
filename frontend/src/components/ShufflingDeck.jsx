@@ -203,7 +203,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
             {landed && theme === "fantasy" && (
               <motion.div
                 className="pointer-events-none absolute left-1/2 top-1/2 z-50"
-                style={{ transform: "translate(calc(-50% - 8px), calc(-50% - 18px))" }}
+                style={{ transform: "translate(calc(-50% + 2px), calc(-50% - 18px))" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -231,7 +231,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
                     // fingers reach past the card's outer gold border, not
                     // stopping at the inner red line. Single flat PNG so
                     // this also splays the thumb outward on the left.
-                    transform: "scaleX(1.22)",
+                    transform: "scaleX(1.30)",
                     transformOrigin: "center",
                   }}
                   initial={{ scale: 1.2, rotate: -3 }}
