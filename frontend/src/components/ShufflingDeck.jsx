@@ -214,7 +214,14 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
                   src="/dragon-claw.png"
                   alt=""
                   className="w-[310px] max-w-none select-none"
-                  style={{ filter: "drop-shadow(0 10px 16px rgba(0,0,0,0.55))" }}
+                  style={{
+                    filter: "drop-shadow(0 10px 16px rgba(0,0,0,0.55))",
+                    // Trim the wrist/arm off the bottom of the asset — the raw
+                    // PNG's forearm dips onto the card face, hiding the
+                    // sponsor/venue name. 22% keeps palm + talons intact.
+                    clipPath: "inset(0 0 22% 0)",
+                    WebkitClipPath: "inset(0 0 22% 0)",
+                  }}
                   initial={{ scale: 1.2, rotate: -3 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ type: "spring", stiffness: 240, damping: 18 }}
