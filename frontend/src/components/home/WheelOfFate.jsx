@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useMotionValue, animate } from "framer-motion";
 import { haptic } from "../../lib/pwa";
 
@@ -27,7 +27,23 @@ export function WheelOfFate({ names = [], winner, onDone }) {
   const [stage, setStage] = useState("idle"); // idle | spinning | done
   const rotation = useMotionValue(0);
   const wheelRef = useRef(null);
+  const tickRef = useRef(null);
   const drag = useRef({ active: false, lastAngle: 0, lastT: 0, velocity: 0 });
+
+  // Stop the tick if the overlay unmounts mid-spin.
+  useEffect(() => () => { try { tickRef.current?.pause(); } catch (e) { /* ignore */ } }, []);
+
+  const stopTick = () => {
+    const a = tickRef.current;
+    if (!a) return;
+    // Quick fade so the tick doesn't cut off harshly.
+    const fade = setInterval(() => {
+      try {
+        a.volume = Math.max(0, a.volume - 0.15);
+        if (a.volume <= 0) { a.pause(); clearInterval(fade); }
+      } catch (e) { clearInterval(fade); }
+    }, 60);
+  };
 
   const { segs, winnerIdx, segAngle } = useMemo(() => {
     const others = [...new Set(names.filter((n) => n && n !== winner))];
@@ -42,6 +58,14 @@ export function WheelOfFate({ names = [], winner, onDone }) {
     if (stage !== "idle") return;
     setStage("spinning");
     haptic(15);
+    try {
+      if (localStorage.getItem("ff_muted") !== "1") {
+        const a = new Audio("/wheel-tick.mp3");
+        a.volume = 0.9;
+        a.play().catch(() => {});
+        tickRef.current = a;
+      }
+    } catch (e) { /* audio unavailable */ }
     const winnerCenter = winnerIdx * segAngle + segAngle / 2;
     const cur = rotation.get();
     // Land so the winner's center sits under the top pointer: R ≡ -center (mod 360)
@@ -54,6 +78,7 @@ export function WheelOfFate({ names = [], winner, onDone }) {
       duration: 4.4,
       ease: [0.12, 0.8, 0.16, 1],
       onComplete: () => {
+        stopTick();
         setStage("done");
         haptic(25);
         setTimeout(() => onDone?.(), 1500);

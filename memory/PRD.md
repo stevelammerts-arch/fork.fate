@@ -269,6 +269,9 @@ User-directed refinements this session:
   on shake. `photo` prop = card.photo_url || card.image. Gothic serif hints.
 - **/dev/rare preview page** (unlisted route, `RarePreview.jsx`): live demos of all
   three rituals with Replay buttons — user can preview there.
+- **Wheel tick SFX** (user-uploaded 8-bit spin sound → `/public/wheel-tick.mp3`,
+  12.8s): plays on spin start (respects `ff_muted`), fades out ~60ms steps when the
+  wheel settles, paused on unmount. FF_BUILD 2026.06-295.
 - Variant pool now ["scratch","8ball","wheel"] random each rare trigger;
   QA override `ff_rare_force` accepts all three. FF_BUILD 2026.06-294.
 - E2E NOTE for future agents: React onClick/pointer handlers need synthesized
