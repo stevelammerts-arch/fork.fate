@@ -62,7 +62,13 @@ export function WheelOfFate({ names = [], winner, onDone }) {
       if (localStorage.getItem("ff_muted") !== "1") {
         const a = new Audio("/wheel-tick.mp3");
         a.volume = 0.9;
-        a.play().catch(() => {});
+        // The clip is ~12.8s and naturally slows to a stop at the end — play
+        // just its final 4.4s so it decays in sync with the wheel.
+        a.addEventListener("loadedmetadata", () => {
+          try { a.currentTime = Math.max(0, a.duration - 4.4); } catch (e2) { /* ignore */ }
+          a.play().catch(() => {});
+        }, { once: true });
+        a.load();
         tickRef.current = a;
       }
     } catch (e) { /* audio unavailable */ }

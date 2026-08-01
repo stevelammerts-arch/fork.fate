@@ -269,9 +269,18 @@ User-directed refinements this session:
   on shake. `photo` prop = card.photo_url || card.image. Gothic serif hints.
 - **/dev/rare preview page** (unlisted route, `RarePreview.jsx`): live demos of all
   three rituals with Replay buttons — user can preview there.
+- **8-ball shake SFX** (user-uploaded reverse cymbal swell → `/public/8ball-shake.mp3`,
+  6s): plays in Magic8Ball trigger() as the ink dissipates (respects ff_muted).
+  FF_BUILD 2026.06-297.
+- **Shake-shuffle SFX** (user-uploaded page-shuffle whoosh → `/public/shake-shuffle.mp3`,
+  5s): plays with haptic(25) + `shake_shuffle` analytics event when devicemotion shake
+  triggers a deal (Home.jsx useShake handler; respects ff_muted via playSound).
+  FF_BUILD 2026.06-296. NEEDS user testing on a real phone (devicemotion not automatable).
 - **Wheel tick SFX** (user-uploaded 8-bit spin sound → `/public/wheel-tick.mp3`,
-  12.8s): plays on spin start (respects `ff_muted`), fades out ~60ms steps when the
-  wheel settles, paused on unmount. FF_BUILD 2026.06-295.
+  12.8s): plays the clip's FINAL 4.4s (a.currentTime = duration - 4.4 on
+  loadedmetadata, per user — the clip naturally slows at its end, syncing with the
+  wheel's decay), respects `ff_muted`, fade-stopped on settle, paused on unmount.
+  FF_BUILD 2026.06-298.
 - Variant pool now ["scratch","8ball","wheel"] random each rare trigger;
   QA override `ff_rare_force` accepts all three. FF_BUILD 2026.06-294.
 - E2E NOTE for future agents: React onClick/pointer handlers need synthesized

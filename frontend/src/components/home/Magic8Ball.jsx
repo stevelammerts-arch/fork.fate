@@ -27,6 +27,14 @@ export function Magic8Ball({ name, photo, onDone }) {
     stageRef.current = "shaking";
     setStage("shaking");
     haptic(30);
+    // Reverse-cymbal swell builds under the ink dissipating.
+    try {
+      if (localStorage.getItem("ff_muted") !== "1") {
+        const a = new Audio("/8ball-shake.mp3");
+        a.volume = 0.9;
+        a.play().catch(() => {});
+      }
+    } catch (e) { /* audio unavailable */ }
     setTimeout(() => {
       stageRef.current = "answer";
       setStage("answer");

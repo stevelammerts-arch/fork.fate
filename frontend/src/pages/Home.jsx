@@ -550,6 +550,10 @@ export default function Home() {
   useShake(() => {
     if (spinning || loading || showGuided || showCrawl) return;
     if (!zip.trim() && !coords) return;
+    // The shake IS the ritual — page-shuffle whoosh + a firm buzz confirm it.
+    playSound("/shake-shuffle.mp3", 0.9);
+    haptic(25);
+    trackEvent("shake_shuffle", { category: mode, theme });
     doSearch(selectedCuisines, [], mode);
   }, !spinning && !loading);
 
