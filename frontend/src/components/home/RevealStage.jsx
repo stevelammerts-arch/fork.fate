@@ -107,7 +107,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
         data-testid="spin-result-card"
       >
         <motion.div
-          className="relative h-64 overflow-hidden rounded-2xl"
+          className={`relative overflow-hidden rounded-2xl transition-[height] duration-300 ${covered ? "h-[26rem]" : "h-64"}`}
           data-testid="reveal-photo-header"
           drag={swipeEnabled ? "x" : false}
           dragConstraints={{ left: 0, right: 0 }}

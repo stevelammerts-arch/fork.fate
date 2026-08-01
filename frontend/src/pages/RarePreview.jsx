@@ -12,7 +12,7 @@ const MOCK_NAMES = [
 const WINNER = "Golden Wok Tavern";
 const PHOTO = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=60";
 
-function DemoCard({ title, children, resetKey, onReset }) {
+function DemoCard({ title, children, resetKey, onReset, tall = false }) {
   return (
     <div className="w-full max-w-sm">
       <div className="mb-2 flex items-center justify-between">
@@ -21,7 +21,7 @@ function DemoCard({ title, children, resetKey, onReset }) {
           <RotateCcw className="h-3 w-3" /> Replay
         </button>
       </div>
-      <div className="relative h-64 overflow-hidden rounded-2xl">
+      <div className={`relative overflow-hidden rounded-2xl ${tall ? "h-[26rem]" : "h-64"}`}>
         <img src={PHOTO} alt="" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
         <div className="absolute bottom-4 left-4">
@@ -62,7 +62,7 @@ export default function RarePreview() {
               <ThemeCardFrame theme="dark" />
             </div>
           </DemoCard>
-          <DemoCard title="Wheel of Fate" resetKey="wheel" onReset={() => bump("wheel")}>
+          <DemoCard title="Wheel of Fate" resetKey="wheel" onReset={() => bump("wheel")} tall>
             <div key={keys.wheel} className="absolute inset-0">
               <WheelOfFate names={MOCK_NAMES} winner={WINNER} onDone={() => {}} autoSpin />
               <ThemeCardFrame theme="dark" />

@@ -250,6 +250,11 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
     every user onto the shared ingress IP.
 
 ## Completed 2026-08-03 (later) — polish batch
+- Wheel ENLARGED per user ("way too small"): wheel now h-72 (288px, max 60vw) with
+  bigger crest hub (h-20) and 9.5px labels; the reveal photo header grows to
+  `h-[26rem]` while ANY rare ritual is covering (RevealStage `covered` conditional
+  height, transition-[height]) and shrinks back to h-64 on unveil. /dev/rare wheel
+  demo card uses `tall` prop. FF_BUILD 2026.06-301. Verified via screenshot.
 - Wheel demo `autoSpin` prop: /dev/rare wheel spins itself 1.4s after mount (verified
   iter_35 with rotation-matrix assertions + screenshots at midspin/settled).
 - Champions + Passport Wall links paired in one flex row (`Home.jsx` ~1308) — same

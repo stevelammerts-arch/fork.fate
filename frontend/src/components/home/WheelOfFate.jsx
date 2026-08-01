@@ -150,7 +150,7 @@ export function WheelOfFate({ names = [], winner, onDone, autoSpin = false }) {
         </svg>
         <motion.div
           ref={wheelRef}
-          className="h-40 w-40 cursor-grab select-none rounded-full"
+          className="h-72 w-72 max-h-[60vw] max-w-[60vw] cursor-grab select-none rounded-full"
           style={{ rotate: rotation, boxShadow: "0 14px 34px rgba(0,0,0,0.65), inset 0 0 0 4px #17161A" }}
           onPointerDown={onDown}
           onPointerMove={onMove}
@@ -165,8 +165,8 @@ export function WheelOfFate({ names = [], winner, onDone, autoSpin = false }) {
                 <g key={`${name}-${i}`}>
                   <path d={segPath(i * segAngle, (i + 1) * segAngle, 98)} fill={fill} stroke="#17161A" strokeWidth="1.2" />
                   <g transform={`rotate(${mid} 100 100)`}>
-                    <text x="100" y="23" textAnchor="middle" fontSize="8.5" fontWeight="700" fontStyle="italic" fill={fill === WHITE ? BLACK : WHITE} fontFamily="Georgia, 'Times New Roman', serif">
-                      {name.length > 11 ? `${name.slice(0, 10)}…` : name}
+                    <text x="100" y="24" textAnchor="middle" fontSize="9.5" fontWeight="700" fontStyle="italic" fill={fill === WHITE ? BLACK : WHITE} fontFamily="Georgia, 'Times New Roman', serif">
+                      {name.length > 13 ? `${name.slice(0, 12)}…` : name}
                     </text>
                   </g>
                 </g>
@@ -184,7 +184,7 @@ export function WheelOfFate({ names = [], winner, onDone, autoSpin = false }) {
           <img
             src="/logo-crest.png"
             alt=""
-            className="pointer-events-none absolute left-1/2 top-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2"
+            className="pointer-events-none absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2"
             style={{ filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.7))" }}
           />
         </motion.div>
