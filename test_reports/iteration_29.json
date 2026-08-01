@@ -1,0 +1,51 @@
+{
+  "summary": "Visual-only frontend verification of the new TWO-LAYER dragon-claw overlay (fantasy theme). Fix under test: /app/frontend/src/components/ShufflingDeck.jsx lines ~203-254 renders /dragon-claw.png as two motion.div layers with complementary clip-paths — behind layer (palm slice, polygon(24.1% 72.3%,...) at z-1) and front layer (talon/thumb/fingers, polygon(0% 0%,...) at z-50). Wrapper transform: translate(calc(-50% - 2px), calc(-50% + 18px)); img width 323px, scaleY 1.12. Card container is z-5 so behind < card < front. Flow: set localStorage ff_theme='fantasy', ff_build='2026.06-288', sessionStorage ff_build_reloaded='1' → reload → skip intro → ZIP 10001 → click [data-testid='spin-roulette-button'] → poll dragon-claw-overlay (appears ~2.0-2.4s after click, exits in 120ms). Also compared against static harness /claw_test.html and sanity-checked dark theme skeleton-hands.",
+  "verification_results": {
+    "front_layer_exists": true,
+    "behind_layer_exists": true,
+    "front_z_index": "50",
+    "behind_z_index": "1",
+    "card_z_index": "5",
+    "z_ordering_correct": "PASS - behind(1) < card(5) < front(50)",
+    "front_clipPath": "polygon(0% 0%, 100% 0%, 100% 72.3%, 24.1% 72.3%, 24.1% 100%, 0% 100%)",
+    "behind_clipPath": "polygon(24.1% 72.3%, 100% 72.3%, 100% 100%, 24.1% 100%)",
+    "card_bbox": {"x": 872, "y": 356, "w": 176, "h": 288},
+    "overlay_wrapper_transform": "matrix(1, 0, 0, 1, -163.5, 18)  // translate(calc(-50% - 2px), calc(-50% + 18px))"
+  },
+  "visual_criteria_check": {
+    "a_top_talon_hooks_over_top_edge_20_30px": "PASS - top talon claw visibly overlaps onto the card face by ~20-30px, not floating above it (see iter29_full.jpg and iter29_harness.jpg)",
+    "b_right_three_fingers_wrap_right_edge_25_to_90pct": "PASS - three finger claws wrap the right edge from roughly 25% down to ~90% of card height",
+    "c_thumb_grips_left_edge": "PASS - thumb claw curls onto the left edge of the card",
+    "d_palm_behind_card_arc_below_bottom": "PASS - palm slice is clipped out of the front layer (below 72.3% x below 24.1%) and rendered on the behind layer at z-1; visible arc of palm/wrist protrudes below the card bottom edge in both in-app and harness renders",
+    "e_card_name_text_uncovered": "PASS - 'FATE HAS CHOSEN' / restaurant name text below the 176x288 card container is fully readable and not overlapped by any claw geometry",
+    "harness_vs_in_app_match": "PASS - /claw_test.html harness and in-app landed render are visually equivalent (same wrapper geometry, same clip-path polygons, same img dimensions). Confirmed by side-by-side screenshot comparison."
+  },
+  "dark_theme_regression": {
+    "skeleton_hands_overlay_present_on_landing": true,
+    "position_looks_correct": "PASS - hands grip both sides of the card, restaurant name below the card is readable; no visual regression vs prior iterations (iter29_dark.jpg)"
+  },
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/screenshots/iter29_full.jpg",
+    "/app/test_reports/screenshots/iter29_harness.jpg",
+    "/app/test_reports/screenshots/iter29_dark.jpg"
+  ],
+  "action_items": [
+    "No code changes required — the two-layer clip-path approach visually resolves the original complaint (palm no longer covers card face/bottom text, claw appears to wrap the WHOLE reveal card instead of just the photo area)."
+  ],
+  "critical_code_review_comments": [
+    "ShufflingDeck.jsx lines 203-254 are clean and well-commented (explain the alpha-row seam placement and PNG geometry math). Both testids present (dragon-claw-overlay, dragon-claw-overlay-behind). Consider extracting the two-element layer array into a module-level const to keep JSX tidy, but not blocking.",
+    "The 0.12s exit duration is intentional per the code comment — it hides the claw before the reveal card transition finishes so users don't see the claw anchored to the smaller deck size. Working as designed."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (not tested per request)", "frontend": "100% (all 5 visual criteria + z-index + regression pass)"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Reproduction: navigate to preview URL, evaluate localStorage.setItem('ff_theme','fantasy'); localStorage.setItem('ff_build','2026.06-288'); sessionStorage.setItem('ff_build_reloaded','1'); then reload. Click 'Skip intro' text button. Fill input[placeholder*='10001'] with '10001'. Click [data-testid='spin-roulette-button'] (NOT 'deal-button' — the request text is stale). Poll [data-testid='dragon-claw-overlay'] every 25ms — appears ~2.0-2.4s later, exits in 120ms so screenshot immediately. Both layers exist: dragon-claw-overlay (front, z-50) and dragon-claw-overlay-behind (z-1). Card container is h-72 w-44 (176x288) at z-5. Harness at /claw_test.html is authoritative visual reference."
+}

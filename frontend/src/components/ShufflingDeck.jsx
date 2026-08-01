@@ -200,10 +200,25 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
                 />
               </motion.div>
             )}
-            {landed && theme === "fantasy" && (
+            {landed && theme === "fantasy" && [
+              // Two copies of the same PNG with complementary clip-paths so the
+              // dragon actually *holds* the card: the palm slice renders BEHIND
+              // the card (z-1 < card z-5) with its arc peeking out below the
+              // bottom edge, while the talon/thumb/fingers slice renders in
+              // front (z-50) wrapping over the card face. Seams are placed on
+              // near-transparent alpha rows (png y≈868, x≈216) so no hard cut
+              // is visible. Geometry computed from alpha measurements — see
+              // /app/scripts/measure_claw_window.py.
+              { key: "claw-behind", z: "z-[1]", clip: "polygon(24.1% 72.3%, 100% 72.3%, 100% 100%, 24.1% 100%)" },
+              { key: "claw-front", z: "z-50", clip: "polygon(0% 0%, 100% 0%, 100% 72.3%, 24.1% 72.3%, 24.1% 100%, 0% 100%)" },
+            ].map((layer) => (
               <motion.div
-                className="pointer-events-none absolute left-1/2 top-1/2 z-50"
-                style={{ transform: "translate(-50%, calc(-50% - 4px))" }}
+                key={layer.key}
+                className={`pointer-events-none absolute left-1/2 top-1/2 ${layer.z}`}
+                // Maps the PNG's grip window (png x 210-699, talon tip y 268,
+                // palm top y 865) onto the 176x288 card: talon hooks ~28px over
+                // the top edge, fingers wrap the right side, thumb the left.
+                style={{ transform: "translate(calc(-50% - 2px), calc(-50% + 18px))" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -214,27 +229,29 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
                 // the whole reveal card. Snap it away before the reveal
                 // begins so users only see the claw over the deck card.
                 transition={{ duration: 0.12 }}
-                data-testid="dragon-claw-overlay"
+                data-testid={layer.key === "claw-front" ? "dragon-claw-overlay" : "dragon-claw-overlay-behind"}
               >
                 <motion.img
                   src="/dragon-claw.png"
                   alt=""
-                  className="w-[310px] max-w-none select-none"
+                  className="w-[323px] max-w-none select-none"
                   style={{
                     filter: "drop-shadow(0 10px 16px rgba(0,0,0,0.55))",
-                    clipPath: "inset(0 0 22% 0)",
-                    WebkitClipPath: "inset(0 0 22% 0)",
-                    // Small horizontal splay so the thumb and 3 finger claws
-                    // each drift a hair outward from center — reads more
-                    // like an open grip than a pinch.
-                    transform: "scaleX(1.32)",
+                    clipPath: layer.clip,
+                    WebkitClipPath: layer.clip,
+                    // Mild vertical stretch so the grip window height matches
+                    // the card. NOTE: must be framer's scaleY prop, not a raw
+                    // transform string — motion.img overwrites `transform`
+                    // when animating scale, which silently dropped earlier
+                    // scaleX tweaks.
+                    scaleY: 1.12,
                   }}
                   initial={{ scale: 1.2, rotate: -3 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ type: "spring", stiffness: 240, damping: 18 }}
                 />
               </motion.div>
-            )}
+            ))}
           </AnimatePresence>
           {landed && theme === "cyber" && (
             <motion.div

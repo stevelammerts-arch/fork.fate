@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!-- Dev-only harness to verify dragon-claw overlay geometry against the
+     176x288 reveal card without driving the full app flow. Mirrors the
+     exact transforms in ShufflingDeck.jsx. -->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; display: grid; place-items: center; height: 100vh; background: #1a1028; }
+  .stage { position: relative; height: 288px; width: 176px; }
+  .card {
+    position: absolute; inset: 0; z-index: 5; border-radius: 16px;
+    border: 2px solid #E6B23A; background: #0E0E0E; overflow: hidden;
+  }
+  .card .photo { height: 55%; background: linear-gradient(135deg, #7a4a1e, #b98037); }
+  .card .name { color: #F5F0E6; font: 600 14px sans-serif; padding: 10px; }
+  .layer {
+    pointer-events: none; position: absolute; left: 50%; top: 50%;
+    transform: translate(calc(-50% - 2px), calc(-50% + 18px));
+  }
+  .layer img {
+    width: 323px; max-width: none; display: block;
+    filter: drop-shadow(0 10px 16px rgba(0,0,0,0.55));
+    transform: scaleY(1.12);
+  }
+  .behind { z-index: 1; }
+  .behind img { clip-path: polygon(24.1% 72.3%, 100% 72.3%, 100% 100%, 24.1% 100%); }
+  .front { z-index: 50; }
+  .front img { clip-path: polygon(0% 0%, 100% 0%, 100% 72.3%, 24.1% 72.3%, 24.1% 100%, 0% 100%); }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="layer behind"><img src="/dragon-claw.png" alt=""></div>
+    <div class="card">
+      <div class="photo"></div>
+      <div class="name">Golden Wok Tavern<br><span style="font-weight:400;font-size:12px;color:#C9B98B">Chinese · 0.8 mi · $$</span></div>
+    </div>
+    <div class="layer front"><img src="/dragon-claw.png" alt=""></div>
+  </div>
+</body>
+</html>
