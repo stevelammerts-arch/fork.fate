@@ -203,7 +203,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
             {landed && theme === "fantasy" && (
               <motion.div
                 className="pointer-events-none absolute left-1/2 top-1/2 z-50"
-                style={{ transform: "translate(calc(-50% - 8px), calc(-50% - 18px))" }}
+                style={{ transform: "translate(-50%, calc(-50% - 18px))" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -222,17 +222,12 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
                   className="w-[310px] max-w-none select-none"
                   style={{
                     filter: "drop-shadow(0 10px 16px rgba(0,0,0,0.55))",
-                    // Trim the wrist/arm off the bottom of the asset — the raw
-                    // PNG's forearm dips onto the card face, hiding the
-                    // sponsor/venue name. 22% keeps palm + talons intact.
                     clipPath: "inset(0 0 22% 0)",
                     WebkitClipPath: "inset(0 0 22% 0)",
-                    // Stretch the claw horizontally so the right-side
-                    // fingers reach past the card's outer gold border, not
-                    // stopping at the inner red line. Single flat PNG so
-                    // this also splays the thumb outward on the left.
-                    transform: "scaleX(1.38)",
-                    transformOrigin: "center",
+                    // Small horizontal splay so the thumb and 3 finger claws
+                    // each drift a hair outward from center — reads more
+                    // like an open grip than a pinch.
+                    transform: "scaleX(1.10)",
                   }}
                   initial={{ scale: 1.2, rotate: -3 }}
                   animate={{ scale: 1, rotate: 0 }}

@@ -7,7 +7,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from core import client, logger, ALLOWED_ORIGIN_REGEX
 from seed_data import seed_db
-from routes import restaurants, stats, crawls, places, sponsors, admin, passkey, merch, passports, weather
+from routes import restaurants, stats, crawls, places, sponsors, admin, passkey, merch, passports, weather, share
 from routes.sponsors import reconcile_sponsors
 
 app = FastAPI()
@@ -23,6 +23,7 @@ api_router.include_router(sponsors.router)
 api_router.include_router(admin.router)
 api_router.include_router(passkey.router)
 api_router.include_router(merch.router)
+api_router.include_router(share.router)
 
 app.include_router(api_router)
 

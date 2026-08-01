@@ -27,11 +27,25 @@ export function FateActionsDropdown({
   const { t } = useLang();
   if (!card) return null;
 
-  const url = window.location.origin;
+  const origin = window.location.origin;
+  const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+  // Route social shares through /api/share which serves dynamic OG tags so
+  // Facebook / iMessage / WhatsApp previews show the winning restaurant
+  // (name, image, cuisine, distance) instead of the static Fork·Fate logo.
+  const url = `${API}/share?${new URLSearchParams({
+    id: card.id || "",
+    name: card.name || "",
+    cuisine: card.cuisine || "",
+    price: card.price || "",
+    distance: card.distance != null ? String(card.distance) : "",
+    image: card.image || "",
+  }).toString()}`;
   const shareText =
     `\u2620 The reaper has spoken: ${card.name} (${card.cuisine} \u00b7 ${card.price})` +
     `${card.distance ? ` — ${card.distance} mi away` : ""}! Deal your own fate on Fork\u00b7Fate:`;
   const full = `${shareText} ${url}`;
+  // eslint-disable-next-line no-unused-vars
+  const _origin = origin;
 
   const openWindow = (shareUrl) =>
     window.open(shareUrl, "_blank", "noopener,noreferrer,width=600,height=520");

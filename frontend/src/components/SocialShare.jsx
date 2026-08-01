@@ -5,14 +5,28 @@ import { useLang } from "../i18n/i18n";
 
 export default function SocialShare({ card }) {
   const { t } = useLang();
-  const url = window.location.origin;
+  const origin = window.location.origin;
+  const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+  // Build a share URL that Facebook / iMessage / WhatsApp crawlers can hit
+  // to pull dynamic OG tags for the winning restaurant (image, name, price).
+  // Falls back to the raw origin when no card is present.
+  const shareUrl = card
+    ? `${API}/share?${new URLSearchParams({
+        id: card.id || "",
+        name: card.name || "",
+        cuisine: card.cuisine || "",
+        price: card.price || "",
+        distance: card.distance != null ? String(card.distance) : "",
+        image: card.image || "",
+      }).toString()}`
+    : origin;
   const text = card
     ? `\u2620 The reaper has spoken: ${card.name} (${card.cuisine} \u00b7 ${card.price})${card.distance ? ` — ${card.distance} mi away` : ""}! Deal your own fate on Fork\u00b7Fate:`
     : `Let fate pick your next meal, drink or dessert — shuffle the deck on Fork\u00b7Fate!`;
-  const full = `${text} ${url}`;
+  const full = `${text} ${shareUrl}`;
 
-  const openShare = (shareUrl) =>
-    window.open(shareUrl, "_blank", "noopener,noreferrer,width=600,height=520");
+  const openShare = (u) =>
+    window.open(u, "_blank", "noopener,noreferrer,width=600,height=520");
 
   const copyFor = async (platform) => {
     try {
@@ -29,14 +43,14 @@ export default function SocialShare({ card }) {
       label: "Facebook",
       Icon: Facebook,
       color: "#1877F2",
-      onClick: () => openShare(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`),
+      onClick: () => openShare(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(text)}`),
     },
     {
       key: "x",
       label: "X",
       Icon: Twitter,
       color: "#0E0E0E",
-      onClick: () => openShare(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`),
+      onClick: () => openShare(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`),
     },
     {
       key: "whatsapp",
