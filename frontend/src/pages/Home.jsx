@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { Dices, Star, MapPin, Search, ExternalLink, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, Flame, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, ArrowRight, Swords, Mountain, Tent, Stamp, Globe2, Phone } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
-import AddRestaurantDialog from "../components/AddRestaurantDialog";
 import InstallAppButton from "../components/InstallAppButton";
 import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
 import SponsorMarquee from "../components/SponsorMarquee";
@@ -873,42 +872,17 @@ export default function Home() {
             </button>
             <FavoritesDrawer favorites={favorites} onRemove={removeFavorite} onDeal={dealFromFavorites} groupMode={groupMode} />
             <InstallAppButton />
-            {/* Desktop: dedicated Add spot button */}
+            {/* Mobile: compact Sponsor pill — adding a spot is a sponsor-only
+                action now, so the old Add/Sponsor dropdown is collapsed to a
+                single direct trigger. */}
             <button
               type="button"
-              onClick={() => setAddOpen(true)}
-              data-testid="open-add-restaurant-button"
-              className={`hidden items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold text-[#0E0E0E] transition-colors sm:inline-flex ${light ? "border-[#C8B79A] bg-[#D8C3A5] hover:bg-[#CBB08A]" : "border-[#E2E4E7] bg-white hover:bg-[#E2E4E7]"}`}
+              onClick={() => setSponsorOpen(true)}
+              data-testid="mobile-sponsor-button"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-[#B3141A] sm:hidden"
             >
-              <Plus className="h-4 w-4" /> <span>{t("Add spot")}</span>
+              <Store className="h-4 w-4" /> {t("Sponsor")}
             </button>
-            {/* Mobile: combined Add / Sponsor menu to keep the header compact */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  data-testid="mobile-contribute-menu"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-[#B3141A] sm:hidden"
-                >
-                  <Plus className="h-4 w-4" /> {t("Add")}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem data-testid="mobile-add-spot-item" onClick={() => setAddOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4" /> {t("Add a spot")}
-                </DropdownMenuItem>
-                <DropdownMenuItem data-testid="mobile-sponsor-item" onClick={() => setSponsorOpen(true)}>
-                  <Store className="mr-2 h-4 w-4 text-[#E01E26]" /> {t("Sponsor your spot")}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <AddRestaurantDialog
-              mode={mode}
-              onAdded={(r) => setResults((p) => [r, ...p])}
-              open={addOpen}
-              onOpenChange={setAddOpen}
-              hideTrigger
-            />
           </div>
         </div>
       </header>
@@ -1679,7 +1653,7 @@ export default function Home() {
               { q: t("How do you find nearby places?"), a: t("Fork·Fate uses live Google Places data based on your ZIP code or device location, so results reflect real, currently-listed places around you — restaurants and bars, shops, parks and trails, and campgrounds alike.") },
               { q: t("What's the difference between a crawl and a Fate Passport?"), a: t("A crawl is one outing: fate deals 3–6 stops in a followable route, you hit them in order the same day, check each off and claim a badge. A Fate Passport is collected over time — days, weeks or a whole summer. Fate deals up to 10 stops in any category (parks, breweries, diners, museums, campgrounds), you stamp each one as you actually get there, and when the last stop is stamped your passport opens into a shareable award with a real ink stamp for every stop.") },
               { q: t("How does stamping a passport work — and can people fake it?"), a: t("Tap \"I'm here\" at a stop and your phone's location is checked against the place: get within about half a mile and it's stamped on site. You can always stamp manually if GPS struggles indoors or deep in a park, but those stops are marked self-reported and print as faint stamps on your award. We also reject impossible stamps (two stops 40 miles apart a minute apart), and only passports stamped on site at every stop earn the verified seal or can be posted to the public Passport Wall.") },
-              { q: t("Can I add my favorite local spot?"), a: t("Absolutely. Tap \"Add spot\" to submit a place you love. Community submissions are quickly reviewed before they join the roulette pool.") },
+              { q: t("Can I add my favorite local spot?"), a: t("Fork·Fate is powered by live Google Places data plus paid local sponsors — no more community-submission form. If you're a business owner, tap \"Sponsor your spot\" to get pinned at the top of every matching search. Not a business? Live places already appear automatically via Google.") },
               { q: t("Can I install Fork·Fate as an app?"), a: t("Yes — tap \"Download app\" to install Fork·Fate as a PWA on your home screen for one-tap access whenever you can't decide.") },
             ].map((item, i) => (
               <AccordionItem key={item.q} value={`faq-${i}`} className="border-[#E2E4E7]" data-testid={`faq-item-${i}`}>
