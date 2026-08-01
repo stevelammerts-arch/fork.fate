@@ -249,7 +249,42 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
     parsing that skips our own hops — previously a missing CF-Connecting-IP collapsed
     every user onto the shared ingress IP.
 
-## Completed 2026-08-02 (this session)
+## Completed 2026-08-02/03 — Phase 1 Interactivity (user-approved plan)
+User approved a 3-phase interactivity roadmap. Phase 1 built + tested:
+- **Swipe-to-reroll** (`RevealStage.jsx` draggable photo header): swipe left >90px
+  to reroll, 3 per deal (reset in doSearch/dealFromFavorites/onReset). Hint chip
+  `swipe-reroll-hint` shows remaining. framer drag needs dispatched PointerEvents in tests.
+- **Reaction voting** (`ReactionBar.jsx` + `routes/stats.py`): Flame "Fate chose
+  well" / Skull "Fate failed me" on the reveal. POST/GET `/api/reactions`; IP dedupe
+  30d via stat_dedupe TTL; localStorage `ff_rxn_{placeId}` client-side; community %
+  bar shows at 5+ votes. Backend 7/7 pytest (`tests/test_reactions_iter32.py`).
+- **RARE FATE reveals** — user-directed design: every ~15 DEAL TAPS (13-17 jitter;
+  localStorage `ff_deal_taps`/`ff_rare_at`) the ticker shuffle is skipped and the
+  winner arrives hidden behind a ritual, randomly one of:
+  (a) **Scratch foil** (`ScratchCover.jsx`) — THEME-MATCHED foil palettes
+  (`foilForTheme`: gold fantasy, bone dark, neon cyber, brass steam, seasonal…),
+  canvas destination-out scratching, threshold 0.65 (user found 0.35 auto-revealed
+  too early — raised per feedback), testid `rare-fate-scratch-cover`.
+  (b) **Magic 8-Ball** (`Magic8Ball.jsx`) — user must SHAKE the phone (devicemotion)
+  or rattle the ball with cursor (3 direction flips, >350px travel, <1.5s); wobble →
+  blue triangle answer with the winner's name → full unveil after 2.1s.
+  QA override: localStorage `ff_rare_force`='scratch'|'8ball'. Reveal fanfare
+  (thunder/flash) fires on completion via `surpriseDone()` in Home.
+- **Scratch-off coupons** (`CouponReveal.jsx`): sponsored coupon sealed state is now
+  gold scratch foil (testid `coupon-scratch-cover`). User chose to KEEP this in
+  addition to rare-fate scratch.
+- **Shake-to-shuffle** (`hooks/useShake.js`): devicemotion, 2 jolts <900ms, 3s
+  cooldown; iOS permission requested inside deal-tap gesture
+  (`requestMotionPermission()` in `spin`/`sealFate`). Not automatable — needs USER
+  testing on a real phone.
+- Tests: iteration_32 (100% backend+frontend), iteration_33 (8-ball 100%).
+  FF_BUILD 2026.06-292. All of this is PREVIEW-ONLY until user redeploys.
+- Phase 2 approved & pending: AI Fate Oracle (Emergent LLM key approved by user),
+  daily fate challenge, badges. Phase 3: live group spin rooms, wheel-of-fate as
+  another rare variant (user confirmed), reveal-synced haptics. User also confirmed
+  reaction % public at 5+ votes.
+
+## Completed 2026-08-02 (chain sponsors session)
 - **Chain Pitch Page** (`/sponsor/chains`, `SponsorChains.jsx`): dark landing page for
   national chains — hero, live fates counter, 3-step how-it-works, perks list,
   pricing card ($99/mo · $990/yr = 2 months free). CTAs open `BecomeSponsorDialog`

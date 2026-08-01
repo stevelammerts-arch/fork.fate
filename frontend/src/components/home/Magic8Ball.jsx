@@ -57,7 +57,7 @@ export function Magic8Ball({ name, onDone }) {
       onPointerMove={onPointerMove}
       style={{ touchAction: "none" }}
     >
-      <div className="pointer-events-none rounded-full bg-black/60 px-4 py-1.5 font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#E6B23A]" data-testid="rare-fate-badge">
+      <div className="pointer-events-none rounded-full border border-[#E6B23A]/30 bg-black/60 px-4 py-1.5 font-serif text-xs font-bold uppercase tracking-[0.2em] text-[#E6B23A]" data-testid="rare-fate-badge">
         ✦ Rare fate ✦
       </div>
       <motion.div
@@ -94,7 +94,7 @@ export function Magic8Ball({ name, onDone }) {
                 style={{ clipPath: "polygon(50% 0%, 100% 100%, 0% 100%)", background: "linear-gradient(180deg,#1D4ED8,#172B7A)" }}
               >
                 <span className="mt-4 max-w-[52px] text-center font-sans text-[8px] font-bold uppercase leading-tight text-white">
-                  {name}
+                  {name || "Fate awaits"}
                 </span>
               </motion.div>
             ) : (
@@ -109,11 +109,11 @@ export function Magic8Ball({ name, onDone }) {
           </AnimatePresence>
         </div>
       </motion.div>
-      <p className="pointer-events-none px-6 text-center font-sans text-xs font-semibold text-white/85" data-testid="magic-8ball-hint">
+      <p className="pointer-events-none px-6 text-center font-serif text-sm font-semibold italic text-[#C7CACE]" data-testid="magic-8ball-hint">
         {stage === "answer" ? "So it is written…" : stage === "shaking" ? "Fate stirs…" : "Shake your phone to reveal your fate"}
       </p>
       {stage === "idle" && (
-        <p className="pointer-events-none -mt-2 px-6 text-center font-sans text-[10px] text-white/50">
+        <p className="pointer-events-none -mt-2 px-6 text-center font-serif text-[10px] italic text-white/50">
           (or rattle the ball with your cursor)
         </p>
       )}

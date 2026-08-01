@@ -369,10 +369,11 @@ export default function Home() {
     // short dramatic beat, present the winner hidden behind a surprise ritual:
     // themed scratch foil, or a Magic 8-ball the user must shake.
     if (!groupMode && shouldRareFate()) {
-      let variant = Math.random() < 0.5 ? "scratch" : "8ball";
+      const pool = ["scratch", "8ball", "wheel"];
+      let variant = pool[Math.floor(Math.random() * pool.length)];
       try {
         const forced = localStorage.getItem("ff_rare_force");
-        if (forced === "scratch" || forced === "8ball") variant = forced;
+        if (pool.includes(forced)) variant = forced;
       } catch (e) { /* ignore */ }
       shuffleRef.current = setTimeout(() => {
         try {

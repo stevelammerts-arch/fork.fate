@@ -10,8 +10,9 @@ import { FateActionsDropdown } from "../FateActionsDropdown";
 import { CouponReveal } from "./CouponReveal";
 import { ChainCouponStrip } from "./ChainCouponStrip";
 import { ReactionBar } from "./ReactionBar";
-import { ScratchCover } from "./ScratchCover";
+import { ScratchCover, ThemeCardFrame } from "./ScratchCover";
 import { Magic8Ball } from "./Magic8Ball";
+import { WheelOfFate } from "./WheelOfFate";
 import { useLang } from "../../i18n/i18n";
 import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reaperLineFor, lightLineFor, supportsDelivery, cardImage } from "../../pages/homeConstants";
 import { buildFateCard } from "../../pages/homeFateCard";
@@ -52,9 +53,9 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   const card = result;
   // Once the dare is taken the pick is final — no alternatives, no re-shuffle.
   const alternatives = locked ? [] : deck.filter((d) => d.id !== card.id).slice(0, 3);
-  // Rare fate: the winner arrives hidden — under themed scratch foil, or
-  // inside a Magic 8-ball the user has to shake.
-  const covered = surprise === "scratch" || surprise === "8ball";
+  // Rare fate: the winner arrives hidden — under themed scratch foil, inside a
+  // Magic 8-ball to shake, or on a roulette wheel to flick.
+  const covered = surprise === "scratch" || surprise === "8ball" || surprise === "wheel";
   // Swipe-to-reroll: drag the photo header left to tempt fate again (budgeted).
   const swipeEnabled = !locked && !covered && rerollsLeft > 0 && deck.length > 1 && !!onSwipeReroll;
   const shareFate = async () => {
@@ -171,14 +172,19 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
                 onDone={onSurpriseDone}
                 label={t("Scratch to unveil your fate")}
                 theme={theme}
-                threshold={0.35}
+                threshold={0.65}
                 radius={30}
+                testId="rare-fate-scratch-cover"
               />
             </>
           )}
           {surprise === "8ball" && (
             <Magic8Ball name={card.name} onDone={onSurpriseDone} />
           )}
+          {surprise === "wheel" && (
+            <WheelOfFate names={deck.map((d) => d.name)} winner={card.name} onDone={onSurpriseDone} />
+          )}
+          {covered && <ThemeCardFrame theme={theme} />}
         </motion.div>
 
         {result && !covered && (

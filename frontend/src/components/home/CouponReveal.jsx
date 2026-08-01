@@ -96,7 +96,7 @@ export function CouponReveal({ sponsorId, coupon, variant = "full" }) {
             </div>
           </div>
         </div>
-        <ScratchCover onDone={doReveal} label="Scratch to reveal your deal" theme="fantasy" />
+        <ScratchCover onDone={doReveal} label="Scratch to reveal your deal" theme="fantasy" testId="coupon-scratch-cover" />
       </div>
     );
   }

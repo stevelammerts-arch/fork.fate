@@ -21,6 +21,33 @@ export function foilForTheme(theme) {
   return FOILS[theme] || FOILS.light;
 }
 
+// Theme accent used for card frames / wheel segments (matches deck card backs).
+const ACCENTS = {
+  fantasy: "#E6B23A", cyber: "#22E0E0", tiki: "#F0A24E", steam: "#D9A44E",
+  dark: "#E01E26", light: "#A31621", fall: "#D97B2C", winter: "#9CC8E0",
+  spring: "#E098B4", summer: "#4CC8C0",
+};
+
+export function accentForTheme(theme) {
+  return ACCENTS[theme] || ACCENTS.light;
+}
+
+/**
+ * The double inset border the shuffle-deck card backs use, as an overlay —
+ * frames the rare-fate reveals so they read as one of fate's cards.
+ */
+export function ThemeCardFrame({ theme }) {
+  const accent = accentForTheme(theme);
+  return (
+    <div className="pointer-events-none absolute inset-0 z-30" data-testid="rare-fate-frame">
+      {/* Dark rim first so the accent lines read on light foils (e.g. gold) */}
+      <div className="absolute inset-0 rounded-2xl border-2" style={{ borderColor: "rgba(10,9,12,0.55)" }} />
+      <div className="absolute inset-2 rounded-xl border" style={{ borderColor: `${accent}B3`, boxShadow: `inset 0 0 12px ${accent}4D, 0 0 0 1px rgba(10,9,12,0.35)` }} />
+      <div className="absolute inset-[10px] rounded-lg border" style={{ borderColor: `${accent}55` }} />
+    </div>
+  );
+}
+
 /**
  * Scratch-off overlay: covers its parent (which must be position:relative)
  * with a themed foil canvas the user scratches away with finger/mouse. Once
@@ -29,7 +56,7 @@ export function foilForTheme(theme) {
  * Progress is tracked on a coarse 16px grid (cheap, no getImageData reads
  * per frame).
  */
-export function ScratchCover({ onDone, label = "Scratch to reveal", theme = "light", threshold = 0.45, radius = 22 }) {
+export function ScratchCover({ onDone, label = "Scratch to reveal", theme = "light", threshold = 0.45, radius = 22, testId = "scratch-cover" }) {
   const canvasRef = useRef(null);
   const doneRef = useRef(false);
 
@@ -113,7 +140,7 @@ export function ScratchCover({ onDone, label = "Scratch to reveal", theme = "lig
   return (
     <canvas
       ref={canvasRef}
-      data-testid="scratch-cover"
+      data-testid={testId}
       className="absolute inset-0 z-10 h-full w-full cursor-crosshair rounded-2xl"
       style={{ touchAction: "none" }}
     />
