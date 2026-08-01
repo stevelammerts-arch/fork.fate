@@ -8,8 +8,10 @@ from fastapi.responses import Response
 
 from core import (
     db, logger, rate_limit, client_ip, origin_allowed, SPONSOR_PRICE,
-    SPONSOR_PRICE_ANNUAL, sponsor_fallback_image, storage_put, storage_get, STORAGE_APP,
+    SPONSOR_PRICE_ANNUAL, SPONSOR_PRICE_CHAIN, SPONSOR_PRICE_CHAIN_ANNUAL,
+    sponsor_fallback_image, storage_put, storage_get, STORAGE_APP,
     PAYPAL_BASE, PAYPAL_ENV, PAYPAL_CLIENT_ID, PAYPAL_SECRET, PAYPAL_WEBHOOK_ID,
+    send_email,
 )
 from models import SponsorshipRequest, SponsorSubscribe
 
@@ -195,10 +197,31 @@ async def _ensure_paypal_product(http: httpx.AsyncClient, h: dict) -> str:
     return product_id
 
 
-def _plan_spec(period: str, product_id: str) -> dict:
-    """PayPal billing-plan body for the given period.
-    monthly: free first month, then $19/mo (founder's discount).
-    yearly: $190/yr charged up front, no trial."""
+def _plan_spec(period: str, product_id: str, tier: str = "local") -> dict:
+    """PayPal billing-plan body for the given period + tier.
+    local monthly: free first month, then $19/mo (founder's discount).
+    local yearly: $190/yr charged up front, no trial.
+    chain monthly: $99/mo, no trial. chain yearly: $990/yr up front."""
+    if tier == "chain_coupon_only":
+        cycle = ("YEAR", SPONSOR_PRICE_CHAIN_ANNUAL) if period == "yearly" else ("MONTH", SPONSOR_PRICE_CHAIN)
+        label = f"${cycle[1].split('.')[0]}/{'yr' if period == 'yearly' else 'mo'}"
+        return {
+            "product_id": product_id,
+            "name": f"Fork·Fate Chain Sponsor — {label}",
+            "description": "National-chain coupon placement on Fork·Fate reveal cards."
+                           + (" Billed annually (2 months free)." if period == "yearly" else " Billed monthly."),
+            "billing_cycles": [
+                {"frequency": {"interval_unit": cycle[0], "interval_count": 1}, "tenure_type": "REGULAR",
+                 "sequence": 1, "total_cycles": 0,
+                 "pricing_scheme": {"fixed_price": {"value": cycle[1], "currency_code": "USD"}}},
+            ],
+            "payment_preferences": {
+                "auto_bill_outstanding": True,
+                "setup_fee": {"value": "0", "currency_code": "USD"},
+                "setup_fee_failure_action": "CONTINUE",
+                "payment_failure_threshold": 2,
+            },
+        }
     if period == "yearly":
         return {
             "product_id": product_id,
@@ -237,16 +260,19 @@ def _plan_spec(period: str, product_id: str) -> dict:
     }
 
 
-async def ensure_paypal_plan(http: httpx.AsyncClient, token: str, period: str = "monthly"):
-    """Create (once) and cache the PayPal billing plan for the given period."""
-    key = "paypal_plan_annual" if period == "yearly" else "paypal_plan"
+async def ensure_paypal_plan(http: httpx.AsyncClient, token: str, period: str = "monthly", tier: str = "local"):
+    """Create (once) and cache the PayPal billing plan for the given period + tier."""
+    if tier == "chain_coupon_only":
+        key = "paypal_plan_chain_annual" if period == "yearly" else "paypal_plan_chain"
+    else:
+        key = "paypal_plan_annual" if period == "yearly" else "paypal_plan"
     cfg = await db.config.find_one({"key": key})
     if cfg and cfg.get("plan_id") and cfg.get("env") == PAYPAL_ENV:
         return cfg["plan_id"]
     h = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     product_id = await _ensure_paypal_product(http, h)
     plan = await http.post(f"{PAYPAL_BASE}/v1/billing/plans", headers=h,
-                           json=_plan_spec(period, product_id))
+                           json=_plan_spec(period, product_id, tier))
     if plan.status_code not in (200, 201):
         logger.error(f"PayPal plan error: {plan.text[:300]}")
         raise HTTPException(status_code=502, detail="Could not create PayPal plan")
@@ -273,6 +299,10 @@ async def sponsors_subscribe(payload: SponsorSubscribe, request: Request):
     })
     if pending_recent >= 3:
         raise HTTPException(status_code=429, detail="Too many pending requests — please complete or wait before trying again.")
+    # Chain sponsors surface ONLY through their coupon strip — a chain with no
+    # coupon would be paying for nothing, so reject it up front.
+    if payload.tier == "chain_coupon_only" and not (payload.coupon and payload.coupon.code):
+        raise HTTPException(status_code=400, detail="Chain sponsorships require a coupon code and offer description")
     sponsor_id = str(uuid.uuid4())
     doc = {
         "id": sponsor_id,
@@ -283,6 +313,8 @@ async def sponsors_subscribe(payload: SponsorSubscribe, request: Request):
         "rating": 4.7, "distance": 0.5, "open_now": True,
         "active": False, "sub_status": "pending_payment", "subscription_id": None,
         "billing_period": payload.plan,
+        "tier": payload.tier,
+        "coupon": payload.coupon.model_dump() if payload.coupon else None,
         "impressions": 0, "clicks": 0,
         "created_ip": ip,
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -292,7 +324,7 @@ async def sponsors_subscribe(payload: SponsorSubscribe, request: Request):
     try:
         async with httpx.AsyncClient(timeout=20) as http:
             token = await paypal_token(http)
-            plan_id = await ensure_paypal_plan(http, token, payload.plan)
+            plan_id = await ensure_paypal_plan(http, token, payload.plan, payload.tier)
             sub = await http.post(f"{PAYPAL_BASE}/v1/billing/subscriptions",
                 headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
                 json={
@@ -344,6 +376,58 @@ async def _verify_paypal_webhook(headers, body_json):
     return r.status_code == 200 and r.json().get("verification_status") == "SUCCESS"
 
 
+async def send_sponsor_welcome_cards(sponsor_id: str) -> bool:
+    """Email the sponsor their 3 print/social card formats on activation.
+
+    Idempotent across the two activation paths (webhook + status poll): the
+    `cards_email_sent` flag is claimed atomically before generating anything,
+    and released on failure so the other path (or a future activation) can retry.
+    """
+    import asyncio
+    import base64
+    sponsor = await db.sponsors.find_one_and_update(
+        {"id": sponsor_id, "active": True, "contact_email": {"$nin": [None, ""]},
+         "cards_email_sent": {"$ne": True}},
+        {"$set": {"cards_email_sent": True}},
+    )
+    if not sponsor:
+        return False
+    try:
+        from sponsor_card import generate_sponsor_card
+        attachments = []
+        for fmt in ("square", "story", "pdf"):
+            data, _mime, filename = await asyncio.to_thread(generate_sponsor_card, sponsor, fmt)
+            attachments.append({"filename": filename, "content": base64.b64encode(data).decode()})
+        name = sponsor.get("name", "your business")
+        html = (
+            "<div style='font-family:Arial,sans-serif;color:#1a1a1a;max-width:560px'>"
+            "<h2 style='color:#E01E26;margin:0 0 10px'>Welcome to Fork·Fate, sponsor!</h2>"
+            f"<p><strong>{name}</strong> is now live on Fork·Fate — congrats! 🎉</p>"
+            "<p>Attached are your ready-to-post <strong>“Find us on Fork·Fate”</strong> cards:</p>"
+            "<ul style='line-height:1.7'>"
+            "<li><strong>Square</strong> (1080×1080) — Instagram &amp; Facebook feed posts</li>"
+            "<li><strong>Story</strong> (1080×1920) — Instagram/Facebook stories &amp; reels covers</li>"
+            "<li><strong>Print PDF</strong> — letter-size poster for your window or counter</li>"
+            "</ul>"
+            "<p>Each one includes a QR code that takes customers straight to Fork·Fate.</p>"
+            "<p style='color:#6B7075;font-size:13px'>Questions or want changes to your listing? "
+            "Just reply to this email.</p>"
+            "<p style='margin-top:18px'>— The Fork·Fate team</p>"
+            "</div>"
+        )
+        ok = await send_email(
+            subject="Your Fork·Fate sponsor cards are ready 🎉",
+            html=html, to=sponsor["contact_email"], attachments=attachments,
+        )
+    except Exception as e:
+        logger.error(f"Welcome cards email failed for sponsor {sponsor_id}: {e}")
+        ok = False
+    if not ok:
+        # Release the claim so activation via the other path can retry.
+        await db.sponsors.update_one({"id": sponsor_id}, {"$set": {"cards_email_sent": False}})
+    return ok
+
+
 @router.post("/paypal/webhook", dependencies=[Depends(rate_limit(60))])
 async def paypal_webhook(request: Request):
     body = await request.body()
@@ -364,6 +448,11 @@ async def paypal_webhook(request: Request):
         query = {"id": custom_id}
     if etype == "BILLING.SUBSCRIPTION.ACTIVATED":
         await db.sponsors.update_one(query, {"$set": {"active": True, "sub_status": "active", "subscription_id": sub_id}})
+        # Fire-and-forget: welcome email with the 3 social card formats attached.
+        s = await db.sponsors.find_one(query, {"_id": 0, "id": 1})
+        if s:
+            import asyncio
+            asyncio.create_task(send_sponsor_welcome_cards(s["id"]))
     elif etype in ("BILLING.SUBSCRIPTION.CANCELLED", "BILLING.SUBSCRIPTION.SUSPENDED", "BILLING.SUBSCRIPTION.EXPIRED"):
         status = etype.split(".")[-1].lower()
         await db.sponsors.update_one(query, {"$set": {"active": False, "sub_status": status}})
@@ -501,6 +590,10 @@ async def sponsor_subscription_status(subscription_id: str):
                                                  {"$set": {"active": True, "sub_status": "active"}})
                     s["active"] = True
                     s["sub_status"] = "active"
+                    # Webhook may never arrive (e.g. not configured in sandbox) —
+                    # this path is then the activation moment, so send cards here too.
+                    import asyncio
+                    asyncio.create_task(send_sponsor_welcome_cards(s["id"]))
                 elif status in ("CANCELLED", "SUSPENDED", "EXPIRED"):
                     await db.sponsors.update_one({"subscription_id": subscription_id},
                                                  {"$set": {"active": False, "sub_status": status.lower()}})
@@ -509,8 +602,10 @@ async def sponsor_subscription_status(subscription_id: str):
             logger.warning(f"PayPal status check failed: {e}")
     active = bool(s.get("active"))
     # Only echo the business name on a confirmed-active subscription (the sponsor's own
-    # success page); avoid disclosing it for pending/unknown ids.
+    # success page); avoid disclosing it for pending/unknown ids. The sponsor_id lets
+    # the success page offer the public social-card downloads.
     return {"found": True, "name": s.get("name") if active else None,
+            "sponsor_id": s.get("id") if active else None,
             "active": active, "sub_status": s.get("sub_status")}
 
 
@@ -553,3 +648,4 @@ async def reconcile_sponsors():
             except Exception as e:
                 logger.warning(f"Reconcile check failed for {sid}: {e}")
     return {"checked": checked, "paused": paused, "purged": purged}
+

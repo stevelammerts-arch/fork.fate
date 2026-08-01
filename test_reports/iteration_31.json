@@ -1,0 +1,21 @@
+{
+  "summary": "Iteration 31: End-to-end testing of new chain sponsor features (Chain Pitch Page, Card Download Buttons on SponsorStatus, and chain-mode BecomeSponsorDialog). Backend: 11/11 pytest cases pass covering subscription-status (active+unknown), social-card downloads (square/story/pdf with correct content-type & size >50KB), subscribe endpoint chain validation + PayPal 503 (expected in preview), tier fallback for garbage values, plus regressions on /api/sponsors/active, /api/coupons/chains-nearby (FORK20 present), /api/stats/fates. Frontend: /sponsor/chains renders hero, fates counter, 3 how-it-works steps, pricing card ($99/mo + $990/yr + 2 months free), both CTAs open chain-mode dialog with coupon section, auto-uppercase coupon code confirmed (abc123->ABC123), no-coupon toast fires ('Chain sponsorships require a coupon code and offer description'), full-payload submit yields expected 503 toast ('Online sponsorship isn't available yet — please email us.'). /sponsor/success?subscription_id=I-TESTSUB123 polls, shows 'You're live!' with 3 download links pointing to correct /api/sponsors/test-chain-sponsor-1/social-card?format=X URLs. Regression: normal local sponsor dialog from header still shows $19/mo (Founder, $29 strikethrough, First month FREE) and $190/yr with no coupon section. All acceptance criteria met.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_chain_sponsor_iter31.py",
+    "/app/test_reports/pytest/iter31_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "SponsorStatus.jsx polling caps at 6 tries (~15s). If PayPal webhook is delayed, user may see 'pending' even though sponsor will activate — consider a manual 'Check again' button.",
+    "Chain dialog reuses shared photo upload/website fields; consider hiding those for chain_coupon_only tier since chains don't get a fate-deck slot and only the coupon strip is used."
+  ],
+  "updated_files": ["/app/backend/tests/test_chain_sponsor_iter31.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "None. Used seeded sponsor id 'test-chain-sponsor-1' / subscription_id 'I-TESTSUB123'.",
+  "seed_data_creation": "None. Left seeded test sponsor (test-chain-sponsor-1) intact for main agent cleanup.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "PayPal & Resend keys empty in preview — 503 on /api/sponsors/subscribe and skipped emails are EXPECTED. Homepage guided intro appears on first visit even after setting ff_build localStorage; explicitly click text='Skip intro' before interacting with header sponsor trigger. Use non-force click after scroll_into_view_if_needed to avoid the intro overlay swallowing clicks. Seeded coupon code = FORK20 attached to test-chain-sponsor-1."
+}

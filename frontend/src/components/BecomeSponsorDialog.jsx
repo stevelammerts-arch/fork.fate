@@ -20,18 +20,22 @@ const EMAIL = "steve@fork-fate.com";
 const CATEGORIES = ["food", "drinks", "bars", "desserts", "shops", "fuel", "explore", "stay"];
 const PRICES = ["$", "$$", "$$$", "$$$$"];
 const EMPTY = { name: "", category: "food", cuisine: "", price: "$$", address: "", website: "", image: "", contact_email: "" };
+const EMPTY_COUPON = { code: "", description: "", terms: "" };
 
-export default function BecomeSponsorDialog({ variant = "primary", open: openProp, onOpenChange, hideTrigger = false }) {
+export default function BecomeSponsorDialog({ variant = "primary", open: openProp, onOpenChange, hideTrigger = false, tier = "local" }) {
   const [openState, setOpenState] = useState(false);
   const { t } = useLang();
   const isControlled = openProp !== undefined;
   const open = isControlled ? openProp : openState;
   const setOpen = (v) => { if (isControlled) onOpenChange?.(v); else setOpenState(v); };
   const [form, setForm] = useState(EMPTY);
+  const [coupon, setCoupon] = useState(EMPTY_COUPON);
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState("monthly");
   const [uploading, setUploading] = useState(false);
+  const chain = tier === "chain_coupon_only";
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  const setC = (k, v) => setCoupon((c) => ({ ...c, [k]: v }));
 
   const uploadPhoto = async (file) => {
     if (!file) return;
@@ -62,17 +66,23 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
       toast.error(t("Business name, cuisine/type and email are required"));
       return;
     }
+    if (chain && (!coupon.code.trim() || !coupon.description.trim())) {
+      toast.error(t("Chain sponsorships require a coupon code and offer description"));
+      return;
+    }
     setLoading(true);
     try {
       const { data } = await axios.post(`${API}/sponsors/subscribe`, {
         ...form,
         plan,
+        tier,
+        coupon: chain ? { code: coupon.code.trim(), description: coupon.description.trim(), terms: coupon.terms.trim(), discount_type: "custom" } : undefined,
         origin: window.location.origin,
       });
       window.location.href = data.approval_url;
     } catch (e) {
       const detail = e.response?.data?.detail || t("Could not start checkout");
-      toast.error(detail);
+      toast.error(typeof detail === "string" ? detail : t("Could not start checkout"));
       setLoading(false);
     }
   };
@@ -120,13 +130,50 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
       )}
       <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl border-[#E2E4E7] bg-white sm:max-w-md" data-testid="sponsor-dialog" data-ff-dialog>
         <DialogHeader>
-          <DialogTitle className="font-serif text-2xl text-[#0E0E0E]">{t("Sponsor your spot on Fork·Fate")}</DialogTitle>
+          <DialogTitle className="font-serif text-2xl text-[#0E0E0E]">
+            {chain ? t("Chain sponsorship on Fork·Fate") : t("Sponsor your spot on Fork·Fate")}
+          </DialogTitle>
           <DialogDescription className="text-[#6B7075]">
-            {t("Get pinned to the top of every matching shuffle with a Sponsored badge.")}
+            {chain
+              ? t("Your coupon appears beside the winning local spot on matching reveals — every single spin.")
+              : t("Get pinned to the top of every matching shuffle with a Sponsored badge.")}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-2" data-testid="sponsor-plan-toggle">
+        {chain ? (
+          <>
+            <div className="grid grid-cols-2 gap-2" data-testid="sponsor-plan-toggle">
+              <button
+                type="button"
+                onClick={() => setPlan("monthly")}
+                data-testid="sponsor-plan-monthly"
+                aria-pressed={plan === "monthly"}
+                className={`relative rounded-2xl border p-4 text-center transition-colors ${plan === "monthly" ? "border-[#E01E26] bg-[#E01E26]/5 ring-1 ring-[#E01E26]" : "border-[#E2E4E7] bg-[#F5F6F7] hover:border-[#D5D8DC]"}`}
+              >
+                <p className="font-sans text-xs font-bold uppercase tracking-wide text-[#6B7075]">{t("Monthly")}</p>
+                <p className="mt-1 font-serif text-2xl font-semibold text-[#0E0E0E]">$99<span className="text-sm text-[#6B7075]">/{t("mo")}</span></p>
+                <p className="mt-1 font-sans text-[11px] font-semibold text-[#6B7075]">{t("Cancel anytime")}</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPlan("yearly")}
+                data-testid="sponsor-plan-yearly"
+                aria-pressed={plan === "yearly"}
+                className={`relative rounded-2xl border p-4 text-center transition-colors ${plan === "yearly" ? "border-[#E01E26] bg-[#E01E26]/5 ring-1 ring-[#E01E26]" : "border-[#E2E4E7] bg-[#F5F6F7] hover:border-[#D5D8DC]"}`}
+              >
+                <span className="absolute -top-2 right-2 rounded-full bg-[#E01E26] px-2 py-0.5 font-sans text-[10px] font-bold text-white" data-testid="sponsor-yearly-savings">{t("2 months free")}</span>
+                <p className="font-sans text-xs font-bold uppercase tracking-wide text-[#6B7075]">{t("Yearly")}</p>
+                <p className="mt-1 font-serif text-2xl font-semibold text-[#0E0E0E]">$990<span className="text-sm text-[#6B7075]">/{t("yr")}</span></p>
+                <p className="mt-1 font-sans text-[11px] font-semibold text-[#6B7075]">{t("Billed annually")}</p>
+              </button>
+            </div>
+            <p className="text-center font-sans text-xs text-[#8A8F95]" data-testid="sponsor-plan-note">
+              {plan === "yearly" ? t("Billed $990 today, then annually · cancel anytime") : t("$99/month · cancel anytime")}
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-2" data-testid="sponsor-plan-toggle">
           <button
             type="button"
             onClick={() => setPlan("monthly")}
@@ -155,11 +202,13 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
         <p className="text-center font-sans text-xs text-[#8A8F95]" data-testid="sponsor-plan-note">
           {plan === "yearly" ? t("Billed $190 today, then annually · cancel anytime") : t("Free first month, then $19/month · cancel anytime")}
         </p>
+          </>
+        )}
 
         <div className="space-y-3 py-1">
           <div className="space-y-1.5">
             <Label htmlFor="sp-name">{t("Business name *")}</Label>
-            <Input id="sp-name" data-testid="sponsor-form-name" value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="e.g. Olive & Ember" />
+            <Input id="sp-name" data-testid="sponsor-form-name" value={form.name} onChange={(e) => set("name", e.target.value)} placeholder={chain ? "e.g. Burrito Bandito (National)" : "e.g. Olive & Ember"} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
@@ -222,6 +271,23 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
             <Input id="sp-img" data-testid="sponsor-form-image" value={form.image} onChange={(e) => set("image", e.target.value)} placeholder={t("…or paste an image URL")} className="text-xs" />
             <p className="text-[11px] text-[#8A8F95]">{t("No photo? We'll show a tasteful image matched to your cuisine.")}</p>
           </div>
+          {chain && (
+            <div className="space-y-3 rounded-2xl border border-[#E6B23A]/50 bg-[#FDF8EC] p-3" data-testid="sponsor-coupon-section">
+              <p className="font-sans text-xs font-bold uppercase tracking-wide text-[#8A6D1F]">{t("Your coupon offer *")}</p>
+              <div className="space-y-1.5">
+                <Label htmlFor="sp-coupon-code">{t("Coupon code *")}</Label>
+                <Input id="sp-coupon-code" data-testid="sponsor-coupon-code" value={coupon.code} onChange={(e) => setC("code", e.target.value.toUpperCase())} placeholder="e.g. FORKFATE20" maxLength={32} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="sp-coupon-desc">{t("Offer description *")}</Label>
+                <Input id="sp-coupon-desc" data-testid="sponsor-coupon-description" value={coupon.description} onChange={(e) => setC("description", e.target.value)} placeholder={t("e.g. 20% off any combo meal")} maxLength={140} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="sp-coupon-terms">{t("Terms")} <span className="text-[#B8BCC2]">{t("(optional)")}</span></Label>
+                <Input id="sp-coupon-terms" data-testid="sponsor-coupon-terms" value={coupon.terms} onChange={(e) => setC("terms", e.target.value)} placeholder={t("e.g. One per customer, participating locations")} maxLength={500} />
+              </div>
+            </div>
+          )}
           <div className="space-y-1.5">
             <Label htmlFor="sp-email">{t("Contact email *")}</Label>
             <Input id="sp-email" type="email" data-testid="sponsor-form-email" value={form.contact_email} onChange={(e) => set("contact_email", e.target.value)} placeholder="you@business.com" />

@@ -345,11 +345,21 @@ class SponsorSubscribe(BaseModel):
     contact_email: str = Field(min_length=3, max_length=160)
     origin: str = Field(min_length=1, max_length=300)
     plan: str = Field(default="monthly", max_length=10)
+    # "local" (fate-deck slots) or "chain_coupon_only" (bonus coupon strip only).
+    tier: str = Field(default="local", max_length=20)
+    # Chain sponsors surface ONLY through their coupon, so it's required for them
+    # (enforced in the subscribe route, not here, to keep the model reusable).
+    coupon: Optional[Coupon] = None
 
     @field_validator("plan")
     @classmethod
     def _valid_plan(cls, v):
         return v if v in ("monthly", "yearly") else "monthly"
+
+    @field_validator("tier")
+    @classmethod
+    def _valid_tier_sub(cls, v):
+        return v if v in ("local", "chain_coupon_only") else "local"
 
     @field_validator("category")
     @classmethod

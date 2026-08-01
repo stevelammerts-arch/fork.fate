@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useSearchParams } from "react-router-dom";
-import { CheckCircle2, Clock, XCircle, ArrowLeft, Loader2 } from "lucide-react";
+import { CheckCircle2, Clock, XCircle, ArrowLeft, Loader2, Download, FileImage, FileText } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -10,6 +10,7 @@ export default function SponsorStatus({ cancelled = false }) {
   const subscriptionId = params.get("subscription_id");
   const [status, setStatus] = useState(cancelled ? "cancelled" : "checking");
   const [name, setName] = useState("");
+  const [sponsorId, setSponsorId] = useState(null);
 
   useEffect(() => {
     if (cancelled || !subscriptionId) {
@@ -23,7 +24,7 @@ export default function SponsorStatus({ cancelled = false }) {
         const { data } = await axios.get(`${API}/sponsors/subscription-status`, { params: { subscription_id: subscriptionId } });
         if (data.found) {
           setName(data.name || "");
-          if (data.active) { setStatus("active"); return; }
+          if (data.active) { setSponsorId(data.sponsor_id || null); setStatus("active"); return; }
         }
       } catch (e) {
         console.debug("status poll failed", e);
@@ -53,6 +54,33 @@ export default function SponsorStatus({ cancelled = false }) {
         </span>
         <h1 className="mt-5 font-serif text-3xl text-white" data-testid="sponsor-status-title">{config.title}</h1>
         <p className="mt-3 font-sans text-sm leading-relaxed text-[#B8BCC2]">{config.body}</p>
+        {status === "active" && sponsorId && (
+          <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left" data-testid="sponsor-card-downloads">
+            <p className="font-sans text-xs font-bold uppercase tracking-wide text-[#E6B23A]">Your marketing kit</p>
+            <p className="mt-1 font-sans text-xs leading-relaxed text-[#B8BCC2]">
+              Ready-to-post "Find us on Fork·Fate" cards — also on their way to your inbox.
+            </p>
+            <div className="mt-3 grid gap-2">
+              {[
+                { fmt: "square", label: "Square post (1080×1080)", Icon: FileImage },
+                { fmt: "story", label: "Story / Reel (1080×1920)", Icon: FileImage },
+                { fmt: "pdf", label: "Print poster (PDF)", Icon: FileText },
+              ].map(({ fmt, label, Icon: FIcon }) => (
+                <a
+                  key={fmt}
+                  href={`${API}/sponsors/${sponsorId}/social-card?format=${fmt}`}
+                  download
+                  data-testid={`download-card-${fmt}`}
+                  className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 font-sans text-sm font-semibold text-white transition-colors hover:border-[#E6B23A]/60 hover:bg-white/[0.07]"
+                >
+                  <FIcon className="h-4 w-4 shrink-0 text-[#E6B23A]" />
+                  <span className="flex-1">{label}</span>
+                  <Download className="h-4 w-4 shrink-0 text-[#8A8F95]" />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
         <Link
           to="/"
           data-testid="sponsor-status-home-link"

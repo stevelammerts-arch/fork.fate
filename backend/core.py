@@ -40,6 +40,10 @@ PAYPAL_WEBHOOK_ID = os.environ.get('PAYPAL_WEBHOOK_ID')
 PAYPAL_BASE = "https://api-m.paypal.com" if PAYPAL_ENV == "live" else "https://api-m.sandbox.paypal.com"
 SPONSOR_PRICE = "19.00"          # Founder's launch discount (was $29/mo)
 SPONSOR_PRICE_ANNUAL = "190.00"  # 2 months free vs 12 × monthly (10 × $19)
+# Chain tier (chain_coupon_only): coupon-strip placement beside the local winner,
+# never a slot in the fate deck. Priced for national marketing budgets.
+SPONSOR_PRICE_CHAIN = "99.00"
+SPONSOR_PRICE_CHAIN_ANNUAL = "990.00"  # 2 months free vs 12 × monthly
 JWT_ALG = "HS256"
 JWT_ISS = os.environ.get("JWT_ISS", "fork-fate")
 JWT_AUD = os.environ.get("JWT_AUD", "fork-fate-admin")
@@ -524,9 +528,11 @@ async def _send_google_cap_alert(used: int):
         logger.error(f"Failed to send Google cap alert: {e}")
 
 
-async def send_email(subject: str, html: str, to: str = None) -> bool:
+async def send_email(subject: str, html: str, to: str = None, attachments: list = None) -> bool:
     """Generic transactional email via Resend. Returns True on success, False if
-    unconfigured or on error (never raises)."""
+    unconfigured or on error (never raises).
+
+    `attachments`: optional list of {"filename": str, "content": base64 str}."""
     import asyncio
     import resend
     recipient = to or ALERT_EMAIL_TO
@@ -536,7 +542,9 @@ async def send_email(subject: str, html: str, to: str = None) -> bool:
     try:
         resend.api_key = RESEND_API_KEY
         params = {"from": SENDER_EMAIL, "to": [recipient], "subject": subject, "html": html}
-        await asyncio.wait_for(asyncio.to_thread(resend.Emails.send, params), timeout=15)
+        if attachments:
+            params["attachments"] = attachments
+        await asyncio.wait_for(asyncio.to_thread(resend.Emails.send, params), timeout=30)
         logger.info(f"Sent email '{subject}' to {recipient}")
         return True
     except Exception as e:
