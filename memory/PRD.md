@@ -19,6 +19,33 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
   on ANY frontend change. (Currently 2026.06-279.)
 
 ## Implemented — 2026-08-02 (Oracle + Realm picker session)
+- **Code-review cleanup + refactor sweep** (user-approved after audit; most report
+  findings were false positives — documented in chat): removed 4 stale
+  eslint-disable comments + dead `_origin` var + 2 unused test vars. **Home.jsx
+  split 1891 → ~1560 lines**: new `components/home/HomeHeader.jsx`,
+  `HomeInfoSections.jsx` (owns faqOpen state), `HomeFooter.jsx` — extracted
+  verbatim, same testids. **CrawlLeaderboard.jsx** rebuilt with SubmitPanel/
+  PostedBanner/ScopeSortTabs/BoardList subcomponents (+ exports rankTitle,
+  fmtTime). **CrawlBadgeDialog.jsx** 592 → 405 lines: canvas painters moved to
+  `lib/crawlBadge.js` (exports REAPER_SRC, loadImage, buildBadge);
+  DarkBadgePreview/LightBadgePreview subcomponents. **routes/places.py**:
+  places_essentials split into _essentials_resolve_location + _essential_row.
+  All verified iteration_40 (backend 5/5 incl. new tests/test_iter40_refactor.py,
+  frontend 100%). NOTE: tests/test_iter17 GPS-stamping + test_iter5 seed-count/
+  FF_BUILD pytest failures are PRE-EXISTING/STALE asserts, unrelated.
+- **Wheel of Fate tick fix (prod phone bug)**: sound started seconds late on
+  phones (12.8s MP3 + metadata seek). Now plays pre-trimmed
+  `/wheel-tick-end.mp3` (4.44s, 39KB, made with ffmpeg) preloaded on mount, no
+  seeking. Legacy wheel-tick.mp3 still ships but is unused.
+- **8-ball: zero shuffle cards (prod phone bug)**: new `rare8Ball` state in
+  Home.jsx suppresses the full-screen shuffle popup entirely for 8-ball rares
+  (was flashing ~150ms of cards); reset in runShuffle + runCrawlShuffle. Normal
+  deals still show the popup (verified iteration_40, MutationObserver clean).
+- **8-ball slide-down exit**: after the name shows in the window (2s), the ball
+  slides down + fades (0.6s) into the original reveal card (stage "exit" in
+  Magic8Ball state machine; onDone at +650ms). /dev/rare smoke-verified.
+- FF_BUILD -> **2026.06-306**. ALL of this is PREVIEW-ONLY until user redeploys
+  to fork-fate.com (phone app wraps production).
 - **Magic 8-Ball reworked like the real toy** (user-directed, `Magic8Ball.jsx`):
   props now `{name, onDone}` (photo/ink-dissipate reveal REMOVED). The triangle
   die floats up through the dark liquid in the square window — occasionally

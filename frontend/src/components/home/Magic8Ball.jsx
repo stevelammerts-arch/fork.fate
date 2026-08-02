@@ -74,7 +74,12 @@ export function Magic8Ball({ name, onDone }) {
         clearTries();
         setStageBoth("answer");
         haptic(15);
-        setTimeout(() => onDone?.(), 2600);
+        // Let the name sink in, then the whole ball slides down and away,
+        // handing off to the original reveal card beneath.
+        setTimeout(() => {
+          setStageBoth("exit");
+          setTimeout(() => onDone?.(), 650);
+        }, 2000);
       } else {
         let idx = Math.floor(Math.random() * FAIL_MESSAGES.length);
         if (idx === tries.last) idx = (idx + 1) % FAIL_MESSAGES.length;
@@ -116,7 +121,7 @@ export function Magic8Ball({ name, onDone }) {
     d.lastX = e.clientX;
   };
 
-  const hint = stage === "answer"
+  const hint = stage === "answer" || stage === "exit"
     ? "So it is written…"
     : stage === "shaking"
       ? "Fate stirs…"
@@ -127,21 +132,29 @@ export function Magic8Ball({ name, onDone }) {
           : "Shake your phone to reveal your fate";
 
   // The die faces up: fails on the purple face, the true fate on gold.
-  const dieUp = stage === "message" || stage === "answer";
-  const isAnswer = stage === "answer";
+  const dieUp = stage === "message" || stage === "answer" || stage === "exit";
+  const isAnswer = stage === "answer" || stage === "exit";
 
   return (
-    <div
-      className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 rounded-2xl backdrop-blur-sm"
+    <motion.div
+      className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 overflow-hidden rounded-2xl backdrop-blur-sm"
       data-testid="magic-8ball-overlay"
       data-state={stage}
       onPointerMove={onPointerMove}
+      animate={stage === "exit" ? { opacity: 0 } : { opacity: 1 }}
+      transition={{ duration: 0.6, ease: "easeIn" }}
       style={{ touchAction: "none", background: "radial-gradient(circle at 50% 38%, rgba(75,29,142,0.16), rgba(0,0,0,0) 62%), rgba(9,7,12,0.96)" }}
     >
       <div className="pointer-events-none rounded-full border border-[#E6B23A]/30 bg-black/60 px-4 py-1.5 font-serif text-xs font-bold uppercase tracking-[0.2em] text-[#E6B23A]" data-testid="rare-fate-badge">
         ✦ Rare fate ✦
       </div>
-      <motion.div animate={wiggle}>
+      <motion.div
+        animate={wiggle}
+      >
+        <motion.div
+          animate={stage === "exit" ? { y: 340, opacity: 0 } : { y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, ease: [0.5, 0, 0.75, 0.6] }}
+        >
         <motion.div
           className="relative grid h-52 w-52 cursor-grab place-items-center rounded-full select-none"
           data-testid="magic-8ball"
@@ -224,6 +237,7 @@ export function Magic8Ball({ name, onDone }) {
             </motion.span>
           </div>
         </motion.div>
+        </motion.div>
       </motion.div>
       <p className="pointer-events-none px-6 text-center font-serif text-sm font-semibold italic text-[#C7CACE]" data-testid="magic-8ball-hint">
         {hint}
@@ -233,6 +247,6 @@ export function Magic8Ball({ name, onDone }) {
           (or rattle the ball with your cursor)
         </p>
       )}
-    </div>
+    </motion.div>
   );
 }
