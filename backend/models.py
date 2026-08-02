@@ -375,6 +375,13 @@ class SponsorSubscribe(BaseModel):
 
 
 
+class FeedbackCreate(BaseModel):
+    """In-app feedback from testers/players — message required, contact optional."""
+    message: str = Field(min_length=3, max_length=2000)
+    email: Optional[str] = Field(default="", max_length=200)
+    page: Optional[str] = Field(default="", max_length=300)
+
+
 class BetaSignup(BaseModel):
     email: str = Field(max_length=200)
     name: Optional[str] = Field(default="", max_length=120)

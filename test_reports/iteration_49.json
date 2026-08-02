@@ -1,0 +1,34 @@
+{
+  "summary": "Iteration 49: tested the new in-app feedback system (public POST + admin list/delete) and the theme-welcome realm-peek. Backend: 5/5 pytest cases pass (short-message 422, success 200 with ok:true, admin GET requires auth 401, list newest-first with all expected fields incl. id/created_at/ip/ua and no _id leak, delete removes doc, delete-missing returns ok:false). Frontend home-footer feedback dialog opens, submit button disabled below 3 chars, submits with success toast, dialog closes. Realm peek works — clicking a theme tile drops container opacity to ~0.06 with the 'Previewing your realm…' hint pill, then eases back after ~2.4s, and 'Enter Fork·Fate' still dismisses. Found and fixed a CRITICAL bug on /admin: FeedbackList JSX was referenced but never imported, causing the whole Admin page to crash with 'FeedbackList is not defined' Uncaught runtime error. Added the missing import; page now renders, feedback-section displays entries with per-row delete (window.confirm auto-accepted), and the delete toast fires.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "pages/Admin.jsx", "issue": "FeedbackList was used in JSX but never imported → the entire Admin page crashed with 'FeedbackList is not defined' after login. Fixed by adding `import { FeedbackList } from '../components/admin/FeedbackList';`", "selector": "[data-testid=\"feedback-section\"]", "priority": "CRITICAL (already fixed)"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter49_feedback.py",
+    "/app/test_reports/pytest/iter49.xml"
+  ],
+  "action_items": [
+    "Verify the FeedbackList import fix in /app/frontend/src/pages/Admin.jsx (added by testing agent). No functional changes beyond the missing import."
+  ],
+  "critical_code_review_comments": [
+    "Admin.jsx uses FeedbackList without an import — build didn't catch it because CRA/webpack treats undefined identifiers as runtime errors only. Consider adding an ESLint no-undef rule or a smoke test that mounts the Admin route.",
+    "The public POST /api/feedback fires an email best-effort in a fire-and-forget task; RESEND_API_KEY is empty so a 'Email not sent' warn is expected per instructions — noted, not a bug.",
+    "FeedbackDialog: no client-side email format validation; the backend also does not validate email format on FeedbackCreate (only length). Non-blocking but worth adding a Pydantic regex like FeedbackCreate.email since the field is stored/rendered."
+  ],
+  "updated_files": [
+    "/app/frontend/src/pages/Admin.jsx (added FeedbackList import)",
+    "/app/backend/tests/test_iter49_feedback.py (new pytest module)"
+  ],
+  "success_rate": {"backend": "100% (5/5)", "frontend": "100% after Admin.jsx import fix"},
+  "test_credentials": "Admin password ForkFate!Admin2026 (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "Two TEST_iter49* feedback entries were created during testing; the module-scoped admin_session deletes 'TEST_iter49' one, and the UI test deleted a second one via the admin panel. One residual 'TEST_iter49_ui feedback from playwright' entry from the UI submit may remain — main agent can delete via /admin if desired.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Feedback endpoints live in /app/backend/routes/admin.py (submit_feedback, list_feedback, delete_feedback). Pytest file test_iter49_feedback.py covers all three. The Admin page now correctly imports FeedbackList; if that regresses, the whole /admin route crashes post-login with an Uncaught runtime error banner. Rate limit on POST /api/feedback is 10/min per IP.",
+  "rca of the issue": "Root cause: /app/frontend/src/pages/Admin.jsx rendered <FeedbackList feedback={feedback} deleteFeedback={deleteFeedback} /> at line 410 but never imported the component. React threw 'FeedbackList is not defined' during render, which the react-error-overlay caught as an Uncaught runtime error, blanking the admin UI. Reproduction: load /admin, log in with the admin password → red error banner appears; feedback-section not visible. Mitigation applied: added `import { FeedbackList } from '../components/admin/FeedbackList';` next to the other admin subcomponent imports. Verified by re-running the Playwright flow: no runtime error banner, feedback-section rendered, entries listed, per-row delete removes an entry and the 'Feedback deleted' toast fires."
+}

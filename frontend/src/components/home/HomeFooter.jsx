@@ -1,6 +1,7 @@
-import { UtensilsCrossed, Skull, MessageSquarePlus } from "lucide-react";
+import { UtensilsCrossed, Skull } from "lucide-react";
 import BecomeSponsorDialog from "../BecomeSponsorDialog";
 import CheckUpdatesButton from "../CheckUpdatesButton";
+import FeedbackDialog from "../FeedbackDialog";
 import { useLang } from "../../i18n/i18n";
 
 /** Home footer: Reaper disclaimer, brand, legal links, feedback + sponsor CTA. */
@@ -53,13 +54,7 @@ export function HomeFooter({ light }) {
               Privacy Policy
             </a>
           </div>
-          <a
-            href="mailto:steve@fork-fate.com?subject=Fork%C2%B7Fate%20App%20Improvement%20Idea&body=Hi%2C%20here%27s%20an%20idea%20to%20improve%20Fork%C2%B7Fate%3A%0A%0A"
-            data-testid="feedback-link"
-            className={`inline-flex items-center gap-1.5 font-sans text-xs font-bold underline-offset-4 transition-colors hover:underline ${light ? "text-[#2A2118] hover:text-[#4F6F47]" : "text-white hover:text-[#E01E26]"}`}
-          >
-            <MessageSquarePlus className="h-3.5 w-3.5" /> Suggest an improvement
-          </a>
+          <FeedbackDialog light={light} />
           <CheckUpdatesButton />
           <a
             href="/admin"

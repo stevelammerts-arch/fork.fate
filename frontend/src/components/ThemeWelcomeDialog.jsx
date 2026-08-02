@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Moon, Sun, Leaf, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, Swords, Check, ArrowRight } from "lucide-react";
 import { useTheme, setTheme } from "../hooks/useTheme";
@@ -26,11 +26,30 @@ const THEMES = [
 export default function ThemeWelcomeDialog({ onDone }) {
   const { theme } = useTheme();
   const { t } = useLang();
+  // "Peek": tapping a realm briefly fades the overlay + card so the LIVE
+  // scenery behind previews itself, then eases back so you can keep browsing.
+  const [peeking, setPeeking] = useState(false);
+  const peekTimer = useRef(null);
+  const pickTheme = (id) => {
+    setTheme(id);
+    setPeeking(true);
+    clearTimeout(peekTimer.current);
+    peekTimer.current = setTimeout(() => setPeeking(false), 2400);
+  };
+  useEffect(() => () => clearTimeout(peekTimer.current), []);
 
   return (
     <div data-testid="theme-welcome" className="fixed inset-0 z-[130] overflow-y-auto">
-      <div className="fixed inset-0 bg-black/85 backdrop-blur-md" />
-      <div className="relative flex min-h-full items-center justify-center p-4 py-8">
+      <div className={`fixed inset-0 bg-black/85 transition-opacity duration-700 ${peeking ? "opacity-10" : "opacity-100 backdrop-blur-md"}`} />
+      {peeking && (
+        <div className="fixed bottom-6 left-1/2 z-[131] -translate-x-1/2 whitespace-nowrap rounded-full border border-white/15 bg-black/70 px-4 py-1.5 font-sans text-xs font-bold text-white/85" data-testid="theme-peek-hint">
+          {t("Previewing your realm…")}
+        </div>
+      )}
+      <div
+        className="relative flex min-h-full items-center justify-center p-4 py-8"
+        style={{ opacity: peeking ? 0.06 : 1, transition: "opacity 700ms ease" }}
+      >
         <motion.div
           initial={{ opacity: 0, y: 24, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -54,7 +73,7 @@ export default function ThemeWelcomeDialog({ onDone }) {
                   key={th.id}
                   type="button"
                   data-testid={`theme-welcome-option-${th.id}`}
-                  onClick={() => setTheme(th.id)}
+                  onClick={() => pickTheme(th.id)}
                   initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.12 + i * 0.05, duration: 0.35, ease: "easeOut" }}

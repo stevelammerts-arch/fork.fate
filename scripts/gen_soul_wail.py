@@ -39,25 +39,25 @@ def voice(f0_pts, vib_hz, vib_amt, detune=1.0, seed=0):
     return out
 
 
-# Voice 1: rise-and-fall wail
-v1 = voice([(0, 196), (1.3, 311), (2.4, 262), (4.2, 165)], 5.3, 0.022, seed=1)
+# Voice 1: rise-and-fall wail — an octave down, dark and mournful
+v1 = voice([(0, 98), (1.3, 156), (2.4, 131), (4.2, 82)], 4.6, 0.022, seed=1)
 v1 *= env(0.9, 1.4)
 # Voice 2: a second soul, delayed, slightly detuned, quieter
-v2 = voice([(0, 233), (1.8, 349), (3.0, 294), (4.2, 185)], 4.7, 0.028, detune=1.012, seed=2)
+v2 = voice([(0, 117), (1.8, 175), (3.0, 147), (4.2, 93)], 4.1, 0.028, detune=1.012, seed=2)
 d = int(SR * 0.55)
 v2 = np.roll(v2 * env(1.1, 1.5), d)
 v2[:d] = 0
 
-# Airy breath: band-passed noise following a softer envelope
+# Airy breath: band-passed noise following a softer envelope — kept low and dark
 rng = np.random.default_rng(7)
 noise = rng.standard_normal(len(t))
-sos = butter(4, [420, 1400], btype="band", fs=SR, output="sos")
-breath = sosfilt(sos, noise) * env(1.2, 1.6) * 0.35
+sos = butter(4, [180, 700], btype="band", fs=SR, output="sos")
+breath = sosfilt(sos, noise) * env(1.2, 1.6) * 0.3
 
 mix = v1 * 0.8 + v2 * 0.5 + breath
 
-# Soften the top end so it sounds distant, not synthetic
-sos_lp = butter(2, 2400, btype="low", fs=SR, output="sos")
+# Roll the top end off hard so it sounds like it rises from a crypt
+sos_lp = butter(2, 1300, btype="low", fs=SR, output="sos")
 mix = sosfilt(sos_lp, mix)
 
 # Cheap reverb: decaying delay taps

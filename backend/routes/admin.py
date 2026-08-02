@@ -10,7 +10,7 @@ from core import (db, rate_limit, require_admin, create_admin_token, client_ip,
                   set_admin_cookie, clear_admin_cookie,
                   ADMIN_PASSWORD, SPONSOR_PRICE, SPONSOR_PRICE_ANNUAL, FALLBACK_IMG,
                   GOOGLE_SEARCH_DAILY_CAP, GOOGLE_SEARCH_ALERT_PCT, send_email)
-from models import AdminLogin, SponsorCreate, SponsorUpdate, SponsorClick, Restaurant, BetaSignup
+from models import AdminLogin, SponsorCreate, SponsorUpdate, SponsorClick, Restaurant, BetaSignup, FeedbackCreate
 from routes.sponsors import reconcile_sponsors
 
 router = APIRouter()
@@ -73,6 +73,46 @@ async def list_beta_testers():
 async def delete_beta_tester(email: str):
     r = await db.beta_testers.delete_one({"email": email.strip().lower()})
     return {"ok": r.deleted_count > 0, "count": await db.beta_testers.count_documents({})}
+
+
+@router.post("/feedback", dependencies=[Depends(rate_limit(10))])
+async def submit_feedback(payload: FeedbackCreate, request: Request):
+    """Public: in-app feedback (closed-test testers + anyone). Stored in Mongo;
+    a heads-up email is fired best-effort and never blocks the response."""
+    import asyncio
+    import html as html_mod
+    doc = {
+        "id": str(uuid.uuid4()),
+        "message": payload.message.strip(),
+        "email": (payload.email or "").strip(),
+        "page": (payload.page or "").strip(),
+        "ua": request.headers.get("user-agent", "")[:300],
+        "ip": client_ip(request),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.feedback.insert_one(dict(doc))
+    esc = html_mod.escape
+    asyncio.get_event_loop().create_task(send_email(
+        "Fork·Fate: new in-app feedback",
+        "<div style='font-family:Arial,sans-serif;color:#1a1a1a'>"
+        "<h2 style='color:#E01E26;margin:0 0 8px'>New in-app feedback</h2>"
+        f"<p style='white-space:pre-wrap'>{esc(doc['message'])}</p>"
+        f"<p style='color:#666'><b>From:</b> {esc(doc['email'] or 'anonymous')}"
+        f" · <b>Page:</b> {esc(doc['page'] or '-')}</p></div>",
+    ))
+    return {"ok": True}
+
+
+@router.get("/admin/feedback", dependencies=[Depends(require_admin)])
+async def list_feedback():
+    docs = await db.feedback.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    return {"feedback": docs, "count": len(docs)}
+
+
+@router.delete("/admin/feedback/{fid}", dependencies=[Depends(require_admin)])
+async def delete_feedback(fid: str):
+    r = await db.feedback.delete_one({"id": fid})
+    return {"ok": r.deleted_count > 0}
 
 
 @router.get("/admin/sponsors", dependencies=[Depends(require_admin)])

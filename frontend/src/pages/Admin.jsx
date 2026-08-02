@@ -10,6 +10,7 @@ import { MerchInterest } from "../components/admin/MerchInterest";
 import { SubmissionsQueue } from "../components/admin/SubmissionsQueue";
 import { SponsorForm } from "../components/admin/SponsorForm";
 import { SponsorList } from "../components/admin/SponsorList";
+import { FeedbackList } from "../components/admin/FeedbackList";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 // Admin session lives in an HttpOnly cookie set by the backend; send it on every request.
@@ -44,6 +45,7 @@ export default function Admin() {
   const [submissions, setSubmissions] = useState([]);
   const [betaTesters, setBetaTesters] = useState([]);
   const [merch, setMerch] = useState({ signups: [], count: 0, by_design: {} });
+  const [feedback, setFeedback] = useState([]);
   const [optInLink, setOptInLink] = useState(() => {
     try { return localStorage.getItem("ff_optin_link") || "https://play.google.com/apps/testing/com.fork_fate.twa"; }
     catch (e) { return "https://play.google.com/apps/testing/com.fork_fate.twa"; }
@@ -153,6 +155,26 @@ export default function Admin() {
     }
   }, [logout]);
 
+  const loadFeedback = useCallback(async () => {
+    try {
+      const { data } = await axios.get(`${API}/admin/feedback`, WC);
+      setFeedback(data.feedback || []);
+    } catch (e) {
+      if (e.response?.status === 401) logout();
+    }
+  }, [logout]);
+
+  const deleteFeedback = async (f) => {
+    if (!window.confirm("Delete this feedback entry?")) return;
+    try {
+      await axios.delete(`${API}/admin/feedback/${f.id}`, WC);
+      setFeedback((prev) => prev.filter((x) => x.id !== f.id));
+      toast.success("Feedback deleted");
+    } catch {
+      toast.error("Could not delete feedback");
+    }
+  };
+
   // Check for an existing admin session (HttpOnly cookie) on mount.
   useEffect(() => {
     axios.get(`${API}/admin/verify`, WC)
@@ -162,8 +184,8 @@ export default function Admin() {
   }, []);
 
   useEffect(() => {
-    if (authed) { loadSponsors(); loadSubmissions(); loadStats(); loadWeekly(); loadCost(); loadBeta(); loadMerch(); }
-  }, [authed, loadSponsors, loadSubmissions, loadStats, loadWeekly, loadCost, loadBeta, loadMerch]);
+    if (authed) { loadSponsors(); loadSubmissions(); loadStats(); loadWeekly(); loadCost(); loadBeta(); loadMerch(); loadFeedback(); }
+  }, [authed, loadSponsors, loadSubmissions, loadStats, loadWeekly, loadCost, loadBeta, loadMerch, loadFeedback]);
 
   // Show the passkey button on the login screen only when one is registered.
   useEffect(() => {
@@ -386,6 +408,7 @@ export default function Admin() {
           deleteBeta={deleteBeta}
         />
         <SubmissionsQueue submissions={submissions} approveSubmission={approveSubmission} rejectSubmission={rejectSubmission} />
+        <FeedbackList feedback={feedback} deleteFeedback={deleteFeedback} />
         <MerchInterest data={merch} />
         <SponsorForm form={form} set={set} saving={saving} addSponsor={addSponsor} />
         <SponsorList sponsors={sponsors} toggleActive={toggleActive} remove={remove} />
