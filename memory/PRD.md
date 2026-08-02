@@ -223,6 +223,17 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
   displayed prices in `SponsorChains.jsx`/`BecomeSponsorDialog.jsx` if changed.
 - P2: 'Check again' button on /sponsor/success when polling ends in 'pending'
   (testing-agent suggestion, iter_31).
+- P1: App Store assets (1024x1024 icon, screenshots) once Apple approval lands.
+- DONE 2026-02: React hooks dependency cleanup — the old Code Quality report's
+  "75 instances" turned out to be 6 real exhaustive-deps warnings once the rule
+  was actually enabled. Fixed all 6 (InstallAppButton install→useCallback;
+  NearbyHelp effectiveCoords→useMemo; PubCrawlDialog openBadge→useCallback,
+  GPS watch postCheckin via ref + one intentional route-lock eslint-disable;
+  RevealStage flourish keyed on derived resultId). Rule now permanently ON at
+  "warn" in eslint.config.js so future violations surface. Regression-tested
+  100% pass (iteration_48.json, 7 flows, zero console errors, no fetch loops).
+- NOTE: Google Play closed testing — user has their 12 testers (Feb 2026); the
+  14-day opt-in clock is running, then apply for production access.
 
 ## Tech Stack
 - Frontend: React + Tailwind + framer-motion, react-i18next (`t()`), PWA.
