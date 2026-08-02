@@ -17,6 +17,7 @@ import NearbyHelp from "../components/NearbyHelp";
 import { useFavorites } from "../hooks/useFavorites";
 import { useShake, requestMotionPermission } from "../hooks/useShake";
 import GuidedFlow from "../components/GuidedFlow";
+import ThemeWelcomeDialog from "../components/ThemeWelcomeDialog";
 import PubCrawlDialog from "../components/PubCrawlDialog";
 import RevealStage from "../components/home/RevealStage";
 import ModeSetup, { StepList } from "../components/home/ModeSetup";
@@ -83,6 +84,17 @@ export default function Home() {
     const t = setTimeout(() => dismissThemeHint(), 6000);
     return () => clearTimeout(t);
   }, [themeHint]);
+  // First-run "Choose your realm" window — appears before the guided ritual's
+  // first step; sealed once so returning visitors go straight in.
+  const [showThemeWelcome, setShowThemeWelcome] = useState(() => {
+    try { return localStorage.getItem("ff_theme_chosen") !== "1"; } catch (e) { return false; }
+  });
+  const sealThemeChoice = () => {
+    setShowThemeWelcome(false);
+    try { localStorage.setItem("ff_theme_chosen", "1"); } catch (e) { /* ignore */ }
+    trackEvent("theme_welcome_done", { theme });
+    dismissThemeHint();
+  };
   const [mode, setMode] = useState("food");
   const [zip, setZip] = useState("");
   const [destination, setDestination] = useState("");
@@ -800,6 +812,7 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-white" data-ff-scope="app">
+      {showThemeWelcome && <ThemeWelcomeDialog onDone={sealThemeChoice} />}
       <AnimatePresence>
         {showGuided && (
           <GuidedFlow

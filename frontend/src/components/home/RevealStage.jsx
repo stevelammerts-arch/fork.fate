@@ -10,6 +10,7 @@ import { FateActionsDropdown } from "../FateActionsDropdown";
 import { CouponReveal } from "./CouponReveal";
 import { ChainCouponStrip } from "./ChainCouponStrip";
 import { ReactionBar } from "./ReactionBar";
+import { FateOracle } from "./FateOracle";
 import { ScratchCover, ThemeCardFrame } from "./ScratchCover";
 import { Magic8Ball } from "./Magic8Ball";
 import { WheelOfFate } from "./WheelOfFate";
@@ -197,6 +198,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
             <p className={`flex items-center gap-2 font-serif text-xl font-bold italic ${light ? "text-[#A31621]" : "text-[#E01E26]"}`} data-testid="reaper-line">
               {light ? (mode === "shops" ? <ShoppingBag className="h-4 w-4" /> : mode === "fuel" ? <Fuel className="h-4 w-4" /> : <UtensilsCrossed className="h-4 w-4" />) : <Skull className="h-4 w-4" />} {light ? lightLineFor(card, mode) : reaperLineFor(card)}
             </p>
+            <FateOracle card={card} mode={mode} theme={theme} />
             <ReactionBar placeId={card.id} />
             {!card.open_now && (
               <p data-testid="closed-reroll-hint" className="rounded-xl bg-[#FCF4F4] px-3 py-2 font-sans text-xs font-bold text-[#E01E26]">
