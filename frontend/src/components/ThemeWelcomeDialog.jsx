@@ -6,8 +6,8 @@ import { useLang } from "../i18n/i18n";
 
 // One entry per theme: swatch gradient + accent tuned to each realm's palette.
 const THEMES = [
-  { id: "dark", label: "Dark", icon: Moon, grad: "linear-gradient(135deg,#1A1A1D 0%,#2B0A0E 100%)", accent: "#E01E26", text: "#FFFFFF" },
-  { id: "light", label: "Light", icon: Sun, grad: "linear-gradient(135deg,#FFFFFF 0%,#EFEAE0 100%)", accent: "#A31621", text: "#18181B" },
+  { id: "dark", label: "Reaper (Original)", icon: Moon, grad: "linear-gradient(135deg,#1A1A1D 0%,#2B0A0E 100%)", accent: "#E01E26", text: "#FFFFFF" },
+  { id: "light", label: "Coffee Shop", icon: Sun, grad: "linear-gradient(135deg,#FFFFFF 0%,#EFEAE0 100%)", accent: "#A31621", text: "#18181B" },
   { id: "fall", label: "Fall", icon: Leaf, grad: "linear-gradient(135deg,#3A1E0D 0%,#C0451B 100%)", accent: "#FFC08A", text: "#FFF4E8" },
   { id: "winter", label: "Winter", icon: Snowflake, grad: "linear-gradient(135deg,#0E2A3F 0%,#2E77A6 100%)", accent: "#BEE3F8", text: "#F0F8FF" },
   { id: "spring", label: "Spring", icon: Flower2, grad: "linear-gradient(135deg,#43203A 0%,#D46A9F 100%)", accent: "#FFD7E8", text: "#FFF0F6" },

@@ -6,8 +6,8 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 export const ES = {
   // Header / nav
   "Theme": "Tema",
-  "Dark": "Oscuro",
-  "Light": "Claro",
+  "Reaper (Original)": "Segador (Original)",
+  "Coffee Shop": "Cafetería",
   "Fall": "Otoño",
   "Winter": "Invierno",
   "Spring": "Primavera",

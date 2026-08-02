@@ -72,10 +72,10 @@ export function HomeHeader({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" data-testid="theme-menu" className="w-40">
                 <DropdownMenuItem data-testid="theme-option-dark" onClick={() => setTheme("dark")} className="gap-2">
-                  <Moon className="h-4 w-4" /> {t("Dark")} {theme === "dark" && <Check className="ml-auto h-4 w-4" />}
+                  <Moon className="h-4 w-4" /> {t("Reaper (Original)")} {theme === "dark" && <Check className="ml-auto h-4 w-4" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem data-testid="theme-option-light" onClick={() => setTheme("light")} className="gap-2">
-                  <Sun className="h-4 w-4" /> {t("Light")} {theme === "light" && <Check className="ml-auto h-4 w-4" />}
+                  <Sun className="h-4 w-4" /> {t("Coffee Shop")} {theme === "light" && <Check className="ml-auto h-4 w-4" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem data-testid="theme-option-fall" onClick={() => setTheme("fall")} className="gap-2">
                   <Leaf className="h-4 w-4" /> {t("Fall")} {theme === "fall" && <Check className="ml-auto h-4 w-4" />}

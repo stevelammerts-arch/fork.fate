@@ -12,14 +12,16 @@ const PUFFS = [
 ];
 
 /**
- * Steampunk-only reveal flourish: a one-shot burst of steam wafting up from
- * the reveal card while the reveal sound plays. Purely decorative
- * (pointer-events none, aria-hidden); parent unmounts it after the burst.
+ * Steampunk-only reveal flourish: a one-shot burst of steam wafting upward.
+ * Purely decorative (pointer-events none, aria-hidden); parent unmounts it
+ * after the burst. `startBottom`/`travel` position where puffs are born and
+ * how far they rise, so the same burst works on the reveal card (rising off
+ * the top) and above the landed shuffle-deck card.
  */
-export function SteamBurst() {
+export function SteamBurst({ startBottom = "45%", travel = -170, className = "absolute inset-0 z-[5] overflow-hidden" }) {
   return (
     <div
-      className="pointer-events-none absolute inset-0 z-[5] overflow-hidden"
+      className={`pointer-events-none ${className}`}
       data-testid="steam-burst"
       aria-hidden="true"
     >
@@ -29,7 +31,7 @@ export function SteamBurst() {
           className="absolute rounded-full"
           style={{
             left: p.left,
-            bottom: "6%",
+            bottom: startBottom,
             width: p.size,
             height: p.size,
             background:
@@ -37,7 +39,7 @@ export function SteamBurst() {
             filter: "blur(7px)",
           }}
           initial={{ y: 50, x: 0, opacity: 0, scale: 0.45 }}
-          animate={{ y: -190, x: p.drift, opacity: [0, 0.9, 0], scale: 1.7 }}
+          animate={{ y: travel, x: p.drift, opacity: [0, 0.9, 0], scale: 1.7 }}
           transition={{ delay: p.delay, duration: p.dur, ease: "easeOut" }}
         />
       ))}
