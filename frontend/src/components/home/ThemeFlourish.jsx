@@ -203,13 +203,14 @@ function GhostRise() {
       <motion.div
         key={i}
         className="absolute"
-        style={{ left: `${10 + rnd(i, 3) * 64}%`, bottom: -16, width: w, height: w * 1.6, filter: "blur(1.4px) drop-shadow(0 0 10px rgba(190,205,230,0.45))" }}
+        style={{ left: `${10 + rnd(i, 3) * 64}%`, bottom: -16, width: w, height: w * 1.6, filter: "blur(1px) drop-shadow(0 0 12px rgba(170,210,195,0.55))" }}
         initial={{ y: 40, opacity: 0, scale: 0.7 }}
         animate={{
           y: -240 - rnd(i, 4) * 60,
           x: [0, sway, -sway * 0.6, sway * 0.4],
-          opacity: [0, 0.85, 0.7, 0.8, 0],
+          opacity: [0, 0.9, 0.55, 0.85, 0.6, 0.8, 0],
           scale: [0.7, 1, 1.12],
+          rotate: [0, rnd(i, 7) > 0.5 ? 4 : -4, 0],
         }}
         transition={{ delay: rnd(i, 5) * 1.5, duration: 3.4 + rnd(i, 6) * 1.2, ease: "easeOut" }}
       >
@@ -259,7 +260,7 @@ function MatrixRain({ height }) {
       }}
       initial={{ y: -(c.chars.length * c.size * 1.05) - 12, opacity: 0 }}
       animate={{ y: height + 24, opacity: [0, 1, 1, 0] }}
-      transition={{ delay: c.delay, duration: c.dur, ease: "linear", times: [0, 0.12, 0.82, 1] }}
+      transition={{ delay: c.delay, duration: c.dur, ease: "linear", times: [0, 0.12, 0.82, 1], repeat: Infinity, repeatDelay: 0.4 + rnd(i, 7) * 1.2 }}
     >
       {c.chars.map((ch, j) => (
         <span

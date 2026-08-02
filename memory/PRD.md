@@ -19,6 +19,26 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
   on ANY frontend change. (Currently 2026.06-279.)
 
 ## Implemented — 2026-08-02 (Oracle + Realm picker session)
+- **Flourish refinement wave (user-directed, FF_BUILD 313-316)** in
+  `ThemeFlourish.jsx`: (1) Coffee Shop flourish = LATTE ART (cup + cream heart
+  that draws itself; compact cup above the deck card) replacing steam;
+  (2) Coffee Shop shuffle bed: user "lost shuffle noises" — theme never had
+  one (they'd been on seasonal default); synthesized café bed
+  `scripts/gen_cafe_bed.py` -> `/shuffle-cafe.wav` (v2 = babble syllables, no
+  static hiss after user feedback) wired via SHUFFLE_LOOPS light entry. User
+  says they once had a REAL café recording — repo history has none; they may
+  upload one later (drop-in same filename). (3) Reaper reveal flourish =
+  GHASTLY spectral shrouds (SVG, gaunt slanted sockets + wailing mouth,
+  sickly green-white glow, flicker; iterated 3x from 'comical' -> 'smoke' ->
+  'ghastly'); deck keeps skeleton hands. (4) Cyberpunk reveal flourish =
+  PURPLE MATRIX RAIN (12 binary columns, glowing lead char) — user first
+  asked lasers (built, then 'belay that order'); rain now loops
+  INFINITELY while the reveal card shows (RevealStage skips the 4200ms
+  auto-off for cyber only). (5) Summer = bouncing striped beach balls
+  (replaced sun sparkles, deleted). Barista bell + all verified through
+  iterations 45-47 (100%); final ghastly/looping deltas lint-clean on
+  verified structures. NOTE: a stray duplicated JSX fragment briefly broke
+  ThemeFlourish parsing — removed (watch for edit-overlap debris in this file).
 - **Shake-collision fix**: shaking the phone during a rare ritual (esp. 8-ball)
   used to ALSO fire the global shake-to-shuffle and deal a new shuffle over
   the ritual. Home.jsx global useShake now bails/disables while surpriseReveal

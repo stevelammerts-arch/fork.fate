@@ -31,6 +31,9 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   useEffect(() => {
     if (!FLOURISH_THEMES.has(theme) || isCovered || !result) return;
     setSteaming(true);
+    // Cyber's matrix rain keeps falling for the life of the card; all other
+    // flourishes are one-shot bursts that clear after ~4.2s.
+    if (theme === "cyber") return;
     const timer = setTimeout(() => setSteaming(false), 4200);
     return () => clearTimeout(timer);
   }, [result?.id, isCovered, theme]);
