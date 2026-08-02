@@ -308,7 +308,7 @@ export default function Home() {
     haptic(20);
     try {
       if (thunderRef.current) { thunderRef.current.currentTime = 0; thunderRef.current.play().catch(() => {}); }
-      else playSound(light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3", 1.0);
+      else playSound(theme === "light" ? "/barista-bell.mp3" : light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3", 1.0);
     } catch (e) { /* audio unavailable */ }
     setRevealFlash(true);
     setTimeout(() => setRevealFlash(false), 1400);
@@ -331,7 +331,7 @@ export default function Home() {
     try {
       if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e0) { /* ignore */ } grooveRef.current = null; }
       if (localStorage.getItem("ff_muted") !== "1") {
-        const revealSrc = { cyber: "/reveal-electric.wav", tiki: "/reveal-drums-boom.wav", spring: "/reveal-koto.wav", steam: "/reveal-steam.wav", winter: "/reveal-santa.wav", fall: "/reveal-owl.wav", fantasy: "/reveal-dragon.mp3" }[theme] || (light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
+        const revealSrc = { light: "/barista-bell.mp3", cyber: "/reveal-electric.wav", tiki: "/reveal-drums-boom.wav", spring: "/reveal-koto.wav", steam: "/reveal-steam.wav", winter: "/reveal-santa.wav", fall: "/reveal-owl.wav", fantasy: "/reveal-dragon.mp3" }[theme] || (light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
         thunderRef.current = new Audio(revealSrc);
         thunderRef.current.volume = 1.0;
         thunderRef.current.load();
@@ -443,7 +443,7 @@ export default function Home() {
             playSound("/card-deal.wav", 0.85);  // crisp card-down snap on the reveal
             if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e2) { /* ignore */ } grooveRef.current = null; }
             if (thunderRef.current) { thunderRef.current.currentTime = 0; thunderRef.current.play().catch(() => {}); }
-            else playSound(light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3", 1.0);
+            else playSound(theme === "light" ? "/barista-bell.mp3" : light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3", 1.0);
           } catch (e) { /* audio unavailable */ }
           setRevealFlash(true);
           setTimeout(() => setRevealFlash(false), 1400);

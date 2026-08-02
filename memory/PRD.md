@@ -34,6 +34,11 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
   emphasis) — REVEAL ONLY for fantasy (deck keeps dragon claw + gold pulse).
   Dark (skeleton hands) + Cyber (neon pulse) unchanged, no flourish.
   FLOURISH_THEMES set exported and used to gate RevealStage's effect.
+- **Barista bell reveal (Coffee Shop)**: user-uploaded bell
+  (`/public/barista-bell.mp3`, 1.85s) now plays on light-theme reveals via the
+  revealSrc map (`light` key) in Home.jsx runShuffle + both thunderRef
+  fallbacks (theme==='light' check). Summer/seasonal fallback keeps tada.
+  FF_BUILD -> **2026.06-311**.
 - **Coffee Shop dust motes** (`components/CafeDustMotes.jsx`): 16 warm golden
   specks drifting full-screen, infinite loop, light theme only,
   pointer-events-none. Rendered in Home next to cafe-bg-light.
