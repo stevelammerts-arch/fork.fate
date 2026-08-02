@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { SteamBurst } from "./home/SteamBurst";
+import { ThemeFlourish } from "./home/ThemeFlourish";
 import { Skull, Cog } from "lucide-react";
 import { cardImage } from "../pages/homeConstants";
 
@@ -254,16 +254,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
               </motion.div>
             ))}
           </AnimatePresence>
-          {landed && theme === "steam" && (
-            <div
-              className="pointer-events-none absolute -top-28 left-[-30px] right-[-30px] z-40 h-36"
-              data-testid="deck-steam"
-              aria-hidden="true"
-            >
-              {/* Puffs are born at this strip's floor (the card's top edge) and rise. */}
-              <SteamBurst startBottom="-10%" travel={-120} className="absolute inset-0 overflow-visible" />
-            </div>
-          )}
+          {landed && <ThemeFlourish theme={theme} variant="deck" />}
           {landed && theme === "cyber" && (
             <motion.div
               className="pointer-events-none absolute inset-[-14px] z-40 rounded-3xl"

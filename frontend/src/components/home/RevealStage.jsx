@@ -11,7 +11,7 @@ import { CouponReveal } from "./CouponReveal";
 import { ChainCouponStrip } from "./ChainCouponStrip";
 import { ReactionBar } from "./ReactionBar";
 import { ScratchCover, ThemeCardFrame } from "./ScratchCover";
-import { SteamBurst } from "./SteamBurst";
+import { ThemeFlourish, FLOURISH_THEMES } from "./ThemeFlourish";
 import { Magic8Ball } from "./Magic8Ball";
 import { WheelOfFate } from "./WheelOfFate";
 import { useLang } from "../../i18n/i18n";
@@ -22,17 +22,17 @@ import { trackEvent } from "../../lib/analytics";
 export default function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, theme, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite, onDare, dareAvailable, locked, rerollsLeft = 0, onSwipeReroll, surprise = null, onSurpriseDone }) {
   const { t } = useLang();
   const [confirmingDare, setConfirmingDare] = useState(false);
-  // Steampunk flourish: burst of steam off the card while the reveal sound
-  // plays — re-fires per revealed place, and after a rare ritual unveils.
+  // Themed flourish: one-shot burst over the card while the reveal sound
+  // plays (steam, snow, petals, leaves, fireflies, sparkles, fire wall) —
+  // re-fires per revealed place, and after a rare ritual unveils.
   // (Hooks live above the early returns to keep hook order stable.)
   const isCovered = surprise === "scratch" || surprise === "8ball" || surprise === "wheel";
   const [steaming, setSteaming] = useState(false);
   useEffect(() => {
-    if (theme !== "steam" || isCovered || !result) return;
+    if (!FLOURISH_THEMES.has(theme) || isCovered || !result) return;
     setSteaming(true);
     const timer = setTimeout(() => setSteaming(false), 4200);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result?.id, isCovered, theme]);
   if (!result && groupPicks && groupPicks.length > 0) {
     return <GroupVote picks={groupPicks} onReSpin={onReSpin} onWinner={onPick} />;
@@ -139,7 +139,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
             <img src={card.photo_url || card.image} alt={card.name} className="h-full w-full object-cover transition-transform duration-500 hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           </a>
-          {steaming && <SteamBurst />}
+          {steaming && <ThemeFlourish theme={theme} variant="reveal" />}
           {onToggleFavorite && (
             <button
               onClick={(e) => { e.stopPropagation(); e.preventDefault(); onToggleFavorite(card); }}

@@ -35,6 +35,7 @@ import { trackEvent } from "../lib/analytics";
 import { readPassports } from "../lib/passports";
 import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene } from "../components/ThemeScenes";
 import { ReaperScene } from "../components/ReaperScene";
+import { CafeDustMotes } from "../components/CafeDustMotes";
 import { ShufflingDeck } from "../components/ShufflingDeck";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -839,6 +840,8 @@ export default function Home() {
           style={{ backgroundImage: "url('/cafe-bg-light.png')", opacity: 0.28 }}
         />
       )}
+      {/* Coffee Shop ambience: dust motes drifting in warm café light */}
+      {theme === "light" && <CafeDustMotes />}
       {/* Seasonal themes: tree + decor + falling sprites */}
       {seasonCfg && <SeasonScene theme={theme} cfg={seasonCfg} />}
       {/* Ambiance themes: cyberpunk / steampunk / tiki lounge */}
