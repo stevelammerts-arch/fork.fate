@@ -1,0 +1,98 @@
+{
+  "results": {
+    "cyber": {
+      "theme": "cyber",
+      "deck_found": false,
+      "deck_flourish": null,
+      "theme_flourish": "cyber",
+      "direct_children": 6,
+      "svg_count": 0,
+      "per_child_divs": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "conic_gradient_count": 0,
+      "scanline_present": true,
+      "beam_gradient_count": 5,
+      "tf_found": true,
+      "unmount_ok": true,
+      "audio": [
+        "reveal-cyber-radio.wav",
+        "reveal-electric.wav"
+      ]
+    },
+    "summer": {
+      "theme": "summer",
+      "deck_found": true,
+      "deck_flourish": "summer",
+      "theme_flourish": "summer",
+      "direct_children": 5,
+      "svg_count": 0,
+      "per_child_divs": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "conic_gradient_count": 5,
+      "scanline_present": false,
+      "beam_gradient_count": 0,
+      "tf_found": true,
+      "unmount_ok": true,
+      "audio": [
+        "reveal-tada.wav",
+        "shuffle-seagulls.wav"
+      ]
+    },
+    "dark": {
+      "theme": "dark",
+      "deck_found": false,
+      "deck_flourish": null,
+      "theme_flourish": "dark",
+      "direct_children": 5,
+      "svg_count": 0,
+      "per_child_divs": [
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "conic_gradient_count": 0,
+      "scanline_present": false,
+      "beam_gradient_count": 0,
+      "tf_found": true,
+      "unmount_ok": true,
+      "audio": [
+        "reveal-thunder-v4.mp3",
+        "reveal-voice-v5.mp3"
+      ]
+    },
+    "light": {
+      "theme": "light",
+      "deck_found": true,
+      "deck_flourish": "light",
+      "theme_flourish": "light",
+      "direct_children": 1,
+      "svg_count": 1,
+      "per_child_divs": [
+        1
+      ],
+      "conic_gradient_count": 0,
+      "scanline_present": false,
+      "beam_gradient_count": 0,
+      "tf_found": true,
+      "unmount_ok": true,
+      "audio": [
+        "barista-bell.mp3",
+        "shuffle-cafe.wav"
+      ]
+    }
+  },
+  "console_errors": []
+}

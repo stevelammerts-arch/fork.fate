@@ -72,30 +72,6 @@ function Fireflies() {
   });
 }
 
-/** Summer: golden sun glints twinkling across the card. */
-function SunSparkles() {
-  return Array.from({ length: 15 }, (_, i) => {
-    const s = 5 + rnd(i, 1) * 6;
-    return (
-      <motion.div
-        key={i}
-        className="absolute rounded-full"
-        style={{
-          left: `${6 + rnd(i, 2) * 88}%`,
-          top: `${8 + rnd(i, 3) * 80}%`,
-          width: s,
-          height: s,
-          background: "radial-gradient(circle, #FFF6D8 0%, #FFD27A 45%, rgba(255,180,60,0) 75%)",
-          boxShadow: "0 0 12px 4px rgba(255,205,110,0.7)",
-        }}
-        initial={{ opacity: 0, scale: 0.2, rotate: 0 }}
-        animate={{ opacity: [0, 1, 0.3, 1, 0], scale: [0.2, 1.2, 0.6, 1.1, 0.3], rotate: 90 }}
-        transition={{ delay: rnd(i, 4) * 1.6, duration: 2.2 + rnd(i, 5) * 1.4, ease: "easeInOut" }}
-      />
-    );
-  });
-}
-
 /** Dragon's Hoard: a realistic wall of fire that roars up, flickers and dissipates. */
 function FireWall() {
   const flames = Array.from({ length: 12 }, (_, i) => ({
@@ -217,55 +193,141 @@ function LatteArt({ compact = false }) {
   );
 }
 
-/** Reaper: ghostly apparitions with faint skull faces ascending off the card. */
+/** Reaper: realistic wispy apparitions — blurred vapor forms drifting upward. */
 function GhostRise() {
-  return Array.from({ length: 6 }, (_, i) => {
-    const w = 34 + rnd(i, 1) * 26;
-    const sway = 10 + rnd(i, 2) * 16;
+  return Array.from({ length: 5 }, (_, i) => {
+    const w = 38 + rnd(i, 1) * 30;
+    const sway = 12 + rnd(i, 2) * 18;
     return (
       <motion.div
         key={i}
         className="absolute"
-        style={{ left: `${6 + rnd(i, 3) * 76}%`, bottom: -10, width: w, height: w * 1.3, filter: "blur(1.2px)" }}
-        initial={{ y: 30, opacity: 0, scale: 0.6 }}
+        style={{ left: `${8 + rnd(i, 3) * 70}%`, bottom: -20, width: w, height: w * 1.9, filter: "blur(6px)" }}
+        initial={{ y: 40, opacity: 0, scaleY: 0.7, scaleX: 1 }}
         animate={{
-          y: -230 - rnd(i, 4) * 60,
-          x: [0, sway, -sway * 0.7, sway * 0.5],
-          opacity: [0, 0.75, 0.55, 0],
-          scale: [0.6, 1, 1.15],
+          y: -250 - rnd(i, 4) * 70,
+          x: [0, sway, -sway * 0.6, sway * 0.4],
+          opacity: [0, 0.55, 0.4, 0.55, 0],
+          scaleY: [0.7, 1, 1.3],
+          scaleX: [1, 0.92, 0.78],
         }}
-        transition={{ delay: rnd(i, 5) * 1.3, duration: 2.8 + rnd(i, 6) * 1.2, ease: "easeOut" }}
+        transition={{ delay: rnd(i, 5) * 1.4, duration: 3.2 + rnd(i, 6) * 1.3, ease: "easeOut" }}
       >
-        <svg viewBox="0 0 40 52" className="h-full w-full">
-          {/* Wispy hooded spirit: dome head, trailing tattered hem */}
-          <path
-            d="M20 2 C 8 2, 4 14, 4 24 L 4 42 Q 7 38 10 43 Q 13 48 16 43 Q 19 38 22 44 Q 25 49 28 43 Q 31 38 36 42 L 36 24 C 36 14, 32 2, 20 2 Z"
-            fill="rgba(215,225,238,0.42)"
-          />
-          {/* Faint skull face */}
-          <ellipse cx="14.5" cy="20" rx="3.4" ry="4.4" fill="rgba(10,10,14,0.55)" />
-          <ellipse cx="25.5" cy="20" rx="3.4" ry="4.4" fill="rgba(10,10,14,0.55)" />
-          <path d="M20 26 L 17.5 31 L 22.5 31 Z" fill="rgba(10,10,14,0.4)" />
-        </svg>
+        {/* Head: a soft luminous crown */}
+        <div
+          className="absolute"
+          style={{
+            left: "22%", top: 0, width: w * 0.56, height: w * 0.56, borderRadius: "50%",
+            background: "radial-gradient(circle at 50% 42%, rgba(212,222,238,0.55), rgba(212,222,238,0) 70%)",
+          }}
+        />
+        {/* Torso: elongated shroud fading downward */}
+        <div
+          className="absolute"
+          style={{
+            left: "8%", top: "20%", width: w * 0.84, height: w * 1.15,
+            borderRadius: "50% 50% 42% 42% / 62% 62% 38% 38%",
+            background: "radial-gradient(ellipse at 50% 28%, rgba(200,212,230,0.45), rgba(200,212,230,0) 72%)",
+          }}
+        />
+        {/* Trailing wisp curling off the hem */}
+        <div
+          className="absolute"
+          style={{
+            left: "30%", bottom: 0, width: w * 0.42, height: w * 0.9, borderRadius: "50%",
+            background: "radial-gradient(ellipse at 50% 22%, rgba(190,203,224,0.3), rgba(190,203,224,0) 70%)",
+            transform: "rotate(10deg)",
+          }}
+        />
       </motion.div>
     );
   });
 }
 
+/** Cyberpunk: neon laser beams sweeping across the card + scanline flicker. */
+function CyberLasers() {
+  const beams = [
+    { top: "20%", color: "#22E0E0", delay: 0.1, dur: 1.1 },
+    { top: "48%", color: "#E040E0", delay: 0.55, dur: 1.3 },
+    { top: "72%", color: "#22E0E0", delay: 1.05, dur: 1.0 },
+    { top: "34%", color: "#E040E0", delay: 1.7, dur: 1.2 },
+    { top: "60%", color: "#22E0E0", delay: 2.25, dur: 1.0 },
+  ];
+  return (
+    <>
+      {beams.map((b, i) => (
+        <motion.div
+          key={i}
+          className="absolute h-[3px] w-2/3"
+          style={{
+            top: b.top,
+            background: `linear-gradient(90deg, transparent, ${b.color}, transparent)`,
+            boxShadow: `0 0 14px 2px ${b.color}`,
+          }}
+          initial={{ x: "-110%", opacity: 0 }}
+          animate={{ x: ["-110%", "170%"], opacity: [0, 1, 1, 0] }}
+          transition={{ delay: b.delay, duration: b.dur, ease: "easeInOut" }}
+        />
+      ))}
+      {/* CRT scanline flicker riding under the beams */}
+      <motion.div
+        className="absolute inset-0"
+        style={{ background: "repeating-linear-gradient(0deg, rgba(34,224,224,0.07) 0 2px, transparent 2px 5px)" }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 0.65, 0.2, 0.55, 0] }}
+        transition={{ duration: 3.4, ease: "easeInOut" }}
+      />
+    </>
+  );
+}
+
+/** Summer: striped beach balls bouncing down across the card. */
+function BeachBalls({ height }) {
+  return Array.from({ length: 5 }, (_, i) => {
+    const s = 24 + rnd(i, 1) * 16;
+    const floor = height - s - 8;
+    return (
+      <motion.div
+        key={i}
+        className="absolute rounded-full"
+        style={{
+          left: `${8 + rnd(i, 2) * 76}%`,
+          top: 0,
+          width: s,
+          height: s,
+          background: "conic-gradient(#E23B3B 0 60deg, #FFFFFF 60deg 120deg, #2C6FD1 120deg 180deg, #FFFFFF 180deg 240deg, #F2B01F 240deg 300deg, #FFFFFF 300deg 360deg)",
+          boxShadow: "inset -4px -6px 10px rgba(0,0,0,0.25), 0 3px 8px rgba(0,0,0,0.3)",
+        }}
+        initial={{ y: -s - 12, opacity: 0, rotate: 0 }}
+        animate={{
+          y: [-s - 12, floor, floor * 0.55, floor, floor * 0.8, floor],
+          opacity: [0, 1, 1, 1, 1, 0],
+          rotate: 220 + rnd(i, 3) * 320,
+        }}
+        transition={{
+          delay: rnd(i, 4) * 1.1,
+          duration: 2.7 + rnd(i, 5) * 1.0,
+          times: [0, 0.32, 0.52, 0.72, 0.86, 1],
+          ease: ["easeIn", "easeOut", "easeIn", "easeOut", "easeIn"],
+        }}
+      />
+    );
+  });
+}
+
 /** Themes that fire a one-shot flourish when the winner card lands / reveals. */
-export const FLOURISH_THEMES = new Set(["steam", "light", "winter", "spring", "fall", "tiki", "summer", "fantasy", "dark"]);
+export const FLOURISH_THEMES = new Set(["steam", "light", "winter", "spring", "fall", "tiki", "summer", "fantasy", "dark", "cyber"]);
 
 /**
  * One-shot themed flourish over the winner card. `variant`:
  *  - "reveal": inside the reveal card's photo header
- *  - "deck": over the landed shuffle-deck card (fantasy + dark are skipped
- *    there — the dragon claw and skeleton hands already own that moment)
- * Cyberpunk keeps its bespoke neon pulse and has no reveal flourish.
- * Parent unmounts after ~4.2s.
+ *  - "deck": over the landed shuffle-deck card (fantasy, dark and cyber are
+ *    skipped there — dragon claw, skeleton hands and neon pulse own that
+ *    moment). Parent unmounts after ~4.2s.
  */
 export function ThemeFlourish({ theme, variant = "reveal" }) {
   if (!FLOURISH_THEMES.has(theme)) return null;
-  if (variant === "deck" && (theme === "fantasy" || theme === "dark")) return null;
+  if (variant === "deck" && (theme === "fantasy" || theme === "dark" || theme === "cyber")) return null;
 
   if (theme === "steam") {
     if (variant === "deck") {
@@ -288,10 +350,12 @@ export function ThemeFlourish({ theme, variant = "reveal" }) {
         <LatteArt compact={variant === "deck"} />
       ) : theme === "dark" ? (
         <GhostRise />
+      ) : theme === "cyber" ? (
+        <CyberLasers />
       ) : theme === "tiki" ? (
         <Fireflies />
       ) : theme === "summer" ? (
-        <SunSparkles />
+        <BeachBalls height={height} />
       ) : theme === "fantasy" ? (
         <FireWall />
       ) : (
