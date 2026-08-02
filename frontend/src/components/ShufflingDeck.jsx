@@ -330,7 +330,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
               }
             >
               {showPhoto ? (
-                <CardFront src={cardImage(c)} light={light} />
+                <CardFront src={cardImage(c)} light={light} theme={theme} />
               ) : (
                 <CardBack light={light} theme={theme} seasonItem={season && seasonItems ? seasonItems[i % seasonItems.length] : null} />
               )}
