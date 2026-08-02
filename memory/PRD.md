@@ -18,7 +18,33 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
 - PWA caching: bump `var FF_BUILD="2026.06-XX"` in `/app/frontend/public/index.html`
   on ANY frontend change. (Currently 2026.06-279.)
 
-## Implemented — 2026-07-26 (repo re-import session)
+## Implemented — 2026-08-02 (Oracle + Realm picker session)
+- **AGP 9.0 Play Console warning — advisory re-answered to user**: PWABuilder TWA
+  wrapper concern, not repo code; soft warning; regenerate package on pwabuilder.com
+  with the SAME signing key when convenient.
+- **AI Fate Oracle** (`backend/routes/oracle.py` + `components/home/FateOracle.jsx`):
+  POST /api/oracle generates a <=18-word in-character one-liner about why fate chose
+  the revealed spot, voiced per theme (reaper/dragon/cyber/steam/tiki/seasonal/light),
+  en+es. Model: gpt-5.4-mini via emergentintegrations (EMERGENT_LLM_KEY, already in
+  preview .env). Cached forever per (place_id, voice, lang) in db.oracle_lines
+  (~130ms cache hits); daily budget ORACLE_DAILY_CAP env (default 400/day) via
+  db.stats key `oracle_YYYYMMDD`; on cap/no-key/error returns {line:null} and the UI
+  box hides itself. Rendered in RevealStage between the reaper line and ReactionBar
+  (testids: fate-oracle, fate-oracle-loading, fate-oracle-line).
+- **First-run "Choose Your Realm" window** (`components/ThemeWelcomeDialog.jsx`):
+  appears ONCE before the guided ritual's "What calls to you" step (z-[130] above
+  GuidedFlow's z-[100]), 10 gradient swatch cards with live theme preview on tap,
+  "Enter Fork·Fate" seals it (localStorage `ff_theme_chosen`=1, also dismisses the
+  old theme hint). Testids: theme-welcome, theme-welcome-option-{id},
+  theme-welcome-continue. Spanish strings added to i18n.js.
+- FF_BUILD -> **2026.06-303**. Verified by testing_agent iteration_37: backend 5/5
+  pytest (`backend/tests/test_oracle.py`), frontend 100% (fresh-context dialog, live
+  theme apply, persistence after reload, full deal E2E with oracle line rendering).
+- NOTE: preview ingress showed the platform "wake up servers" gate to the main
+  agent's screenshot tool; services were healthy (localhost:3000 → 200). Testing
+  agent's browser was unaffected.
+
+
 - **Repo re-imported from GitHub** after the previous session locked up. IMPORTANT:
   the prior session's work was NEVER pushed — GitHub HEAD was `bfdec92` (Jul 24,
   FF_BUILD 2026.06-276). Stranded and NOT recovered: `RideDropdown.jsx`, the original
