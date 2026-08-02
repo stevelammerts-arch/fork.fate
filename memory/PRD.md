@@ -27,7 +27,11 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
   `scripts/gen_cafe_bed.py` -> `/shuffle-cafe.wav` (v2 = babble syllables, no
   static hiss after user feedback) wired via SHUFFLE_LOOPS light entry. User
   says they once had a REAL café recording — repo history has none; they may
-  upload one later (drop-in same filename). (3) Reaper reveal flourish =
+  upload one later (drop-in same filename). UPDATE 2026-02: user uploaded a
+  real coffee-maker brew recording (floraphonic, 68s); replaced
+  /shuffle-cafe.wav with the 10-22s segment (most active brewing), highpass
+  60Hz, 0.35s fade in/out for seamless loop, loudnorm -18 LUFS; SHUFFLE_LOOPS
+  now points to /shuffle-cafe.wav?v=2 for cache-busting. (3) Reaper reveal flourish =
   GHASTLY spectral shrouds (SVG, gaunt slanted sockets + wailing mouth,
   sickly green-white glow, flicker; iterated 3x from 'comical' -> 'smoke' ->
   'ghastly'); deck keeps skeleton hands. (4) Cyberpunk reveal flourish =
