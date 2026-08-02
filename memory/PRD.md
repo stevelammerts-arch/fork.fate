@@ -37,6 +37,17 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
   'ghastly'); deck keeps skeleton hands. (4) Cyberpunk reveal flourish =
   PURPLE MATRIX RAIN (12 binary columns, glowing lead char) — user first
   asked lasers (built, then 'belay that order'); rain now loops
+  UPDATE 2026-02 (accepted by user): Reaper flourish iterated again —
+  'ghastly shrouds' rejected as 'video game'; now ELONGATED HUMAN APPARITIONS
+  (GhostRise in ThemeFlourish.jsx): translucent human figure (head, jaw,
+  shoulders, folded-arm hint) trailing into long vapor tendrils (viewBox
+  60x140), body under animated feTurbulence displacement, face under light
+  blur only — mournful human eyes/nose/small open mouth, NOT a skull. A faint
+  synthesized SOUL WAIL (/soul-wail.wav, scripts/gen_soul_wail.py — two
+  detuned gliding voices + breath noise + tap reverb, 4.2s) plays via
+  useEffect in GhostRise (0.35s delay, vol 0.5) on every Reaper reveal.
+  Dev preview page /dev/rare now has replayable 'Reaper Souls' and
+  'Cyberpunk Rain' flourish cards.
   INFINITELY while the reveal card shows (RevealStage skips the 4200ms
   auto-off for cyber only). (5) Summer = bouncing striped beach balls
   (replaced sun sparkles, deleted). Barista bell + all verified through

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { SteamBurst } from "./SteamBurst";
 
@@ -193,72 +194,73 @@ function LatteArt({ compact = false }) {
   );
 }
 
-/** Reaper: departed souls — vaporous, vaguely humanoid apparitions that warp
- * and undulate as they rise (SVG turbulence displacement), with faint sunken
- * features emerging from the mist. Ethereal, not sprite-like. */
+/** Reaper: departed souls — translucent HUMAN apparitions (head, shoulders,
+ * hanging arms) whose lower body dissolves into vapor tendrils. Soft human
+ * faces — mournful, not skulls. A faint wail plays as they drift up. */
 function GhostRise() {
-  return Array.from({ length: 4 }, (_, i) => {
-    const w = 54 + rnd(i, 1) * 30;
-    const sway = 10 + rnd(i, 2) * 14;
+  useEffect(() => {
+    const a = new Audio("/soul-wail.wav");
+    a.volume = 0.5;
+    const tm = setTimeout(() => a.play().catch(() => {}), 350);
+    return () => { clearTimeout(tm); a.pause(); };
+  }, []);
+  return Array.from({ length: 3 }, (_, i) => {
+    const w = 62 + rnd(i, 1) * 30;
+    const sway = 8 + rnd(i, 2) * 12;
     return (
       <motion.div
         key={i}
         className="absolute"
-        style={{ left: `${10 + rnd(i, 3) * 62}%`, bottom: -20, width: w, height: w * 1.9, filter: "blur(1.6px) drop-shadow(0 0 16px rgba(185,205,235,0.35))" }}
-        initial={{ y: 50, opacity: 0, scaleY: 0.85, scaleX: 1 }}
+        style={{ left: `${8 + rnd(i, 3) * 60}%`, bottom: -28, width: w, height: w * 2.35, filter: "blur(1.3px) drop-shadow(0 0 14px rgba(190,208,235,0.35))" }}
+        initial={{ y: 60, opacity: 0, scaleY: 0.9 }}
         animate={{
-          y: -250 - rnd(i, 4) * 70,
+          y: -240 - rnd(i, 4) * 70,
           x: [0, sway, -sway * 0.5, sway * 0.3],
-          opacity: [0, 0.72, 0.55, 0.66, 0.5, 0],
-          scaleY: [0.85, 1, 1.2],
-          scaleX: [1, 0.97, 0.88],
-          rotate: [0, rnd(i, 7) > 0.5 ? 3 : -3, 0],
+          opacity: [0, 0.75, 0.6, 0.68, 0.5, 0],
+          scaleY: [0.9, 1, 1.12],
+          rotate: [0, rnd(i, 7) > 0.5 ? 2 : -2, 0],
         }}
-        transition={{ delay: rnd(i, 5) * 1.6, duration: 4.2 + rnd(i, 6) * 1.4, ease: "easeOut" }}
+        transition={{ delay: rnd(i, 5) * 1.7, duration: 4.6 + rnd(i, 6) * 1.4, ease: "easeOut" }}
       >
-        <svg viewBox="0 0 40 76" className="h-full w-full" style={{ overflow: "visible" }}>
+        <svg viewBox="0 0 60 140" className="h-full w-full" style={{ overflow: "visible" }}>
           <defs>
-            <radialGradient id={`ff-soul-${i}`} cx="50%" cy="18%" r="78%">
-              <stop offset="0%" stopColor="rgba(237,243,252,0.82)" />
-              <stop offset="38%" stopColor="rgba(216,228,245,0.42)" />
-              <stop offset="72%" stopColor="rgba(208,222,242,0.16)" />
-              <stop offset="100%" stopColor="rgba(205,220,240,0)" />
+            <radialGradient id={`ff-soul-${i}`} cx="50%" cy="12%" r="85%">
+              <stop offset="0%" stopColor="rgba(238,244,253,0.88)" />
+              <stop offset="35%" stopColor="rgba(219,230,246,0.5)" />
+              <stop offset="70%" stopColor="rgba(210,224,243,0.18)" />
+              <stop offset="100%" stopColor="rgba(206,221,241,0)" />
             </radialGradient>
-            <filter id={`ff-soul-warp-${i}`} x="-45%" y="-25%" width="190%" height="150%">
-              <feTurbulence type="fractalNoise" baseFrequency="0.014 0.05" numOctaves="2" seed={i * 7 + 3} result="noise">
-                <animate attributeName="baseFrequency" dur="5.5s" values="0.014 0.05;0.022 0.065;0.014 0.05" repeatCount="indefinite" />
+            <filter id={`ff-soul-warp-${i}`} x="-40%" y="-20%" width="180%" height="145%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.013 0.04" numOctaves="2" seed={i * 7 + 3} result="noise">
+                <animate attributeName="baseFrequency" dur="6s" values="0.013 0.04;0.02 0.055;0.013 0.04" repeatCount="indefinite" />
               </feTurbulence>
-              <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" />
-              <feGaussianBlur stdDeviation="0.9" />
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" />
+              <feGaussianBlur stdDeviation="0.7" />
             </filter>
             <filter id={`ff-soul-face-${i}`} x="-30%" y="-30%" width="160%" height="160%">
-              <feTurbulence type="fractalNoise" baseFrequency="0.02 0.05" numOctaves="1" seed={i * 5 + 2} result="fnoise" />
-              <feDisplacementMap in="SourceGraphic" in2="fnoise" scale="2.5" />
               <feGaussianBlur stdDeviation="0.35" />
             </filter>
           </defs>
           <g filter={`url(#ff-soul-warp-${i})`}>
-            {/* Vaguely humanoid wisp: head, slumped shoulders, vapor trailing away */}
+            {/* Human figure: head with jaw, neck, sloped shoulders, arms at the
+                sides, torso dissolving into three vapor tendrils */}
             <path
-              d="M20 3 C13 3 10 9 10 15 C10 19 11 22 9 27 C7 34 6 44 8 54 C9.5 61 12 68 14 73 C16 70 17 64 18 60 C19 65 21 71 24 74 C26 69 27 61 28 54 C30 44 31 33 29 26 C27.5 21 30 18 30 14 C30 8 27 3 20 3 Z"
+              d="M30 3 C23.5 3 19.5 8 19.5 14.5 C19.5 19 21 22.5 23.5 24.8 L24 27 C17 28.6 11 32.5 9 39 C7.2 45 7.5 52 9.5 59 C11 64.5 13 72 15 82 C16.8 78 17.8 72 19 67 C20.5 74 22.5 84 25.5 93 C27.3 87 28.3 79 29 72 C30.2 79 31.5 88 34.5 95 C36.5 88 37.8 79 39 71 C40.4 76 41.6 81 43.5 85 C45.5 77 47.5 68 49.5 60 C51.5 52.5 52.5 45 50.8 39 C49 32.5 43 28.6 36 27 L36.5 24.8 C39 22.5 40.5 19 40.5 14.5 C40.5 8 36.5 3 30 3 Z"
               fill={`url(#ff-soul-${i})`}
             />
+            {/* Suggestion of arms folded toward the chest */}
+            <path d="M14 42 Q20 49 28 51 M46 42 Q40 49 32 51" stroke="rgba(12,15,22,0.18)" strokeWidth="2.4" fill="none" strokeLinecap="round" />
           </g>
-          {/* Defined face under only a whisper of distortion so it reads clearly */}
+          {/* Soft human face: mournful closed-lid eyes, gentle nose and a small
+              open mouth — a person, not a skull */}
           <g filter={`url(#ff-soul-face-${i})`}>
-            {/* Brow shadow sinking both sockets into the skull */}
-            <path d="M11.5 12.5 Q15 10.6 18 12.2 M22 12.2 Q25 10.6 28.5 12.5" stroke="rgba(8,10,16,0.45)" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-            {/* Hollow eye sockets, inner-shaded */}
-            <ellipse cx="14.8" cy="15" rx="2.6" ry="3.4" fill="rgba(6,8,13,0.8)" />
-            <ellipse cx="25.2" cy="15" rx="2.6" ry="3.4" fill="rgba(6,8,13,0.8)" />
-            <ellipse cx="14.8" cy="16.2" rx="1.4" ry="1.8" fill="rgba(0,0,0,0.9)" />
-            <ellipse cx="25.2" cy="16.2" rx="1.4" ry="1.8" fill="rgba(0,0,0,0.9)" />
-            {/* Gaunt nose shadow */}
-            <path d="M20 17.5 L18.9 21.4 L21.1 21.4 Z" fill="rgba(8,10,16,0.42)" />
-            {/* Wailing mouth — elongated hollow */}
-            <path d="M20 22.6 C18.4 22.6 17.6 24.4 17.7 26.4 C17.8 28.8 18.8 30.6 20 30.6 C21.2 30.6 22.2 28.8 22.3 26.4 C22.4 24.4 21.6 22.6 20 22.6 Z" fill="rgba(4,6,10,0.78)" />
-            {/* Cheekbone highlights lifting the face out of the mist */}
-            <path d="M11.8 18.5 Q13.2 21.5 15.5 22.6 M28.2 18.5 Q26.8 21.5 24.5 22.6" stroke="rgba(240,246,255,0.5)" strokeWidth="1.1" fill="none" strokeLinecap="round" />
+            <ellipse cx="25.6" cy="13.5" rx="2.5" ry="1.5" fill="rgba(10,13,20,0.6)" />
+            <ellipse cx="34.4" cy="13.5" rx="2.5" ry="1.5" fill="rgba(10,13,20,0.6)" />
+            <path d="M23 12.1 Q25.6 10.9 28.2 12.1 M31.8 12.1 Q34.4 10.9 37 12.1" stroke="rgba(10,13,20,0.35)" strokeWidth="0.9" fill="none" strokeLinecap="round" />
+            <path d="M30 14.5 L29.3 18.6 Q30 19.3 30.7 18.6 Z" fill="rgba(10,13,20,0.28)" />
+            <ellipse cx="30" cy="21.6" rx="2" ry="1.5" fill="rgba(8,10,16,0.5)" />
+            {/* Cheek light so the face lifts out of the mist */}
+            <path d="M22.5 16.5 Q24 19.5 26.5 20.8 M37.5 16.5 Q36 19.5 33.5 20.8" stroke="rgba(242,247,255,0.45)" strokeWidth="1" fill="none" strokeLinecap="round" />
           </g>
         </svg>
       </motion.div>
@@ -393,3 +395,4 @@ export function ThemeFlourish({ theme, variant = "reveal" }) {
     </div>
   );
 }
+
