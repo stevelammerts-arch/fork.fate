@@ -1,0 +1,45 @@
+{
+  "summary": "Frontend-only testing of the redesigned Magic 8-ball rare-fate ritual. Verified /dev/rare answer path, fail path, e2e home flow (ff_rare_force=8ball), rare cadence of 10, and regression of other rare demos. Answer/reveal in-window die + name-in-gold works. E2E integration on Home is clean (no ticker/shuffle during 8ball, name matches subsequent reveal card, ff_rare_at persists as 10). Found a likely React ref-persistence bug in Magic8Ball: after two consecutive fail shakes, refs (attempts, lastFail) appear to reset — the 3rd shake with Math.random=0.1 did NOT force the answer as MAX_FAILS=2 requires, and the anti-repeat fail-message logic did not kick in (same taunt shown on shake 1 and shake 2 even though Math.random=0.1 was constant).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Magic8Ball (frontend/src/components/home/Magic8Ball.jsx)",
+        "issue": "After two fail shakes, the useRef counters (attempts.current and lastFail.current) do not appear to persist between shakes. Consequences observed with Math.random stubbed to 0.1 on /dev/rare: (a) 3rd shake did NOT force the answer as the MAX_FAILS=2 guard promises — the ball briefly entered 'shaking' (Fate stirs…) then returned to idle without showing the answer die; (b) the anti-repeat fail-message rotation didn't take effect — shake 1 and shake 2 both showed the same taunt 'ASK / AGAIN / LATER' even though on shake 2 idx=0 should have been bumped to 1 (OUTLOOK / HAZY). This suggests Magic8Ball is being unmounted/remounted between fail shakes, wiping refs. In real usage this means a user could keep getting fail messages indefinitely; the promised 'guaranteed answer by the 3rd shake' is not honoured.",
+        "selector": "[data-testid=magic-8ball-answer] / [data-testid=magic-8ball-fail]",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/screenshots/iter38_answer.png (die shows 'The Rusty Skillet' in gold inside the window, 'So it is written…' hint, no photo)",
+    "/app/test_reports/screenshots/iter38_home_answer.png (E2E: 8-ball on Home shows real restaurant name 'Dan Tana's' in the die window, no ticker played)",
+    "/app/test_reports/screenshots/iter38_home_reveal.png (reveal card after 8-ball clears — name matches die)"
+  ],
+  "passed_tests": [
+    "Answer path on /dev/rare with Math.random=0.9: magic-8ball-answer surfaces containing name 'The Rusty Skillet' in gold text; hint reads 'So it is written…'; no <img> element inside the answer die/window (photo removal confirmed).",
+    "First fail on /dev/rare with Math.random=0.1: magic-8ball-fail shows a valid taunt ('ASK / AGAIN / LATER'), hint reads 'The ball taunts you. Shake it again…', then die sinks back and idle 8 reappears (~2s).",
+    "E2E rare flow on Home with ff_theme_chosen=1, ff_rare_force='8ball', ff_deal_taps=9, ff_rare_at=10: 8ball overlay appeared 0.85s after Deal (no name-ticker/shuffle-deck elements rendered). Rattling produced answer die with the real restaurant name 'Dan Tana's'. ~3.5s later the overlay cleared and the full reveal card showed the SAME name (matched).",
+    "Cadence check: after the rare deal, localStorage.ff_rare_at persisted as '10' and ff_deal_taps reset to '0' — confirms Home.jsx shouldRareFate target=10 (was ~15).",
+    "Regression: /dev/rare renders Scratch Foil demo, Magic 8-Ball demo and Wheel of Fate demo without console errors; reset-scratch and reset-wheel testids present."
+  ],
+  "action_items": [
+    "Investigate why Magic8Ball refs (attempts, lastFail) don't persist across fail→idle→shake cycles. Suspect the component is remounting between shakes (perhaps due to a parent key change or conditional render on stage/message). Fix so MAX_FAILS=2 guard reliably forces the answer on the 3rd shake and anti-repeat fail-message rotation works. Repro: on /dev/rare with Math.random=()=>0.1 stubbed via add_init_script, rattle 3 times — you should see two distinct fails then the answer die; instead you get the SAME fail twice and no answer on shake 3."
+  ],
+  "critical_code_review_comments": [
+    "Magic8Ball.jsx line ~49: `attempts.current >= MAX_FAILS || Math.random() >= FAIL_CHANCE` correctness depends on attempts.current persisting across shakes. Add a sanity console.log or expose via window in dev to confirm it's actually incrementing to 2. If a parent remount is the culprit, consider lifting attempts/lastFail state into Home or memoizing the parent that hosts Magic8Ball.",
+    "Magic8Ball.jsx: the `data-testid=magic-8ball-fail` / `magic-8ball-answer` is always rendered (only the parent motion.div's opacity is animated). Automation cannot use presence-of-selector to detect state; had to fall back to hint text. Consider only rendering the die when dieUp is true, or add a separate `data-state` attr.",
+    "RarePreview.jsx line 49: descriptive copy still says '~15 deals' — update to '~10 deals' to match the new cadence.",
+    "Home.jsx shouldRareFate: fallback path `catch { return Math.random() < 1/10 }` correctly uses 10 now; good."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "80% (4/5 core behaviours pass; MAX_FAILS guarantee unverified/likely broken)"},
+  "test_credentials": "none (public /dev/rare + home)",
+  "seed_data_creation": "none",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Pointer-rattle recipe that works: dispatch 6–8 PointerEvent('pointermove', {bubbles:true, buttons:1, clientX: baseX±150}) on [data-testid=magic-8ball-overlay] with 80–90ms between events. Math.random must be stubbed via page.add_init_script BEFORE goto. Because magic-8ball-answer/fail testids are always mounted (only animated in/out), assert on hint text 'So it is written…' vs 'The ball taunts you' vs 'Shake it again…' to detect stage. E2E on Home: pre-set ff_theme_chosen=1, ff_guided_done=1, ff_intro_seen=1, ff_muted=1 plus ff_rare_force='8ball' and ff_deal_taps=9 (target 10) to force a rare 8-ball deal. Overlay appears ~0.85s post-Deal with no ticker. After answer, onDone fires in ~2.6s and the reveal card mounts with the same name. To re-test the MAX_FAILS bug: on /dev/rare with Math.random=0.1, watch that (a) shake 2 fail message is DIFFERENT from shake 1, and (b) shake 3 shows magic-8ball-answer with 'The Rusty Skillet' and hint 'So it is written…'. Both currently fail.",
+  "rca of the issue": "Bug: Magic8Ball's useRef counters attempts.current and lastFail.current appear to reset between fail shakes on the same instance. Evidence: (1) shake 1 taunt = 'ASK AGAIN LATER', shake 2 taunt = 'ASK AGAIN LATER' (should be 'OUTLOOK HAZY' via anti-repeat), (2) shake 3 with Math.random=0.1 briefly enters shaking stage then returns to idle instead of showing the answer — meaning `attempts.current >= MAX_FAILS` evaluated false, so attempts wasn't 2. Most likely cause: the component is being remounted between shakes (parent re-renders with a fresh key, or the surprise-reveal conditional in Home/RarePreview toggles). Reproduction: /dev/rare + page.add_init_script('Math.random = () => 0.1;') + rattle 3 times with 2s pauses. Mitigation: either (a) lift the counters into a parent that doesn't remount (or into a module-scoped ref keyed by name), (b) render Magic8Ball inside a stable wrapper without key churn, or (c) persist attempts to sessionStorage keyed by a shake session id so remounts don't lose it."
+}

@@ -179,7 +179,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
             </>
           )}
           {surprise === "8ball" && (
-            <Magic8Ball photo={card.photo_url || card.image} onDone={onSurpriseDone} />
+            <Magic8Ball name={card.name} onDone={onSurpriseDone} />
           )}
           {surprise === "wheel" && (
             <WheelOfFate names={deck.map((d) => d.name)} winner={card.name} onDone={onSurpriseDone} />

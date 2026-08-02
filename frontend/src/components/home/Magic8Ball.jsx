@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { motion, useAnimationControls } from "framer-motion";
 import { useShake } from "../../hooks/useShake";
 import { haptic } from "../../lib/pwa";
@@ -11,7 +11,10 @@ const FAIL_MESSAGES = [
   "FATE\nRESISTS",
   "NOT\nTHIS TIME",
 ];
-const FAKEOUTS = 2; // fail messages before the real reveal
+// Occasional fake-out: each shake has a chance to taunt instead of answer,
+// but fate always speaks by the third shake.
+const FAIL_CHANCE = 0.4;
+const MAX_FAILS = 2;
 
 const INK_BLOBS = [
   { size: 84, x: -10, y: -8, from: "#0A1024", dur: 5.2 },
@@ -20,30 +23,30 @@ const INK_BLOBS = [
 ];
 
 /**
- * Magic 8-Ball rare reveal. Shake the phone (or rattle the ball with the
- * cursor) — the ball wiggles as you rattle it, then the classic purple
- * triangle floats up in the square window... with a taunting fail message.
- * A couple of fake-outs later, the ink dissipates and the fate photo
- * appears. Then onDone() unveils the full card.
+ * Magic 8-Ball rare reveal — like the real toy. Shake the phone (or rattle
+ * the ball with the cursor): the ball wiggles, then the classic triangle die
+ * floats up through the dark liquid in the square window. Occasionally it
+ * surfaces a taunting fail message ("ASK AGAIN LATER") and you must shake
+ * again; when fate is ready, the die rises bearing the winner's name.
+ * Then onDone() unveils the full card.
  */
-export function Magic8Ball({ photo, onDone }) {
-  // idle -> shaking -> (message -> idle)*FAKEOUTS -> answer
+export function Magic8Ball({ name, onDone }) {
+  // idle -> shaking -> (message -> idle)* -> answer
   const [stage, setStage] = useState("idle");
   const [message, setMessage] = useState(null);
   const stageRef = useRef("idle");
   const attempts = useRef(0);
+  const lastFail = useRef(-1);
   const drag = useRef({ lastX: null, dir: 0, flips: 0, travel: 0, t: 0 });
   const wiggle = useAnimationControls();
-  const fails = useMemo(
-    () => [...FAIL_MESSAGES].sort(() => Math.random() - 0.5).slice(0, FAKEOUTS),
-    [],
-  );
 
   const setStageBoth = (s) => { stageRef.current = s; setStage(s); };
 
   const trigger = () => {
     if (stageRef.current !== "idle") return;
-    const isFinal = attempts.current >= FAKEOUTS;
+    // Decide this shake's outcome up front so the reveal audio only plays
+    // under the true answer.
+    const isFinal = attempts.current >= MAX_FAILS || Math.random() >= FAIL_CHANCE;
     setStageBoth("shaking");
     haptic(30);
     if (isFinal) {
@@ -60,9 +63,12 @@ export function Magic8Ball({ photo, onDone }) {
       if (isFinal) {
         setStageBoth("answer");
         haptic(15);
-        setTimeout(() => onDone?.(), 2300);
+        setTimeout(() => onDone?.(), 2600);
       } else {
-        setMessage(fails[attempts.current]);
+        let idx = Math.floor(Math.random() * FAIL_MESSAGES.length);
+        if (idx === lastFail.current) idx = (idx + 1) % FAIL_MESSAGES.length;
+        lastFail.current = idx;
+        setMessage(FAIL_MESSAGES[idx]);
         attempts.current += 1;
         setStageBoth("message");
         haptic(10);
@@ -110,6 +116,10 @@ export function Magic8Ball({ photo, onDone }) {
           ? "Shake it again…"
           : "Shake your phone to reveal your fate";
 
+  // The die faces up: fails on the purple face, the true fate on gold.
+  const dieUp = stage === "message" || stage === "answer";
+  const isAnswer = stage === "answer";
+
   return (
     <div
       className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 rounded-2xl backdrop-blur-sm"
@@ -143,23 +153,12 @@ export function Magic8Ball({ photo, onDone }) {
                 : { duration: 0.2 }
           }
         >
-          {/* Square viewing window: photo beneath, ink + triangle above */}
+          {/* Square viewing window: dark liquid with the die floating inside */}
           <div className="relative h-[108px] w-[108px] overflow-hidden rounded-2xl bg-[#060D1F] shadow-[inset_0_5px_14px_rgba(0,0,0,0.95),0_0_0_5px_#101318,0_0_0_7px_#2A2E36]">
-            {photo && (
-              <img
-                src={photo}
-                alt=""
-                data-testid="magic-8ball-answer"
-                className="absolute inset-0 h-full w-full object-cover"
-                draggable={false}
-              />
-            )}
-            {/* Ink base + swirling blobs — dissipate only at the true answer */}
-            <motion.div
+            {/* Liquid base + swirling ink blobs — always alive, like the toy */}
+            <div
               className="absolute inset-0"
               style={{ background: "radial-gradient(circle at 45% 40%, #0C142C 0%, #060B1C 60%, #030614 100%)" }}
-              animate={stage === "answer" ? { opacity: 0, scale: 1.6, filter: "blur(8px)" } : { opacity: 1 }}
-              transition={stage === "answer" ? { duration: 1.5, delay: 0.25, ease: "easeOut" } : { duration: 0.2 }}
             />
             {INK_BLOBS.map((b, i) => (
               <motion.div
@@ -171,36 +170,37 @@ export function Magic8Ball({ photo, onDone }) {
                   top: `calc(50% - ${b.size / 2}px + ${b.y}px)`,
                   background: `radial-gradient(circle at 40% 35%, ${b.from} 0%, #030614 68%, rgba(3,6,20,0) 100%)`,
                 }}
-                animate={
-                  stage === "answer"
-                    ? { opacity: 0, scale: 2.1, filter: "blur(10px)" }
-                    : { x: [0, 6, -5, 3, 0], y: [0, -4, 5, -3, 0], scale: [1, 1.08, 0.96, 1.05, 1], opacity: 0.98, filter: "blur(1px)" }
-                }
-                transition={
-                  stage === "answer"
-                    ? { duration: 1.3, delay: i * 0.18, ease: "easeOut" }
-                    : { repeat: Infinity, duration: b.dur, ease: "easeInOut" }
-                }
+                animate={{ x: [0, 6, -5, 3, 0], y: [0, -4, 5, -3, 0], scale: [1, 1.08, 0.96, 1.05, 1], opacity: 0.98, filter: "blur(1px)" }}
+                transition={{ repeat: Infinity, duration: b.dur, ease: "easeInOut" }}
               />
             ))}
-            {/* Purple triangle fail message — classic 8-ball fake-out */}
+            {/* The triangle die floats up through the liquid — fail taunts and
+                the true fate both surface here, like the real toy */}
             <motion.div
               className="absolute inset-0 grid place-items-center"
               initial={false}
-              animate={stage === "message" ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+              animate={dieUp ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
               transition={{ type: "spring", stiffness: 130, damping: 17 }}
-              data-testid="magic-8ball-fail"
+              data-testid={isAnswer ? "magic-8ball-answer" : "magic-8ball-fail"}
             >
               <div
-                className="grid h-[88px] w-[92px] place-items-center"
-                style={{ clipPath: "polygon(50% 100%, 0% 4%, 100% 4%)", background: "linear-gradient(200deg, #5B2AA8 0%, #3D1878 45%, #22093F 100%)", filter: "drop-shadow(0 0 10px rgba(91,42,168,0.5))" }}
+                className="grid h-[92px] w-[96px] place-items-center"
+                style={{
+                  clipPath: "polygon(50% 100%, 0% 4%, 100% 4%)",
+                  background: "linear-gradient(200deg, #5B2AA8 0%, #3D1878 45%, #22093F 100%)",
+                  filter: isAnswer
+                    ? "drop-shadow(0 0 12px rgba(230,178,58,0.55))"
+                    : "drop-shadow(0 0 10px rgba(91,42,168,0.5))",
+                }}
               >
-                <span className="-mt-5 max-w-[64px] whitespace-pre-line text-center font-serif text-[9px] font-bold leading-[1.35] tracking-wide text-[#E7DBFF]">
-                  {message || ""}
+                <span
+                  className={`-mt-6 max-w-[66px] whitespace-pre-line break-words text-center font-serif font-bold leading-[1.3] tracking-wide ${isAnswer ? "text-[9px] text-[#F3D9A0]" : "text-[9px] text-[#E7DBFF]"}`}
+                >
+                  {isAnswer ? name : (message || "")}
                 </span>
               </div>
             </motion.div>
-            {/* The white 8 floats on the ink; hides during messages/answer */}
+            {/* The white 8 floats on the liquid; sinks while the die is up */}
             <motion.span
               className="absolute left-1/2 top-1/2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white font-serif text-2xl font-bold text-black"
               animate={stage === "idle" ? { opacity: 1, y: "-50%" } : { opacity: 0, y: "0%" }}

@@ -58,7 +58,7 @@ export default function RarePreview() {
           </DemoCard>
           <DemoCard title="Magic 8-Ball" resetKey="ball" onReset={() => bump("ball")} tall>
             <div key={keys.ball} className="absolute inset-0">
-              <Magic8Ball photo={PHOTO} onDone={() => {}} />
+              <Magic8Ball name="The Rusty Skillet" onDone={() => {}} />
               <ThemeCardFrame theme="dark" />
             </div>
           </DemoCard>

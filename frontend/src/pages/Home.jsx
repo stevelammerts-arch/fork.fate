@@ -283,23 +283,23 @@ export default function Home() {
   // 80 miles away is not. Default stays 50 for every tab.
   const radiusMax = mode === "explore" || mode === "stay" ? 150 : 100;
 
-  // Every ~15 deal taps (13-17, jittered per cycle, persisted per device) fate
-  // arrives as a RARE scratch card instead of the usual shuffle reveal.
+  // Every 10 deal taps (persisted per device) fate arrives as a RARE ritual
+  // instead of the usual shuffle reveal.
   const shouldRareFate = () => {
     try {
       const taps = parseInt(localStorage.getItem("ff_deal_taps") || "0", 10) + 1;
       let target = parseInt(localStorage.getItem("ff_rare_at") || "0", 10);
-      if (!target) target = 13 + Math.floor(Math.random() * 5);
+      if (!target) target = 10;
       if (taps >= target) {
         localStorage.setItem("ff_deal_taps", "0");
-        localStorage.setItem("ff_rare_at", String(13 + Math.floor(Math.random() * 5)));
+        localStorage.setItem("ff_rare_at", "10");
         return true;
       }
       localStorage.setItem("ff_deal_taps", String(taps));
       localStorage.setItem("ff_rare_at", String(target));
       return false;
     } catch (e) {
-      return Math.random() < 1 / 15;
+      return Math.random() < 1 / 10;
     }
   };
 
