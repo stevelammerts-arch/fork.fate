@@ -19,6 +19,28 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
   on ANY frontend change. (Currently 2026.06-279.)
 
 ## Implemented — 2026-08-02 (Oracle + Realm picker session)
+- **Shake-collision fix**: shaking the phone during a rare ritual (esp. 8-ball)
+  used to ALSO fire the global shake-to-shuffle and deal a new shuffle over
+  the ritual. Home.jsx global useShake now bails/disables while surpriseReveal
+  or showThemeWelcome is active. Verified iteration_43 (3/3, synthetic
+  DeviceMotionEvent bursts — recipe documented in that report).
+- **Per-theme flourishes** (`components/home/ThemeFlourish.jsx`, one-shot over
+  the landed deck card + reveal card, 4.2s): Winter snow flurry, Spring petals,
+  Fall leaves, Tiki fireflies, Summer sun sparkles, Coffee Shop coffee steam
+  (SteamBurst reuse), Steampunk steam (routed through same component now,
+  deck testid renamed deck-steam -> deck-flourish), Dragon's Hoard =
+  "realistic dissipating wall of fire": base heat glow + 12 flickering flame
+  tongues + 22 embers sparking upward (user asked for embers/sparks
+  emphasis) — REVEAL ONLY for fantasy (deck keeps dragon claw + gold pulse).
+  Dark (skeleton hands) + Cyber (neon pulse) unchanged, no flourish.
+  FLOURISH_THEMES set exported and used to gate RevealStage's effect.
+- **Coffee Shop dust motes** (`components/CafeDustMotes.jsx`): 16 warm golden
+  specks drifting full-screen, infinite loop, light theme only,
+  pointer-events-none. Rendered in Home next to cafe-bg-light.
+  User's other Coffee Shop idea picks: barista bell reveal sound (NEEDS sound
+  file from user), receipt-style card framing (not yet requested to build).
+- All verified iteration_44: 10/10 themes exact-match matrix, 0 console errors.
+- FF_BUILD -> **2026.06-310**. Still PREVIEW-only pending redeploy.
 - **Steampunk steam flourish** (`components/home/SteamBurst.jsx`, steampunk only):
   one-shot burst of 7 blurred vapor puffs (a) rising off the TOP of the landed
   "FATE HAS CHOSEN" deck card in the shuffle popup (`ShufflingDeck.jsx`
