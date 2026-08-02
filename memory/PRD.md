@@ -19,6 +19,20 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
   on ANY frontend change. (Currently 2026.06-279.)
 
 ## Implemented — 2026-08-02 (Oracle + Realm picker session)
+- **Steampunk steam flourish** (`components/home/SteamBurst.jsx`, steampunk only):
+  one-shot burst of 7 blurred vapor puffs (a) rising off the TOP of the landed
+  "FATE HAS CHOSEN" deck card in the shuffle popup (`ShufflingDeck.jsx`
+  deck-steam strip, gated landed && theme==='steam') and (b) from the upper
+  half of the reveal card while the reveal sound plays (`RevealStage.jsx`
+  steaming state — hooks live ABOVE the early returns, keyed result?.id;
+  4200ms auto-unmount). SteamBurst is parametrized (startBottom, travel,
+  className). Verified iterations 41+42 (100%): fires on steam, never on other
+  themes, pointer-events-none, no hook-order errors.
+- **Theme renames (labels only, ids unchanged)**: 'Dark' -> 'Reaper (Original)',
+  'Light' -> 'Coffee Shop' in the header Theme dropdown + Choose Your Realm
+  window; es translations 'Segador (Original)' / 'Cafetería'. Verified
+  visually + iteration_42.
+- FF_BUILD -> **2026.06-308**.
 - **Code-review cleanup + refactor sweep** (user-approved after audit; most report
   findings were false positives — documented in chat): removed 4 stale
   eslint-disable comments + dead `_origin` var + 2 unused test vars. **Home.jsx
