@@ -19,6 +19,21 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
   on ANY frontend change. (Currently 2026.06-279.)
 
 ## Implemented — 2026-08-02 (Oracle + Realm picker session)
+- **Magic 8-Ball reworked like the real toy** (user-directed, `Magic8Ball.jsx`):
+  props now `{name, onDone}` (photo/ink-dissipate reveal REMOVED). The triangle
+  die floats up through the dark liquid in the square window — occasionally
+  (FAIL_CHANCE 0.4/shake, MAX_FAILS 2, answer GUARANTEED by 3rd shake) bearing a
+  taunt ("ASK AGAIN LATER" etc., anti-repeat rotation), and finally the winner's
+  NAME in gold. Fail counters persist in sessionStorage (`ff8b_<name>`, cleared
+  on answer) so remounts can't break the 3rd-shake guarantee (iteration_38 bug →
+  fixed, iteration_39 3/3 PASS incl. Replay-remount resilience). Overlay exposes
+  `data-state=idle|shaking|message|answer`; answer/fail dies conditionally
+  rendered (selector presence = state). No shuffle deck on the 8-ball path
+  (150ms beat, verified: overlay in 0.85s, zero ticker).
+- **Rare fate cadence: every 10 deal taps** (was 13-17 jitter) — Home.jsx
+  `shouldRareFate` target fixed at 10, fallback 1/10; /dev/rare copy updated.
+  FF_BUILD -> **2026.06-305**. Verified iteration_38 (E2E home flow, cadence,
+  regression) + iteration_39 (fail sequence, remount, answer path): all PASS.
 - **AGP 9.0 Play Console warning — advisory re-answered to user**: PWABuilder TWA
   wrapper concern, not repo code; soft warning; regenerate package on pwabuilder.com
   with the SAME signing key when convenient.
