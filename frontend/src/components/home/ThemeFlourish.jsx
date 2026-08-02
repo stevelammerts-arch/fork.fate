@@ -200,10 +200,14 @@ function LatteArt({ compact = false }) {
  * faces — mournful, not skulls. A faint wail plays as they drift up. */
 function GhostRise() {
   useEffect(() => {
-    const a = new Audio("/soul-wail.wav");
-    a.volume = 0.5;
-    const tm = setTimeout(() => a.play().catch(() => {}), 350);
-    return () => { clearTimeout(tm); a.pause(); };
+    const wail = new Audio("/soul-wail.wav");
+    wail.volume = 0.5;
+    const laugh = new Audio("/soul-laugh.mp3");
+    laugh.volume = 0.5;
+    const tm = setTimeout(() => wail.play().catch(() => {}), 350);
+    // Possessed laugh joins once the souls are visible
+    const tm2 = setTimeout(() => laugh.play().catch(() => {}), 1400);
+    return () => { clearTimeout(tm); clearTimeout(tm2); wail.pause(); laugh.pause(); };
   }, []);
   return Array.from({ length: 3 }, (_, i) => {
     const w = 62 + rnd(i, 1) * 30;

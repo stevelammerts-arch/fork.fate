@@ -226,6 +226,50 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
 - P2 (iter_49 review note): add email format validation to FeedbackCreate
   (backend) and FeedbackDialog (frontend) — currently length-only.
 
+## Implemented — 2026-02 (FAIRY GULLY REALM session)
+- **New 'Fairy Gully' theme (id: fairy)** — user-directed, iterated live:
+  - BG: Nano-Banana-generated /fairy-gully.png (user picked mock 5 of 5:
+    twilight gully, two fairies, willow face, red-cap fairy ring, distant
+    unicorn, rainbow flowers on green). Gen script: scripts/gen_fairy_bg.py.
+  - Ambient scene (ThemeScenes.jsx AMBIANCE.fairy): 6 tiny butterflies with
+    REAL wing-flap (ffWingFold scaleX fold + ffFlit paths; ButterflySprite /
+    FlutterButterfly exports), 8 teal will-o'-wisps (ffWispDrift/Glow),
+    4 pond ripple rings PINNED TO IMAGE COORDS via useCoverAnchor (object-
+    cover crop math; fixes mobile 'ripples on land' bug). Keyframes in
+    index.css.
+  - Cards: red-cap mushroom card back (/fairy-mushroom.png via
+    scripts/gen_fairy_mushroom.py) with GREEN inner borders + GOLD outer
+    border/label ('gilded' = fantasy||fairy in ShufflingDeck.jsx).
+  - Reveal: ButterflyBurst flourish (ThemeFlourish.jsx), magical quote lines
+    (FAIRY_LINES/fairyLineFor in homeConstants, Sparkles icon in
+    RevealStage), NO 'behold your fate' voice for fairy (Home.jsx:358).
+  - Audio: USER-UPLOADED piano-bell shuffle (/shuffle-fairy.wav, leading
+    1.13s silence trimmed — was 'delayed') + magic-bottles reveal
+    (/reveal-fairy.wav). scripts/gen_fairy_sounds.py is SUPERSEDED — do not
+    re-run.
+  - Green-scoped styling: [data-ff-theme="fairy"] CSS overrides in index.css
+    turn ALL red buttons/pills/text/slider(.bg-primary) forest green — fairy
+    only (verified red elsewhere). Golden hero eyebrow for fairy.
+  - GuidedFlow: fairy tokens — medium green card (#235C3D) + light-beige
+    tiles (user: 'green too dark' → lightened), exported MushroomIcon
+    (custom lucide-style SVG) used for SEAL_ICONS.fairy, welcome tile, and
+    header menu icon.
+- **Welcome dialog**: 12th tile 'Let Fate Decide' (random pick,
+  theme-welcome-random); Fairy Gully tile; 'Cyberpunk' RENAMED 'Cyberscape';
+  realm PEEK REMOVED per user ('rather it be a surprise'); subtitle now
+  'Choose yours.'
+- **No more seasonal auto-default** (useTheme.js): first visit = dark/Reaper;
+  seasonForDate/isSouthernHemisphere deleted per user ('back to how we used
+  to have it').
+- **Reaper souls**: iterated to ELONGATED HUMAN APPARITIONS (accepted);
+  octave-down dark soul wail (accepted); NEW user-uploaded possessed laugh
+  (/soul-laugh.mp3, front-trimmed) layered at +1.4s into GhostRise flourish.
+- Tested: iteration_50.json 100% frontend pass (fairy + regressions on
+  dark/cyber/light, green scoping verified both ways). Code-review notes:
+  Home.jsx 1575 lines (split later); 'reaper-line' testid semantic rename.
+- NEXT (user): Apple/App Store work tomorrow — assets already in
+  /store-assets/ zips.
+
 ## Implemented — 2026-02 (feedback + realm peek + store assets session)
 - **In-app FEEDBACK system** (for Play closed-test testers): POST /api/feedback
   (public, rate-limited), GET/DELETE /api/admin/feedback (admin). Footer's old
