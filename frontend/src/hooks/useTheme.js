@@ -1,19 +1,7 @@
 import { useSyncExternalStore } from "react";
 
 const KEY = "ff_theme";
-const ALLOWED = ["light", "dark", "fall", "winter", "spring", "summer", "cyber", "steam", "tiki", "fantasy"];
-
-// Map the current date to a season. Northern hemisphere by default; flip for southern.
-function seasonForDate(d, southern) {
-  const m = d.getMonth();
-  let s;
-  if (m >= 2 && m <= 4) s = "spring";
-  else if (m >= 5 && m <= 7) s = "summer";
-  else if (m >= 8 && m <= 10) s = "fall";
-  else s = "winter";
-  if (southern) s = { spring: "fall", summer: "winter", fall: "spring", winter: "summer" }[s];
-  return s;
-}
+const ALLOWED = ["light", "dark", "fall", "winter", "spring", "summer", "cyber", "steam", "tiki", "fantasy", "fairy"];
 
 function stored() {
   try {
@@ -23,21 +11,10 @@ function stored() {
   return null;
 }
 
-// Infer hemisphere from the device timezone's DST pattern — no network call needed.
-// Southern-hemisphere zones observe DST in their local summer (≈ Jan), so July's
-// offset is larger than January's. Zones without DST fall back to northern.
-function isSouthernHemisphere() {
-  try {
-    const y = new Date().getFullYear();
-    const jan = new Date(y, 0, 1).getTimezoneOffset();
-    const jul = new Date(y, 6, 1).getTimezoneOffset();
-    return jul > jan;
-  } catch (e) { return false; }
-}
-
-// First visit (nothing stored): default to the current season, mapped by hemisphere.
+// First visit (nothing stored): Reaper — the original. The "Choose your realm"
+// welcome window handles the user's real pick; no more seasonal auto-defaults.
 function read() {
-  return stored() || seasonForDate(new Date(), isSouthernHemisphere());
+  return stored() || "dark";
 }
 
 let current = read();

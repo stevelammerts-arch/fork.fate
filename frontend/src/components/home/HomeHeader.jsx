@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Palette, ChevronDown, Moon, Sun, Leaf, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, Swords, Check, Sparkles, ShoppingBag, Store, Volume2, VolumeX } from "lucide-react";
+import { MushroomIcon } from "../GuidedFlow";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../ui/dropdown-menu";
 import { setTheme } from "../../hooks/useTheme";
 import { useLang } from "../../i18n/i18n";
@@ -90,7 +91,7 @@ export function HomeHeader({
                   <Umbrella className="h-4 w-4" /> {t("Summer")} {theme === "summer" && <Check className="ml-auto h-4 w-4" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem data-testid="theme-option-cyber" onClick={() => setTheme("cyber")} className="gap-2">
-                  <Zap className="h-4 w-4" /> {t("Cyberpunk")} {theme === "cyber" && <Check className="ml-auto h-4 w-4" />}
+                  <Zap className="h-4 w-4" /> {t("Cyberscape")} {theme === "cyber" && <Check className="ml-auto h-4 w-4" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem data-testid="theme-option-steam" onClick={() => setTheme("steam")} className="gap-2">
                   <Cog className="h-4 w-4" /> {t("Steampunk")} {theme === "steam" && <Check className="ml-auto h-4 w-4" />}
@@ -100,6 +101,9 @@ export function HomeHeader({
                 </DropdownMenuItem>
                 <DropdownMenuItem data-testid="theme-option-fantasy" onClick={() => setTheme("fantasy")} className="gap-2">
                   <Swords className="h-4 w-4" /> {t("Dragon's Hoard")} {theme === "fantasy" && <Check className="ml-auto h-4 w-4" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem data-testid="theme-option-fairy" onClick={() => setTheme("fairy")} className="gap-2">
+                  <MushroomIcon className="h-4 w-4" /> {t("Fairy Gully")} {theme === "fairy" && <Check className="ml-auto h-4 w-4" />}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

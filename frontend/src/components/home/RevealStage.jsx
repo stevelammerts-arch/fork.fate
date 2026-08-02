@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { Dices, Store, Heart, Star, MapPin, ShoppingBag, Fuel, UtensilsCrossed, Skull, RotateCcw, Flag, Swords, Lock } from "lucide-react";
+import { Dices, Store, Heart, Star, MapPin, ShoppingBag, Fuel, UtensilsCrossed, Skull, Sparkles, RotateCcw, Flag, Swords, Lock } from "lucide-react";
 import GroupVote from "../GroupVote";
 import BecomeSponsorDialog from "../BecomeSponsorDialog";
 import { OrderDropdown } from "../OrderDropdown";
@@ -15,7 +15,7 @@ import { ThemeFlourish, FLOURISH_THEMES } from "./ThemeFlourish";
 import { Magic8Ball } from "./Magic8Ball";
 import { WheelOfFate } from "./WheelOfFate";
 import { useLang } from "../../i18n/i18n";
-import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reaperLineFor, lightLineFor, supportsDelivery, cardImage } from "../../pages/homeConstants";
+import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reaperLineFor, fairyLineFor, lightLineFor, supportsDelivery, cardImage } from "../../pages/homeConstants";
 import { buildFateCard } from "../../pages/homeFateCard";
 import { trackEvent } from "../../lib/analytics";
 
@@ -213,7 +213,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
             className="space-y-4 p-5"
           >
             <p className={`flex items-center gap-2 font-serif text-xl font-bold italic ${light ? "text-[#A31621]" : "text-[#E01E26]"}`} data-testid="reaper-line">
-              {light ? (mode === "shops" ? <ShoppingBag className="h-4 w-4" /> : mode === "fuel" ? <Fuel className="h-4 w-4" /> : <UtensilsCrossed className="h-4 w-4" />) : <Skull className="h-4 w-4" />} {light ? lightLineFor(card, mode) : reaperLineFor(card)}
+              {light ? (mode === "shops" ? <ShoppingBag className="h-4 w-4" /> : mode === "fuel" ? <Fuel className="h-4 w-4" /> : <UtensilsCrossed className="h-4 w-4" />) : theme === "fairy" ? <Sparkles className="h-4 w-4" /> : <Skull className="h-4 w-4" />} {light ? lightLineFor(card, mode) : theme === "fairy" ? fairyLineFor(card) : reaperLineFor(card)}
             </p>
             <ReactionBar placeId={card.id} />
             {!card.open_now && (

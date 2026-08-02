@@ -757,6 +757,52 @@ body {
   0%,100%{ opacity:0.12; transform: scale(0.6); }
   50%{ opacity:1; transform: scale(1.2); }
 }
+/* Fairy Gully: butterfly wing fold (flap) + wavy flit paths + wisp drift */
+@keyframes ffWingFold{
+  0%,100%{ transform: scaleX(1); }
+  50%{ transform: scaleX(0.18); }
+}
+@keyframes ffFlit1{
+  0%{ transform: translate(0,0) rotate(0deg); }
+  25%{ transform: translate(7vw,-5vh) rotate(9deg); }
+  50%{ transform: translate(13vw,2vh) rotate(-7deg); }
+  75%{ transform: translate(6vw,7vh) rotate(6deg); }
+  100%{ transform: translate(-3vw,1vh) rotate(-5deg); }
+}
+@keyframes ffFlit2{
+  0%{ transform: translate(0,0) rotate(0deg); }
+  25%{ transform: translate(-8vw,4vh) rotate(-8deg); }
+  50%{ transform: translate(-12vw,-3vh) rotate(6deg); }
+  75%{ transform: translate(-4vw,-8vh) rotate(-5deg); }
+  100%{ transform: translate(2vw,-2vh) rotate(4deg); }
+}
+@keyframes ffWispDrift{
+  0%{ transform: translate(0,0); }
+  25%{ transform: translate(2.5vw,-7vh); }
+  50%{ transform: translate(-1.5vw,-13vh); }
+  75%{ transform: translate(2vw,-20vh); }
+  100%{ transform: translate(0,-26vh); }
+}
+@keyframes ffWispGlow{
+  0%,100%{ opacity:0.35; }
+  50%{ opacity:0.95; }
+}
+/* Fairy Gully realm: fate's red buttons, pills and accents wear forest green.
+   Scoped by the root data-ff-theme attribute so no component changes needed. */
+[data-ff-theme="fairy"] .bg-\[\#E01E26\]{ background-color:#1E7A4A; }
+[data-ff-theme="fairy"] .hover\:bg-\[\#B3141A\]:hover,
+[data-ff-theme="fairy"] .hover\:bg-\[\#C0161D\]:hover{ background-color:#16603A; }
+[data-ff-theme="fairy"] .border-\[\#E01E26\]{ border-color:#1E7A4A; }
+[data-ff-theme="fairy"] .focus-within\:border-\[\#E01E26\]:focus-within{ border-color:#1E7A4A; }
+[data-ff-theme="fairy"] .text-\[\#E01E26\]{ color:#1E7A4A; }
+[data-ff-theme="fairy"] .hover\:text-\[\#E01E26\]:hover{ color:#2FA36A; }
+[data-ff-theme="fairy"] .bg-primary{ background-color:#1E7A4A; }
+[data-ff-theme="fairy"] .shadow-\[\#E01E26\]\/25{ --tw-shadow-color:rgb(30 122 74 / 0.25); --tw-shadow:var(--tw-shadow-colored); }
+/* Fairy Gully pond: raindrop-style ripple rings expanding on the water plane */
+@keyframes ffRippleRing{
+  0%{ transform: scale(0.12); opacity:0.75; }
+  100%{ transform: scale(1.9); opacity:0; }
+}
 @keyframes ffEyeGlow{
   0%,100%{ opacity:0.35; }
   50%{ opacity:1; }

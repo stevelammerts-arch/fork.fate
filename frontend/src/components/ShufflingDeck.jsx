@@ -111,6 +111,18 @@ function CardBack({ light, seasonItem, theme }) {
       </div>
     );
   }
+  if (theme === "fairy") {
+    const green = "#5EE0A8";
+    return (
+      <div className="absolute inset-0 grid place-items-center overflow-hidden bg-[#0A1C11]" data-testid="card-back">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 50% 44%, rgba(94,224,168,0.2), rgba(0,0,0,0) 62%)" }} />
+        <img src="/fairy-mushroom.png" alt="" className="h-3/4 w-auto max-w-[78%] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)]" />
+        <div className="absolute inset-2 rounded-xl border" style={{ borderColor: `${green}99`, boxShadow: "inset 0 0 12px rgba(94,224,168,0.3)" }} />
+        <div className="absolute inset-[10px] rounded-lg border" style={{ borderColor: `${green}40` }} />
+        <span className="absolute bottom-4 font-serif text-[9px] uppercase tracking-[0.4em]" style={{ color: green }}>Fairy Gully</span>
+      </div>
+    );
+  }
   return (
     <div className="absolute inset-0 bg-[#0E0E0E]" data-testid="card-back">
       <div
@@ -131,12 +143,12 @@ function CardBack({ light, seasonItem, theme }) {
 
 // Tarot-style front: photo centered inside a card with matching themed frame
 function CardFront({ src, light, theme }) {
-  const fantasy = theme === "fantasy";
+  const gilded = theme === "fantasy" || theme === "fairy"; // gold-framed realms
   return (
     <div className={`absolute inset-0 ${light ? "bg-[#F5F0E6]" : "bg-[#0E0E0E]"}`} data-testid="card-front">
       <div
         className="absolute inset-0"
-        style={{ background: fantasy
+        style={{ background: gilded
           ? "radial-gradient(circle at 50% 42%, rgba(230,178,58,0.16), rgba(0,0,0,0) 62%)"
           : light
           ? "radial-gradient(circle at 50% 42%, rgba(163,22,33,0.10), rgba(255,255,255,0) 62%)"
@@ -146,8 +158,8 @@ function CardFront({ src, light, theme }) {
         <img src={src} alt="" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
       </div>
-      <div className={`absolute inset-2 rounded-xl border ${light ? "border-[#A31621]/60" : "border-[#E01E26]/70"}`} style={fantasy ? { borderColor: "rgba(230,178,58,0.7)" } : undefined} />
-      <div className={`absolute inset-[10px] rounded-lg border ${light ? "border-[#A31621]/25" : "border-[#E01E26]/25"}`} style={fantasy ? { borderColor: "rgba(230,178,58,0.28)" } : undefined} />
+      <div className={`absolute inset-2 rounded-xl border ${light ? "border-[#A31621]/60" : "border-[#E01E26]/70"}`} style={gilded ? { borderColor: "rgba(230,178,58,0.7)" } : undefined} />
+      <div className={`absolute inset-[10px] rounded-lg border ${light ? "border-[#A31621]/25" : "border-[#E01E26]/25"}`} style={gilded ? { borderColor: "rgba(230,178,58,0.28)" } : undefined} />
     </div>
   );
 }
@@ -284,6 +296,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
               key={(c?.id || "c") + i}
               className={`absolute inset-0 overflow-hidden rounded-2xl border-2 shadow-2xl ${season ? "bg-[#F5F0E6] shadow-black/10" : light ? "border-[#D9C9A8] bg-[#F5F0E6] shadow-black/10" : "border-[#E01E26] bg-[#0E0E0E] shadow-black/30"}`}
               style={{
+                ...(theme === "fairy" ? { borderColor: "#E6B23A" } : null),
                 zIndex: landed ? DECK_SIZE - i : DECK_SIZE - ((i + cycle) % DECK_SIZE),
                 // Pivot on the corner facing the centre of the deck so each packet fans
                 // open like real cards instead of sliding like a flat tile.
@@ -326,7 +339,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
           })}
         </div>
         <div className="relative z-[60] text-center">
-          <p className={`font-sans text-xs font-bold uppercase tracking-[0.25em] ${light ? "text-[#A31621]" : "text-[#E01E26]"}`} style={season && seasonAccent ? { color: seasonAccent } : (theme === "fantasy" ? { color: "#E6B23A" } : undefined)}>
+          <p className={`font-sans text-xs font-bold uppercase tracking-[0.25em] ${light ? "text-[#A31621]" : "text-[#E01E26]"}`} style={season && seasonAccent ? { color: seasonAccent } : (theme === "fantasy" || theme === "fairy" ? { color: "#E6B23A" } : undefined)}>
             {landed ? (light ? "Your pick" : "Fate has chosen") : (light ? "Shuffling…" : "Shuffling the deck")}
           </p>
           <p className={`mt-1 h-7 font-serif text-2xl drop-shadow ${light ? "text-[#18181B]" : "text-white"}`}>{label}</p>

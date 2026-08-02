@@ -54,6 +54,7 @@ const SHUFFLE_LOOPS = {
   winter: ["/shuffle-winter.wav", 0.8, true],
   fall: ["/shuffle-fall.wav", 0.8, true],
   fantasy: ["/shuffle-dragon.mp3", 0.85, true],
+  fairy: ["/shuffle-fairy.wav", 0.8, true],
 };
 
 
@@ -332,7 +333,7 @@ export default function Home() {
     try {
       if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e0) { /* ignore */ } grooveRef.current = null; }
       if (localStorage.getItem("ff_muted") !== "1") {
-        const revealSrc = { light: "/barista-bell.mp3", cyber: "/reveal-electric.wav", tiki: "/reveal-drums-boom.wav", spring: "/reveal-koto.wav", steam: "/reveal-steam.wav", winter: "/reveal-santa.wav", fall: "/reveal-owl.wav", fantasy: "/reveal-dragon.mp3" }[theme] || (light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
+        const revealSrc = { light: "/barista-bell.mp3", cyber: "/reveal-electric.wav", tiki: "/reveal-drums-boom.wav", spring: "/reveal-koto.wav", steam: "/reveal-steam.wav", winter: "/reveal-santa.wav", fall: "/reveal-owl.wav", fantasy: "/reveal-dragon.mp3", fairy: "/reveal-fairy.wav" }[theme] || (light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
         thunderRef.current = new Audio(revealSrc);
         thunderRef.current.volume = 1.0;
         thunderRef.current.load();
@@ -354,7 +355,7 @@ export default function Home() {
     // voice cue must not talk over them.
     const rareFate = !groupMode && shouldRareFate();
     // Dark mode plays a spoken voice cue before the deck shuffles; themed shuffles stay clean.
-    if (!light && !rareFate && theme !== "cyber" && theme !== "tiki" && theme !== "steam" && theme !== "fantasy") playSound("/reveal-voice-v5.mp3", 1.0);
+    if (!light && !rareFate && theme !== "cyber" && theme !== "tiki" && theme !== "steam" && theme !== "fantasy" && theme !== "fairy") playSound("/reveal-voice-v5.mp3", 1.0);
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
     // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
@@ -972,7 +973,7 @@ export default function Home() {
           transition={HERO_TRANSITION}
           className="max-w-2xl"
         >
-          <p className="font-sans text-sm font-extrabold tracking-[0.25em] uppercase text-[#E01E26]">
+          <p className="font-sans text-sm font-extrabold tracking-[0.25em] uppercase text-[#E01E26]" style={theme === "fairy" ? { color: "#FFD36B", textShadow: "0 1px 10px rgba(4,20,12,0.75)" } : undefined}>
             {allMode ? t("Can't decide on anything?") : mode === "food" ? t("Can't decide where to eat?") : mode === "drinks" ? t("Can't decide what to sip?") : mode === "bars" ? t("Can't decide where to drink?") : mode === "desserts" ? t("Craving something sweet?") : mode === "shops" ? t("Feeling like a treasure hunt?") : mode === "explore" ? t("Can't decide what to do?") : mode === "stay" ? t("Need somewhere to stay?") : t("Need to fill up or get moving?")}
           </p>
           <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl" style={ambCfg ? { color: ambCfg.sky, textShadow: theme === "cyber" ? "0 0 12px rgba(199,125,255,0.6)" : undefined } : undefined}>

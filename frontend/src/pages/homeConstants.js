@@ -84,6 +84,16 @@ export const REAPER_LINES = [
 ];
 export const reaperLineFor = (r) => REAPER_LINES[(r?.name?.length || 0) % REAPER_LINES.length];
 
+// Fairy Gully: enchanted counterparts to the reaper's grim pronouncements.
+export const FAIRY_LINES = [
+  "The fae have spoken.",
+  "The wisps led you here.",
+  "The fairy ring has chosen.",
+  "Woodland magic marks this place.",
+  "An enchantment seals your path.",
+];
+export const fairyLineFor = (r) => FAIRY_LINES[(r?.name?.length || 0) % FAIRY_LINES.length];
+
 // Professional light-mode counterparts to the macabre reaper lines, per category.
 export const LIGHT_LINES = [
   "Your destination awaits.",

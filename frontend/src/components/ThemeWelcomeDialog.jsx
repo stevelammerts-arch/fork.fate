@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
-import { Moon, Sun, Leaf, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, Swords, Check, ArrowRight } from "lucide-react";
+import { Moon, Sun, Leaf, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, Swords, Dices, Check, ArrowRight } from "lucide-react";
+import { MushroomIcon } from "./GuidedFlow";
 import { useTheme, setTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
 
@@ -12,10 +13,11 @@ const THEMES = [
   { id: "winter", label: "Winter", icon: Snowflake, grad: "linear-gradient(135deg,#0E2A3F 0%,#2E77A6 100%)", accent: "#BEE3F8", text: "#F0F8FF" },
   { id: "spring", label: "Spring", icon: Flower2, grad: "linear-gradient(135deg,#43203A 0%,#D46A9F 100%)", accent: "#FFD7E8", text: "#FFF0F6" },
   { id: "summer", label: "Summer", icon: Umbrella, grad: "linear-gradient(135deg,#7A3E0A 0%,#E07E17 100%)", accent: "#FFE8B0", text: "#FFF8EA" },
-  { id: "cyber", label: "Cyberpunk", icon: Zap, grad: "linear-gradient(135deg,#070A16 0%,#160A28 100%)", accent: "#22E0E0", text: "#D8F9FF" },
+  { id: "cyber", label: "Cyberscape", icon: Zap, grad: "linear-gradient(135deg,#070A16 0%,#160A28 100%)", accent: "#22E0E0", text: "#D8F9FF" },
   { id: "steam", label: "Steampunk", icon: Cog, grad: "linear-gradient(135deg,#17100A 0%,#3A2810 100%)", accent: "#D9A44E", text: "#F1D9A6" },
   { id: "tiki", label: "Tiki Lounge", icon: Wine, grad: "linear-gradient(135deg,#2A140A 0%,#3A1C0E 100%)", accent: "#F0A24E", text: "#FBE3C0" },
   { id: "fantasy", label: "Dragon's Hoard", icon: Swords, grad: "linear-gradient(135deg,#1C0808 0%,#7E1B0E 100%)", accent: "#FF7A3D", text: "#FFD9A0" },
+  { id: "fairy", label: "Fairy Gully", icon: MushroomIcon, grad: "linear-gradient(135deg,#0B1F14 0%,#1E5C38 100%)", accent: "#5EE0A8", text: "#CFF5DC" },
 ];
 
 /**
@@ -26,30 +28,12 @@ const THEMES = [
 export default function ThemeWelcomeDialog({ onDone }) {
   const { theme } = useTheme();
   const { t } = useLang();
-  // "Peek": tapping a realm briefly fades the overlay + card so the LIVE
-  // scenery behind previews itself, then eases back so you can keep browsing.
-  const [peeking, setPeeking] = useState(false);
-  const peekTimer = useRef(null);
-  const pickTheme = (id) => {
-    setTheme(id);
-    setPeeking(true);
-    clearTimeout(peekTimer.current);
-    peekTimer.current = setTimeout(() => setPeeking(false), 2400);
-  };
-  useEffect(() => () => clearTimeout(peekTimer.current), []);
+  const pickTheme = (id) => setTheme(id);
 
   return (
     <div data-testid="theme-welcome" className="fixed inset-0 z-[130] overflow-y-auto">
-      <div className={`fixed inset-0 bg-black/85 transition-opacity duration-700 ${peeking ? "opacity-10" : "opacity-100 backdrop-blur-md"}`} />
-      {peeking && (
-        <div className="fixed bottom-6 left-1/2 z-[131] -translate-x-1/2 whitespace-nowrap rounded-full border border-white/15 bg-black/70 px-4 py-1.5 font-sans text-xs font-bold text-white/85" data-testid="theme-peek-hint">
-          {t("Previewing your realm…")}
-        </div>
-      )}
-      <div
-        className="relative flex min-h-full items-center justify-center p-4 py-8"
-        style={{ opacity: peeking ? 0.06 : 1, transition: "opacity 700ms ease" }}
-      >
+      <div className="fixed inset-0 bg-black/85 backdrop-blur-md" />
+      <div className="relative flex min-h-full items-center justify-center p-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 24, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -61,7 +45,7 @@ export default function ThemeWelcomeDialog({ onDone }) {
             {t("Choose your realm")}
           </h2>
           <p className="mx-auto mt-1.5 max-w-sm text-center font-sans text-sm text-white/60">
-            {t("Every theme reshapes the ritual — scenery, sounds, and the voice of fate. Tap one to preview it.")}
+            {t("Every theme reshapes the ritual — scenery, sounds, and the voice of fate. Choose yours.")}
           </p>
 
           <div className="mt-6 grid grid-cols-2 gap-2.5">
@@ -104,6 +88,25 @@ export default function ThemeWelcomeDialog({ onDone }) {
                 </motion.button>
               );
             })}
+            {/* 12th slot: let fate pick the realm */}
+            <motion.button
+              type="button"
+              data-testid="theme-welcome-random"
+              onClick={() => pickTheme(THEMES[Math.floor(Math.random() * THEMES.length)].id)}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.12 + THEMES.length * 0.05, duration: 0.35, ease: "easeOut" }}
+              whileTap={{ scale: 0.96 }}
+              style={{ background: "linear-gradient(135deg,#191014 0%,#3D1B2E 55%,#14252E 100%)" }}
+              className="relative flex items-center gap-2.5 rounded-2xl border border-dashed border-white/25 px-3.5 py-3 text-left transition-shadow hover:border-white/50"
+            >
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full" style={{ backgroundColor: "#FFFFFF1A", color: "#F5D06B" }}>
+                <Dices className="h-4 w-4" />
+              </span>
+              <span className="font-sans text-sm font-bold leading-tight text-white/90">
+                {t("Let Fate Decide")}
+              </span>
+            </motion.button>
           </div>
 
           <motion.button

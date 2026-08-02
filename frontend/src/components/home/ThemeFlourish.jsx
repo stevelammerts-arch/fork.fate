@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { SteamBurst } from "./SteamBurst";
+import { ButterflySprite } from "../ThemeScenes";
 
 // Deterministic pseudo-random per particle index so re-renders don't reshuffle.
 const rnd = (i, salt) => {
@@ -347,7 +348,56 @@ function BeachBalls({ height }) {
 }
 
 /** Themes that fire a one-shot flourish when the winner card lands / reveals. */
-export const FLOURISH_THEMES = new Set(["steam", "light", "winter", "spring", "fall", "tiki", "summer", "fantasy", "dark", "cyber"]);
+export const FLOURISH_THEMES = new Set(["steam", "light", "winter", "spring", "fall", "tiki", "summer", "fantasy", "dark", "cyber", "fairy"]);
+
+/** Fairy Gully: a burst of butterflies with fluttering wings rises over the
+ * card, escorted by glowing will-o'-wisps. */
+const FAIRY_FLOURISH_COLORS = [
+  ["#F2A0E0", "#C86BD8"], ["#8FD3FF", "#5B9EF0"], ["#FFD36B", "#F0A24E"],
+  ["#8FF0B0", "#4ECF8A"], ["#FF9FA8", "#E86B7C"], ["#B7A0FF", "#8A6BE0"],
+];
+function ButterflyBurst() {
+  return (
+    <>
+      {Array.from({ length: 8 }, (_, i) => {
+        const [c1, c2] = FAIRY_FLOURISH_COLORS[i % FAIRY_FLOURISH_COLORS.length];
+        const flap = 0.24 + rnd(i, 2) * 0.14;
+        return (
+          <motion.div
+            key={`bf-${i}`}
+            className="absolute"
+            style={{ left: `${6 + rnd(i, 1) * 84}%`, bottom: -14 }}
+            initial={{ y: 24, opacity: 0 }}
+            animate={{
+              y: -(170 + rnd(i, 3) * 150),
+              x: [0, (rnd(i, 4) - 0.5) * 90, (rnd(i, 5) - 0.5) * 70],
+              opacity: [0, 1, 0.9, 0],
+              rotate: [0, rnd(i, 6) > 0.5 ? 16 : -16, 0],
+            }}
+            transition={{ delay: rnd(i, 7) * 1.3, duration: 3 + rnd(i, 8) * 1.6, ease: "easeOut" }}
+          >
+            <ButterflySprite size={11 + rnd(i, 9) * 11} c1={c1} c2={c2} flap={flap} />
+          </motion.div>
+        );
+      })}
+      {Array.from({ length: 5 }, (_, i) => (
+        <motion.span
+          key={`wsp-${i}`}
+          className="absolute rounded-full"
+          style={{
+            left: `${12 + rnd(i, 11) * 74}%`, bottom: -10,
+            width: 12 + rnd(i, 12) * 12, height: 12 + rnd(i, 12) * 12,
+            background: "radial-gradient(circle, rgba(214,255,236,0.95), rgba(94,224,168,0.5) 42%, rgba(64,208,168,0) 72%)",
+            filter: "blur(1px)",
+          }}
+          initial={{ y: 16, opacity: 0 }}
+          animate={{ y: -(150 + rnd(i, 13) * 130), x: [0, (rnd(i, 14) - 0.5) * 50, (rnd(i, 15) - 0.5) * 36], opacity: [0, 0.9, 0.5, 0.8, 0] }}
+          transition={{ delay: rnd(i, 16) * 1.5, duration: 3.4 + rnd(i, 17) * 1.4, ease: "easeOut" }}
+        />
+      ))}
+    </>
+  );
+}
 
 /**
  * One-shot themed flourish over the winner card. `variant`:
@@ -389,6 +439,8 @@ export function ThemeFlourish({ theme, variant = "reveal" }) {
         <BeachBalls height={height} />
       ) : theme === "fantasy" ? (
         <FireWall />
+      ) : theme === "fairy" ? (
+        <ButterflyBurst />
       ) : (
         <FallingBurst kind={theme} height={height} />
       )}

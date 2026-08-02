@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => ({
   left: `${(i * 8 + 4) % 94}%`,
@@ -178,18 +178,105 @@ const STEAM_CABLES = Array.from({ length: 22 }).map((_, i) => ({
   plug: i % 3 === 0,
 }));
 
+// Fairy Gully pond ripples, anchored to IMAGE coordinates (fractions of the
+// artwork) so they stay on the water no matter how object-cover crops the
+// scene per screen size. Sizes are in source-image pixels.
+const FAIRY_RIPPLES = [
+  { fx: 0.24, fy: 0.700, size: 110, dur: 4.2, delay: 0 },
+  { fx: 0.33, fy: 0.690, size: 150, dur: 5.2, delay: 1.6 },
+  { fx: 0.41, fy: 0.672, size: 90, dur: 3.8, delay: 2.8 },
+  { fx: 0.47, fy: 0.660, size: 70, dur: 4.6, delay: 3.7 },
+];
+const GULLY_NAT = { w: 896, h: 1200 };
+
+/** Track how an object-cover image maps into its container: returns the
+ * displayed image box {offX, offY, dw, dh} so children can be positioned in
+ * image-fraction coordinates. */
+function useCoverAnchor(natW, natH) {
+  const ref = useRef(null);
+  const [box, setBox] = useState(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => {
+      const { width: cw, height: ch } = el.getBoundingClientRect();
+      const scale = Math.max(cw / natW, ch / natH);
+      const dw = natW * scale, dh = natH * scale;
+      setBox({ offX: (cw - dw) / 2, offY: (ch - dh) / 2, dw, dh });
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [natW, natH]);
+  return [ref, box];
+}
+
 export const AMBIANCE = {
   cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", spinner: "/cyber-spinner-suv.png", bus: "/cyber-bus.png", bus2: "/cyber-bus2.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
   steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall-full.png", console: "/steam-console.png", device: "/steam-arc-device.png", steam: true, roofCables: true, floor: true, accent: "#D9A44E", sky: "#F1D9A6" },
   tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", lounge: "/tiki-lounge-full.png", accent: "#F0A24E", sky: "#FBE3C0" },
   fantasy: { grad: "linear-gradient(180deg,#1A0E08 0%,#120A06 55%,#080503 100%)", hoard: "/fantasy-cave.jpg", accent: "#E6B23A", sky: "#F3D9A0" },
+  fairy: { grad: "linear-gradient(180deg,#0B1F14 0%,#123024 50%,#081710 100%)", gully: "/fairy-gully.png", accent: "#5EE0A8", sky: "#CFF5DC" },
 };
+
+// Fairy Gully ambience: drifting will-o'-wisps + tiny fluttering butterflies.
+const FAIRY_WISPS = [
+  { left: "8%", top: "62%", size: 26, dur: 9.5, delay: 0 },
+  { left: "20%", top: "74%", size: 18, dur: 11, delay: -3 },
+  { left: "33%", top: "58%", size: 22, dur: 8.5, delay: -6 },
+  { left: "47%", top: "70%", size: 16, dur: 12, delay: -1.5 },
+  { left: "60%", top: "64%", size: 24, dur: 10, delay: -4.5 },
+  { left: "72%", top: "76%", size: 19, dur: 9, delay: -7.5 },
+  { left: "85%", top: "60%", size: 27, dur: 11.5, delay: -2.5 },
+  { left: "93%", top: "72%", size: 15, dur: 8, delay: -5.5 },
+];
+const FAIRY_BUTTERFLIES = [
+  { left: "12%", top: "30%", size: 15, dur: 13, delay: 0, flap: 0.28, c1: "#F2A0E0", c2: "#C86BD8", alt: false },
+  { left: "68%", top: "22%", size: 12, dur: 16, delay: -4, flap: 0.34, c1: "#8FD3FF", c2: "#5B9EF0", alt: true },
+  { left: "40%", top: "44%", size: 17, dur: 14, delay: -8, flap: 0.25, c1: "#FFD36B", c2: "#F0A24E", alt: false },
+  { left: "82%", top: "48%", size: 11, dur: 17, delay: -2, flap: 0.31, c1: "#B7A0FF", c2: "#8A6BE0", alt: true },
+  { left: "25%", top: "16%", size: 13, dur: 15, delay: -11, flap: 0.29, c1: "#8FF0B0", c2: "#4ECf8A", alt: true },
+  { left: "55%", top: "34%", size: 14, dur: 12, delay: -6, flap: 0.27, c1: "#FF9FA8", c2: "#E86B7C", alt: false },
+];
+
+/** SVG-only butterfly with fluttering wings: each wing folds toward the body
+ * axis (scaleX at the body origin) — reused by the scene and reveal flourish. */
+export function ButterflySprite({ size, c1, c2, flap }) {
+  return (
+    <svg viewBox="0 0 20 14" style={{ width: size, overflow: "visible", filter: `drop-shadow(0 0 3px ${c1}66)` }}>
+      <g style={{ transformOrigin: "10px 7px", animation: `ffWingFold ${flap}s ease-in-out infinite` }}>
+        <ellipse cx="5.6" cy="4.6" rx="4.8" ry="3.8" fill={c1} opacity="0.92" />
+        <ellipse cx="6.8" cy="10" rx="3.4" ry="2.7" fill={c2} opacity="0.9" />
+      </g>
+      <g style={{ transformOrigin: "10px 7px", animation: `ffWingFold ${flap}s ease-in-out infinite` }}>
+        <ellipse cx="14.4" cy="4.6" rx="4.8" ry="3.8" fill={c1} opacity="0.92" />
+        <ellipse cx="13.2" cy="10" rx="3.4" ry="2.7" fill={c2} opacity="0.9" />
+      </g>
+      <rect x="9.35" y="2.6" width="1.3" height="9" rx="0.65" fill="#2A2118" />
+    </svg>
+  );
+}
+
+/** Tiny butterfly flitting along a wavy ambient path with fluttering wings. */
+export function FlutterButterfly({ b, z = 3 }) {
+  return (
+    <div
+      className="pointer-events-none absolute"
+      style={{ left: b.left, top: b.top, zIndex: z, animation: `${b.alt ? "ffFlit2" : "ffFlit1"} ${b.dur}s ease-in-out ${b.delay}s infinite alternate` }}
+      data-testid="fairy-butterfly"
+    >
+      <ButterflySprite size={b.size} c1={b.c1} c2={b.c2} flap={b.flap} />
+    </div>
+  );
+}
 
 const TIKI_FLAME_FRAMES = ["/tiki-flame-1.png", "/tiki-flame-2.png", "/tiki-flame-3.png", "/tiki-flame-4.png", "/tiki-flame-5.png"];
 const TIKI_FLAME_FRAMES_GEN = ["/tiki-flame-gen-1.png", "/tiki-flame-gen-2.png", "/tiki-flame-gen-3.png", "/tiki-flame-gen-4.png"];
 
 export function AmbianceScene({ theme, cfg }) {
   const [mobile, setMobile] = useState(false);
+  const [anchorRef, coverBox] = useCoverAnchor(GULLY_NAT.w, GULLY_NAT.h);
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 640px)");
     const on = () => setMobile(mq.matches);
@@ -200,7 +287,7 @@ export function AmbianceScene({ theme, cfg }) {
   const flameFrames = (typeof localStorage !== "undefined" && localStorage.getItem("ff_flame") === "gen")
     ? TIKI_FLAME_FRAMES_GEN : TIKI_FLAME_FRAMES;
   return (
-    <div className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`ambiance-scene-${theme}`}>
+    <div ref={anchorRef} className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`ambiance-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
       {cfg.hoard && (<>
         <img src={cfg.hoard} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-90" style={{ objectPosition: "center center" }} data-testid="fantasy-hoard-bg" />
@@ -215,6 +302,29 @@ export function AmbianceScene({ theme, cfg }) {
             <span className="pointer-events-none absolute z-[3]" style={{ left: d.left, top: 0, width: 3, height: 12, borderRadius: "0 0 3px 3px", background: "linear-gradient(180deg, rgba(40,60,72,0.04), rgba(58,88,104,0.72))", animation: `ffDripFall ${d.dur}s cubic-bezier(0.55,0,0.95,0.5) ${d.delay}s infinite` }} />
             <span className="pointer-events-none absolute z-[3] rounded-full border" style={{ left: d.left, top: "88vh", width: 16, height: 5, borderColor: "rgba(58,88,104,0.5)", animation: `ffDripRipple ${d.dur}s ease-out ${d.delay}s infinite` }} />
           </React.Fragment>
+        ))}
+      </>)}
+      {cfg.gully && (<>
+        <img src={cfg.gully} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-95" style={{ objectPosition: "center center" }} data-testid="fairy-gully-bg" />
+        <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(180deg, rgba(6,18,12,0.5) 0%, rgba(6,18,12,0.1) 32%, rgba(6,18,12,0.22) 68%, rgba(4,12,8,0.68) 100%)" }} />
+        {/* Will-o'-wisps: glowing teal orbs drifting up through the gully */}
+        {FAIRY_WISPS.map((w, i) => (
+          <span key={`wisp-${i}`} className="pointer-events-none absolute z-[2] rounded-full" style={{ left: w.left, top: w.top, width: w.size, height: w.size, background: "radial-gradient(circle, rgba(214,255,236,0.95), rgba(94,224,168,0.55) 40%, rgba(64,208,168,0) 72%)", filter: "blur(1px)", animation: `ffWispDrift ${w.dur}s ease-in-out ${w.delay}s infinite, ffWispGlow ${(w.dur / 3).toFixed(1)}s ease-in-out ${w.delay}s infinite` }} data-testid="fairy-wisp" />
+        ))}
+        {/* Pond ripples: expanding rings pinned to the water in the artwork
+            (image-fraction coords mapped through the object-cover crop) */}
+        {coverBox && FAIRY_RIPPLES.map((r, i) => {
+          const s = r.size * (coverBox.dw / GULLY_NAT.w);
+          return (
+            <span key={`rip-${i}`} className="pointer-events-none absolute z-[2]" style={{ left: coverBox.offX + r.fx * coverBox.dw - s / 2, top: coverBox.offY + r.fy * coverBox.dh - s / 2, width: s, height: s, transform: "scaleY(0.32)" }} data-testid="fairy-ripple">
+              <span className="absolute inset-0 rounded-full border" style={{ borderColor: "rgba(214,240,255,0.55)", boxShadow: "0 0 6px rgba(180,225,255,0.35)", animation: `ffRippleRing ${r.dur}s ease-out ${r.delay}s infinite` }} />
+              <span className="absolute inset-0 rounded-full border" style={{ borderColor: "rgba(214,240,255,0.35)", animation: `ffRippleRing ${r.dur}s ease-out ${r.delay + r.dur * 0.35}s infinite` }} />
+            </span>
+          );
+        })}
+        {/* Tiny butterflies with fluttering wings */}
+        {FAIRY_BUTTERFLIES.map((b, i) => (
+          <FlutterButterfly key={`bf-${i}`} b={b} />
         ))}
       </>)}
       {cfg.skyline && <img src={cfg.skyline} alt="" className="absolute bottom-0 left-0 w-full object-cover opacity-70" style={{ maxHeight: "52vh" }} />}

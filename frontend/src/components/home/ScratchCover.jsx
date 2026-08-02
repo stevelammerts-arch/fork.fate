@@ -14,6 +14,7 @@ const FOILS = {
   winter: { stops: ["#4A7A9C", "#CFE8F5", "#9CC8E0", "#33586F"], text: "#1B3648" },
   spring: { stops: ["#B25A78", "#F5C9D8", "#E098B4", "#8A3F5C"], text: "#5C2038" },
   summer: { stops: ["#1E8A8A", "#9CE8E0", "#4CC8C0", "#136060"], text: "#0A3D3D" },
+  fairy: { stops: ["#1E7A4A", "#8FF0C0", "#4ECF8A", "#145C36"], text: "#06301C" },
   light: { stops: ["#B3141A", "#F26B70", "#E01E26", "#8E0E13"], text: "#FFFFFF" },
 };
 
@@ -25,7 +26,7 @@ export function foilForTheme(theme) {
 const ACCENTS = {
   fantasy: "#E6B23A", cyber: "#22E0E0", tiki: "#F0A24E", steam: "#D9A44E",
   dark: "#E01E26", light: "#A31621", fall: "#D97B2C", winter: "#9CC8E0",
-  spring: "#E098B4", summer: "#4CC8C0",
+  spring: "#E098B4", summer: "#4CC8C0", fairy: "#5EE0A8",
 };
 
 export function accentForTheme(theme) {
