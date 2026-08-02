@@ -1,9 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Palette, ChevronDown, Moon, Sun, Leaf, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, Swords, Check, Sparkles, ShoppingBag, Store, Volume2, VolumeX } from "lucide-react";
-import { MushroomIcon } from "../GuidedFlow";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../ui/dropdown-menu";
-import { setTheme } from "../../hooks/useTheme";
+import { Palette, Sparkles, ShoppingBag, Store, Volume2, VolumeX } from "lucide-react";
 import { useLang } from "../../i18n/i18n";
 import NearbyHelp from "../NearbyHelp";
 import ReigningChampBadge from "../ReigningChampBadge";
@@ -17,7 +14,7 @@ import BecomeSponsorDialog from "../BecomeSponsorDialog";
  * Purely presentational — all state lives in Home.
  */
 export function HomeHeader({
-  light, ghost, theme, themeHint, dismissThemeHint, hintColor,
+  light, ghost, theme, themeHint, dismissThemeHint, hintColor, onOpenThemePicker,
   muted, toggleMuted, onGuided, zip, coords,
   favorites, removeFavorite, dealFromFavorites, groupMode,
   sponsorOpen, setSponsorOpen,
@@ -61,52 +58,15 @@ export function HomeHeader({
             ))}
           </div>
           <div className="relative">
-            <DropdownMenu onOpenChange={(o) => o && dismissThemeHint()}>
-              <DropdownMenuTrigger asChild>
-                <button
-                  data-testid="theme-menu-button"
-                  aria-label="Choose a theme"
-                  className={`inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${ghost}`}
-                >
-                  <Palette className="h-4 w-4" /> <span>{t("Theme")}</span> <ChevronDown className="h-3.5 w-3.5 opacity-70" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" data-testid="theme-menu" className="w-40">
-                <DropdownMenuItem data-testid="theme-option-dark" onClick={() => setTheme("dark")} className="gap-2">
-                  <Moon className="h-4 w-4" /> {t("Reaper (Original)")} {theme === "dark" && <Check className="ml-auto h-4 w-4" />}
-                </DropdownMenuItem>
-                <DropdownMenuItem data-testid="theme-option-light" onClick={() => setTheme("light")} className="gap-2">
-                  <Sun className="h-4 w-4" /> {t("Coffee Shop")} {theme === "light" && <Check className="ml-auto h-4 w-4" />}
-                </DropdownMenuItem>
-                <DropdownMenuItem data-testid="theme-option-fall" onClick={() => setTheme("fall")} className="gap-2">
-                  <Leaf className="h-4 w-4" /> {t("Fall")} {theme === "fall" && <Check className="ml-auto h-4 w-4" />}
-                </DropdownMenuItem>
-                <DropdownMenuItem data-testid="theme-option-winter" onClick={() => setTheme("winter")} className="gap-2">
-                  <Snowflake className="h-4 w-4" /> {t("Winter")} {theme === "winter" && <Check className="ml-auto h-4 w-4" />}
-                </DropdownMenuItem>
-                <DropdownMenuItem data-testid="theme-option-spring" onClick={() => setTheme("spring")} className="gap-2">
-                  <Flower2 className="h-4 w-4" /> {t("Spring")} {theme === "spring" && <Check className="ml-auto h-4 w-4" />}
-                </DropdownMenuItem>
-                <DropdownMenuItem data-testid="theme-option-summer" onClick={() => setTheme("summer")} className="gap-2">
-                  <Umbrella className="h-4 w-4" /> {t("Summer")} {theme === "summer" && <Check className="ml-auto h-4 w-4" />}
-                </DropdownMenuItem>
-                <DropdownMenuItem data-testid="theme-option-cyber" onClick={() => setTheme("cyber")} className="gap-2">
-                  <Zap className="h-4 w-4" /> {t("Cyberscape")} {theme === "cyber" && <Check className="ml-auto h-4 w-4" />}
-                </DropdownMenuItem>
-                <DropdownMenuItem data-testid="theme-option-steam" onClick={() => setTheme("steam")} className="gap-2">
-                  <Cog className="h-4 w-4" /> {t("Steampunk")} {theme === "steam" && <Check className="ml-auto h-4 w-4" />}
-                </DropdownMenuItem>
-                <DropdownMenuItem data-testid="theme-option-tiki" onClick={() => setTheme("tiki")} className="gap-2">
-                  <Wine className="h-4 w-4" /> {t("Tiki Lounge")} {theme === "tiki" && <Check className="ml-auto h-4 w-4" />}
-                </DropdownMenuItem>
-                <DropdownMenuItem data-testid="theme-option-fantasy" onClick={() => setTheme("fantasy")} className="gap-2">
-                  <Swords className="h-4 w-4" /> {t("Dragon's Hoard")} {theme === "fantasy" && <Check className="ml-auto h-4 w-4" />}
-                </DropdownMenuItem>
-                <DropdownMenuItem data-testid="theme-option-fairy" onClick={() => setTheme("fairy")} className="gap-2">
-                  <MushroomIcon className="h-4 w-4" /> {t("Fairy Gully")} {theme === "fairy" && <Check className="ml-auto h-4 w-4" />}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <button
+              type="button"
+              onClick={() => { dismissThemeHint(); onOpenThemePicker(); }}
+              data-testid="theme-menu-button"
+              aria-label="Choose a theme"
+              className={`inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${ghost}`}
+            >
+              <Palette className="h-4 w-4" /> <span>{t("Theme")}</span>
+            </button>
             {themeHint && (
               <div data-testid="theme-hint" style={{ backgroundColor: hintColor }} className="absolute left-1/2 top-full z-40 mt-2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold text-white shadow-lg">
                 {t("Pick a theme")} 🍂

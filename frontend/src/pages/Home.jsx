@@ -858,6 +858,7 @@ export default function Home() {
         theme={theme}
         themeHint={themeHint}
         dismissThemeHint={dismissThemeHint}
+        onOpenThemePicker={() => { dismissThemeHint(); setShowThemeWelcome(true); }}
         hintColor={ambCfg ? ambCfg.accent : seasonCfg ? seasonCfg.hint : light ? "#4F6F47" : "#E01E26"}
         muted={muted}
         toggleMuted={toggleMuted}

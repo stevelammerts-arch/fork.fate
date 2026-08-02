@@ -378,11 +378,21 @@ export function AmbianceScene({ theme, cfg }) {
         ))}
       </>)}
       {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
-      {cfg.console && <img src={cfg.console} alt="" className="absolute bottom-0 left-[-22%] z-[4] h-[52vh] object-contain opacity-80 sm:left-[-2%] sm:h-[74vh]" />}
+      {cfg.console && (
+        <div className="absolute bottom-0 left-[-22%] z-[4] h-[52vh] sm:left-[-2%] sm:h-[74vh]" style={{ aspectRatio: "848 / 1264" }} data-testid="steam-console">
+          <img src={cfg.console} alt="" className="absolute inset-0 h-full w-full object-contain" />
+          {/* Brass goggles set down on the console's desk shelf — anchored to the
+              cabinet's own box so they stay in scale with it on any screen. */}
+          <div className="absolute" data-testid="steam-goggles-prop" style={{ left: "28%", top: "57.6%", width: "18%", transform: "rotate(-5deg)" }}>
+            <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-10%", width: "130%", height: "38%", background: "radial-gradient(ellipse, rgba(0,0,0,0.85), rgba(0,0,0,0) 66%)" }} />
+            <img src="/steam-goggles-shelf.png" alt="" className="relative w-full object-contain" style={{ filter: "drop-shadow(0 4px 5px rgba(0,0,0,0.9)) brightness(1.22) contrast(1.05)" }} />
+          </div>
+        </div>
+      )}
       {cfg.device && (
         <div className="absolute bottom-0 right-[-5%] z-[3] h-[40vh] sm:right-[3%] sm:h-[46vh]" style={{ aspectRatio: "545 / 970", transform: "scaleX(-1)" }}>
           <img src={cfg.device} alt="" className="absolute inset-0 h-full w-full object-contain opacity-90" />
-          <div className="absolute" style={{ left: "39%", width: "18%", top: "1.5%", height: "23%" }}>
+          <div className="absolute" style={{ left: "43.5%", width: "12.5%", top: "2%", height: "22%" }}>
             <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(120,210,255,0.22), rgba(120,210,255,0) 70%)", animation: "ffArcGlow 0.13s steps(2,end) infinite" }} />
             <div className="absolute inset-x-0 top-0" style={{ height: "24%", animation: "ffArcClimb 1.7s ease-in-out infinite" }}>
               <svg viewBox="0 0 40 12" preserveAspectRatio="none" className="h-full w-full" style={{ overflow: "visible" }}>
@@ -470,6 +480,11 @@ export function AmbianceScene({ theme, cfg }) {
           <div className="absolute inset-x-0 top-[46%] h-px" style={{ background: "rgba(0,0,0,0.5)" }} />
           <div className="absolute inset-x-0 top-0 h-[3px]" style={{ background: "linear-gradient(90deg, transparent, rgba(217,164,78,0.55) 20%, rgba(240,200,120,0.7) 50%, rgba(217,164,78,0.55) 80%, transparent)" }} />
           <div className="absolute inset-x-0 top-[3px] h-[10px]" style={{ background: "linear-gradient(180deg, rgba(217,164,78,0.22), transparent)" }} />
+          {/* Plague doctor mask abandoned on the dusty floor, soft ground shadow */}
+          <div className="absolute" data-testid="steam-mask-prop" style={{ left: "52%", bottom: "1.4vh" }}>
+            <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.5vh", width: "14vh", height: "2vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.55), rgba(0,0,0,0) 70%)" }} />
+            <img src="/steam-mask-floor.png" alt="" className="relative object-contain" style={{ width: "13vh" }} />
+          </div>
         </div>
       )}
     </div>

@@ -25,6 +25,7 @@ export const ES = {
   "The fae hid your fate — scratch the ring": "Las hadas ocultaron tu destino: rasca el anillo",
   "Enter Fork·Fate": "Entrar a Fork·Fate",
   "You can change your realm anytime from the Theme menu.": "Puedes cambiar tu reino cuando quieras desde el menú Tema.",
+  "Tap a realm to enter — the Theme pill up top brings you back anytime.": "Toca un reino para entrar — el botón Tema de arriba te trae de vuelta cuando quieras.",
   "Add": "Agregar",
   "Guided": "Guiado",
   "Sponsor your spot": "Promociona tu local",

@@ -675,3 +675,23 @@ See `/app/memory/test_credentials.md`.
 - No code changes made. App published by user; iteration_51 deep diagnostic was green.
 - Next: Apple App Store publishing support when user returns; P2 backlog item —
   "Check again" button on /sponsor/success when payment polling ends pending.
+
+## 2026-08-02 Session: Theme picker rework + Steampunk props
+- Theme pill (header) now opens the full "Choose your realm" window (ThemeWelcomeDialog)
+  instead of a dropdown; dropdown removed from HomeHeader.jsx.
+- ThemeWelcomeDialog: removed "Enter Fork·Fate" continue button — tapping a realm
+  applies it AND closes the window immediately (pickTheme -> setTheme + onDone).
+  Footer hint updated (EN + ES in i18n.js).
+- Steampunk scene (ThemeScenes.jsx):
+  - New AI-generated props (Nano Banana, magenta-keyed to alpha via /app/scripts/
+    gen_steam_props.py + gen_steam_mask_floor.py): steam-goggles-shelf.png,
+    steam-mask-floor.png in frontend/public.
+  - Brass goggles resting on the console's desk shelf, anchored to the cabinet's
+    aspect-ratio box (848/1264) so they scale with it; tilted -5deg, brightness
+    boost + ellipse ground shadow (user: "they blend in" -> fixed).
+  - Plague doctor mask lying on the dusty floor strip with ground shadow (13vh wide,
+    in scale with the cabinet).
+  - Jacob's ladder arc shrunk to fit between the device posts (left 43.5%, width 12.5%).
+  - Console cabinet made fully opaque (was opacity-80; user could see through it).
+- Verified via UI automation: picker opens from pill, one-tap applies theme + closes;
+  steam scene props render correctly.

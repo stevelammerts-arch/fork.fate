@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Moon, Sun, Leaf, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, Swords, Dices, Check, ArrowRight } from "lucide-react";
+import { Moon, Sun, Leaf, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, Swords, Dices, Check } from "lucide-react";
 import { MushroomIcon } from "./GuidedFlow";
 import { useTheme, setTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
@@ -21,14 +21,14 @@ const THEMES = [
 ];
 
 /**
- * First-run "Choose Your Realm" window — shown once, before the guided
- * ritual's first step. Tapping a swatch applies the theme LIVE behind the
- * overlay so the choice previews itself; "Enter Fork·Fate" seals it.
+ * "Choose Your Realm" window — shown on first run and reopened anytime from
+ * the header's Theme pill. Tapping a swatch applies the theme and enters
+ * Fork·Fate immediately; no separate confirm step.
  */
 export default function ThemeWelcomeDialog({ onDone }) {
   const { theme } = useTheme();
   const { t } = useLang();
-  const pickTheme = (id) => setTheme(id);
+  const pickTheme = (id) => { setTheme(id); onDone(); };
 
   return (
     <div data-testid="theme-welcome" className="fixed inset-0 z-[130] overflow-y-auto">
@@ -109,20 +109,8 @@ export default function ThemeWelcomeDialog({ onDone }) {
             </motion.button>
           </div>
 
-          <motion.button
-            type="button"
-            data-testid="theme-welcome-continue"
-            onClick={onDone}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7, duration: 0.4 }}
-            whileTap={{ scale: 0.97 }}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#E01E26] px-6 py-3.5 font-sans text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#C0161D]"
-          >
-            {t("Enter Fork·Fate")} <ArrowRight className="h-4 w-4" />
-          </motion.button>
-          <p className="mt-3 text-center font-sans text-[11px] text-white/40">
-            {t("You can change your realm anytime from the Theme menu.")}
+          <p className="mt-6 text-center font-sans text-[11px] text-white/40">
+            {t("Tap a realm to enter — the Theme pill up top brings you back anytime.")}
           </p>
         </motion.div>
       </div>
