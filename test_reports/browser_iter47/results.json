@@ -1,0 +1,37 @@
+{
+  "cyber": {
+    "deck_flourish_present": false,
+    "deck_flourish_should_be_absent": true,
+    "theme_flourish_data_flourish_cyber_present": true,
+    "column_count": 12,
+    "column_class_contains_font_mono": true,
+    "all_chars_are_0_or_1": true,
+    "sample_column_texts": [
+      "110011011001011",
+      "001101000000",
+      "10110101110011"
+    ],
+    "unmounted": true
+  },
+  "dark": {
+    "deck_flourish_absent": true,
+    "theme_flourish_data_flourish_dark_present": true,
+    "apparition_count": 4,
+    "svg_count": 4,
+    "svg_path_count": 4,
+    "svg_ellipse_count_eyes": 8,
+    "first_apparition_style_has_blur_1_4px": true,
+    "style_sample": "left: 48.2347%; bottom: -16px; width: 67.3021px; height: 107.683px; filter: blur(1.4px) drop-shadow(rgba(190, 205, 230, 0.45) 0px 0px 10px); opacity: 0; transform: translateY(40px) scale(0.7);"
+  },
+  "light": {
+    "theme_flourish_light_present": false,
+    "svg_heart_count": 0,
+    "shuffle_cafe_fetched": true,
+    "barista_bell_fetched": true,
+    "audio_fetched_sample": [
+      "barista-bell.mp3",
+      "shuffle-cafe.wav"
+    ]
+  },
+  "console_errors": []
+}

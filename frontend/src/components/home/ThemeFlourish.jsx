@@ -193,92 +193,90 @@ function LatteArt({ compact = false }) {
   );
 }
 
-/** Reaper: realistic wispy apparitions — blurred vapor forms drifting upward. */
+/** Reaper: spectral apparitions — hooded shrouds with hollow eyes, wind-torn
+ * hems, softly glowing as they ascend. Visible forms, not smoke. */
 function GhostRise() {
-  return Array.from({ length: 5 }, (_, i) => {
-    const w = 38 + rnd(i, 1) * 30;
-    const sway = 12 + rnd(i, 2) * 18;
+  return Array.from({ length: 4 }, (_, i) => {
+    const w = 46 + rnd(i, 1) * 26;
+    const sway = 12 + rnd(i, 2) * 16;
     return (
       <motion.div
         key={i}
         className="absolute"
-        style={{ left: `${8 + rnd(i, 3) * 70}%`, bottom: -20, width: w, height: w * 1.9, filter: "blur(6px)" }}
-        initial={{ y: 40, opacity: 0, scaleY: 0.7, scaleX: 1 }}
+        style={{ left: `${10 + rnd(i, 3) * 64}%`, bottom: -16, width: w, height: w * 1.6, filter: "blur(1.4px) drop-shadow(0 0 10px rgba(190,205,230,0.45))" }}
+        initial={{ y: 40, opacity: 0, scale: 0.7 }}
         animate={{
-          y: -250 - rnd(i, 4) * 70,
+          y: -240 - rnd(i, 4) * 60,
           x: [0, sway, -sway * 0.6, sway * 0.4],
-          opacity: [0, 0.55, 0.4, 0.55, 0],
-          scaleY: [0.7, 1, 1.3],
-          scaleX: [1, 0.92, 0.78],
+          opacity: [0, 0.85, 0.7, 0.8, 0],
+          scale: [0.7, 1, 1.12],
         }}
-        transition={{ delay: rnd(i, 5) * 1.4, duration: 3.2 + rnd(i, 6) * 1.3, ease: "easeOut" }}
+        transition={{ delay: rnd(i, 5) * 1.5, duration: 3.4 + rnd(i, 6) * 1.2, ease: "easeOut" }}
       >
-        {/* Head: a soft luminous crown */}
-        <div
-          className="absolute"
-          style={{
-            left: "22%", top: 0, width: w * 0.56, height: w * 0.56, borderRadius: "50%",
-            background: "radial-gradient(circle at 50% 42%, rgba(212,222,238,0.55), rgba(212,222,238,0) 70%)",
-          }}
-        />
-        {/* Torso: elongated shroud fading downward */}
-        <div
-          className="absolute"
-          style={{
-            left: "8%", top: "20%", width: w * 0.84, height: w * 1.15,
-            borderRadius: "50% 50% 42% 42% / 62% 62% 38% 38%",
-            background: "radial-gradient(ellipse at 50% 28%, rgba(200,212,230,0.45), rgba(200,212,230,0) 72%)",
-          }}
-        />
-        {/* Trailing wisp curling off the hem */}
-        <div
-          className="absolute"
-          style={{
-            left: "30%", bottom: 0, width: w * 0.42, height: w * 0.9, borderRadius: "50%",
-            background: "radial-gradient(ellipse at 50% 22%, rgba(190,203,224,0.3), rgba(190,203,224,0) 70%)",
-            transform: "rotate(10deg)",
-          }}
-        />
+        <svg viewBox="0 0 40 64" className="h-full w-full">
+          <defs>
+            <radialGradient id={`ff-ghost-${i}`} cx="50%" cy="22%" r="70%">
+              <stop offset="0%" stopColor="rgba(230,238,250,0.9)" />
+              <stop offset="55%" stopColor="rgba(206,217,235,0.55)" />
+              <stop offset="100%" stopColor="rgba(206,217,235,0)" />
+            </radialGradient>
+          </defs>
+          {/* Hooded shroud flowing into a tapering, wind-torn hem */}
+          <path
+            d="M20 2 C 10 2, 6 12, 6 20 C 6 30, 4 38, 2 48 C 6 44, 8 50, 11 56 C 13 60, 15 52, 18 58 C 20 62, 23 54, 26 60 C 29 64, 30 52, 34 56 C 36 50, 34 40, 33 30 C 32 20, 32 2, 20 2 Z"
+            fill={`url(#ff-ghost-${i})`}
+          />
+          {/* Hollow eyes */}
+          <ellipse cx="14.6" cy="17" rx="2.6" ry="3.6" fill="rgba(8,8,12,0.55)" />
+          <ellipse cx="25.4" cy="17" rx="2.6" ry="3.6" fill="rgba(8,8,12,0.55)" />
+        </svg>
       </motion.div>
     );
   });
 }
 
-/** Cyberpunk: neon laser beams sweeping across the card + scanline flicker. */
-function CyberLasers() {
-  const beams = [
-    { top: "20%", color: "#22E0E0", delay: 0.1, dur: 1.1 },
-    { top: "48%", color: "#E040E0", delay: 0.55, dur: 1.3 },
-    { top: "72%", color: "#22E0E0", delay: 1.05, dur: 1.0 },
-    { top: "34%", color: "#E040E0", delay: 1.7, dur: 1.2 },
-    { top: "60%", color: "#22E0E0", delay: 2.25, dur: 1.0 },
-  ];
-  return (
-    <>
-      {beams.map((b, i) => (
-        <motion.div
-          key={i}
-          className="absolute h-[3px] w-2/3"
-          style={{
-            top: b.top,
-            background: `linear-gradient(90deg, transparent, ${b.color}, transparent)`,
-            boxShadow: `0 0 14px 2px ${b.color}`,
-          }}
-          initial={{ x: "-110%", opacity: 0 }}
-          animate={{ x: ["-110%", "170%"], opacity: [0, 1, 1, 0] }}
-          transition={{ delay: b.delay, duration: b.dur, ease: "easeInOut" }}
-        />
+/** Cyberpunk: purple Matrix-style digital rain — columns of 1s and 0s falling
+ * from the top of the picture, each with a bright glowing lead character. */
+function MatrixRain({ height }) {
+  const cols = Array.from({ length: 12 }, (_, i) => ({
+    left: `${3 + rnd(i, 1) * 90}%`,
+    delay: rnd(i, 2) * 1.5,
+    dur: 1.9 + rnd(i, 3) * 1.7,
+    size: 10 + Math.round(rnd(i, 4) * 5),
+    chars: Array.from({ length: 10 + Math.round(rnd(i, 5) * 8) }, (_, j) => (rnd(i * 31 + j, 6) > 0.5 ? "1" : "0")),
+  }));
+  return cols.map((c, i) => (
+    <motion.div
+      key={i}
+      className="absolute flex flex-col items-center font-mono font-bold"
+      style={{
+        left: c.left,
+        top: 0,
+        fontSize: c.size,
+        lineHeight: 1.05,
+        color: "#B24DE0",
+        textShadow: "0 0 8px rgba(178,77,224,0.9)",
+      }}
+      initial={{ y: -(c.chars.length * c.size * 1.05) - 12, opacity: 0 }}
+      animate={{ y: height + 24, opacity: [0, 1, 1, 0] }}
+      transition={{ delay: c.delay, duration: c.dur, ease: "linear", times: [0, 0.12, 0.82, 1] }}
+    >
+      {c.chars.map((ch, j) => (
+        <span
+          key={j}
+          style={
+            j === c.chars.length - 1
+              ? { color: "#F3E8FF", textShadow: "0 0 10px #E3B3FF, 0 0 18px rgba(199,125,255,0.8)" }
+              : j >= c.chars.length - 3
+                ? { color: "#D9A6FF" }
+                : undefined
+          }
+        >
+          {ch}
+        </span>
       ))}
-      {/* CRT scanline flicker riding under the beams */}
-      <motion.div
-        className="absolute inset-0"
-        style={{ background: "repeating-linear-gradient(0deg, rgba(34,224,224,0.07) 0 2px, transparent 2px 5px)" }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 0.65, 0.2, 0.55, 0] }}
-        transition={{ duration: 3.4, ease: "easeInOut" }}
-      />
-    </>
-  );
+    </motion.div>
+  ));
 }
 
 /** Summer: striped beach balls bouncing down across the card. */
@@ -351,7 +349,7 @@ export function ThemeFlourish({ theme, variant = "reveal" }) {
       ) : theme === "dark" ? (
         <GhostRise />
       ) : theme === "cyber" ? (
-        <CyberLasers />
+        <MatrixRain height={height} />
       ) : theme === "tiki" ? (
         <Fireflies />
       ) : theme === "summer" ? (
