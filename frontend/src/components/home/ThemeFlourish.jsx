@@ -202,12 +202,8 @@ function GhostRise() {
   useEffect(() => {
     const wail = new Audio("/soul-wail.wav");
     wail.volume = 0.5;
-    const laugh = new Audio("/soul-laugh.mp3");
-    laugh.volume = 0.5;
     const tm = setTimeout(() => wail.play().catch(() => {}), 350);
-    // Possessed laugh joins once the souls are visible
-    const tm2 = setTimeout(() => laugh.play().catch(() => {}), 1400);
-    return () => { clearTimeout(tm); clearTimeout(tm2); wail.pause(); laugh.pause(); };
+    return () => { clearTimeout(tm); wail.pause(); };
   }, []);
   return Array.from({ length: 3 }, (_, i) => {
     const w = 62 + rnd(i, 1) * 30;
@@ -361,6 +357,13 @@ const FAIRY_FLOURISH_COLORS = [
   ["#8FF0B0", "#4ECF8A"], ["#FF9FA8", "#E86B7C"], ["#B7A0FF", "#8A6BE0"],
 ];
 function ButterflyBurst() {
+  // Fae giggle as the butterflies take wing (user-uploaded clip).
+  useEffect(() => {
+    const laugh = new Audio("/fairy-laugh.mp3");
+    laugh.volume = 0.5;
+    const tm = setTimeout(() => laugh.play().catch(() => {}), 1200);
+    return () => { clearTimeout(tm); laugh.pause(); };
+  }, []);
   return (
     <>
       {Array.from({ length: 8 }, (_, i) => {
@@ -412,7 +415,7 @@ function ButterflyBurst() {
  */
 export function ThemeFlourish({ theme, variant = "reveal" }) {
   if (!FLOURISH_THEMES.has(theme)) return null;
-  if (variant === "deck" && (theme === "fantasy" || theme === "dark" || theme === "cyber")) return null;
+  if (variant === "deck" && (theme === "fantasy" || theme === "dark" || theme === "cyber" || theme === "fairy")) return null;
 
   if (theme === "steam") {
     if (variant === "deck") {
