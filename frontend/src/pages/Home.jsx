@@ -568,13 +568,16 @@ export default function Home() {
   // inside the Deal-button gesture above.
   useShake(() => {
     if (spinning || loading || showGuided || showCrawl) return;
+    // A rare ritual owns the shake gesture (the 8-ball especially) — never
+    // let the global shake-to-shuffle deal over it.
+    if (surpriseReveal || showThemeWelcome) return;
     if (!zip.trim() && !coords) return;
     // The shake IS the ritual — page-shuffle whoosh + a firm buzz confirm it.
     playSound("/shake-shuffle.mp3", 0.9);
     haptic(25);
     trackEvent("shake_shuffle", { category: mode, theme });
     doSearch(selectedCuisines, [], mode);
-  }, !spinning && !loading);
+  }, !spinning && !loading && !surpriseReveal);
 
   const useMyLocation = () => {
     if (!navigator.geolocation) {

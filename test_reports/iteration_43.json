@@ -1,0 +1,22 @@
+{
+  "summary": "Frontend-only verification of the SHAKE-COLLISION bug fix in Home.jsx (global useShake guard bails when surpriseReveal or showThemeWelcome is active, and enabled=false while surpriseReveal). All three targeted flows PASSED using synthetic DeviceMotionEvent bursts (accelerationIncludingGravity via constructor, threshold=14 m/s^2 crossed with ±25 alternating x @ ~60-100ms intervals).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/test_reports/browser_iter43/final.jpeg"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home.jsx L580: useShake enabled prop is `!spinning && !loading && !surpriseReveal` but doesn't include `!showThemeWelcome` or `!showGuided`. The early-return inside the callback catches these cases, but for symmetry with the guard consider adding them to the enabled expression too (avoids attaching listener at all during first-run modals).",
+    "useShake.js: after enabling changes, `last` baseline is reset via new effect run — but cooldown/lastFire state also resets, so a shake immediately after the guard lifts could fire faster than intended. Not observed as a bug here (COOLDOWN=3000ms applies within a single lifecycle), but worth noting."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100% (3/3 targeted flows)"},
+  "seed_data_creation": "localStorage seeded via add_init_script: ff_theme_chosen=1, ff_theme_hint_seen=1, ff_rare_force=8ball, ff_deal_taps=9, ff_rare_at=10, ff_muted=1. Cleanup at end removes ff_rare_force/ff_deal_taps/ff_rare_at.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Synthetic DeviceMotionEvent works in headless Chromium: `new DeviceMotionEvent('devicemotion', {accelerationIncludingGravity:{x,y,z}})` produces a usable event that useShake.js accepts. To cross the THRESHOLD=14 delta with two jolts inside JOLT_WINDOW=900ms: dispatch a baseline (x=0), then alternating ±25 events at 60-100ms intervals. COOLDOWN=3000ms after a fire — wait >3.2s between test bursts. Magic8Ball completion via pointer rattle: press-drag alternating ±80..90px across the ball for ~20 reversals; may need to retry after taunt fails (MAX_FAILS=2 before guaranteed answer). After ritual, ff_rare_force stays in localStorage (not cleared by app — expected), but ff_deal_taps=0 confirms the rare-fate counter reset.",
+  "test_evidence": {
+    "test_1_shake_collision_fix": "PASS — With magic-8ball-overlay mounted (data-state=idle), dispatched a devicemotion burst polling every 50ms for 2s. saw_shuffle_popup=False (guard held), ball_left_idle=True (Magic8Ball's own useShake still fired → stage progressed shaking/message/answer). The pre-fix bug would have started a whole new deal (shuffle-popup) — it did not.",
+    "test_2_global_shake_still_works": "PASS — After completing the 8ball ritual (overlay unmounted, waited 3.2s for cooldown), dispatched an identical burst. shuffle-popup mounted → new deal triggered. Confirms guard only suppresses during rituals.",
+    "test_3_no_shake_sensor_regression": "PASS — Plain click on [data-testid=spin-roulette-button] succeeded without JS errors after the ritual/shake flows; no .error nodes rendered."
+  }
+}
