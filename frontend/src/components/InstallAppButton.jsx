@@ -44,7 +44,6 @@ export default function InstallAppButton() {
     };
     window.addEventListener("ff:shuffle-success", onShuffle);
     return () => window.removeEventListener("ff:shuffle-success", onShuffle);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deferred]);
 
   const install = async () => {

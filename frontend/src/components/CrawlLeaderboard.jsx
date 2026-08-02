@@ -27,6 +27,158 @@ const rankTitle = (stops) => {
 
 export { rankTitle, fmtTime };
 
+/** "Put your crew on the board" form shown until the run is posted. */
+function SubmitPanel({ team, setTeam, posting, onSubmit, stops, durationSeconds, verified, accent, light, inputCls, t }) {
+  return (
+    <div className="mb-4 flex flex-col gap-2" data-testid="crawl-leaderboard-submit">
+      <p className={`text-sm font-bold ${light ? "text-[#2A2118]" : "text-white"}`}>
+        {t("Put your crew on the board")}
+      </p>
+      <p className={`text-xs ${light ? "text-[#8A7C68]" : "text-[#8A8F95]"}`}>
+        {t("Use a team name or nickname — no real names needed.")}
+      </p>
+      <input
+        value={team}
+        onChange={(e) => setTeam(e.target.value.slice(0, 40))}
+        placeholder={t("Team name (e.g. The Night Owls)")}
+        data-testid="crawl-leaderboard-team-input"
+        className={inputCls}
+      />
+      <p className={`text-xs font-semibold ${light ? "text-[#5A5142]" : "text-[#C7CBD1]"}`}>
+        {stops} {stops !== 1 ? t("stops") : t("stop")} {t("conquered")}
+        {durationSeconds != null ? ` · ${fmtTime(durationSeconds)}` : ""} · {t(rankTitle(stops))}
+      </p>
+      {!verified && (
+        <p className={`flex items-start gap-1.5 rounded-lg px-2.5 py-2 text-[11px] ${light ? "bg-[#FBECC9] text-[#8A6D00]" : "bg-[#3A2E00] text-[#F0C33C]"}`} data-testid="crawl-leaderboard-unverified-note">
+          <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          {t("Manual check-ins earn your badge but won't be ranked. Turn on Auto check-in (GPS) next crawl to compete on the board.")}
+        </p>
+      )}
+      <button
+        onClick={onSubmit}
+        disabled={posting}
+        data-testid="crawl-leaderboard-submit-button"
+        className="mt-1 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
+        style={{ backgroundColor: accent }}
+      >
+        {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <PartyPopper className="h-4 w-4" />}
+        {t("Add my crew to the board")}
+      </button>
+    </div>
+  );
+}
+
+/** Post-submit banner: verified crews get their rank, manual runs get the badge note. */
+function PostedBanner({ serverVerified, rank, accent, light, t }) {
+  if (serverVerified === false) {
+    return (
+      <div className={`mb-3 flex flex-col gap-1.5 rounded-xl px-3 py-2.5 ${light ? "bg-[#FBECC9]" : "bg-[#3A2E00]"}`} data-testid="crawl-leaderboard-posted-unverified">
+        <div className="flex items-center gap-2 text-sm font-bold" style={{ color: light ? "#8A6D00" : "#F0C33C" }}>
+          <Trophy className="h-4 w-4" /> {t("Badge earned!")}
+        </div>
+        <p className={`text-xs font-semibold ${light ? "text-[#8A6D00]" : "text-[#F0C33C]"}`} data-testid="crawl-leaderboard-unverified">
+          {t("Recorded, but not ranked — this crawl was checked off manually. Use Auto check-in (GPS) to appear on the leaderboard.")}
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="mb-3 flex flex-col gap-1.5 rounded-xl px-3 py-2.5" style={{ backgroundColor: `${accent}1A` }} data-testid="crawl-leaderboard-posted">
+      <div className="flex items-center gap-2 text-sm font-bold" style={{ color: accent }}>
+        <Crown className="h-4 w-4" /> {t("Your crew is on the board!")}
+      </div>
+      {rank && rank.rank_stops && (
+        <p className={`text-xs font-semibold ${light ? "text-[#5A5142]" : "text-[#C7CBD1]"}`} data-testid="crawl-leaderboard-rank">
+          {t("Ranked")}{" "}
+          <span className="font-extrabold" style={{ color: accent }}>#{rank.rank_stops}</span>{" "}
+          {t("globally by stops")}
+          {rank.rank_fastest ? (
+            <>
+              {" · "}
+              <span className="font-extrabold" style={{ color: accent }}>#{rank.rank_fastest}</span>{" "}
+              {t("fastest")}
+            </>
+          ) : null}
+          {" "}{t("of")} {rank.total} {t("crews")}. {t("Share it and dare your friends to beat you!")}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Scope (global / your crew) + sort (stops / fastest) chip row. */
+function ScopeSortTabs({ scope, setScope, sort, setSort, code, accent, chip, light, t }) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <button onClick={() => setScope("global")} data-testid="leaderboard-scope-global"
+        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${chip(scope === "global")}`}
+        style={scope === "global" ? { backgroundColor: accent } : undefined}>
+        <Globe className="h-3.5 w-3.5" /> {t("Global")}
+      </button>
+      {code && (
+        <button onClick={() => setScope("crawl")} data-testid="leaderboard-scope-crawl"
+          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${chip(scope === "crawl")}`}
+          style={scope === "crawl" ? { backgroundColor: accent } : undefined}>
+          <Users className="h-3.5 w-3.5" /> {t("Your Crew")}
+        </button>
+      )}
+      <span className={`mx-1 h-4 w-px ${light ? "bg-[#E4D9C4]" : "bg-[#3A3A3A]"}`} />
+      <button onClick={() => setSort("stops")} data-testid="leaderboard-sort-stops"
+        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${chip(sort === "stops")}`}
+        style={sort === "stops" ? { backgroundColor: accent } : undefined}>
+        <Trophy className="h-3.5 w-3.5" /> {t("Most Stops")}
+      </button>
+      <button onClick={() => setSort("fastest")} data-testid="leaderboard-sort-fastest"
+        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${chip(sort === "fastest")}`}
+        style={sort === "fastest" ? { backgroundColor: accent } : undefined}>
+        <Zap className="h-3.5 w-3.5" /> {t("Fastest")}
+      </button>
+    </div>
+  );
+}
+
+/** Ranked rows (gold/silver/bronze medals) with loading + empty states. */
+function BoardList({ loading, rows, sort, accent, light, t }) {
+  const rankBg = (i) => {
+    if (i === 0) return "bg-[#D4AF37] text-black";
+    if (i === 1) return "bg-[#B8C0C6] text-black";
+    if (i === 2) return "bg-[#C77B45] text-black";
+    return light ? "bg-[#EDE2CF] text-[#5A5142]" : "bg-[#232323] text-[#C7CBD1]";
+  };
+  return (
+    <div className="mt-3 space-y-1.5" data-testid="crawl-leaderboard-list">
+      {loading ? (
+        <div className={`flex items-center justify-center gap-2 py-8 text-sm ${light ? "text-[#8A7C68]" : "text-[#8A8F95]"}`}>
+          <Loader2 className="h-4 w-4 animate-spin" /> {t("Loading…")}
+        </div>
+      ) : rows.length === 0 ? (
+        <p className={`py-6 text-center text-sm ${light ? "text-[#8A7C68]" : "text-[#8A8F95]"}`} data-testid="leaderboard-empty">
+          {sort === "fastest" ? t("No timed runs yet — be the first!") : t("No crews here yet — claim the top spot!")}
+        </p>
+      ) : (
+        rows.map((r, i) => (
+          <div key={`${r.team_name}-${i}`} data-testid={`leaderboard-row-${i}`}
+            className={`flex items-center gap-3 rounded-xl px-3 py-2.5 ${light ? "bg-white/70" : "bg-[#1A1A1A]"}`}>
+            <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-extrabold ${rankBg(i)}`}>{i + 1}</span>
+            <div className="min-w-0 flex-1">
+              <p className={`truncate text-sm font-bold ${light ? "text-[#2A2118]" : "text-white"}`}>{r.team_name}</p>
+              <p className={`truncate text-[11px] ${light ? "text-[#8A7C68]" : "text-[#8A8F95]"}`}>{t(rankTitle(r.stops))}</p>
+            </div>
+            <div className="shrink-0 text-right">
+              <p className="text-sm font-extrabold" style={{ color: sort === "stops" ? accent : (light ? "#2A2118" : "#FFFFFF") }}>
+                {r.stops} {t("stops")}
+              </p>
+              <p className="text-[11px] font-semibold" style={{ color: sort === "fastest" ? accent : (light ? "#8A7C68" : "#8A8F95") }}>
+                {fmtTime(r.duration_seconds)}
+              </p>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
 export default function CrawlLeaderboard({ mode, label, stops = 0, durationSeconds = null, code = null, defaultTeam = "", light = false, ac, verified = false, distance = null, onRanked }) {
   const { t } = useLang();
   const [open, setOpen] = useState(false);
@@ -105,13 +257,6 @@ export default function CrawlLeaderboard({ mode, label, stops = 0, durationSecon
   const board = data ? (data[scope] || data.global) : null;
   const rows = board ? (board[sort] || []) : [];
 
-  const rankBg = (i) => {
-    if (i === 0) return "bg-[#D4AF37] text-black";
-    if (i === 1) return "bg-[#B8C0C6] text-black";
-    if (i === 2) return "bg-[#C77B45] text-black";
-    return light ? "bg-[#EDE2CF] text-[#5A5142]" : "bg-[#232323] text-[#C7CBD1]";
-  };
-
   return (
     <div className="mt-1">
       <button
@@ -133,131 +278,18 @@ export default function CrawlLeaderboard({ mode, label, stops = 0, durationSecon
           >
             <div className={`mt-3 rounded-2xl border p-4 ${panel}`} data-testid="crawl-leaderboard-panel">
               {!posted ? (
-                <div className="mb-4 flex flex-col gap-2" data-testid="crawl-leaderboard-submit">
-                  <p className={`text-sm font-bold ${light ? "text-[#2A2118]" : "text-white"}`}>
-                    {t("Put your crew on the board")}
-                  </p>
-                  <p className={`text-xs ${light ? "text-[#8A7C68]" : "text-[#8A8F95]"}`}>
-                    {t("Use a team name or nickname — no real names needed.")}
-                  </p>
-                  <input
-                    value={team}
-                    onChange={(e) => setTeam(e.target.value.slice(0, 40))}
-                    placeholder={t("Team name (e.g. The Night Owls)")}
-                    data-testid="crawl-leaderboard-team-input"
-                    className={inputCls}
-                  />
-                  <p className={`text-xs font-semibold ${light ? "text-[#5A5142]" : "text-[#C7CBD1]"}`}>
-                    {stops} {stops !== 1 ? t("stops") : t("stop")} {t("conquered")}
-                    {durationSeconds != null ? ` · ${fmtTime(durationSeconds)}` : ""} · {t(rankTitle(stops))}
-                  </p>
-                  {!verified && (
-                    <p className={`flex items-start gap-1.5 rounded-lg px-2.5 py-2 text-[11px] ${light ? "bg-[#FBECC9] text-[#8A6D00]" : "bg-[#3A2E00] text-[#F0C33C]"}`} data-testid="crawl-leaderboard-unverified-note">
-                      <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                      {t("Manual check-ins earn your badge but won't be ranked. Turn on Auto check-in (GPS) next crawl to compete on the board.")}
-                    </p>
-                  )}
-                  <button
-                    onClick={submit}
-                    disabled={posting}
-                    data-testid="crawl-leaderboard-submit-button"
-                    className="mt-1 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
-                    style={{ backgroundColor: accent }}
-                  >
-                    {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <PartyPopper className="h-4 w-4" />}
-                    {t("Add my crew to the board")}
-                  </button>
-                </div>
-              ) : serverVerified === false ? (
-                <div className={`mb-3 flex flex-col gap-1.5 rounded-xl px-3 py-2.5 ${light ? "bg-[#FBECC9]" : "bg-[#3A2E00]"}`} data-testid="crawl-leaderboard-posted-unverified">
-                  <div className="flex items-center gap-2 text-sm font-bold" style={{ color: light ? "#8A6D00" : "#F0C33C" }}>
-                    <Trophy className="h-4 w-4" /> {t("Badge earned!")}
-                  </div>
-                  <p className={`text-xs font-semibold ${light ? "text-[#8A6D00]" : "text-[#F0C33C]"}`} data-testid="crawl-leaderboard-unverified">
-                    {t("Recorded, but not ranked — this crawl was checked off manually. Use Auto check-in (GPS) to appear on the leaderboard.")}
-                  </p>
-                </div>
+                <SubmitPanel
+                  team={team} setTeam={setTeam} posting={posting} onSubmit={submit}
+                  stops={stops} durationSeconds={durationSeconds} verified={verified}
+                  accent={accent} light={light} inputCls={inputCls} t={t}
+                />
               ) : (
-                <div className="mb-3 flex flex-col gap-1.5 rounded-xl px-3 py-2.5" style={{ backgroundColor: `${accent}1A` }} data-testid="crawl-leaderboard-posted">
-                  <div className="flex items-center gap-2 text-sm font-bold" style={{ color: accent }}>
-                    <Crown className="h-4 w-4" /> {t("Your crew is on the board!")}
-                  </div>
-                  {rank && rank.rank_stops && (
-                    <p className={`text-xs font-semibold ${light ? "text-[#5A5142]" : "text-[#C7CBD1]"}`} data-testid="crawl-leaderboard-rank">
-                      {t("Ranked")}{" "}
-                      <span className="font-extrabold" style={{ color: accent }}>#{rank.rank_stops}</span>{" "}
-                      {t("globally by stops")}
-                      {rank.rank_fastest ? (
-                        <>
-                          {" · "}
-                          <span className="font-extrabold" style={{ color: accent }}>#{rank.rank_fastest}</span>{" "}
-                          {t("fastest")}
-                        </>
-                      ) : null}
-                      {" "}{t("of")} {rank.total} {t("crews")}. {t("Share it and dare your friends to beat you!")}
-                    </p>
-                  )}
-                </div>
+                <PostedBanner serverVerified={serverVerified} rank={rank} accent={accent} light={light} t={t} />
               )}
 
-              {/* Scope + sort tabs */}
-              <div className="flex flex-wrap items-center gap-2">
-                <button onClick={() => setScope("global")} data-testid="leaderboard-scope-global"
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${chip(scope === "global")}`}
-                  style={scope === "global" ? { backgroundColor: accent } : undefined}>
-                  <Globe className="h-3.5 w-3.5" /> {t("Global")}
-                </button>
-                {code && (
-                  <button onClick={() => setScope("crawl")} data-testid="leaderboard-scope-crawl"
-                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${chip(scope === "crawl")}`}
-                    style={scope === "crawl" ? { backgroundColor: accent } : undefined}>
-                    <Users className="h-3.5 w-3.5" /> {t("Your Crew")}
-                  </button>
-                )}
-                <span className={`mx-1 h-4 w-px ${light ? "bg-[#E4D9C4]" : "bg-[#3A3A3A]"}`} />
-                <button onClick={() => setSort("stops")} data-testid="leaderboard-sort-stops"
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${chip(sort === "stops")}`}
-                  style={sort === "stops" ? { backgroundColor: accent } : undefined}>
-                  <Trophy className="h-3.5 w-3.5" /> {t("Most Stops")}
-                </button>
-                <button onClick={() => setSort("fastest")} data-testid="leaderboard-sort-fastest"
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${chip(sort === "fastest")}`}
-                  style={sort === "fastest" ? { backgroundColor: accent } : undefined}>
-                  <Zap className="h-3.5 w-3.5" /> {t("Fastest")}
-                </button>
-              </div>
+              <ScopeSortTabs scope={scope} setScope={setScope} sort={sort} setSort={setSort} code={code} accent={accent} chip={chip} light={light} t={t} />
 
-              {/* Board */}
-              <div className="mt-3 space-y-1.5" data-testid="crawl-leaderboard-list">
-                {loading ? (
-                  <div className={`flex items-center justify-center gap-2 py-8 text-sm ${light ? "text-[#8A7C68]" : "text-[#8A8F95]"}`}>
-                    <Loader2 className="h-4 w-4 animate-spin" /> {t("Loading…")}
-                  </div>
-                ) : rows.length === 0 ? (
-                  <p className={`py-6 text-center text-sm ${light ? "text-[#8A7C68]" : "text-[#8A8F95]"}`} data-testid="leaderboard-empty">
-                    {sort === "fastest" ? t("No timed runs yet — be the first!") : t("No crews here yet — claim the top spot!")}
-                  </p>
-                ) : (
-                  rows.map((r, i) => (
-                    <div key={`${r.team_name}-${i}`} data-testid={`leaderboard-row-${i}`}
-                      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 ${light ? "bg-white/70" : "bg-[#1A1A1A]"}`}>
-                      <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-extrabold ${rankBg(i)}`}>{i + 1}</span>
-                      <div className="min-w-0 flex-1">
-                        <p className={`truncate text-sm font-bold ${light ? "text-[#2A2118]" : "text-white"}`}>{r.team_name}</p>
-                        <p className={`truncate text-[11px] ${light ? "text-[#8A7C68]" : "text-[#8A8F95]"}`}>{t(rankTitle(r.stops))}</p>
-                      </div>
-                      <div className="shrink-0 text-right">
-                        <p className="text-sm font-extrabold" style={{ color: sort === "stops" ? accent : (light ? "#2A2118" : "#FFFFFF") }}>
-                          {r.stops} {t("stops")}
-                        </p>
-                        <p className="text-[11px] font-semibold" style={{ color: sort === "fastest" ? accent : (light ? "#8A7C68" : "#8A8F95") }}>
-                          {fmtTime(r.duration_seconds)}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+              <BoardList loading={loading} rows={rows} sort={sort} accent={accent} light={light} t={t} />
 
               <Link
                 to="/leaderboard"

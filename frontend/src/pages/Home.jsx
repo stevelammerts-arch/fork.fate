@@ -3,37 +3,33 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Star, MapPin, Search, ExternalLink, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, MessageSquarePlus, Skull, ArrowDownWideNarrow, Flame, Users, Sparkles, Volume2, VolumeX, Beer, Trophy, Plus, Store, Sun, Moon, UtensilsCrossed, Leaf, Palette, ChevronDown, Check, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, ArrowRight, Swords, Mountain, Tent, Stamp, Globe2, Phone } from "lucide-react";
+import { Dices, Search, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, ArrowDownWideNarrow, Flame, Users, Beer, Trophy, UtensilsCrossed, ChevronDown, Mountain, Tent, Stamp, Globe2 } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
-import InstallAppButton from "../components/InstallAppButton";
 import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
 import SponsorMarquee from "../components/SponsorMarquee";
 import AndroidBetaBanner from "../components/AndroidBetaBanner";
 import SocialShare from "../components/SocialShare";
-import CheckUpdatesButton from "../components/CheckUpdatesButton";
-import FavoritesDrawer from "../components/FavoritesDrawer";
-import NearbyHelp from "../components/NearbyHelp";
 import { useFavorites } from "../hooks/useFavorites";
 import { useShake, requestMotionPermission } from "../hooks/useShake";
 import GuidedFlow from "../components/GuidedFlow";
 import ThemeWelcomeDialog from "../components/ThemeWelcomeDialog";
+import { HomeHeader } from "../components/home/HomeHeader";
+import { HomeInfoSections } from "../components/home/HomeInfoSections";
+import { HomeFooter } from "../components/home/HomeFooter";
 import PubCrawlDialog from "../components/PubCrawlDialog";
 import RevealStage from "../components/home/RevealStage";
 import ModeSetup, { StepList } from "../components/home/ModeSetup";
 import TypePicker from "../components/home/TypePicker";
-import ReigningChampBadge from "../components/ReigningChampBadge";
 import { haptic } from "../lib/pwa";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../components/ui/dropdown-menu";
 import {
   readStreak, bumpStreak,
   HERO_INITIAL, HERO_ANIMATE, HERO_TRANSITION, SPIN_TAP,
   FOOD_CUISINES, FOOD_GROUPS, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, BAR_GROUPS, SHOP_CUISINES, FUEL_CUISINES, FUEL_GROUPS, EXPLORE_CUISINES, EXPLORE_GROUPS, STAY_CUISINES, CRAWL_TYPES, crawlLabelForType, orderCrawlRoute,
 } from "./homeConstants";
 import { Input } from "../components/ui/input";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "../components/ui/accordion";
 import { Slider } from "../components/ui/slider";
-import { useTheme, setTheme } from "../hooks/useTheme";
+import { useTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
 import { trackEvent } from "../lib/analytics";
 import { readPassports } from "../lib/passports";
@@ -62,7 +58,7 @@ const SHUFFLE_LOOPS = {
 export default function Home() {
   const { theme } = useTheme();
   const navigate = useNavigate();
-  const { t, lang, setLang } = useLang();
+  const { t } = useLang();
   const ambCfg = AMBIANCE[theme] || null;
   const light = !(theme === "dark" || ambCfg);
   const seasonCfg = SEASONS[theme] || null;
@@ -174,7 +170,6 @@ export default function Home() {
   useEffect(() => () => { if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e) { /* ignore */ } grooveRef.current = null; } }, []);
   const { favorites, isFavorite, toggleFavorite, removeFavorite } = useFavorites();
   const [showGuided, setShowGuided] = useState(true);
-  const [faqOpen, setFaqOpen] = useState(false);
   const [muted, setMuted] = useState(() => {
     try { return localStorage.getItem("ff_muted") === "1"; } catch { return false; }
   });
@@ -842,156 +837,25 @@ export default function Home() {
       {/* Dark-mode: decorative reaper background with load animation */}
       {theme === "dark" && <ReaperScene />}
       {/* Header */}
-      <header className={`sticky top-0 z-30 border-b ${light ? "border-[#E4E4E7] bg-white/85 backdrop-blur-xl shadow-sm" : "border-[#E2E4E7] bg-[#0E0E0E]"}`}>
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:gap-3 md:px-12 md:py-6">
-          <div className="flex items-center gap-2 md:gap-3">
-            <div className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-1 md:h-16 md:w-16 ${light ? "bg-[#F5F0E6] ring-[#E4E4E7]" : "bg-black ring-white/25"}`}>
-              <img
-                src={theme === "cyber" ? "/cyber-neon-logo.png" : theme === "fantasy" ? "/logo-crest-gold.png" : (light ? "/logo-mark-light.png" : "/logo-mark.png")}
-                alt="Fork·Fate logo"
-                className={`h-12 w-12 object-contain md:h-16 md:w-16 ${theme === "cyber" ? "p-0.5" : "scale-110"}`}
-              />
-              <motion.div
-                className="pointer-events-none absolute inset-0"
-                initial={{ x: "-130%" }}
-                animate={{ x: ["-130%", "130%"] }}
-                transition={{ duration: 2.6, delay: 0.5, repeat: Infinity, repeatDelay: 5, ease: "easeInOut" }}
-                style={{ background: "linear-gradient(115deg, transparent 46%, rgba(255,255,255,0.85) 50%, transparent 54%)" }}
-              />
-            </div>
-            <span className={`font-serif text-3xl font-semibold tracking-tight md:text-5xl ${light ? "text-[#18181B]" : "text-white"}`}>
-              Fork·Fate
-            </span>
-          </div>
-          <div className="flex flex-wrap items-center justify-start gap-2 md:justify-end md:gap-3">
-            <div data-testid="language-toggle" className={`inline-flex items-center rounded-full border p-0.5 ${ghost}`}>
-              {["en", "es"].map((l) => (
-                <button
-                  key={l}
-                  type="button"
-                  onClick={() => setLang(l)}
-                  data-testid={`lang-${l}`}
-                  aria-label={l === "es" ? "Español" : "English"}
-                  className={`rounded-full px-2.5 py-1 text-xs font-bold transition-colors sm:text-sm ${lang === l ? "bg-[#E01E26] text-white" : "opacity-70 hover:opacity-100"}`}
-                >
-                  {l.toUpperCase()}
-                </button>
-              ))}
-            </div>
-            <div className="relative">
-              <DropdownMenu onOpenChange={(o) => o && dismissThemeHint()}>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    data-testid="theme-menu-button"
-                    aria-label="Choose a theme"
-                    className={`inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${ghost}`}
-                  >
-                    <Palette className="h-4 w-4" /> <span>{t("Theme")}</span> <ChevronDown className="h-3.5 w-3.5 opacity-70" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" data-testid="theme-menu" className="w-40">
-                  <DropdownMenuItem data-testid="theme-option-dark" onClick={() => setTheme("dark")} className="gap-2">
-                    <Moon className="h-4 w-4" /> {t("Dark")} {theme === "dark" && <Check className="ml-auto h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem data-testid="theme-option-light" onClick={() => setTheme("light")} className="gap-2">
-                    <Sun className="h-4 w-4" /> {t("Light")} {theme === "light" && <Check className="ml-auto h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem data-testid="theme-option-fall" onClick={() => setTheme("fall")} className="gap-2">
-                    <Leaf className="h-4 w-4" /> {t("Fall")} {theme === "fall" && <Check className="ml-auto h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem data-testid="theme-option-winter" onClick={() => setTheme("winter")} className="gap-2">
-                    <Snowflake className="h-4 w-4" /> {t("Winter")} {theme === "winter" && <Check className="ml-auto h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem data-testid="theme-option-spring" onClick={() => setTheme("spring")} className="gap-2">
-                    <Flower2 className="h-4 w-4" /> {t("Spring")} {theme === "spring" && <Check className="ml-auto h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem data-testid="theme-option-summer" onClick={() => setTheme("summer")} className="gap-2">
-                    <Umbrella className="h-4 w-4" /> {t("Summer")} {theme === "summer" && <Check className="ml-auto h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem data-testid="theme-option-cyber" onClick={() => setTheme("cyber")} className="gap-2">
-                    <Zap className="h-4 w-4" /> {t("Cyberpunk")} {theme === "cyber" && <Check className="ml-auto h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem data-testid="theme-option-steam" onClick={() => setTheme("steam")} className="gap-2">
-                    <Cog className="h-4 w-4" /> {t("Steampunk")} {theme === "steam" && <Check className="ml-auto h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem data-testid="theme-option-tiki" onClick={() => setTheme("tiki")} className="gap-2">
-                    <Wine className="h-4 w-4" /> {t("Tiki Lounge")} {theme === "tiki" && <Check className="ml-auto h-4 w-4" />}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem data-testid="theme-option-fantasy" onClick={() => setTheme("fantasy")} className="gap-2">
-                    <Swords className="h-4 w-4" /> {t("Dragon's Hoard")} {theme === "fantasy" && <Check className="ml-auto h-4 w-4" />}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              {themeHint && (
-                <div data-testid="theme-hint" style={{ backgroundColor: ambCfg ? ambCfg.accent : seasonCfg ? seasonCfg.hint : light ? "#4F6F47" : "#E01E26" }} className="absolute left-1/2 top-full z-40 mt-2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold text-white shadow-lg">
-                  {t("Pick a theme")} 🍂
-                  <button onClick={dismissThemeHint} aria-label="Dismiss theme hint" className="opacity-80 hover:opacity-100">✕</button>
-                </div>
-              )}
-            </div>
-            <button
-              onClick={() => setShowGuided(true)}
-              data-testid="relaunch-guided-button"
-              title="Start the guided ritual"
-              className={`inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${ghost}`}
-            >
-              <Sparkles className="h-4 w-4 text-[#E01E26]" /> <span>{t("Guided")}</span>
-            </button>
-            <Link
-              to="/shop"
-              data-testid="header-shop-link"
-              title="Fork·Fate merch shop"
-              className={`inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${ghost}`}
-            >
-              <ShoppingBag className="h-4 w-4 text-[#E01E26]" /> <span>{t("Shop")}</span>
-            </Link>
-            <NearbyHelp
-              light={light}
-              zip={zip}
-              lat={coords?.lat ?? null}
-              lng={coords?.lng ?? null}
-            />
-            <ReigningChampBadge light={light} />
-            <button
-              onClick={toggleMuted}
-              data-testid="sound-toggle-button"
-              title={muted ? "Sound off — click to enable the reveal sound" : "Sound on — click to mute"}
-              aria-label={muted ? "Enable sound" : "Mute sound"}
-              className={`inline-flex items-center justify-center rounded-full border bg-transparent p-2 transition-colors sm:p-2.5 ${ghost}`}
-            >
-              {muted ? <VolumeX className="h-4 w-4 text-[#8A8F95]" /> : <Volume2 className="h-4 w-4 text-[#E01E26]" />}
-            </button>
-            <BecomeSponsorDialog
-              variant="link"
-              open={sponsorOpen}
-              onOpenChange={setSponsorOpen}
-              hideTrigger
-            />
-            {/* Desktop: dedicated Sponsor button */}
-            <button
-              type="button"
-              onClick={() => setSponsorOpen(true)}
-              data-testid="header-sponsor-link"
-              className={`hidden items-center gap-2 rounded-full border bg-transparent px-4 py-2.5 text-sm font-bold transition-colors sm:inline-flex ${ghost}`}
-            >
-              <Store className="h-4 w-4 text-[#E01E26]" /> {t("Sponsor your spot")}
-            </button>
-            <FavoritesDrawer favorites={favorites} onRemove={removeFavorite} onDeal={dealFromFavorites} groupMode={groupMode} />
-            <InstallAppButton />
-            {/* Mobile: compact Sponsor pill — adding a spot is a sponsor-only
-                action now, so the old Add/Sponsor dropdown is collapsed to a
-                single direct trigger. */}
-            <button
-              type="button"
-              onClick={() => setSponsorOpen(true)}
-              data-testid="mobile-sponsor-button"
-              className="inline-flex items-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-[#B3141A] sm:hidden"
-            >
-              <Store className="h-4 w-4" /> {t("Sponsor")}
-            </button>
-          </div>
-        </div>
-      </header>
+      <HomeHeader
+        light={light}
+        ghost={ghost}
+        theme={theme}
+        themeHint={themeHint}
+        dismissThemeHint={dismissThemeHint}
+        hintColor={ambCfg ? ambCfg.accent : seasonCfg ? seasonCfg.hint : light ? "#4F6F47" : "#E01E26"}
+        muted={muted}
+        toggleMuted={toggleMuted}
+        onGuided={() => setShowGuided(true)}
+        zip={zip}
+        coords={coords}
+        favorites={favorites}
+        removeFavorite={removeFavorite}
+        dealFromFavorites={dealFromFavorites}
+        groupMode={groupMode}
+        sponsorOpen={sponsorOpen}
+        setSponsorOpen={setSponsorOpen}
+      />
 
       <div className="relative z-40">
         <AndroidBetaBanner light={light} />
@@ -1688,203 +1552,9 @@ export default function Home() {
         </section>
       )}
 
-      {/* How it works + FAQ (SEO + first-time visitor context) */}
-      <section className="relative z-10 mx-auto max-w-6xl px-6 pb-24 pt-4 md:px-12" data-testid="how-it-works-section">
-        <div className="border-t border-[#E2E4E7] pt-14">
-          <div className="rounded-3xl border border-[#E2E4E7] bg-white/95 p-8 shadow-sm backdrop-blur-sm md:p-10">
-            <p className="font-sans text-xs font-bold uppercase tracking-[0.25em] text-[#E01E26]">{t("How it works")}</p>
-            <h2 className="mt-2 font-serif text-3xl font-medium tracking-tight text-[#0E0E0E] sm:text-4xl">
-              {t("Let fate settle the \"where should we eat?\" debate.")}
-            </h2>
-            <p className="mt-3 max-w-2xl font-sans text-base text-[#6B7075]">
-              {t("Fork·Fate is a restaurant roulette for anyone who's ever stared blankly at a food app, unable to decide. Set a couple of filters, shuffle the deck, and land on a real local place to eat, drink, or grab dessert — no endless scrolling, no group-chat deadlock.")}
-            </p>
-          </div>
+      <HomeInfoSections light={light} onSponsor={() => setSponsorOpen(true)} />
 
-          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
-            <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6" data-testid="step-1">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0E0E0E]">
-                <Search className="h-5 w-5 text-white" />
-              </div>
-              <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">{t("1. Pick your craving")}</h3>
-              <p className="mt-2 font-sans text-sm text-[#6B7075]">
-                {t("Choose Food, Drinks, Bars, Desserts, Shops, Fuel & Go, Explore or Stay — then narrow it down with type chips and toggles like \"Open now\" to match the mood.")}
-              </p>
-            </div>
-            <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6" data-testid="step-2">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0E0E0E]">
-                <MapPin className="h-5 w-5 text-white" />
-              </div>
-              <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">{t("2. Set your location")}</h3>
-              <p className="mt-2 font-sans text-sm text-[#6B7075]">
-                {t("Enter a ZIP code or tap \"Use my location\" and Fork·Fate pulls real, nearby places using live Google data — up to 100 miles out, or 150 for Explore and Stay, since a state park is worth the drive.")}
-              </p>
-            </div>
-            <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6" data-testid="step-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E01E26]">
-                <Dices className="h-5 w-5 text-white" />
-              </div>
-              <h3 className="mt-4 font-serif text-xl text-[#0E0E0E]">{t("3. Deal your fate")}</h3>
-              <p className="mt-2 font-sans text-sm text-[#6B7075]">
-                {t("Hit the button and watch the deck shuffle to reveal your pick — with directions, reviews, delivery links where they apply, and a few more spots to consider if you want a re-roll.")}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-16 rounded-3xl border border-[#E2E4E7] bg-white/95 p-6 shadow-sm backdrop-blur-sm md:p-8">
-          <button
-            onClick={() => setFaqOpen((o) => !o)}
-            data-testid="faq-toggle"
-            aria-expanded={faqOpen}
-            className="flex w-full items-center justify-between gap-3 text-left"
-          >
-            <h2 className="font-serif text-2xl font-medium tracking-tight text-[#0E0E0E] sm:text-3xl">
-              {t("Frequently asked questions")}
-            </h2>
-            <span className="flex shrink-0 items-center gap-1 font-sans text-sm font-bold text-[#E01E26]">
-              {faqOpen ? t("Less") : t("More")}
-              <ChevronDown className={`h-5 w-5 transition-transform duration-300 ${faqOpen ? "rotate-180" : ""}`} />
-            </span>
-          </button>
-          {faqOpen && (
-          <Accordion type="single" collapsible className="mt-4 w-full animate-in fade-in slide-in-from-top-2 duration-300" data-testid="faq-section">
-            {[
-              { q: t("How does Fork·Fate pick a place?"), a: t("After you set your filters, Fork·Fate gathers matching local spots and randomly deals one from the deck. Every deal is a fresh shuffle, so you'll discover places you might never have chosen yourself.") },
-              { q: t("Is Fork·Fate free to use?"), a: t("Yes — Fork·Fate is completely free. There's no account, no signup, and no paywall. Just open it, shuffle, and go.") },
-              { q: t("Do I need to create an account?"), a: t("No login required. You can start spinning the moment the page loads, on your phone or desktop.") },
-              { q: t("What are the Explore and Stay tabs?"), a: t("Explore deals you something to DO — state and national parks, hiking and biking trails, fishing spots, waterfalls and scenic overlooks, plus rainy-day picks like museums, bowling, mini golf and escape rooms. Stay deals you somewhere to sleep — campgrounds, RV parks and KOAs, cabins, yurts, lodges and inns. Both search further out than the food tabs, since a park or campsite is usually worth the drive.") },
-              { q: t("Why can't I order delivery from every result?"), a: t("Delivery links only appear where they make sense. A restaurant or dessert shop gets DoorDash, Uber Eats and Grubhub links; a hiking trail, campground, thrift store, gas station or bus stop doesn't — so Fork·Fate hides them instead of sending you to a dead end.") },
-              { q: t("How do you find nearby places?"), a: t("Fork·Fate uses live Google Places data based on your ZIP code or device location, so results reflect real, currently-listed places around you — restaurants and bars, shops, parks and trails, and campgrounds alike.") },
-              { q: t("What's the difference between a crawl and a Fate Passport?"), a: t("A crawl is one outing: fate deals 3–6 stops in a followable route, you hit them in order the same day, check each off and claim a badge. A Fate Passport is collected over time — days, weeks or a whole summer. Fate deals up to 10 stops in any category (parks, breweries, diners, museums, campgrounds), you stamp each one as you actually get there, and when the last stop is stamped your passport opens into a shareable award with a real ink stamp for every stop.") },
-              { q: t("How does stamping a passport work — and can people fake it?"), a: t("Tap \"I'm here\" at a stop and your phone's location is checked against the place: get within about half a mile and it's stamped on site. You can always stamp manually if GPS struggles indoors or deep in a park, but those stops are marked self-reported and print as faint stamps on your award. We also reject impossible stamps (two stops 40 miles apart a minute apart), and only passports stamped on site at every stop earn the verified seal or can be posted to the public Passport Wall.") },
-              { q: t("Can I add my favorite local spot?"), a: t("Fork·Fate is powered by live Google Places data plus paid local sponsors — no more community-submission form. If you're a business owner, tap \"Sponsor your spot\" to get pinned at the top of every matching search. Not a business? Live places already appear automatically via Google.") },
-              { q: t("Can I install Fork·Fate as an app?"), a: t("Yes — tap \"Download app\" to install Fork·Fate as a PWA on your home screen for one-tap access whenever you can't decide.") },
-            ].map((item, i) => (
-              <AccordionItem key={item.q} value={`faq-${i}`} className="border-[#E2E4E7]" data-testid={`faq-item-${i}`}>
-                <AccordionTrigger className="text-left font-serif text-base text-[#0E0E0E] hover:no-underline">
-                  {item.q}
-                </AccordionTrigger>
-                <AccordionContent className="font-sans text-sm text-[#6B7075]">
-                  {item.a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-          )}
-          </div>
-        </div>
-      </section>
-
-      {/* Feature your business (sponsorship visibility band) */}
-      <section
-        className={`relative z-10 border-t ${light ? "border-[#E7DCC7]" : "border-[#E2E4E7]"}`}
-        data-testid="feature-business-band"
-      >
-        <div className="mx-auto max-w-6xl px-6 py-14 md:px-12">
-          <div
-            className={`relative overflow-hidden rounded-3xl border p-8 md:p-12 ${light ? "border-[#E2E4E7] bg-white/95 backdrop-blur-sm" : "border-[#E01E26]/40 bg-[#141414]"}`}
-          >
-            <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#E01E26]/20 blur-3xl" />
-            <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
-              <div className="max-w-xl">
-                <span className="inline-flex items-center gap-2 rounded-full bg-[#E01E26]/15 px-3 py-1 font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#E01E26]">
-                  <Store className="h-3.5 w-3.5" /> {t("For local businesses")}
-                </span>
-                <h2 className={`mt-3 font-serif text-3xl font-semibold md:text-4xl ${light ? "text-[#0E0E0E]" : "text-white"}`}>
-                  {t("Own the top spot when fate is decided")}
-                </h2>
-                <p className={`mt-3 font-sans text-sm md:text-base ${light ? "text-[#4B5563]" : "text-[#C7CBD1]"}`}>
-                  {t("Sponsored spots appear first when locals shuffle for a place to eat, drink or treat themselves. Fixed monthly price, no bidding, cancel anytime.")}
-                </p>
-                <div className={`mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 font-sans text-sm ${light ? "text-[#0E0E0E]" : "text-white"}`}>
-                  <span className="flex items-baseline gap-1.5"><span className="font-serif text-2xl font-bold">$19</span><span className="text-[#9A9FA5]">/{t("mo")}</span> <span className="text-xs text-[#9A9FA5] line-through">$29</span></span>
-                  <span className="text-[#6B7075]">{t("or")}</span>
-                  <span className="flex items-baseline gap-1.5"><span className="font-serif text-2xl font-bold">$190</span><span className="text-[#9A9FA5]">/{t("yr")}</span> <span className="text-xs text-[#9A9FA5] line-through">$290</span> <span className="rounded-full bg-[#E01E26] px-2 py-0.5 text-[10px] font-bold">{t("Save $38/yr")}</span></span>
-                </div>
-              </div>
-              <button
-                onClick={() => setSponsorOpen(true)}
-                data-testid="feature-business-cta"
-                className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#E01E26] px-6 py-3.5 font-sans text-sm font-bold text-white shadow-lg shadow-[#E01E26]/30 transition-colors hover:bg-[#B3141A]"
-              >
-                {t("Feature your business")} <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className={`relative z-10 border-t ${light ? "border-[#E7DCC7] bg-[#EFE7D8]" : "border-[#E2E4E7] bg-[#0F0F0F]"}`}>
-        <div className="mx-auto max-w-6xl px-6 pt-8 md:px-12">
-          <div className={`flex items-start gap-3 rounded-xl border p-4 ${light ? "border-[#E0D5C0] bg-white/60" : "border-white/10 bg-white/[0.03]"}`} data-testid="reaper-disclaimer">
-            {light
-              ? <UtensilsCrossed className="mt-0.5 h-5 w-5 shrink-0 text-[#E01E26]" />
-              : <Skull className="mt-0.5 h-5 w-5 shrink-0 text-[#E01E26]" />}
-            <p className={`font-sans text-xs leading-relaxed ${light ? "text-[#6E6355]" : "text-[#8A8F95]"}`}>
-              <span className={`font-bold ${light ? "text-[#2A2118]" : "text-white"}`}>{light ? t("A word from management:") : t("A word from the Reaper:")}</span> {t("This page offers suggestions only and is not liable for any trouble you encounter in or with an establishment. Our algorithm merely queries the choices — the decision to visit any suggested establishment is yours alone.")}
-              <span className={`mt-1 block italic ${light ? "text-[#8A7C68]" : "text-[#B9BEC4]"}`}>{light ? t("— The Fork·Fate team") : t("— The Reaper ☠️")}</span>
-            </p>
-          </div>
-        </div>
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 pb-28 pt-8 md:flex-row md:px-12 md:pb-20">
-          <div className="flex items-center gap-2.5">
-            <span className={`relative block h-8 w-8 overflow-hidden rounded-full ${light ? "bg-[#F5F0E6]" : "bg-black"}`}>
-              <img src={light ? "/logo-mark-light.png" : "/logo-crest.png"} alt="" className="h-8 w-8 object-contain" />
-            </span>
-            <span className={`font-serif text-lg font-semibold ${light ? "text-[#2A2118]" : "text-white"}`}>Fork·Fate</span>
-          </div>
-          <div className="order-3 flex flex-col items-center gap-1.5 md:order-2">
-            <p className={`font-sans text-xs ${light ? "text-[#6E6355]" : "text-[#8A8F95]"}`}>
-              © {new Date().getFullYear()} {t("Fork·Fate — let fate decide. All rights reserved.")}
-            </p>
-            <p
-              data-testid="veteran-owned-mention"
-              className={`inline-flex items-center gap-1.5 font-sans text-[11px] font-bold uppercase tracking-[0.14em] ${light ? "text-[#8A5210]" : "text-[#E6B23A]"}`}
-            >
-              <span aria-hidden="true">★</span> Veteran-owned & managed <span aria-hidden="true">★</span>
-            </p>
-            <div className="flex items-center gap-3">
-              <a
-                href="/terms"
-                data-testid="terms-link"
-                className={`font-sans text-[11px] font-semibold underline-offset-4 transition-colors hover:underline ${light ? "text-[#6E6355] hover:text-[#2A2118]" : "text-[#8A8F95] hover:text-white"}`}
-              >
-                Terms of Service
-              </a>
-              <span className={light ? "text-[#C8B79A]" : "text-[#3A3A3A]"}>·</span>
-              <a
-                href="/privacy"
-                data-testid="privacy-link"
-                className={`font-sans text-[11px] font-semibold underline-offset-4 transition-colors hover:underline ${light ? "text-[#6E6355] hover:text-[#2A2118]" : "text-[#8A8F95] hover:text-white"}`}
-              >
-                Privacy Policy
-              </a>
-            </div>
-            <a
-              href="mailto:steve@fork-fate.com?subject=Fork%C2%B7Fate%20App%20Improvement%20Idea&body=Hi%2C%20here%27s%20an%20idea%20to%20improve%20Fork%C2%B7Fate%3A%0A%0A"
-              data-testid="feedback-link"
-              className={`inline-flex items-center gap-1.5 font-sans text-xs font-bold underline-offset-4 transition-colors hover:underline ${light ? "text-[#2A2118] hover:text-[#4F6F47]" : "text-white hover:text-[#E01E26]"}`}
-            >
-              <MessageSquarePlus className="h-3.5 w-3.5" /> Suggest an improvement
-            </a>
-            <CheckUpdatesButton />
-            <a
-              href="/admin"
-              data-testid="admin-link"
-              className={`mt-1 font-sans text-[11px] font-semibold underline-offset-4 transition-colors hover:underline ${light ? "text-[#8A7C68] hover:text-[#2A2118]" : "text-[#6B7075] hover:text-white"}`}
-            >
-              Admin
-            </a>
-          </div>
-          <div className="order-2 flex flex-col items-center gap-2 md:order-3 md:items-end" data-testid="sponsorship-cta">
-            <BecomeSponsorDialog />
-            <p className={`font-sans text-xs font-bold ${light ? "text-[#4F6F47]" : "text-[#E01E26]"}`}>
-              $19/month — <span className={light ? "text-[#2A2118]" : "text-white"}>first month FREE</span>
-            </p>
-          </div>
-        </div>
-      </footer>
+      <HomeFooter light={light} />
     </div>
   );
 }

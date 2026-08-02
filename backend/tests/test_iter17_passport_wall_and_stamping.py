@@ -235,7 +235,7 @@ class TestWall:
             _post(f"{API}/passports/{code}/stamp", json={"stop_id": sid, "source": "manual"})
             time.sleep(1)  # too-close-in-time is caught by the wall gate too, and we already have 429 covered
         # since we can't actually beat the 60s rule in one test, verify current state
-        d = _get(f"{API}/passports/{code}").json()
+        _get(f"{API}/passports/{code}").json()
         # only the first manual stamp landed (subsequent hit 429). That still leaves not-completed.
         r = _post(f"{API}/passports/{code}/publish", json={"photo": TINY_JPEG})
         assert r.status_code == 409, r.text

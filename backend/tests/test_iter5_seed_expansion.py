@@ -298,7 +298,6 @@ class TestPhotoProxy:
 
     def test_photo_miss_then_hit_no_budget_delta(self):
         name = self._pick_photo_name()
-        before = _budget_count()
         r1 = requests.get(f"{API}/places/photo", params={"name": name}, timeout=30)
         assert r1.status_code == 200
         assert len(r1.content) > 500

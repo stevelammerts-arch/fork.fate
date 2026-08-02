@@ -67,7 +67,6 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
     else if (initialStops && initialStops.length) setRoute(initialStops);
     else setRoute(orderRoute(shuffle(results).slice(0, maxStops), origin, destination));
     setDropped({});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, results, shared, initialStops]);
 
   const stops = useMemo(() => route.filter((r) => !dropped[r.id]), [route, dropped]);
@@ -131,7 +130,6 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
       openBadge();
     }
     if (!allDone) promptedRef.current = false;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allDone]);
 
   // Auto GPS check-in: mark a stop visited when you get close enough.
@@ -162,7 +160,6 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
     );
     return () => { if (watchRef.current != null) navigator.geolocation.clearWatch(watchRef.current); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoGps, stops]);
 
   // Manual check-in is paced (anti-cheat) and never counts as GPS-verified, so it
