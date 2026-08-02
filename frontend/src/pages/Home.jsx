@@ -379,9 +379,12 @@ export default function Home() {
         const forced = localStorage.getItem("ff_rare_force");
         if (pool2.includes(forced)) variant = forced;
       } catch (e) { /* ignore */ }
+      // The 8-ball IS the whole ritual — no shuffling deck beforehand, it
+      // appears almost instantly. Scratch/wheel keep a short dramatic beat.
+      const beat = variant === "8ball" ? 150 : 900;
       shuffleRef.current = setTimeout(() => {
         try {
-          playSound("/card-deal.wav", 0.85);
+          if (variant !== "8ball") playSound("/card-deal.wav", 0.85);
           if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e3) { /* ignore */ } grooveRef.current = null; }
         } catch (e) { /* audio unavailable */ }
         haptic(20);
@@ -392,7 +395,7 @@ export default function Home() {
         axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
         setStreak(bumpStreak());
         trackEvent("deal_result", { category: mode, theme, group: false, rare: variant });
-      }, 900);
+      }, beat);
       return;
     }
     let i = 0;

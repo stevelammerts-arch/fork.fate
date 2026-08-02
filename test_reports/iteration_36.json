@@ -1,0 +1,25 @@
+{
+  "summary": "Iteration 36 frontend-only verification of the REDESIGNED Magic 8-Ball rare reveal. Both the /dev/rare demo and the in-app rare-fate flow behave exactly per spec: (a) no shuffle/name-ticker precedes the 8-ball — the overlay appears within ~350ms of the Deal click; (b) each pointer-rattle causes the ball to wobble and reveals a classic purple downward-triangle FAKE-OUT message ('OUTLOOK HAZY', 'GOOD LUCK NEXT TIME', 'ASK AGAIN LATER'), hint 'The ball taunts you. Shake it again…'; (c) after two fake-outs the third rattle dissipates the ink and shows the fate photo in a SQUARE 108×108 viewing window with hint 'So it is written…'; (d) the overlay dismisses ~2.3s later and the full reveal card renders with reaction-bar (reaction-up/reaction-down), spin-result-card, sponsor scratch coupon, and reveal-shop-cta. Regression on /dev/rare: Wheel of Fate visible & still auto-spins.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/test_reports/screenshots/8ball_fail1.png",
+    "/app/test_reports/screenshots/8ball_fail2.png",
+    "/app/test_reports/screenshots/8ball_revealed.png",
+    "/app/test_reports/screenshots/8ball_inapp_fail1.png",
+    "/app/test_reports/screenshots/8ball_inapp_revealed.png",
+    "/app/test_reports/screenshots/8ball_inapp_card.png"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home.jsx still 1878 lines — split runShuffle / rare-fate branches / reveal card into modules (repeat from iter_35).",
+    "Magic8Ball.jsx: `useMemo` seeds fails array once (good), but with FAKEOUTS=2 the same two of six messages always appear together per card until unmount — acceptable, just noting determinism."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "100%"},
+  "seed_data_creation": "None (uses localStorage flags ff_deal_taps=14, ff_rare_at=15, ff_rare_force=8ball, ff_muted=1).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "IMPORTANT for reproducing: after seeding ff_* and reloading, you MUST type the ZIP with page.type() (fill() alone did not trigger React state — button stayed inert and localStorage counters were untouched). After typing, press Tab to blur. Then click [data-testid='spin-roulette-button']. Overlay appears ~350ms later. Rattle payload: dispatch pointerdown + 16 alternating ±60px pointermoves @60ms gap + pointerup, all with buttons:1 pointerType:'mouse' on the [data-testid='magic-8ball-overlay'] element directly. Between fake-out shakes wait ~2.2s (wobble 1.1s + message 2s). Fail messages observed in-app: 'ASK AGAIN LATER', 'GOOD LUCK NEXT TIME'; on /dev/rare: 'OUTLOOK HAZY', 'GOOD LUCK NEXT TIME'. Photo window measured 108×108 (square, confirmed). Final overlay auto-dismisses 2.3s after answer stage — full reveal card testids present: spin-result-card, reaction-bar, reaction-up, reaction-down, reveal-photo-header, result-favorite-toggle, share-*. No ticker/deck-shuffle testids appeared during 2.5s of polling → no pre-shuffle regression.",
+  "rca of the issue": "N/A — all behaviours match the redesign spec."
+}
