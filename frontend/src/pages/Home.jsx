@@ -121,6 +121,9 @@ export default function Home() {
   const [locked, setLocked] = useState(false);
   // Rare-fate scratch surprise ("scratch" | null) + swipe-to-reroll budget.
   const [surpriseReveal, setSurpriseReveal] = useState(null);
+  // True while a rare 8-ball is incoming: suppresses the full-screen shuffle
+  // popup entirely — the magic happens inside the ball, no cards at all.
+  const [rare8Ball, setRare8Ball] = useState(false);
   const [rerollsLeft, setRerollsLeft] = useState(3);
   // Set by the backend only for Explore searches with no chips picked — the deck
   // is biased by the forecast, so we say so instead of silently changing results.
@@ -315,6 +318,7 @@ export default function Home() {
     setResult(null);
     setGroupPicks(null);
     setSurpriseReveal(null);
+    setRare8Ball(false);
     setSpinning(true);
     setLocked(false);
     setFiltersOpen(false);
@@ -389,6 +393,7 @@ export default function Home() {
       // The 8-ball IS the whole ritual — no shuffling deck beforehand, it
       // appears almost instantly. Scratch/wheel keep a short dramatic beat.
       const beat = variant === "8ball" ? 150 : 900;
+      if (variant === "8ball") setRare8Ball(true);
       shuffleRef.current = setTimeout(() => {
         try {
           if (variant !== "8ball") playSound("/card-deal.wav", 0.85);
@@ -638,6 +643,7 @@ export default function Home() {
   const runCrawlShuffle = (pool, winner, onDone) => {
     setResult(null);
     setGroupPicks(null);
+    setRare8Ball(false);
     setSpinning(true);
     setFlashHit(false);
     setRevealFlash(false);
@@ -869,7 +875,7 @@ export default function Home() {
 
       {/* Full-screen shuffle pop-up */}
       <AnimatePresence>
-        {spinning && !result && (
+        {spinning && !result && !rare8Ball && (
           <motion.div
             key="shuffle-popup"
             initial={{ opacity: 0 }}

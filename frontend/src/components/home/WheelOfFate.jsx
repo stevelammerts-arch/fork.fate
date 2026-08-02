@@ -33,6 +33,20 @@ export function WheelOfFate({ names = [], winner, onDone, autoSpin = false }) {
   // Stop the tick if the overlay unmounts mid-spin.
   useEffect(() => () => { try { tickRef.current?.pause(); } catch (e) { /* ignore */ } }, []);
 
+  // Preload the pre-trimmed 4.4s tick clip the moment the wheel appears, so
+  // the sound starts the instant the wheel is flicked. (The old approach —
+  // seeking into the full 12.8s clip on play — started seconds late on
+  // phones because metadata + seek buffering beat the spin animation.)
+  const tickAudioRef = useRef(null);
+  useEffect(() => {
+    try {
+      const a = new Audio("/wheel-tick-end.mp3");
+      a.preload = "auto";
+      a.load();
+      tickAudioRef.current = a;
+    } catch (e) { /* audio unavailable */ }
+  }, []);
+
   // Demo mode (/dev/rare): spin by itself shortly after mounting.
   const spinToRef = useRef(null);
   useEffect(() => {
@@ -68,15 +82,12 @@ export function WheelOfFate({ names = [], winner, onDone, autoSpin = false }) {
     haptic(15);
     try {
       if (localStorage.getItem("ff_muted") !== "1") {
-        const a = new Audio("/wheel-tick.mp3");
+        // Pre-trimmed clip: exactly the wheel's 4.4s spin, ticks decaying to a
+        // stop — plays immediately, no seeking required.
+        const a = tickAudioRef.current || new Audio("/wheel-tick-end.mp3");
         a.volume = 0.9;
-        // The clip is ~12.8s and naturally slows to a stop at the end — play
-        // just its final 4.4s so it decays in sync with the wheel.
-        a.addEventListener("loadedmetadata", () => {
-          try { a.currentTime = Math.max(0, a.duration - 4.4); } catch (e2) { /* ignore */ }
-          a.play().catch(() => {});
-        }, { once: true });
-        a.load();
+        try { a.currentTime = 0; } catch (e2) { /* not seekable yet — plays from 0 anyway */ }
+        a.play().catch(() => {});
         tickRef.current = a;
       }
     } catch (e) { /* audio unavailable */ }

@@ -1,0 +1,26 @@
+{
+  "summary": "Iteration 40 regression + bug-fix verification (Fork·Fate). Executed backend pytest (5/5 passing) covering the refactored places_essentials and CrawlLeaderboard endpoints, and frontend Playwright coverage for the two critical bug fixes and the Home/CrawlLeaderboard/CrawlBadge refactor. All targeted assertions passed: (1) 8-ball rare never mounts the shuffle-popup at any point (MutationObserver history empty; 8-ball overlay appeared at ~300ms and completed ritual to reveal card). (2) Normal deal still shows the shuffle-popup (~100ms) — regression clean. (3) /dev/rare requests /wheel-tick-end.mp3 (2 requests, no wheel-tick.mp3), served 200 with content-length 39117 (~39KB). (4) Home header/footer refactor: all 12 targeted data-testids present; theme menu, lang-en/es toggle, sound toggle, FAQ toggle work with zero page errors. (5) Fresh context shows theme-welcome and seals via theme-welcome-continue. (6) Places essentials: 200 with lat/lng and categories.pharmacy/gas rows (name/address/distance/maps_url), 400 when zip and latlng both missing. (7) Crawls leaderboard GET 200 + POST /complete returns rank field. (8) places/search smoke returns curated venues for 90210.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iter40_refactor.py",
+    "/app/test_reports/pytest/iter40_results.xml",
+    "/app/test_reports/screenshots/iter40_8ball.png",
+    "/app/test_reports/screenshots/iter40_home.png"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home.jsx is 1567 lines — still large after extraction; consider further splitting deal orchestration (rare-variant branching around line 386 + shuffleRef timers) into a useDealFlow hook to keep the file <700 lines.",
+    "The rare8Ball gate at Home.jsx line 878 correctly suppresses shuffle-popup; consider guarding against future variants by inverting the check (e.g., a single suppressShufflePopup flag) so new rare types don't have to be added at multiple sites.",
+    "Frontend init script cannot fully block wake-gate onboarding because ff_onboarding_done key differs from actual gate key (onboarding tour still shows despite localStorage seeds); does not block tests but is a fragile UX gate.",
+    "Backend places_essentials refactor helpers (_essentials_resolve_location, _essential_row) — verified endpoint contract but internal unit tests for each helper would improve safety against regressions."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter40_refactor.py"],
+  "success_rate": {"backend": "100% (5/5)", "frontend": "100% of targeted assertions"},
+  "test_credentials": "N/A (no auth flows tested)",
+  "seed_data_creation": "One TEST_QA Crew crawl submission left in /api/crawls (test-prefixed for easy cleanup).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Preview external URL https://web-fate-launch.preview.emergentagent.com works (no wake gate). The onboarding tour ('Skip intro' at 1/4) appears despite localStorage seeds — click button:has-text('Skip intro') to dismiss before spinning. To reliably assert no-shuffle-popup for 8-ball rares, install a MutationObserver in an add_init_script before goto (as done here). rare8Ball state at Home.jsx L124 flips true at L396 and gates the popup at L878. Wheel audio: /wheel-tick-end.mp3 (39117 bytes) is the correct new asset; /wheel-tick.mp3 legacy file still ships (408KB) but is no longer requested.",
+  "rca of the issue": "N/A — no bugs found in this iteration; both reported production issues (8-ball card flash, wheel tick delay) are correctly fixed and refactors are behavior-preserving."
+}
