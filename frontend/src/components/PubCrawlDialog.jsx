@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Beer, MapPin, Star, Shuffle, ExternalLink, X, Share2, Trophy, Users, Check, Navigation, LocateFixed } from "lucide-react";
@@ -67,6 +67,10 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
     else if (initialStops && initialStops.length) setRoute(initialStops);
     else setRoute(orderRoute(shuffle(results).slice(0, maxStops), origin, destination));
     setDropped({});
+    // The route must lock in when the dialog opens — reshuffling because the
+    // parent re-rendered with a new origin/destination object identity would
+    // scramble a crawl already in progress.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, results, shared, initialStops]);
 
   const stops = useMemo(() => route.filter((r) => !dropped[r.id]), [route, dropped]);
@@ -110,17 +114,15 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
     }
   }, [visitedCount, startKey]);
 
-  const computeDuration = () => {
+  const openBadge = useCallback(() => {
+    let duration = null;
     try {
       const s = Number(localStorage.getItem(startKey));
-      if (s > 0) return Math.max(1, Math.round((Date.now() - s) / 1000));
+      if (s > 0) duration = Math.max(1, Math.round((Date.now() - s) / 1000));
     } catch { /* ignore */ }
-    return null;
-  };
-  const openBadge = () => {
-    setCompletion({ stops: stops.length, duration: computeDuration(), verified: crawlVerified, distance: routeDistance });
+    setCompletion({ stops: stops.length, duration, verified: crawlVerified, distance: routeDistance });
     setBadgeOpen(true);
-  };
+  }, [startKey, stops.length, crawlVerified, routeDistance]);
 
   // Auto-prompt the badge once the whole crawl is conquered.
   useEffect(() => {
@@ -130,9 +132,12 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
       openBadge();
     }
     if (!allDone) promptedRef.current = false;
-  }, [allDone]);
+  }, [allDone, openBadge, t]);
 
   // Auto GPS check-in: mark a stop visited when you get close enough.
+  // postCheckin goes through a ref: recreating the geolocation watch every
+  // time its identity changes would risk dropping an arrival mid-crawl.
+  const postCheckinRef = useRef(null);
   useEffect(() => {
     if (!autoGps || !navigator.geolocation) return;
     watchRef.current = navigator.geolocation.watchPosition(
@@ -151,7 +156,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
           }
           if (arrived.length) {
             setGpsVisited((g) => ({ ...g, ...Object.fromEntries(arrived.map((s) => [s.id, true])) }));
-            arrived.forEach((s) => postCheckin(s, "gps", p));
+            arrived.forEach((s) => postCheckinRef.current?.(s, "gps", p));
           }
           return changed ? nv : v;
         });
@@ -160,7 +165,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
     );
     return () => { if (watchRef.current != null) navigator.geolocation.clearWatch(watchRef.current); };
-  }, [autoGps, stops]);
+  }, [autoGps, stops, t]);
 
   // Manual check-in is paced (anti-cheat) and never counts as GPS-verified, so it
   // earns the badge but won't rank. Unchecking is always allowed.
@@ -242,6 +247,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
       console.debug("check-in not recorded:", e);
     }
   };
+  postCheckinRef.current = postCheckin;
 
   const shareCrawl = async () => {
     if (!stops.length || sharing) return;

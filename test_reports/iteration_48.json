@@ -1,0 +1,37 @@
+{
+  "summary": "Frontend-only regression sweep for react-hooks/exhaustive-deps refactor across 4 components (RevealStage, PubCrawlDialog, NearbyHelp, InstallAppButton). All refactored flows verified end-to-end at the public preview URL. Zero React/JS console errors, zero effect-driven network loops. The primary refactor risk (infinite effects from dependency changes) is not present.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "RevealStage.jsx flourish effect keyed on derived resultId is correct — flourish re-fires once per new pick and cleans up (no accumulation observed).",
+    "PubCrawlDialog.jsx: openBadge useCallback deps are stable ([startKey, stops.length, crawlVerified, routeDistance]); allDone-guarded auto-prompt effect fires exactly once and resets on !allDone (promptedRef pattern verified).",
+    "PubCrawlDialog.jsx: postCheckin via postCheckinRef prevents watchPosition recreation loops — good pattern.",
+    "PubCrawlDialog.jsx line 118 has `fetchCategory` deps [effectiveZip, effectiveCoords, radiusMi, data] — including `data` risks re-creating the callback on every cache write; since it's only called via pickCategory and gated by `data[catId]` cache check it is safe, but consider a functional-set pattern to drop `data` from deps.",
+    "NearbyHelp.jsx effectiveCoords useMemo correctly stabilises identity; fetchCategory ran once per category select (verified via network monitor)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "100% for the 7 targeted flows"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Preview URL requires dismissing TWO first-visit dialogs (theme welcome via 'ENTER FORK·FATE' button, then guided intro via 'Skip intro' text button). The 'Crawl in reveal actions' path described in the request does NOT exist — Crawl UI is reached by toggling the 'Pub Crawls & more' switch in More ways to play then clicking 'Plan a Crawl'. Pub crawl testids observed: pub-crawl-dialog, crawl-stop-{i}, crawl-checkoff-{i}, crawl-complete-button, crawl-reshuffle-button, crawl-badge-dialog. Nearby Help testids used: nearby-help-trigger, nearby-help-zip-input, nearby-help-tile-<catId>.",
+  "detailed_verification": {
+    "home_load": "Loads clean; theme welcome + intro dialogs dismissed without errors.",
+    "deal_flow": "ZIP 10001 → Shuffle the Deck → reveal card renders (Capizzi, Pizza $$). data-testid=theme-flourish present (count=1) on Summer theme.",
+    "respin_flourish_refire": "Clicked respin-button; new place fetched (+1 /api/places/search + 3 photo calls); flourish count remained 1 (not accumulating), no flicker.",
+    "no_infinite_loop_reveal": "4s idle after respin: 0 additional /api/places calls.",
+    "nearby_help": "Sheet opens; ZIP not inherited (sheet-local field is empty as designed). Filled ZIP 10001 → clicked Pharmacy tile → exactly 1 /api/places/essentials call. 4s idle: 0 additional calls. No refetch loop from useMemo(effectiveCoords).",
+    "install_button": "data-testid=download-app-button renders in header, click did not crash (no beforeinstallprompt captured in headless so neither native prompt nor iOS dialog appeared — expected).",
+    "crawl_dialog": "Plan a Crawl opened pub-crawl-dialog with 6 stops. Complete button disabled and labelled 'Check off all stops to unlock (0/6)'. Checked off stop 0 → button turned green (bg-[#4ADE80]). Badge dialog did NOT auto-open (allDone=false). Reshuffle button in a separate probe run generated a fresh route without errors.",
+    "dev_rare_page": "/dev/rare renders (rare-preview-page). data-testid=theme-flourish[data-flourish=dark] present (count=1). Clicking reset-souls kept the dark flourish mounted (remount succeeded).",
+    "console_errors": "0 JS errors, 0 React warnings during the entire session. Only a benign chromestatus.com 'Blocked call to navigator.vibrate' policy notice (headless autoplay/tap gesture requirement) which is unrelated to the refactor."
+  },
+  "test_credentials": "None required (no auth flows in tested scope).",
+  "rca_of_the_issue": "N/A — no regressions found. The dependency-array cleanup in the 4 components is behaviour-preserving under manual + automated verification."
+}

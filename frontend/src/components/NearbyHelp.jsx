@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import axios from "axios";
 import {
   Heart, Stethoscope, Cross, Truck, Fuel, Pill, MapPin, Phone, ExternalLink, LifeBuoy, AlertTriangle, HandHeart, LocateFixed, Shield,
@@ -43,7 +43,10 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
   const [locating, setLocating] = useState(false);
   const [radiusMi, setRadiusMi] = useState(25);        // 5 | 10 | 25 | 50 miles
 
-  const effectiveCoords = sheetCoords || ((lat != null && lng != null) ? { lat, lng } : null);
+  const effectiveCoords = useMemo(
+    () => sheetCoords || ((lat != null && lng != null) ? { lat, lng } : null),
+    [sheetCoords, lat, lng]
+  );
   const effectiveZip = (sheetZip || zip || "").trim();
 
   const useMyLocation = () => {

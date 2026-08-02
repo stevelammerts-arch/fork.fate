@@ -24,7 +24,7 @@ module.exports = [
       "react/jsx-uses-react": "warn",
       "react/jsx-uses-vars": "warn",
       "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": "off",
+      "react-hooks/exhaustive-deps": "warn",
     },
   },
 ];

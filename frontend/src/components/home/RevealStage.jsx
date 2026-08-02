@@ -27,16 +27,17 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   // re-fires per revealed place, and after a rare ritual unveils.
   // (Hooks live above the early returns to keep hook order stable.)
   const isCovered = surprise === "scratch" || surprise === "8ball" || surprise === "wheel";
+  const resultId = result ? result.id : null;
   const [steaming, setSteaming] = useState(false);
   useEffect(() => {
-    if (!FLOURISH_THEMES.has(theme) || isCovered || !result) return;
+    if (!FLOURISH_THEMES.has(theme) || isCovered || resultId == null) return;
     setSteaming(true);
     // Cyber's matrix rain keeps falling for the life of the card; all other
     // flourishes are one-shot bursts that clear after ~4.2s.
     if (theme === "cyber") return;
     const timer = setTimeout(() => setSteaming(false), 4200);
     return () => clearTimeout(timer);
-  }, [result?.id, isCovered, theme]);
+  }, [resultId, isCovered, theme]);
   if (!result && groupPicks && groupPicks.length > 0) {
     return <GroupVote picks={groupPicks} onReSpin={onReSpin} onWinner={onPick} />;
   }
