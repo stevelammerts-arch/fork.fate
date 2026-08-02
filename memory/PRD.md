@@ -22,15 +22,10 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
 - **AGP 9.0 Play Console warning — advisory re-answered to user**: PWABuilder TWA
   wrapper concern, not repo code; soft warning; regenerate package on pwabuilder.com
   with the SAME signing key when convenient.
-- **AI Fate Oracle** (`backend/routes/oracle.py` + `components/home/FateOracle.jsx`):
-  POST /api/oracle generates a <=18-word in-character one-liner about why fate chose
-  the revealed spot, voiced per theme (reaper/dragon/cyber/steam/tiki/seasonal/light),
-  en+es. Model: gpt-5.4-mini via emergentintegrations (EMERGENT_LLM_KEY, already in
-  preview .env). Cached forever per (place_id, voice, lang) in db.oracle_lines
-  (~130ms cache hits); daily budget ORACLE_DAILY_CAP env (default 400/day) via
-  db.stats key `oracle_YYYYMMDD`; on cap/no-key/error returns {line:null} and the UI
-  box hides itself. Rendered in RevealStage between the reaper line and ReactionBar
-  (testids: fate-oracle, fate-oracle-loading, fate-oracle-line).
+- **AI Fate Oracle — BUILT THEN REMOVED same session (user: "too creepy")**: the
+  /api/oracle endpoint, FateOracle.jsx, its i18n strings, tests and db.oracle_lines
+  cache were all deleted. Do NOT rebuild without explicit user request.
+  FF_BUILD -> **2026.06-304**.
 - **First-run "Choose Your Realm" window** (`components/ThemeWelcomeDialog.jsx`):
   appears ONCE before the guided ritual's "What calls to you" step (z-[130] above
   GuidedFlow's z-[100]), 10 gradient swatch cards with live theme preview on tap,

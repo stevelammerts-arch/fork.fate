@@ -20,8 +20,6 @@ export const ES = {
   "Every theme reshapes the ritual — scenery, sounds, and the voice of fate. Tap one to preview it.": "Cada tema transforma el ritual: escenario, sonidos y la voz del destino. Toca uno para probarlo.",
   "Enter Fork·Fate": "Entrar a Fork·Fate",
   "You can change your realm anytime from the Theme menu.": "Puedes cambiar tu reino cuando quieras desde el menú Tema.",
-  "The Oracle speaks": "El Oráculo habla",
-  "Consulting the fates…": "Consultando a los destinos…",
   "Add": "Agregar",
   "Guided": "Guiado",
   "Sponsor your spot": "Promociona tu local",
