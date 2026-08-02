@@ -223,6 +223,32 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
   displayed prices in `SponsorChains.jsx`/`BecomeSponsorDialog.jsx` if changed.
 - P2: 'Check again' button on /sponsor/success when polling ends in 'pending'
   (testing-agent suggestion, iter_31).
+- P2 (iter_49 review note): add email format validation to FeedbackCreate
+  (backend) and FeedbackDialog (frontend) — currently length-only.
+
+## Implemented — 2026-02 (feedback + realm peek + store assets session)
+- **In-app FEEDBACK system** (for Play closed-test testers): POST /api/feedback
+  (public, rate-limited), GET/DELETE /api/admin/feedback (admin). Footer's old
+  mailto link replaced by FeedbackDialog.jsx (message + optional email);
+  entries stored in Mongo `feedback` collection; best-effort Resend email
+  (no-ops, key empty). Admin page shows FeedbackList section with delete.
+  Tested: iteration_49.json 100% (backend 5/5 pytest in
+  /app/backend/tests/test_iter49_feedback.py). Testing agent fixed a missing
+  FeedbackList import in Admin.jsx during test.
+- **Realm peek**: tapping a theme tile on the welcome dialog fades the
+  overlay+card to ~6% for 2.4s ("Previewing your realm…" hint pill) so the
+  live scenery shows, then eases back (ThemeWelcomeDialog.jsx).
+- **Store assets** in /app/frontend/public/store-assets/ (scripts:
+  gen_store_assets.py + gen_store_screenshots.py, playwright + system Chrome
+  at 430x932@3x): appstore-icon-1024.png (opaque), play-icon-512.png,
+  play-feature-1024x500.png, 4x iPhone 6.7" screenshots (1290x2796),
+  zipped as forkfate-iphone-screenshots.zip + forkfate-store-assets-all.zip
+  (downloadable at <site>/store-assets/...).
+- **Soul wail darkened** an octave down (98-156Hz contour, 1.3kHz lowpass,
+  dark breath noise) per user; user confirmed "sounds better".
+- **Dragon's Hoard tile** reddened (crimson #7E1B0E grad) to differ from
+  Steampunk.
+- Google Play: user has 12 testers opted in — 14-day clock running.
 - P1: App Store assets (1024x1024 icon, screenshots) once Apple approval lands.
 - DONE 2026-02: React hooks dependency cleanup — the old Code Quality report's
   "75 instances" turned out to be 6 real exhaustive-deps warnings once the rule
