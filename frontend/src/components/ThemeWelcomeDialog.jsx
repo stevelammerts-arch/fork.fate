@@ -15,7 +15,7 @@ const THEMES = [
   { id: "cyber", label: "Cyberpunk", icon: Zap, grad: "linear-gradient(135deg,#070A16 0%,#160A28 100%)", accent: "#22E0E0", text: "#D8F9FF" },
   { id: "steam", label: "Steampunk", icon: Cog, grad: "linear-gradient(135deg,#17100A 0%,#3A2810 100%)", accent: "#D9A44E", text: "#F1D9A6" },
   { id: "tiki", label: "Tiki Lounge", icon: Wine, grad: "linear-gradient(135deg,#2A140A 0%,#3A1C0E 100%)", accent: "#F0A24E", text: "#FBE3C0" },
-  { id: "fantasy", label: "Dragon's Hoard", icon: Swords, grad: "linear-gradient(135deg,#1A0E08 0%,#3A2508 100%)", accent: "#E6B23A", text: "#F3D9A0" },
+  { id: "fantasy", label: "Dragon's Hoard", icon: Swords, grad: "linear-gradient(135deg,#1C0808 0%,#7E1B0E 100%)", accent: "#FF7A3D", text: "#FFD9A0" },
 ];
 
 /**
