@@ -35,8 +35,12 @@ in-app Merch showcase (`/shop`). Deployed as Android TWA + production at fork-fa
   FF_BUILD pytest failures are PRE-EXISTING/STALE asserts, unrelated.
 - **Wheel of Fate tick fix (prod phone bug)**: sound started seconds late on
   phones (12.8s MP3 + metadata seek). Now plays pre-trimmed
-  `/wheel-tick-end.mp3` (4.44s, 39KB, made with ffmpeg) preloaded on mount, no
-  seeking. Legacy wheel-tick.mp3 still ships but is unused.
+  `/wheel-tick-end.mp3` preloaded on mount, no seeking. USER FEEDBACK FIX:
+  the source clip has a "quick song" jingle at ~8.8-11s and silence after —
+  the first trim (last 4.4s) captured jingle+silence, explaining "tada, no
+  ticking". Final trim = 4.2-8.6s (pure steady ticking) with 0.9s fade-out to
+  emulate the wheel settling (4.44s, 58KB, ffmpeg). Legacy wheel-tick.mp3
+  still ships but is unused.
 - **8-ball: zero shuffle cards (prod phone bug)**: new `rare8Ball` state in
   Home.jsx suppresses the full-screen shuffle popup entirely for 8-ball rares
   (was flashing ~150ms of cards); reset in runShuffle + runCrawlShuffle. Normal

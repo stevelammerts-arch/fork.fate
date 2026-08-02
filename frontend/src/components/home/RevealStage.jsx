@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import { CouponReveal } from "./CouponReveal";
 import { ChainCouponStrip } from "./ChainCouponStrip";
 import { ReactionBar } from "./ReactionBar";
 import { ScratchCover, ThemeCardFrame } from "./ScratchCover";
+import { SteamBurst } from "./SteamBurst";
 import { Magic8Ball } from "./Magic8Ball";
 import { WheelOfFate } from "./WheelOfFate";
 import { useLang } from "../../i18n/i18n";
@@ -21,6 +22,18 @@ import { trackEvent } from "../../lib/analytics";
 export default function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, theme, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite, onDare, dareAvailable, locked, rerollsLeft = 0, onSwipeReroll, surprise = null, onSurpriseDone }) {
   const { t } = useLang();
   const [confirmingDare, setConfirmingDare] = useState(false);
+  // Steampunk flourish: burst of steam off the card while the reveal sound
+  // plays — re-fires per revealed place, and after a rare ritual unveils.
+  // (Hooks live above the early returns to keep hook order stable.)
+  const isCovered = surprise === "scratch" || surprise === "8ball" || surprise === "wheel";
+  const [steaming, setSteaming] = useState(false);
+  useEffect(() => {
+    if (theme !== "steam" || isCovered || !result) return;
+    setSteaming(true);
+    const timer = setTimeout(() => setSteaming(false), 4200);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result?.id, isCovered, theme]);
   if (!result && groupPicks && groupPicks.length > 0) {
     return <GroupVote picks={groupPicks} onReSpin={onReSpin} onWinner={onPick} />;
   }
@@ -55,7 +68,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   const alternatives = locked ? [] : deck.filter((d) => d.id !== card.id).slice(0, 3);
   // Rare fate: the winner arrives hidden — under themed scratch foil, inside a
   // Magic 8-ball to shake, or on a roulette wheel to flick.
-  const covered = surprise === "scratch" || surprise === "8ball" || surprise === "wheel";
+  const covered = isCovered;
   // Swipe-to-reroll: drag the photo header left to tempt fate again (budgeted).
   const swipeEnabled = !locked && !covered && rerollsLeft > 0 && deck.length > 1 && !!onSwipeReroll;
   const shareFate = async () => {
@@ -126,6 +139,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
             <img src={card.photo_url || card.image} alt={card.name} className="h-full w-full object-cover transition-transform duration-500 hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           </a>
+          {steaming && <SteamBurst />}
           {onToggleFavorite && (
             <button
               onClick={(e) => { e.stopPropagation(); e.preventDefault(); onToggleFavorite(card); }}

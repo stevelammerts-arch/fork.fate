@@ -1,0 +1,21 @@
+{
+  "summary": "Verified STEAM BURST reveal flourish on steampunk theme. All 4 acceptance criteria pass: (1) steam-burst appears immediately when reveal-photo-header renders on ff_theme='steam' at ZIP 90210; (2) it auto-unmounts within the 4.2s window (0 nodes after ~4.5s); (3) on ff_theme='dark' the steam-burst never appears during reveal; (4) no React console errors/warnings across empty-state -> deal -> reveal -> re-spin -> second reveal (steam fires again on re-spin) and group-mode toggle on steampunk — 0 hook-order warnings. Favorite heart is clickable while steam is visible (pointer-events-none confirmed). Framer puffs render as expected (7 blurred radial puffs).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "RevealStage.jsx: hook order is now stable — useState/useEffect for `steaming` are placed above all early returns as required. Effect deps [result?.id, isCovered, theme] correctly re-fires per pick and skips while covered (scratch/8ball/wheel).",
+    "SteamBurst.jsx: pointer-events-none + aria-hidden set correctly; z-[5] sits below favorite/ribbon controls so interactions are not blocked. 4200ms unmount timer matches puff durations + delays (~1.25 + 2.7 -> ~3.95s) — safe margin."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "100%"},
+  "seed_data_creation": "localStorage seeded via add_init_script: ff_theme, ff_theme_chosen, ff_theme_hint_seen, ff_deal_taps=0, ff_rare_at=10 (removed ff_rare_force).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Steampunk steam-burst feature verified end-to-end on preview URL. Screenshot with visible puffs at /app/test_reports/steam_visible.png. Group-mode deep test (3-pick vote UI) was toggled but the full deal flow to render GroupVote was not exercised — no errors observed while toggling; if a deeper group test is required, use Group mode toggle + zip + spin and wait ~6s for the picks grid."
+}
