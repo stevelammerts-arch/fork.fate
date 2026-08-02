@@ -666,3 +666,12 @@ User approved a 3-phase interactivity roadmap. Phase 1 built + tested:
 
 ## Test Credentials
 See `/app/memory/test_credentials.md`.
+
+## 2026-08 Pre-Publish Deployment Check
+- Ran deployment_agent readiness scan before user's production publish: PASS.
+- Only flag was a CORS warning on CORS_ORIGINS being domain-specific — verified
+  FALSE POSITIVE: `allow_origin_regex` (core.py) already covers fork-fate.com,
+  *.emergent.host, and preview domains; CORSMiddleware accepts either list or regex.
+- No code changes made. App published by user; iteration_51 deep diagnostic was green.
+- Next: Apple App Store publishing support when user returns; P2 backlog item —
+  "Check again" button on /sponsor/success when payment polling ends pending.
