@@ -166,23 +166,108 @@ function FireWall() {
   );
 }
 
+/** Coffee Shop: a latte poured in — cup of crema with a cream heart drawn in. */
+function LatteArt({ compact = false }) {
+  const size = compact ? 76 : 116;
+  return (
+    <motion.div
+      className="absolute left-1/2"
+      style={compact ? { bottom: 0, marginLeft: -size / 2 } : { top: "50%", marginLeft: -size / 2, marginTop: -size / 2 }}
+      initial={{ opacity: 0, scale: 0.55, rotate: -6 }}
+      animate={{ opacity: [0, 1, 1, 0], scale: [0.55, 1.06, 1, 0.97], rotate: [-6, 2, 0, 0] }}
+      transition={{ duration: 3.8, times: [0, 0.16, 0.75, 1], ease: "easeInOut" }}
+    >
+      <div
+        className="relative rounded-full"
+        style={{
+          width: size,
+          height: size,
+          background: "radial-gradient(circle at 42% 36%, #C58A4A 0%, #A96F35 45%, #7A4B20 100%)",
+          boxShadow: "0 0 0 5px #F5EFE2, 0 0 0 7px #D9CDB8, 0 8px 18px rgba(0,0,0,0.4)",
+        }}
+      >
+        <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full">
+          {/* Cream swirl ring */}
+          <motion.circle
+            cx="50" cy="50" r="34" fill="none" stroke="rgba(247,238,221,0.5)" strokeWidth="3.5"
+            strokeDasharray="30 18" strokeLinecap="round"
+            initial={{ opacity: 0, rotate: 0 }}
+            animate={{ opacity: [0, 0.8, 0.5], rotate: 60 }}
+            style={{ transformOrigin: "50% 50%" }}
+            transition={{ delay: 0.3, duration: 2.6, ease: "easeOut" }}
+          />
+          {/* The heart pours itself in, then fills */}
+          <motion.path
+            d="M50 76 C 24 57, 31 30, 50 43 C 69 30, 76 57, 50 76 Z"
+            fill="none" stroke="#F7EEDD" strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ delay: 0.45, duration: 1.3, ease: "easeInOut" }}
+          />
+          <motion.path
+            d="M50 76 C 24 57, 31 30, 50 43 C 69 30, 76 57, 50 76 Z"
+            fill="#F7EEDD" stroke="none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.9 }}
+            transition={{ delay: 1.6, duration: 0.6, ease: "easeIn" }}
+          />
+        </svg>
+      </div>
+    </motion.div>
+  );
+}
+
+/** Reaper: ghostly apparitions with faint skull faces ascending off the card. */
+function GhostRise() {
+  return Array.from({ length: 6 }, (_, i) => {
+    const w = 34 + rnd(i, 1) * 26;
+    const sway = 10 + rnd(i, 2) * 16;
+    return (
+      <motion.div
+        key={i}
+        className="absolute"
+        style={{ left: `${6 + rnd(i, 3) * 76}%`, bottom: -10, width: w, height: w * 1.3, filter: "blur(1.2px)" }}
+        initial={{ y: 30, opacity: 0, scale: 0.6 }}
+        animate={{
+          y: -230 - rnd(i, 4) * 60,
+          x: [0, sway, -sway * 0.7, sway * 0.5],
+          opacity: [0, 0.75, 0.55, 0],
+          scale: [0.6, 1, 1.15],
+        }}
+        transition={{ delay: rnd(i, 5) * 1.3, duration: 2.8 + rnd(i, 6) * 1.2, ease: "easeOut" }}
+      >
+        <svg viewBox="0 0 40 52" className="h-full w-full">
+          {/* Wispy hooded spirit: dome head, trailing tattered hem */}
+          <path
+            d="M20 2 C 8 2, 4 14, 4 24 L 4 42 Q 7 38 10 43 Q 13 48 16 43 Q 19 38 22 44 Q 25 49 28 43 Q 31 38 36 42 L 36 24 C 36 14, 32 2, 20 2 Z"
+            fill="rgba(215,225,238,0.42)"
+          />
+          {/* Faint skull face */}
+          <ellipse cx="14.5" cy="20" rx="3.4" ry="4.4" fill="rgba(10,10,14,0.55)" />
+          <ellipse cx="25.5" cy="20" rx="3.4" ry="4.4" fill="rgba(10,10,14,0.55)" />
+          <path d="M20 26 L 17.5 31 L 22.5 31 Z" fill="rgba(10,10,14,0.4)" />
+        </svg>
+      </motion.div>
+    );
+  });
+}
+
 /** Themes that fire a one-shot flourish when the winner card lands / reveals. */
-export const FLOURISH_THEMES = new Set(["steam", "light", "winter", "spring", "fall", "tiki", "summer", "fantasy"]);
+export const FLOURISH_THEMES = new Set(["steam", "light", "winter", "spring", "fall", "tiki", "summer", "fantasy", "dark"]);
 
 /**
  * One-shot themed flourish over the winner card. `variant`:
  *  - "reveal": inside the reveal card's photo header
- *  - "deck": over the landed shuffle-deck card (fantasy is skipped there —
- *    the dragon claw + gold pulse already own that moment)
- * Dark (skeleton hands) and Cyberpunk (neon pulse) keep their bespoke deck
- * effects and have no reveal flourish. Parent unmounts after ~4.2s.
+ *  - "deck": over the landed shuffle-deck card (fantasy + dark are skipped
+ *    there — the dragon claw and skeleton hands already own that moment)
+ * Cyberpunk keeps its bespoke neon pulse and has no reveal flourish.
+ * Parent unmounts after ~4.2s.
  */
 export function ThemeFlourish({ theme, variant = "reveal" }) {
   if (!FLOURISH_THEMES.has(theme)) return null;
-  if (variant === "deck" && theme === "fantasy") return null;
+  if (variant === "deck" && (theme === "fantasy" || theme === "dark")) return null;
 
-  // Steam + Coffee Shop share the vapor engine (coffee steam off a fresh cup).
-  if (theme === "steam" || theme === "light") {
+  if (theme === "steam") {
     if (variant === "deck") {
       return (
         <div className="pointer-events-none absolute -top-28 left-[-30px] right-[-30px] z-40 h-36" data-testid="deck-flourish" data-flourish={theme} aria-hidden="true">
@@ -199,7 +284,11 @@ export function ThemeFlourish({ theme, variant = "reveal" }) {
   const height = variant === "deck" ? 350 : 300;
   return (
     <div className={wrapCls} data-testid={variant === "deck" ? "deck-flourish" : "theme-flourish"} data-flourish={theme} aria-hidden="true">
-      {theme === "tiki" ? (
+      {theme === "light" ? (
+        <LatteArt compact={variant === "deck"} />
+      ) : theme === "dark" ? (
+        <GhostRise />
+      ) : theme === "tiki" ? (
         <Fireflies />
       ) : theme === "summer" ? (
         <SunSparkles />

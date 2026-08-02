@@ -45,6 +45,7 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 // earlier versions held pure tones or near-Nyquist junk that phone speakers
 // reproduced as a buzz or zap.
 const SHUFFLE_LOOPS = {
+  light: ["/shuffle-cafe.wav", 0.75, true],
   tiki: ["/reveal-drums-groove.wav", 1.0, false],
   cyber: ["/reveal-cyber-radio.wav", 0.8, true],
   summer: ["/shuffle-seagulls.wav", 0.7, true],
