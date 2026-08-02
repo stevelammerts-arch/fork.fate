@@ -46,7 +46,7 @@ export default function RarePreview() {
         </Link>
         <h1 className="mt-4 font-serif text-3xl">Rare Fate Rituals — Preview</h1>
         <p className="mt-1 font-sans text-sm text-[#8A8F95]">
-          One of these replaces the shuffle every ~15 deals. Scratch the foil · shake/rattle the 8-ball · flick the wheel.
+          One of these replaces the shuffle every 10 deals. Scratch the foil · shake/rattle the 8-ball · flick the wheel.
         </p>
         <div className="mt-8 flex flex-wrap gap-8">
           <DemoCard title="Scratch Foil (theme: fantasy)" resetKey="scratch" onReset={() => bump("scratch")}>

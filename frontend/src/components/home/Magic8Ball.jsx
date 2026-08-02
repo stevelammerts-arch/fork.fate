@@ -35,10 +35,19 @@ export function Magic8Ball({ name, onDone }) {
   const [stage, setStage] = useState("idle");
   const [message, setMessage] = useState(null);
   const stageRef = useRef("idle");
-  const attempts = useRef(0);
-  const lastFail = useRef(-1);
   const drag = useRef({ lastX: null, dir: 0, flips: 0, travel: 0, t: 0 });
   const wiggle = useAnimationControls();
+
+  // Fail-attempt bookkeeping survives remounts (sessionStorage keyed by the
+  // winner) so "fate always answers by the third shake" holds even if the
+  // parent re-keys this component mid-ritual.
+  const skey = `ff8b_${name}`;
+  const readTries = () => {
+    try { return JSON.parse(sessionStorage.getItem(skey)) || { n: 0, last: -1 }; }
+    catch (e) { return { n: 0, last: -1 }; }
+  };
+  const writeTries = (v) => { try { sessionStorage.setItem(skey, JSON.stringify(v)); } catch (e) { /* ignore */ } };
+  const clearTries = () => { try { sessionStorage.removeItem(skey); } catch (e) { /* ignore */ } };
 
   const setStageBoth = (s) => { stageRef.current = s; setStage(s); };
 
@@ -46,7 +55,8 @@ export function Magic8Ball({ name, onDone }) {
     if (stageRef.current !== "idle") return;
     // Decide this shake's outcome up front so the reveal audio only plays
     // under the true answer.
-    const isFinal = attempts.current >= MAX_FAILS || Math.random() >= FAIL_CHANCE;
+    const tries = readTries();
+    const isFinal = tries.n >= MAX_FAILS || Math.random() >= FAIL_CHANCE;
     setStageBoth("shaking");
     haptic(30);
     if (isFinal) {
@@ -61,15 +71,15 @@ export function Magic8Ball({ name, onDone }) {
     }
     setTimeout(() => {
       if (isFinal) {
+        clearTries();
         setStageBoth("answer");
         haptic(15);
         setTimeout(() => onDone?.(), 2600);
       } else {
         let idx = Math.floor(Math.random() * FAIL_MESSAGES.length);
-        if (idx === lastFail.current) idx = (idx + 1) % FAIL_MESSAGES.length;
-        lastFail.current = idx;
+        if (idx === tries.last) idx = (idx + 1) % FAIL_MESSAGES.length;
+        writeTries({ n: tries.n + 1, last: idx });
         setMessage(FAIL_MESSAGES[idx]);
-        attempts.current += 1;
         setStageBoth("message");
         haptic(10);
         setTimeout(() => {
@@ -112,7 +122,7 @@ export function Magic8Ball({ name, onDone }) {
       ? "Fate stirs…"
       : stage === "message"
         ? "The ball taunts you. Shake it again…"
-        : attempts.current > 0
+        : readTries().n > 0
           ? "Shake it again…"
           : "Shake your phone to reveal your fate";
 
@@ -124,6 +134,7 @@ export function Magic8Ball({ name, onDone }) {
     <div
       className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 rounded-2xl backdrop-blur-sm"
       data-testid="magic-8ball-overlay"
+      data-state={stage}
       onPointerMove={onPointerMove}
       style={{ touchAction: "none", background: "radial-gradient(circle at 50% 38%, rgba(75,29,142,0.16), rgba(0,0,0,0) 62%), rgba(9,7,12,0.96)" }}
     >
@@ -176,13 +187,14 @@ export function Magic8Ball({ name, onDone }) {
             ))}
             {/* The triangle die floats up through the liquid — fail taunts and
                 the true fate both surface here, like the real toy */}
-            <motion.div
-              className="absolute inset-0 grid place-items-center"
-              initial={false}
-              animate={dieUp ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-              transition={{ type: "spring", stiffness: 130, damping: 17 }}
-              data-testid={isAnswer ? "magic-8ball-answer" : "magic-8ball-fail"}
-            >
+            {dieUp && (
+              <motion.div
+                className="absolute inset-0 grid place-items-center"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ type: "spring", stiffness: 130, damping: 17 }}
+                data-testid={isAnswer ? "magic-8ball-answer" : "magic-8ball-fail"}
+              >
               <div
                 className="grid h-[92px] w-[96px] place-items-center"
                 style={{
@@ -199,7 +211,8 @@ export function Magic8Ball({ name, onDone }) {
                   {isAnswer ? name : (message || "")}
                 </span>
               </div>
-            </motion.div>
+              </motion.div>
+            )}
             {/* The white 8 floats on the liquid; sinks while the die is up */}
             <motion.span
               className="absolute left-1/2 top-1/2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white font-serif text-2xl font-bold text-black"
@@ -215,7 +228,7 @@ export function Magic8Ball({ name, onDone }) {
       <p className="pointer-events-none px-6 text-center font-serif text-sm font-semibold italic text-[#C7CACE]" data-testid="magic-8ball-hint">
         {hint}
       </p>
-      {stage === "idle" && attempts.current === 0 && (
+      {stage === "idle" && readTries().n === 0 && (
         <p className="pointer-events-none -mt-3 px-6 text-center font-serif text-[10px] italic text-white/50">
           (or rattle the ball with your cursor)
         </p>

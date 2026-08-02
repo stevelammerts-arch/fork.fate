@@ -1,0 +1,28 @@
+{
+  "summary": "Retest of iteration_38 HIGH-priority Magic8Ball MAX_FAILS bug after fix that persists fail counters in sessionStorage. All 3 requested scenarios PASS on /dev/rare via http://localhost:3000.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "passed_tests": [
+    "FAIL SEQUENCE (Math.random=0.1): shake1 → data-state='message', [data-testid=magic-8ball-fail] present, taunt='ASK\\nAGAIN\\nLATER' (idx 0), sessionStorage ff8b_The Rusty Skillet={n:1,last:0}. shake2 → fail present, taunt='OUTLOOK\\nHAZY' (anti-repeat bumped 0→1), sessionStorage={n:2,last:1}. shake3 → data-state='answer', [data-testid=magic-8ball-answer] present with 'The Rusty Skillet', [data-testid=magic-8ball-fail] NOT present, sessionStorage cleared to null. MAX_FAILS guard fires correctly.",
+    "REMOUNT RESILIENCE: after 1 fail shake (n=1,last=0) then click [data-testid=reset-ball] (Replay remounts Magic8Ball), sessionStorage survives ({n:1,last:0} intact). Idle sub-hint '(or rattle the ball with your cursor)' correctly HIDDEN post-remount since tries.n>0. Shake 2 (post-remount) → fail, {n:2,last:1}. Shake 3 → data-state='answer', magic-8ball-answer present with 'The Rusty Skillet'. Counters survived the component remount.",
+    "ANSWER PATH REGRESSION (Math.random=0.9, fresh sessionStorage): first rattle → data-state='answer', magic-8ball-answer present with 'The Rusty Skillet', magic-8ball-fail NOT present, hint='So it is written…'. Direct-answer path uncorrupted by the fix."
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "sessionStorage key `ff8b_${name}` uses the raw restaurant name — safe here but note names with unusual characters could collide across storage keys; consider a hash or slug if names ever contain control chars. Not blocking.",
+    "The old comment on line 41-43 still references 'refs (attempts, lastFail)' but the code now uses sessionStorage — minor doc drift, cosmetic only."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "100% (3/3 retested scenarios pass)"},
+  "test_credentials": "none (public /dev/rare)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "sessionStorage key format: ff8b_<name> with value {n:int,last:int}. Cleared automatically when the answer surfaces. data-state on [data-testid=magic-8ball-overlay] reliably reflects lifecycle: idle → shaking (1.1s) → message (2s) → idle, or shaking → answer (persists ~2.6s until onDone). magic-8ball-answer / magic-8ball-fail are now conditionally rendered (only under dieUp), so selector presence is a valid state signal — no more falling back to hint text. Rattle recipe: 8 pointermove events on magic-8ball-overlay at ±150px from center with 85ms spacing. Math.random must be stubbed via page.add_init_script BEFORE goto. Use http://localhost:3000 (external preview hit a wake gate not tested here but localhost works fine).",
+  "rca of the issue": "N/A — bug fixed. The iteration_38 remount-wipes-refs bug was resolved by moving attempt counters from useRef to sessionStorage (key ff8b_<name>). Verified counters persist both across normal fail→idle→shake cycles AND across explicit component remount via Replay button. MAX_FAILS=2 guarantee now holds; anti-repeat taunt rotation now works (shake1 taunt idx 0, shake2 bumped to idx 1)."
+}
