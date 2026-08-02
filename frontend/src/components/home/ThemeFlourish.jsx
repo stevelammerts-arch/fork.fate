@@ -193,43 +193,73 @@ function LatteArt({ compact = false }) {
   );
 }
 
-/** Reaper: spectral apparitions — hooded shrouds with hollow eyes, wind-torn
- * hems, softly glowing as they ascend. Visible forms, not smoke. */
+/** Reaper: departed souls — vaporous, vaguely humanoid apparitions that warp
+ * and undulate as they rise (SVG turbulence displacement), with faint sunken
+ * features emerging from the mist. Ethereal, not sprite-like. */
 function GhostRise() {
   return Array.from({ length: 4 }, (_, i) => {
-    const w = 46 + rnd(i, 1) * 26;
-    const sway = 12 + rnd(i, 2) * 16;
+    const w = 54 + rnd(i, 1) * 30;
+    const sway = 10 + rnd(i, 2) * 14;
     return (
       <motion.div
         key={i}
         className="absolute"
-        style={{ left: `${10 + rnd(i, 3) * 64}%`, bottom: -16, width: w, height: w * 1.6, filter: "blur(1px) drop-shadow(0 0 12px rgba(170,210,195,0.55))" }}
-        initial={{ y: 40, opacity: 0, scale: 0.7 }}
+        style={{ left: `${10 + rnd(i, 3) * 62}%`, bottom: -20, width: w, height: w * 1.9, filter: "blur(1.6px) drop-shadow(0 0 16px rgba(185,205,235,0.35))" }}
+        initial={{ y: 50, opacity: 0, scaleY: 0.85, scaleX: 1 }}
         animate={{
-          y: -240 - rnd(i, 4) * 60,
-          x: [0, sway, -sway * 0.6, sway * 0.4],
-          opacity: [0, 0.9, 0.55, 0.85, 0.6, 0.8, 0],
-          scale: [0.7, 1, 1.12],
-          rotate: [0, rnd(i, 7) > 0.5 ? 4 : -4, 0],
+          y: -250 - rnd(i, 4) * 70,
+          x: [0, sway, -sway * 0.5, sway * 0.3],
+          opacity: [0, 0.72, 0.55, 0.66, 0.5, 0],
+          scaleY: [0.85, 1, 1.2],
+          scaleX: [1, 0.97, 0.88],
+          rotate: [0, rnd(i, 7) > 0.5 ? 3 : -3, 0],
         }}
-        transition={{ delay: rnd(i, 5) * 1.5, duration: 3.4 + rnd(i, 6) * 1.2, ease: "easeOut" }}
+        transition={{ delay: rnd(i, 5) * 1.6, duration: 4.2 + rnd(i, 6) * 1.4, ease: "easeOut" }}
       >
-        <svg viewBox="0 0 40 64" className="h-full w-full">
+        <svg viewBox="0 0 40 76" className="h-full w-full" style={{ overflow: "visible" }}>
           <defs>
-            <radialGradient id={`ff-ghost-${i}`} cx="50%" cy="22%" r="70%">
-              <stop offset="0%" stopColor="rgba(230,238,250,0.9)" />
-              <stop offset="55%" stopColor="rgba(206,217,235,0.55)" />
-              <stop offset="100%" stopColor="rgba(206,217,235,0)" />
+            <radialGradient id={`ff-soul-${i}`} cx="50%" cy="18%" r="78%">
+              <stop offset="0%" stopColor="rgba(237,243,252,0.82)" />
+              <stop offset="38%" stopColor="rgba(216,228,245,0.42)" />
+              <stop offset="72%" stopColor="rgba(208,222,242,0.16)" />
+              <stop offset="100%" stopColor="rgba(205,220,240,0)" />
             </radialGradient>
+            <filter id={`ff-soul-warp-${i}`} x="-45%" y="-25%" width="190%" height="150%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.014 0.05" numOctaves="2" seed={i * 7 + 3} result="noise">
+                <animate attributeName="baseFrequency" dur="5.5s" values="0.014 0.05;0.022 0.065;0.014 0.05" repeatCount="indefinite" />
+              </feTurbulence>
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" />
+              <feGaussianBlur stdDeviation="0.9" />
+            </filter>
+            <filter id={`ff-soul-face-${i}`} x="-30%" y="-30%" width="160%" height="160%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.02 0.05" numOctaves="1" seed={i * 5 + 2} result="fnoise" />
+              <feDisplacementMap in="SourceGraphic" in2="fnoise" scale="2.5" />
+              <feGaussianBlur stdDeviation="0.35" />
+            </filter>
           </defs>
-          {/* Hooded shroud flowing into a tapering, wind-torn hem */}
-          <path
-            d="M20 2 C 10 2, 6 12, 6 20 C 6 30, 4 38, 2 48 C 6 44, 8 50, 11 56 C 13 60, 15 52, 18 58 C 20 62, 23 54, 26 60 C 29 64, 30 52, 34 56 C 36 50, 34 40, 33 30 C 32 20, 32 2, 20 2 Z"
-            fill={`url(#ff-ghost-${i})`}
-          />
-          {/* Hollow eyes */}
-          <ellipse cx="14.6" cy="17" rx="2.6" ry="3.6" fill="rgba(8,8,12,0.55)" />
-          <ellipse cx="25.4" cy="17" rx="2.6" ry="3.6" fill="rgba(8,8,12,0.55)" />
+          <g filter={`url(#ff-soul-warp-${i})`}>
+            {/* Vaguely humanoid wisp: head, slumped shoulders, vapor trailing away */}
+            <path
+              d="M20 3 C13 3 10 9 10 15 C10 19 11 22 9 27 C7 34 6 44 8 54 C9.5 61 12 68 14 73 C16 70 17 64 18 60 C19 65 21 71 24 74 C26 69 27 61 28 54 C30 44 31 33 29 26 C27.5 21 30 18 30 14 C30 8 27 3 20 3 Z"
+              fill={`url(#ff-soul-${i})`}
+            />
+          </g>
+          {/* Defined face under only a whisper of distortion so it reads clearly */}
+          <g filter={`url(#ff-soul-face-${i})`}>
+            {/* Brow shadow sinking both sockets into the skull */}
+            <path d="M11.5 12.5 Q15 10.6 18 12.2 M22 12.2 Q25 10.6 28.5 12.5" stroke="rgba(8,10,16,0.45)" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+            {/* Hollow eye sockets, inner-shaded */}
+            <ellipse cx="14.8" cy="15" rx="2.6" ry="3.4" fill="rgba(6,8,13,0.8)" />
+            <ellipse cx="25.2" cy="15" rx="2.6" ry="3.4" fill="rgba(6,8,13,0.8)" />
+            <ellipse cx="14.8" cy="16.2" rx="1.4" ry="1.8" fill="rgba(0,0,0,0.9)" />
+            <ellipse cx="25.2" cy="16.2" rx="1.4" ry="1.8" fill="rgba(0,0,0,0.9)" />
+            {/* Gaunt nose shadow */}
+            <path d="M20 17.5 L18.9 21.4 L21.1 21.4 Z" fill="rgba(8,10,16,0.42)" />
+            {/* Wailing mouth — elongated hollow */}
+            <path d="M20 22.6 C18.4 22.6 17.6 24.4 17.7 26.4 C17.8 28.8 18.8 30.6 20 30.6 C21.2 30.6 22.2 28.8 22.3 26.4 C22.4 24.4 21.6 22.6 20 22.6 Z" fill="rgba(4,6,10,0.78)" />
+            {/* Cheekbone highlights lifting the face out of the mist */}
+            <path d="M11.8 18.5 Q13.2 21.5 15.5 22.6 M28.2 18.5 Q26.8 21.5 24.5 22.6" stroke="rgba(240,246,255,0.5)" strokeWidth="1.1" fill="none" strokeLinecap="round" />
+          </g>
         </svg>
       </motion.div>
     );

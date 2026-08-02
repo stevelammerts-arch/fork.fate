@@ -4,6 +4,7 @@ import { ArrowLeft, RotateCcw } from "lucide-react";
 import { ScratchCover, ThemeCardFrame } from "../components/home/ScratchCover";
 import { Magic8Ball } from "../components/home/Magic8Ball";
 import { WheelOfFate } from "../components/home/WheelOfFate";
+import { ThemeFlourish } from "../components/home/ThemeFlourish";
 
 const MOCK_NAMES = [
   "Golden Wok Tavern", "Ember & Oak", "Buffalo Junction", "The Green Fork",
@@ -35,7 +36,7 @@ function DemoCard({ title, children, resetKey, onReset, tall = false }) {
 
 /** Dev-only preview of the three rare-fate reveal rituals (unlisted route). */
 export default function RarePreview() {
-  const [keys, setKeys] = useState({ scratch: 0, ball: 0, wheel: 0 });
+  const [keys, setKeys] = useState({ scratch: 0, ball: 0, wheel: 0, souls: 0, rain: 0 });
   const bump = (k) => setKeys((s) => ({ ...s, [k]: s[k] + 1 }));
 
   return (
@@ -66,6 +67,16 @@ export default function RarePreview() {
             <div key={keys.wheel} className="absolute inset-0">
               <WheelOfFate names={MOCK_NAMES} winner={WINNER} onDone={() => {}} autoSpin />
               <ThemeCardFrame theme="dark" />
+            </div>
+          </DemoCard>
+          <DemoCard title="Reaper Souls (reveal flourish)" resetKey="souls" onReset={() => bump("souls")}>
+            <div key={keys.souls} className="absolute inset-0">
+              <ThemeFlourish theme="dark" />
+            </div>
+          </DemoCard>
+          <DemoCard title="Cyberpunk Rain (reveal flourish)" resetKey="rain" onReset={() => bump("rain")}>
+            <div key={keys.rain} className="absolute inset-0">
+              <ThemeFlourish theme="cyber" />
             </div>
           </DemoCard>
         </div>
