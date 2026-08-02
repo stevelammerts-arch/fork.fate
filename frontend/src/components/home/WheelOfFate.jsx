@@ -82,9 +82,10 @@ export function WheelOfFate({ names = [], winner, onDone, autoSpin = false }) {
     haptic(15);
     try {
       if (localStorage.getItem("ff_muted") !== "1") {
-        // Pre-trimmed clip: exactly the wheel's 4.4s spin, ticks decaying to a
-        // stop — plays immediately, no seeking required.
-        const a = tickAudioRef.current || new Audio("/wheel-tick-end.mp3");
+        // Synthesized clip (scripts/gen_wheel_ticks.py): exactly the wheel's
+        // 5.4s spin — tick times computed from the same easing curve, so every
+        // tick lands on a segment crossing as the wheel decays to a stop.
+        const a = tickAudioRef.current || new Audio("/wheel-tick-end.mp3?v=2");
         a.volume = 0.9;
         try { a.currentTime = 0; } catch (e2) { /* not seekable yet — plays from 0 anyway */ }
         a.play().catch(() => {});
@@ -95,13 +96,14 @@ export function WheelOfFate({ names = [], winner, onDone, autoSpin = false }) {
     const cur = rotation.get();
     // Land so the winner's center sits under the top pointer: R ≡ -center (mod 360)
     const base = ((-winnerCenter % 360) + 360) % 360;
-    const turns = 4 * 360;
+    const turns = 7 * 360; // free-wheeling: plenty of fast early revolutions
     const target = dir >= 0
       ? cur + turns + ((base - cur) % 360 + 360) % 360
       : cur - turns - ((cur - base) % 360 + 360) % 360;
     animate(rotation, target, {
-      duration: 4.4,
-      ease: [0.12, 0.8, 0.16, 1],
+      duration: 5.4,
+      // Hot launch, long satisfying coast — matches the tick synthesis curve.
+      ease: (t) => 1 - Math.pow(1 - t, 3.2),
       onComplete: () => {
         stopTick();
         setStage("done");

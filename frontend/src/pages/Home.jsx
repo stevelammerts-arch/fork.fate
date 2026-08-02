@@ -387,7 +387,8 @@ export default function Home() {
     // short dramatic beat, present the winner hidden behind a surprise ritual:
     // themed scratch foil, or a Magic 8-ball the user must shake.
     if (rareFate) {
-      const pool2 = ["scratch", "8ball", "wheel"];
+      // Fairy Gully adds its own ritual: the magic wand reveal.
+      const pool2 = theme === "fairy" ? ["scratch", "8ball", "wheel", "wand"] : ["scratch", "8ball", "wheel"];
       let variant = pool2[Math.floor(Math.random() * pool2.length)];
       try {
         const forced = localStorage.getItem("ff_rare_force");

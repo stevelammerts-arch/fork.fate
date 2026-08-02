@@ -36,7 +36,30 @@ export function accentForTheme(theme) {
 /**
  * The double inset border the shuffle-deck card backs use, as an overlay —
  * frames the rare-fate reveals so they read as one of fate's cards.
+ * Fairy Gully adds a ring of red-cap mushrooms — a fairy ring blessing.
  */
+function MiniMushroom({ size = 16, rot = 0 }) {
+  return (
+    <svg viewBox="0 0 20 20" width={size} height={size} style={{ transform: `rotate(${rot}deg)`, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.55))" }}>
+      <path d="M10 2 C5 2 2.4 5.6 2.4 8.6 c0 1 .8 1.8 1.8 1.8 h11.6 c1 0 1.8 -.8 1.8 -1.8 C17.6 5.6 15 2 10 2 Z" fill="#D8342A" />
+      <circle cx="6.4" cy="6" r="1.1" fill="#FFF3E0" />
+      <circle cx="11" cy="4.6" r="0.9" fill="#FFF3E0" />
+      <circle cx="13.8" cy="7" r="1" fill="#FFF3E0" />
+      <path d="M7.6 10.4 L7.2 14.6 a2.8 2.8 0 0 0 2.8 3 a2.8 2.8 0 0 0 2.8 -3 l-.4 -4.2 Z" fill="#F1E3C8" />
+    </svg>
+  );
+}
+
+const FAIRY_RING = [
+  // top edge
+  { l: "10%", t: "4%", s: 15, r: -12 }, { l: "28%", t: "3.4%", s: 18, r: 8 }, { l: "50%", t: "3%", s: 16, r: -4 }, { l: "72%", t: "3.4%", s: 18, r: 10 }, { l: "90%", t: "4%", s: 15, r: 14 },
+  // bottom edge
+  { l: "10%", t: "96%", s: 16, r: 10 }, { l: "28%", t: "96.6%", s: 18, r: -8 }, { l: "50%", t: "97%", s: 15, r: 5 }, { l: "72%", t: "96.6%", s: 18, r: -12 }, { l: "90%", t: "96%", s: 16, r: -6 },
+  // sides
+  { l: "4%", t: "25%", s: 15, r: -80 }, { l: "3.4%", t: "50%", s: 17, r: -90 }, { l: "4%", t: "75%", s: 15, r: -100 },
+  { l: "96%", t: "25%", s: 15, r: 80 }, { l: "96.6%", t: "50%", s: 17, r: 90 }, { l: "96%", t: "75%", s: 15, r: 100 },
+];
+
 export function ThemeCardFrame({ theme }) {
   const accent = accentForTheme(theme);
   return (
@@ -45,6 +68,11 @@ export function ThemeCardFrame({ theme }) {
       <div className="absolute inset-0 rounded-2xl border-2" style={{ borderColor: "rgba(10,9,12,0.55)" }} />
       <div className="absolute inset-2 rounded-xl border" style={{ borderColor: `${accent}B3`, boxShadow: `inset 0 0 12px ${accent}4D, 0 0 0 1px rgba(10,9,12,0.35)` }} />
       <div className="absolute inset-[10px] rounded-lg border" style={{ borderColor: `${accent}55` }} />
+      {theme === "fairy" && FAIRY_RING.map((m, i) => (
+        <span key={i} className="absolute" style={{ left: m.l, top: m.t, transform: "translate(-50%,-50%)" }} data-testid="fairy-ring-mushroom">
+          <MiniMushroom size={m.s} rot={m.r} />
+        </span>
+      ))}
     </div>
   );
 }

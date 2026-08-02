@@ -1,0 +1,30 @@
+{
+  "summary": "Iteration 51 — PRE-PUBLISH DEEP DIAGNOSTIC (fairy wand ritual + wheel retune + audio + broad smoke). All 7 acceptance-criteria groups verified end-to-end. Fairy wand ritual: cover appears with 'Tap the wand' prompt, RARE FATE badge, and exactly 16 mushroom-ring frame; tapping fairy-wand fires reveal (/reveal-fairy.wav plays, onDone fires at 2s, restaurant card underneath revealed). Fairy scratch ritual: rare-fate-scratch-cover mounts with 16 mushroom ring; label 'The fae hid your fate — scratch the ring' is rendered on canvas (fillText, not DOM innerText — verified via source at RevealStage.jsx:192 + ScratchCover.jsx:121). Wheel of Fate: in main deal flow (dark + ff_rare_force=wheel) the wheel-of-fate mounts; tapping wheel-tap-spin (via JS click) transitions hint through 'Round and round it goes…' → 'The wheel has spoken…' within ~5.4s + 1.5s reveal delay, then the reveal card (E2E Test Diner) is unveiled — spin duration matches the retuned 7-turn / 5.4s / power-ease(3.2) curve. /dev/rare demo autospin also completes ('The wheel has spoken…'). NOTE for future testers: Playwright locator.click(force=True) on wheel-tap-spin sometimes does NOT fire React onClick reliably; use `document.querySelector('[data-testid=\"wheel-tap-spin\"]').click()` via page.evaluate — this is a Playwright/React synthetic-event quirk, not an app bug. Rare pool scoping: dark theme with ff_rare_force=wand correctly falls back (Magic 8-Ball appeared) — wand is scoped to fairy only. Normal fairy deal: no rare cover, reveal-line shows magical quote ('An enchantment seals your path.'). Mobile 390x844: zip-input + spin-roulette-button both render. Welcome dialog: theme-welcome-random works and sets a random theme (observed 'tiki'). Admin login (ForkFate!Admin2026) succeeds and shows sponsor manager + feedback data. Footer feedback dialog submits POST /api/feedback → 200. Stats endpoint /api/stats/fates increments from 1667→1668 after POST /api/stats/fate-dealt. Audio 200 check: /fairy-laugh.mp3 (10KB), /shuffle-fairy.wav (1.5MB), /reveal-fairy.wav (459KB), /soul-wail.wav (370KB), /wheel-tick-end.mp3?v=2 (87KB), /shuffle-cafe.wav (1.06MB) — all 200. Console errors during rituals: 0 app-level errors. Only warnings observed: (a) chromestatus 'Blocked call to navigator.vibrate' (browser policy, expected on first load), (b) React DevTools install hint, (c) one 'empty string passed to src' warning on the admin page (cosmetic — an <img src=''>). No 4xx/5xx during any tested flow. GREENLIGHT for publish.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Admin dashboard", "issues": ["Cosmetic React warning: an <img> element receives src=\"\" (empty string) causing the browser to reload the page. Non-blocking. Consider guarding: {src ? <img src={src} /> : null}."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "OPTIONAL: fix empty-string src warning on /admin (cosmetic React warning; no user impact).",
+    "OPTIONAL: consider adding wheel-hint state as data-attribute (e.g. data-stage) on [data-testid=\"wheel-of-fate\"] so automation can assert stage without relying on text — Playwright's synthetic-event click on the tap-spin button is flaky; native .click() via JS works fine but a data-stage attribute would harden future tests."
+  ],
+  "critical_code_review_comments": [
+    "FairyWand.jsx: cover container still renders in DOM after onDone (animate opacity to 0 leaves the motion.div mounted). This is intentional for the fade-out animation, but external tests checking `[data-testid=\"fairy-wand-cover\"]` count after tap will still see 1. Consider unmounting via AnimatePresence keyed on `casting` to allow cleaner post-condition checks. Not a bug.",
+    "WheelOfFate.jsx line 84: reads localStorage.getItem('ff_muted') synchronously per spin — fine, but no try/catch around localStorage (already wrapped in outer try). OK.",
+    "ScratchCover.jsx: the fairy label text ('The fae hid your fate — scratch the ring') is drawn to <canvas> only. It is invisible to assistive tech (no aria-label on the canvas). Consider aria-label={label} on the [data-testid={testId}] container for a11y.",
+    "Home.jsx still 1500+ lines — repeat comment from iter50: split further if practical."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (feedback POST 200, admin login 200, stats increment verified, all 6 audio assets 200, /api/stats/fates 200)", "frontend": "100% (fairy wand, fairy scratch, wheel main + /dev/rare, rare-pool scoping, normal fairy deal, mobile smoke, welcome random, admin login, feedback submit — all pass)"},
+  "test_credentials": "Admin: ForkFate!Admin2026 (from /app/memory/test_credentials.md) — verified working.",
+  "seed_data_creation": "None. One TEST_ feedback row inserted via smoke ('TEST_smoke pre-publish gate') and one fate-dealt count increment (1667→1668). Both are non-destructive.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Wheel manual tap via Playwright: use `page.evaluate('document.querySelector(\\'[data-testid=\"wheel-tap-spin\"]\\').click()')` instead of locator.click(force=True) — the latter's synthetic click doesn't reliably fire the React onClick in this component. Fairy scratch label is on <canvas> (fillText) — cannot detect via innerText, must screenshot or check ScratchCover `label` prop wiring in RevealStage.jsx:192. Fairy wand cover stays in DOM with opacity 0 after tap; assert reveal by checking the restaurant card appears, not by fairy-wand-cover count === 0. All rare rituals require ff_deal_taps to be reset to 9 before EACH deal (it's incremented per-deal). Set ff_theme_chosen='1' to auto-skip welcome; still need to dismiss guided-intro via 'Skip intro' button. Public URL: REACT_APP_BACKEND_URL from frontend/.env.",
+  "rca of the issue": "No production issues found. Pre-publish gate is GREEN. Two testing-side artifacts documented above (Playwright click on tap-spin, canvas-drawn label) so future agents don't spend cycles re-hitting them."
+}
