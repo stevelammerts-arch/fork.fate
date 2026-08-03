@@ -657,3 +657,67 @@ async def reconcile_sponsors():
                 logger.warning(f"Reconcile check failed for {sid}: {e}")
     return {"checked": checked, "paused": paused, "purged": purged}
 
+
+
+def _recap_html(name: str, coupon_code: str, stats: dict, month_label: str) -> str:
+    """Branded HTML for the monthly sponsor coupon-analytics recap."""
+    rows = "".join(
+        f"<tr><td style='padding:10px 16px;border-bottom:1px solid #EEE;font:14px sans-serif;color:#444'>{label}</td>"
+        f"<td style='padding:10px 16px;border-bottom:1px solid #EEE;font:bold 18px serif;color:#0E0E0E;text-align:right'>{value:,}</td></tr>"
+        for label, value in [
+            ("Times your spot was shown", stats["impressions"]),
+            ("Clicks to your site / listing", stats["clicks"]),
+            (f"Coupon reveals &amp; copies ({coupon_code})", stats["coupon_copies"]),
+        ]
+    )
+    return (
+        "<div style='max-width:520px;margin:0 auto;background:#FFF;border:1px solid #E8E8E8;border-radius:16px;overflow:hidden'>"
+        "<div style='background:#0E0E0E;padding:22px 24px'>"
+        "<span style='font:bold 22px serif;color:#FFF'>Fork&#183;Fate</span>"
+        "<span style='font:11px sans-serif;color:#E6B23A;letter-spacing:2px;text-transform:uppercase;float:right;margin-top:8px'>Sponsor recap</span>"
+        "</div>"
+        f"<div style='padding:24px'><p style='font:15px sans-serif;color:#333;margin:0 0 4px'>Hi {name},</p>"
+        f"<p style='font:14px sans-serif;color:#666;margin:0 0 18px'>Here's how your sponsorship performed in {month_label}:</p>"
+        f"<table style='width:100%;border-collapse:collapse'>{rows}</table>"
+        "<p style='font:12px sans-serif;color:#999;margin:18px 0 0'>Your coupon rides on matching reveals as a free founder perk. "
+        "Want to change your offer or photo? Just reply to this email.</p></div></div>"
+    )
+
+
+async def send_coupon_recaps() -> dict:
+    """Monthly per-sponsor analytics recap emails (impressions/clicks/coupon copies).
+
+    Reports the DELTA since the previous recap using a per-sponsor snapshot, so
+    each email covers roughly one month regardless of when the sponsor joined.
+    Silently no-ops when Resend isn't configured (send_email handles that).
+    """
+    now = datetime.now(timezone.utc)
+    month_label = now.strftime("%B %Y")
+    docs = await db.sponsors.find(
+        {"active": True, "contact_email": {"$nin": [None, ""]}},
+        {"_id": 0},
+    ).to_list(500)
+    sent = 0
+    for s in docs:
+        coupon_code = ((s.get("coupon") or {}).get("code") or "").strip()
+        prev = s.get("recap_snapshot") or {}
+        stats = {
+            "impressions": max(0, int(s.get("impressions", 0)) - int(prev.get("impressions", 0))),
+            "clicks": max(0, int(s.get("clicks", 0)) - int(prev.get("clicks", 0))),
+            "coupon_copies": max(0, int(s.get("coupon_copies", 0)) - int(prev.get("coupon_copies", 0))),
+        }
+        html = _recap_html(s.get("name", "there"), coupon_code or "no coupon yet", stats, month_label)
+        ok = await send_email(
+            f"Your Fork·Fate sponsor recap — {month_label}",
+            html,
+            to=s["contact_email"],
+        )
+        if ok:
+            sent += 1
+            await db.sponsors.update_one({"id": s["id"]}, {"$set": {"recap_snapshot": {
+                "impressions": int(s.get("impressions", 0)),
+                "clicks": int(s.get("clicks", 0)),
+                "coupon_copies": int(s.get("coupon_copies", 0)),
+                "sent_at": now.isoformat(),
+            }}})
+    return {"sponsors": len(docs), "sent": sent}

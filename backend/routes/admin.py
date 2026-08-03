@@ -11,7 +11,7 @@ from core import (db, rate_limit, require_admin, create_admin_token, client_ip,
                   ADMIN_PASSWORD, SPONSOR_PRICE, SPONSOR_PRICE_ANNUAL, FALLBACK_IMG,
                   GOOGLE_SEARCH_DAILY_CAP, GOOGLE_SEARCH_ALERT_PCT, send_email)
 from models import AdminLogin, SponsorCreate, SponsorUpdate, SponsorClick, Restaurant, BetaSignup, FeedbackCreate
-from routes.sponsors import reconcile_sponsors
+from routes.sponsors import reconcile_sponsors, send_coupon_recaps
 
 router = APIRouter()
 
@@ -118,6 +118,12 @@ async def delete_feedback(fid: str):
 @router.get("/admin/sponsors", dependencies=[Depends(require_admin)])
 async def list_sponsors():
     return await db.sponsors.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
+
+
+@router.post("/admin/sponsors/coupon-recaps", dependencies=[Depends(require_admin)])
+async def trigger_coupon_recaps():
+    """Manually fire the monthly per-sponsor analytics recap emails."""
+    return await send_coupon_recaps()
 
 
 @router.get("/admin/sponsors/stats", dependencies=[Depends(require_admin)])

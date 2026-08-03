@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useSearchParams } from "react-router-dom";
-import { CheckCircle2, Clock, XCircle, ArrowLeft, Loader2, Download, FileImage, FileText } from "lucide-react";
+import { CheckCircle2, Clock, XCircle, ArrowLeft, Loader2, Download, FileImage, FileText, RefreshCw } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -11,17 +11,22 @@ export default function SponsorStatus({ cancelled = false }) {
   const [status, setStatus] = useState(cancelled ? "cancelled" : "checking");
   const [name, setName] = useState("");
   const [sponsorId, setSponsorId] = useState(null);
+  // Bumping `attempt` restarts the polling loop ("Check again" on pending).
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     if (cancelled || !subscriptionId) {
       if (!subscriptionId && !cancelled) setStatus("pending");
       return;
     }
+    setStatus("checking");
     let tries = 0;
     let timer;
+    let stale = false;
     const poll = async () => {
       try {
         const { data } = await axios.get(`${API}/sponsors/subscription-status`, { params: { subscription_id: subscriptionId } });
+        if (stale) return;
         if (data.found) {
           setName(data.name || "");
           if (data.active) { setSponsorId(data.sponsor_id || null); setStatus("active"); return; }
@@ -34,8 +39,8 @@ export default function SponsorStatus({ cancelled = false }) {
       else setStatus("pending");
     };
     poll();
-    return () => clearTimeout(timer);
-  }, [subscriptionId, cancelled]);
+    return () => { stale = true; clearTimeout(timer); };
+  }, [subscriptionId, cancelled, attempt]);
 
   const config = {
     checking: { icon: Loader2, spin: true, color: "#0070BA", title: "Confirming your subscription…", body: "Hang tight while PayPal confirms your payment. This usually takes a few seconds." },
@@ -54,6 +59,16 @@ export default function SponsorStatus({ cancelled = false }) {
         </span>
         <h1 className="mt-5 font-serif text-3xl text-white" data-testid="sponsor-status-title">{config.title}</h1>
         <p className="mt-3 font-sans text-sm leading-relaxed text-[#B8BCC2]">{config.body}</p>
+        {status === "pending" && subscriptionId && (
+          <button
+            type="button"
+            onClick={() => setAttempt((a) => a + 1)}
+            data-testid="sponsor-status-check-again"
+            className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/25 px-6 py-3 font-sans text-sm font-bold text-white transition-colors hover:bg-white/10"
+          >
+            <RefreshCw className="h-4 w-4" /> Check again
+          </button>
+        )}
         {status === "active" && sponsorId && (
           <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left" data-testid="sponsor-card-downloads">
             <p className="font-sans text-xs font-bold uppercase tracking-wide text-[#E6B23A]">Your marketing kit</p>

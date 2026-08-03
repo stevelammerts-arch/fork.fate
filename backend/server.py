@@ -86,6 +86,27 @@ async def _monthly_summary_loop():
         await asyncio.sleep(6 * 60 * 60)
 
 
+async def _coupon_recap_loop():
+    """Auto-send per-sponsor coupon analytics recaps on the 1st of each month (idempotent)."""
+    from core import db
+    from routes.sponsors import send_coupon_recaps
+    while True:
+        try:
+            now = datetime.now(timezone.utc)
+            if now.day == 1:
+                tag = now.strftime("%Y-%m")
+                already = await db.config.find_one({"key": "coupon_recaps_sent", "month": tag})
+                if not already:
+                    res = await send_coupon_recaps()
+                    await db.config.update_one(
+                        {"key": "coupon_recaps_sent", "month": tag},
+                        {"$set": {"sent_at": now.isoformat(), **res}}, upsert=True)
+                    logger.info(f"Sent sponsor coupon recaps for {tag}: {res}")
+        except Exception as e:
+            logger.warning(f"Coupon recap loop error: {e}")
+        await asyncio.sleep(6 * 60 * 60)
+
+
 @app.on_event("startup")
 async def startup_event():
     await seed_db()
@@ -97,6 +118,7 @@ async def startup_event():
         logger.error(f"Object storage init failed: {e}")
     asyncio.create_task(_reconcile_loop())
     asyncio.create_task(_monthly_summary_loop())
+    asyncio.create_task(_coupon_recap_loop())
 
 
 @app.on_event("shutdown")

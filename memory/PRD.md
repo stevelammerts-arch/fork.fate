@@ -731,3 +731,17 @@ See `/app/memory/test_credentials.md`.
   including spin/reveal exclusion regression (sponsored winner's coupon inline, other
   sponsor's coupon in strip).
 - Note: PayPal env empty in preview -> subscribe 503s (expected); works in production.
+
+## 2026-08-03 Session part 3: Check-again button + coupon recap emails
+- SponsorStatus.jsx (/sponsor/success): when polling exhausts to "Almost there",
+  a "Check again" button (sponsor-status-check-again) restarts the 6x2.5s poll loop.
+  Verified: pending -> click -> back to checking.
+- routes/sponsors.py: send_coupon_recaps() — per-sponsor monthly analytics recap email
+  (impressions/clicks/coupon copies DELTA since last recap via recap_snapshot field).
+  Branded HTML via _recap_html(). No-ops gracefully when Resend unconfigured.
+- server.py: _coupon_recap_loop() fires on the 1st of each month, idempotent via
+  db.config key "coupon_recaps_sent" per month. Registered at startup.
+- routes/admin.py: POST /api/admin/sponsors/coupon-recaps (require_admin + CSRF header
+  x-csrf-token from ff_csrf cookie) manual trigger. Tested via curl: {"sponsors":1,"sent":0}
+  (sent=0 expected in preview — Resend key empty; snapshot only saved on send success).
+- Remaining: Apple App Store publishing guidance (user working on it).
