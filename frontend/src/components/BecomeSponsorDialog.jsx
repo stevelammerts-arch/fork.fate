@@ -74,13 +74,20 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
       toast.error(t("Chain sponsorships require a coupon code and offer description"));
       return;
     }
+    // Local coupons are optional (FREE founder perk) — but if a code is
+    // entered it needs a description so the offer can actually render.
+    if (!chain && coupon.code.trim() && !coupon.description.trim()) {
+      toast.error(t("Add a short offer description for your coupon"));
+      return;
+    }
+    const includeCoupon = chain || !!coupon.code.trim();
     setLoading(true);
     try {
       const { data } = await axios.post(`${API}/sponsors/subscribe`, {
         ...form,
         plan,
         tier: tierState,
-        coupon: chain ? { code: coupon.code.trim(), description: coupon.description.trim(), terms: coupon.terms.trim(), discount_type: "custom" } : undefined,
+        coupon: includeCoupon ? { code: coupon.code.trim(), description: coupon.description.trim(), terms: coupon.terms.trim(), discount_type: "custom" } : undefined,
         origin: window.location.origin,
       });
       window.location.href = data.approval_url;
@@ -155,7 +162,7 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
           >
             <span className="flex items-center gap-1.5 font-sans text-xs font-bold text-[#0E0E0E]"><Store className="h-3.5 w-3.5 text-[#E01E26]" /> {t("Local spot")}</span>
             <span className="mt-0.5 block font-serif text-lg font-semibold text-[#0E0E0E]">$19<span className="text-xs font-normal text-[#6B7075]">/{t("mo")}</span></span>
-            <span className="block font-sans text-[10px] leading-tight text-[#6B7075]">{t("Pinned in matching shuffles")}</span>
+            <span className="block font-sans text-[10px] leading-tight text-[#6B7075]">{t("Pinned in matching shuffles")} · <span className="font-bold text-[#2F8F46]">{t("+ FREE coupon")}</span></span>
           </button>
           <button
             type="button"
@@ -311,7 +318,7 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
             <Input id="sp-img" data-testid="sponsor-form-image" value={form.image} onChange={(e) => set("image", e.target.value)} placeholder={t("…or paste an image URL")} className="text-xs" />
             <p className="text-[11px] text-[#8A8F95]">{t("No photo? We'll show a tasteful image matched to your cuisine.")}</p>
           </div>
-          {chain && (
+          {chain ? (
             <div className="space-y-3 rounded-2xl border border-[#E6B23A]/50 bg-[#FDF8EC] p-3" data-testid="sponsor-coupon-section">
               <p className="font-sans text-xs font-bold uppercase tracking-wide text-[#8A6D1F]">{t("Your coupon offer *")}</p>
               <div className="space-y-1.5">
@@ -320,6 +327,28 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="sp-coupon-desc">{t("Offer description *")}</Label>
+                <Input id="sp-coupon-desc" data-testid="sponsor-coupon-description" value={coupon.description} onChange={(e) => setC("description", e.target.value)} placeholder={t("e.g. 20% off any combo meal")} maxLength={140} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="sp-coupon-terms">{t("Terms")} <span className="text-[#B8BCC2]">{t("(optional)")}</span></Label>
+                <Input id="sp-coupon-terms" data-testid="sponsor-coupon-terms" value={coupon.terms} onChange={(e) => setC("terms", e.target.value)} placeholder={t("e.g. One per customer, participating locations")} maxLength={500} />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3 rounded-2xl border border-[#4F9F62]/50 bg-[#F0F9F1] p-3" data-testid="sponsor-local-coupon-section">
+              <p className="flex flex-wrap items-center gap-2 font-sans text-xs font-bold uppercase tracking-wide text-[#2F6E3E]">
+                {t("Add a coupon offer")}
+                <span className="rounded-full bg-[#2F8F46] px-2 py-0.5 text-[10px] font-bold normal-case tracking-normal text-white" data-testid="local-coupon-free-badge">{t("FREE — founder perk")}</span>
+              </p>
+              <p className="font-sans text-[11px] leading-snug text-[#4A6B52]">
+                {t("Optional: your deal shows on your winning card and rides beside matching reveals nearby — included free while we're in our founder period.")}
+              </p>
+              <div className="space-y-1.5">
+                <Label htmlFor="sp-coupon-code">{t("Coupon code")}</Label>
+                <Input id="sp-coupon-code" data-testid="sponsor-coupon-code" value={coupon.code} onChange={(e) => setC("code", e.target.value.toUpperCase())} placeholder="e.g. FORKFATE20" maxLength={32} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="sp-coupon-desc">{t("Offer description")}</Label>
                 <Input id="sp-coupon-desc" data-testid="sponsor-coupon-description" value={coupon.description} onChange={(e) => setC("description", e.target.value)} placeholder={t("e.g. 20% off any combo meal")} maxLength={140} />
               </div>
               <div className="space-y-1.5">

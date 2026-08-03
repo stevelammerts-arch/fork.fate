@@ -228,7 +228,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
             {card.sponsored && card.coupon && card.coupon.code && (
               <CouponReveal sponsorId={card.id} coupon={card.coupon} />
             )}
-            <ChainCouponStrip category={card.category ?? mode} />
+            <ChainCouponStrip category={card.category ?? mode} excludeId={card.sponsored ? card.id : undefined} />
             <div className="flex items-center gap-5 text-sm text-[#0E0E0E]">
               <span className="flex items-center gap-1.5 font-semibold">
                 <Star className="h-4 w-4 fill-[#E01E26] text-[#E01E26]" />

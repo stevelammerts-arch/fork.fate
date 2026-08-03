@@ -13,7 +13,11 @@ const EMAIL = "steve@fork-fate.com";
 const FAQS = [
   {
     q: "What does a local sponsorship include?",
-    a: "Your business gets pinned to the top of every matching shuffle with a Sponsored badge, your photo and a link — $19/month (first month free) or $190/year.",
+    a: "Your business gets pinned to the top of every matching shuffle with a Sponsored badge, your photo and a link — $19/month (first month free) or $190/year. Founder perk: add your own coupon offer at no extra cost.",
+  },
+  {
+    q: "How does the free local coupon work?",
+    a: "While we're in our founder period, local sponsors can attach a coupon for free. It shows tap-to-reveal on your card when you win a spin, and also rides beside other matching reveals as a bonus offer.",
   },
   {
     q: "What is the chain coupon tier?",

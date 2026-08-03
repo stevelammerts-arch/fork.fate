@@ -497,17 +497,20 @@ async def sponsor_coupon_copy(sponsor_id: str, request: Request):
 
 
 @router.get("/coupons/chains-nearby", dependencies=[Depends(rate_limit(60))])
-async def coupons_chains_nearby(category: str = "food", limit: int = 1):
-    """Bonus chain coupons for the reveal card.
+async def coupons_chains_nearby(category: str = "food", limit: int = 1, exclude: str = ""):
+    """Bonus sponsor coupons for the reveal card.
 
     National-chain sponsors buy the `chain_coupon_only` tier — they NEVER
-    occupy a slot in the fate deck (that stays local-first). Instead the
-    frontend calls this endpoint after a spin and renders 1 chain coupon as
+    occupy a slot in the fate deck (that stays local-first). Local sponsors
+    can also attach a coupon (FREE founder perk), which rides here too.
+    The frontend calls this endpoint after a spin and renders 1 coupon as
     a bonus offer strip beside the winner, so users get an extra deal without
     the roulette feeling like an ad-fest.
 
+    `exclude` skips a sponsor id (the winner's own card already shows its
+    coupon inline — no point doubling it in the strip).
     Returns at most `limit` (capped at 3) coupons for the given category.
-    Randomized per-request so the same chain doesn't hog every spin.
+    Randomized per-request so the same sponsor doesn't hog every spin.
     """
     import random
     limit = max(1, min(3, int(limit)))
@@ -515,12 +518,17 @@ async def coupons_chains_nearby(category: str = "food", limit: int = 1):
         {
             "active": True,
             "category": category,
-            "tier": "chain_coupon_only",
+            "$or": [
+                {"tier": "chain_coupon_only"},
+                {"tier": "local"},
+                {"tier": {"$exists": False}},
+                {"tier": None},
+            ],
             "coupon": {"$ne": None},
         },
         {"_id": 0},
     ).to_list(50)
-    docs = [d for d in docs if (d.get("coupon") or {}).get("code")]
+    docs = [d for d in docs if (d.get("coupon") or {}).get("code") and d.get("id") != exclude]
     if not docs:
         return {"coupons": []}
     random.shuffle(docs)

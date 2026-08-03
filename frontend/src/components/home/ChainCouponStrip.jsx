@@ -6,17 +6,19 @@ import { CouponReveal } from "./CouponReveal";
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 /**
- * Bonus chain-coupon strip.
+ * Bonus sponsor-coupon strip.
  *
  * National-chain sponsors buy the `chain_coupon_only` tier — they never
- * occupy a slot in the fate deck. Instead, after a spin, this component
- * fetches at most 1 chain coupon relevant to the winner's category and
- * renders it as a subtle "Also nearby" offer beside the winner card.
+ * occupy a slot in the fate deck. Local sponsors can also attach a coupon
+ * (FREE founder perk) that rides here too. After a spin, this component
+ * fetches at most 1 coupon relevant to the winner's category and renders
+ * it as a subtle "Also nearby" offer beside the winner card.
+ * `excludeId` skips the winner itself — its coupon already shows inline.
  *
- * Purpose: monetize the chain audience without diluting the local-first
- * fate mechanic. Users still see a hidden gem first; chains ride shotgun.
+ * Purpose: monetize the sponsor audience without diluting the local-first
+ * fate mechanic. Users still see a hidden gem first; offers ride shotgun.
  */
-export function ChainCouponStrip({ category }) {
+export function ChainCouponStrip({ category, excludeId }) {
   const [row, setRow] = useState(null);
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export function ChainCouponStrip({ category }) {
     (async () => {
       try {
         const { data } = await axios.get(`${API}/coupons/chains-nearby`, {
-          params: { category: category || "food", limit: 1 },
+          params: { category: category || "food", limit: 1, exclude: excludeId || "" },
         });
         const c = data?.coupons?.[0];
         if (!cancelled && c) setRow(c);
@@ -33,7 +35,7 @@ export function ChainCouponStrip({ category }) {
       }
     })();
     return () => { cancelled = true; };
-  }, [category]);
+  }, [category, excludeId]);
 
   if (!row || !row.coupon?.code) return null;
 

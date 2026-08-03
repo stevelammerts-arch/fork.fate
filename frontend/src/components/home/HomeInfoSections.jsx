@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Search, MapPin, Dices, ChevronDown, Store, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Search, MapPin, Dices, ChevronDown, Store, ArrowRight, Ticket } from "lucide-react";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "../ui/accordion";
 import { useLang } from "../../i18n/i18n";
 
@@ -126,6 +127,9 @@ export function HomeInfoSections({ light, onSponsor }) {
                   <span className="text-[#6B7075]">{t("or")}</span>
                   <span className="flex items-baseline gap-1.5"><span className="font-serif text-2xl font-bold">$190</span><span className="text-[#9A9FA5]">/{t("yr")}</span> <span className="text-xs text-[#9A9FA5] line-through">$290</span> <span className="rounded-full bg-[#E01E26] px-2 py-0.5 text-[10px] font-bold">{t("Save $38/yr")}</span></span>
                 </div>
+                <p className={`mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-sans text-xs font-bold ${light ? "bg-[#EAF6EC] text-[#2F6E3E]" : "bg-[#1E3A26] text-[#7BD694]"}`} data-testid="local-coupon-perk-line">
+                  <Ticket className="h-3.5 w-3.5" /> {t("Includes your coupon on winning reveals — FREE founder perk")}
+                </p>
               </div>
               <button
                 onClick={onSponsor}
@@ -134,6 +138,39 @@ export function HomeInfoSections({ light, onSponsor }) {
               >
                 {t("Feature your business")} <ArrowRight className="h-4 w-4" />
               </button>
+            </div>
+          </div>
+
+          {/* Chain / franchise coupon tier — its own card below the local one */}
+          <div
+            className={`relative mt-6 overflow-hidden rounded-3xl border p-8 md:p-12 ${light ? "border-[#E6B23A]/50 bg-[#FFFDF6]" : "border-[#E6B23A]/40 bg-[#171310]"}`}
+            data-testid="chain-business-band"
+          >
+            <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#E6B23A]/20 blur-3xl" />
+            <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
+              <div className="max-w-xl">
+                <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 font-sans text-xs font-bold uppercase tracking-[0.18em] ${light ? "bg-[#E6B23A]/20 text-[#8A5210]" : "bg-[#E6B23A]/15 text-[#E6B23A]"}`}>
+                  <Ticket className="h-3.5 w-3.5" /> {t("For chains & franchises")}
+                </span>
+                <h2 className={`mt-3 font-serif text-3xl font-semibold md:text-4xl ${light ? "text-[#0E0E0E]" : "text-white"}`}>
+                  {t("Your coupon, on every plate fate deals")}
+                </h2>
+                <p className={`mt-3 font-sans text-sm md:text-base ${light ? "text-[#4B5563]" : "text-[#C7CBD1]"}`}>
+                  {t("Chains never take a slot in the local deck. Instead, your offer gets a dedicated coupon strip beside the winner on every matching spin — national reach at the moment of decision.")}
+                </p>
+                <div className={`mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 font-sans text-sm ${light ? "text-[#0E0E0E]" : "text-white"}`}>
+                  <span className="flex items-baseline gap-1.5"><span className="font-serif text-2xl font-bold">$99</span><span className="text-[#9A9FA5]">/{t("mo")}</span></span>
+                  <span className="text-[#6B7075]">{t("or")}</span>
+                  <span className="flex items-baseline gap-1.5"><span className="font-serif text-2xl font-bold">$990</span><span className="text-[#9A9FA5]">/{t("yr")}</span> <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${light ? "bg-[#E6B23A] text-black" : "bg-[#E6B23A] text-black"}`}>{t("2 months free")}</span></span>
+                </div>
+              </div>
+              <Link
+                to="/sponsor/chains"
+                data-testid="chain-business-cta"
+                className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#E6B23A] px-6 py-3.5 font-sans text-sm font-bold text-black shadow-lg shadow-[#E6B23A]/30 transition-colors hover:bg-[#C8952A]"
+              >
+                {t("Put your coupon in play")} <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           </div>
         </div>
