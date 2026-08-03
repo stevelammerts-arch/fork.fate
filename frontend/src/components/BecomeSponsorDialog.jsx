@@ -344,16 +344,16 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
                 {t("Optional: your deal shows on your winning card and rides beside matching reveals nearby — included free while we're in our founder period.")}
               </p>
               <div className="space-y-1.5">
-                <Label htmlFor="sp-coupon-code">{t("Coupon code")}</Label>
-                <Input id="sp-coupon-code" data-testid="sponsor-coupon-code" value={coupon.code} onChange={(e) => setC("code", e.target.value.toUpperCase())} placeholder="e.g. FORKFATE20" maxLength={32} />
+                <Label htmlFor="sp-local-coupon-code">{t("Coupon code")}</Label>
+                <Input id="sp-local-coupon-code" data-testid="sponsor-local-coupon-code" value={coupon.code} onChange={(e) => setC("code", e.target.value.toUpperCase())} placeholder="e.g. FORKFATE20" maxLength={32} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="sp-coupon-desc">{t("Offer description")}</Label>
-                <Input id="sp-coupon-desc" data-testid="sponsor-coupon-description" value={coupon.description} onChange={(e) => setC("description", e.target.value)} placeholder={t("e.g. 20% off any combo meal")} maxLength={140} />
+                <Label htmlFor="sp-local-coupon-desc">{t("Offer description")}</Label>
+                <Input id="sp-local-coupon-desc" data-testid="sponsor-local-coupon-description" value={coupon.description} onChange={(e) => setC("description", e.target.value)} placeholder={t("e.g. 20% off any combo meal")} maxLength={140} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="sp-coupon-terms">{t("Terms")} <span className="text-[#B8BCC2]">{t("(optional)")}</span></Label>
-                <Input id="sp-coupon-terms" data-testid="sponsor-coupon-terms" value={coupon.terms} onChange={(e) => setC("terms", e.target.value)} placeholder={t("e.g. One per customer, participating locations")} maxLength={500} />
+                <Label htmlFor="sp-local-coupon-terms">{t("Terms")} <span className="text-[#B8BCC2]">{t("(optional)")}</span></Label>
+                <Input id="sp-local-coupon-terms" data-testid="sponsor-local-coupon-terms" value={coupon.terms} onChange={(e) => setC("terms", e.target.value)} placeholder={t("e.g. One per customer, participating locations")} maxLength={500} />
               </div>
             </div>
           )}

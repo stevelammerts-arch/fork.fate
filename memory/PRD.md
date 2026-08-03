@@ -711,3 +711,23 @@ See `/app/memory/test_credentials.md`.
 - Verified via browser automation: marquee CTA, footer link, FAQ pill/dialog, tier
   picker switch to chain ($99 plans + coupon section) all working.
 - Note: user publishing English-only App Store listings; Spanish stays in-app.
+
+## 2026-08-03 Session part 2: Free founder coupon for local sponsors + chain band
+- User decision: NO new paid tier — local sponsors get coupons FREE as a founder perk
+  (no new PayPal plan). Coupons appear BOTH on the winner's own card (already worked)
+  and in the bonus coupon strip.
+- Backend (routes/sponsors.py): /api/coupons/chains-nearby now includes local-tier
+  (and legacy no-tier) sponsors with coupons alongside chains; new `exclude` param
+  skips the winner's own id (RevealStage passes excludeId when winner is sponsored).
+- BecomeSponsorDialog.jsx: local tier shows OPTIONAL green coupon section with
+  "FREE — founder perk" badge (testids sponsor-local-coupon-*); chain keeps required
+  amber section. Validation: local code without description blocked. Tier picker local
+  button notes "+ FREE coupon".
+- HomeInfoSections.jsx: new gold "For chains & franchises" band card BELOW the local
+  band (chain-business-band, $99/mo $990/yr, CTA -> /sponsor/chains); local band has
+  green founder-perk pill (local-coupon-perk-line).
+- SponsorFaqDialog: 6 questions now (added "How does the free local coupon work?").
+- All strings translated ES. Tested: iteration_52.json — 100% pass backend + frontend
+  including spin/reveal exclusion regression (sponsored winner's coupon inline, other
+  sponsor's coupon in strip).
+- Note: PayPal env empty in preview -> subscribe 503s (expected); works in production.
