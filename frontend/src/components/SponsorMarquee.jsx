@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Store, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Store, ArrowRight, Ticket } from "lucide-react";
 import { useLang } from "../i18n/i18n";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -55,8 +56,11 @@ export const SponsorMarquee = ({ light, onSponsor }) => {
     }
   };
 
-  const items = [...sponsors, ...sponsors];
-  const duration = Math.max(18, sponsors.length * 5);
+  // A chain-coupon CTA rides at the end of each loop half so the tier is
+  // always discoverable from the sponsor bar.
+  const half = [...sponsors, { id: "chain-cta", cta: true }];
+  const items = [...half, ...half];
+  const duration = Math.max(18, half.length * 5);
 
   return (
     <div className={`group relative w-full overflow-hidden ${barCls}`} data-testid="sponsor-marquee">
@@ -72,6 +76,18 @@ export const SponsorMarquee = ({ light, onSponsor }) => {
             style={{ animationDuration: `${duration}s`, animationPlayState: reduce ? "paused" : "running" }}
           >
             {items.map((s, i) => (
+              s.cta ? (
+                <Link
+                  key={`${s.id}-${i}`}
+                  to="/sponsor/chains"
+                  data-testid={i < half.length ? "marquee-chain-cta" : undefined}
+                  className={`mx-4 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold transition-opacity hover:opacity-70 ${light ? "border-[#C8952A]/50 text-[#8A5210]" : "border-[#E6B23A]/50 text-[#E6B23A]"}`}
+                >
+                  <Ticket className="h-3.5 w-3.5" />
+                  {t("Your chain's coupon here")}
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              ) : (
               <button
                 key={`${s.id}-${i}`}
                 onClick={() => handleClick(s)}
@@ -89,6 +105,7 @@ export const SponsorMarquee = ({ light, onSponsor }) => {
                   <span className={light ? "text-[#8A8177]" : "text-white/50"}>· {s.cuisine}</span>
                 ) : null}
               </button>
+              )
             ))}
           </div>
         </div>

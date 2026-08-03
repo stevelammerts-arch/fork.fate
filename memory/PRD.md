@@ -695,3 +695,19 @@ See `/app/memory/test_credentials.md`.
   - Console cabinet made fully opaque (was opacity-80; user could see through it).
 - Verified via UI automation: picker opens from pill, one-tap applies theme + closes;
   steam scene props render correctly.
+
+## 2026-08-03 Session: Sponsor tier visibility
+- Problem: /sponsor/chains pitch page was orphaned (no inbound links); chain coupon
+  tier invisible to prospects.
+- BecomeSponsorDialog.jsx: added in-dialog tier picker (Local spot $19/mo vs Chain
+  coupon $99/mo) — tier prop now only preselects; users can switch. "See how chain
+  coupons work →" link to /sponsor/chains when chain selected.
+- HomeFooter.jsx: "Chains & franchises: coupon sponsorships →" link + new Sponsor FAQ
+  pill (SponsorFaqDialog.jsx — 5-question accordion covering both tiers, billing,
+  updates, placement).
+- SponsorMarquee.jsx: "Your chain's coupon here" CTA rides at end of each marquee loop
+  half, links /sponsor/chains.
+- All new strings translated to Spanish in i18n.js.
+- Verified via browser automation: marquee CTA, footer link, FAQ pill/dialog, tier
+  picker switch to chain ($99 plans + coupon section) all working.
+- Note: user publishing English-only App Store listings; Spanish stays in-app.

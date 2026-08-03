@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { Megaphone, Loader2, Store, ArrowRight, Upload, Image as ImageIcon } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Megaphone, Loader2, Store, ArrowRight, Upload, Image as ImageIcon, Ticket } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger,
 } from "./ui/dialog";
@@ -33,7 +34,10 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState("monthly");
   const [uploading, setUploading] = useState(false);
-  const chain = tier === "chain_coupon_only";
+  // Tier is switchable in-dialog so every prospect sees both offerings;
+  // the prop only sets which one is preselected (e.g. /sponsor/chains).
+  const [tierState, setTierState] = useState(tier);
+  const chain = tierState === "chain_coupon_only";
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const setC = (k, v) => setCoupon((c) => ({ ...c, [k]: v }));
 
@@ -75,7 +79,7 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
       const { data } = await axios.post(`${API}/sponsors/subscribe`, {
         ...form,
         plan,
-        tier,
+        tier: tierState,
         coupon: chain ? { code: coupon.code.trim(), description: coupon.description.trim(), terms: coupon.terms.trim(), discount_type: "custom" } : undefined,
         origin: window.location.origin,
       });
@@ -139,6 +143,42 @@ export default function BecomeSponsorDialog({ variant = "primary", open: openPro
               : t("Get pinned to the top of every matching shuffle with a Sponsored badge.")}
           </DialogDescription>
         </DialogHeader>
+
+        {/* Tier picker: every prospect sees both the local and chain-coupon offers */}
+        <div className="grid grid-cols-2 gap-2" data-testid="sponsor-tier-picker">
+          <button
+            type="button"
+            onClick={() => setTierState("local")}
+            data-testid="sponsor-tier-local"
+            aria-pressed={!chain}
+            className={`rounded-2xl border p-3 text-left transition-colors ${!chain ? "border-[#E01E26] bg-[#E01E26]/5 ring-1 ring-[#E01E26]" : "border-[#E2E4E7] bg-[#F5F6F7] hover:border-[#D5D8DC]"}`}
+          >
+            <span className="flex items-center gap-1.5 font-sans text-xs font-bold text-[#0E0E0E]"><Store className="h-3.5 w-3.5 text-[#E01E26]" /> {t("Local spot")}</span>
+            <span className="mt-0.5 block font-serif text-lg font-semibold text-[#0E0E0E]">$19<span className="text-xs font-normal text-[#6B7075]">/{t("mo")}</span></span>
+            <span className="block font-sans text-[10px] leading-tight text-[#6B7075]">{t("Pinned in matching shuffles")}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setTierState("chain_coupon_only")}
+            data-testid="sponsor-tier-chain"
+            aria-pressed={chain}
+            className={`rounded-2xl border p-3 text-left transition-colors ${chain ? "border-[#E6B23A] bg-[#E6B23A]/10 ring-1 ring-[#E6B23A]" : "border-[#E2E4E7] bg-[#F5F6F7] hover:border-[#D5D8DC]"}`}
+          >
+            <span className="flex items-center gap-1.5 font-sans text-xs font-bold text-[#0E0E0E]"><Ticket className="h-3.5 w-3.5 text-[#B8860B]" /> {t("Chain coupon")}</span>
+            <span className="mt-0.5 block font-serif text-lg font-semibold text-[#0E0E0E]">$99<span className="text-xs font-normal text-[#6B7075]">/{t("mo")}</span></span>
+            <span className="block font-sans text-[10px] leading-tight text-[#6B7075]">{t("Your coupon on every matching reveal")}</span>
+          </button>
+        </div>
+        {chain && (
+          <Link
+            to="/sponsor/chains"
+            onClick={() => setOpen(false)}
+            data-testid="sponsor-chain-learn-more"
+            className="-mt-1 text-center font-sans text-xs font-bold text-[#B8860B] underline underline-offset-2 hover:text-[#8A6D1F]"
+          >
+            {t("See how chain coupons work")} →
+          </Link>
+        )}
 
         {chain ? (
           <>
