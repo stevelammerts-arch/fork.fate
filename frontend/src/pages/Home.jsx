@@ -349,7 +349,7 @@ export default function Home() {
     try {
       if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e0) { /* ignore */ } grooveRef.current = null; }
       if (localStorage.getItem("ff_muted") !== "1") {
-        const revealSrc = { light: "/barista-bell.mp3", cyber: "/reveal-cyber.mp3?v=3", tiki: "/reveal-drums-boom.wav", spring: "/reveal-koto.wav", steam: "/reveal-steam.wav", winter: "/reveal-santa.wav", fall: "/reveal-owl.wav", fantasy: "/reveal-dragon.mp3", fairy: "/reveal-fairy.wav" }[theme] || (light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
+        const revealSrc = { light: "/barista-bell.mp3", cyber: "/reveal-cyber.mp3?v=3", tiki: "/reveal-drums-boom.wav", spring: "/reveal-koto.wav", steam: "/reveal-steam.wav", winter: "/reveal-santa.wav", fall: "/reveal-owl.wav?v=4", fantasy: "/reveal-dragon.mp3", fairy: "/reveal-fairy.wav" }[theme] || (light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
         thunderRef.current = new Audio(revealSrc);
         thunderRef.current.volume = 1.0;
         thunderRef.current.load();
@@ -713,7 +713,7 @@ export default function Home() {
           stopCards();
           playSound("/card-deal.wav", 0.85);
           if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e2) { /* ignore */ } grooveRef.current = null; }
-          playSound(theme === "tiki" ? "/reveal-drums-boom.wav" : theme === "cyber" ? "/reveal-cyber.mp3?v=3" : theme === "spring" ? "/reveal-koto.wav" : theme === "steam" ? "/reveal-steam.wav" : theme === "winter" ? "/reveal-santa.wav" : theme === "fall" ? "/reveal-owl.wav" : theme === "fantasy" ? "/reveal-dragon.mp3" : "/reveal-thunder-v4.mp3", 1.0);
+          playSound(theme === "tiki" ? "/reveal-drums-boom.wav" : theme === "cyber" ? "/reveal-cyber.mp3?v=3" : theme === "spring" ? "/reveal-koto.wav" : theme === "steam" ? "/reveal-steam.wav" : theme === "winter" ? "/reveal-santa.wav" : theme === "fall" ? "/reveal-owl.wav?v=4" : theme === "fantasy" ? "/reveal-dragon.mp3" : "/reveal-thunder-v4.mp3", 1.0);
         } catch (e) { /* audio */ }
         setRevealFlash(true);
         setTimeout(() => setRevealFlash(false), 1200);

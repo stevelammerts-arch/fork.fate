@@ -104,11 +104,11 @@ export function SeasonScene({ theme, cfg }) {
       {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className={`absolute bottom-0 left-0 object-contain opacity-[0.32] sm:left-[2%] ${cfg.decorLeftW ? cfg.decorLeftW : (cfg.decorLeftBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-42vw] max-w-sm sm:w-[26vw]")}`} style={cfg.decorLeftOpacity ? { opacity: cfg.decorLeftOpacity } : undefined} />}
       {cfg.rabbits && (<>
         {/* two tiny cottontails: one patrols the gazebo lawn, one the tree side */}
-        <div className="absolute bottom-[2.5%] left-[14%] z-[3]" style={{ animation: "ffRabbitPatrol 14s ease-in-out infinite" }} data-testid="spring-rabbit-1">
-          <img src={cfg.rabbits} alt="" className="w-10 opacity-80 sm:w-12" style={{ animation: "ffRabbitHop 0.7s ease-in-out infinite" }} />
+        <div className="absolute bottom-[2.5%] left-[14%] z-[3]" style={{ animation: "ffRabbitPatrol 18s linear infinite" }} data-testid="spring-rabbit-1">
+          <img src={cfg.rabbits} alt="" className="w-10 opacity-80 sm:w-12" />
         </div>
-        <div className="absolute bottom-[5%] right-[16%] z-[3]" style={{ animation: "ffRabbitPatrol 19s ease-in-out infinite reverse", animationDelay: "2.5s" }} data-testid="spring-rabbit-2">
-          <img src={cfg.rabbits} alt="" className="w-8 opacity-75 sm:w-10" style={{ animation: "ffRabbitHop 0.8s ease-in-out infinite", animationDelay: "0.25s" }} />
+        <div className="absolute bottom-[5%] right-[30%] z-[3]" style={{ animation: "ffRabbitPatrolL 20s linear infinite", animationDelay: "2.5s" }} data-testid="spring-rabbit-2">
+          <img src={cfg.rabbits} alt="" className="w-8 opacity-75 sm:w-10" />
         </div>
       </>)}
       {cfg.scarecrow && (

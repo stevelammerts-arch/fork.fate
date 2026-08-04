@@ -969,3 +969,23 @@ See `/app/memory/test_credentials.md`.
 - flourish-spring.mp3 re-cut from source: now 12s (was 5s), first 12s of the
   oriental melody with a 2.5s fade-out from 9.5s. Plays out fully even after the
   petal burst unmounts (started audio is never paused).
+
+## 2026-08-05 part 20: Owl extended into flourish + rabbit choreography
+- reveal-owl.wav rebuilt from clean original (/app/scripts/reveal-owl-backup.wav, 3.5s):
+  now 8s — full original call at t=0, natural repeat call (0.78 vol) at 4.4s, looped
+  forest-ambience bed (0.45 vol) underneath so no dead air, fade-out 6.3-8s. No echo FX.
+  Pipeline: ffmpeg asplit/atrim/adelay/aloop/amix/afade + limiter, then volume 0.92.
+  Cache-busted refs in Home.jsx to /reveal-owl.wav?v=4 (both preload + playSound).
+- Spring rabbits FIXED: previous session referenced ffRabbitHop/ffRabbitPatrol keyframes
+  that were never added to index.css (rabbits were static). Rewrote as single choreographed
+  keyframes per direction (ffRabbitPatrol / ffRabbitPatrolL in index.css): 4 forward hops
+  out (5.5vw each, -7px arc, move ONLY while airborne), ~1s sits between hops, scaleX flip
+  at each end, 4 hops back. Rabbit-1 left-14% (16s), rabbit-2 right-30% (21s, was right-16%
+  — moved off the translucent tree trunk per user report). spring-rabbit.png downscaled
+  1064px/973KB -> 240px/43KB. Verified live: x/y sampling confirms hop-rest rhythm.
+
+## 2026-08-05 part 21: Rabbit rhythm re-tuned (user feedback)
+- User wanted hop BURSTS, not evenly-paced hops: now "hop hop hop -> sit ~3s ->
+  hop hop -> sit ~3s -> turn -> repeat". Each hop stays quick (~0.5s, 4.4vw, -7px arc).
+  ffRabbitPatrol/ffRabbitPatrolL rewritten (18s/20s cycles, movement only while airborne).
+  Verified via 0.25s x-sampling: 3-hop burst (51px/1.5s), dead-still 3s pause, 2-hop burst.
