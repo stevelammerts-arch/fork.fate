@@ -243,8 +243,12 @@ function GhostRise() {
   // triple-moan wail (10.8s, echo tail fading to silence) outlives the
   // flourish and rings out until hushed.
   useEffect(() => {
-    const wail = new Audio("/soul-wail.wav");
-    wail.volume = 0.8;
+    // soul-wail.wav is mastered +3.5dB hot for phone speakers (iOS ignores the
+    // volume property, so the boost lives in the file); desktop compensates
+    // back down so it stays as loud as before.
+    const wail = new Audio("/soul-wail.wav?v=2");
+    const mobile = window.matchMedia?.("(pointer: coarse)")?.matches;
+    wail.volume = mobile ? 0.8 : 0.55;
     let started = false;
     const tm = setTimeout(() => { started = true; wail.play().catch(() => {}); }, 350);
     return () => { clearTimeout(tm); if (!started) wail.pause(); };

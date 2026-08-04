@@ -99,7 +99,8 @@ export function SeasonScene({ theme, cfg }) {
           ))}
           {cfg.cardinal && (
             <div className="absolute w-[6.5%]" style={{ left: "43%", top: "14%", animation: "ffCardinalVisit 26s linear infinite" }} data-testid="winter-cardinal">
-              <img src={cfg.cardinal} alt="" className="w-full opacity-90" style={{ animation: "ffCardinalIdle 26s linear infinite", transformOrigin: "50% 100%" }} />
+              <img src="/winter-cardinal-fly.png" alt="" className="w-full" style={{ animation: "ffCardinalFlyShow 26s linear infinite, ffCardinalFlap 0.32s ease-in-out infinite alternate", transformOrigin: "50% 60%" }} />
+              <img src={cfg.cardinal} alt="" className="absolute inset-0 w-full opacity-0" style={{ animation: "ffCardinalPerchShow 26s linear infinite, ffCardinalIdle 26s linear infinite", transformOrigin: "50% 100%" }} />
             </div>
           )}
         </div>
@@ -131,12 +132,14 @@ export function SeasonScene({ theme, cfg }) {
         </div>
       )}
       {cfg.crabs && (<>
-        {/* two red crabs skittering sideways across the sand */}
-        <div className="absolute bottom-[7%] left-[30%] z-[3]" style={{ animation: "ffCrabSkitter 13s linear infinite" }} data-testid="summer-crab-1">
-          <img src={cfg.crabs} alt="" className="w-12 opacity-85 sm:w-14" />
+        {/* two red crabs skittering sideways along the foreground sand strip —
+            z-[4] + near-opaque so they read as IN FRONT of the translucent
+            chairs/palm rather than ghosting through them */}
+        <div className="absolute bottom-[2%] left-[30%] z-[4]" style={{ animation: "ffCrabSkitter 13s linear infinite" }} data-testid="summer-crab-1">
+          <img src={cfg.crabs} alt="" className="w-12 opacity-95 sm:w-14" />
         </div>
-        <div className="absolute bottom-[16%] right-[24%] z-[3]" style={{ animation: "ffCrabSkitter 17s linear infinite reverse", animationDelay: "3s" }} data-testid="summer-crab-2">
-          <img src={cfg.crabs} alt="" className="w-9 opacity-75 sm:w-10" />
+        <div className="absolute bottom-[6%] right-[18%] z-[4]" style={{ animation: "ffCrabSkitter 17s linear infinite reverse", animationDelay: "3s" }} data-testid="summer-crab-2">
+          <img src={cfg.crabs} alt="" className="w-9 opacity-90 sm:w-10" />
         </div>
         {/* breeze-blown beach ball bouncing across the sand */}
         <div className="absolute bottom-[4%] left-0 z-[3]" style={{ animation: "ffBallTravel 13s linear infinite" }} data-testid="summer-beachball">

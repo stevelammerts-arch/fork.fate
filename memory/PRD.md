@@ -1034,3 +1034,21 @@ See `/app/memory/test_credentials.md`.
   animation-timing-function cubic-beziers, -44px apex) > img (ffBallSpin 2.2s rotate).
 - Verified live: forward drift + 40px y-oscillation sampled on the inner bounce div
   (NOTE: outer wrapper bbox does NOT reflect child transforms — probe the inner div).
+
+## 2026-08-05 part 25: Crab layering, cardinal flight fix, wail mobile boost
+- Crabs "seen through chairs/tree" (translucent decor ghosting): moved to foreground
+  sand strip (bottom-2%/6%), z-[4] above palm (z-3), opacity 0.95/0.90 so overlaps
+  read as walking in front. Verified via scene screenshot.
+- Cardinal flew BACKWARDS (entered from left while facing left) w/o wings: NEW
+  winter-cardinal-fly.png (wings spread, facing left, gen_cardinal_fly.py).
+  ffCardinalVisit rewritten to enter beak-first from upper-RIGHT (+290px,-230px),
+  exit forward upper-left. Two imgs in wrapper crossfade: flying (ffCardinalFlyShow
+  opacity windows 0-11.5% & 56-63% + ffCardinalFlap 0.32s alternate scaleY wingbeat)
+  vs perched (ffCardinalPerchShow 13-55% + ffCardinalIdle tail flicks). USER CONFIRMED.
+- Reaper ghost wail louder on mobile: soul-wail.wav boosted +3.5dB in-file (peak -0.7dB;
+  pre-boost backup at /app/scripts/soul-wail-pre-mobile-boost.wav) because iOS ignores
+  HTMLMediaElement.volume. ThemeFlourish.jsx GhostRise: volume = coarse-pointer ? 0.8
+  : 0.55 (desktop compensated to previous loudness), src cache-busted ?v=2.
+- PROBE LESSON: to freeze a CSS animation at a phase, set animation:'none' + force
+  reflow FIRST, then re-apply shorthand with negative delay + paused — for EVERY
+  element probed, imgs included.
