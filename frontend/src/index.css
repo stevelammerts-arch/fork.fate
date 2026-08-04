@@ -972,41 +972,66 @@ body {
   99%{ transform: translateX(0) translateY(-5px) scaleX(0.6); }
   100%{ transform: translateX(0) translateY(0) scaleX(1); }
 }
-/* Squirrel nibble: rapid tiny head-dips during dart freezes (4-22/26-46/53-72/76-97%) */
-@keyframes ffSquirrelNibble{
-  0%,8%{ transform: rotate(0deg); }
-  9%{ transform: rotate(2.5deg); }
-  10%{ transform: rotate(0deg); }
-  11%{ transform: rotate(2.5deg); }
-  12%{ transform: rotate(0deg); }
-  13%{ transform: rotate(2.5deg); }
-  14%,16%{ transform: rotate(0deg); }
-  17%{ transform: rotate(2.5deg); }
-  18%,31%{ transform: rotate(0deg); }
-  32%{ transform: rotate(2.5deg); }
-  33%{ transform: rotate(0deg); }
-  34%{ transform: rotate(2.5deg); }
-  35%{ transform: rotate(0deg); }
-  36%{ transform: rotate(2.5deg); }
-  37%,40%{ transform: rotate(0deg); }
-  41%{ transform: rotate(2.5deg); }
-  42%,57%{ transform: rotate(0deg); }
-  58%{ transform: rotate(2.5deg); }
-  59%{ transform: rotate(0deg); }
-  60%{ transform: rotate(2.5deg); }
-  61%{ transform: rotate(0deg); }
-  62%{ transform: rotate(2.5deg); }
-  63%,66%{ transform: rotate(0deg); }
-  67%{ transform: rotate(2.5deg); }
-  68%,80%{ transform: rotate(0deg); }
-  81%{ transform: rotate(2.5deg); }
-  82%{ transform: rotate(0deg); }
-  83%{ transform: rotate(2.5deg); }
-  84%{ transform: rotate(0deg); }
-  85%{ transform: rotate(2.5deg); }
-  86%,89%{ transform: rotate(0deg); }
-  90%{ transform: rotate(2.5deg); }
-  91%,100%{ transform: rotate(0deg); }
+/* Squirrel gait + nibble: body stretches mid-bound and gathers on landing
+   during each dash (dashes at 0-4/22-26/49-53/72-76 of ffSquirrelDart),
+   rapid head-dip nibbles during the freezes */
+@keyframes ffSquirrelGait{
+  0%{ transform: scaleX(0.9) rotate(0deg); }
+  1%{ transform: scaleX(1.15) rotate(0deg); }
+  2%{ transform: scaleX(0.9) rotate(0deg); }
+  3%{ transform: scaleX(1.15) rotate(0deg); }
+  4%{ transform: scaleX(0.88) rotate(0deg); }
+  5%,8%{ transform: scaleX(1) rotate(0deg); }
+  9%{ transform: scaleX(1) rotate(2.5deg); }
+  10%{ transform: scaleX(1) rotate(0deg); }
+  11%{ transform: scaleX(1) rotate(2.5deg); }
+  12%{ transform: scaleX(1) rotate(0deg); }
+  13%{ transform: scaleX(1) rotate(2.5deg); }
+  14%,16%{ transform: scaleX(1) rotate(0deg); }
+  17%{ transform: scaleX(1) rotate(2.5deg); }
+  18%,21.6%{ transform: scaleX(1) rotate(0deg); }
+  22%{ transform: scaleX(0.9) rotate(0deg); }
+  23%{ transform: scaleX(1.15) rotate(0deg); }
+  24%{ transform: scaleX(0.9) rotate(0deg); }
+  25%{ transform: scaleX(1.15) rotate(0deg); }
+  26%{ transform: scaleX(0.88) rotate(0deg); }
+  27%,31%{ transform: scaleX(1) rotate(0deg); }
+  32%{ transform: scaleX(1) rotate(2.5deg); }
+  33%{ transform: scaleX(1) rotate(0deg); }
+  34%{ transform: scaleX(1) rotate(2.5deg); }
+  35%{ transform: scaleX(1) rotate(0deg); }
+  36%{ transform: scaleX(1) rotate(2.5deg); }
+  37%,40%{ transform: scaleX(1) rotate(0deg); }
+  41%{ transform: scaleX(1) rotate(2.5deg); }
+  42%,48.6%{ transform: scaleX(1) rotate(0deg); }
+  49%{ transform: scaleX(0.9) rotate(0deg); }
+  50%{ transform: scaleX(1.15) rotate(0deg); }
+  51%{ transform: scaleX(0.9) rotate(0deg); }
+  52%{ transform: scaleX(1.15) rotate(0deg); }
+  53%{ transform: scaleX(0.88) rotate(0deg); }
+  54%,57%{ transform: scaleX(1) rotate(0deg); }
+  58%{ transform: scaleX(1) rotate(2.5deg); }
+  59%{ transform: scaleX(1) rotate(0deg); }
+  60%{ transform: scaleX(1) rotate(2.5deg); }
+  61%{ transform: scaleX(1) rotate(0deg); }
+  62%{ transform: scaleX(1) rotate(2.5deg); }
+  63%,66%{ transform: scaleX(1) rotate(0deg); }
+  67%{ transform: scaleX(1) rotate(2.5deg); }
+  68%,71.6%{ transform: scaleX(1) rotate(0deg); }
+  72%{ transform: scaleX(0.9) rotate(0deg); }
+  73%{ transform: scaleX(1.15) rotate(0deg); }
+  74%{ transform: scaleX(0.9) rotate(0deg); }
+  75%{ transform: scaleX(1.15) rotate(0deg); }
+  76%{ transform: scaleX(0.88) rotate(0deg); }
+  77%,80%{ transform: scaleX(1) rotate(0deg); }
+  81%{ transform: scaleX(1) rotate(2.5deg); }
+  82%{ transform: scaleX(1) rotate(0deg); }
+  83%{ transform: scaleX(1) rotate(2.5deg); }
+  84%{ transform: scaleX(1) rotate(0deg); }
+  85%{ transform: scaleX(1) rotate(2.5deg); }
+  86%,89%{ transform: scaleX(1) rotate(0deg); }
+  90%{ transform: scaleX(1) rotate(2.5deg); }
+  91%,100%{ transform: scaleX(1) rotate(0deg); }
 }
 /* Acorn: fades in at the squirrel's nose only during dart freezes */
 @keyframes ffAcornShow{
@@ -1173,6 +1198,68 @@ body {
   77.9%{ opacity: 0.75; transform: translateX(-50%) scale(0.6); }
   79.5%{ opacity: 0; transform: translateX(-50%) scale(1.7); }
   100%{ opacity: 0; transform: translateX(-50%) scale(1.7); }
+}
+/* Near crab: wanders toward the palm over the cycle, then bolts away the
+   instant the coconut thuds down (same 18s cycle as ffCoconutFall, impact 78%) */
+@keyframes ffCrabDodge{
+  0%{ transform: translateX(0) translateY(0); }
+  1.5%{ transform: translateX(4vw) translateY(-2px); }
+  3%{ transform: translateX(8vw) translateY(0); }
+  20%{ transform: translateX(8vw) translateY(0); }
+  21.5%{ transform: translateX(12vw) translateY(-2px); }
+  23%{ transform: translateX(16vw) translateY(0); }
+  40%{ transform: translateX(16vw) translateY(0); }
+  41.5%{ transform: translateX(19vw) translateY(-2px); }
+  43%{ transform: translateX(22vw) translateY(0); }
+  58%{ transform: translateX(22vw) translateY(0); }
+  59.5%{ transform: translateX(25vw) translateY(-2px); }
+  61%{ transform: translateX(28vw) translateY(0); }
+  77.8%{ transform: translateX(28vw) translateY(0); }
+  78.6%{ transform: translateX(21vw) translateY(-3px); }
+  79.4%{ transform: translateX(13vw) translateY(-2px); }
+  80.2%{ transform: translateX(6vw) translateY(0); }
+  96%{ transform: translateX(6vw) translateY(0); }
+  97.5%{ transform: translateX(3vw) translateY(-2px); }
+  99%,100%{ transform: translateX(0) translateY(0); }
+}
+/* Reaper raven: now and then it glides in beak-first from the upper-right,
+   perches on the reaper's staff hook (riding his parallax), looks around,
+   then flies off to the upper-left */
+@keyframes ffRavenVisit{
+  0%,55%{ transform: translate(260px,-200px) rotate(6deg); opacity: 0; }
+  56%{ opacity: 0.9; }
+  60.5%{ transform: translate(14px,-11px) rotate(3deg); }
+  61.5%{ transform: translate(-2px,2px) rotate(-2deg); }
+  62%{ transform: translate(0,0) rotate(0deg); }
+  84%{ transform: translate(0,0) rotate(0deg); opacity: 0.9; }
+  84.7%{ transform: translate(-16px,-12px) rotate(-6deg); }
+  88%{ transform: translate(-300px,-230px) rotate(-8deg); opacity: 0.9; }
+  88.5%,100%{ transform: translate(-300px,-230px) rotate(-8deg); opacity: 0; }
+}
+@keyframes ffRavenFlyShow{
+  0%,54.9%{ opacity: 0; }
+  55%,61.5%{ opacity: 1; }
+  62.3%,83.9%{ opacity: 0; }
+  84.2%,88%{ opacity: 1; }
+  88.5%,100%{ opacity: 0; }
+}
+@keyframes ffRavenPerchShow{
+  0%,61.5%{ opacity: 0; }
+  62.3%,83.9%{ opacity: 1; }
+  84.2%,100%{ opacity: 0; }
+}
+@keyframes ffRavenLook{
+  0%,67.7%{ transform: scaleX(1) rotate(0deg); }
+  68%{ transform: scaleX(-1) rotate(0deg); }
+  70%{ transform: scaleX(-1) rotate(0deg); }
+  70.3%{ transform: scaleX(1) rotate(0deg); }
+  72%{ transform: scaleX(1) rotate(0deg); }
+  72.2%{ transform: scaleX(1) rotate(5deg); }
+  72.5%,75.7%{ transform: scaleX(1) rotate(0deg); }
+  76%{ transform: scaleX(-1) rotate(0deg); }
+  78%{ transform: scaleX(-1) rotate(0deg); }
+  78.3%{ transform: scaleX(1) rotate(0deg); }
+  100%{ transform: scaleX(1) rotate(0deg); }
 }
 
 /* ── Cyberpunk accent recolor: neon cyan (dark surfaces preserved) ── */

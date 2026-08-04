@@ -1094,3 +1094,22 @@ See `/app/memory/test_credentials.md`.
   ffCoconutFall (18s): appears 73%, ease-in fall (--ff-coco-fall: 33vh mobile/54vh sm
   via media query), squash thud + 12px bounce + ffCocoPuff sand puff at 78%, rests,
   fades 90%. Probe-verified fall path + landing at trunk base.
+
+## 2026-08-05 part 29: Crab dodge, reaper raven, squirrel gait + solidity
+- Crab coconut dodge: crab-1 now uses ffCrabDodge 18s (SAME cycle as ffCoconutFall,
+  delay 0 on both = deterministic sync) — wanders toward the palm in 4 legs
+  (0->28vw by 61%), holds near the landing spot, then bolts 22vw away in 0.43s right
+  at the 78% impact. Probe-verified (tx 109px pre-impact -> 23px post).
+- Reaper raven: NEW reaper-raven.png (perched; raw keyed by CORNER-COLOR distance —
+  Nano Banana returned maroon bg not magenta, gen_raven.py) + reaper-raven-fly.png.
+  Rendered INSIDE ReaperScene.jsx parallax reaper container (left 73.5% top 10.2%,
+  w-[9%], z-10, data-testid="reaper-raven") so it rides the reaper's motion; perches
+  on the staff hook. ffRavenVisit 44s (in from upper-right 55-62%, perch 62-84% w/
+  ffRavenLook flips+head tilt, out upper-left 84-88%), reuses ffCardinalFlap.
+  brightness(1.35) filter so the black bird reads on the dark scene. Probe-verified
+  box/opacities; black-on-black is faint in static screenshots but correct.
+- Squirrel gait: ffSquirrelNibble REPLACED by ffSquirrelGait (stretch 1.15 mid-bound,
+  gather 0.88 on landing during the 4 dash windows; nibble rotates kept in freezes).
+- Squirrel transparency complaint: opacity-80 removed (now fully opaque); rabbits
+  bumped 0.80/0.75 -> 0.95/0.90. NOTE PATTERN: user consistently dislikes translucent
+  critters/props ghosting — keep all future critters at >=0.9 opacity.

@@ -124,10 +124,10 @@ export function SeasonScene({ theme, cfg }) {
       {cfg.rabbits && (<>
         {/* two tiny cottontails: one patrols the gazebo lawn, one the tree side */}
         <div className="absolute bottom-[2.5%] left-[14%] z-[3]" style={{ animation: "ffRabbitPatrol 18s linear infinite" }} data-testid="spring-rabbit-1">
-          <img src={cfg.rabbits} alt="" className="w-10 opacity-80 sm:w-12" style={{ animation: "ffRabbitGait 18s linear infinite", transformOrigin: "50% 100%" }} />
+          <img src={cfg.rabbits} alt="" className="w-10 opacity-95 sm:w-12" style={{ animation: "ffRabbitGait 18s linear infinite", transformOrigin: "50% 100%" }} />
         </div>
         <div className="absolute bottom-[5%] right-[30%] z-[3]" style={{ animation: "ffRabbitPatrolL 20s linear infinite", animationDelay: "2.5s" }} data-testid="spring-rabbit-2">
-          <img src={cfg.rabbits} alt="" className="w-8 opacity-75 sm:w-10" style={{ animation: "ffRabbitGait 20s linear infinite", animationDelay: "2.5s", transformOrigin: "50% 100%" }} />
+          <img src={cfg.rabbits} alt="" className="w-8 opacity-90 sm:w-10" style={{ animation: "ffRabbitGait 20s linear infinite", animationDelay: "2.5s", transformOrigin: "50% 100%" }} />
         </div>
       </>)}
       {cfg.scarecrow && (
@@ -141,14 +141,14 @@ export function SeasonScene({ theme, cfg }) {
       {cfg.squirrel && (
         <div className="absolute bottom-[1.5%] left-[20%] z-[4]" style={{ animation: "ffSquirrelDart 14s linear infinite" }} data-testid="fall-squirrel">
           <img src="/fall-acorn.png" alt="" className="absolute -right-2 bottom-0 w-4 opacity-0" style={{ animation: "ffAcornShow 14s linear infinite" }} data-testid="fall-acorn" />
-          <img src={cfg.squirrel} alt="" className="w-14 opacity-80 sm:w-16" style={{ animation: "ffSquirrelNibble 14s linear infinite", transformOrigin: "60% 100%" }} />
+          <img src={cfg.squirrel} alt="" className="w-14 sm:w-16" style={{ animation: "ffSquirrelGait 14s linear infinite", transformOrigin: "60% 100%" }} />
         </div>
       )}
       {cfg.crabs && (<>
         {/* two red crabs skittering sideways along the foreground sand strip —
             z-[4] + near-opaque so they read as IN FRONT of the translucent
             chairs/palm rather than ghosting through them */}
-        <div className="absolute bottom-[2%] left-[30%] z-[4]" style={{ animation: "ffCrabSkitter 13s linear infinite" }} data-testid="summer-crab-1">
+        <div className="absolute bottom-[2%] left-[30%] z-[4]" style={{ animation: "ffCrabDodge 18s linear infinite" }} data-testid="summer-crab-1">
           <img src={cfg.crabs} alt="" className="w-12 opacity-95 sm:w-14" />
         </div>
         <div className="absolute bottom-[9%] right-[18%] z-[2]" style={{ animation: "ffCrabSkitter 17s linear infinite reverse", animationDelay: "3s" }} data-testid="summer-crab-2">
