@@ -385,13 +385,16 @@ export function GhostEscort() {
       >
         <img src="/reaper-ghost-2.png" alt="" className="w-full select-none object-contain" draggable={false} />
       </motion.div>
-      {/* white sheet ghost: bottom-centre, climbing up and to the left */}
+      {/* white sheet ghost: bottom-centre of the VISIBLE card (the shell is
+          ~1300px tall, so anchoring to its true bottom put the whole flight
+          below/above the fold — anchor near the photo instead), climbing up
+          and to the left past the card edge */}
       <motion.div
         className="pointer-events-none absolute z-20"
-        style={{ left: "42%", bottom: -24, width: 94, filter: "blur(0.4px) drop-shadow(0 0 18px rgba(210,225,250,0.5))" }}
-        initial={{ y: 70, opacity: 0 }}
+        style={{ left: "40%", top: 520, width: 94, filter: "blur(0.4px) drop-shadow(0 0 18px rgba(210,225,250,0.5))" }}
+        initial={{ y: 60, opacity: 0 }}
         animate={{
-          y: -560,
+          y: -660,
           x: [0, -30, -70, -120, -170],
           opacity: [0, 0.9, 0.78, 0.85, 0.55, 0],
           rotate: [0, -4, -2, -6, -3],

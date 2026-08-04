@@ -956,3 +956,11 @@ See `/app/memory/test_credentials.md`.
   right edge, delay 0.9s) + white sheet ghost (/reaper-ghost-1.png, from bottom-centre
   left:42% climbing up-left with -170px drift, delay 2.4s, 7.6s flight).
 - Verified in-app mid-flight screenshot; eslint 0 errors.
+
+## 2026-08-04 part 18: White escort ghost visibility fix
+- Bug: white escort ghost was anchored to the shell's bottom (shell ~1300px tall),
+  so it only faded in after rising above the visible fold — never seen by users.
+- Fix: anchored to top: 520 (visible card region), flight y 60 -> -660, drifting
+  -170px left. Verified via getBoundingClientRect sampling: opacity 0.8 at
+  viewport y ~300 and ~100 — fully visible during the flourish.
+- User confirmed working; publishing to production (fork-fate.com) tonight.
