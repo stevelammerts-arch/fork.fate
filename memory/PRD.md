@@ -819,3 +819,8 @@ See `/app/memory/test_credentials.md`.
   turns red at <=4s; expiry -> "SYSTEM OVERRIDE — FATE DECRYPTED" (amber) and fate
   reveals anyway. Testids: code-breaker-countdown/-timer.
 - ES translations added. Both verified live end-to-end (force ff_rare_force crank/code).
+
+## 2026-08-04 part 8: Steampunk flourish sound
+- flourish-steam.mp3 (user-uploaded mechanical clamp, 4.75s) plays with SteamBurst
+  (new `sound` prop, default true, muted-aware, 150ms delay). CrankGear passes
+  sound={false} (already plays reveal-steam.wav hiss).

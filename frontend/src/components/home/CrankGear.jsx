@@ -171,7 +171,7 @@ export function CrankGear({ onDone }) {
       </div>
 
       {/* Steam blast when the boiler lets go */}
-      {done && <SteamBurst startBottom="30%" travel={-160} className="absolute inset-0 z-[45] overflow-visible" />}
+      {done && <SteamBurst startBottom="30%" travel={-160} className="absolute inset-0 z-[45] overflow-visible" sound={false} />}
     </motion.div>
   );
 }

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 
 // Dense vapor field: staggered starts, sideways drift, grow + fade as they rise.
@@ -45,7 +46,22 @@ const VAPOR =
  * `startBottom`/`travel` position where puffs are born and how far they rise,
  * so the same burst works on the reveal card and above the landed deck card.
  */
-export function SteamBurst({ startBottom = "45%", travel = -190, className = "absolute inset-0 z-[5] overflow-visible" }) {
+export function SteamBurst({ startBottom = "45%", travel = -190, className = "absolute inset-0 z-[5] overflow-visible", sound = true }) {
+  // Mechanical clamp clunk-and-hiss as the steam lets go (user-uploaded clip).
+  // CrankGear passes sound={false} — it already plays its own hiss.
+  useEffect(() => {
+    if (!sound) return undefined;
+    let clamp = null;
+    try {
+      if (localStorage.getItem("ff_muted") !== "1") {
+        clamp = new Audio("/flourish-steam.mp3");
+        clamp.volume = 0.6;
+      }
+    } catch (e) { /* audio */ }
+    let started = false;
+    const tm = setTimeout(() => { started = true; clamp?.play().catch(() => {}); }, 150);
+    return () => { clearTimeout(tm); if (!started) clamp?.pause(); };
+  }, [sound]);
   return (
     <div
       className={`pointer-events-none ${className}`}
