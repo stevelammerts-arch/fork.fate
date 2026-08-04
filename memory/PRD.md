@@ -861,3 +861,36 @@ See `/app/memory/test_credentials.md`.
 - Re-verified post-fix via local Playwright: rapid seance snuff works, wand casts, all
   5 candles fully visible in card.
 - BACKLOG P1: Apple App Store (iOS) publishing support (PWABuilder/App Store Connect).
+
+## 2026-08-04 part 12: Ouija + Dragon rituals, Fates Witnessed page, contrast + StrictMode fixes
+- NEW RITUALS (all with realistic AI-generated art, magenta-keyed to alpha):
+  * OuijaBoard.jsx (dark pool): planchette (/reaper-planchette.png, glass lens shows
+    letter beneath) glides letter-to-letter spelling the winner (max 12 glyphs then …),
+    ends on GOOD BYE + thunder. Felt-slide WebAudio per move.
+  * DragonEye.jsx (fantasy pool 'eye'): 3 taps wake closed eye (/hoard-eye-closed.png)
+    -> crossfade to molten open eye (/hoard-eye-open.png) + embers + reveal-dragon.mp3.
+  * TreasureChest.jsx (fantasy pool 'chest'): 3 taps break lock (/hoard-chest-closed.png)
+    -> open overflowing chest (/hoard-chest-open.png) + coin fountain + synth coin jingle.
+  * Home.jsx pool line ~393: dark += ouija; fantasy(Dragon's Hoard) += eye, chest.
+- FATES WITNESSED collection: /rituals route (pages/Rituals.jsx), registry in
+  lib/rituals.js (15 rituals w/ accent colors + ES translations). localStorage
+  ff_rituals_seen {key:{count,first}} recorded in surpriseDone (on ritual COMPLETION,
+  not start). Locked cards show '? ? ?' + realm hint. Home link
+  data-testid='fates-witnessed-link' under Champions/Wall row.
+- WINTER FLOURISH AUDIO: user-uploaded christmas whoosh -> /flourish-winter.mp3
+  (trimmed 0.45-3.1s, 2.7s), plays in FallingBurst when kind==='winter' (ff_muted aware).
+- CONTRAST FIX (user bug: 'sub categories too light in all themes'): Filters.jsx
+  CollapsibleGroup headers always dark ink (labelColor removed — they sit on white
+  cards); cuisine pills + all 3 mode-tab grids darkened #6B7075 -> #3A3F45.
+- CRITICAL FIX: StrictMode doneRef poisoning across ALL 12 ritual components —
+  unmount cleanup set doneRef=true, StrictMode's simulated remount left it true, so
+  onDone never fired in dev builds. Fixed with reset-on-mount pattern:
+  useEffect(() => { doneRef.current = false; return () => {...} }, []). Production
+  was unaffected but dev/preview rituals never handed back to the reveal.
+- Testing: iteration_54 PASSED 100% (3 new rituals, collection page, 5 older rituals
+  regression, winter flourish, contrast, no console errors/404s).
+- Note for future agents: ritual pool per theme lives in Home.jsx ~line 393; add new
+  ritual = component + RevealStage RARE_COVERS + render case + pool + lib/rituals.js
+  registry entry + i18n strings.
+- BACKLOG: P1 iOS App Store publishing; refactor ideas from tester: useRitualLifecycle
+  shared hook, extract rare-fate logic from Home.jsx (1589 lines).

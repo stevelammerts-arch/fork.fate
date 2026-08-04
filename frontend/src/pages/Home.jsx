@@ -307,6 +307,8 @@ export default function Home() {
 
   // Scratch completed: unveil with the full reveal fanfare (boom + flash).
   const surpriseDone = () => {
+    // A fate counts as "witnessed" only once the ritual concludes.
+    if (surpriseReveal) recordRitualSeen(surpriseReveal);
     setSurpriseReveal(null);
     haptic(20);
     try {
@@ -409,7 +411,6 @@ export default function Home() {
         haptic(20);
         setResult(chosen);
         setSurpriseReveal(variant);
-        recordRitualSeen(variant);
         setSpinning(false);
         setFlash(null);
         axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
