@@ -272,6 +272,13 @@ function GhostRise() {
 /** Cyberpunk: purple Matrix-style digital rain — columns of 1s and 0s falling
  * from the top of the picture, each with a bright glowing lead character. */
 function MatrixRain({ height }) {
+  // Glitchy transition zap as the digital rain kicks in (user-uploaded clip).
+  useEffect(() => {
+    const zap = new Audio("/flourish-cyber.mp3?v=2");
+    zap.volume = 0.5;
+    const tm = setTimeout(() => zap.play().catch(() => {}), 250);
+    return () => { clearTimeout(tm); zap.pause(); };
+  }, []);
   const cols = Array.from({ length: 12 }, (_, i) => ({
     left: `${3 + rnd(i, 1) * 90}%`,
     delay: rnd(i, 2) * 1.5,

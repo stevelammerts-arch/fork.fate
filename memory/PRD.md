@@ -763,3 +763,24 @@ See `/app/memory/test_credentials.md`.
   email link). Rendered directly below the chain band in HomeInfoSections.
 - Verified via screenshots: 7 collapsed food groups, pick applies + panel closes,
   FAQ card expands with 6 questions. NOTE: filters panel defaults OPEN on load.
+
+## 2026-08-04 part 3: Cyberscape audio swap (user-uploaded clips)
+- shuffle-cyber.mp3 (cyberpunk electronic logo, trimmed to start at 0.05s) replaces
+  reveal-cyber-radio.wav in SHUFFLE_LOOPS.cyber (Home.jsx, loop 0.8).
+- reveal-cyber.mp3 (robot machinery sfx, trimmed to FIRST 4s + 0.4s fadeout — source
+  was 22.7s; user may want a different window) replaces reveal-electric.wav in both
+  reveal maps (Home.jsx lines ~336 + ~697).
+- flourish-cyber.mp3 (glitchy zap, 5s) plays in MatrixRain flourish (ThemeFlourish.jsx,
+  vol 0.5, 250ms delay) — cyber flourish previously silent.
+- Old reveal-cyber-radio.wav / reveal-electric.wav deleted (no refs remain).
+
+## 2026-08-04 part 4: Cyber audio tuning + big steam burst
+- shuffle-cyber.mp3 re-cut to start at 1.72s (RMS analysis showed a quiet 1.75s
+  intro build; shuffle only lasts ~1.5s so users heard just the build). ?v=2.
+- User asked to SWAP cyber reveal and flourish sounds: reveal-cyber.mp3 = glitchy
+  zap (5s), flourish-cyber.mp3 = robot machinery (4s trim of 22.7s source).
+  Cache-busted ?v=2 in Home.jsx + ThemeFlourish.jsx.
+- SteamBurst.jsx: upgraded from 7 soft puffs to 18 dense front-loaded puffs +
+  6 fast valve-jets escaping the card edges; default wrapper overflow-visible so
+  steam escapes the card. Verified live via steam-theme spin (10001): burst mounts,
+  large cloud renders over landed card. Deal button testid: spin-roulette-button.
