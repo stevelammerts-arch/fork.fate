@@ -276,7 +276,7 @@ function useCoverAnchor(natW, natH) {
 }
 
 export const AMBIANCE = {
-  cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", spinner: "/cyber-spinner-suv.png", bus: "/cyber-bus.png", bus2: "/cyber-bus2.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
+  cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", spinner: "/cyber-spinner-suv.png", bus: "/cyber-bus.png", bus2: "/cyber-bus2.png", saucer: "/cyber-saucer-mech.png", saucerFront: "/cyber-saucer-mech-front.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
   steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall-full.png", console: "/steam-console.png", device: "/steam-arc-device.png", steam: true, roofCables: true, floor: true, accent: "#D9A44E", sky: "#F1D9A6" },
   tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", lounge: "/tiki-lounge-full.png", accent: "#F0A24E", sky: "#FBE3C0" },
   fantasy: { grad: "linear-gradient(180deg,#1A0E08 0%,#120A06 55%,#080503 100%)", hoard: "/fantasy-cave.jpg", accent: "#E6B23A", sky: "#F3D9A0" },
@@ -351,7 +351,7 @@ export function AmbianceScene({ theme, cfg }) {
   }, []);
   const flameFrames = (typeof localStorage !== "undefined" && localStorage.getItem("ff_flame") === "gen")
     ? TIKI_FLAME_FRAMES_GEN : TIKI_FLAME_FRAMES;
-  return (
+  return (<>
     <div ref={setSceneRef} className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`ambiance-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
       {cfg.hoard && (<>
@@ -560,5 +560,27 @@ export function AmbianceScene({ theme, cfg }) {
         </div>
       )}
     </div>
-  );
+    {/* Stealth saucer: its own fixed layer ABOVE the page content (z-30 —
+        over words/cards at z-10, under the header z-40 and dialogs). The
+        turn is 3 steps: side -> front (eye locks on the user) -> mirrored
+        side. A small red beacon dot blinks on the hull (no body flash). */}
+    {cfg.saucer && (
+      <div className="pointer-events-none fixed inset-0 z-[30] select-none overflow-hidden" data-testid="cyber-saucer-layer">
+        <div className="absolute left-0 top-0" style={{ willChange: "transform", animation: "ffSaucerPatrol 30s ease-in-out infinite" }} data-testid="cyber-saucer">
+          <div className="relative" style={{ width: "clamp(96px, 13vw, 150px)", aspectRatio: "240 / 109", animation: "ffSaucerHover 2.8s ease-in-out infinite" }}>
+            {/* side profile (faces LEFT; scaleX flips handled by the face anim) */}
+            <div className="absolute inset-0" style={{ animation: "ffSaucerSideFace 30s ease-in-out infinite" }}>
+              <img src={cfg.saucer} alt="" className="absolute inset-0 block h-full w-full object-contain" style={{ filter: "drop-shadow(0 0 9px rgba(34,224,224,0.35))" }} />
+              <span className="absolute rounded-full" style={{ left: "44%", top: "22%", width: "4.5%", aspectRatio: "1", background: "radial-gradient(circle, #FF7A6E 0%, #FF2B1E 45%, rgba(255,43,30,0) 78%)", boxShadow: "0 0 6px 2px rgba(255,50,35,0.75)", animation: "ffSaucerBeacon 1.6s steps(1,end) infinite" }} data-testid="cyber-saucer-beacon" />
+            </div>
+            {/* head-on view: the eye lens stares straight at the user mid-turn */}
+            <div className="absolute inset-0" style={{ opacity: 0, animation: "ffSaucerFrontFace 30s ease-in-out infinite" }}>
+              <img src={cfg.saucerFront} alt="" className="absolute inset-0 block h-full w-full object-contain" style={{ filter: "drop-shadow(0 0 9px rgba(34,224,224,0.35))" }} />
+              <span className="absolute rounded-full" style={{ left: "48%", top: "16%", width: "4.5%", aspectRatio: "1", background: "radial-gradient(circle, #FF7A6E 0%, #FF2B1E 45%, rgba(255,43,30,0) 78%)", boxShadow: "0 0 6px 2px rgba(255,50,35,0.75)", animation: "ffSaucerBeacon 1.6s steps(1,end) infinite" }} />
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+  </>);
 }

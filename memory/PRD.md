@@ -1139,3 +1139,47 @@ See `/app/memory/test_credentials.md`.
   (desktop clearly visible next to tiki candle; mobile small behind the drinks).
 - TECHNIQUE NOTE: this cover-math anchor is THE way to pin critters/props to painted
   content in full-bleed object-cover scenes (tiki, cemetery etc).
+
+## 2026-08-05 part 32: Cyberspace stealth saucer (Servo-Deck) wired in
+- User iterated on probe designs: rejected sleek + gritty/worn variants; picked
+  "Servo-Deck" — clean but heavily MECHANICAL thin saucer (dense greebles, servos,
+  pistons, bolted plates, cable conduits) w/ cyan eye lens, rim lights, antennas.
+- Asset: /cyber-saucer-mech.png (gen_saucer_mech.py; magenta-keyed + despilled, 240px).
+  Unused alt variants kept in /public: cyber-saucer-{rust,scrap,mil,turbine,gears}.png.
+- Wiring (ThemeScenes.jsx, data-testid="cyber-saucer"): z-[6] (in FRONT of everything,
+  above bus z-[5]); width clamp(96px,13vw,150px); cyan drop-shadow glow.
+- ffSaucerPatrol 30s ease-in-out: sprite faces LEFT (scaleX(1)=left, -1=right); darts
+  between 4 hover points w/ hold-drift pauses + scaleX whip-turns; enters offscreen
+  right 108vw, exits left -30vw. ffSaucerHover 2.8s bob layered inside.
+- BLINK TRICK: duplicate <img> stacked with mix-blend-screen + brightness(2.6)
+  saturate(1.7), opacity stepped irregularly via ffSaucerBlink 1.7s steps(1,end) —
+  rim running-lights + eye lens flash while dark hull stays unaffected.
+- Verified via screenshots desktop 1920 + mobile 390: hover, right-facing flipped leg,
+  blink glow all correct on both breakpoints.
+
+## 2026-08-05 part 33: Saucer in front of content + 3-step turn + red beacon
+- User iterations: (1) saucer must hover IN FRONT of words/windows, (2) turn is 3
+  steps w/ middle step eye facing the user, (3) NO whole-body flash — small red
+  beacon dot instead, (4) faster turn transitions.
+- ARCHITECTURE: AmbianceScene now returns a FRAGMENT — the z-0 scene div PLUS a
+  sibling fixed overlay (data-testid="cyber-saucer-layer", z-[30], pointer-events-
+  none) so the saucer flies OVER page content (sections z-10) but UNDER the header
+  (z-40) and dialogs (z-60+).
+- NEW ASSET: /cyber-saucer-mech-front.png (gen_saucer_front.py) — head-on view,
+  cyan eye dead-center. AMBIANCE.cyber gains saucerFront key.
+- 3-STEP TURN: patrol keyframes are position-only now; two stacked face divs inside
+  the hover wrapper run ffSaucerSideFace / ffSaucerFrontFace (both 30s, synced to
+  patrol): side squishes out (scaleX 0.12) -> front pops in ~1s (eye on user) ->
+  side returns mirrored. Fades tightened to ~0.25s (0.8% of 30s) per user.
+- BEACON: ffSaucerBlink deleted; small red radial <span> dot on each face
+  (side 44%/22%, front 48%/16%) blinking via ffSaucerBeacon 1.6s steps(1,end).
+- TESTING TECHNIQUE: freeze phase = set animation:'none', force reflow, re-apply
+  'name 30s ease-in-out -Xs infinite paused' on patrol + both faces (hover anim
+  set to none). Verified frozen at 34% (front, eye on user, over hero words) and
+  37.5% (mirrored side restored) at 1920px; earlier live shots verified mobile 390.
+
+## 2026-08-05 part 34: Turn squish removed
+- User asked if the shrink (scaleX squish) between images when turning was needed —
+  it was stylistic only. ffSaucerSideFace/ffSaucerFrontFace now do PURE opacity
+  crossfades (~0.25s) at full sprite size; side scaleX just flips 1/-1 while hidden.
+- Verified frozen at 31.9% (mid crossfade): full-width ghosted saucer, no squish.

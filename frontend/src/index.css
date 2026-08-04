@@ -592,6 +592,58 @@ body {
   75%  { transform: translateX(10vw) translateY(-10px) scaleX(-1); }
   100% { transform: translateX(-26vw) translateY(4px) scaleX(-1); }
 }
+/* Cyber stealth saucer: darting patrol with hover pauses (position only —
+   facing/flips live in ffSaucerSideFace/ffSaucerFrontFace). ease-in-out per
+   segment gives the accelerate/brake "dart" feel between hold points. */
+@keyframes ffSaucerPatrol {
+  0%   { transform: translate(108vw, 24vh); }
+  12%  { transform: translate(62vw, 18vh); }
+  18%  { transform: translate(61vw, 19vh); }   /* hover drift */
+  30%  { transform: translate(24vw, 33vh); }
+  40%  { transform: translate(25vw, 32vh); }   /* hover drift + 3-step turn */
+  52%  { transform: translate(58vw, 41vh); }
+  62%  { transform: translate(57vw, 40vh); }   /* hover drift + 3-step turn */
+  78%  { transform: translate(6vw, 21vh); }
+  84%  { transform: translate(7vw, 22vh); }    /* hover drift */
+  100% { transform: translate(-30vw, 28vh); }
+}
+/* Gentle anti-grav bob layered on the patrol path */
+@keyframes ffSaucerHover {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-7px) rotate(-1.2deg); }
+}
+/* 3-step turn, side sprite: fades out while the front view takes over ->
+   returns mirrored (and back again on turn 2). Pure ~0.25s crossfades,
+   no squish — sprites stay full size. */
+@keyframes ffSaucerSideFace {
+  0%, 31.2% { opacity: 1; transform: scaleX(1); }
+  32%       { opacity: 0; transform: scaleX(1); }
+  36.2%     { opacity: 0; transform: scaleX(-1); }
+  37%       { opacity: 1; transform: scaleX(-1); }
+  53.2%     { opacity: 1; transform: scaleX(-1); }
+  54%       { opacity: 0; transform: scaleX(-1); }
+  58.2%     { opacity: 0; transform: scaleX(1); }
+  59%, 100% { opacity: 1; transform: scaleX(1); }
+}
+/* 3-step turn, front sprite: fades in mid-turn so the eye lens stares
+   straight at the user for ~1s before finishing the rotation */
+@keyframes ffSaucerFrontFace {
+  0%, 31.6%   { opacity: 0; }
+  32.4%       { opacity: 1; }
+  35.8%       { opacity: 1; }
+  36.6%       { opacity: 0; }
+  53.6%       { opacity: 0; }
+  54.4%       { opacity: 1; }
+  57.8%       { opacity: 1; }
+  58.6%, 100% { opacity: 0; }
+}
+/* Small red anti-collision beacon dot on the hull: sharp on/off blink */
+@keyframes ffSaucerBeacon {
+  0%   { opacity: 1; }
+  55%  { opacity: 0.1; }
+  100% { opacity: 1; }
+}
+
 /* Cyberpunk rain */
 .ff-rain{
   background-image:
