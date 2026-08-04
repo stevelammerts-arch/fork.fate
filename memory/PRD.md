@@ -1127,3 +1127,15 @@ See `/app/memory/test_credentials.md`.
   ~2.7s freezes, whip-turns (fast scaleX spin + tiny lift) at ends; ffGeckoGait
   stretch pulses (1.18/0.88) during sprints. Verified sprint-freeze x-sampling.
 - Reaper realm intentionally has NO critter now (bats already live there).
+
+## 2026-08-05 part 31: Gecko moved ONTO the bar counter
+- User expected the gecko ON the bar (was on floor). New .ff-tiki-gecko class anchors
+  him to the PAINTED counter using object-cover math: --s: max(100vw/1264, 100dvh/848);
+  left/top map canvas coords (520, 495) -> screen; width 46 canvas units.
+- ffGeckoDart (floor, vw-based) DELETED; replaced by ffGeckoBar — identical sprint/
+  freeze/whip-turn schedule but travel in canvas units (3 legs x 100 canvas px along
+  the counter with its slight perspective slope, -3 canvas y per leg).
+- Verified both breakpoints via frozen-phase zooms: gecko stands on the counter top
+  (desktop clearly visible next to tiki candle; mobile small behind the drinks).
+- TECHNIQUE NOTE: this cover-math anchor is THE way to pin critters/props to painted
+  content in full-bleed object-cover scenes (tiki, cemetery etc).

@@ -340,6 +340,8 @@ const TIKI_FLAME_FRAMES_GEN = ["/tiki-flame-gen-1.png", "/tiki-flame-gen-2.png",
 export function AmbianceScene({ theme, cfg }) {
   const [mobile, setMobile] = useState(false);
   const [anchorRef, coverBox] = useCoverAnchor(GULLY_NAT.w, GULLY_NAT.h);
+  const [loungeRef, loungeBox] = useCoverAnchor(1264, 848);
+  const setSceneRef = (el) => { anchorRef.current = el; loungeRef.current = el; };
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 640px)");
     const on = () => setMobile(mq.matches);
@@ -350,7 +352,7 @@ export function AmbianceScene({ theme, cfg }) {
   const flameFrames = (typeof localStorage !== "undefined" && localStorage.getItem("ff_flame") === "gen")
     ? TIKI_FLAME_FRAMES_GEN : TIKI_FLAME_FRAMES;
   return (
-    <div ref={anchorRef} className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`ambiance-scene-${theme}`}>
+    <div ref={setSceneRef} className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`ambiance-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
       {cfg.hoard && (<>
         <img src={cfg.hoard} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-90" style={{ objectPosition: "center center" }} data-testid="fantasy-hoard-bg" />
@@ -439,10 +441,13 @@ export function AmbianceScene({ theme, cfg }) {
             style={{ objectPosition: "center center", animation: `ffTikiFlame 1.2s ease-in-out ${(-0.4 * i).toFixed(1)}s infinite` }}
           />
         ))}
-        {/* tiki gecko: lightning-fast sprints along the bar floor with freezes */}
-        <div className="absolute bottom-[2.5%] left-[12%] z-[3]" style={{ animation: "ffGeckoDart 16s linear infinite" }} data-testid="tiki-gecko">
-          <img src="/tiki-gecko.png" alt="" className="w-10 sm:w-12" style={{ animation: "ffGeckoGait 16s linear infinite", transformOrigin: "50% 100%" }} />
-        </div>
+        {/* tiki gecko: anchored to the painted bar via the measured cover box
+            (canvas 1264x848) so he stays glued to the counter on any device */}
+        {loungeBox && (
+          <div className="absolute z-[3]" style={{ left: loungeBox.offX + 520 * (loungeBox.dw / 1264), top: loungeBox.offY + 533 * (loungeBox.dw / 1264), width: 46 * (loungeBox.dw / 1264), "--s": `${loungeBox.dw / 1264}px`, animation: "ffGeckoBar 16s linear infinite" }} data-testid="tiki-gecko">
+            <img src="/tiki-gecko.png" alt="" className="w-full" style={{ animation: "ffGeckoGait 16s linear infinite", transformOrigin: "50% 100%" }} />
+          </div>
+        )}
       </>)}
       {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
       {cfg.console && (
