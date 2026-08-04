@@ -19,6 +19,9 @@ export const RITUALS = [
   { key: "ouija", name: "Ouija Board", realm: "Reaper", theme: "dark", accent: "#C8A96A", desc: "The planchette drags itself across the board, spelling out where you'll eat." },
   { key: "eye", name: "Dragon's Eye", realm: "Dragon's Hoard", theme: "fantasy", accent: "#E6B23A", desc: "Wake the sleeping dragon — its molten eye opens and fixes on your fate." },
   { key: "chest", name: "Treasure Chest", realm: "Dragon's Hoard", theme: "fantasy", accent: "#F0C878", desc: "Break the iron lock — the hoard bursts open in a fountain of gold." },
+  { key: "leaves", name: "Leaf Pile", realm: "Fall", theme: "fall", accent: "#D97A2B", desc: "Fate lies buried under the harvest — sweep the leaves until it shows." },
+  { key: "bloom", name: "Cherry Bloom", realm: "Spring", theme: "spring", accent: "#E87BA8", desc: "Coax the sakura buds until the branch bursts into full blossom." },
+  { key: "melon", name: "Watermelon Smash", realm: "Summer", theme: "summer", accent: "#E23B4A", desc: "Three good whacks and the melon splits in a juicy spray of seeds." },
 ];
 
 export function readRitualsSeen() {

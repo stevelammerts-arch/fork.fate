@@ -548,6 +548,23 @@ export const ES = {
   "The planchette drags itself across the board, spelling out where you'll eat.": "La planchette se arrastra por el tablero, deletreando dónde comerás.",
   "Wake the sleeping dragon — its molten eye opens and fixes on your fate.": "Despierta al dragón dormido: su ojo fundido se abre y se fija en tu destino.",
   "Break the iron lock — the hoard bursts open in a fountain of gold.": "Rompe el candado de hierro: el tesoro estalla en una fuente de oro.",
+  "New fate witnessed!": "¡Nuevo destino presenciado!",
+  "Collection": "Colección",
+  "Fate is buried — sweep the leaves away!": "El destino está enterrado: ¡barre las hojas!",
+  "The harvest has chosen...": "La cosecha ha elegido...",
+  "Coax the blossom open...": "Anima al capullo a abrirse...",
+  "Fate blossoms!": "¡El destino florece!",
+  "Smash the watermelon!": "¡Rompe la sandía!",
+  "A juicy fate splits open!": "¡Un destino jugoso se parte!",
+  "Fall": "Otoño",
+  "Spring": "Primavera",
+  "Summer": "Verano",
+  "Leaf Pile": "Montón de Hojas",
+  "Cherry Bloom": "Flor de Cerezo",
+  "Watermelon Smash": "Sandía Rota",
+  "Fate lies buried under the harvest — sweep the leaves until it shows.": "El destino yace enterrado bajo la cosecha: barre las hojas hasta que aparezca.",
+  "Coax the sakura buds until the branch bursts into full blossom.": "Anima los capullos de sakura hasta que la rama estalle en plena floración.",
+  "Three good whacks and the melon splits in a juicy spray of seeds.": "Tres buenos golpes y la sandía se parte en un jugoso estallido de semillas.",
 };
 
 const DICTS = { es: ES };

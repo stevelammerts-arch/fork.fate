@@ -12,7 +12,7 @@ const MIN_VOTES_TO_SHOW = 5;
  * server-side IP dedupe). The community % only shows once a spot has 5+ votes
  * so early spots aren't branded by a single grumpy diner.
  */
-export function ReactionBar({ placeId }) {
+export function ReactionBar({ placeId, stacked = false }) {
   const [counts, setCounts] = useState(null);
   const [myVote, setMyVote] = useState(() => {
     try { return localStorage.getItem(`ff_rxn_${placeId}`); } catch (e) { return null; }
@@ -63,7 +63,7 @@ export function ReactionBar({ placeId }) {
   );
 
   return (
-    <div className="flex flex-wrap items-center gap-2" data-testid="reaction-bar">
+    <div className={stacked ? "flex flex-col items-end gap-2" : "flex flex-wrap items-center gap-2"} data-testid="reaction-bar">
       {btn("up", Flame, "Fate chose well",
         "border-[#E01E26] bg-[#FCF4F4] text-[#E01E26]",
         "border-[#E2E4E7] text-[#6B7075] hover:border-[#E01E26] hover:text-[#E01E26]")}

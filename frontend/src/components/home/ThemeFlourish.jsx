@@ -10,25 +10,28 @@ const rnd = (i, salt) => {
 };
 
 // Falling-burst themes with a sting: frosty christmas whoosh for winter's
-// snow, an oriental melody for spring's petals (user-uploaded clips).
-const FALLING_STINGS = { winter: "/flourish-winter.mp3", spring: "/flourish-spring.mp3" };
+// snow, an oriental melody for spring's petals (user-uploaded clips), and a
+// synthesized wind-gust leaf rustle for fall.
+const FALLING_STINGS = { winter: "/flourish-winter.mp3", spring: "/flourish-spring.mp3", fall: "/flourish-fall.mp3" };
 
-/** Falling particles (snow / petals / leaves) drifting down with sway + spin. */
-function FallingBurst({ kind, height }) {
+/** Falling particles (snow / petals / leaves) drifting down with sway + spin.
+ * The sting plays only on the reveal mount — the deck flourish stays silent
+ * so the song never doubles. */
+function FallingBurst({ kind, height, sting = false }) {
   useEffect(() => {
-    const src = FALLING_STINGS[kind];
+    const src = sting ? FALLING_STINGS[kind] : null;
     if (!src) return undefined;
-    let sting = null;
+    let audio = null;
     try {
       if (localStorage.getItem("ff_muted") !== "1") {
-        sting = new Audio(src);
-        sting.volume = 0.6;
+        audio = new Audio(src);
+        audio.volume = 0.6;
       }
     } catch (e) { /* audio */ }
     let started = false;
-    const tm = setTimeout(() => { started = true; sting?.play().catch(() => {}); }, 200);
-    return () => { clearTimeout(tm); if (!started) sting?.pause(); };
-  }, [kind]);
+    const tm = setTimeout(() => { started = true; audio?.play().catch(() => {}); }, 200);
+    return () => { clearTimeout(tm); if (!started) audio?.pause(); };
+  }, [kind, sting]);
   const styleFor = (i) => {
     const r = rnd(i, 9);
     if (kind === "winter") {
@@ -43,7 +46,7 @@ function FallingBurst({ kind, height }) {
     const leaves = ["#D97A2B", "#B5541C", "#C9A227", "#A33B12"];
     return { width: 11 + r * 7, height: 8 + r * 5, borderRadius: "72% 28% 68% 32%", background: leaves[i % leaves.length], boxShadow: "0 1px 3px rgba(0,0,0,0.25)" };
   };
-  return Array.from({ length: 14 }, (_, i) => {
+  return Array.from({ length: 24 }, (_, i) => {
     const sway = 8 + rnd(i, 4) * 16;
     return (
       <motion.div
@@ -57,7 +60,9 @@ function FallingBurst({ kind, height }) {
           opacity: [0, 1, 1, 0.9, 0],
           rotate: kind === "winter" ? 0 : (rnd(i, 5) - 0.5) * 560,
         }}
-        transition={{ delay: rnd(i, 2) * 1.4, duration: 2.4 + rnd(i, 3) * 1.5, ease: "easeIn" }}
+        // Drops staggered across ~4s so the shower keeps falling late into
+        // the extended flourish window instead of ending in one early burst.
+        transition={{ delay: rnd(i, 2) * 4.0, duration: 2.4 + rnd(i, 3) * 1.5, ease: "easeIn" }}
       />
     );
   });
@@ -409,6 +414,41 @@ export function GhostEscort() {
   );
 }
 
+/** Steampunk: soft steam clouds venting up from BEHIND the reveal card —
+ * rendered as a z-0 sibling under the z-10 white shell, so only the plumes
+ * curling above the card's top edge are visible. Two cycles (~8s). */
+export function SteamRise() {
+  return (
+    <div className="pointer-events-none absolute inset-x-2 top-0 z-0" aria-hidden="true" data-testid="steam-rise">
+      {Array.from({ length: 6 }).map((_, i) => {
+        const size = 64 + (i * 17) % 40;
+        return (
+          <motion.span
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              left: `${6 + i * 16}%`,
+              top: -6,
+              width: size,
+              height: size,
+              background: "radial-gradient(circle, rgba(240,236,228,0.95) 0%, rgba(240,236,228,0) 66%)",
+              filter: "blur(6px)",
+            }}
+            initial={{ y: 16, opacity: 0, scale: 0.7 }}
+            animate={{
+              y: -150 - (i * 29) % 80,
+              x: (i % 2 ? 1 : -1) * (10 + (i * 7) % 20),
+              opacity: [0, 0.95, 0.7, 0],
+              scale: [0.7, 1.4, 2.0],
+            }}
+            transition={{ delay: 0.4 + i * 0.5, duration: 3.4 + (i % 3) * 0.6, ease: "easeOut", repeat: 1, repeatDelay: 0.5 }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 /** Themes that fire a one-shot flourish when the winner card lands / reveals. */
 export const FLOURISH_THEMES = new Set(["steam", "light", "winter", "spring", "fall", "tiki", "summer", "fantasy", "dark", "cyber", "fairy"]);
 
@@ -511,7 +551,7 @@ export function ThemeFlourish({ theme, variant = "reveal" }) {
       ) : theme === "fairy" ? (
         <ButterflyBurst />
       ) : (
-        <FallingBurst kind={theme} height={height} />
+        <FallingBurst kind={theme} height={height} sting={variant !== "deck"} />
       )}
     </div>
   );

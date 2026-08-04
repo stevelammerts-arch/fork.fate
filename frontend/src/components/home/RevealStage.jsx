@@ -23,6 +23,9 @@ import { SeanceCandles } from "./SeanceCandles";
 import { OuijaBoard } from "./OuijaBoard";
 import { DragonEye } from "./DragonEye";
 import { TreasureChest } from "./TreasureChest";
+import { LeafPile } from "./LeafPile";
+import { CherryBloom } from "./CherryBloom";
+import { MelonSmash } from "./MelonSmash";
 import { ThemeFlourish, FLOURISH_THEMES } from "./ThemeFlourish";
 import { Magic8Ball } from "./Magic8Ball";
 import { WheelOfFate } from "./WheelOfFate";
@@ -38,7 +41,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   // plays (steam, snow, petals, leaves, fireflies, sparkles, fire wall) —
   // re-fires per revealed place, and after a rare ritual unveils.
   // (Hooks live above the early returns to keep hook order stable.)
-  const RARE_COVERS = ["scratch", "8ball", "wheel", "wand", "hack", "code", "crank", "shaker", "volcano", "tarot", "coffin", "seance", "ouija", "eye", "chest"];
+  const RARE_COVERS = ["scratch", "8ball", "wheel", "wand", "hack", "code", "crank", "shaker", "volcano", "tarot", "coffin", "seance", "ouija", "eye", "chest", "leaves", "bloom", "melon"];
   const isCovered = RARE_COVERS.includes(surprise);
   const resultId = result ? result.id : null;
   const [steaming, setSteaming] = useState(false);
@@ -46,10 +49,11 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
     if (!FLOURISH_THEMES.has(theme) || isCovered || resultId == null) return;
     setSteaming(true);
     // Cyber's matrix rain keeps falling for the life of the card; the reaper's
-    // staggered ghosts + 8.4s wail get a longer window; all other flourishes
-    // are one-shot bursts that clear after ~4.2s.
+    // staggered ghosts + wail and the falling showers (winter/spring/fall)
+    // get longer windows; all other flourishes clear after ~4.2s.
     if (theme === "cyber") return;
-    const timer = setTimeout(() => setSteaming(false), theme === "dark" ? 8800 : 4200);
+    const life = theme === "dark" ? 8800 : ["winter", "spring", "fall"].includes(theme) ? 8000 : 4200;
+    const timer = setTimeout(() => setSteaming(false), life);
     return () => clearTimeout(timer);
   }, [resultId, isCovered, theme]);
   if (!result && groupPicks && groupPicks.length > 0) {
@@ -249,6 +253,15 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
           {surprise === "chest" && (
             <TreasureChest onDone={onSurpriseDone} />
           )}
+          {surprise === "leaves" && (
+            <LeafPile onDone={onSurpriseDone} />
+          )}
+          {surprise === "bloom" && (
+            <CherryBloom onDone={onSurpriseDone} />
+          )}
+          {surprise === "melon" && (
+            <MelonSmash onDone={onSurpriseDone} />
+          )}
           {surprise === "wheel" && (
             <WheelOfFate names={deck.map((d) => d.name)} winner={card.name} onDone={onSurpriseDone} />
           )}
@@ -265,7 +278,43 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
             <p className={`flex items-center gap-2 font-serif text-xl font-bold italic ${light ? "text-[#A31621]" : "text-[#E01E26]"}`} data-testid="reaper-line">
               {light ? (mode === "shops" ? <ShoppingBag className="h-4 w-4" /> : mode === "fuel" ? <Fuel className="h-4 w-4" /> : <UtensilsCrossed className="h-4 w-4" />) : theme === "fairy" ? <Sparkles className="h-4 w-4" /> : <Skull className="h-4 w-4" />} {light ? lightLineFor(card, mode) : theme === "fairy" ? fairyLineFor(card) : reaperLineFor(card)}
             </p>
-            <ReactionBar placeId={card.id} />
+            {/* Quick actions live beside the verdict so nothing needs a
+                scroll on mobile: shuffle + dare stacked left, chose well /
+                failed me stacked right. */}
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-col items-start gap-2">
+                {locked ? (
+                  <span
+                    data-testid="locked-badge"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#0E0E0E] px-3 py-1.5 font-sans text-xs font-bold text-[#F0A24E]"
+                  >
+                    <Lock className="h-3.5 w-3.5" /> {t("Locked in by fate")}
+                  </span>
+                ) : (
+                  <button
+                    onClick={onReSpin}
+                    data-testid="respin-button"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-1.5 font-sans text-xs font-bold text-white transition-colors hover:bg-[#B3141A]"
+                  >
+                    <Dices className="h-3.5 w-3.5" /> {t("Shuffle again")}
+                  </button>
+                )}
+                {!locked && dareAvailable && (
+                  <button
+                    onClick={() => { if (confirmingDare) { setConfirmingDare(false); onDare?.(); } else setConfirmingDare(true); }}
+                    onBlur={() => setConfirmingDare(false)}
+                    data-testid="double-or-nothing-button"
+                    title={t("One reroll — but you have to accept whatever comes up")}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-sans text-xs font-bold transition-colors ${confirmingDare ? "bg-[#B26A12] text-white hover:bg-[#8A5210]" : "border-2 border-[#F0A24E] bg-[#FBF3E7] text-[#B26A12] hover:bg-[#F6E7CF]"}`}
+                  >
+                    <Swords className="h-3.5 w-3.5" />
+                    {confirmingDare ? t("Tap again — no takebacks") : t("Double or Nothing")}
+                  </button>
+                )}
+              </div>
+              {/* verdict pills hug the right edge, opposite shuffle + dare */}
+              <ReactionBar placeId={card.id} stacked />
+            </div>
             {!card.open_now && (
               <p data-testid="closed-reroll-hint" className="rounded-xl bg-[#FCF4F4] px-3 py-2 font-sans text-xs font-bold text-[#E01E26]">
                 {t("Closed right now — shuffle again for an open spot.")}
@@ -298,34 +347,6 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
                 onShareText={shareFate}
                 onShareImage={shareFateImage}
               />
-              {locked ? (
-                <span
-                  data-testid="locked-badge"
-                  className="inline-flex items-center gap-2 rounded-full bg-[#0E0E0E] px-4 py-2 text-sm font-bold text-[#F0A24E]"
-                >
-                  <Lock className="h-4 w-4" /> {t("Locked in by fate")}
-                </span>
-              ) : (
-                <button
-                  onClick={onReSpin}
-                  data-testid="respin-button"
-                  className="inline-flex items-center gap-2 rounded-full bg-[#E01E26] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-[#B3141A]"
-                >
-                  <Dices className="h-4 w-4" /> {t("Shuffle again")}
-                </button>
-              )}
-              {!locked && dareAvailable && (
-                <button
-                  onClick={() => { if (confirmingDare) { setConfirmingDare(false); onDare?.(); } else setConfirmingDare(true); }}
-                  onBlur={() => setConfirmingDare(false)}
-                  data-testid="double-or-nothing-button"
-                  title={t("One reroll — but you have to accept whatever comes up")}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-colors ${confirmingDare ? "bg-[#B26A12] text-white hover:bg-[#8A5210]" : "border-2 border-[#F0A24E] bg-[#FBF3E7] text-[#B26A12] hover:bg-[#F6E7CF]"}`}
-                >
-                  <Swords className="h-4 w-4" />
-                  {confirmingDare ? t("Tap again — no takebacks") : t("Double or Nothing")}
-                </button>
-              )}
               <button
                 onClick={onReset}
                 data-testid="reset-spin-button"

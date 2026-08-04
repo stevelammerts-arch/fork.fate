@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem } from "lucide-react";
+import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem, Leaf, Flower2, Citrus } from "lucide-react";
 import { RITUALS, readRitualsSeen } from "../lib/rituals";
 import { useLang } from "../i18n/i18n";
 
@@ -8,6 +8,7 @@ const ICONS = {
   scratch: Layers, "8ball": CircleDot, wheel: Disc3, wand: Wand2, hack: Terminal,
   code: KeyRound, crank: Cog, shaker: CupSoda, volcano: Mountain, tarot: Moon,
   coffin: Skull, seance: Flame, ouija: Ghost, eye: Eye, chest: Gem,
+  leaves: Leaf, bloom: Flower2, melon: Citrus,
 };
 
 export default function Rituals() {

@@ -1,0 +1,40 @@
+{
+  "summary": "Frontend-only mobile (390x800) verification of the batch: LeafPile / CherryBloom / MelonSmash rare rituals, Witnessed toast + Collection nav, action-column layout, Double-or-Nothing confirm + locked badge, SteamRise, spring flourish extended window with 24 particles, fall flourish + /flourish-fall.mp3, coffin regression, light-theme normal deal regression, and asset availability. All primary flows PASS.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_flows": [
+    "LeafPile (fall + force 'leaves'): leafpile-cover mounts, 4 taps -> leafpile-done -> cover unmounts, toast 'New fate witnessed!' shown, Collection action navigates to /rituals.",
+    "CherryBloom (spring + force 'bloom'): bloom-cover -> 3 taps -> bloom-done -> unmounts, toast shown.",
+    "MelonSmash (summer + force 'melon'): melon-cover -> 3 taps -> melon-burst + melon-done ('A juicy fate splits open!') visible, then unmounts to reveal (verified via screenshot).",
+    "Collection page /rituals shows 0-N / 18 progress and 18 cards; locked entries show '? ? ?'. Newly unlocked ritual (Leaf Pile) appears with its name after unlock.",
+    "Action layout on reveal (spring normal deal): respin@(61,425) above dare@(61,461) in LEFT column; reaction-up@(207,425) above reaction-down@(207,479) in RIGHT column, right-aligned. Bottom row has FateActions + Clear only (no duplicate shuffle/dare).",
+    "Double-or-Nothing: first tap changes label to 'Tap again — no takebacks'; second tap triggers dare -> locked-badge appears, respin-button removed.",
+    "Spring flourish (variant=reveal) mounts data-flourish='spring' with 24 particle wrappers and is STILL mounted at ~7.5s (extended 8s window). Fall flourish mounts data-flourish='fall'.",
+    "SteamRise: data-testid='steam-rise' mounts on steam-theme reveal with class containing 'z-0' (behind card shell, per code z-0 sibling under z-10 shell).",
+    "Sting doubling fix verified via code review of ThemeFlourish.jsx: FallingBurst sting audio only fires when variant !== 'deck' (line 554 passes `sting={variant !== 'deck'}`), and ThemeFlourish variant='deck' for spring/fall/winter returns FallingBurst with sting=false. Only reveal-variant creates the audio element.",
+    "Coffin regression (dark theme force 'coffin'): coffin-lid mounts, 3 taps, cover unmounts to reveal.",
+    "Light-theme normal deal lands result with 0 console errors.",
+    "Asset availability (HTTP 200): /flourish-fall.mp3, /season-fall-leafpile.png, /season-spring-bud.png, /season-spring-bloom.png, /season-summer-melon-whole.png, /season-summer-melon-split.png."
+  ],
+  "notes": [
+    "Repeat-toast suppression not directly measured via UI (leafpile-cover detach flaked in playwright after pre-seeding ff_rituals_seen). Logic verified via code review of Home.jsx surpriseDone (line 314): `firstTime = !readRitualsSeen()[surpriseReveal]?.count` — toast fires only when count is 0/undefined. Safe.",
+    "Initial melon test with 6s wait_for_selector on melon-done occasionally missed the fade-in (framer-motion opacity 0->1 with 0.5s delay). Retesting with 700ms inter-tap waits + longer overall wait showed melon-done rendering correctly (screenshot confirms full split + text)."
+  ],
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "MelonSmash/CherryBloom/LeafPile `done` text uses framer-motion initial opacity 0 with delay ~0.5s; strict Playwright is_visible checks may briefly miss it. Consider setting initial opacity to a non-zero value or reducing entrance delay so the done state is immediately visible to accessibility/testing tools.",
+    "Home.jsx is 1494 lines and continues to grow — recommend splitting reveal/surprise handlers and ritual pool selection into a hook (e.g. useRareFatePicker) for maintainability."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "100% (all primary flows pass)"},
+  "test_credentials": "N/A",
+  "seed_data_creation": "None; localStorage-forced ff_rare_force only.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Guided flow (GuidedFlow) always mounts on load; must click [data-testid='guided-skip'] before any deal-based test. Use ff_deal_taps='9' + ff_rare_at='10' + ff_rare_force=<key> to force rare rituals. For summer melon, use inter-tap waits of ~600-700ms and give melon-done up to 3s to become visible due to framer-motion entrance delay."
+}

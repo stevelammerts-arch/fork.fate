@@ -20,7 +20,7 @@ import { HomeFooter } from "../components/home/HomeFooter";
 import PubCrawlDialog from "../components/PubCrawlDialog";
 import RevealStage from "../components/home/RevealStage";
 import { PassportPicker } from "../components/home/PassportPicker";
-import { GhostEscort } from "../components/home/ThemeFlourish";
+import { GhostEscort, SteamRise } from "../components/home/ThemeFlourish";
 import { GroupPicker } from "../components/home/GroupPicker";
 import { haptic } from "../lib/pwa";
 import {
@@ -33,7 +33,7 @@ import { Slider } from "../components/ui/slider";
 import { useTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
 import { trackEvent } from "../lib/analytics";
-import { recordRitualSeen } from "../lib/rituals";
+import { recordRitualSeen, readRitualsSeen, RITUALS } from "../lib/rituals";
 import { readPassports } from "../lib/passports";
 import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene } from "../components/ThemeScenes";
 import { ReaperScene } from "../components/ReaperScene";
@@ -308,8 +308,20 @@ export default function Home() {
 
   // Scratch completed: unveil with the full reveal fanfare (boom + flash).
   const surpriseDone = () => {
-    // A fate counts as "witnessed" only once the ritual concludes.
-    if (surpriseReveal) recordRitualSeen(surpriseReveal);
+    // A fate counts as "witnessed" only once the ritual concludes; first-time
+    // rituals earn a toast nudging the player to their collection.
+    if (surpriseReveal) {
+      const firstTime = !readRitualsSeen()[surpriseReveal]?.count;
+      recordRitualSeen(surpriseReveal);
+      if (firstTime) {
+        const ritual = RITUALS.find((r) => r.key === surpriseReveal);
+        toast(t("New fate witnessed!"), {
+          description: ritual ? t(ritual.name) : undefined,
+          action: { label: t("Collection"), onClick: () => navigate("/rituals") },
+          duration: 6000,
+        });
+      }
+    }
     setSurpriseReveal(null);
     haptic(20);
     try {
@@ -393,8 +405,9 @@ export default function Home() {
     if (rareFate) {
       // Theme-exclusive rituals: fairy wand, cyber hacking terminal + keypad,
       // steampunk crank gear, tiki cocktail shaker + volcano, reaper tarot /
-      // coffin / seance / ouija, dragon's hoard eye + chest.
-      const pool2 = theme === "fairy" ? ["scratch", "8ball", "wheel", "wand"] : theme === "cyber" ? ["scratch", "8ball", "wheel", "hack", "code"] : theme === "steam" ? ["scratch", "8ball", "wheel", "crank"] : theme === "tiki" ? ["scratch", "8ball", "wheel", "shaker", "volcano"] : theme === "dark" ? ["scratch", "8ball", "wheel", "tarot", "coffin", "seance", "ouija"] : theme === "fantasy" ? ["scratch", "8ball", "wheel", "eye", "chest"] : ["scratch", "8ball", "wheel"];
+      // coffin / seance / ouija, dragon's hoard eye + chest, fall leaf pile,
+      // spring cherry bloom, summer watermelon smash.
+      const pool2 = theme === "fairy" ? ["scratch", "8ball", "wheel", "wand"] : theme === "cyber" ? ["scratch", "8ball", "wheel", "hack", "code"] : theme === "steam" ? ["scratch", "8ball", "wheel", "crank"] : theme === "tiki" ? ["scratch", "8ball", "wheel", "shaker", "volcano"] : theme === "dark" ? ["scratch", "8ball", "wheel", "tarot", "coffin", "seance", "ouija"] : theme === "fantasy" ? ["scratch", "8ball", "wheel", "eye", "chest"] : theme === "fall" ? ["scratch", "8ball", "wheel", "leaves"] : theme === "spring" ? ["scratch", "8ball", "wheel", "bloom"] : theme === "summer" ? ["scratch", "8ball", "wheel", "melon"] : ["scratch", "8ball", "wheel"];
       let variant = pool2[Math.floor(Math.random() * pool2.length)];
       try {
         const forced = localStorage.getItem("ff_rare_force");
@@ -1433,6 +1446,7 @@ export default function Home() {
                 </motion.div>
               )}
             </AnimatePresence>
+            {theme === "steam" && result && !surpriseReveal && <SteamRise key={`steam-${result.id}`} />}
             <div ref={resultRef} className="relative z-10 min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
               {theme === "dark" && result && !surpriseReveal && <GhostEscort key={`esc-${result.id}`} />}
               <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} light={light} theme={theme} onReset={() => { setResult(null); setGroupPicks(null); setLocked(false); setSurpriseReveal(null); setRerollsLeft(3); }} onReSpin={reSpin} onReport={reportClosed} onPick={setResult} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} onDare={doubleOrNothing} dareAvailable={results.length > 1} locked={locked} rerollsLeft={rerollsLeft} onSwipeReroll={swipeReroll} surprise={surpriseReveal} onSurpriseDone={surpriseDone} />
