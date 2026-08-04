@@ -337,8 +337,83 @@ export function FlutterButterfly({ b, z = 3 }) {
 const TIKI_FLAME_FRAMES = ["/tiki-flame-1.png", "/tiki-flame-2.png", "/tiki-flame-3.png", "/tiki-flame-4.png", "/tiki-flame-5.png"];
 const TIKI_FLAME_FRAMES_GEN = ["/tiki-flame-gen-1.png", "/tiki-flame-gen-2.png", "/tiki-flame-gen-3.png", "/tiki-flame-gen-4.png"];
 
+/** Rare easter egg: the stealth saucer sneaks in and ABDUCTS the header logo.
+ * Runs once per session in Cyberspace, 45-105s after load (or immediately on a
+ * `ff:abduct` window event, used for testing). The real logo medallion is
+ * hidden while a clone rides the tractor beam up into the ship, then drops
+ * back with a bounce. The patrol saucer hides during the heist (onActive). */
+function SaucerAbduction({ saucer, onActive }) {
+  const [run, setRun] = useState(null);
+  const [phase, setPhase] = useState(0); // 1 fly-in, 2 beam on, 3 lift, 4 leave
+  useEffect(() => {
+    const timers = [];
+    const start = (force) => {
+      if (!force && sessionStorage.getItem("ff_abducted") === "1") return;
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      const med = img && img.parentElement;
+      if (!med) return;
+      const r = med.getBoundingClientRect();
+      if (!r.width) return;
+      try { sessionStorage.setItem("ff_abducted", "1"); } catch (e) { /* ignore */ }
+      const cx = r.x + r.width / 2, cy = r.y + r.height / 2;
+      // Hover point: below-right of the logo so the beam angles up at it
+      const sx = Math.min(cx + 170, window.innerWidth - 100);
+      const sy = cy + 130;
+      setRun({ cx, cy, w: r.width, sx, sy });
+      onActive(true);
+      timers.push(setTimeout(() => setPhase(1), 30));                                     // fly in
+      timers.push(setTimeout(() => setPhase(2), 1380));                                   // beam on
+      timers.push(setTimeout(() => { setPhase(3); med.style.visibility = "hidden"; }, 1830)); // lift
+      timers.push(setTimeout(() => setPhase(4), 3200));                                   // beam off + leave
+      timers.push(setTimeout(() => {
+        med.style.visibility = "";
+        med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+      }, 4200));
+      timers.push(setTimeout(() => { setRun(null); setPhase(0); onActive(false); }, 4900));
+    };
+    const t0 = setTimeout(() => start(false), 45000 + Math.random() * 60000);
+    const force = () => start(true);
+    window.addEventListener("ff:abduct", force);
+    return () => { clearTimeout(t0); timers.forEach(clearTimeout); window.removeEventListener("ff:abduct", force); };
+  }, [onActive]);
+  if (!run) return null;
+  const { cx, cy, w, sx, sy } = run;
+  const sw = 122;
+  const beamOn = phase === 2 || phase === 3;
+  // Beam cone: apex at the saucer, aimed at the logo (default cone points +y)
+  const dx = cx - sx, dy = cy - sy;
+  const len = Math.hypot(dx, dy) + w * 0.4;
+  const ang = Math.atan2(-dx, dy) * 180 / Math.PI;
+  const saucerX = phase === 0 ? window.innerWidth + 180 : phase === 4 ? -260 : sx;
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="cyber-abduction">
+      {/* saucer: darts in from the right, hovers, then flees left */}
+      <div className="absolute left-0 top-0" style={{ transform: `translate(${saucerX - sw / 2}px, ${sy - sw * 0.23}px)`, transition: phase === 4 ? "transform 0.9s cubic-bezier(0.5,0,0.9,0.6)" : "transform 1.3s cubic-bezier(0.2,0.9,0.3,1)" }}>
+        <div className="relative" style={{ width: sw, aspectRatio: "240 / 109", animation: "ffSaucerHover 2.8s ease-in-out infinite" }}>
+          <img src={saucer} alt="" className="absolute inset-0 block h-full w-full object-contain" style={{ filter: "drop-shadow(0 0 9px rgba(34,224,224,0.35))" }} />
+          <span className="absolute rounded-full" style={{ left: "44%", top: "22%", width: "4.5%", aspectRatio: "1", background: "radial-gradient(circle, #FF7A6E 0%, #FF2B1E 45%, rgba(255,43,30,0) 78%)", boxShadow: "0 0 6px 2px rgba(255,50,35,0.75)", animation: "ffSaucerBeacon 1.6s steps(1,end) infinite" }} />
+        </div>
+      </div>
+      {/* tractor beam: anchored at the saucer's hover point, aimed at the logo */}
+      <div className="absolute" style={{ left: sx, top: sy, width: 0, height: 0 }}>
+        <div style={{ position: "absolute", left: -w * 0.9, top: 0, width: w * 1.8, height: len, transformOrigin: "50% 0%", transform: `rotate(${ang}deg)`, clipPath: "polygon(40% 0, 60% 0, 100% 100%, 0 100%)", background: "linear-gradient(180deg, rgba(34,224,224,0.55), rgba(34,224,224,0.22) 62%, rgba(34,224,224,0.06) 100%)", opacity: beamOn ? 1 : 0, transition: "opacity 0.4s ease" }} data-testid="cyber-abduction-beam" />
+      </div>
+      {/* logo clone: mounts over the real medallion while the beam locks on
+          (invisible overlap), then rides the beam up into the ship */}
+      {(phase === 2 || phase === 3) && (
+        <div className="absolute left-0 top-0" style={{ transform: phase === 3 ? `translate(${sx - w / 2}px, ${sy - w / 2}px) scale(0.12) rotate(340deg)` : `translate(${cx - w / 2}px, ${cy - w / 2}px)`, opacity: phase === 3 ? 0.25 : 1, transition: "transform 1.25s cubic-bezier(0.55,0,0.8,0.5), opacity 0.5s ease 0.85s" }} data-testid="cyber-abduction-logo">
+          <div className="overflow-hidden rounded-full bg-black ring-1 ring-white/25" style={{ width: w, height: w }}>
+            <img src="/cyber-neon-logo.png" alt="" className="h-full w-full object-contain p-0.5" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function AmbianceScene({ theme, cfg }) {
   const [mobile, setMobile] = useState(false);
+  const [abducting, setAbducting] = useState(false);
   const [anchorRef, coverBox] = useCoverAnchor(GULLY_NAT.w, GULLY_NAT.h);
   const [loungeRef, loungeBox] = useCoverAnchor(1264, 848);
   const setSceneRef = (el) => { anchorRef.current = el; loungeRef.current = el; };
@@ -565,7 +640,7 @@ export function AmbianceScene({ theme, cfg }) {
         turn is 3 steps: side -> front (eye locks on the user) -> mirrored
         side. A small red beacon dot blinks on the hull (no body flash). */}
     {cfg.saucer && (
-      <div className="pointer-events-none fixed inset-0 z-[30] select-none overflow-hidden" data-testid="cyber-saucer-layer">
+      <div className="pointer-events-none fixed inset-0 z-[30] select-none overflow-hidden" style={{ visibility: abducting ? "hidden" : undefined }} data-testid="cyber-saucer-layer">
         <div className="absolute left-0 top-0" style={{ willChange: "transform", animation: "ffSaucerPatrol 60s ease-in-out infinite" }} data-testid="cyber-saucer">
           <div className="relative" style={{ width: "clamp(96px, 13vw, 150px)", aspectRatio: "240 / 109", animation: "ffSaucerHover 2.8s ease-in-out infinite" }}>
             {/* faint cyan search-beam: sweeps down from the belly during hover
@@ -587,5 +662,6 @@ export function AmbianceScene({ theme, cfg }) {
         </div>
       </div>
     )}
+    {cfg.saucer && <SaucerAbduction saucer={cfg.saucer} onActive={setAbducting} />}
   </>);
 }

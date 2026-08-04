@@ -1197,3 +1197,27 @@ See `/app/memory/test_credentials.md`.
   6.5-13.5 / 37.5-44.5 / 79.5-87.5% (~4.2s each, was ~1.8s).
 - Verified via computed-style probes at 10/19.6/41/84% (position, side/front
   opacity+flip, beam opacity ALL match) + visual of hover F beam over content.
+
+## 2026-08-05 part 36: "Last 3" — streaks verified, sound pass, saucer abduction
+- FATE STREAKS: already existed (homeConstants.js readStreak/bumpStreak, flame badge
+  data-testid="streak-badge" at streak>=2 next to the fates-dealt counter, bumped on
+  all 4 deal paths). Verified renders "4 day streak" with seeded ff_streak.
+- REALM SOUND CHECK: measured RMS x gain of every shuffle bed vs its realm's reveal
+  (numpy/soundfile, see audit output). Three beds ran hot vs their reveal:
+  cyber 0.8->0.5, winter 0.8->0.65, fall 0.8->0.55 in SHUFFLE_LOOPS (Home.jsx).
+  Also deleted the DUPLICATE hardcoded loopVol map at the second play site (~line
+  682) — now reads SHUFFLE_LOOPS[theme][1] (fixes fairy/light undefined volume too).
+- SAUCER ABDUCTION easter egg: SaucerAbduction component in ThemeScenes.jsx
+  (data-testid="cyber-abduction"). Cyber only, ONCE per session (sessionStorage
+  ff_abducted), random 45-105s after load; force-trigger for tests via
+  window.dispatchEvent(new CustomEvent('ff:abduct')). Sequence (~4.9s, z-[50]
+  overlay above header z-30): saucer darts in from right to a hover point
+  below-right of the header logo -> tractor beam cone (rotated to aim at the
+  logo, atan2(-dx,dy)) -> real medallion hidden while a CLONE (mounted at phase 2
+  overlapping invisibly, so the transition has a start point) rides the beam into
+  the ship (scale 0.12, spin, fade) -> saucer flees left -> logo drops back with
+  ffLogoReturn bounce keyframes (index.css). Patrol layer visibility:hidden while
+  active (abducting state in AmbianceScene).
+- TESTING NOTE: taking multiple playwright screenshots during the sequence
+  throttles page timers and skews phases — verify with ONE capture per run + a
+  final computed-state probe (logoVis/abductionGone/patrolVisible all correct).

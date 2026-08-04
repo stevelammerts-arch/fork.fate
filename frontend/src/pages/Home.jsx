@@ -46,15 +46,18 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 // All beds are synthesized band-limited noise (see scripts/gen_theme_beds.py) —
 // earlier versions held pure tones or near-Nyquist junk that phone speakers
 // reproduced as a buzz or zap.
+// Volumes are loudness-matched (RMS x volume) so every bed sits clearly BELOW
+// its realm's reveal stinger: cyber/fall/winter files are hot, so they get
+// lower gains (audited 2026-02: bed effRMS <= ~0.75x reveal effRMS).
 const SHUFFLE_LOOPS = {
   light: ["/shuffle-cafe.wav?v=2", 0.75, true],
   tiki: ["/reveal-drums-groove.wav", 1.0, false],
-  cyber: ["/shuffle-cyber.mp3?v=2", 0.8, true],
+  cyber: ["/shuffle-cyber.mp3?v=2", 0.5, true],
   summer: ["/shuffle-seagulls.wav", 0.7, true],
   steam: ["/shuffle-jacobs.wav", 0.85, true],
   spring: ["/shuffle-spring.wav", 0.8, true],
-  winter: ["/shuffle-winter.wav", 0.8, true],
-  fall: ["/shuffle-fall.wav", 0.8, true],
+  winter: ["/shuffle-winter.wav", 0.65, true],
+  fall: ["/shuffle-fall.wav", 0.55, true],
   fantasy: ["/shuffle-dragon.mp3", 0.85, true],
   fairy: ["/shuffle-fairy.wav", 0.8, true],
 };
@@ -676,7 +679,7 @@ export default function Home() {
     if (theme === "tiki") { grooveRef.current = playSound("/reveal-drums-groove.wav", 1.0); }
     else {
       const loopSrc = SHUFFLE_LOOPS[theme]?.[0];
-      const loopVol = { cyber: 0.8, summer: 0.7, steam: 0.85, spring: 0.8, winter: 0.8, fall: 0.8, fantasy: 0.85 }[theme];
+      const loopVol = SHUFFLE_LOOPS[theme]?.[1];
       if (loopSrc) {
         try {
           if (localStorage.getItem("ff_muted") !== "1") {
