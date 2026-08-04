@@ -1221,3 +1221,12 @@ See `/app/memory/test_credentials.md`.
 - TESTING NOTE: taking multiple playwright screenshots during the sequence
   throttles page timers and skews phases — verify with ONE capture per run + a
   final computed-state probe (logoVis/abductionGone/patrolVisible all correct).
+
+## 2026-08-05 part 37: Pre-deployment regression + readiness — ALL PASS
+- testing_agent iteration_56: 9/9 frontend checks + 4/4 backend endpoints PASS, zero
+  issues. Covered: realm dialog, deal flow (POST /api/places/search), theme
+  persistence, saucer layer/anim, abduction lifecycle, streak badge, sound config,
+  favorites/sponsor/language, no console errors.
+- deployment_agent: status PASS — env vars clean, CORS covers fork-fate.com +
+  emergent.host + preview, supervisor valid, no hardcoded URLs/secrets. READY.
+- User deferred all further features ("save that stuff for later").
