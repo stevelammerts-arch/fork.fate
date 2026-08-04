@@ -964,3 +964,8 @@ See `/app/memory/test_credentials.md`.
   -170px left. Verified via getBoundingClientRect sampling: opacity 0.8 at
   viewport y ~300 and ~100 — fully visible during the flourish.
 - User confirmed working; publishing to production (fork-fate.com) tonight.
+
+## 2026-08-05 part 19: Spring sting lengthened
+- flourish-spring.mp3 re-cut from source: now 12s (was 5s), first 12s of the
+  oriental melody with a 2.5s fade-out from 9.5s. Plays out fully even after the
+  petal burst unmounts (started audio is never paused).
