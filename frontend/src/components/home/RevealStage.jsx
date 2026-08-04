@@ -16,6 +16,7 @@ import { HackTerminal } from "./HackTerminal";
 import { CodeBreaker } from "./CodeBreaker";
 import { CrankGear } from "./CrankGear";
 import { TikiShaker } from "./TikiShaker";
+import { VolcanoReveal } from "./VolcanoReveal";
 import { ThemeFlourish, FLOURISH_THEMES } from "./ThemeFlourish";
 import { Magic8Ball } from "./Magic8Ball";
 import { WheelOfFate } from "./WheelOfFate";
@@ -31,7 +32,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   // plays (steam, snow, petals, leaves, fireflies, sparkles, fire wall) —
   // re-fires per revealed place, and after a rare ritual unveils.
   // (Hooks live above the early returns to keep hook order stable.)
-  const isCovered = surprise === "scratch" || surprise === "8ball" || surprise === "wheel" || surprise === "wand" || surprise === "hack" || surprise === "code" || surprise === "crank" || surprise === "shaker";
+  const isCovered = surprise === "scratch" || surprise === "8ball" || surprise === "wheel" || surprise === "wand" || surprise === "hack" || surprise === "code" || surprise === "crank" || surprise === "shaker" || surprise === "volcano";
   const resultId = result ? result.id : null;
   const [steaming, setSteaming] = useState(false);
   useEffect(() => {
@@ -218,6 +219,9 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
           )}
           {surprise === "shaker" && (
             <TikiShaker onDone={onSurpriseDone} />
+          )}
+          {surprise === "volcano" && (
+            <VolcanoReveal onDone={onSurpriseDone} />
           )}
           {surprise === "wheel" && (
             <WheelOfFate names={deck.map((d) => d.name)} winner={card.name} onDone={onSurpriseDone} />

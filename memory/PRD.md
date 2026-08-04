@@ -834,3 +834,12 @@ See `/app/memory/test_credentials.md`.
 - flourish-tiki.mp3 (user's happy tropical island sting, 5.4s) plays with the
   Fireflies flourish (muted-aware, no cutoff once started). ES translations added.
 - Verified live end-to-end in tiki theme (force ff_rare_force='shaker').
+
+## 2026-08-04 part 10: VolcanoReveal rare ritual (Tiki #2)
+- VolcanoReveal.jsx: island volcano SVG (crater glow + lava cracks heat up per tap,
+  low rumble thump via WebAudio). 4 taps -> ERUPTION: flash, 11 lava bombs fan out,
+  smoke column, reveal-volcano.mp3 (user's explosion clip, 5.1s), onDone 2.3s.
+- Tiki pool now [scratch, 8ball, wheel, shaker, volcano]. ES added. Verified live.
+  Testids: volcano-cover/-mount/-prompt/-done/-taps.
+- PENDING: user choosing Reaper rare ritual from proposed ideas (tarot draw, coffin
+  knock, seance candles, ouija, soul harvest, hourglass).
