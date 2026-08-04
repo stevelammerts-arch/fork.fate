@@ -12,6 +12,8 @@ import { ChainCouponStrip } from "./ChainCouponStrip";
 import { ReactionBar } from "./ReactionBar";
 import { ScratchCover, ThemeCardFrame } from "./ScratchCover";
 import { FairyWand } from "./FairyWand";
+import { HackTerminal } from "./HackTerminal";
+import { CodeBreaker } from "./CodeBreaker";
 import { ThemeFlourish, FLOURISH_THEMES } from "./ThemeFlourish";
 import { Magic8Ball } from "./Magic8Ball";
 import { WheelOfFate } from "./WheelOfFate";
@@ -27,7 +29,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   // plays (steam, snow, petals, leaves, fireflies, sparkles, fire wall) —
   // re-fires per revealed place, and after a rare ritual unveils.
   // (Hooks live above the early returns to keep hook order stable.)
-  const isCovered = surprise === "scratch" || surprise === "8ball" || surprise === "wheel" || surprise === "wand";
+  const isCovered = surprise === "scratch" || surprise === "8ball" || surprise === "wheel" || surprise === "wand" || surprise === "hack" || surprise === "code";
   const resultId = result ? result.id : null;
   const [steaming, setSteaming] = useState(false);
   useEffect(() => {
@@ -202,6 +204,12 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
           )}
           {surprise === "wand" && (
             <FairyWand onDone={onSurpriseDone} />
+          )}
+          {surprise === "hack" && (
+            <HackTerminal name={card.name} onDone={onSurpriseDone} />
+          )}
+          {surprise === "code" && (
+            <CodeBreaker onDone={onSurpriseDone} />
           )}
           {surprise === "wheel" && (
             <WheelOfFate names={deck.map((d) => d.name)} winner={card.name} onDone={onSurpriseDone} />

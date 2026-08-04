@@ -333,7 +333,7 @@ export default function Home() {
     try {
       if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e0) { /* ignore */ } grooveRef.current = null; }
       if (localStorage.getItem("ff_muted") !== "1") {
-        const revealSrc = { light: "/barista-bell.mp3", cyber: "/reveal-cyber.mp3?v=2", tiki: "/reveal-drums-boom.wav", spring: "/reveal-koto.wav", steam: "/reveal-steam.wav", winter: "/reveal-santa.wav", fall: "/reveal-owl.wav", fantasy: "/reveal-dragon.mp3", fairy: "/reveal-fairy.wav" }[theme] || (light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
+        const revealSrc = { light: "/barista-bell.mp3", cyber: "/reveal-cyber.mp3?v=3", tiki: "/reveal-drums-boom.wav", spring: "/reveal-koto.wav", steam: "/reveal-steam.wav", winter: "/reveal-santa.wav", fall: "/reveal-owl.wav", fantasy: "/reveal-dragon.mp3", fairy: "/reveal-fairy.wav" }[theme] || (light ? "/reveal-tada.wav" : "/reveal-thunder-v4.mp3");
         thunderRef.current = new Audio(revealSrc);
         thunderRef.current.volume = 1.0;
         thunderRef.current.load();
@@ -387,8 +387,9 @@ export default function Home() {
     // short dramatic beat, present the winner hidden behind a surprise ritual:
     // themed scratch foil, or a Magic 8-ball the user must shake.
     if (rareFate) {
-      // Fairy Gully adds its own ritual: the magic wand reveal.
-      const pool2 = theme === "fairy" ? ["scratch", "8ball", "wheel", "wand"] : ["scratch", "8ball", "wheel"];
+      // Fairy Gully and Cyberscape add their own rituals: the magic wand,
+      // the hacking terminal and the keypad code-breaker.
+      const pool2 = theme === "fairy" ? ["scratch", "8ball", "wheel", "wand"] : theme === "cyber" ? ["scratch", "8ball", "wheel", "hack", "code"] : ["scratch", "8ball", "wheel"];
       let variant = pool2[Math.floor(Math.random() * pool2.length)];
       try {
         const forced = localStorage.getItem("ff_rare_force");
@@ -694,7 +695,7 @@ export default function Home() {
           stopCards();
           playSound("/card-deal.wav", 0.85);
           if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e2) { /* ignore */ } grooveRef.current = null; }
-          playSound(theme === "tiki" ? "/reveal-drums-boom.wav" : theme === "cyber" ? "/reveal-cyber.mp3?v=2" : theme === "spring" ? "/reveal-koto.wav" : theme === "steam" ? "/reveal-steam.wav" : theme === "winter" ? "/reveal-santa.wav" : theme === "fall" ? "/reveal-owl.wav" : theme === "fantasy" ? "/reveal-dragon.mp3" : "/reveal-thunder-v4.mp3", 1.0);
+          playSound(theme === "tiki" ? "/reveal-drums-boom.wav" : theme === "cyber" ? "/reveal-cyber.mp3?v=3" : theme === "spring" ? "/reveal-koto.wav" : theme === "steam" ? "/reveal-steam.wav" : theme === "winter" ? "/reveal-santa.wav" : theme === "fall" ? "/reveal-owl.wav" : theme === "fantasy" ? "/reveal-dragon.mp3" : "/reveal-thunder-v4.mp3", 1.0);
         } catch (e) { /* audio */ }
         setRevealFlash(true);
         setTimeout(() => setRevealFlash(false), 1200);

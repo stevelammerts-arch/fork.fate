@@ -784,3 +784,25 @@ See `/app/memory/test_credentials.md`.
   6 fast valve-jets escaping the card edges; default wrapper overflow-visible so
   steam escapes the card. Verified live via steam-theme spin (10001): burst mounts,
   large cloud renders over landed card. Deal button testid: spin-roulette-button.
+
+## 2026-08-04 part 5: Cyber audio recut + HackTerminal rare ritual
+- reveal-cyber.mp3 (zap) recut to 3.24s (was 5s, "slightly too long"); flourish-cyber.mp3
+  (robot) extended to 8s (was 4s, "not long enough"); refs bumped to ?v=3. MatrixRain
+  cleanup no longer pauses playing audio (parent unmounts at ~4.2s, clip is 8s) —
+  only cancels a not-yet-started play.
+- NEW rare ritual: HackTerminal.jsx (Cyberscape) — CRT terminal cover: JACK IN button,
+  typed breach log (WebAudio blips), winner name decrypts via glyph scramble, TARGET
+  ACQUIRED + zap, onDone after 1.4s. Wired in RevealStage (surprise === "hack",
+  isCovered) and Home.jsx rare pool (cyber: scratch/8ball/wheel/hack). ES translations
+  added. Force-test with localStorage ff_rare_force='hack', ff_deal_taps='9'.
+- Verified live end-to-end in cyber theme (zip 10001): terminal -> log -> decrypt ->
+  reveal card. Testids: hack-terminal-cover/-jack-in/-log/-name/-acquired.
+
+## 2026-08-04 part 6: CodeBreaker keypad rare ritual (Cyberscape #2)
+- CodeBreaker.jsx: futuristic keypad lock — random 5-digit code glows at top (teal
+  #22D3EE CRT style), user punches it on a 3x4 number pad. Wrong key: ACCESS DENIED
+  + shake + low buzz; full code: digits turn green, ACCESS GRANTED + zap, onDone 1.5s.
+- Wired: RevealStage (surprise === "code", isCovered), Home cyber pool now
+  [scratch, 8ball, wheel, hack, code]. ES translations added.
+- Verified live end-to-end (force ff_rare_force='code'): keypad -> denied -> granted
+  -> reveal. Testids: code-breaker-cover/-code/-status/-pad, code-digit-i, code-key-n.

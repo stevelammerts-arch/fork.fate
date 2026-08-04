@@ -272,12 +272,15 @@ function GhostRise() {
 /** Cyberpunk: purple Matrix-style digital rain — columns of 1s and 0s falling
  * from the top of the picture, each with a bright glowing lead character. */
 function MatrixRain({ height }) {
-  // Glitchy transition zap as the digital rain kicks in (user-uploaded clip).
+  // Glitchy machinery sfx as the digital rain kicks in (user-uploaded clip).
+  // Cleanup only cancels a not-yet-started play — once playing, the clip is
+  // longer than the flourish itself and should finish naturally.
   useEffect(() => {
-    const zap = new Audio("/flourish-cyber.mp3?v=2");
+    const zap = new Audio("/flourish-cyber.mp3?v=3");
     zap.volume = 0.5;
-    const tm = setTimeout(() => zap.play().catch(() => {}), 250);
-    return () => { clearTimeout(tm); zap.pause(); };
+    let started = false;
+    const tm = setTimeout(() => { started = true; zap.play().catch(() => {}); }, 250);
+    return () => { clearTimeout(tm); if (!started) zap.pause(); };
   }, []);
   const cols = Array.from({ length: 12 }, (_, i) => ({
     left: `${3 + rnd(i, 1) * 90}%`,
