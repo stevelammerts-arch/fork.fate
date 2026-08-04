@@ -917,3 +917,10 @@ See `/app/memory/test_credentials.md`.
   further Home.jsx/Passport.jsx decomposition, useRitualLifecycle shared hook.
 - NOTE: light cafe theme intentionally remaps #E01E26 red -> sage green via
   index.css !important overrides (line 100+) — not a bug.
+
+## 2026-08-04 part 14: Spring flourish audio
+- User-uploaded oriental melody wired as spring theme flourish sting
+  (/flourish-spring.mp3). Source was 170s; trimmed to the opening 5s with a 1s
+  fade-out to match the ~4.2s petal burst. FallingBurst now uses a
+  FALLING_STINGS map (winter + spring). Verified: file serves 200, flourish
+  mounts ~3s after deal in spring theme.

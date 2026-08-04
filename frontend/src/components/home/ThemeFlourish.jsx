@@ -9,15 +9,19 @@ const rnd = (i, salt) => {
   return x - Math.floor(x);
 };
 
+// Falling-burst themes with a sting: frosty christmas whoosh for winter's
+// snow, an oriental melody for spring's petals (user-uploaded clips).
+const FALLING_STINGS = { winter: "/flourish-winter.mp3", spring: "/flourish-spring.mp3" };
+
 /** Falling particles (snow / petals / leaves) drifting down with sway + spin. */
 function FallingBurst({ kind, height }) {
-  // Winter only: a frosty christmas whoosh rides the snowfall (user-uploaded clip).
   useEffect(() => {
-    if (kind !== "winter") return undefined;
+    const src = FALLING_STINGS[kind];
+    if (!src) return undefined;
     let sting = null;
     try {
       if (localStorage.getItem("ff_muted") !== "1") {
-        sting = new Audio("/flourish-winter.mp3");
+        sting = new Audio(src);
         sting.volume = 0.6;
       }
     } catch (e) { /* audio */ }
