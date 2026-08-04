@@ -1033,6 +1033,24 @@ body {
   73%{ transform: translateX(0) translateY(0); }
   100%{ transform: translateX(0) translateY(0); }
 }
+/* Beach ball: drifts across the sand (linear) while bouncing in parabolic arcs
+   (per-key easing) and roll-spinning */
+@keyframes ffBallTravel{
+  0%{ transform: translateX(-12vw); opacity: 0; }
+  3%{ opacity: 0.92; }
+  80%{ opacity: 0.92; }
+  85%{ transform: translateX(104vw); opacity: 0; }
+  100%{ transform: translateX(104vw); opacity: 0; }
+}
+@keyframes ffBallBounce{
+  0%{ transform: translateY(0); animation-timing-function: cubic-bezier(0.3,0.7,0.6,1); }
+  50%{ transform: translateY(-44px); animation-timing-function: cubic-bezier(0.4,0,0.7,0.3); }
+  100%{ transform: translateY(0); }
+}
+@keyframes ffBallSpin{
+  0%{ transform: rotate(0deg); }
+  100%{ transform: rotate(360deg); }
+}
 
 /* ── Cyberpunk accent recolor: neon cyan (dark surfaces preserved) ── */
 [data-ff-theme="cyber"] [data-ff-scope="app"] .bg-\[\#E01E26\]{background-color:#15C8D6 !important;}

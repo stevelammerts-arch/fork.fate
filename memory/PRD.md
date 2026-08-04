@@ -1024,3 +1024,13 @@ See `/app/memory/test_credentials.md`.
   ffSquirrelDart are now hop-spins — body lifts -5/-7px while scaleX sweeps
   1->0.6->0.05->-0.6->-1 over ~0.3-0.4s (quick jump-pivot, not a flat mirror).
   Verified via paused-animation matrix probing at 46/47/47.5/48/49%.
+
+## 2026-08-05 part 24: Summer beach ball
+- Reused existing /summer-ball.png (downscaled 1024px/450KB -> 200px/24KB; it was an
+  unused falling-item for summer since falling:false).
+- Rendered in summer scene inside cfg.crabs block (data-testid="summer-beachball"):
+  3-layer structure — travel div (ffBallTravel 13s linear: -12vw -> 104vw with opacity
+  fade at edges) > bounce div (ffBallBounce 1.6s, parabolic via per-key
+  animation-timing-function cubic-beziers, -44px apex) > img (ffBallSpin 2.2s rotate).
+- Verified live: forward drift + 40px y-oscillation sampled on the inner bounce div
+  (NOTE: outer wrapper bbox does NOT reflect child transforms — probe the inner div).

@@ -138,6 +138,12 @@ export function SeasonScene({ theme, cfg }) {
         <div className="absolute bottom-[16%] right-[24%] z-[3]" style={{ animation: "ffCrabSkitter 17s linear infinite reverse", animationDelay: "3s" }} data-testid="summer-crab-2">
           <img src={cfg.crabs} alt="" className="w-9 opacity-75 sm:w-10" />
         </div>
+        {/* breeze-blown beach ball bouncing across the sand */}
+        <div className="absolute bottom-[4%] left-0 z-[3]" style={{ animation: "ffBallTravel 13s linear infinite" }} data-testid="summer-beachball">
+          <div style={{ animation: "ffBallBounce 1.6s infinite" }}>
+            <img src="/summer-ball.png" alt="" className="w-10 opacity-90 sm:w-12" style={{ animation: "ffBallSpin 2.2s linear infinite" }} />
+          </div>
+        </div>
       </>)}
       {cfg.moon && <div className="absolute top-[6%] left-[24%] z-[1] aspect-square w-[24vw] rounded-full sm:left-[27%] sm:w-[14vw]" style={{ background: "radial-gradient(circle at 42% 40%, #FCF4DA 0%, #EDDCAB 60%, #D6C084 100%)", boxShadow: "0 0 90px 34px rgba(255,240,205,0.38), 0 0 44px 14px rgba(255,246,222,0.55)", opacity: 0.6 }} />}
       {cfg.owl && <img src={cfg.owl} alt="" className="absolute top-[13%] left-[30%] z-[2] w-[13vw] max-w-[150px] object-contain opacity-[0.72] sm:w-[9vw]" />}
