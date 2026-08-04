@@ -745,3 +745,21 @@ See `/app/memory/test_credentials.md`.
   x-csrf-token from ff_csrf cookie) manual trigger. Tested via curl: {"sponsors":1,"sent":0}
   (sent=0 expected in preview — Resend key empty; snapshot only saved on send success).
 - Remaining: Apple App Store publishing guidance (user working on it).
+
+## 2026-08-04: Footer sponsor block removed
+- Removed footer sponsorship-cta column (Become a sponsor button, $19 line, chains
+  link, FAQ pill) from HomeFooter.jsx — redundant with the two big Home band windows.
+- SponsorFaqDialog pill relocated: now centered directly below the chain band in
+  HomeInfoSections.jsx. Verified via screenshots (footer clean, pill opens dialog).
+
+## 2026-08-04 part 2: Collapsed cuisine groups + Sponsor FAQ card
+- Filters.jsx: grouped cuisine panels (Food/Bars/Explore/Fuel) now render every
+  sub-division COLLAPSED by default (CollapsibleGroup) — header shows group name,
+  item count, red picked-count badge, chevron. Tap to open only the group you want.
+  Ungrouped modes keep the old +N more chip behavior. Testids:
+  cuisine-group-<slug>, cuisine-group-count-<slug>, pills unchanged.
+- SponsorFaqDialog.jsx DELETED -> SponsorFaqCard.jsx: matches the main FAQ card
+  pattern (white rounded card, serif title, More/Less toggle, inline accordion,
+  email link). Rendered directly below the chain band in HomeInfoSections.
+- Verified via screenshots: 7 collapsed food groups, pick applies + panel closes,
+  FAQ card expands with 6 questions. NOTE: filters panel defaults OPEN on load.

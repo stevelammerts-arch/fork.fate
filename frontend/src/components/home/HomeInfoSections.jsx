@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, MapPin, Dices, ChevronDown, Store, ArrowRight, Ticket } from "lucide-react";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "../ui/accordion";
+import SponsorFaqCard from "../SponsorFaqCard";
 import { useLang } from "../../i18n/i18n";
 
 /**
@@ -173,6 +174,9 @@ export function HomeInfoSections({ light, onSponsor }) {
               </Link>
             </div>
           </div>
+
+          {/* Sponsor FAQ — collapsible card right under both sponsorship windows */}
+          <SponsorFaqCard />
         </div>
       </section>
     </>

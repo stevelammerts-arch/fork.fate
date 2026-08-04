@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import { useLang } from "../i18n/i18n";
 
 const PILL_TAP = { scale: 0.94 };
@@ -39,13 +40,12 @@ export default function Filters({
 }) {
   if (cuisineGroups) {
     return (
-      <div className="space-y-6" data-testid="filters-panel">
+      <div className="space-y-3" data-testid="filters-panel">
         {cuisineGroups.map((g) => (
-          <ChipSection
+          <CollapsibleGroup
             key={g.label}
             label={g.label}
             items={g.items}
-            limit={10}
             labelColor={labelColor}
             selectedCuisines={selectedCuisines}
             toggleCuisine={toggleCuisine}
@@ -64,6 +64,57 @@ export default function Filters({
         selectedCuisines={selectedCuisines}
         toggleCuisine={toggleCuisine}
       />
+    </div>
+  );
+}
+
+/**
+ * A sub-division rendered fully collapsed by default — users open only the
+ * group they care about instead of scrolling one giant chip wall. A count
+ * badge keeps their picks visible even while the group is closed.
+ */
+function CollapsibleGroup({ label, items, labelColor, selectedCuisines, toggleCuisine }) {
+  const { t } = useLang();
+  const [open, setOpen] = useState(false);
+  const selCount = items.filter((c) => selectedCuisines.includes(c)).length;
+  const sorted = [...items].sort((a, b) => a.localeCompare(b));
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-[#E2E4E7] bg-white">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        data-testid={`cuisine-group-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-[#F7F8F9]"
+      >
+        <span className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#0E0E0E]" style={labelColor ? { color: labelColor } : undefined}>
+          {t(label)}
+        </span>
+        <span className="flex shrink-0 items-center gap-2">
+          {selCount > 0 && (
+            <span className="rounded-full bg-[#E01E26] px-2 py-0.5 font-sans text-[11px] font-bold text-white" data-testid={`cuisine-group-count-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
+              {selCount}
+            </span>
+          )}
+          <span className="font-sans text-[11px] text-[#9A9FA5]">{items.length}</span>
+          <ChevronDown className={`h-4 w-4 text-[#6B7075] transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+        </span>
+      </button>
+      {open && (
+        <div className="flex flex-wrap gap-3 px-4 pb-4 pt-1">
+          {sorted.map((c) => (
+            <Pill
+              key={c}
+              active={selectedCuisines.includes(c)}
+              onClick={() => toggleCuisine(c)}
+              testid={`cuisine-filter-${c.toLowerCase()}`}
+            >
+              {c}
+            </Pill>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

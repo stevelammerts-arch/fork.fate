@@ -1,12 +1,9 @@
 import { UtensilsCrossed, Skull } from "lucide-react";
-import { Link } from "react-router-dom";
-import BecomeSponsorDialog from "../BecomeSponsorDialog";
-import SponsorFaqDialog from "../SponsorFaqDialog";
 import CheckUpdatesButton from "../CheckUpdatesButton";
 import FeedbackDialog from "../FeedbackDialog";
 import { useLang } from "../../i18n/i18n";
 
-/** Home footer: Reaper disclaimer, brand, legal links, feedback + sponsor CTA. */
+/** Home footer: Reaper disclaimer, brand, legal links, feedback. */
 export function HomeFooter({ light }) {
   const { t } = useLang();
   return (
@@ -65,20 +62,6 @@ export function HomeFooter({ light }) {
           >
             Admin
           </a>
-        </div>
-        <div className="order-2 flex flex-col items-center gap-2 md:order-3 md:items-end" data-testid="sponsorship-cta">
-          <BecomeSponsorDialog />
-          <p className={`font-sans text-xs font-bold ${light ? "text-[#4F6F47]" : "text-[#E01E26]"}`}>
-            $19/month — <span className={light ? "text-[#2A2118]" : "text-white"}>{t("first month FREE")}</span>
-          </p>
-          <Link
-            to="/sponsor/chains"
-            data-testid="footer-chain-link"
-            className={`font-sans text-xs font-bold underline underline-offset-4 transition-colors ${light ? "text-[#8A5210] hover:text-[#2A2118]" : "text-[#E6B23A] hover:text-white"}`}
-          >
-            {t("Chains & franchises: coupon sponsorships")} →
-          </Link>
-          <SponsorFaqDialog light={light} />
         </div>
       </div>
     </footer>
