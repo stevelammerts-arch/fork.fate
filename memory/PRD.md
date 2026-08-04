@@ -806,3 +806,16 @@ See `/app/memory/test_credentials.md`.
   [scratch, 8ball, wheel, hack, code]. ES translations added.
 - Verified live end-to-end (force ff_rare_force='code'): keypad -> denied -> granted
   -> reveal. Testids: code-breaker-cover/-code/-status/-pad, code-digit-i, code-key-n.
+
+## 2026-08-04 part 7: CrankGear ritual (steam) + CodeBreaker countdown
+- CrankGear.jsx: steampunk rare ritual — brass 12-tooth SVG gear with crank handle;
+  drag circularly (forward only) or tap to ratchet +45deg; 720deg (2 turns) fills a
+  brass pressure bar -> "Pressure released!" + reveal-steam.wav + SteamBurst -> onDone
+  1.8s. FIX LEARNED: never call side effects (finish/setDone) inside a setState
+  updater — React drops them; angle now lives in angleRef.
+- Home steam rare pool: [scratch, 8ball, wheel, crank]. Testids: crank-gear-cover/
+  -gear/-prompt/-done, crank-pressure-bar.
+- CodeBreaker countdown (user: "Yes, on count down"): 12s timer bar under status,
+  turns red at <=4s; expiry -> "SYSTEM OVERRIDE — FATE DECRYPTED" (amber) and fate
+  reveals anyway. Testids: code-breaker-countdown/-timer.
+- ES translations added. Both verified live end-to-end (force ff_rare_force crank/code).

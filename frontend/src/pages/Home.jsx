@@ -387,9 +387,9 @@ export default function Home() {
     // short dramatic beat, present the winner hidden behind a surprise ritual:
     // themed scratch foil, or a Magic 8-ball the user must shake.
     if (rareFate) {
-      // Fairy Gully and Cyberscape add their own rituals: the magic wand,
-      // the hacking terminal and the keypad code-breaker.
-      const pool2 = theme === "fairy" ? ["scratch", "8ball", "wheel", "wand"] : theme === "cyber" ? ["scratch", "8ball", "wheel", "hack", "code"] : ["scratch", "8ball", "wheel"];
+      // Theme-exclusive rituals: fairy wand, cyber hacking terminal + keypad,
+      // steampunk crank gear.
+      const pool2 = theme === "fairy" ? ["scratch", "8ball", "wheel", "wand"] : theme === "cyber" ? ["scratch", "8ball", "wheel", "hack", "code"] : theme === "steam" ? ["scratch", "8ball", "wheel", "crank"] : ["scratch", "8ball", "wheel"];
       let variant = pool2[Math.floor(Math.random() * pool2.length)];
       try {
         const forced = localStorage.getItem("ff_rare_force");
