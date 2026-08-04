@@ -566,15 +566,20 @@ export function AmbianceScene({ theme, cfg }) {
         side. A small red beacon dot blinks on the hull (no body flash). */}
     {cfg.saucer && (
       <div className="pointer-events-none fixed inset-0 z-[30] select-none overflow-hidden" data-testid="cyber-saucer-layer">
-        <div className="absolute left-0 top-0" style={{ willChange: "transform", animation: "ffSaucerPatrol 30s ease-in-out infinite" }} data-testid="cyber-saucer">
+        <div className="absolute left-0 top-0" style={{ willChange: "transform", animation: "ffSaucerPatrol 60s ease-in-out infinite" }} data-testid="cyber-saucer">
           <div className="relative" style={{ width: "clamp(96px, 13vw, 150px)", aspectRatio: "240 / 109", animation: "ffSaucerHover 2.8s ease-in-out infinite" }}>
+            {/* faint cyan search-beam: sweeps down from the belly during hover
+                stops, like it's scanning the city below (painted under sprite) */}
+            <div className="absolute" style={{ left: "50%", top: "66%", width: "260%", height: "42vh", transform: "translateX(-50%)", opacity: 0, animation: "ffSaucerBeamOn 60s linear infinite" }} data-testid="cyber-saucer-beam">
+              <div className="h-full w-full" style={{ transformOrigin: "50% 0%", animation: "ffSaucerBeamSweep 4s ease-in-out infinite alternate", clipPath: "polygon(46.5% 0, 53.5% 0, 100% 100%, 0 100%)", background: "linear-gradient(180deg, rgba(34,224,224,0.36) 0%, rgba(34,224,224,0.14) 45%, rgba(34,224,224,0) 90%)" }} />
+            </div>
             {/* side profile (faces LEFT; scaleX flips handled by the face anim) */}
-            <div className="absolute inset-0" style={{ animation: "ffSaucerSideFace 30s ease-in-out infinite" }}>
+            <div className="absolute inset-0" style={{ animation: "ffSaucerSideFace 60s ease-in-out infinite" }}>
               <img src={cfg.saucer} alt="" className="absolute inset-0 block h-full w-full object-contain" style={{ filter: "drop-shadow(0 0 9px rgba(34,224,224,0.35))" }} />
               <span className="absolute rounded-full" style={{ left: "44%", top: "22%", width: "4.5%", aspectRatio: "1", background: "radial-gradient(circle, #FF7A6E 0%, #FF2B1E 45%, rgba(255,43,30,0) 78%)", boxShadow: "0 0 6px 2px rgba(255,50,35,0.75)", animation: "ffSaucerBeacon 1.6s steps(1,end) infinite" }} data-testid="cyber-saucer-beacon" />
             </div>
             {/* head-on view: the eye lens stares straight at the user mid-turn */}
-            <div className="absolute inset-0" style={{ opacity: 0, animation: "ffSaucerFrontFace 30s ease-in-out infinite" }}>
+            <div className="absolute inset-0" style={{ opacity: 0, animation: "ffSaucerFrontFace 60s ease-in-out infinite" }}>
               <img src={cfg.saucerFront} alt="" className="absolute inset-0 block h-full w-full object-contain" style={{ filter: "drop-shadow(0 0 9px rgba(34,224,224,0.35))" }} />
               <span className="absolute rounded-full" style={{ left: "48%", top: "16%", width: "4.5%", aspectRatio: "1", background: "radial-gradient(circle, #FF7A6E 0%, #FF2B1E 45%, rgba(255,43,30,0) 78%)", boxShadow: "0 0 6px 2px rgba(255,50,35,0.75)", animation: "ffSaucerBeacon 1.6s steps(1,end) infinite" }} />
             </div>

@@ -592,50 +592,96 @@ body {
   75%  { transform: translateX(10vw) translateY(-10px) scaleX(-1); }
   100% { transform: translateX(-26vw) translateY(4px) scaleX(-1); }
 }
-/* Cyber stealth saucer: darting patrol with hover pauses (position only —
-   facing/flips live in ffSaucerSideFace/ffSaucerFrontFace). ease-in-out per
-   segment gives the accelerate/brake "dart" feel between hold points. */
+/* Cyber stealth saucer: 60s round-trip patrol (position only — facing/flips
+   live in ffSaucerSideFace/ffSaucerFrontFace). First half enters from the
+   RIGHT and exits left; second half re-enters from the LEFT and exits right,
+   so he appears from both sides. ease-in-out per segment = dart feel. */
 @keyframes ffSaucerPatrol {
   0%   { transform: translate(108vw, 24vh); }
-  12%  { transform: translate(62vw, 18vh); }
-  18%  { transform: translate(61vw, 19vh); }   /* hover drift */
-  30%  { transform: translate(24vw, 33vh); }
-  40%  { transform: translate(25vw, 32vh); }   /* hover drift + 3-step turn */
-  52%  { transform: translate(58vw, 41vh); }
-  62%  { transform: translate(57vw, 40vh); }   /* hover drift + 3-step turn */
-  78%  { transform: translate(6vw, 21vh); }
-  84%  { transform: translate(7vw, 22vh); }    /* hover drift */
-  100% { transform: translate(-30vw, 28vh); }
+  6%   { transform: translate(62vw, 18vh); }
+  14%  { transform: translate(61vw, 19vh); }   /* hover A — long beam sweep */
+  18%  { transform: translate(24vw, 33vh); }
+  23%  { transform: translate(25vw, 32vh); }   /* hover B — 3-step turn */
+  28%  { transform: translate(58vw, 41vh); }
+  33%  { transform: translate(57vw, 40vh); }   /* hover C — 3-step turn */
+  37%  { transform: translate(6vw, 21vh); }
+  45%  { transform: translate(7vw, 22vh); }    /* hover — long beam sweep */
+  50%  { transform: translate(-30vw, 28vh); }  /* exit LEFT */
+  52%  { transform: translate(-30vw, 34vh); }  /* off-screen (hidden flip) */
+  58%  { transform: translate(35vw, 36vh); }
+  63%  { transform: translate(36vw, 35vh); }   /* hover D — 3-step turn */
+  67%  { transform: translate(12vw, 18vh); }
+  73%  { transform: translate(13vw, 19vh); }   /* hover E — 3-step turn */
+  79%  { transform: translate(55vw, 26vh); }
+  88%  { transform: translate(54vw, 27vh); }   /* hover F — long beam sweep */
+  100% { transform: translate(130vw, 26vh); }  /* exit RIGHT */
 }
 /* Gentle anti-grav bob layered on the patrol path */
 @keyframes ffSaucerHover {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   50%      { transform: translateY(-7px) rotate(-1.2deg); }
 }
-/* 3-step turn, side sprite: fades out while the front view takes over ->
-   returns mirrored (and back again on turn 2). Pure ~0.25s crossfades,
-   no squish — sprites stay full size. */
+/* 3-step turns, side sprite: pure ~0.25s crossfades, full size. Turns at
+   18.5/28.5/59/68%; off-screen flips at ~51% and the loop boundary. */
 @keyframes ffSaucerSideFace {
-  0%, 31.2% { opacity: 1; transform: scaleX(1); }
-  32%       { opacity: 0; transform: scaleX(1); }
-  36.2%     { opacity: 0; transform: scaleX(-1); }
-  37%       { opacity: 1; transform: scaleX(-1); }
-  53.2%     { opacity: 1; transform: scaleX(-1); }
-  54%       { opacity: 0; transform: scaleX(-1); }
-  58.2%     { opacity: 0; transform: scaleX(1); }
-  59%, 100% { opacity: 1; transform: scaleX(1); }
+  0%, 18.3% { opacity: 1; transform: scaleX(1); }
+  18.7%     { opacity: 0; transform: scaleX(1); }
+  20.7%     { opacity: 0; transform: scaleX(-1); }
+  21.1%     { opacity: 1; transform: scaleX(-1); }
+  28.3%     { opacity: 1; transform: scaleX(-1); }
+  28.7%     { opacity: 0; transform: scaleX(-1); }
+  30.7%     { opacity: 0; transform: scaleX(1); }
+  31.1%     { opacity: 1; transform: scaleX(1); }
+  50.5%     { opacity: 1; transform: scaleX(1); }
+  51.5%     { opacity: 1; transform: scaleX(-1); }  /* flip while off-screen */
+  58.8%     { opacity: 1; transform: scaleX(-1); }
+  59.2%     { opacity: 0; transform: scaleX(-1); }
+  61.2%     { opacity: 0; transform: scaleX(1); }
+  61.6%     { opacity: 1; transform: scaleX(1); }
+  67.8%     { opacity: 1; transform: scaleX(1); }
+  68.2%     { opacity: 0; transform: scaleX(1); }
+  70.2%     { opacity: 0; transform: scaleX(-1); }
+  70.6%, 100% { opacity: 1; transform: scaleX(-1); }
 }
-/* 3-step turn, front sprite: fades in mid-turn so the eye lens stares
-   straight at the user for ~1s before finishing the rotation */
+/* 3-step turns, front sprite: fades in mid-turn so the eye lens stares
+   straight at the user for ~0.9s before finishing the rotation */
 @keyframes ffSaucerFrontFace {
-  0%, 31.6%   { opacity: 0; }
-  32.4%       { opacity: 1; }
-  35.8%       { opacity: 1; }
-  36.6%       { opacity: 0; }
-  53.6%       { opacity: 0; }
-  54.4%       { opacity: 1; }
-  57.8%       { opacity: 1; }
-  58.6%, 100% { opacity: 0; }
+  0%, 18.5% { opacity: 0; }
+  18.9%     { opacity: 1; }
+  20.3%     { opacity: 1; }
+  20.9%     { opacity: 0; }
+  28.5%     { opacity: 0; }
+  28.9%     { opacity: 1; }
+  30.3%     { opacity: 1; }
+  30.9%     { opacity: 0; }
+  59%       { opacity: 0; }
+  59.4%     { opacity: 1; }
+  60.8%     { opacity: 1; }
+  61.4%     { opacity: 0; }
+  68%       { opacity: 0; }
+  68.4%     { opacity: 1; }
+  69.8%     { opacity: 1; }
+  70.4%, 100% { opacity: 0; }
+}
+/* Search-beam visibility: long ~4s scans during the hover windows (A/mid/F) */
+@keyframes ffSaucerBeamOn {
+  0%, 6.5%  { opacity: 0; }
+  7.5%      { opacity: 1; }
+  12.5%     { opacity: 1; }
+  13.5%     { opacity: 0; }
+  37.5%     { opacity: 0; }
+  38.5%     { opacity: 1; }
+  43.5%     { opacity: 1; }
+  44.5%     { opacity: 0; }
+  79.5%     { opacity: 0; }
+  80.5%     { opacity: 1; }
+  86.5%     { opacity: 1; }
+  87.5%, 100% { opacity: 0; }
+}
+/* Search-beam sweep: the cone pans side to side from its apex at the hull */
+@keyframes ffSaucerBeamSweep {
+  0%   { transform: rotate(-13deg); }
+  100% { transform: rotate(12deg); }
 }
 /* Small red anti-collision beacon dot on the hull: sharp on/off blink */
 @keyframes ffSaucerBeacon {

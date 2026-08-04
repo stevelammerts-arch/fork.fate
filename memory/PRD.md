@@ -1183,3 +1183,17 @@ See `/app/memory/test_credentials.md`.
   it was stylistic only. ffSaucerSideFace/ffSaucerFrontFace now do PURE opacity
   crossfades (~0.25s) at full sprite size; side scaleX just flips 1/-1 while hidden.
 - Verified frozen at 31.9% (mid crossfade): full-width ghosted saucer, no squish.
+
+## 2026-08-05 part 35: Search-beam + both-side entries + longer beam
+- SEARCHLIGHT: faint cyan cone (clip-path polygon, linear-gradient fade, painted
+  UNDER the sprite) sweeps down 42vh from the saucer belly during hover stops —
+  ffSaucerBeamOn (visibility windows) + ffSaucerBeamSweep 4s alternate (-13/12deg
+  pan, transformOrigin top). data-testid="cyber-saucer-beam".
+- BOTH SIDES: patrol extended to a 60s ROUND TRIP — half 1 enters RIGHT/exits left,
+  half 2 re-enters LEFT/exits right (user noticed it only came from the right).
+  4 on-screen 3-step turns (18.5/28.5/59/68%) + hidden flips off-screen at ~51%
+  and the loop boundary. All face anims re-synced at 60s.
+- LONGER BEAM (user request): hover holds A/mid/F widened; beam windows now
+  6.5-13.5 / 37.5-44.5 / 79.5-87.5% (~4.2s each, was ~1.8s).
+- Verified via computed-style probes at 10/19.6/41/84% (position, side/front
+  opacity+flip, beam opacity ALL match) + visual of hover F beam over content.
