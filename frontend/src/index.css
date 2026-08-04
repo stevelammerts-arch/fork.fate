@@ -890,35 +890,63 @@ body {
   99%{ transform: translateX(0) translateY(-6px) scaleX(-0.6); }
   100%{ transform: translateX(0) translateY(0) scaleX(-1); }
 }
-/* Rabbit sniff: tiny nose-dip pulses timed inside the patrol's sit windows
-   (8.4-25%, 30.6-47%, 58.4-75%, 80.6-97%). Run at the SAME duration+delay as
-   the wrapper's patrol animation so the twitches land while sitting. */
-@keyframes ffRabbitSniff{
-  0%,10%{ transform: rotate(0deg); }
-  11%{ transform: rotate(3deg); }
-  12%{ transform: rotate(0deg); }
-  13%{ transform: rotate(3deg); }
-  14%,20%{ transform: rotate(0deg); }
-  21%{ transform: rotate(2.5deg); }
-  22.5%,33%{ transform: rotate(0deg); }
-  34%{ transform: rotate(3deg); }
-  35%{ transform: rotate(0deg); }
-  36%{ transform: rotate(3deg); }
-  37%,42%{ transform: rotate(0deg); }
-  43%{ transform: rotate(2.5deg); }
-  44.5%,61%{ transform: rotate(0deg); }
-  62%{ transform: rotate(3deg); }
-  63%{ transform: rotate(0deg); }
-  64%{ transform: rotate(3deg); }
-  65%,70%{ transform: rotate(0deg); }
-  71%{ transform: rotate(2.5deg); }
-  72.5%,83%{ transform: rotate(0deg); }
-  84%{ transform: rotate(3deg); }
-  85%{ transform: rotate(0deg); }
-  86%{ transform: rotate(3deg); }
-  87%,92%{ transform: rotate(0deg); }
-  93%{ transform: rotate(2.5deg); }
-  94.5%,100%{ transform: rotate(0deg); }
+/* Rabbit gait + sniff: body stretches at each leap apex (legs out) and
+   gathers on landing (legs tucked), synced to the patrol hop windows; nose-dip
+   sniffs during the sit windows. Same duration+delay as the wrapper patrol. */
+@keyframes ffRabbitGait{
+  0%{ transform: scaleX(0.92) rotate(0deg); }
+  1.4%{ transform: scaleX(1.14) rotate(0deg); }
+  2.8%{ transform: scaleX(0.88) rotate(0deg); }
+  4.2%{ transform: scaleX(1.14) rotate(0deg); }
+  5.6%{ transform: scaleX(0.88) rotate(0deg); }
+  7%{ transform: scaleX(1.14) rotate(0deg); }
+  8.4%{ transform: scaleX(0.88) rotate(0deg); }
+  9.4%,10.7%{ transform: scaleX(1) rotate(0deg); }
+  11%{ transform: scaleX(1) rotate(3deg); }
+  12%{ transform: scaleX(1) rotate(0deg); }
+  13%{ transform: scaleX(1) rotate(3deg); }
+  14%,20%{ transform: scaleX(1) rotate(0deg); }
+  21%{ transform: scaleX(1) rotate(2.5deg); }
+  22.5%,24.6%{ transform: scaleX(1) rotate(0deg); }
+  25%{ transform: scaleX(0.92) rotate(0deg); }
+  26.4%{ transform: scaleX(1.14) rotate(0deg); }
+  27.8%{ transform: scaleX(0.88) rotate(0deg); }
+  29.2%{ transform: scaleX(1.14) rotate(0deg); }
+  30.6%{ transform: scaleX(0.88) rotate(0deg); }
+  31.6%,33%{ transform: scaleX(1) rotate(0deg); }
+  34%{ transform: scaleX(1) rotate(3deg); }
+  35%{ transform: scaleX(1) rotate(0deg); }
+  36%{ transform: scaleX(1) rotate(3deg); }
+  37%,42%{ transform: scaleX(1) rotate(0deg); }
+  43%{ transform: scaleX(1) rotate(2.5deg); }
+  44.5%,49.6%{ transform: scaleX(1) rotate(0deg); }
+  50%{ transform: scaleX(0.92) rotate(0deg); }
+  51.4%{ transform: scaleX(1.14) rotate(0deg); }
+  52.8%{ transform: scaleX(0.88) rotate(0deg); }
+  54.2%{ transform: scaleX(1.14) rotate(0deg); }
+  55.6%{ transform: scaleX(0.88) rotate(0deg); }
+  57%{ transform: scaleX(1.14) rotate(0deg); }
+  58.4%{ transform: scaleX(0.88) rotate(0deg); }
+  59.4%,61%{ transform: scaleX(1) rotate(0deg); }
+  62%{ transform: scaleX(1) rotate(3deg); }
+  63%{ transform: scaleX(1) rotate(0deg); }
+  64%{ transform: scaleX(1) rotate(3deg); }
+  65%,70%{ transform: scaleX(1) rotate(0deg); }
+  71%{ transform: scaleX(1) rotate(2.5deg); }
+  72.5%,74.6%{ transform: scaleX(1) rotate(0deg); }
+  75%{ transform: scaleX(0.92) rotate(0deg); }
+  76.4%{ transform: scaleX(1.14) rotate(0deg); }
+  77.8%{ transform: scaleX(0.88) rotate(0deg); }
+  79.2%{ transform: scaleX(1.14) rotate(0deg); }
+  80.6%{ transform: scaleX(0.88) rotate(0deg); }
+  81.6%,83%{ transform: scaleX(1) rotate(0deg); }
+  84%{ transform: scaleX(1) rotate(3deg); }
+  85%{ transform: scaleX(1) rotate(0deg); }
+  86%{ transform: scaleX(1) rotate(3deg); }
+  87%,92%{ transform: scaleX(1) rotate(0deg); }
+  93%{ transform: scaleX(1) rotate(2.5deg); }
+  94.5%,99.5%{ transform: scaleX(1) rotate(0deg); }
+  100%{ transform: scaleX(0.92) rotate(0deg); }
 }
 /* Fall squirrel: quick low dashes between the pumpkins, freezes in between */
 @keyframes ffSquirrelDart{
@@ -1110,6 +1138,41 @@ body {
 @keyframes ffBallSpin{
   0%{ transform: rotate(0deg); }
   100%{ transform: rotate(360deg); }
+}
+/* Snowman wave: stick arm fades in raised at the shoulder and waves a few
+   times, once per long cycle */
+@keyframes ffSnowmanWave{
+  0%,77.5%{ opacity: 0; transform: rotate(-10deg); }
+  78.3%{ opacity: 1; transform: rotate(-10deg); }
+  79.3%{ opacity: 1; transform: rotate(18deg); }
+  80.3%{ opacity: 1; transform: rotate(-12deg); }
+  81.3%{ opacity: 1; transform: rotate(18deg); }
+  82.3%{ opacity: 1; transform: rotate(-12deg); }
+  83.3%{ opacity: 1; transform: rotate(14deg); }
+  84.3%{ opacity: 1; transform: rotate(-6deg); }
+  85.3%,100%{ opacity: 0; transform: rotate(-10deg); }
+}
+/* Falling coconut: drops from the palm's coconut cluster once per cycle,
+   accelerating, thuds into the sand (squash + tiny bounce + sand puff),
+   rests, fades away. Fall distance responsive via --ff-coco-fall. */
+.ff-coconut{ --ff-coco-fall: 33vh; }
+@media (min-width: 640px){ .ff-coconut{ --ff-coco-fall: 54vh; } }
+@keyframes ffCoconutFall{
+  0%,72.8%{ transform: translateY(0) scaleY(1); opacity: 0; }
+  73%{ transform: translateY(0) scaleY(1); opacity: 1; animation-timing-function: cubic-bezier(0.45,0,0.85,0.35); }
+  77.5%{ transform: translateY(var(--ff-coco-fall)) scaleY(1); opacity: 1; }
+  77.9%{ transform: translateY(var(--ff-coco-fall)) scaleY(0.72); }
+  78.7%{ transform: translateY(calc(var(--ff-coco-fall) - 12px)) scaleY(1); }
+  79.5%{ transform: translateY(var(--ff-coco-fall)) scaleY(0.94); }
+  80%{ transform: translateY(var(--ff-coco-fall)) scaleY(1); }
+  88%{ transform: translateY(var(--ff-coco-fall)) scaleY(1); opacity: 1; }
+  90%,100%{ transform: translateY(var(--ff-coco-fall)) scaleY(1); opacity: 0; }
+}
+@keyframes ffCocoPuff{
+  0%,77.4%{ opacity: 0; transform: translateX(-50%) scale(0.3); }
+  77.9%{ opacity: 0.75; transform: translateX(-50%) scale(0.6); }
+  79.5%{ opacity: 0; transform: translateX(-50%) scale(1.7); }
+  100%{ opacity: 0; transform: translateX(-50%) scale(1.7); }
 }
 
 /* ── Cyberpunk accent recolor: neon cyan (dark surfaces preserved) ── */

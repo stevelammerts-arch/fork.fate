@@ -1079,3 +1079,18 @@ See `/app/memory/test_credentials.md`.
   folded-wings sprite. ffCardinalFlap deepened (scaleY 1->0.5, rotate 1->-5deg), sped
   0.32s->0.24s, crossfades snapped to takeoff moment (26.3% A / 67.3% B). Verified
   live: scaleY oscillates 1->0.5->1 @ ~2 beats/s during fly-out, opacity 1.
+
+## 2026-08-05 part 28: Rabbit leg gait, snowman wave, falling coconut
+- Rabbit gait: ffRabbitSniff REPLACED by ffRabbitGait (18s/20s synced to patrol) —
+  scaleX stretch 1.14 at each leap apex, gather 0.88 on landing (legs out/in look),
+  sniff rotates kept in sit windows. Probe-verified (apex 1.14 / land 0.88 / sit 1.0).
+- Snowman wave: NEW winter-arm.png twig sprite (gen_wave_coconut.py). Rendered in
+  cabin container (cfg.snowmanArm, w-[6%] left 11.5% top 61.5%, pivot 92%/92%,
+  data-testid="winter-snowman-arm"). ffSnowmanWave (34s): fades in raised at the
+  viewer-left shoulder ~78%, waves 3x (rotate -12..18deg, 0.34s swings), fades out.
+  Placement verified via zoomed cabin screenshot.
+- Falling coconut: NEW summer-coconut.png. Element .ff-coconut anchored at palm
+  cluster (left-63%/top-60.5% mobile, 89%/39.5% desktop, data-testid="summer-coconut");
+  ffCoconutFall (18s): appears 73%, ease-in fall (--ff-coco-fall: 33vh mobile/54vh sm
+  via media query), squash thud + 12px bounce + ffCocoPuff sand puff at 78%, rests,
+  fades 90%. Probe-verified fall path + landing at trunk base.

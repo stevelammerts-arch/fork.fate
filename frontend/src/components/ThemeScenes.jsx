@@ -48,7 +48,7 @@ export const SEASONS = {
   winter: {
     grad: "linear-gradient(180deg,#EAF3FA 0%,#DCEAF5 55%,#CFE0EE 100%)",
     tree: "/winter-tree.png", treeSide: "left", treeFlip: true, treeZ: "z-[2]",
-    decorRight: "/winter-decor.png", decorRightBig: true, decorRightPos: "right-[-10%] sm:right-[-5%]", santa: "/santa-sleigh.png", chimney: { left: "58.5%", top: "16%" }, cardinal: "/winter-cardinal.png",
+    decorRight: "/winter-decor.png", decorRightBig: true, decorRightPos: "right-[-10%] sm:right-[-5%]", santa: "/santa-sleigh.png", chimney: { left: "58.5%", top: "16%" }, cardinal: "/winter-cardinal.png", snowmanArm: "/winter-arm.png",
     items: ["/flake-blue.png", "/flake-white.png", "/flake-silver.png"], falling: true, hint: "#2E77A6",
   },
   spring: {
@@ -59,7 +59,7 @@ export const SEASONS = {
   summer: {
     grad: "linear-gradient(180deg,#BFE8F7 0%,#8FD3EE 44%,#5FB8D9 62%,#F3E2B3 62%,#EAD199 100%)",
     tree: "/summer-tree.png", treeH: "h-[60svh] sm:h-[92vh] z-[3]", treeOpacity: 0.92, ocean: true, decorLeft: "/summer-decor.png", decorLeftBig: true, decorLeftW: "w-[50vw] max-w-none sm:w-[46vw]", decorLeftOpacity: 0.92, decorLeftZ: "z-[3]", sun: "/summer-sun.png", birds: "/summer-seagull.png",
-    items: ["/summer-sun.png", "/summer-ball.png", "/summer-icecream.png"], falling: false, hint: "#E07E17", crabs: "/summer-crab.png",
+    items: ["/summer-sun.png", "/summer-ball.png", "/summer-icecream.png"], falling: false, hint: "#E07E17", crabs: "/summer-crab.png", coconut: "/summer-coconut.png",
   },
 };
 
@@ -105,6 +105,11 @@ export function SeasonScene({ theme, cfg }) {
           {CHIMNEY_SMOKE.map((s, i) => (
             <span key={`smoke-${i}`} className="ff-chimney-smoke" style={{ left: cfg.chimney.left, top: cfg.chimney.top, width: s.size, height: s.size, animationDuration: `${s.dur}s`, animationDelay: `${s.delay}s` }} />
           ))}
+          {cfg.snowmanArm && (
+            <div className="absolute w-[6%]" style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%", opacity: 0 }} data-testid="winter-snowman-arm">
+              <img src={cfg.snowmanArm} alt="" className="w-full" />
+            </div>
+          )}
           {cfg.cardinal && (
             <div className="absolute w-[6.5%]" style={{ left: "43%", top: "14%", animation: "ffCardinalVisitA 52s linear infinite" }} data-testid="winter-cardinal">
               <img src="/winter-cardinal-fly.png" alt="" className="w-full" style={{ animation: "ffCardinalFlyShowA 52s linear infinite, ffCardinalFlap 0.24s ease-in-out infinite alternate", transformOrigin: "50% 60%" }} />
@@ -119,10 +124,10 @@ export function SeasonScene({ theme, cfg }) {
       {cfg.rabbits && (<>
         {/* two tiny cottontails: one patrols the gazebo lawn, one the tree side */}
         <div className="absolute bottom-[2.5%] left-[14%] z-[3]" style={{ animation: "ffRabbitPatrol 18s linear infinite" }} data-testid="spring-rabbit-1">
-          <img src={cfg.rabbits} alt="" className="w-10 opacity-80 sm:w-12" style={{ animation: "ffRabbitSniff 18s linear infinite", transformOrigin: "50% 100%" }} />
+          <img src={cfg.rabbits} alt="" className="w-10 opacity-80 sm:w-12" style={{ animation: "ffRabbitGait 18s linear infinite", transformOrigin: "50% 100%" }} />
         </div>
         <div className="absolute bottom-[5%] right-[30%] z-[3]" style={{ animation: "ffRabbitPatrolL 20s linear infinite", animationDelay: "2.5s" }} data-testid="spring-rabbit-2">
-          <img src={cfg.rabbits} alt="" className="w-8 opacity-75 sm:w-10" style={{ animation: "ffRabbitSniff 20s linear infinite", animationDelay: "2.5s", transformOrigin: "50% 100%" }} />
+          <img src={cfg.rabbits} alt="" className="w-8 opacity-75 sm:w-10" style={{ animation: "ffRabbitGait 20s linear infinite", animationDelay: "2.5s", transformOrigin: "50% 100%" }} />
         </div>
       </>)}
       {cfg.scarecrow && (
@@ -155,6 +160,13 @@ export function SeasonScene({ theme, cfg }) {
             <img src="/summer-ball.png" alt="" className="w-10 opacity-90 sm:w-12" style={{ animation: "ffBallSpin 2.2s linear infinite" }} />
           </div>
         </div>
+        {/* a coconut drops from the palm now and then and thuds into the sand */}
+        {cfg.coconut && (
+          <div className="ff-coconut absolute z-[2] w-4 left-[63%] top-[60.5%] sm:w-5 sm:left-[89%] sm:top-[39.5%]" style={{ animation: "ffCoconutFall 18s linear infinite", opacity: 0 }} data-testid="summer-coconut">
+            <img src={cfg.coconut} alt="" className="w-full" />
+            <span className="absolute -bottom-1 left-1/2 h-2 w-6 rounded-full bg-[#E8D5A8] opacity-0" style={{ animation: "ffCocoPuff 18s linear infinite", filter: "blur(1.5px)" }} />
+          </div>
+        )}
       </>)}
       {cfg.moon && <div className="absolute top-[6%] left-[24%] z-[1] aspect-square w-[24vw] rounded-full sm:left-[27%] sm:w-[14vw]" style={{ background: "radial-gradient(circle at 42% 40%, #FCF4DA 0%, #EDDCAB 60%, #D6C084 100%)", boxShadow: "0 0 90px 34px rgba(255,240,205,0.38), 0 0 44px 14px rgba(255,246,222,0.55)", opacity: 0.6 }} />}
       {cfg.owl && <img src={cfg.owl} alt="" className="absolute top-[13%] left-[30%] z-[2] w-[13vw] max-w-[150px] object-contain opacity-[0.72] sm:w-[9vw]" />}
