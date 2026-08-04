@@ -878,6 +878,54 @@ body {
   97%{ transform: translateX(0) translateY(0) scaleX(1); }
   100%{ transform: translateX(0) translateY(0) scaleX(-1); }
 }
+/* Rabbit sniff: tiny nose-dip pulses timed inside the patrol's sit windows
+   (8.4-25%, 30.6-47%, 58.4-75%, 80.6-97%). Run at the SAME duration+delay as
+   the wrapper's patrol animation so the twitches land while sitting. */
+@keyframes ffRabbitSniff{
+  0%,10%{ transform: rotate(0deg); }
+  11%{ transform: rotate(3deg); }
+  12%{ transform: rotate(0deg); }
+  13%{ transform: rotate(3deg); }
+  14%,20%{ transform: rotate(0deg); }
+  21%{ transform: rotate(2.5deg); }
+  22.5%,33%{ transform: rotate(0deg); }
+  34%{ transform: rotate(3deg); }
+  35%{ transform: rotate(0deg); }
+  36%{ transform: rotate(3deg); }
+  37%,42%{ transform: rotate(0deg); }
+  43%{ transform: rotate(2.5deg); }
+  44.5%,61%{ transform: rotate(0deg); }
+  62%{ transform: rotate(3deg); }
+  63%{ transform: rotate(0deg); }
+  64%{ transform: rotate(3deg); }
+  65%,70%{ transform: rotate(0deg); }
+  71%{ transform: rotate(2.5deg); }
+  72.5%,83%{ transform: rotate(0deg); }
+  84%{ transform: rotate(3deg); }
+  85%{ transform: rotate(0deg); }
+  86%{ transform: rotate(3deg); }
+  87%,92%{ transform: rotate(0deg); }
+  93%{ transform: rotate(2.5deg); }
+  94.5%,100%{ transform: rotate(0deg); }
+}
+/* Fall squirrel: quick low dashes between the pumpkins, freezes in between */
+@keyframes ffSquirrelDart{
+  0%{ transform: translateX(0) translateY(0) scaleX(1); }
+  2%{ transform: translateX(7vw) translateY(-3px) scaleX(1); }
+  4%{ transform: translateX(14vw) translateY(0) scaleX(1); }
+  22%{ transform: translateX(14vw) translateY(0) scaleX(1); }
+  24%{ transform: translateX(21vw) translateY(-3px) scaleX(1); }
+  26%{ transform: translateX(28vw) translateY(0) scaleX(1); }
+  46%{ transform: translateX(28vw) translateY(0) scaleX(1); }
+  49%{ transform: translateX(28vw) translateY(0) scaleX(-1); }
+  51%{ transform: translateX(21vw) translateY(-3px) scaleX(-1); }
+  53%{ transform: translateX(14vw) translateY(0) scaleX(-1); }
+  72%{ transform: translateX(14vw) translateY(0) scaleX(-1); }
+  74%{ transform: translateX(7vw) translateY(-3px) scaleX(-1); }
+  76%{ transform: translateX(0) translateY(0) scaleX(-1); }
+  97%{ transform: translateX(0) translateY(0) scaleX(-1); }
+  100%{ transform: translateX(0) translateY(0) scaleX(1); }
+}
 
 /* ── Cyberpunk accent recolor: neon cyan (dark surfaces preserved) ── */
 [data-ff-theme="cyber"] [data-ff-scope="app"] .bg-\[\#E01E26\]{background-color:#15C8D6 !important;}

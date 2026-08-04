@@ -989,3 +989,18 @@ See `/app/memory/test_credentials.md`.
   hop hop -> sit ~3s -> turn -> repeat". Each hop stays quick (~0.5s, 4.4vw, -7px arc).
   ffRabbitPatrol/ffRabbitPatrolL rewritten (18s/20s cycles, movement only while airborne).
   Verified via 0.25s x-sampling: 3-hop burst (51px/1.5s), dead-still 3s pause, 2-hop burst.
+
+## 2026-08-05 part 22: Fall squirrel + rabbit sniff (post-publish batch)
+- User published to production (fork-fate.com); these changes are preview-only until next publish.
+- NEW fall-squirrel.png (Nano Banana via gen_squirrel.py, magenta-keyed, despilled, 260px/54KB).
+  Renders in fall scene (ThemeScenes.jsx, cfg.squirrel, z-[4], bottom-1.5% left-20%,
+  data-testid="fall-squirrel") with ffSquirrelDart keyframes (14s): quick 0.5s dashes
+  of 14vw between ~2.5s freezes, crossing the centre pumpkin cluster, flips at ends.
+  Verified live: x-sampling shows freeze->dash->freeze.
+- Rabbit sniff: ffRabbitSniff keyframes — 2-3 quick 3deg nose-dip pulses (origin feet)
+  timed inside the patrol sit windows (8.4-25/30.6-47/58.4-75/80.6-97%). Applied to
+  rabbit imgs at SAME duration+delay as wrapper patrol (18s / 20s+2.5s) so they stay
+  synced. Verified live: rotation sampling shows pulses only while sitting.
+- "Share A Fate" task found ALREADY BUILT: FateActionsDropdown "Share as image" ->
+  buildFateCard (pages/homeFateCard.js) renders themed 1080x1080 cards per realm with
+  QR; socials use /api/share dynamic OG tags. No work needed.

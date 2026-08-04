@@ -42,7 +42,7 @@ const CAVE_DRIPS = [
 export const SEASONS = {
   fall: {
     grad: "linear-gradient(180deg,#FBF3E8 0%,#F5E6D0 55%,#EFDCC0 100%)",
-    tree: "/fall-tree.png", treeOpacity: 0.72, ground: "/fall-ground.png", groundH: "h-[34vh]", groundOpacity: 0.9, decorRight: "/fall-jackolanterns.png", decorRightGlow: true, decorRightOpacity: 0.72, scarecrow: "/fall-scarecrow.png", groundPumpkins: true, owl: "/fall-owl.png", moon: true,
+    tree: "/fall-tree.png", treeOpacity: 0.72, ground: "/fall-ground.png", groundH: "h-[34vh]", groundOpacity: 0.9, decorRight: "/fall-jackolanterns.png", decorRightGlow: true, decorRightOpacity: 0.72, scarecrow: "/fall-scarecrow.png", groundPumpkins: true, owl: "/fall-owl.png", moon: true, squirrel: "/fall-squirrel.png",
     items: ["/leaf-red.png", "/leaf-orange.png", "/leaf-yellow.png", "/leaf-brown.png"], falling: true, hint: "#C0451B",
   },
   winter: {
@@ -105,10 +105,10 @@ export function SeasonScene({ theme, cfg }) {
       {cfg.rabbits && (<>
         {/* two tiny cottontails: one patrols the gazebo lawn, one the tree side */}
         <div className="absolute bottom-[2.5%] left-[14%] z-[3]" style={{ animation: "ffRabbitPatrol 18s linear infinite" }} data-testid="spring-rabbit-1">
-          <img src={cfg.rabbits} alt="" className="w-10 opacity-80 sm:w-12" />
+          <img src={cfg.rabbits} alt="" className="w-10 opacity-80 sm:w-12" style={{ animation: "ffRabbitSniff 18s linear infinite", transformOrigin: "50% 100%" }} />
         </div>
         <div className="absolute bottom-[5%] right-[30%] z-[3]" style={{ animation: "ffRabbitPatrolL 20s linear infinite", animationDelay: "2.5s" }} data-testid="spring-rabbit-2">
-          <img src={cfg.rabbits} alt="" className="w-8 opacity-75 sm:w-10" />
+          <img src={cfg.rabbits} alt="" className="w-8 opacity-75 sm:w-10" style={{ animation: "ffRabbitSniff 20s linear infinite", animationDelay: "2.5s", transformOrigin: "50% 100%" }} />
         </div>
       </>)}
       {cfg.scarecrow && (
@@ -119,6 +119,11 @@ export function SeasonScene({ theme, cfg }) {
         </div>
       )}
       {cfg.groundPumpkins && <img src="/fall-pumpkins-mid.png" alt="" className="absolute bottom-0 left-1/2 z-[3] w-[35vw] max-w-none -translate-x-1/2 object-contain opacity-[0.72] sm:w-[21vw]" style={{ animation: "ffGlow 3.4s ease-in-out infinite" }} />}
+      {cfg.squirrel && (
+        <div className="absolute bottom-[1.5%] left-[20%] z-[4]" style={{ animation: "ffSquirrelDart 14s linear infinite" }} data-testid="fall-squirrel">
+          <img src={cfg.squirrel} alt="" className="w-14 opacity-80 sm:w-16" />
+        </div>
+      )}
       {cfg.moon && <div className="absolute top-[6%] left-[24%] z-[1] aspect-square w-[24vw] rounded-full sm:left-[27%] sm:w-[14vw]" style={{ background: "radial-gradient(circle at 42% 40%, #FCF4DA 0%, #EDDCAB 60%, #D6C084 100%)", boxShadow: "0 0 90px 34px rgba(255,240,205,0.38), 0 0 44px 14px rgba(255,246,222,0.55)", opacity: 0.6 }} />}
       {cfg.owl && <img src={cfg.owl} alt="" className="absolute top-[13%] left-[30%] z-[2] w-[13vw] max-w-[150px] object-contain opacity-[0.72] sm:w-[9vw]" />}
       {cfg.falling && FALLING_SPRITES.map((l, i) => (
