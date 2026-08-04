@@ -824,3 +824,13 @@ See `/app/memory/test_credentials.md`.
 - flourish-steam.mp3 (user-uploaded mechanical clamp, 4.75s) plays with SteamBurst
   (new `sound` prop, default true, muted-aware, 150ms delay). CrankGear passes
   sound={false} (already plays reveal-steam.wav hiss).
+
+## 2026-08-04 part 9: TikiShaker rare ritual + tiki flourish sting
+- TikiShaker.jsx: Tiki Lounge rare ritual — carved SVG tiki mug (lime+straw), tap to
+  shake (maraca noise-burst rattle via WebAudio, wobble grows per shake, 6 dots
+  progress). After 6 shakes: mug tips 112deg, tropical stream + splash pour out,
+  reveal-drums-boom.wav, onDone 2s. Pool: tiki [scratch,8ball,wheel,shaker].
+  Testids: tiki-shaker-cover/-mug/-prompt/-done, tiki-shake-dots, tiki-pour-stream.
+- flourish-tiki.mp3 (user's happy tropical island sting, 5.4s) plays with the
+  Fireflies flourish (muted-aware, no cutoff once started). ES translations added.
+- Verified live end-to-end in tiki theme (force ff_rare_force='shaker').

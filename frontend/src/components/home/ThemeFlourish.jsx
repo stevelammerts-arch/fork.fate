@@ -47,6 +47,19 @@ function FallingBurst({ kind, height }) {
 
 /** Tiki: warm fireflies blinking and drifting over the card. */
 function Fireflies() {
+  // Happy tropical island sting rides the firefly flourish (user-uploaded clip).
+  useEffect(() => {
+    let sting = null;
+    try {
+      if (localStorage.getItem("ff_muted") !== "1") {
+        sting = new Audio("/flourish-tiki.mp3");
+        sting.volume = 0.55;
+      }
+    } catch (e) { /* audio */ }
+    let started = false;
+    const tm = setTimeout(() => { started = true; sting?.play().catch(() => {}); }, 200);
+    return () => { clearTimeout(tm); if (!started) sting?.pause(); };
+  }, []);
   return Array.from({ length: 11 }, (_, i) => {
     const s = 4 + rnd(i, 1) * 3;
     return (
