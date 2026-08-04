@@ -45,10 +45,11 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   useEffect(() => {
     if (!FLOURISH_THEMES.has(theme) || isCovered || resultId == null) return;
     setSteaming(true);
-    // Cyber's matrix rain keeps falling for the life of the card; all other
-    // flourishes are one-shot bursts that clear after ~4.2s.
+    // Cyber's matrix rain keeps falling for the life of the card; the reaper's
+    // staggered ghosts + 8.4s wail get a longer window; all other flourishes
+    // are one-shot bursts that clear after ~4.2s.
     if (theme === "cyber") return;
-    const timer = setTimeout(() => setSteaming(false), 4200);
+    const timer = setTimeout(() => setSteaming(false), theme === "dark" ? 8800 : 4200);
     return () => clearTimeout(timer);
   }, [resultId, isCovered, theme]);
   if (!result && groupPicks && groupPicks.length > 0) {

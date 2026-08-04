@@ -924,3 +924,26 @@ See `/app/memory/test_credentials.md`.
   fade-out to match the ~4.2s petal burst. FallingBurst now uses a
   FALLING_STINGS map (winter + spring). Verified: file serves 200, flourish
   mounts ~3s after deal in spring theme.
+
+## 2026-08-04 part 15: Reaper ghost overhaul + soul wail deepened
+- GhostRise flourish: SVG blob ghosts replaced with 2 AI-generated painterly
+  wraith sprites (/reaper-ghost-1.png skull-faced sheet ghost, /reaper-ghost-2.png
+  hooded phantom) matching user reference images. Magenta despill pass applied
+  (scripts/despill_ghosts.py). 3 ghosts alternate the 2 sprites.
+- soul-wail.wav reworked per user: pitched deeper (x0.76), louder (peak-normalized
+  + playback volume 0.5 -> 0.8), longer (4.2s -> 8.4s) with aecho decay tail fading
+  to true silence. Backup of original at /tmp/soul-wail-backup.wav (session only).
+- Fixed moan cutoff: GhostRise unmount no longer pauses a started wail (same
+  pattern as MatrixRain/Fireflies) — moans now ring out until hushed.
+- Verified in-app: ghosts render over dark-theme reveal at ~5s, no console errors.
+
+## 2026-08-04 part 16: Ghost choreography
+- GhostRise: 3 window ghosts now each own a third of the photo (left 5/36/67% + jitter)
+  and rise on separate beats (delays 0 / 1.6 / 3.2s, ~4.2-5s durations).
+- Dark theme flourish window extended 4.2s -> 8.8s (RevealStage steaming timer) so the
+  staggered ghosts complete and match the 8.4s soul wail.
+- NEW GhostEscort (exported from ThemeFlourish.jsx): hooded phantom (/reaper-ghost-2.png)
+  floats up OUTSIDE the photo along the reveal card's right edge, spilling past the card
+  boundary. Mounted in Home.jsx inside the white shell (relative, no overflow clipping),
+  gated on theme==='dark' && result && !surpriseReveal, keyed per result. Verified via
+  staggered screenshots.

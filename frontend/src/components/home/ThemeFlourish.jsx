@@ -229,72 +229,45 @@ function LatteArt({ compact = false }) {
 /** Reaper: departed souls — translucent HUMAN apparitions (head, shoulders,
  * hanging arms) whose lower body dissolves into vapor tendrils. Soft human
  * faces — mournful, not skulls. A faint wail plays as they drift up. */
+/** Reaper: tattered spectral wraiths (AI-generated painterly renders) rise
+ * and drift over the card while a deep soul-wail plays out. */
+const GHOST_SPRITES = ["/reaper-ghost-1.png", "/reaper-ghost-2.png"];
 function GhostRise() {
+  // Cleanup only cancels a not-yet-started play — once wailing, the deep
+  // wail (8.4s, echo tail fading to silence) outlives the flourish and
+  // rings out until hushed.
   useEffect(() => {
     const wail = new Audio("/soul-wail.wav");
-    wail.volume = 0.5;
-    const tm = setTimeout(() => wail.play().catch(() => {}), 350);
-    return () => { clearTimeout(tm); wail.pause(); };
+    wail.volume = 0.8;
+    let started = false;
+    const tm = setTimeout(() => { started = true; wail.play().catch(() => {}); }, 350);
+    return () => { clearTimeout(tm); if (!started) wail.pause(); };
   }, []);
   return Array.from({ length: 3 }, (_, i) => {
-    const w = 62 + rnd(i, 1) * 30;
+    const w = 74 + rnd(i, 1) * 34;
     const sway = 8 + rnd(i, 2) * 12;
     return (
       <motion.div
         key={i}
         className="absolute"
-        style={{ left: `${8 + rnd(i, 3) * 60}%`, bottom: -28, width: w, height: w * 2.35, filter: "blur(1.3px) drop-shadow(0 0 14px rgba(190,208,235,0.35))" }}
+        // Each ghost owns a third of the window and rises on its own beat.
+        style={{ left: `${5 + i * 31 + rnd(i, 3) * 6}%`, bottom: -28, width: w, filter: "blur(0.5px) drop-shadow(0 0 16px rgba(190,208,235,0.4))" }}
         initial={{ y: 60, opacity: 0, scaleY: 0.9 }}
         animate={{
           y: -240 - rnd(i, 4) * 70,
           x: [0, sway, -sway * 0.5, sway * 0.3],
-          opacity: [0, 0.75, 0.6, 0.68, 0.5, 0],
-          scaleY: [0.9, 1, 1.12],
+          opacity: [0, 0.85, 0.7, 0.78, 0.6, 0],
+          scaleY: [0.9, 1, 1.08],
           rotate: [0, rnd(i, 7) > 0.5 ? 2 : -2, 0],
         }}
-        transition={{ delay: rnd(i, 5) * 1.7, duration: 4.6 + rnd(i, 6) * 1.4, ease: "easeOut" }}
+        transition={{ delay: i * 1.6 + rnd(i, 5) * 0.4, duration: 4.2 + rnd(i, 6) * 0.8, ease: "easeOut" }}
       >
-        <svg viewBox="0 0 60 140" className="h-full w-full" style={{ overflow: "visible" }}>
-          <defs>
-            <radialGradient id={`ff-soul-${i}`} cx="50%" cy="12%" r="85%">
-              <stop offset="0%" stopColor="rgba(238,244,253,0.88)" />
-              <stop offset="35%" stopColor="rgba(219,230,246,0.5)" />
-              <stop offset="70%" stopColor="rgba(210,224,243,0.18)" />
-              <stop offset="100%" stopColor="rgba(206,221,241,0)" />
-            </radialGradient>
-            <filter id={`ff-soul-warp-${i}`} x="-40%" y="-20%" width="180%" height="145%">
-              <feTurbulence type="fractalNoise" baseFrequency="0.013 0.04" numOctaves="2" seed={i * 7 + 3} result="noise">
-                <animate attributeName="baseFrequency" dur="6s" values="0.013 0.04;0.02 0.055;0.013 0.04" repeatCount="indefinite" />
-              </feTurbulence>
-              <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" />
-              <feGaussianBlur stdDeviation="0.7" />
-            </filter>
-            <filter id={`ff-soul-face-${i}`} x="-30%" y="-30%" width="160%" height="160%">
-              <feGaussianBlur stdDeviation="0.35" />
-            </filter>
-          </defs>
-          <g filter={`url(#ff-soul-warp-${i})`}>
-            {/* Human figure: head with jaw, neck, sloped shoulders, arms at the
-                sides, torso dissolving into three vapor tendrils */}
-            <path
-              d="M30 3 C23.5 3 19.5 8 19.5 14.5 C19.5 19 21 22.5 23.5 24.8 L24 27 C17 28.6 11 32.5 9 39 C7.2 45 7.5 52 9.5 59 C11 64.5 13 72 15 82 C16.8 78 17.8 72 19 67 C20.5 74 22.5 84 25.5 93 C27.3 87 28.3 79 29 72 C30.2 79 31.5 88 34.5 95 C36.5 88 37.8 79 39 71 C40.4 76 41.6 81 43.5 85 C45.5 77 47.5 68 49.5 60 C51.5 52.5 52.5 45 50.8 39 C49 32.5 43 28.6 36 27 L36.5 24.8 C39 22.5 40.5 19 40.5 14.5 C40.5 8 36.5 3 30 3 Z"
-              fill={`url(#ff-soul-${i})`}
-            />
-            {/* Suggestion of arms folded toward the chest */}
-            <path d="M14 42 Q20 49 28 51 M46 42 Q40 49 32 51" stroke="rgba(12,15,22,0.18)" strokeWidth="2.4" fill="none" strokeLinecap="round" />
-          </g>
-          {/* Soft human face: mournful closed-lid eyes, gentle nose and a small
-              open mouth — a person, not a skull */}
-          <g filter={`url(#ff-soul-face-${i})`}>
-            <ellipse cx="25.6" cy="13.5" rx="2.5" ry="1.5" fill="rgba(10,13,20,0.6)" />
-            <ellipse cx="34.4" cy="13.5" rx="2.5" ry="1.5" fill="rgba(10,13,20,0.6)" />
-            <path d="M23 12.1 Q25.6 10.9 28.2 12.1 M31.8 12.1 Q34.4 10.9 37 12.1" stroke="rgba(10,13,20,0.35)" strokeWidth="0.9" fill="none" strokeLinecap="round" />
-            <path d="M30 14.5 L29.3 18.6 Q30 19.3 30.7 18.6 Z" fill="rgba(10,13,20,0.28)" />
-            <ellipse cx="30" cy="21.6" rx="2" ry="1.5" fill="rgba(8,10,16,0.5)" />
-            {/* Cheek light so the face lifts out of the mist */}
-            <path d="M22.5 16.5 Q24 19.5 26.5 20.8 M37.5 16.5 Q36 19.5 33.5 20.8" stroke="rgba(242,247,255,0.45)" strokeWidth="1" fill="none" strokeLinecap="round" />
-          </g>
-        </svg>
+        <img
+          src={GHOST_SPRITES[i % GHOST_SPRITES.length]}
+          alt=""
+          className="w-full select-none object-contain"
+          draggable={false}
+        />
       </motion.div>
     );
   });
@@ -386,6 +359,31 @@ function BeachBalls({ height }) {
       />
     );
   });
+}
+
+/** Reaper: one hooded phantom drifting up OUTSIDE the photo window — it
+ * hugs the card's right edge, spilling past the card boundary, while the
+ * in-window ghosts rise. Mounted by Home next to the reveal shell (which
+ * has no overflow clipping). Self-timed to the 8.4s wail. */
+export function GhostEscort() {
+  return (
+    <motion.div
+      className="pointer-events-none absolute z-20"
+      style={{ right: -26, top: 150, width: 88, filter: "blur(0.4px) drop-shadow(0 0 18px rgba(160,180,215,0.45))" }}
+      initial={{ y: 150, opacity: 0 }}
+      animate={{
+        y: -290,
+        x: [0, -14, 8, -10, 0],
+        opacity: [0, 0.9, 0.75, 0.85, 0.6, 0],
+        rotate: [0, -3, 2, -2, 0],
+      }}
+      transition={{ delay: 0.9, duration: 7.4, ease: "easeOut" }}
+      aria-hidden="true"
+      data-testid="ghost-escort"
+    >
+      <img src="/reaper-ghost-2.png" alt="" className="w-full select-none object-contain" draggable={false} />
+    </motion.div>
+  );
 }
 
 /** Themes that fire a one-shot flourish when the winner card lands / reveals. */

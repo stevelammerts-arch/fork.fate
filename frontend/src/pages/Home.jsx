@@ -20,6 +20,7 @@ import { HomeFooter } from "../components/home/HomeFooter";
 import PubCrawlDialog from "../components/PubCrawlDialog";
 import RevealStage from "../components/home/RevealStage";
 import { PassportPicker } from "../components/home/PassportPicker";
+import { GhostEscort } from "../components/home/ThemeFlourish";
 import { GroupPicker } from "../components/home/GroupPicker";
 import { haptic } from "../lib/pwa";
 import {
@@ -1433,6 +1434,7 @@ export default function Home() {
               )}
             </AnimatePresence>
             <div ref={resultRef} className="relative z-10 min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
+              {theme === "dark" && result && !surpriseReveal && <GhostEscort key={`esc-${result.id}`} />}
               <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} light={light} theme={theme} onReset={() => { setResult(null); setGroupPicks(null); setLocked(false); setSurpriseReveal(null); setRerollsLeft(3); }} onReSpin={reSpin} onReport={reportClosed} onPick={setResult} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} onDare={doubleOrNothing} dareAvailable={results.length > 1} locked={locked} rerollsLeft={rerollsLeft} onSwipeReroll={swipeReroll} surprise={surpriseReveal} onSurpriseDone={surpriseDone} />
             </div>
           </div>
