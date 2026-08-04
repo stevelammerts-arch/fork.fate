@@ -53,7 +53,7 @@ export function SeanceCandles({ onDone }) {
 
   useEffect(() => () => { doneRef.current = true; }, []);
 
-  const heights = [64, 84, 72, 92, 60]; // uneven candle heights
+  const heights = [76, 100, 86, 110, 70]; // uneven candle heights (realistic 3D render)
 
   return (
     <motion.div
@@ -96,8 +96,8 @@ export function SeanceCandles({ onDone }) {
               className="relative flex cursor-pointer flex-col items-center"
               style={{ opacity: dark ? 0.25 : 1, transition: "opacity 0.6s" }}
             >
-              {/* flame / smoke */}
-              <div className="relative h-9 w-6">
+              {/* flame / smoke — sits on the wick at the top of the render */}
+              <div className="relative -mb-1.5 h-9 w-6">
                 {!out[i] ? (
                   <motion.div
                     className="absolute bottom-0 left-1/2 h-7 w-3.5 -translate-x-1/2 rounded-full"
@@ -115,9 +115,14 @@ export function SeanceCandles({ onDone }) {
                   />
                 )}
               </div>
-              {/* wax column */}
-              <div className="w-7 rounded-t-md border border-black/40" style={{ height: h, background: "linear-gradient(90deg,#D9CBB2,#F3EAD5 45%,#B8A98C)" }} />
-              <div className="h-1.5 w-9 rounded-full bg-[#3A2C20]" />
+              {/* dripping wax candle on brass holder (AI-generated 3D render) */}
+              <img
+                src="/reaper-candle.png"
+                alt=""
+                className="w-auto select-none object-contain"
+                style={{ height: h, filter: `drop-shadow(0 6px 10px rgba(0,0,0,0.6)) brightness(${out[i] ? 0.55 : 1})`, transition: "filter 0.6s" }}
+                draggable={false}
+              />
             </button>
           ))}
         </div>

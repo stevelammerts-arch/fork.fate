@@ -32,35 +32,16 @@ function makeRattler() {
   }
 }
 
-// Carved tiki cocktail mug with straw + lime, drawn once; parent animates it.
+// Realistic carved tiki cocktail mug (AI-generated 3D render); parent animates it.
 function TikiMug() {
   return (
-    <svg viewBox="0 0 120 170" className="h-56 w-40 select-none">
-      <defs>
-        <linearGradient id="tikiWood" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#6B4423" />
-          <stop offset="45%" stopColor="#9C6B35" />
-          <stop offset="100%" stopColor="#5C3A1E" />
-        </linearGradient>
-      </defs>
-      {/* straw + lime */}
-      <rect x="76" y="6" width="6" height="40" rx="3" fill="#FF5470" transform="rotate(14 79 26)" />
-      <circle cx="34" cy="34" r="12" fill="#9BE06B" stroke="#5FA83C" strokeWidth="3" />
-      <rect x="30" y="22" width="8" height="12" fill="#173B2A" />
-      {/* mug body */}
-      <path d="M24 38 h72 l-6 122 q-30 12 -60 0 Z" fill="url(#tikiWood)" stroke="#3A2412" strokeWidth="3" />
-      {/* carved bands */}
-      <path d="M27 58 h66 M29 96 h62 M31 134 h58" stroke="#3A2412" strokeWidth="3" fill="none" />
-      {/* carved face: heavy brows, eyes, zigzag mouth */}
-      <path d="M38 70 l14 -6 M82 70 l-14 -6" stroke="#3A2412" strokeWidth="4" strokeLinecap="round" />
-      <ellipse cx="46" cy="80" rx="7" ry="9" fill="#3A2412" />
-      <ellipse cx="74" cy="80" rx="7" ry="9" fill="#3A2412" />
-      <circle cx="48" cy="78" r="2.5" fill="#F0C878" />
-      <circle cx="76" cy="78" r="2.5" fill="#F0C878" />
-      <path d="M40 112 l8 8 l8 -8 l8 8 l8 -8 l8 8" stroke="#3A2412" strokeWidth="4" fill="none" strokeLinecap="round" />
-      {/* drink surface peeking at the rim */}
-      <ellipse cx="60" cy="40" rx="35" ry="7" fill="#FF8A3C" stroke="#3A2412" strokeWidth="2" />
-    </svg>
+    <img
+      src="/tiki-mug.png"
+      alt=""
+      className="h-56 w-auto select-none object-contain"
+      style={{ filter: "drop-shadow(0 10px 18px rgba(0,0,0,0.55))" }}
+      draggable={false}
+    />
   );
 }
 

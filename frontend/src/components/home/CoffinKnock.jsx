@@ -29,31 +29,31 @@ function makeKnocker() {
   }
 }
 
-// Wooden coffin, viewed straight on; the lid is a separate group so it can swing.
-function CoffinSvg({ open }) {
+// Realistic wooden coffin (AI-generated 3D renders): crossfades from the
+// closed casket to the creaked-open one spilling soul-green light.
+function CoffinArt({ open }) {
   return (
-    <svg viewBox="0 0 140 200" className="h-60 w-44 select-none" style={{ overflow: "visible" }}>
-      <defs>
-        <linearGradient id="coffinWood" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#3A2113" />
-          <stop offset="50%" stopColor="#5C3A1E" />
-          <stop offset="100%" stopColor="#2A150A" />
-        </linearGradient>
-      </defs>
-      {/* box interior (revealed when lid opens): soul-green glow */}
-      <path d="M38 18 L102 18 L122 62 L108 192 L32 192 L18 62 Z" fill="#0B1F14" stroke="#151009" strokeWidth="3" />
-      {open && <path d="M38 22 L102 22 L119 62 L106 188 L34 188 L21 62 Z" fill="rgba(88,224,138,0.35)" style={{ filter: "blur(3px)" }} />}
-      {/* lid */}
-      <motion.g
-        style={{ transformOrigin: "20px 100px" }}
-        animate={open ? { rotate: -68, x: -26, y: -8 } : { rotate: 0, x: 0, y: 0 }}
-        transition={{ duration: 1.1, ease: "easeInOut" }}
-      >
-        <path d="M38 14 L102 14 L122 58 L108 188 L32 188 L18 58 Z" fill="url(#coffinWood)" stroke="#151009" strokeWidth="3" />
-        <path d="M70 44 v64 M50 72 h40" stroke="#C8A96A" strokeWidth="6" strokeLinecap="round" />
-        <path d="M26 60 L114 60 M30 130 L110 130" stroke="#151009" strokeWidth="2" opacity="0.5" />
-      </motion.g>
-    </svg>
+    <div className="relative h-60 w-48">
+      {/* soul-green glow blooming behind the open coffin */}
+      <div
+        className="pointer-events-none absolute inset-[-12%] transition-opacity duration-700"
+        style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(88,224,138,0.45) 0%, rgba(88,224,138,0) 70%)", filter: "blur(10px)", opacity: open ? 1 : 0 }}
+      />
+      <img
+        src="/reaper-coffin-closed.png"
+        alt=""
+        className="absolute inset-0 h-full w-full select-none object-contain transition-opacity duration-500"
+        style={{ opacity: open ? 0 : 1, filter: "drop-shadow(0 10px 18px rgba(0,0,0,0.6))" }}
+        draggable={false}
+      />
+      <img
+        src="/reaper-coffin-open.png"
+        alt=""
+        className="absolute inset-0 h-full w-full select-none object-contain transition-opacity duration-500"
+        style={{ opacity: open ? 1 : 0, filter: "drop-shadow(0 0 22px rgba(88,224,138,0.35)) drop-shadow(0 10px 18px rgba(0,0,0,0.6))" }}
+        draggable={false}
+      />
+    </div>
   );
 }
 
@@ -111,7 +111,7 @@ export function CoffinKnock({ onDone }) {
           role="button"
           aria-label={t("Knock on the coffin")}
         >
-          <CoffinSvg open={open} />
+          <CoffinArt open={open} />
           {/* soul wisps drifting out once open */}
           {open && [0, 1, 2].map((i) => (
             <motion.div
