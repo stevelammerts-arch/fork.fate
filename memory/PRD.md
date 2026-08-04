@@ -1065,3 +1065,17 @@ See `/app/memory/test_credentials.md`.
   keyframes: ffCardinalVisitA/B, FlyShowA/B, PerchShowA/B, LookA/B (scaleX flips +
   rotate flicks, consistent transform lists), shared ffCardinalFlap.
 - All 8 phases probe-verified (positions, opacities, look flips, mutual exclusion).
+
+## 2026-08-05 part 27: Summer solidity + cardinal tuning (user feedback rounds)
+- Summer chairs/palm made solid (treeOpacity & decorLeftOpacity 0.6/0.62 -> 0.92, new
+  cfg.decorLeftZ="z-[3]" wired into decorLeft className); rear crab now z-[2]
+  bottom-9% so it genuinely passes BEHIND the palm trunk; front crab stays z-[4].
+  Scene-only screenshot approved by user.
+- "No animal noises" — user explicitly DECLINED critter sounds. Do not add.
+- Cardinal (user: "looks good" but tune): flight slowed ~40% (A in 0-8%, out 26-31%;
+  B in 39-47%, out 67-72.5% of 52s); tree perch lowered (top 52->53.8% mobile,
+  10.3->13% desktop).
+- "Wings don't flap when flying away": flap was too subtle + takeoff crossfade showed
+  folded-wings sprite. ffCardinalFlap deepened (scaleY 1->0.5, rotate 1->-5deg), sped
+  0.32s->0.24s, crossfades snapped to takeoff moment (26.3% A / 67.3% B). Verified
+  live: scaleY oscillates 1->0.5->1 @ ~2 beats/s during fly-out, opacity 1.

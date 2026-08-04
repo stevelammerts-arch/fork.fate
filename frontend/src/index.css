@@ -1000,24 +1000,24 @@ body {
 @keyframes ffCardinalVisitA{
   0%{ transform: translate(290px,-230px) rotate(7deg); opacity: 0; }
   1%{ opacity: 0.92; }
-  4.5%{ transform: translate(17px,-13px) rotate(4deg); }
-  5.5%{ transform: translate(-2px,2px) rotate(-2deg); }
-  6%{ transform: translate(0,0) rotate(0deg); }
-  27%{ transform: translate(0,0) rotate(0deg); opacity: 0.92; }
-  27.7%{ transform: translate(-18px,-14px) rotate(-6deg); }
-  30%{ transform: translate(-320px,-240px) rotate(-8deg); opacity: 0.92; }
-  30.5%,100%{ transform: translate(-320px,-240px) rotate(-8deg); opacity: 0; }
+  6%{ transform: translate(17px,-13px) rotate(4deg); }
+  7.3%{ transform: translate(-2px,2px) rotate(-2deg); }
+  8%{ transform: translate(0,0) rotate(0deg); }
+  26%{ transform: translate(0,0) rotate(0deg); opacity: 0.92; }
+  26.8%{ transform: translate(-18px,-14px) rotate(-6deg); }
+  31%{ transform: translate(-320px,-240px) rotate(-8deg); opacity: 0.92; }
+  31.5%,100%{ transform: translate(-320px,-240px) rotate(-8deg); opacity: 0; }
 }
 @keyframes ffCardinalFlyShowA{
-  0%,5.5%{ opacity: 1; }
-  6.5%,26.8%{ opacity: 0; }
-  27.5%,30%{ opacity: 1; }
-  30.5%,100%{ opacity: 0; }
+  0%,7.5%{ opacity: 1; }
+  8.5%,26%{ opacity: 0; }
+  26.3%,31%{ opacity: 1; }
+  31.5%,100%{ opacity: 0; }
 }
 @keyframes ffCardinalPerchShowA{
-  0%,5.5%{ opacity: 0; }
-  6.5%,26.8%{ opacity: 1; }
-  27.5%,100%{ opacity: 0; }
+  0%,7.5%{ opacity: 0; }
+  8.5%,26%{ opacity: 1; }
+  26.3%,100%{ opacity: 0; }
 }
 @keyframes ffCardinalLookA{
   0%,10.7%{ transform: scaleX(1) rotate(0deg); }
@@ -1035,27 +1035,27 @@ body {
   24.4%,100%{ transform: scaleX(1) rotate(0deg); }
 }
 @keyframes ffCardinalVisitB{
-  0%,39.5%{ transform: translate(-300px,-210px) rotate(-7deg); opacity: 0; }
-  40.5%{ opacity: 0.92; }
-  44.5%{ transform: translate(-17px,-13px) rotate(-4deg); }
-  45.5%{ transform: translate(2px,2px) rotate(2deg); }
-  46%{ transform: translate(0,0) rotate(0deg); }
-  68%{ transform: translate(0,0) rotate(0deg); opacity: 0.92; }
-  68.7%{ transform: translate(18px,-14px) rotate(6deg); }
-  71.5%{ transform: translate(320px,-240px) rotate(8deg); opacity: 0.92; }
-  72%,100%{ transform: translate(320px,-240px) rotate(8deg); opacity: 0; }
+  0%,38.5%{ transform: translate(-300px,-210px) rotate(-7deg); opacity: 0; }
+  39.5%{ opacity: 0.92; }
+  45%{ transform: translate(-17px,-13px) rotate(-4deg); }
+  46.3%{ transform: translate(2px,2px) rotate(2deg); }
+  47%{ transform: translate(0,0) rotate(0deg); }
+  67%{ transform: translate(0,0) rotate(0deg); opacity: 0.92; }
+  67.8%{ transform: translate(18px,-14px) rotate(6deg); }
+  72.5%{ transform: translate(320px,-240px) rotate(8deg); opacity: 0.92; }
+  73%,100%{ transform: translate(320px,-240px) rotate(8deg); opacity: 0; }
 }
 @keyframes ffCardinalFlyShowB{
-  0%,39.5%{ opacity: 0; }
-  40%,45.5%{ opacity: 1; }
-  46.5%,67.8%{ opacity: 0; }
-  68.5%,71.5%{ opacity: 1; }
-  72%,100%{ opacity: 0; }
+  0%,38.5%{ opacity: 0; }
+  39%,46.5%{ opacity: 1; }
+  47.5%,67%{ opacity: 0; }
+  67.3%,72.5%{ opacity: 1; }
+  73%,100%{ opacity: 0; }
 }
 @keyframes ffCardinalPerchShowB{
-  0%,45.5%{ opacity: 0; }
-  46.5%,67.8%{ opacity: 1; }
-  68.5%,100%{ opacity: 0; }
+  0%,46.5%{ opacity: 0; }
+  47.5%,67%{ opacity: 1; }
+  67.3%,100%{ opacity: 0; }
 }
 @keyframes ffCardinalLookB{
   0%,50.7%{ transform: scaleX(1) rotate(0deg); }
@@ -1073,8 +1073,8 @@ body {
   64.4%,100%{ transform: scaleX(1) rotate(0deg); }
 }
 @keyframes ffCardinalFlap{
-  from{ transform: scaleY(1) rotate(0deg); }
-  to{ transform: scaleY(0.72) rotate(-3deg); }
+  from{ transform: scaleY(1) rotate(1deg); }
+  to{ transform: scaleY(0.5) rotate(-5deg); }
 }
 /* Summer crabs: quick sideways scuttles across the sand with pauses — crabs
    run sideways so no facing flip is needed */
