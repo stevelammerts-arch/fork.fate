@@ -1052,3 +1052,16 @@ See `/app/memory/test_credentials.md`.
 - PROBE LESSON: to freeze a CSS animation at a phase, set animation:'none' + force
   reflow FIRST, then re-apply shorthand with negative delay + paused — for EVERY
   element probed, imgs included.
+
+## 2026-08-05 part 26: Cardinal two-perch patrol + look-arounds
+- Cardinal timeline now one 52s loop with TWO anchored instances:
+  A (data-testid="winter-cardinal", inside cabin container): fly in from upper-right
+  0-6%, perch 6-27% with TWO look-around body flips (11-13%, 19-21%) + tail flicks,
+  fly off LEFT 27-30%. B (data-testid="winter-cardinal-tree", scene root, anchored to
+  winter-tree crown left-33%/top-52% mobile, 12.2%/10.3% desktop — computed from DOM
+  tree bbox, crown tip at 51.1% flipped width): returns from LEFT 40-46%, perches on
+  treetop 46-68% w/ look flips (51-53%, 59-61%), flies off RIGHT 68-71.5%.
+- B's content wrapped in static scaleX(-1) div so the left-facing sprites face right;
+  keyframes: ffCardinalVisitA/B, FlyShowA/B, PerchShowA/B, LookA/B (scaleX flips +
+  rotate flicks, consistent transform lists), shared ffCardinalFlap.
+- All 8 phases probe-verified (positions, opacities, look flips, mutual exclusion).
