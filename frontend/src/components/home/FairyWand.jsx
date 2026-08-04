@@ -56,7 +56,7 @@ export function FairyWand({ onDone }) {
         ✦ {t("Rare fate")} ✦
       </div>
       <div className="relative flex flex-col items-center gap-5">
-        <button type="button" onClick={cast} className="relative outline-none" data-testid="fairy-wand" aria-label={t("Tap the wand")}>
+        <button type="button" onPointerDown={cast} onClick={cast} className="relative -m-4 p-4 outline-none" data-testid="fairy-wand" aria-label={t("Tap the wand")}>
           <motion.svg
             viewBox="0 0 120 120"
             className="h-36 w-36"

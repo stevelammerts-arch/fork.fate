@@ -843,3 +843,21 @@ See `/app/memory/test_credentials.md`.
   Testids: volcano-cover/-mount/-prompt/-done/-taps.
 - PENDING: user choosing Reaper rare ritual from proposed ideas (tarot draw, coffin
   knock, seance candles, ouija, soul harvest, hourglass).
+
+## 2026-08-04 part 11: Realistic 3D assets integrated + ritual polish (fork session)
+- User approved the new realistic 3D renders (tiki mug, reaper candle, coffin caskets).
+- TikiShaker.jsx: SVG mug replaced with /tiki-mug.png (realistic carved mug, lime+straw).
+- CoffinKnock.jsx: SVG coffin replaced with CoffinArt — crossfade from
+  /reaper-coffin-closed.png to /reaper-coffin-open.png (soul-green glow bloom) on open.
+- SeanceCandles.jsx: CSS wax columns replaced with 5x /reaper-candle.png (dripping wax
+  on brass holder), uneven heights [64,88,74,96,60], gap-2 so all 5 fit the card on
+  390px viewport; snuffed candles dim via brightness filter. Flame sits on wick (-mb-1.5).
+- VolcanoReveal already used /tiki-volcano.png (verified, looks 3D/realistic).
+- Bug fixes from testing (iteration_53, all 9 rituals PASSED, assets load, no 404s):
+  * SeanceCandles: stale-closure setOut -> functional updater (rapid taps no longer skip).
+  * FairyWand: onPointerDown + enlarged hit area (-m-4 p-4) — single tap reliably casts.
+- Answered user: HackTerminal types breach log char-by-char (34ms/char + blips), then
+  Matrix-style name decrypt, then "> target acquired".
+- Re-verified post-fix via local Playwright: rapid seance snuff works, wand casts, all
+  5 candles fully visible in card.
+- BACKLOG P1: Apple App Store (iOS) publishing support (PWABuilder/App Store Connect).

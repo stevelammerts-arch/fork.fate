@@ -38,22 +38,25 @@ export function SeanceCandles({ onDone }) {
   const snuff = (i) => {
     if (out[i] || dark) return;
     puff();
-    const next = out.map((v, j) => (j === i ? true : v));
-    setOut(next);
-    if (next.every(Boolean)) {
-      setTimeout(() => {
-        setDark(true);
-        const thunder = new Audio("/reveal-thunder-v4.mp3");
-        thunder.volume = 0.9;
-        if (localStorage.getItem("ff_muted") !== "1") thunder.play().catch(() => {});
-        setTimeout(() => { if (!doneRef.current) { doneRef.current = true; onDone?.(); } }, 2000);
-      }, 650);
-    }
+    setOut((prev) => {
+      if (prev[i]) return prev;
+      const next = prev.map((v, j) => (j === i ? true : v));
+      if (next.every(Boolean)) {
+        setTimeout(() => {
+          setDark(true);
+          const thunder = new Audio("/reveal-thunder-v4.mp3");
+          thunder.volume = 0.9;
+          if (localStorage.getItem("ff_muted") !== "1") thunder.play().catch(() => {});
+          setTimeout(() => { if (!doneRef.current) { doneRef.current = true; onDone?.(); } }, 2000);
+        }, 650);
+      }
+      return next;
+    });
   };
 
   useEffect(() => () => { doneRef.current = true; }, []);
 
-  const heights = [76, 100, 86, 110, 70]; // uneven candle heights (realistic 3D render)
+  const heights = [64, 88, 74, 96, 60]; // uneven candle heights (realistic 3D render)
 
   return (
     <motion.div
@@ -85,7 +88,7 @@ export function SeanceCandles({ onDone }) {
       )}
 
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 pt-6">
-        <div className="flex items-end gap-5" data-testid="seance-candles">
+        <div className="flex items-end gap-2" data-testid="seance-candles">
           {heights.map((h, i) => (
             <button
               key={i}
