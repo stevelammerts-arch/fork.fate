@@ -834,6 +834,9 @@ body {
   29.2%{ transform: translateX(19.8vw) translateY(-7px) scaleX(1); }
   30.6%{ transform: translateX(22vw) translateY(0) scaleX(1); }
   47%{ transform: translateX(22vw) translateY(0) scaleX(1); }
+  48%{ transform: translateX(22vw) translateY(-6px) scaleX(0.6); }
+  48.5%{ transform: translateX(22vw) translateY(-7px) scaleX(0.05); }
+  49%{ transform: translateX(22vw) translateY(-6px) scaleX(-0.6); }
   50%{ transform: translateX(22vw) translateY(0) scaleX(-1); }
   51.4%{ transform: translateX(19.8vw) translateY(-7px) scaleX(-1); }
   52.8%{ transform: translateX(17.6vw) translateY(0) scaleX(-1); }
@@ -847,6 +850,9 @@ body {
   79.2%{ transform: translateX(2.2vw) translateY(-7px) scaleX(-1); }
   80.6%{ transform: translateX(0) translateY(0) scaleX(-1); }
   97%{ transform: translateX(0) translateY(0) scaleX(-1); }
+  98.6%{ transform: translateX(0) translateY(-6px) scaleX(-0.6); }
+  99%{ transform: translateX(0) translateY(-7px) scaleX(-0.05); }
+  99.4%{ transform: translateX(0) translateY(-6px) scaleX(0.6); }
   100%{ transform: translateX(0) translateY(0) scaleX(1); }
 }
 @keyframes ffRabbitPatrolL{
@@ -863,6 +869,9 @@ body {
   29.2%{ transform: translateX(-19.8vw) translateY(-7px) scaleX(-1); }
   30.6%{ transform: translateX(-22vw) translateY(0) scaleX(-1); }
   47%{ transform: translateX(-22vw) translateY(0) scaleX(-1); }
+  48%{ transform: translateX(-22vw) translateY(-6px) scaleX(-0.6); }
+  48.5%{ transform: translateX(-22vw) translateY(-7px) scaleX(-0.05); }
+  49%{ transform: translateX(-22vw) translateY(-6px) scaleX(0.6); }
   50%{ transform: translateX(-22vw) translateY(0) scaleX(1); }
   51.4%{ transform: translateX(-19.8vw) translateY(-7px) scaleX(1); }
   52.8%{ transform: translateX(-17.6vw) translateY(0) scaleX(1); }
@@ -876,6 +885,9 @@ body {
   79.2%{ transform: translateX(-2.2vw) translateY(-7px) scaleX(1); }
   80.6%{ transform: translateX(0) translateY(0) scaleX(1); }
   97%{ transform: translateX(0) translateY(0) scaleX(1); }
+  98%{ transform: translateX(0) translateY(-6px) scaleX(0.6); }
+  98.5%{ transform: translateX(0) translateY(-7px) scaleX(0.05); }
+  99%{ transform: translateX(0) translateY(-6px) scaleX(-0.6); }
   100%{ transform: translateX(0) translateY(0) scaleX(-1); }
 }
 /* Rabbit sniff: tiny nose-dip pulses timed inside the patrol's sit windows
@@ -917,6 +929,9 @@ body {
   24%{ transform: translateX(21vw) translateY(-3px) scaleX(1); }
   26%{ transform: translateX(28vw) translateY(0) scaleX(1); }
   46%{ transform: translateX(28vw) translateY(0) scaleX(1); }
+  47%{ transform: translateX(28vw) translateY(-5px) scaleX(0.6); }
+  47.5%{ transform: translateX(28vw) translateY(-6px) scaleX(0.05); }
+  48%{ transform: translateX(28vw) translateY(-5px) scaleX(-0.6); }
   49%{ transform: translateX(28vw) translateY(0) scaleX(-1); }
   51%{ transform: translateX(21vw) translateY(-3px) scaleX(-1); }
   53%{ transform: translateX(14vw) translateY(0) scaleX(-1); }
@@ -924,7 +939,99 @@ body {
   74%{ transform: translateX(7vw) translateY(-3px) scaleX(-1); }
   76%{ transform: translateX(0) translateY(0) scaleX(-1); }
   97%{ transform: translateX(0) translateY(0) scaleX(-1); }
+  98%{ transform: translateX(0) translateY(-5px) scaleX(-0.6); }
+  98.5%{ transform: translateX(0) translateY(-6px) scaleX(-0.05); }
+  99%{ transform: translateX(0) translateY(-5px) scaleX(0.6); }
   100%{ transform: translateX(0) translateY(0) scaleX(1); }
+}
+/* Squirrel nibble: rapid tiny head-dips during dart freezes (4-22/26-46/53-72/76-97%) */
+@keyframes ffSquirrelNibble{
+  0%,8%{ transform: rotate(0deg); }
+  9%{ transform: rotate(2.5deg); }
+  10%{ transform: rotate(0deg); }
+  11%{ transform: rotate(2.5deg); }
+  12%{ transform: rotate(0deg); }
+  13%{ transform: rotate(2.5deg); }
+  14%,16%{ transform: rotate(0deg); }
+  17%{ transform: rotate(2.5deg); }
+  18%,31%{ transform: rotate(0deg); }
+  32%{ transform: rotate(2.5deg); }
+  33%{ transform: rotate(0deg); }
+  34%{ transform: rotate(2.5deg); }
+  35%{ transform: rotate(0deg); }
+  36%{ transform: rotate(2.5deg); }
+  37%,40%{ transform: rotate(0deg); }
+  41%{ transform: rotate(2.5deg); }
+  42%,57%{ transform: rotate(0deg); }
+  58%{ transform: rotate(2.5deg); }
+  59%{ transform: rotate(0deg); }
+  60%{ transform: rotate(2.5deg); }
+  61%{ transform: rotate(0deg); }
+  62%{ transform: rotate(2.5deg); }
+  63%,66%{ transform: rotate(0deg); }
+  67%{ transform: rotate(2.5deg); }
+  68%,80%{ transform: rotate(0deg); }
+  81%{ transform: rotate(2.5deg); }
+  82%{ transform: rotate(0deg); }
+  83%{ transform: rotate(2.5deg); }
+  84%{ transform: rotate(0deg); }
+  85%{ transform: rotate(2.5deg); }
+  86%,89%{ transform: rotate(0deg); }
+  90%{ transform: rotate(2.5deg); }
+  91%,100%{ transform: rotate(0deg); }
+}
+/* Acorn: fades in at the squirrel's nose only during dart freezes */
+@keyframes ffAcornShow{
+  0%,5%{ opacity: 0; }
+  6.5%,20%{ opacity: 0.85; }
+  21.5%,27.5%{ opacity: 0; }
+  29%,44.5%{ opacity: 0.85; }
+  46%,54.5%{ opacity: 0; }
+  56%,70.5%{ opacity: 0.85; }
+  72%,77.5%{ opacity: 0; }
+  79%,95%{ opacity: 0.85; }
+  96.5%,100%{ opacity: 0; }
+}
+/* Winter cardinal: swoops in from upper-left, perches on the cabin roof ridge,
+   sits (tail flicks via ffCardinalIdle), then flies off the way it came */
+@keyframes ffCardinalVisit{
+  0%{ transform: translate(-300px,-220px) rotate(-8deg); opacity: 0; }
+  2%{ opacity: 0.9; }
+  9%{ transform: translate(-40px,-30px) rotate(-5deg); }
+  11%{ transform: translate(5px,3px) rotate(2deg); }
+  12.5%{ transform: translate(0,0) rotate(0deg); }
+  55%{ transform: translate(0,0) rotate(0deg); opacity: 0.9; }
+  56.5%{ transform: translate(-18px,-14px) rotate(-6deg); }
+  63%{ transform: translate(-320px,-240px) rotate(-8deg); opacity: 0.9; }
+  64%,100%{ transform: translate(-320px,-240px) rotate(-8deg); opacity: 0; }
+}
+@keyframes ffCardinalIdle{
+  0%,16%{ transform: rotate(0deg); }
+  17%{ transform: rotate(4deg); }
+  18%,26%{ transform: rotate(0deg); }
+  27%{ transform: rotate(4deg); }
+  28%,38%{ transform: rotate(0deg); }
+  39%{ transform: rotate(4deg); }
+  40%,48%{ transform: rotate(0deg); }
+  49%{ transform: rotate(4deg); }
+  50%,100%{ transform: rotate(0deg); }
+}
+/* Summer crabs: quick sideways scuttles across the sand with pauses — crabs
+   run sideways so no facing flip is needed */
+@keyframes ffCrabSkitter{
+  0%{ transform: translateX(0) translateY(0); }
+  1.5%{ transform: translateX(4vw) translateY(-2px); }
+  3%{ transform: translateX(8vw) translateY(0); }
+  20%{ transform: translateX(8vw) translateY(0); }
+  21.5%{ transform: translateX(12vw) translateY(-2px); }
+  23%{ transform: translateX(16vw) translateY(0); }
+  45%{ transform: translateX(16vw) translateY(0); }
+  46.5%{ transform: translateX(12vw) translateY(-2px); }
+  48%{ transform: translateX(8vw) translateY(0); }
+  70%{ transform: translateX(8vw) translateY(0); }
+  71.5%{ transform: translateX(4vw) translateY(-2px); }
+  73%{ transform: translateX(0) translateY(0); }
+  100%{ transform: translateX(0) translateY(0); }
 }
 
 /* ── Cyberpunk accent recolor: neon cyan (dark surfaces preserved) ── */

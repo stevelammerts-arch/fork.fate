@@ -48,7 +48,7 @@ export const SEASONS = {
   winter: {
     grad: "linear-gradient(180deg,#EAF3FA 0%,#DCEAF5 55%,#CFE0EE 100%)",
     tree: "/winter-tree.png", treeSide: "left", treeFlip: true, treeZ: "z-[2]",
-    decorRight: "/winter-decor.png", decorRightBig: true, decorRightPos: "right-[-10%] sm:right-[-5%]", santa: "/santa-sleigh.png", chimney: { left: "58.5%", top: "16%" },
+    decorRight: "/winter-decor.png", decorRightBig: true, decorRightPos: "right-[-10%] sm:right-[-5%]", santa: "/santa-sleigh.png", chimney: { left: "58.5%", top: "16%" }, cardinal: "/winter-cardinal.png",
     items: ["/flake-blue.png", "/flake-white.png", "/flake-silver.png"], falling: true, hint: "#2E77A6",
   },
   spring: {
@@ -59,7 +59,7 @@ export const SEASONS = {
   summer: {
     grad: "linear-gradient(180deg,#BFE8F7 0%,#8FD3EE 44%,#5FB8D9 62%,#F3E2B3 62%,#EAD199 100%)",
     tree: "/summer-tree.png", treeH: "h-[60svh] sm:h-[92vh] z-[3]", treeOpacity: 0.6, ocean: true, decorLeft: "/summer-decor.png", decorLeftBig: true, decorLeftW: "w-[50vw] max-w-none sm:w-[46vw]", decorLeftOpacity: 0.62, sun: "/summer-sun.png", birds: "/summer-seagull.png",
-    items: ["/summer-sun.png", "/summer-ball.png", "/summer-icecream.png"], falling: false, hint: "#E07E17",
+    items: ["/summer-sun.png", "/summer-ball.png", "/summer-icecream.png"], falling: false, hint: "#E07E17", crabs: "/summer-crab.png",
   },
 };
 
@@ -97,6 +97,11 @@ export function SeasonScene({ theme, cfg }) {
           {CHIMNEY_SMOKE.map((s, i) => (
             <span key={`smoke-${i}`} className="ff-chimney-smoke" style={{ left: cfg.chimney.left, top: cfg.chimney.top, width: s.size, height: s.size, animationDuration: `${s.dur}s`, animationDelay: `${s.delay}s` }} />
           ))}
+          {cfg.cardinal && (
+            <div className="absolute w-[6.5%]" style={{ left: "43%", top: "14%", animation: "ffCardinalVisit 26s linear infinite" }} data-testid="winter-cardinal">
+              <img src={cfg.cardinal} alt="" className="w-full opacity-90" style={{ animation: "ffCardinalIdle 26s linear infinite", transformOrigin: "50% 100%" }} />
+            </div>
+          )}
         </div>
       ) : (
         <img src={cfg.decorRight} alt="" className={`absolute bottom-0 ${cfg.decorRightPos || "right-[3%]"} object-contain opacity-[0.32] ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={{ ...(cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : {}), ...(cfg.decorRightOpacity ? { opacity: cfg.decorRightOpacity } : {}) }} />
@@ -121,9 +126,19 @@ export function SeasonScene({ theme, cfg }) {
       {cfg.groundPumpkins && <img src="/fall-pumpkins-mid.png" alt="" className="absolute bottom-0 left-1/2 z-[3] w-[35vw] max-w-none -translate-x-1/2 object-contain opacity-[0.72] sm:w-[21vw]" style={{ animation: "ffGlow 3.4s ease-in-out infinite" }} />}
       {cfg.squirrel && (
         <div className="absolute bottom-[1.5%] left-[20%] z-[4]" style={{ animation: "ffSquirrelDart 14s linear infinite" }} data-testid="fall-squirrel">
-          <img src={cfg.squirrel} alt="" className="w-14 opacity-80 sm:w-16" />
+          <img src="/fall-acorn.png" alt="" className="absolute -right-2 bottom-0 w-4 opacity-0" style={{ animation: "ffAcornShow 14s linear infinite" }} data-testid="fall-acorn" />
+          <img src={cfg.squirrel} alt="" className="w-14 opacity-80 sm:w-16" style={{ animation: "ffSquirrelNibble 14s linear infinite", transformOrigin: "60% 100%" }} />
         </div>
       )}
+      {cfg.crabs && (<>
+        {/* two red crabs skittering sideways across the sand */}
+        <div className="absolute bottom-[7%] left-[30%] z-[3]" style={{ animation: "ffCrabSkitter 13s linear infinite" }} data-testid="summer-crab-1">
+          <img src={cfg.crabs} alt="" className="w-12 opacity-85 sm:w-14" />
+        </div>
+        <div className="absolute bottom-[16%] right-[24%] z-[3]" style={{ animation: "ffCrabSkitter 17s linear infinite reverse", animationDelay: "3s" }} data-testid="summer-crab-2">
+          <img src={cfg.crabs} alt="" className="w-9 opacity-75 sm:w-10" />
+        </div>
+      </>)}
       {cfg.moon && <div className="absolute top-[6%] left-[24%] z-[1] aspect-square w-[24vw] rounded-full sm:left-[27%] sm:w-[14vw]" style={{ background: "radial-gradient(circle at 42% 40%, #FCF4DA 0%, #EDDCAB 60%, #D6C084 100%)", boxShadow: "0 0 90px 34px rgba(255,240,205,0.38), 0 0 44px 14px rgba(255,246,222,0.55)", opacity: 0.6 }} />}
       {cfg.owl && <img src={cfg.owl} alt="" className="absolute top-[13%] left-[30%] z-[2] w-[13vw] max-w-[150px] object-contain opacity-[0.72] sm:w-[9vw]" />}
       {cfg.falling && FALLING_SPRITES.map((l, i) => (

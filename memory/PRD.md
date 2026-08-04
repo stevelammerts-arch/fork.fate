@@ -1004,3 +1004,23 @@ See `/app/memory/test_credentials.md`.
 - "Share A Fate" task found ALREADY BUILT: FateActionsDropdown "Share as image" ->
   buildFateCard (pages/homeFateCard.js) renders themed 1080x1080 cards per realm with
   QR; socials use /api/share dynamic OG tags. No work needed.
+
+## 2026-08-05 part 23: Winter cardinal, squirrel acorn, summer crabs, hop-spin turns
+- NEW winter-cardinal.png + fall-acorn.png + summer-crab.png (gen_critters.py /
+  gen_crab.py, Nano Banana, magenta-keyed, despilled, all <60KB).
+- Winter cardinal: rendered INSIDE the cabin container (ThemeScenes.jsx cfg.cardinal,
+  w-[6.5%] left 43% top 14%, data-testid="winter-cardinal"). ffCardinalVisit (26s):
+  swoop in from upper-left 0-12.5%, perched 12.5-55%, fly off 55-63%, hidden rest.
+  ffCardinalIdle: 4deg tail flicks while perched. Verified perched on roof ridge
+  beside chimney via scene-only screenshot.
+- Squirrel acorn: fall-acorn.png inside squirrel wrapper (-right-2 bottom-0 w-4,
+  data-testid="fall-acorn"), ffAcornShow (14s) fades it in ONLY during dart freezes;
+  ffSquirrelNibble (14s) rapid 2.5deg head-dips (origin 60%/100%) in same windows.
+  Verified opacity sync live.
+- Summer crabs: two crabs (data-testid summer-crab-1/2, bottom-7% left-30% 13s +
+  bottom-16% right-24% 17s reverse) with ffCrabSkitter — sideways scuttles with
+  pauses, no flip needed. Verified x-sampling dash/pause pattern.
+- PAPER-FLIP FIX (user complaint): all turn-arounds in ffRabbitPatrol/ffRabbitPatrolL/
+  ffSquirrelDart are now hop-spins — body lifts -5/-7px while scaleX sweeps
+  1->0.6->0.05->-0.6->-1 over ~0.3-0.4s (quick jump-pivot, not a flat mirror).
+  Verified via paused-animation matrix probing at 46/47/47.5/48/49%.
