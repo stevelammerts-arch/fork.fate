@@ -5,6 +5,7 @@ import Admin from "./pages/Admin";
 import SponsorStatus from "./pages/SponsorStatus";
 import SponsorChains from "./pages/SponsorChains";
 import RarePreview from "./pages/RarePreview";
+import Rituals from "./pages/Rituals";
 import SharedCrawl from "./pages/SharedCrawl";
 import Passport from "./pages/Passport";
 import Wall from "./pages/Wall";
@@ -28,6 +29,7 @@ function App() {
           <Route path="/p/:code" element={<Passport />} />
           <Route path="/wall" element={<Wall />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/rituals" element={<Rituals />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/sponsor/success" element={<SponsorStatus />} />

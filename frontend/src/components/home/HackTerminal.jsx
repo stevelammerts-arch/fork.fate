@@ -99,7 +99,9 @@ export function HackTerminal({ name, onDone }) {
     typeLine();
   };
 
-  useEffect(() => () => { doneRef.current = true; timersRef.current.forEach(clearTimeout); }, []);
+  // Reset on (re)mount so StrictMode's simulated unmount can't poison the
+  // guard; a real unmount still cancels timers and the pending onDone.
+  useEffect(() => { doneRef.current = false; return () => { doneRef.current = true; timersRef.current.forEach(clearTimeout); }; }, []);
 
   return (
     <motion.div

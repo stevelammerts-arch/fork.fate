@@ -54,7 +54,9 @@ export function SeanceCandles({ onDone }) {
     });
   };
 
-  useEffect(() => () => { doneRef.current = true; }, []);
+  // Reset on (re)mount so StrictMode's simulated unmount can't poison the
+  // guard; a real unmount still cancels the pending onDone.
+  useEffect(() => { doneRef.current = false; return () => { doneRef.current = true; }; }, []);
 
   const heights = [64, 88, 74, 96, 60]; // uneven candle heights (realistic 3D render)
 

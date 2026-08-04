@@ -14,7 +14,7 @@ const Pill = ({ active, onClick, children, testid }) => (
     className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold tracking-wide transition-colors duration-200 border ${
       active
         ? "bg-[#E01E26] text-white border-[#E01E26]"
-        : "bg-[#EDEEF0] text-[#6B7075] border-transparent hover:bg-[#E2E4E7]"
+        : "bg-[#EDEEF0] text-[#3A3F45] border-transparent hover:bg-[#E2E4E7]"
     }`}
   >
     {children}
@@ -46,7 +46,6 @@ export default function Filters({
             key={g.label}
             label={g.label}
             items={g.items}
-            labelColor={labelColor}
             selectedCuisines={selectedCuisines}
             toggleCuisine={toggleCuisine}
           />
@@ -73,7 +72,7 @@ export default function Filters({
  * group they care about instead of scrolling one giant chip wall. A count
  * badge keeps their picks visible even while the group is closed.
  */
-function CollapsibleGroup({ label, items, labelColor, selectedCuisines, toggleCuisine }) {
+function CollapsibleGroup({ label, items, selectedCuisines, toggleCuisine }) {
   const { t } = useLang();
   const [open, setOpen] = useState(false);
   const selCount = items.filter((c) => selectedCuisines.includes(c)).length;
@@ -88,7 +87,9 @@ function CollapsibleGroup({ label, items, labelColor, selectedCuisines, toggleCu
         data-testid={`cuisine-group-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
         className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-[#F7F8F9]"
       >
-        <span className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#0E0E0E]" style={labelColor ? { color: labelColor } : undefined}>
+        {/* Header sits on a white card in every theme — always use dark ink,
+            never the page-background labelColor tint (unreadable on white). */}
+        <span className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#0E0E0E]">
           {t(label)}
         </span>
         <span className="flex shrink-0 items-center gap-2">

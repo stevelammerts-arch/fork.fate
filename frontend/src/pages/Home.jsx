@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Search, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, ArrowDownWideNarrow, Flame, Users, Beer, Trophy, UtensilsCrossed, ChevronDown, Mountain, Tent, Stamp, Globe2 } from "lucide-react";
+import { Dices, Search, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, ArrowDownWideNarrow, Flame, Users, Beer, Trophy, UtensilsCrossed, ChevronDown, Mountain, Tent, Stamp, Globe2, Sparkles } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
@@ -32,6 +32,7 @@ import { Slider } from "../components/ui/slider";
 import { useTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
 import { trackEvent } from "../lib/analytics";
+import { recordRitualSeen } from "../lib/rituals";
 import { readPassports } from "../lib/passports";
 import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene } from "../components/ThemeScenes";
 import { ReaperScene } from "../components/ReaperScene";
@@ -389,8 +390,8 @@ export default function Home() {
     if (rareFate) {
       // Theme-exclusive rituals: fairy wand, cyber hacking terminal + keypad,
       // steampunk crank gear, tiki cocktail shaker + volcano, reaper tarot /
-      // coffin / seance.
-      const pool2 = theme === "fairy" ? ["scratch", "8ball", "wheel", "wand"] : theme === "cyber" ? ["scratch", "8ball", "wheel", "hack", "code"] : theme === "steam" ? ["scratch", "8ball", "wheel", "crank"] : theme === "tiki" ? ["scratch", "8ball", "wheel", "shaker", "volcano"] : theme === "dark" ? ["scratch", "8ball", "wheel", "tarot", "coffin", "seance"] : ["scratch", "8ball", "wheel"];
+      // coffin / seance / ouija, dragon's hoard eye + chest.
+      const pool2 = theme === "fairy" ? ["scratch", "8ball", "wheel", "wand"] : theme === "cyber" ? ["scratch", "8ball", "wheel", "hack", "code"] : theme === "steam" ? ["scratch", "8ball", "wheel", "crank"] : theme === "tiki" ? ["scratch", "8ball", "wheel", "shaker", "volcano"] : theme === "dark" ? ["scratch", "8ball", "wheel", "tarot", "coffin", "seance", "ouija"] : theme === "fantasy" ? ["scratch", "8ball", "wheel", "eye", "chest"] : ["scratch", "8ball", "wheel"];
       let variant = pool2[Math.floor(Math.random() * pool2.length)];
       try {
         const forced = localStorage.getItem("ff_rare_force");
@@ -408,6 +409,7 @@ export default function Home() {
         haptic(20);
         setResult(chosen);
         setSurpriseReveal(variant);
+        recordRitualSeen(variant);
         setSpinning(false);
         setFlash(null);
         axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
@@ -1066,7 +1068,7 @@ export default function Home() {
                   key={key}
                   data-testid={`mode-${key}`}
                   onClick={() => { if (mode === key && !allMode) { setAllMode(true); setResult(null); setGroupPicks(null); } else { setAllMode(false); switchMode(key); } }}
-                  className={`flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold leading-none transition-colors ${mode === key && !allMode ? "bg-[#0E0E0E] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+                  className={`flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold leading-none transition-colors ${mode === key && !allMode ? "bg-[#0E0E0E] text-white" : "text-[#3A3F45] hover:text-[#0E0E0E]"}`}
                 >
                   <Icon className="h-4 w-4" />
                   {label}
@@ -1221,6 +1223,14 @@ export default function Home() {
                   <Globe2 className="h-4 w-4" /> {t("Passport Wall")}
                 </Link>
               </div>
+
+              <Link
+                to="/rituals"
+                data-testid="fates-witnessed-link"
+                className="inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-[#7A4DB2] bg-white px-4 py-2.5 text-sm font-bold text-[#5E3596] transition-colors hover:bg-[#F3EDFA]"
+              >
+                <Sparkles className="h-4 w-4" /> {t("Fates Witnessed")}
+              </Link>
             </div>
             </div>
 
@@ -1247,7 +1257,7 @@ export default function Home() {
                       type="button"
                       data-testid={`passport-category-${key}`}
                       onClick={() => { setAllMode(false); switchMode(key); }}
-                      className={`flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold leading-none transition-colors ${mode === key ? "bg-[#2E7D32] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+                      className={`flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold leading-none transition-colors ${mode === key ? "bg-[#2E7D32] text-white" : "text-[#3A3F45] hover:text-[#0E0E0E]"}`}
                     >
                       <Icon className="h-4 w-4" />
                       {label}
@@ -1343,7 +1353,7 @@ export default function Home() {
                       type="button"
                       data-testid={`group-category-${key}`}
                       onClick={() => { setAllMode(false); switchMode(key); }}
-                      className={`flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold leading-none transition-colors ${mode === key ? "bg-[#E01E26] text-white" : "text-[#6B7075] hover:text-[#0E0E0E]"}`}
+                      className={`flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold leading-none transition-colors ${mode === key ? "bg-[#E01E26] text-white" : "text-[#3A3F45] hover:text-[#0E0E0E]"}`}
                     >
                       <Icon className="h-4 w-4" />
                       {label}

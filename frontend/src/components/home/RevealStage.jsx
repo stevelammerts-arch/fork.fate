@@ -20,6 +20,9 @@ import { VolcanoReveal } from "./VolcanoReveal";
 import { TarotDraw } from "./TarotDraw";
 import { CoffinKnock } from "./CoffinKnock";
 import { SeanceCandles } from "./SeanceCandles";
+import { OuijaBoard } from "./OuijaBoard";
+import { DragonEye } from "./DragonEye";
+import { TreasureChest } from "./TreasureChest";
 import { ThemeFlourish, FLOURISH_THEMES } from "./ThemeFlourish";
 import { Magic8Ball } from "./Magic8Ball";
 import { WheelOfFate } from "./WheelOfFate";
@@ -35,7 +38,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   // plays (steam, snow, petals, leaves, fireflies, sparkles, fire wall) —
   // re-fires per revealed place, and after a rare ritual unveils.
   // (Hooks live above the early returns to keep hook order stable.)
-  const RARE_COVERS = ["scratch", "8ball", "wheel", "wand", "hack", "code", "crank", "shaker", "volcano", "tarot", "coffin", "seance"];
+  const RARE_COVERS = ["scratch", "8ball", "wheel", "wand", "hack", "code", "crank", "shaker", "volcano", "tarot", "coffin", "seance", "ouija", "eye", "chest"];
   const isCovered = RARE_COVERS.includes(surprise);
   const resultId = result ? result.id : null;
   const [steaming, setSteaming] = useState(false);
@@ -235,6 +238,15 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
           )}
           {surprise === "seance" && (
             <SeanceCandles onDone={onSurpriseDone} />
+          )}
+          {surprise === "ouija" && (
+            <OuijaBoard name={card.name} onDone={onSurpriseDone} />
+          )}
+          {surprise === "eye" && (
+            <DragonEye onDone={onSurpriseDone} />
+          )}
+          {surprise === "chest" && (
+            <TreasureChest onDone={onSurpriseDone} />
           )}
           {surprise === "wheel" && (
             <WheelOfFate names={deck.map((d) => d.name)} winner={card.name} onDone={onSurpriseDone} />

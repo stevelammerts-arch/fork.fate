@@ -11,6 +11,20 @@ const rnd = (i, salt) => {
 
 /** Falling particles (snow / petals / leaves) drifting down with sway + spin. */
 function FallingBurst({ kind, height }) {
+  // Winter only: a frosty christmas whoosh rides the snowfall (user-uploaded clip).
+  useEffect(() => {
+    if (kind !== "winter") return undefined;
+    let sting = null;
+    try {
+      if (localStorage.getItem("ff_muted") !== "1") {
+        sting = new Audio("/flourish-winter.mp3");
+        sting.volume = 0.6;
+      }
+    } catch (e) { /* audio */ }
+    let started = false;
+    const tm = setTimeout(() => { started = true; sting?.play().catch(() => {}); }, 200);
+    return () => { clearTimeout(tm); if (!started) sting?.pause(); };
+  }, [kind]);
   const styleFor = (i) => {
     const r = rnd(i, 9);
     if (kind === "winter") {

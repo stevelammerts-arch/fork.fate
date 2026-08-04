@@ -41,7 +41,9 @@ export function FairyWand({ onDone }) {
       if (!doneRef.current) { doneRef.current = true; onDone?.(); }
     }, 2000);
   };
-  useEffect(() => () => { doneRef.current = true; }, []);
+  // Reset on (re)mount so StrictMode's simulated unmount can't poison the
+  // guard; a real unmount still cancels the pending onDone.
+  useEffect(() => { doneRef.current = false; return () => { doneRef.current = true; }; }, []);
 
   return (
     <motion.div

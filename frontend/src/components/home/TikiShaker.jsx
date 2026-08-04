@@ -74,7 +74,9 @@ export function TikiShaker({ onDone }) {
     }
   };
 
-  useEffect(() => () => { doneRef.current = true; }, []);
+  // Reset on (re)mount so StrictMode's simulated unmount can't poison the
+  // guard; a real unmount still cancels the pending onDone.
+  useEffect(() => { doneRef.current = false; return () => { doneRef.current = true; }; }, []);
 
   const intensity = 4 + shakes * 2.5; // wobble grows with every shake
 
