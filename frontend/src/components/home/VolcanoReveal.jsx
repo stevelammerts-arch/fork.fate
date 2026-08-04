@@ -29,33 +29,24 @@ function makeRumbler() {
   }
 }
 
-// Island volcano cone with a glowing crater; glow grows with `heat` (0..1).
-function VolcanoSvg({ heat }) {
+// Painterly island volcano (AI-generated asset); crater glow overlay and a
+// brightness lift make it visibly "wake up" as `heat` (0..1) climbs.
+function VolcanoArt({ heat }) {
   return (
-    <svg viewBox="0 0 200 150" className="h-48 w-64 select-none">
-      <defs>
-        <linearGradient id="volRock" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#4A3B33" />
-          <stop offset="100%" stopColor="#241B16" />
-        </linearGradient>
-        <radialGradient id="volGlow" cx="50%" cy="30%" r="70%">
-          <stop offset="0%" stopColor="#FFD27A" />
-          <stop offset="45%" stopColor="#FF7A2F" />
-          <stop offset="100%" stopColor="rgba(255,84,40,0)" />
-        </radialGradient>
-      </defs>
-      {/* crater glow — brightens as the volcano wakes */}
-      <ellipse cx="100" cy="38" rx={34 + heat * 16} ry={12 + heat * 7} fill="url(#volGlow)" opacity={0.25 + heat * 0.75} />
-      {/* cone */}
-      <path d="M74 40 L126 40 L188 146 L12 146 Z" fill="url(#volRock)" stroke="#151009" strokeWidth="3" />
-      {/* crater rim */}
-      <ellipse cx="100" cy="40" rx="26" ry="8" fill="#1A1109" stroke="#151009" strokeWidth="3" />
-      <ellipse cx="100" cy="40" rx="18" ry="5" fill="#FF7A2F" opacity={0.35 + heat * 0.65} />
-      {/* lava cracks appear with heat */}
-      <path d="M96 48 L88 84 L94 112 M108 48 L118 90 L112 120" stroke="#FF5428" strokeWidth="3.5" fill="none" strokeLinecap="round" opacity={heat * 0.9} />
-      {/* palm silhouette for scale */}
-      <path d="M32 146 q2 -22 -4 -34 m4 34 q-1 -20 8 -32 m-8 6 q-10 -8 -20 -6 m20 6 q2 -12 12 -16 m-12 16 q-2 -12 -14 -14" stroke="#10251C" strokeWidth="3" fill="none" strokeLinecap="round" />
-    </svg>
+    <div className="relative">
+      <img
+        src="/tiki-volcano.png"
+        alt=""
+        className="h-52 w-auto max-w-[20rem] select-none object-contain"
+        style={{ filter: `brightness(${0.9 + heat * 0.3}) drop-shadow(0 8px 16px rgba(0,0,0,0.6))` }}
+        draggable={false}
+      />
+      {/* crater heat glow — brightens as the volcano wakes */}
+      <div
+        className="pointer-events-none absolute left-1/2 top-[-4%] h-[34%] w-[46%] -translate-x-1/2 rounded-full transition-opacity duration-300"
+        style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(255,210,122,0.9) 0%, rgba(255,122,47,0.55) 45%, rgba(255,84,40,0) 75%)", filter: "blur(6px)", opacity: 0.15 + heat * 0.85 }}
+      />
+    </div>
   );
 }
 
@@ -130,12 +121,12 @@ export function VolcanoReveal({ onDone }) {
           role="button"
           aria-label={t("Wake the volcano")}
         >
-          <VolcanoSvg heat={heat} />
+          <VolcanoArt heat={heat} />
           {/* lava bombs on eruption */}
           {erupting && bombs.map((b, i) => (
             <motion.div
               key={i}
-              className="pointer-events-none absolute left-1/2 top-[24%] rounded-full"
+              className="pointer-events-none absolute left-1/2 top-[4%] rounded-full"
               style={{ width: b.s, height: b.s, background: "radial-gradient(circle at 35% 30%, #FFD27A, #FF5428 70%)", boxShadow: "0 0 12px 3px rgba(255,110,40,0.8)" }}
               initial={{ x: 0, y: 0, opacity: 0 }}
               animate={{ x: b.x, y: [0, b.y, b.y + 130], opacity: [0, 1, 1, 0] }}
@@ -146,7 +137,7 @@ export function VolcanoReveal({ onDone }) {
           {erupting && [0, 1, 2].map((i) => (
             <motion.div
               key={`s-${i}`}
-              className="pointer-events-none absolute left-1/2 top-[10%] -translate-x-1/2 rounded-full"
+              className="pointer-events-none absolute left-1/2 top-[-12%] -translate-x-1/2 rounded-full"
               style={{ width: 60 + i * 26, height: 60 + i * 26, background: "radial-gradient(circle, rgba(90,80,74,0.55), rgba(90,80,74,0) 70%)", filter: "blur(6px)" }}
               initial={{ y: 20, opacity: 0, scale: 0.5 }}
               animate={{ y: -110 - i * 34, opacity: [0, 0.8, 0], scale: 1.8 }}
