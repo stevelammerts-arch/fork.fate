@@ -947,3 +947,12 @@ See `/app/memory/test_credentials.md`.
   boundary. Mounted in Home.jsx inside the white shell (relative, no overflow clipping),
   gated on theme==='dark' && result && !surpriseReveal, keyed per result. Verified via
   staggered screenshots.
+
+## 2026-08-04 part 17: Third moan + white escort ghost
+- soul-wail.wav rebuilt from original backup: deep base (x0.76) + THIRD even-deeper
+  moan (x0.68) overlaid at 3.9s + echo tail; total 10.8s fading to silence.
+  Pipeline documented in this entry (ffmpeg amix/adelay/aecho/afade).
+- GhostEscort now renders TWO phantoms outside the photo: hooded (/reaper-ghost-2.png,
+  right edge, delay 0.9s) + white sheet ghost (/reaper-ghost-1.png, from bottom-centre
+  left:42% climbing up-left with -170px drift, delay 2.4s, 7.6s flight).
+- Verified in-app mid-flight screenshot; eslint 0 errors.

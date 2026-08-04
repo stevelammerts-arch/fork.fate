@@ -234,8 +234,8 @@ function LatteArt({ compact = false }) {
 const GHOST_SPRITES = ["/reaper-ghost-1.png", "/reaper-ghost-2.png"];
 function GhostRise() {
   // Cleanup only cancels a not-yet-started play — once wailing, the deep
-  // wail (8.4s, echo tail fading to silence) outlives the flourish and
-  // rings out until hushed.
+  // triple-moan wail (10.8s, echo tail fading to silence) outlives the
+  // flourish and rings out until hushed.
   useEffect(() => {
     const wail = new Audio("/soul-wail.wav");
     wail.volume = 0.8;
@@ -361,28 +361,48 @@ function BeachBalls({ height }) {
   });
 }
 
-/** Reaper: one hooded phantom drifting up OUTSIDE the photo window — it
- * hugs the card's right edge, spilling past the card boundary, while the
- * in-window ghosts rise. Mounted by Home next to the reveal shell (which
- * has no overflow clipping). Self-timed to the 8.4s wail. */
+/** Reaper: phantoms drifting OUTSIDE the photo window — a hooded one hugs
+ * the card's right edge while a white sheet ghost rises from bottom-centre
+ * and veers up-left, both spilling past the card boundary. Mounted by Home
+ * next to the reveal shell (which has no overflow clipping). Self-timed to
+ * the ~10.8s wail. */
 export function GhostEscort() {
   return (
-    <motion.div
-      className="pointer-events-none absolute z-20"
-      style={{ right: -26, top: 150, width: 88, filter: "blur(0.4px) drop-shadow(0 0 18px rgba(160,180,215,0.45))" }}
-      initial={{ y: 150, opacity: 0 }}
-      animate={{
-        y: -290,
-        x: [0, -14, 8, -10, 0],
-        opacity: [0, 0.9, 0.75, 0.85, 0.6, 0],
-        rotate: [0, -3, 2, -2, 0],
-      }}
-      transition={{ delay: 0.9, duration: 7.4, ease: "easeOut" }}
-      aria-hidden="true"
-      data-testid="ghost-escort"
-    >
-      <img src="/reaper-ghost-2.png" alt="" className="w-full select-none object-contain" draggable={false} />
-    </motion.div>
+    <>
+      <motion.div
+        className="pointer-events-none absolute z-20"
+        style={{ right: -26, top: 150, width: 88, filter: "blur(0.4px) drop-shadow(0 0 18px rgba(160,180,215,0.45))" }}
+        initial={{ y: 150, opacity: 0 }}
+        animate={{
+          y: -290,
+          x: [0, -14, 8, -10, 0],
+          opacity: [0, 0.9, 0.75, 0.85, 0.6, 0],
+          rotate: [0, -3, 2, -2, 0],
+        }}
+        transition={{ delay: 0.9, duration: 7.4, ease: "easeOut" }}
+        aria-hidden="true"
+        data-testid="ghost-escort"
+      >
+        <img src="/reaper-ghost-2.png" alt="" className="w-full select-none object-contain" draggable={false} />
+      </motion.div>
+      {/* white sheet ghost: bottom-centre, climbing up and to the left */}
+      <motion.div
+        className="pointer-events-none absolute z-20"
+        style={{ left: "42%", bottom: -24, width: 94, filter: "blur(0.4px) drop-shadow(0 0 18px rgba(210,225,250,0.5))" }}
+        initial={{ y: 70, opacity: 0 }}
+        animate={{
+          y: -560,
+          x: [0, -30, -70, -120, -170],
+          opacity: [0, 0.9, 0.78, 0.85, 0.55, 0],
+          rotate: [0, -4, -2, -6, -3],
+        }}
+        transition={{ delay: 2.4, duration: 7.6, ease: "easeOut" }}
+        aria-hidden="true"
+        data-testid="ghost-escort-white"
+      >
+        <img src="/reaper-ghost-1.png" alt="" className="w-full select-none object-contain" draggable={false} />
+      </motion.div>
+    </>
   );
 }
 
