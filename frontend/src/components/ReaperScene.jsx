@@ -104,10 +104,6 @@ export function ReaperScene() {
           animate={{ opacity: [0.35, 0.95, 0.5, 1, 0.4, 0.8, 0.45] }}
           transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 1.4 }}
         />
-        <div className="absolute z-10 w-[9%]" style={{ left: "73.5%", top: "10.2%", animation: "ffRavenVisit 44s linear infinite", opacity: 0 }} data-testid="reaper-raven">
-          <img src="/reaper-raven-fly.png" alt="" className="w-full" style={{ animation: "ffRavenFlyShow 44s linear infinite, ffCardinalFlap 0.26s ease-in-out infinite alternate", transformOrigin: "50% 60%", filter: "brightness(1.35)" }} />
-          <img src="/reaper-raven.png" alt="" className="absolute inset-0 w-full opacity-0" style={{ animation: "ffRavenPerchShow 44s linear infinite, ffRavenLook 44s linear infinite", transformOrigin: "50% 100%", filter: "brightness(1.35)" }} />
-        </div>
         </motion.div>
         </motion.div>
       </div>

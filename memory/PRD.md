@@ -1113,3 +1113,17 @@ See `/app/memory/test_credentials.md`.
 - Squirrel transparency complaint: opacity-80 removed (now fully opaque); rabbits
   bumped 0.80/0.75 -> 0.95/0.90. NOTE PATTERN: user consistently dislikes translucent
   critters/props ghosting — keep all future critters at >=0.9 opacity.
+
+## 2026-08-05 part 30: Raven moved to fall scarecrow + tiki gecko
+- USER CORRECTION: raven belongs in FALL with the scarecrow (not Reaper). Raven block
+  REMOVED from ReaperScene.jsx (tail structure restored: lantern -> 2 motion.div
+  closings -> </div>); now renders inside the fall scarecrow container
+  (data-testid="fall-raven", w-[26%] left 1% top 7.5%) perched on the LEFT crossbar
+  tip — same ffRaven* keyframes reused, no brightness filter (daylight). Verified
+  visually: sits exactly on the crossbar.
+- Tiki gecko: NEW tiki-gecko.png (lime green w/ orange spots, gen_gecko.py).
+  In tiki lounge block (data-testid="tiki-gecko", bottom-2.5% left-12%, z-[3], FULL
+  opacity per user preference). ffGeckoDart 16s: 0.3s lightning sprints of 15vw with
+  ~2.7s freezes, whip-turns (fast scaleX spin + tiny lift) at ends; ffGeckoGait
+  stretch pulses (1.18/0.88) during sprints. Verified sprint-freeze x-sampling.
+- Reaper realm intentionally has NO critter now (bats already live there).

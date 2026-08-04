@@ -1261,6 +1261,70 @@ body {
   78.3%{ transform: scaleX(1) rotate(0deg); }
   100%{ transform: scaleX(1) rotate(0deg); }
 }
+/* Tiki gecko: lightning sprints (0.3s legs) with long freezes, whip-turns at
+   the ends (fast scaleX spin with a tiny lift, no paper flip) */
+@keyframes ffGeckoDart{
+  0%{ transform: translateX(0) translateY(0) scaleX(1); }
+  1%{ transform: translateX(7vw) translateY(-2px) scaleX(1); }
+  2%{ transform: translateX(15vw) translateY(0) scaleX(1); }
+  19%{ transform: translateX(15vw) translateY(0) scaleX(1); }
+  20%{ transform: translateX(22vw) translateY(-2px) scaleX(1); }
+  21%{ transform: translateX(30vw) translateY(0) scaleX(1); }
+  38%{ transform: translateX(30vw) translateY(0) scaleX(1); }
+  39%{ transform: translateX(38vw) translateY(-2px) scaleX(1); }
+  40%{ transform: translateX(45vw) translateY(0) scaleX(1); }
+  54%{ transform: translateX(45vw) translateY(0) scaleX(1); }
+  54.5%{ transform: translateX(45vw) translateY(-3px) scaleX(0.6); }
+  55%{ transform: translateX(45vw) translateY(-4px) scaleX(0.05); }
+  55.5%{ transform: translateX(45vw) translateY(-3px) scaleX(-0.6); }
+  56%{ transform: translateX(45vw) translateY(0) scaleX(-1); }
+  60%{ transform: translateX(45vw) translateY(0) scaleX(-1); }
+  61%{ transform: translateX(38vw) translateY(-2px) scaleX(-1); }
+  62%{ transform: translateX(30vw) translateY(0) scaleX(-1); }
+  74%{ transform: translateX(30vw) translateY(0) scaleX(-1); }
+  75%{ transform: translateX(22vw) translateY(-2px) scaleX(-1); }
+  76%{ transform: translateX(15vw) translateY(0) scaleX(-1); }
+  88%{ transform: translateX(15vw) translateY(0) scaleX(-1); }
+  89%{ transform: translateX(7vw) translateY(-2px) scaleX(-1); }
+  90%{ transform: translateX(0) translateY(0) scaleX(-1); }
+  97%{ transform: translateX(0) translateY(0) scaleX(-1); }
+  97.5%{ transform: translateX(0) translateY(-3px) scaleX(-0.6); }
+  98%{ transform: translateX(0) translateY(-4px) scaleX(-0.05); }
+  98.5%{ transform: translateX(0) translateY(-3px) scaleX(0.6); }
+  99%,100%{ transform: translateX(0) translateY(0) scaleX(1); }
+}
+@keyframes ffGeckoGait{
+  0%{ transform: scaleX(0.9); }
+  0.5%{ transform: scaleX(1.18); }
+  1%{ transform: scaleX(0.9); }
+  1.5%{ transform: scaleX(1.18); }
+  2%{ transform: scaleX(0.88); }
+  3%,18.6%{ transform: scaleX(1); }
+  19%{ transform: scaleX(0.9); }
+  19.5%{ transform: scaleX(1.18); }
+  20%{ transform: scaleX(0.9); }
+  20.5%{ transform: scaleX(1.18); }
+  21%{ transform: scaleX(0.88); }
+  22%,38.6%{ transform: scaleX(1); }
+  39%{ transform: scaleX(0.9); }
+  39.5%{ transform: scaleX(1.18); }
+  40%{ transform: scaleX(0.88); }
+  41%,59.6%{ transform: scaleX(1); }
+  60%{ transform: scaleX(0.9); }
+  60.5%{ transform: scaleX(1.18); }
+  61%{ transform: scaleX(0.9); }
+  61.5%{ transform: scaleX(1.18); }
+  62%{ transform: scaleX(0.88); }
+  63%,74.6%{ transform: scaleX(1); }
+  75%{ transform: scaleX(0.9); }
+  75.5%{ transform: scaleX(1.18); }
+  76%{ transform: scaleX(0.88); }
+  77%,88.6%{ transform: scaleX(1); }
+  89%{ transform: scaleX(0.9); }
+  89.5%{ transform: scaleX(1.18); }
+  90%{ transform: scaleX(0.88); }
+  91%,100%{ transform: scaleX(1); }
+}
 
 /* ── Cyberpunk accent recolor: neon cyan (dark surfaces preserved) ── */
 [data-ff-theme="cyber"] [data-ff-scope="app"] .bg-\[\#E01E26\]{background-color:#15C8D6 !important;}

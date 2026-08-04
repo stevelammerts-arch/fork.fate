@@ -133,6 +133,11 @@ export function SeasonScene({ theme, cfg }) {
       {cfg.scarecrow && (
         <div className="absolute bottom-0 left-[1%] z-[2] h-[34vh] sm:left-[3%] sm:h-[46vh]" style={{ aspectRatio: "766 / 1585" }} data-testid="fall-scarecrow">
           <img src={cfg.scarecrow} alt="" className="h-full w-full object-contain opacity-[0.72]" />
+          {/* raven visits the scarecrow's crossbar tip now and then */}
+          <div className="absolute w-[26%]" style={{ left: "1%", top: "7.5%", animation: "ffRavenVisit 44s linear infinite", opacity: 0 }} data-testid="fall-raven">
+            <img src="/reaper-raven-fly.png" alt="" className="w-full" style={{ animation: "ffRavenFlyShow 44s linear infinite, ffCardinalFlap 0.26s ease-in-out infinite alternate", transformOrigin: "50% 60%" }} />
+            <img src="/reaper-raven.png" alt="" className="absolute inset-0 w-full opacity-0" style={{ animation: "ffRavenPerchShow 44s linear infinite, ffRavenLook 44s linear infinite", transformOrigin: "50% 100%" }} />
+          </div>
           <span className="absolute rounded-full" style={{ left: "61.4%", top: "13.3%", width: "6.5%", height: "3.2%", background: "radial-gradient(circle, rgba(255,55,30,1), rgba(255,20,0,0.5) 45%, rgba(255,0,0,0) 72%)", filter: "blur(1px)", animation: "ffEyeFlash 5s ease-in-out infinite" }} />
           <span className="absolute rounded-full" style={{ left: "67.6%", top: "16.3%", width: "6%", height: "3%", background: "radial-gradient(circle, rgba(255,55,30,1), rgba(255,20,0,0.5) 45%, rgba(255,0,0,0) 72%)", filter: "blur(1px)", animation: "ffEyeFlash 5s ease-in-out infinite" }} />
         </div>
@@ -434,6 +439,10 @@ export function AmbianceScene({ theme, cfg }) {
             style={{ objectPosition: "center center", animation: `ffTikiFlame 1.2s ease-in-out ${(-0.4 * i).toFixed(1)}s infinite` }}
           />
         ))}
+        {/* tiki gecko: lightning-fast sprints along the bar floor with freezes */}
+        <div className="absolute bottom-[2.5%] left-[12%] z-[3]" style={{ animation: "ffGeckoDart 16s linear infinite" }} data-testid="tiki-gecko">
+          <img src="/tiki-gecko.png" alt="" className="w-10 sm:w-12" style={{ animation: "ffGeckoGait 16s linear infinite", transformOrigin: "50% 100%" }} />
+        </div>
       </>)}
       {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
       {cfg.console && (
