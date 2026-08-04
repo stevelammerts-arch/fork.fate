@@ -10,9 +10,10 @@ const rnd = (i, salt) => {
 };
 
 // Falling-burst themes with a sting: frosty christmas whoosh for winter's
-// snow, an oriental melody for spring's petals (user-uploaded clips), and a
-// synthesized wind-gust leaf rustle for fall.
-const FALLING_STINGS = { winter: "/flourish-winter.mp3", spring: "/flourish-spring.mp3", fall: "/flourish-fall.mp3" };
+// snow, an oriental melody for spring's petals (user-uploaded clips). Fall
+// deliberately has NO sting — the owl hoot on the fall reveal owns that
+// moment and any flourish noise interferes with it.
+const FALLING_STINGS = { winter: "/flourish-winter.mp3", spring: "/flourish-spring.mp3" };
 
 /** Falling particles (snow / petals / leaves) drifting down with sway + spin.
  * The sting plays only on the reveal mount — the deck flourish stays silent

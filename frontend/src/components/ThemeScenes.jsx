@@ -53,7 +53,7 @@ export const SEASONS = {
   },
   spring: {
     grad: "linear-gradient(180deg,#F3FBEF 0%,#FBEFF5 55%,#EFF7E6 100%)",
-    tree: "/spring-tree.png", treeBig: true, ground: "/spring-ground2.png", decorLeft: "/spring-decor.png", decorLeftBig: true,
+    tree: "/spring-tree.png", treeBig: true, ground: "/spring-ground2.png", decorLeft: "/spring-decor.png", decorLeftBig: true, rabbits: "/spring-rabbit.png",
     items: ["/blossom-pink.png", "/blossom-white.png", "/petal-coral.png"], falling: true, hint: "#D46A9F",
   },
   summer: {
@@ -101,7 +101,16 @@ export function SeasonScene({ theme, cfg }) {
       ) : (
         <img src={cfg.decorRight} alt="" className={`absolute bottom-0 ${cfg.decorRightPos || "right-[3%]"} object-contain opacity-[0.32] ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={{ ...(cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : {}), ...(cfg.decorRightOpacity ? { opacity: cfg.decorRightOpacity } : {}) }} />
       ))}
-      {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className={`absolute bottom-0 left-0 object-contain opacity-[0.32] sm:left-[2%] ${cfg.decorLeftW ? cfg.decorLeftW : (cfg.decorLeftBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[42vw] max-w-sm sm:w-[26vw]")}`} style={cfg.decorLeftOpacity ? { opacity: cfg.decorLeftOpacity } : undefined} />}
+      {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className={`absolute bottom-0 left-0 object-contain opacity-[0.32] sm:left-[2%] ${cfg.decorLeftW ? cfg.decorLeftW : (cfg.decorLeftBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-42vw] max-w-sm sm:w-[26vw]")}`} style={cfg.decorLeftOpacity ? { opacity: cfg.decorLeftOpacity } : undefined} />}
+      {cfg.rabbits && (<>
+        {/* two tiny cottontails: one patrols the gazebo lawn, one the tree side */}
+        <div className="absolute bottom-[2.5%] left-[14%] z-[3]" style={{ animation: "ffRabbitPatrol 14s ease-in-out infinite" }} data-testid="spring-rabbit-1">
+          <img src={cfg.rabbits} alt="" className="w-10 opacity-80 sm:w-12" style={{ animation: "ffRabbitHop 0.7s ease-in-out infinite" }} />
+        </div>
+        <div className="absolute bottom-[5%] right-[16%] z-[3]" style={{ animation: "ffRabbitPatrol 19s ease-in-out infinite reverse", animationDelay: "2.5s" }} data-testid="spring-rabbit-2">
+          <img src={cfg.rabbits} alt="" className="w-8 opacity-75 sm:w-10" style={{ animation: "ffRabbitHop 0.8s ease-in-out infinite", animationDelay: "0.25s" }} />
+        </div>
+      </>)}
       {cfg.scarecrow && (
         <div className="absolute bottom-0 left-[1%] z-[2] h-[34vh] sm:left-[3%] sm:h-[46vh]" style={{ aspectRatio: "766 / 1585" }} data-testid="fall-scarecrow">
           <img src={cfg.scarecrow} alt="" className="h-full w-full object-contain opacity-[0.72]" />
