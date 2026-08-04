@@ -894,3 +894,26 @@ See `/app/memory/test_credentials.md`.
   registry entry + i18n strings.
 - BACKLOG: P1 iOS App Store publishing; refactor ideas from tester: useRitualLifecycle
   shared hook, extract rare-fate logic from Home.jsx (1589 lines).
+
+## 2026-08-04 part 13: Code review fixes applied
+- SECURITY: removed hardcoded admin password from backend/tests/test_iter49_feedback.py
+  (now reads ADMIN_PASSWORD from env with backend/.env fallback). 5/5 tests pass.
+- REFACTOR: extracted PassportPicker.jsx + GroupPicker.jsx from Home.jsx
+  (components/home/). Home.jsx 1590 -> 1477 lines. Verified pixel/behavior parity
+  (category switch, size select, setup CTA, no console errors).
+- Passport.jsx share catch: no longer swallows real failures (AbortError = user
+  cancel stays silent; other errors toast).
+- FALSE POSITIVES investigated + documented (do not "fix" these):
+  * "100+ missing hook deps": project eslint react-hooks/exhaustive-deps reports 0
+    warnings in cited files; Admin/Passport already use useCallback correctly, Wall
+    uses module-scope constants.
+  * "sensitive data in localStorage": only non-sensitive game state (streaks, ritual
+    collection, crawl progress, passport codes). Admin auth uses httpOnly cookies
+    (withCredentials) — nothing sensitive client-side.
+  * "index-as-key": flagged instances are fixed-length decorative particle arrays
+    (coins/embers/flames) that never reorder — index keys are stable and correct.
+- DEFERRED to backlog (risk > reward right now): splitting backend high-complexity
+  routes (stamp_passport, complete_crawl, places_search), full type-hint pass,
+  further Home.jsx/Passport.jsx decomposition, useRitualLifecycle shared hook.
+- NOTE: light cafe theme intentionally remaps #E01E26 red -> sage green via
+  index.css !important overrides (line 100+) — not a bug.

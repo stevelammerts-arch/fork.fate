@@ -350,7 +350,10 @@ export default function Passport() {
         await navigator.clipboard.writeText(`${text} ${url}`);
         toast.success("Link copied");
       }
-    } catch { /* user cancelled */ }
+    } catch (e) {
+      // Share-sheet cancellations are normal; real failures deserve a nudge.
+      if (e?.name !== "AbortError") toast.error("Couldn't share — try copying the link instead.");
+    }
   };
 
   if (error) {

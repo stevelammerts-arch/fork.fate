@@ -15,7 +15,16 @@ if not BASE_URL:
     except Exception:
         pass
 
-ADMIN_PASSWORD = "ForkFate!Admin2026"
+# Admin password comes from backend/.env — never hardcode secrets in tests.
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
+if not ADMIN_PASSWORD:
+    try:
+        with open("/app/backend/.env") as f:
+            for line in f:
+                if line.startswith("ADMIN_PASSWORD"):
+                    ADMIN_PASSWORD = line.split("=", 1)[1].strip().strip('"')
+    except Exception:
+        pass
 
 
 @pytest.fixture(scope="module")
