@@ -502,6 +502,8 @@ export const ES = {
   "A scaled claw rises from the hoard and drags the medallion down into the gold.": "Una garra escamosa surge del tesoro y arrastra el medallón hacia el oro.",
   "Skeletal hands reach up from the grave and pull the medallion under.": "Manos esqueléticas emergen de la tumba y arrastran el medallón bajo tierra.",
   "Your stops": "Tus paradas",
+  "Stops": "Paradas",
+  "Numbered pins follow your route — green means conquered.": "Los pines numerados siguen tu ruta: el verde significa conquistado.",
   "Start here": "Empieza aquí",
   "Next": "Siguiente",
   "Fate of the Day": "Destino del Día",

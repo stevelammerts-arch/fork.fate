@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Beer, MapPin, Star, Shuffle, ExternalLink, X, Share2, Trophy, Users, Check, Navigation, LocateFixed, ChevronDown } from "lucide-react";
+import { Beer, MapPin, Star, Shuffle, ExternalLink, X, Share2, Trophy, Users, Check, Navigation, LocateFixed, ChevronDown, ListOrdered, Map as MapIcon } from "lucide-react";
 import { toast } from "sonner";
 import CrawlBadgeDialog from "./CrawlBadgeDialog";
 import CrawlMap from "./CrawlMap";
@@ -41,6 +41,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
   const [autoGps, setAutoGps] = useState(false);
   const [livePos, setLivePos] = useState(null);
   const [crew, setCrew] = useState("");
+  const [view, setView] = useState("stops"); // "stops" | "map" — two switchable pages
   const [sharing, setSharing] = useState(false);
   const [badgeOpen, setBadgeOpen] = useState(false);
   const [crawlCode, setCrawlCode] = useState(code || null);
@@ -86,7 +87,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
     if (!open) return;
     const id = setTimeout(updateCue, 400);
     return () => clearTimeout(id);
-  }, [open, stops.length, updateCue]);
+  }, [open, stops.length, view, updateCue]);
   const CRAWL_LABELS = { bars: "Pub Crawl", food: "Food Crawl", drinks: "Drinks Crawl", desserts: "Dessert Crawl", shops: "Shop Crawl" };
   const label = crawlLabel || t(CRAWL_LABELS[mode] || "Pub Crawl");
   const crewLine = crew.trim() ? ` ${t("with")} ${crew.trim()}` : "";
@@ -319,17 +320,9 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
           </DialogHeader>
 
           <div className="relative flex min-h-0 flex-1 flex-col">
-          <div ref={bodyRef} onScroll={updateCue} className="ff-crawl-body -mr-2 flex-1 space-y-0 overflow-y-auto pr-2">
-          {/* Route map */}
+          {/* Progress — always visible on both pages */}
           {stops.length > 0 && (
-            <div className="mt-2">
-              <CrawlMap stops={stops} origin={origin} destination={destination} visited={visited} livePos={livePos} />
-            </div>
-          )}
-
-          {/* Progress */}
-          {stops.length > 0 && (
-            <div className="mt-2" data-testid="crawl-progress">
+            <div className="mt-2 shrink-0" data-testid="crawl-progress">
               <div className="mb-1 flex items-center justify-between text-xs font-bold text-[#A0A0A0]">
                 <span>{visitedCount} / {stops.length} {t("conquered")}</span>
                 <button
@@ -343,11 +336,44 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
               <div className="h-2 w-full overflow-hidden rounded-full bg-[#2A2A2A]">
                 <div className="h-full rounded-full bg-[#E01E26] transition-all duration-500" style={{ width: `${stops.length ? (visitedCount / stops.length) * 100 : 0}%` }} />
               </div>
-              <p className="mt-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#8A8A8A]">
-                <Check className="h-3.5 w-3.5 text-[#4ADE80]" />
-                {t("Arrived? Tap the numbered circle on a stop to check it off.")}
+            </div>
+          )}
+
+          {/* Stops / Map page switch */}
+          {stops.length > 0 && (
+            <div className="mt-3 flex shrink-0 gap-1 rounded-full border border-[#2A2A2A] bg-[#1A1A1A] p-1" data-testid="crawl-view-tabs">
+              <button
+                onClick={() => setView("stops")}
+                data-testid="crawl-tab-stops"
+                className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${view === "stops" ? "bg-[#E01E26] text-white" : "text-[#A0A0A0] hover:bg-white/5"}`}
+              >
+                <ListOrdered className="h-3.5 w-3.5" /> {t("Stops")}
+              </button>
+              <button
+                onClick={() => setView("map")}
+                data-testid="crawl-tab-map"
+                className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${view === "map" ? "bg-[#E01E26] text-white" : "text-[#A0A0A0] hover:bg-white/5"}`}
+              >
+                <MapIcon className="h-3.5 w-3.5" /> {t("Map")}
+              </button>
+            </div>
+          )}
+
+          {view === "map" && stops.length > 0 ? (
+            <div className="mt-3 min-h-0 flex-1" data-testid="crawl-map-view">
+              <CrawlMap stops={stops} origin={origin} destination={destination} visited={visited} livePos={livePos} height={330} />
+              <p className="mt-2 text-center text-[11px] font-semibold text-[#8A8A8A]">
+                {t("Numbered pins follow your route — green means conquered.")}
               </p>
             </div>
+          ) : (
+          <>
+          <div ref={bodyRef} onScroll={updateCue} className="ff-crawl-body -mr-2 flex-1 space-y-0 overflow-y-auto pr-2">
+          {stops.length > 0 && (
+            <p className="mt-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#8A8A8A]">
+              <Check className="h-3.5 w-3.5 text-[#4ADE80]" />
+              {t("Arrived? Tap the numbered circle on a stop to check it off.")}
+            </p>
           )}
 
           <div className="mt-3 space-y-0">
@@ -434,6 +460,8 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
                 <ChevronDown className="h-3.5 w-3.5" /> {t("Your stops")}
               </span>
             </div>
+          )}
+          </>
           )}
           </div>
 

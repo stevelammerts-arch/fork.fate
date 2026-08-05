@@ -47,7 +47,7 @@ const liveIcon = L.divIcon({
 
 // Interactive, no-cost route map (OpenStreetMap data via CARTO dark tiles).
 // Renders numbered pins + a connecting line for the crawl route.
-export default function CrawlMap({ stops = [], origin = null, destination = null, visited = {}, livePos = null }) {
+export default function CrawlMap({ stops = [], origin = null, destination = null, visited = {}, livePos = null, height = 170 }) {
   const pts = useMemo(
     () => stops.filter((s) => s.lat != null && s.lng != null).map((s) => ({ ...s, ll: [Number(s.lat), Number(s.lng)] })),
     [stops]
@@ -67,7 +67,7 @@ export default function CrawlMap({ stops = [], origin = null, destination = null
       <MapContainer
         bounds={bounds}
         scrollWheelZoom={false}
-        style={{ height: 170, width: "100%", background: "#0B0B0B" }}
+        style={{ height, width: "100%", background: "#0B0B0B" }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'

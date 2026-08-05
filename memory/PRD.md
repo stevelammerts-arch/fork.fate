@@ -1472,3 +1472,15 @@ See `/app/memory/test_credentials.md`.
   sizes (flex-1 each, px-3 py-2 text-xs on mobile, sm: restores py-3 text-sm);
   crawl-complete-button slimmed (py-2 text-xs mobile). Reclaims ~110px —
   stops 1-2 + cue now above the fold at 390x800. Verified via screenshot.
+
+## 2026-08-05 part 49: Crawl dialog Stops/Map pages (FF_BUILD 324)
+- User: "list of fates and the map on 2 pages users can switch between".
+  PubCrawlDialog now has `view` state + segmented control (crawl-view-tabs,
+  crawl-tab-stops / crawl-tab-map, red active pill). Progress bar stays
+  visible on both pages. STOPS page (default): hint line + stop list + crew
+  input in the scroll body w/ cue (cue effect deps now include view). MAP
+  page: CrawlMap height=330 (CrawlMap takes height prop, default 170) +
+  caption "Numbered pins follow your route — green means conquered."
+  react-leaflet remounts cleanly per tab switch (bounds applied on mount).
+- Verified via screenshots: 4 stops above fold on Stops page, big map with
+  numbered pins + START marker on Map page, switch back/forth works.
