@@ -1384,3 +1384,32 @@ See `/app/memory/test_credentials.md`.
   "FORK·FATE / 30-DAY DEVOTEE", data-testid="card-back-golden". Verified: seed
   ff_streak={date:now,count:31} -> all 5 shuffle cards golden in reaper realm.
 - NOT ON PRODUCTION until user redeploys.
+
+## 2026-08-05 part 45: Golden fate card + heist collection + streak saver (FF_BUILD 320)
+- GOLDEN FATE CARD: homeFateCard.js imports readStreak; buildFateCard passes
+  `golden = readStreak() >= 30` into BOTH builders; drawGoldenTrim(ctx,W,H)
+  draws a gilded double frame + "★ 30-DAY DEVOTEE" pill seal (top-right, clear
+  of QR/logo in both layouts), drawn LAST over scrims. VERIFIED by intercepting
+  URL.createObjectURL (window.fetch is instrumented by emergent-main.js — use
+  createImageBitmap on the stashed Blob, NOT fetch(blobUrl)) via the
+  fate-actions-trigger -> fate-action-share-image download path.
+- HEIST COLLECTION: rituals.js adds HEISTS registry (saucer/dragon/grave w/
+  name/realm/accent/desc), readHeistsSeen/recordHeistSeen (ff_heists_seen,
+  returns first-time bool). ThemeScenes useHeistWitness(key) hook (useLang +
+  useNavigate + sonner toast "Heist witnessed!" w/ Collection action) — called
+  via witnessRef.current(true) at COMPLETION timers (LogoHeist 3650ms w/
+  heistKey prop dragon/grave; SaucerAbduction 4900ms w/ "saucer").
+  GOTCHA: one search_replace reported success but didn't persist the LogoHeist
+  witness call — always grep-verify after batch edits. Rituals.jsx adds
+  "Realm Heists" section (heist-card-{key} grid, HEIST_ICONS Rocket/Grab/Bone;
+  also fixed missing globe:Snowflake latte:Coffee ritual icons). VERIFIED:
+  forced dragon heist -> toast + ff_heists_seen + unlocked card on /rituals.
+- STREAK SAVER: homeConstants — ff_streak JSON now {date,count,graceUsed}.
+  bumpStreak returns {count,saved}: days===2 && !graceUsed -> count+1,
+  graceUsed=true, saved=true (one grace per streak run; second miss resets,
+  graceUsed clears on new run). readStreak honors pending grace (days===2 &&
+  !graceUsed keeps count alive for golden-deck checks). Home.dealStreak toasts
+  "A grace day saved your streak — fate is merciful." VERIFIED: seed date=2
+  days ago count=10 -> deal -> toast + {count:11,graceUsed:true} + badge 11.
+- i18n: es entries for all new strings (heists, grace toast, section copy).
+- NOT ON PRODUCTION until user redeploys.

@@ -1,4 +1,5 @@
 import QRCode from "qrcode";
+import { readStreak } from "./homeConstants";
 
 function loadImage(src) {
   return new Promise((resolve, reject) => {
@@ -49,11 +50,37 @@ function hexA(hex, a) {
 
 export async function buildFateCard(card, theme) {
   const cfg = FATE_CARD[theme] || FATE_CARD.dark;
-  if (cfg.hand) return buildReaperCard(card);
-  return buildThemedCard(card, cfg);
+  const golden = readStreak() >= 30; // 30-day streak: the shared card goes gilded
+  const blobCanvas = cfg.hand ? await buildReaperCard(card, golden) : await buildThemedCard(card, cfg, golden);
+  return blobCanvas;
 }
 
-async function buildThemedCard(card, cfg) {
+// 30-day streak reward: gilded double frame + a devotee seal (top-right).
+function drawGoldenTrim(ctx, W, H) {
+  const g = ctx.createLinearGradient(0, 0, W, H);
+  g.addColorStop(0, "#F3D9A0"); g.addColorStop(0.5, "#E6B23A"); g.addColorStop(1, "#B98A22");
+  ctx.save();
+  ctx.strokeStyle = g; ctx.lineWidth = 10; ctx.strokeRect(14, 14, W - 28, H - 28);
+  ctx.strokeStyle = "rgba(230,178,58,0.55)"; ctx.lineWidth = 2; ctx.strokeRect(30, 30, W - 60, H - 60);
+  const label = "★ 30-DAY DEVOTEE";
+  ctx.font = "700 24px Arial, sans-serif";
+  const tw = ctx.measureText(label).width;
+  const bw = tw + 48, bh = 52, bx = W - 56 - bw, by = 52, br = 26;
+  ctx.beginPath();
+  ctx.moveTo(bx + br, by);
+  ctx.arcTo(bx + bw, by, bx + bw, by + bh, br);
+  ctx.arcTo(bx + bw, by + bh, bx, by + bh, br);
+  ctx.arcTo(bx, by + bh, bx, by, br);
+  ctx.arcTo(bx, by, bx + bw, by, br);
+  ctx.closePath();
+  ctx.fillStyle = g; ctx.fill();
+  ctx.fillStyle = "#241804";
+  ctx.textAlign = "center";
+  ctx.fillText(label, bx + bw / 2, by + 34);
+  ctx.restore();
+}
+
+async function buildThemedCard(card, cfg, golden) {
   const W = 1080, H = 1080;
   const canvas = document.createElement("canvas");
   canvas.width = W; canvas.height = H;
@@ -180,11 +207,13 @@ async function buildThemedCard(card, cfg) {
   ctx.fillText("shuffle your own fate", 64, H - 34);
   ctx.textAlign = "center";
 
+  if (golden) drawGoldenTrim(ctx, W, H);
+
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
 
 
-async function buildReaperCard(card) {
+async function buildReaperCard(card, golden) {
   const W = 1080, H = 1080;
   const canvas = document.createElement("canvas");
   canvas.width = W; canvas.height = H;
@@ -301,6 +330,8 @@ async function buildReaperCard(card) {
   ctx.fillText("Scan the code to", 64, H - 72);
   ctx.fillText("shuffle your own fate", 64, H - 36);
   ctx.textAlign = "center";
+
+  if (golden) drawGoldenTrim(ctx, W, H);
 
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }

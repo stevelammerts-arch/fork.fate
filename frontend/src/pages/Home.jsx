@@ -313,7 +313,8 @@ export default function Home() {
   // Bump the daily streak and throw confetti + a toast the first time a
   // 7- or 30-day milestone is reached (once per streak run).
   const dealStreak = () => {
-    const count = bumpStreak();
+    const { count, saved } = bumpStreak();
+    if (saved) toast(t("A grace day saved your streak — fate is merciful."), { duration: 5000 });
     const m = streakMilestone(count);
     if (m) {
       const colors = ["#E01E26", "#E6B23A", "#FFFFFF"];

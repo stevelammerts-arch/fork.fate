@@ -43,3 +43,34 @@ export function recordRitualSeen(key) {
     localStorage.setItem(STORE_KEY, JSON.stringify(seen));
   } catch (e) { /* storage unavailable */ }
 }
+
+// Realm heists: rare medallion thefts (easter eggs) tracked like rituals.
+const HEIST_KEY = "ff_heists_seen";
+
+export const HEISTS = [
+  { key: "saucer", name: "Saucer Abduction", realm: "Cyberscape", accent: "#22E0E0", desc: "A stealth saucer locks its tractor beam on the medallion and beams it up — then drops it back." },
+  { key: "dragon", name: "Dragon Heist", realm: "Dragon's Hoard", accent: "#E6B23A", desc: "A scaled claw rises from the hoard and drags the medallion down into the gold." },
+  { key: "grave", name: "Grave Snatch", realm: "Reaper", accent: "#E01E26", desc: "Skeletal hands reach up from the grave and pull the medallion under." },
+];
+
+export function readHeistsSeen() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HEIST_KEY) || "{}");
+    return raw && typeof raw === "object" ? raw : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+/** Records a heist sighting; returns true if this was the first time. */
+export function recordHeistSeen(key) {
+  try {
+    const seen = readHeistsSeen();
+    const cur = seen[key];
+    seen[key] = { count: (cur?.count || 0) + 1, first: cur?.first || new Date().toISOString() };
+    localStorage.setItem(HEIST_KEY, JSON.stringify(seen));
+    return !cur;
+  } catch (e) {
+    return false;
+  }
+}

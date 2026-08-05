@@ -1,4 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { useLang } from "../i18n/i18n";
+import { HEISTS, recordHeistSeen } from "../lib/rituals";
 
 const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => ({
   left: `${(i * 8 + 4) % 94}%`,
@@ -388,6 +392,7 @@ function TikiFloorGecko() {
 function SaucerAbduction({ saucer, onActive }) {
   const [run, setRun] = useState(null);
   const [phase, setPhase] = useState(0); // 1 fly-in, 2 beam on, 3 lift, 4 leave
+  const witnessRef = useHeistWitness("saucer");
   useEffect(() => {
     const timers = [];
     let pending = null;
@@ -418,6 +423,7 @@ function SaucerAbduction({ saucer, onActive }) {
       }, 4200));
       timers.push(setTimeout(() => {
         setRun(null); setPhase(0); onActive(false); running = false;
+        witnessRef.current(true);
         schedule(150000 + Math.random() * 150000); // strikes again in 2.5-5 min
       }, 4900));
     };
@@ -467,6 +473,25 @@ function SaucerAbduction({ saucer, onActive }) {
   );
 }
 
+/** First-time heist sightings earn a toast pointing at the Collection. */
+function useHeistWitness(key) {
+  const { t } = useLang();
+  const navigate = useNavigate();
+  const ref = useRef(null);
+  ref.current = (announce) => {
+    const first = recordHeistSeen(key);
+    if (!first || !announce) return first;
+    const heist = HEISTS.find((h) => h.key === key);
+    toast(t("Heist witnessed!"), {
+      description: heist ? t(heist.name) : undefined,
+      action: { label: t("Collection"), onClick: () => navigate("/rituals") },
+      duration: 6000,
+    });
+    return first;
+  };
+  return ref;
+}
+
 /** The Fork·Fate title does a startled little hop when its medallion is
  * stolen by any of the realm heists. */
 function startleTitle() {
@@ -485,9 +510,10 @@ function startleTitle() {
  * Geometry: `gripX/gripY` are the grip point as fractions of the sprite box,
  * `widthMult` scales the sprite relative to the medallion, `aspect` = natural
  * height/width of the sprite art. */
-function LogoHeist({ sprite, aspect, gripX, gripY, widthMult, cloneSrc, shadow, testid }) {
+function LogoHeist({ sprite, aspect, gripX, gripY, widthMult, cloneSrc, shadow, testid, heistKey }) {
   const [run, setRun] = useState(null);
   const [phase, setPhase] = useState(0); // 1 rise, 2 clamp, 3 yank down
+  const witnessRef = useHeistWitness(heistKey);
   useEffect(() => {
     const timers = [];
     let pending = null;
@@ -512,6 +538,7 @@ function LogoHeist({ sprite, aspect, gripX, gripY, widthMult, cloneSrc, shadow, 
       }, 2950));
       timers.push(setTimeout(() => {
         setRun(null); setPhase(0); running = false;
+        witnessRef.current(true);
         schedule(150000 + Math.random() * 150000); // strikes again in 2.5-5 min
       }, 3650));
     };
@@ -573,6 +600,7 @@ function DragonHeist() {
       cloneSrc="/logo-crest-gold.png"
       shadow="drop-shadow(0 8px 16px rgba(0,0,0,0.6))"
       testid="dragon-heist"
+      heistKey="dragon"
     />
   );
 }
@@ -590,6 +618,7 @@ export function ReaperHeist() {
       cloneSrc="/logo-mark.png"
       shadow="drop-shadow(0 0 12px rgba(224,30,38,0.35)) drop-shadow(0 8px 16px rgba(0,0,0,0.7))"
       testid="reaper-heist"
+      heistKey="grave"
     />
   );
 }

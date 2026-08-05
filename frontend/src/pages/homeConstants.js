@@ -45,7 +45,9 @@ export function readStreak() {
     const raw = JSON.parse(localStorage.getItem(STREAK_KEY) || "null");
     if (!raw) return 0;
     const days = Math.round((midnight(new Date()) - midnight(raw.date)) / 86400000);
-    return days === 0 || days === 1 ? raw.count : 0;
+    if (days === 0 || days === 1) return raw.count;
+    if (days === 2 && !raw.graceUsed) return raw.count; // grace day still available
+    return 0;
   } catch { return 0; }
 }
 
@@ -64,18 +66,24 @@ export function streakMilestone(count) {
   } catch { return null; }
 }
 
+// Bumps the daily streak. One grace day per streak run: missing a single day
+// doesn't break it (the skipped day is forgiven once; a second miss resets).
+// Returns { count, saved } — `saved` is true when the grace day was consumed.
 export function bumpStreak() {
   try {
     const raw = JSON.parse(localStorage.getItem(STREAK_KEY) || "null");
     let count = 1;
+    let graceUsed = false;
+    let saved = false;
     if (raw) {
       const days = Math.round((midnight(new Date()) - midnight(raw.date)) / 86400000);
-      if (days === 0) count = raw.count;
-      else if (days === 1) count = raw.count + 1;
+      if (days === 0) { count = raw.count; graceUsed = !!raw.graceUsed; }
+      else if (days === 1) { count = raw.count + 1; graceUsed = !!raw.graceUsed; }
+      else if (days === 2 && !raw.graceUsed) { count = raw.count + 1; graceUsed = true; saved = true; }
     }
-    localStorage.setItem(STREAK_KEY, JSON.stringify({ date: new Date().toISOString(), count }));
-    return count;
-  } catch { return 1; }
+    localStorage.setItem(STREAK_KEY, JSON.stringify({ date: new Date().toISOString(), count, graceUsed }));
+    return { count, saved };
+  } catch { return { count: 1, saved: false }; }
 }
 
 export const SHUFFLE_INTERVAL_MS = 90;
