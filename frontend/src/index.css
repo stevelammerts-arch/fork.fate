@@ -1453,6 +1453,89 @@ body {
   51%,52.2%{ transform: scaleX(1.18) scaleY(0.88); }
   75%,76%{ transform: scaleX(1.18) scaleY(0.88); }
 }
+/* Third gecko (smaller) running along the roof's bamboo beam: canvas units
+   via --s like the bar gecko; beam slopes up to the right (~ -0.095 y/x).
+   18s so he never syncs with the bar (16s) or floor (19s) geckos. */
+@keyframes ffGeckoBeam{
+  0%{ transform: translateX(0) translateY(0) scaleX(1); }
+  1.2%{ transform: translateX(calc(70 * var(--s))) translateY(calc(-7 * var(--s))) scaleX(1); }
+  2.4%{ transform: translateX(calc(140 * var(--s))) translateY(calc(-13 * var(--s))) scaleX(1); }
+  16%{ transform: translateX(calc(140 * var(--s))) translateY(calc(-13 * var(--s))) scaleX(1); }
+  17.5%{ transform: translateX(calc(200 * var(--s))) translateY(calc(-19 * var(--s))) scaleX(1); }
+  19%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-25 * var(--s))) scaleX(1); }
+  30%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-25 * var(--s))) scaleX(1); }
+  30.5%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-27 * var(--s))) scaleX(0.05); }
+  31%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-25 * var(--s))) scaleX(-1); }
+  35%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-25 * var(--s))) scaleX(-1); }
+  35.5%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-27 * var(--s))) scaleX(-0.05); }
+  36%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-25 * var(--s))) scaleX(1); }
+  40%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-25 * var(--s))) scaleX(1); }
+  41.5%{ transform: translateX(calc(320 * var(--s))) translateY(calc(-31 * var(--s))) scaleX(1); }
+  43%{ transform: translateX(calc(380 * var(--s))) translateY(calc(-36 * var(--s))) scaleX(1); }
+  58%{ transform: translateX(calc(380 * var(--s))) translateY(calc(-36 * var(--s))) scaleX(1); }
+  58.5%{ transform: translateX(calc(380 * var(--s))) translateY(calc(-39 * var(--s))) scaleX(0.6); }
+  59%{ transform: translateX(calc(380 * var(--s))) translateY(calc(-40 * var(--s))) scaleX(0.05); }
+  59.5%{ transform: translateX(calc(380 * var(--s))) translateY(calc(-39 * var(--s))) scaleX(-0.6); }
+  60%{ transform: translateX(calc(380 * var(--s))) translateY(calc(-36 * var(--s))) scaleX(-1); }
+  62%{ transform: translateX(calc(380 * var(--s))) translateY(calc(-36 * var(--s))) scaleX(-1); }
+  63.5%{ transform: translateX(calc(190 * var(--s))) translateY(calc(-18 * var(--s))) scaleX(-1); }
+  65%{ transform: translateX(0) translateY(0) scaleX(-1); }
+  80%{ transform: translateX(0) translateY(0) scaleX(-1); }
+  80.5%{ transform: translateX(0) translateY(calc(-3 * var(--s))) scaleX(-0.6); }
+  81%{ transform: translateX(0) translateY(calc(-4 * var(--s))) scaleX(-0.05); }
+  81.5%{ transform: translateX(0) translateY(calc(-3 * var(--s))) scaleX(0.6); }
+  82%,100%{ transform: translateX(0) translateY(0) scaleX(1); }
+}
+/* Beam gecko gait: stretch pulses timed to the beam sprint windows */
+@keyframes ffGeckoBeamGait{
+  0%,2.4%,17.5%,19%,40%,43%,63%,65%,100%{ transform: scaleX(1) scaleY(1); }
+  1.2%{ transform: scaleX(1.18) scaleY(0.88); }
+  18.2%{ transform: scaleX(1.18) scaleY(0.88); }
+  41.5%{ transform: scaleX(1.18) scaleY(0.88); }
+  64%{ transform: scaleX(1.18) scaleY(0.88); }
+}
+/* ── Gecko chase micro-moment: the floor gecko spots a fly and bolts after
+   it, lunges, misses (fly escapes upward), then trots back to his spot.
+   One-shot 4.6s; starts and ends at translateX(0) facing right so it hands
+   off seamlessly to the ffGeckoFloor loop restart. ── */
+@keyframes ffGeckoChase{
+  0%{ transform: translateX(0) scaleX(1); }
+  8%{ transform: translateX(14vw) scaleX(1); }
+  12%{ transform: translateX(14vw) scaleX(1); }
+  22%{ transform: translateX(32vw) scaleX(1); }
+  26%{ transform: translateX(32vw) scaleX(1); }
+  38%{ transform: translateX(52vw) scaleX(1); }
+  44%{ transform: translateX(60vw) scaleX(1); }
+  47%{ transform: translateX(62vw) translateY(-9px) scaleX(1); }  /* lunge! */
+  50%{ transform: translateX(63vw) translateY(0) scaleX(1); }
+  58%{ transform: translateX(63vw) scaleX(1); }                    /* fly's gone */
+  60%{ transform: translateX(63vw) translateY(-3px) scaleX(0.05); }
+  62%{ transform: translateX(63vw) scaleX(-1); }
+  78%{ transform: translateX(20vw) scaleX(-1); }
+  90%{ transform: translateX(0) scaleX(-1); }
+  94%{ transform: translateX(0) translateY(-3px) scaleX(-0.05); }
+  96%,100%{ transform: translateX(0) scaleX(1); }
+}
+/* Rapid sprint gait while chasing */
+@keyframes ffGeckoChaseGait{
+  0%,100%{ transform: scaleX(1) scaleY(1); }
+  50%{ transform: scaleX(1.2) scaleY(0.86); }
+}
+/* The fly: buzzes ahead of the gecko then escapes up and away */
+@keyframes ffTikiFly{
+  0%{ transform: translate(4vw, -16px); opacity: 1; }
+  10%{ transform: translate(18vw, -24px); opacity: 1; }
+  22%{ transform: translate(36vw, -14px); opacity: 1; }
+  38%{ transform: translate(56vw, -26px); opacity: 1; }
+  46%{ transform: translate(65vw, -34px); opacity: 1; }
+  60%{ transform: translate(71vw, -180px); opacity: 1; }
+  72%,100%{ transform: translate(75vw, -320px); opacity: 0; }
+}
+/* Wing-buzz jitter layered on the fly's path */
+@keyframes ffFlyJitter{
+  0%{ transform: translate(0, 0); }
+  100%{ transform: translate(1.5px, -2.5px); }
+}
 @keyframes ffGeckoGait{
   0%{ transform: scaleX(0.9); }
   0.5%{ transform: scaleX(1.18); }
