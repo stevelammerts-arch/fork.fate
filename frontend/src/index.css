@@ -695,6 +695,19 @@ body {
   60%  { transform: translateY(5px) scale(1.06); opacity: 1; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
 }
+/* Dragon heist: the medallion was dragged DOWN into the hoard, so it climbs back up */
+@keyframes ffLogoReturnUp {
+  0%   { transform: translateY(52px) scale(0.35); opacity: 0; }
+  60%  { transform: translateY(-5px) scale(1.06); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+/* Dragon heist: quick clench wiggle as the claw clamps onto the medallion */
+@keyframes ffClawClench {
+  0%   { transform: rotate(0deg); }
+  30%  { transform: rotate(-2.5deg) translateY(3px); }
+  62%  { transform: rotate(1.8deg) translateY(-2px); }
+  100% { transform: rotate(0deg); }
+}
 
 /* Cyberpunk rain */
 .ff-rain{

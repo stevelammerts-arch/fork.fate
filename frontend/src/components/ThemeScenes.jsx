@@ -381,23 +381,25 @@ function TikiFloorGecko() {
 }
 
 /** Rare easter egg: the stealth saucer sneaks in and ABDUCTS the header logo.
- * Runs once per session in Cyberspace, 45-105s after load (or immediately on a
- * `ff:abduct` window event, used for testing). The real logo medallion is
- * hidden while a clone rides the tractor beam up into the ship, then drops
- * back with a bounce. The patrol saucer hides during the heist (onActive). */
+ * First strike 20-40s after load, then again every 2.5-5 minutes (or
+ * immediately on a `ff:abduct` window event, used for testing). The real logo
+ * medallion is hidden while a clone rides the tractor beam up into the ship,
+ * then drops back with a bounce. The patrol saucer hides during the heist. */
 function SaucerAbduction({ saucer, onActive }) {
   const [run, setRun] = useState(null);
   const [phase, setPhase] = useState(0); // 1 fly-in, 2 beam on, 3 lift, 4 leave
   useEffect(() => {
     const timers = [];
+    let pending = null;
+    let running = false;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
     const start = (force) => {
-      if (!force && sessionStorage.getItem("ff_abducted") === "1") return;
+      if (running) return;
       const img = document.querySelector('img[alt="Fork·Fate logo"]');
       const med = img && img.parentElement;
-      if (!med) return;
-      const r = med.getBoundingClientRect();
-      if (!r.width) return;
-      try { sessionStorage.setItem("ff_abducted", "1"); } catch (e) { /* ignore */ }
+      const r = med && med.getBoundingClientRect();
+      if (!r || !r.width) { if (!force) schedule(30000); return; }
+      running = true;
       const cx = r.x + r.width / 2, cy = r.y + r.height / 2;
       // Hover point: below-right of the logo so the beam angles up at it
       const sx = Math.min(cx + 170, window.innerWidth - 100);
@@ -410,14 +412,25 @@ function SaucerAbduction({ saucer, onActive }) {
       timers.push(setTimeout(() => setPhase(4), 3200));                                   // beam off + leave
       timers.push(setTimeout(() => {
         med.style.visibility = "";
+        med.style.animation = "none";
+        void med.offsetWidth; // restart the bounce on repeat strikes
         med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
       }, 4200));
-      timers.push(setTimeout(() => { setRun(null); setPhase(0); onActive(false); }, 4900));
+      timers.push(setTimeout(() => {
+        setRun(null); setPhase(0); onActive(false); running = false;
+        schedule(150000 + Math.random() * 150000); // strikes again in 2.5-5 min
+      }, 4900));
     };
-    const t0 = setTimeout(() => start(false), 45000 + Math.random() * 60000);
+    schedule(20000 + Math.random() * 20000);
     const force = () => start(true);
     window.addEventListener("ff:abduct", force);
-    return () => { clearTimeout(t0); timers.forEach(clearTimeout); window.removeEventListener("ff:abduct", force); };
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      window.removeEventListener("ff:abduct", force);
+      // If we unmount mid-heist (theme switch), never leave the logo hidden.
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
   }, [onActive]);
   if (!run) return null;
   const { cx, cy, w, sx, sy } = run;
@@ -450,6 +463,87 @@ function SaucerAbduction({ saucer, onActive }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** Rare easter egg (Dragon's Hoard): a scaled dragon claw rises from below,
+ * clamps around the header logo medallion and drags it down into the hoard;
+ * the logo bounces back a beat later. First strike 25-45s after load, then
+ * every 2.5-5 minutes (or immediately on a `ff:heist` window event). */
+function DragonHeist() {
+  const [run, setRun] = useState(null);
+  const [phase, setPhase] = useState(0); // 1 rise, 2 clamp, 3 yank down
+  useEffect(() => {
+    const timers = [];
+    let pending = null;
+    let running = false;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      const med = img && img.parentElement;
+      const r = med && med.getBoundingClientRect();
+      if (!r || !r.width) { if (!force) schedule(30000); return; }
+      running = true;
+      setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+      timers.push(setTimeout(() => setPhase(1), 30));                                          // rise up to the logo
+      timers.push(setTimeout(() => { setPhase(2); med.style.visibility = "hidden"; }, 1180));  // clamp shut on it
+      timers.push(setTimeout(() => setPhase(3), 1800));                                        // yank it into the hoard
+      timers.push(setTimeout(() => {
+        med.style.visibility = "";
+        med.style.animation = "none";
+        void med.offsetWidth; // restart the bounce on repeat strikes
+        med.style.animation = "ffLogoReturnUp 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+      }, 2950));
+      timers.push(setTimeout(() => {
+        setRun(null); setPhase(0); running = false;
+        schedule(150000 + Math.random() * 150000); // strikes again in 2.5-5 min
+      }, 3650));
+    };
+    schedule(25000 + Math.random() * 20000);
+    const force = () => start(true);
+    window.addEventListener("ff:heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      window.removeEventListener("ff:heist", force);
+      // If we unmount mid-heist (theme switch), never leave the logo hidden.
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []);
+  if (!run) return null;
+  const { cx, cy, w } = run;
+  // Claw art is 896x1200 with the grip window centered at (50.8%, 56%) — size
+  // it so the medallion sits snugly between the thumb and the fingers.
+  const clawW = w * 2.1;
+  const clawH = clawW * (1200 / 896);
+  const left = cx - clawW * 0.508;
+  const gripTop = cy - clawH * 0.56;
+  const y = phase === 0 ? window.innerHeight + 60 : phase === 3 ? window.innerHeight + clawH : gripTop;
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="dragon-heist">
+      <div
+        className="absolute left-0 top-0"
+        style={{
+          transform: `translate(${left}px, ${y}px)`,
+          transition: phase === 3 ? "transform 0.7s cubic-bezier(0.6,0,0.9,0.55)" : "transform 1.1s cubic-bezier(0.2,0.85,0.3,1)",
+        }}
+      >
+        <div className="relative" style={{ width: clawW, height: clawH, animation: phase === 2 ? "ffClawClench 0.5s ease-in-out" : undefined }}>
+          {/* the stolen medallion: mounts in the grip the instant the claw clamps */}
+          {(phase === 2 || phase === 3) && (
+            <div
+              className="absolute overflow-hidden rounded-full bg-black ring-1 ring-white/25"
+              style={{ left: clawW * 0.508 - w / 2, top: clawH * 0.56 - w / 2, width: w, height: w }}
+              data-testid="dragon-heist-logo"
+            >
+              <img src="/logo-crest-gold.png" alt="" className="h-full w-full scale-110 object-contain" />
+            </div>
+          )}
+          <img src="/dragon-claw.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.6))" }} />
+        </div>
+      </div>
     </div>
   );
 }
@@ -719,5 +813,6 @@ export function AmbianceScene({ theme, cfg }) {
       </div>
     )}
     {cfg.saucer && <SaucerAbduction saucer={cfg.saucer} onActive={setAbducting} />}
+    {theme === "fantasy" && <DragonHeist />}
   </>);
 }

@@ -1335,3 +1335,30 @@ See `/app/memory/test_credentials.md`.
   full latte stir e2e, /rituals shows globe+latte cards. ESLint 0 errors.
 - NOT YET ON PRODUCTION: user must redeploy fork-fate.com to get these fixes
   (production still has the broken/stuck latte rare!).
+
+## 2026-08-05 part 43: Saucer retune + Streak confetti + Dragon Heist (FF_BUILD 318)
+- SAUCER ABDUCTION RETUNED (user pick 1): first strike now 20-40s after load
+  (was 45-105s) and it REPEATS every 2.5-5 min (was once/session via
+  ff_abducted sessionStorage — removed). Repeat-safe: `running` closure guard,
+  bail-retry (30s) if the logo medallion isn't measurable, return-bounce
+  animation reset via animation="none" + reflow so it replays, and effect
+  cleanup un-hides the medallion if unmounted mid-heist (theme switch).
+- STREAK CONFETTI (user pick 3): canvas-confetti added (yarn). homeConstants
+  `streakMilestone(count)` — milestones [7,30], ff_streak_celebrated stores
+  highest fired milestone, auto-resets when streak breaks. Home.dealStreak()
+  wraps bumpStreak (all 4 setStreak call sites) -> two side bursts + delayed
+  center burst (brand colors #E01E26/#E6B23A/#fff), haptic(30), sonner toast
+  ("7-day streak! Fate favors the faithful." / 30-day variant, +es), trackEvent
+  streak_milestone. TEST: seed ff_streak={date:yesterday,count:6}, deal.
+- DRAGON HEIST (user pick 4, fantasy realm easter egg): DragonHeist in
+  ThemeScenes.jsx — reuses /dragon-claw.png (896x1200, grip window center
+  50.8%/56%, clawW=2.1*logo w). Claw RISES from below screen, clamps the
+  header logo (ffClawClench wiggle keyframe, real medallion hidden + clone
+  w/ /logo-crest-gold.png mounts in grip), YANKS it down into the hoard,
+  logo returns via new ffLogoReturnUp keyframe (rises from below, unlike
+  saucer's drop-in). Same cadence as saucer: 25-45s first, 2.5-5 min repeats.
+  Rendered `{theme==="fantasy" && <DragonHeist/>}` in AmbianceScene.
+  TEST HOOK: window.dispatchEvent(new Event("ff:heist")) (saucer: "ff:abduct").
+- All verified via screenshots: heist clamp/yank/return frames, 7-day toast +
+  confetti over revealed card, saucer double-strike in one visit. ESLint 0 err.
+- NOT ON PRODUCTION until user redeploys.

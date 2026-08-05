@@ -488,6 +488,8 @@ export const ES = {
   "Shake the tiki mug": "Agita la copa tiki",
   "Shake the snow globe": "Agita el globo de nieve",
   "The fate settles in the snow!": "¡El destino se asienta en la nieve!",
+  "7-day streak! Fate favors the faithful.": "¡Racha de 7 días! El destino favorece a los fieles.",
+  "30-day streak! A month of fates — legendary.": "¡Racha de 30 días! Un mes de destinos: legendario.",
   "The fate pours out!": "¡El destino se derrama!",
   "Tap to wake the volcano!": "¡Toca para despertar el volcán!",
   "Wake the volcano": "Despierta el volcán",

@@ -49,6 +49,21 @@ export function readStreak() {
   } catch { return 0; }
 }
 
+// Streak milestones worth a celebration. Celebrated at most once per streak
+// run: ff_streak_celebrated remembers the highest milestone already fired and
+// resets automatically when the streak breaks (count drops below it).
+const STREAK_MILESTONES = [7, 30];
+const CELEBRATED_KEY = "ff_streak_celebrated";
+export function streakMilestone(count) {
+  try {
+    let done = parseInt(localStorage.getItem(CELEBRATED_KEY) || "0", 10);
+    if (count < done) { done = 0; localStorage.setItem(CELEBRATED_KEY, "0"); }
+    const hit = STREAK_MILESTONES.filter((m) => count >= m && done < m).pop();
+    if (hit) localStorage.setItem(CELEBRATED_KEY, String(hit));
+    return hit || null;
+  } catch { return null; }
+}
+
 export function bumpStreak() {
   try {
     const raw = JSON.parse(localStorage.getItem(STREAK_KEY) || "null");

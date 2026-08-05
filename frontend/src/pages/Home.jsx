@@ -23,8 +23,9 @@ import { PassportPicker } from "../components/home/PassportPicker";
 import { GhostEscort, SteamRise } from "../components/home/ThemeFlourish";
 import { GroupPicker } from "../components/home/GroupPicker";
 import { haptic } from "../lib/pwa";
+import confetti from "canvas-confetti";
 import {
-  readStreak, bumpStreak,
+  readStreak, bumpStreak, streakMilestone,
   HERO_INITIAL, HERO_ANIMATE, HERO_TRANSITION, SPIN_TAP,
   FOOD_CUISINES, FOOD_GROUPS, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, BAR_GROUPS, SHOP_CUISINES, FUEL_CUISINES, FUEL_GROUPS, EXPLORE_CUISINES, EXPLORE_GROUPS, STAY_CUISINES, CRAWL_TYPES, crawlLabelForType, orderCrawlRoute,
 } from "./homeConstants";
@@ -309,6 +310,28 @@ export default function Home() {
     }
   };
 
+  // Bump the daily streak and throw confetti + a toast the first time a
+  // 7- or 30-day milestone is reached (once per streak run).
+  const dealStreak = () => {
+    const count = bumpStreak();
+    const m = streakMilestone(count);
+    if (m) {
+      const colors = ["#E01E26", "#E6B23A", "#FFFFFF"];
+      try {
+        confetti({ particleCount: 90, spread: 70, startVelocity: 45, origin: { x: 0.12, y: 0.8 }, colors });
+        confetti({ particleCount: 90, spread: 70, startVelocity: 45, origin: { x: 0.88, y: 0.8 }, colors });
+        setTimeout(() => confetti({ particleCount: 150, spread: 110, startVelocity: 40, origin: { x: 0.5, y: 0.55 }, colors }), 400);
+      } catch (e) { /* canvas unavailable */ }
+      haptic(30);
+      toast.success(
+        m === 30 ? t("30-day streak! A month of fates — legendary.") : t("7-day streak! Fate favors the faithful."),
+        { duration: 6000 }
+      );
+      trackEvent("streak_milestone", { days: m });
+    }
+    return count;
+  };
+
   // Scratch completed: unveil with the full reveal fanfare (boom + flash).
   const surpriseDone = () => {
     // A fate counts as "witnessed" only once the ritual concludes; first-time
@@ -432,7 +455,7 @@ export default function Home() {
         setSpinning(false);
         setFlash(null);
         axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
-        setStreak(bumpStreak());
+        setStreak(dealStreak());
         trackEvent("deal_result", { category: mode, theme, group: false, rare: variant });
       }, beat);
       return;
@@ -480,7 +503,7 @@ export default function Home() {
             setFlash(null);
             setFlashHit(false);
             axios.post(`${API}/stats/fate-dealt`).then(({ data }) => setFatesDealt(data.count)).catch(() => {});
-            setStreak(bumpStreak());
+            setStreak(dealStreak());
             trackEvent("deal_result", { category: mode, theme, group: !!groupMode });
           }, 2400);
         }, 140);
@@ -575,7 +598,7 @@ export default function Home() {
         setCrawlStops(orderCrawlRoute(picked, coords, null));
         setShowCrawl(true);
         axios.post(`${API}/stats/fate-dealt`).then(({ data: d }) => setFatesDealt(d.count)).catch(() => {});
-        setStreak(bumpStreak());
+        setStreak(dealStreak());
         trackEvent("deal_result", { category: categoryArg, theme, mode: "crawl" });
         return;
       }
@@ -776,7 +799,7 @@ export default function Home() {
       runCrawlShuffle(data.restaurants, ordered[0], () => {
         setResult(null); setGroupPicks(null); setShowCrawl(true);
         axios.post(`${API}/stats/fate-dealt`).then(({ data: d }) => setFatesDealt(d.count)).catch(() => {});
-        setStreak(bumpStreak());
+        setStreak(dealStreak());
       });
     } catch (e) {
       toast.error(e.response?.data?.detail || "Couldn't deal the crawl");
