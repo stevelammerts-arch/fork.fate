@@ -36,7 +36,7 @@ import { useLang } from "../i18n/i18n";
 import { trackEvent } from "../lib/analytics";
 import { recordRitualSeen, readRitualsSeen, RITUALS } from "../lib/rituals";
 import { readPassports } from "../lib/passports";
-import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene } from "../components/ThemeScenes";
+import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene, ReaperHeist } from "../components/ThemeScenes";
 import { ReaperScene } from "../components/ReaperScene";
 import { CafeDustMotes } from "../components/CafeDustMotes";
 import { ShufflingDeck } from "../components/ShufflingDeck";
@@ -897,6 +897,7 @@ export default function Home() {
       {ambCfg && <AmbianceScene theme={theme} cfg={ambCfg} />}
       {/* Dark-mode: decorative reaper background with load animation */}
       {theme === "dark" && <ReaperScene />}
+      {theme === "dark" && <ReaperHeist />}
       {/* Header */}
       <HomeHeader
         light={light}

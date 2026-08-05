@@ -1362,3 +1362,25 @@ See `/app/memory/test_credentials.md`.
 - All verified via screenshots: heist clamp/yank/return frames, 7-day toast +
   confetti over revealed card, saucer double-strike in one visit. ESLint 0 err.
 - NOT ON PRODUCTION until user redeploys.
+
+## 2026-08-05 part 44: Reaper heist + golden 30-day deck + title startle (FF_BUILD 319)
+- HEIST REFACTOR: DragonHeist generalized into shared `LogoHeist` (ThemeScenes
+  .jsx) w/ props sprite/aspect/gripX/gripY/widthMult/cloneSrc/shadow/testid.
+  DragonHeist = thin wrapper (claw art 896x1200, grip 50.8%/56%, mult 2.1,
+  clone /logo-crest-gold.png). Both listen to `ff:heist` (never co-mounted).
+- REAPER HEIST (exported ReaperHeist, rendered `{theme==="dark"}` next to
+  ReaperScene in Home.jsx ~line 899): /skeleton-hands.png (848x1264, two bony
+  hands reaching up), grip 50%/65%, mult 2.55, clone /logo-mark.png, crimson
+  glow drop-shadow. Hands rise from the grave, clutch the medallion, drag it
+  under; returns via ffLogoReturnUp. VERIFIED numerically: clone rect (16.3,
+  17.9) vs logo (16,16) at clamp; dragon regression (15.7,15.2) also clean.
+- TITLE STARTLE: HomeHeader "Fork·Fate" span now inline-block +
+  data-testid="ff-title"; startleTitle() (ThemeScenes) fires ffTitleStartle
+  keyframe (hop + tilt, animation reset via none+reflow) at the clamp moment
+  of LogoHeist AND the saucer's lift phase. Verified style.animation applied.
+- GOLDEN 30-DAY DECK: ShufflingDeck computes `golden = readStreak() >= 30`;
+  CardBack renders a gilded back FIRST (overrides all themes + seasonItem):
+  dark-gold gradient, ffGoldSheen foil sweep, double gold border, Flame icon,
+  "FORK·FATE / 30-DAY DEVOTEE", data-testid="card-back-golden". Verified: seed
+  ff_streak={date:now,count:31} -> all 5 shuffle cards golden in reaper realm.
+- NOT ON PRODUCTION until user redeploys.

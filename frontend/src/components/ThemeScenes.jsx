@@ -408,7 +408,7 @@ function SaucerAbduction({ saucer, onActive }) {
       onActive(true);
       timers.push(setTimeout(() => setPhase(1), 30));                                     // fly in
       timers.push(setTimeout(() => setPhase(2), 1380));                                   // beam on
-      timers.push(setTimeout(() => { setPhase(3); med.style.visibility = "hidden"; }, 1830)); // lift
+      timers.push(setTimeout(() => { setPhase(3); med.style.visibility = "hidden"; startleTitle(); }, 1830)); // lift
       timers.push(setTimeout(() => setPhase(4), 3200));                                   // beam off + leave
       timers.push(setTimeout(() => {
         med.style.visibility = "";
@@ -467,11 +467,25 @@ function SaucerAbduction({ saucer, onActive }) {
   );
 }
 
-/** Rare easter egg (Dragon's Hoard): a scaled dragon claw rises from below,
- * clamps around the header logo medallion and drags it down into the hoard;
- * the logo bounces back a beat later. First strike 25-45s after load, then
- * every 2.5-5 minutes (or immediately on a `ff:heist` window event). */
-function DragonHeist() {
+/** The Fork·Fate title does a startled little hop when its medallion is
+ * stolen by any of the realm heists. */
+function startleTitle() {
+  const el = document.querySelector('[data-testid="ff-title"]');
+  if (!el) return;
+  el.style.animation = "none";
+  void el.offsetWidth; // restart on repeat strikes
+  el.style.animation = "ffTitleStartle 0.7s cubic-bezier(0.3,1.5,0.5,1)";
+}
+
+/** Shared "grab the header logo from below" easter egg: a themed grabber
+ * (dragon claw, skeletal hands) rises from the bottom of the screen, clamps
+ * around the logo medallion and drags it down; the logo bounces back a beat
+ * later. First strike 25-45s after load, then every 2.5-5 minutes (or
+ * immediately on a `ff:heist` window event, used for testing).
+ * Geometry: `gripX/gripY` are the grip point as fractions of the sprite box,
+ * `widthMult` scales the sprite relative to the medallion, `aspect` = natural
+ * height/width of the sprite art. */
+function LogoHeist({ sprite, aspect, gripX, gripY, widthMult, cloneSrc, shadow, testid }) {
   const [run, setRun] = useState(null);
   const [phase, setPhase] = useState(0); // 1 rise, 2 clamp, 3 yank down
   useEffect(() => {
@@ -488,8 +502,8 @@ function DragonHeist() {
       running = true;
       setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
       timers.push(setTimeout(() => setPhase(1), 30));                                          // rise up to the logo
-      timers.push(setTimeout(() => { setPhase(2); med.style.visibility = "hidden"; }, 1180));  // clamp shut on it
-      timers.push(setTimeout(() => setPhase(3), 1800));                                        // yank it into the hoard
+      timers.push(setTimeout(() => { setPhase(2); med.style.visibility = "hidden"; startleTitle(); }, 1180)); // clamp shut on it
+      timers.push(setTimeout(() => setPhase(3), 1800));                                        // yank it down below
       timers.push(setTimeout(() => {
         med.style.visibility = "";
         med.style.animation = "none";
@@ -514,15 +528,13 @@ function DragonHeist() {
   }, []);
   if (!run) return null;
   const { cx, cy, w } = run;
-  // Claw art is 896x1200 with the grip window centered at (50.8%, 56%) — size
-  // it so the medallion sits snugly between the thumb and the fingers.
-  const clawW = w * 2.1;
-  const clawH = clawW * (1200 / 896);
-  const left = cx - clawW * 0.508;
-  const gripTop = cy - clawH * 0.56;
-  const y = phase === 0 ? window.innerHeight + 60 : phase === 3 ? window.innerHeight + clawH : gripTop;
+  const boxW = w * widthMult;
+  const boxH = boxW * aspect;
+  const left = cx - boxW * gripX;
+  const gripTop = cy - boxH * gripY;
+  const y = phase === 0 ? window.innerHeight + 60 : phase === 3 ? window.innerHeight + boxH : gripTop;
   return (
-    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="dragon-heist">
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid={testid}>
       <div
         className="absolute left-0 top-0"
         style={{
@@ -530,21 +542,55 @@ function DragonHeist() {
           transition: phase === 3 ? "transform 0.7s cubic-bezier(0.6,0,0.9,0.55)" : "transform 1.1s cubic-bezier(0.2,0.85,0.3,1)",
         }}
       >
-        <div className="relative" style={{ width: clawW, height: clawH, animation: phase === 2 ? "ffClawClench 0.5s ease-in-out" : undefined }}>
-          {/* the stolen medallion: mounts in the grip the instant the claw clamps */}
+        <div className="relative" style={{ width: boxW, height: boxH, animation: phase === 2 ? "ffClawClench 0.5s ease-in-out" : undefined }}>
+          {/* the stolen medallion: mounts in the grip the instant the grabber clamps */}
           {(phase === 2 || phase === 3) && (
             <div
               className="absolute overflow-hidden rounded-full bg-black ring-1 ring-white/25"
-              style={{ left: clawW * 0.508 - w / 2, top: clawH * 0.56 - w / 2, width: w, height: w }}
-              data-testid="dragon-heist-logo"
+              style={{ left: boxW * gripX - w / 2, top: boxH * gripY - w / 2, width: w, height: w }}
+              data-testid={`${testid}-logo`}
             >
-              <img src="/logo-crest-gold.png" alt="" className="h-full w-full scale-110 object-contain" />
+              <img src={cloneSrc} alt="" className="h-full w-full scale-110 object-contain" />
             </div>
           )}
-          <img src="/dragon-claw.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.6))" }} />
+          <img src={sprite} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: shadow }} />
         </div>
       </div>
     </div>
+  );
+}
+
+/** Dragon's Hoard heist: a scaled dragon claw snatches the medallion.
+ * Claw art is 896x1200 with the grip window centered at (50.8%, 56%). */
+function DragonHeist() {
+  return (
+    <LogoHeist
+      sprite="/dragon-claw.png"
+      aspect={1200 / 896}
+      gripX={0.508}
+      gripY={0.56}
+      widthMult={2.1}
+      cloneSrc="/logo-crest-gold.png"
+      shadow="drop-shadow(0 8px 16px rgba(0,0,0,0.6))"
+      testid="dragon-heist"
+    />
+  );
+}
+
+/** Reaper heist: two skeletal hands rise from the grave, clutch the medallion
+ * and drag it under. Hands art is 848x1264, clutch centered at (50%, 65%). */
+export function ReaperHeist() {
+  return (
+    <LogoHeist
+      sprite="/skeleton-hands.png"
+      aspect={1264 / 848}
+      gripX={0.5}
+      gripY={0.65}
+      widthMult={2.55}
+      cloneSrc="/logo-mark.png"
+      shadow="drop-shadow(0 0 12px rgba(224,30,38,0.35)) drop-shadow(0 8px 16px rgba(0,0,0,0.7))"
+      testid="reaper-heist"
+    />
   );
 }
 

@@ -1,8 +1,8 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeFlourish } from "./home/ThemeFlourish";
-import { Skull, Cog } from "lucide-react";
-import { cardImage } from "../pages/homeConstants";
+import { Skull, Cog, Flame } from "lucide-react";
+import { cardImage, readStreak } from "../pages/homeConstants";
 
 const DECK_SIZE = 5;
 // One riffle cycle. Kept deliberately brisk — a slow ease reads as floating, not shuffling.
@@ -41,7 +41,27 @@ const RIFFLE_TIMES = [0, 0.22, 0.34, 0.66, 0.84, 1];
 const RIFFLE_EASE = ["easeOut", "linear", "easeIn", "easeOut", "easeInOut"];
 
 // Branded card back shown on every shuffling card (photo only appears on the landed winner)
-function CardBack({ light, seasonItem, theme }) {
+function CardBack({ light, seasonItem, theme, golden }) {
+  // 30-day streak reward: loyal dealers shuffle a gilded deck in every realm.
+  if (golden) {
+    const gold = "#E6B23A";
+    return (
+      <div
+        className="absolute inset-0 grid place-items-center overflow-hidden"
+        style={{ background: "linear-gradient(155deg, #2A1D06 0%, #43300C 46%, #241804 100%)" }}
+        data-testid="card-back-golden"
+      >
+        <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(115deg, transparent 34%, rgba(255,224,138,0.26) 46%, rgba(255,246,214,0.5) 50%, rgba(255,224,138,0.26) 54%, transparent 66%)", animation: "ffGoldSheen 3.6s ease-in-out infinite" }} />
+        <div className="absolute inset-2 rounded-xl border" style={{ borderColor: `${gold}CC`, boxShadow: "inset 0 0 16px rgba(230,178,58,0.4)" }} />
+        <div className="absolute inset-[10px] rounded-lg border" style={{ borderColor: `${gold}55` }} />
+        <div className="relative flex flex-col items-center gap-2">
+          <Flame className="h-12 w-12" strokeWidth={1.4} style={{ color: "#F3D9A0", filter: "drop-shadow(0 0 10px rgba(230,178,58,0.85))" }} />
+          <span className="font-serif text-[10px] uppercase tracking-[0.4em]" style={{ color: "#F3D9A0" }}>Fork · Fate</span>
+          <span className="font-sans text-[8px] font-bold uppercase tracking-[0.3em]" style={{ color: gold }}>30-Day Devotee</span>
+        </div>
+      </div>
+    );
+  }
   if (seasonItem) {
     return (
       <div className="absolute inset-0 grid place-items-center bg-[#F5F0E6]" data-testid="card-back">
@@ -166,6 +186,8 @@ function CardFront({ src, light, theme }) {
 
 export function ShufflingDeck({ cards, flash, landed, light, theme, season, seasonItems, seasonAccent }) {
   const source = cards.length ? cards : (flash ? [flash] : []);
+  // 30-day streak reward: the whole deck turns golden for loyal dealers.
+  const golden = readStreak() >= 30;
   // Always fill a full visual deck so the shuffle never looks like a single card,
   // even when the filtered result set is tiny (repeats are visual-only).
   const base = [];
@@ -332,7 +354,7 @@ export function ShufflingDeck({ cards, flash, landed, light, theme, season, seas
               {showPhoto ? (
                 <CardFront src={cardImage(c)} light={light} theme={theme} />
               ) : (
-                <CardBack light={light} theme={theme} seasonItem={season && seasonItems ? seasonItems[i % seasonItems.length] : null} />
+                <CardBack light={light} theme={theme} golden={golden} seasonItem={season && seasonItems ? seasonItems[i % seasonItems.length] : null} />
               )}
             </motion.div>
             );

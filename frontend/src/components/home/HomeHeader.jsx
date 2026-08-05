@@ -38,7 +38,7 @@ export function HomeHeader({
               style={{ background: "linear-gradient(115deg, transparent 46%, rgba(255,255,255,0.85) 50%, transparent 54%)" }}
             />
           </div>
-          <span className={`font-serif text-3xl font-semibold tracking-tight md:text-5xl ${light ? "text-[#18181B]" : "text-white"}`}>
+          <span data-testid="ff-title" className={`inline-block font-serif text-3xl font-semibold tracking-tight md:text-5xl ${light ? "text-[#18181B]" : "text-white"}`}>
             Fork·Fate
           </span>
         </div>
