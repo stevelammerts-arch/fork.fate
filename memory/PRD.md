@@ -1312,3 +1312,26 @@ See `/app/memory/test_credentials.md`.
 - TEST HOOKS: localStorage ff_deal_taps=99 + ff_rare_at=10 forces a rare fate;
   ff_rare_force='globe' picks the ritual. Full flow verified on mobile 390:
   cover -> 5 shakes -> settle -> card revealed + collection toast, no errors.
+
+## 2026-08-05 part 42: Latte Stir fixed + "Tap to shake" copy + haptics (FF_BUILD 317)
+- LATTE STIR RITUAL WAS BROKEN: previous fork imported LatteStir + added "latte"
+  to RARE_COVERS but FORGOT the render branch — rare fired and the card sat
+  exposed/stuck. FIX: `{surprise === "latte" && <LatteStir/>}` branch added after
+  globe in RevealStage.jsx.
+- CREST MASK FIX: LatteStir masked with /logo-mark.png whose alpha is an OPAQUE
+  circular badge -> solid cream blob. Built /public/latte-crest-mask.png (white
+  F·F letter silhouette extracted from logo luminance, inner radius<0.52 to drop
+  the fork-highlight arc; generated inline w/ PIL). Mask width bumped 62%->88%
+  of crema. Verified: crest reads as real latte art; stir (circular pointer
+  drag around CREMA cx/cy) dissolves it, done text (now text-center px-6),
+  cover fades to card, "New fate witnessed! Latte Stir" toast fires.
+- SHAKE PROMPT FIX (user report): SnowGlobe + TikiShaker said "Shake ...!" but
+  are tap-driven. Copy now "Tap to shake the globe!" / "Tap to shake the mug!"
+  (+es translations) and each tap fires navigator.vibrate(35) haptic where
+  supported (iOS Safari ignores silently). Magic8Ball hint now "Shake your
+  phone — or rattle the ball with your finger" (it truly supports both).
+- i18n: added es entries for latte/globe UI + rituals.js names/descs.
+- Verified via screenshot flows: winter globe (2 taps=2 dots), tiki mug,
+  full latte stir e2e, /rituals shows globe+latte cards. ESLint 0 errors.
+- NOT YET ON PRODUCTION: user must redeploy fork-fate.com to get these fixes
+  (production still has the broken/stuck latte rare!).

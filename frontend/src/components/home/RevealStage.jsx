@@ -17,6 +17,7 @@ import { CodeBreaker } from "./CodeBreaker";
 import { CrankGear } from "./CrankGear";
 import { TikiShaker } from "./TikiShaker";
 import { SnowGlobe } from "./SnowGlobe";
+import { LatteStir } from "./LatteStir";
 import { VolcanoReveal } from "./VolcanoReveal";
 import { TarotDraw } from "./TarotDraw";
 import { CoffinKnock } from "./CoffinKnock";
@@ -42,7 +43,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   // plays (steam, snow, petals, leaves, fireflies, sparkles, fire wall) —
   // re-fires per revealed place, and after a rare ritual unveils.
   // (Hooks live above the early returns to keep hook order stable.)
-  const RARE_COVERS = ["scratch", "8ball", "wheel", "wand", "hack", "code", "crank", "shaker", "volcano", "tarot", "coffin", "seance", "ouija", "eye", "chest", "leaves", "bloom", "melon", "globe"];
+  const RARE_COVERS = ["scratch", "8ball", "wheel", "wand", "hack", "code", "crank", "shaker", "volcano", "tarot", "coffin", "seance", "ouija", "eye", "chest", "leaves", "bloom", "melon", "globe", "latte"];
   const isCovered = RARE_COVERS.includes(surprise);
   const resultId = result ? result.id : null;
   const [steaming, setSteaming] = useState(false);
@@ -267,6 +268,9 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
           )}
           {surprise === "globe" && (
             <SnowGlobe onDone={onSurpriseDone} />
+          )}
+          {surprise === "latte" && (
+            <LatteStir onDone={onSurpriseDone} />
           )}
           {surprise === "wheel" && (
             <WheelOfFate names={deck.map((d) => d.name)} winner={card.name} onDone={onSurpriseDone} />

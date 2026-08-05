@@ -129,7 +129,7 @@ export function Magic8Ball({ name, onDone }) {
         ? "The ball taunts you. Shake it again…"
         : readTries().n > 0
           ? "Shake it again…"
-          : "Shake your phone to reveal your fate";
+          : "Shake your phone — or rattle the ball with your finger";
 
   // The die faces up: fails on the purple face, the true fate on gold.
   const dieUp = stage === "message" || stage === "answer" || stage === "exit";

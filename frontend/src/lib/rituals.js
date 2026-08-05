@@ -23,6 +23,7 @@ export const RITUALS = [
   { key: "bloom", name: "Cherry Bloom", realm: "Spring", theme: "spring", accent: "#E87BA8", desc: "Coax the sakura buds until the branch bursts into full blossom." },
   { key: "melon", name: "Watermelon Smash", realm: "Summer", theme: "summer", accent: "#E23B4A", desc: "Three good whacks and the melon splits in a juicy spray of seeds." },
   { key: "globe", name: "Snow Globe", realm: "Winter", theme: "winter", accent: "#8FC6FF", desc: "Shake the globe into a blizzard — the fate settles with the snow." },
+  { key: "latte", name: "Latte Stir", realm: "Café", theme: "light", accent: "#C08A4E", desc: "The crest is drawn in the cream — stir it away and your fate is served." },
 ];
 
 export function readRitualsSeen() {

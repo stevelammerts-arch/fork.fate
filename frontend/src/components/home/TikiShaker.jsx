@@ -58,6 +58,7 @@ export function TikiShaker({ onDone }) {
 
   const shake = () => {
     if (pouring) return;
+    try { navigator.vibrate?.(35); } catch (e) { /* no haptics */ }
     if (!rattleRef.current) rattleRef.current = makeRattler();
     rattleRef.current();
     setWobbleKey((k) => k + 1);
@@ -134,7 +135,7 @@ export function TikiShaker({ onDone }) {
 
         {!pouring ? (
           <>
-            <p className="font-serif text-lg italic text-[#FFE9BF]" data-testid="tiki-shaker-prompt">{t("Shake the tiki mug!")}</p>
+            <p className="font-serif text-lg italic text-[#FFE9BF]" data-testid="tiki-shaker-prompt">{t("Tap to shake the mug!")}</p>
             <div className="flex gap-1.5" data-testid="tiki-shake-dots">
               {Array.from({ length: SHAKES_NEEDED }, (_, i) => (
                 <span key={i} className={`h-2.5 w-2.5 rounded-full transition-colors ${i < shakes ? "bg-[#FF8A3C]" : "bg-white/20"}`} />

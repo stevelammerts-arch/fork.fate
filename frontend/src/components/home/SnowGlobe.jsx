@@ -53,6 +53,7 @@ export function SnowGlobe({ onDone }) {
 
   const shake = () => {
     if (settling) return;
+    try { navigator.vibrate?.(35); } catch (e) { /* no haptics */ }
     if (!jingleRef.current) jingleRef.current = makeJingler();
     jingleRef.current();
     setWobbleKey((k) => k + 1);
@@ -133,7 +134,7 @@ export function SnowGlobe({ onDone }) {
 
         {!settling ? (
           <>
-            <p className="font-serif text-lg italic text-[#DCEBFF]" data-testid="snow-globe-prompt">{t("Shake the snow globe!")}</p>
+            <p className="font-serif text-lg italic text-[#DCEBFF]" data-testid="snow-globe-prompt">{t("Tap to shake the globe!")}</p>
             <div className="flex gap-1.5" data-testid="snow-globe-dots">
               {Array.from({ length: SHAKES_NEEDED }, (_, i) => (
                 <span key={i} className={`h-2.5 w-2.5 rounded-full transition-colors ${i < shakes ? "bg-[#8FC6FF]" : "bg-white/20"}`} />
