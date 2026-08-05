@@ -1366,7 +1366,10 @@ body {
   100%{ transform: scaleX(1) rotate(0deg); }
 }
 /* Tiki gecko: position + --s (cover scale in px) are set inline from the
-   measured cover box in AmbianceScene; keyframes below use canvas units. */
+   measured cover box in AmbianceScene; keyframes below use canvas units.
+   The far stop is parametrized (--gx/--gy, canvas units, set inline) so the
+   last leg is SHORTER on mobile — at full length he slid off the counter
+   edge on phones (desktop 300/-45, mobile 220/-33). */
 @keyframes ffGeckoBar{
   0%{ transform: translateX(0) translateY(0) scaleX(1); }
   1%{ transform: translateX(calc(50 * var(--s))) translateY(calc(-10 * var(--s))) scaleX(1); }
@@ -1385,15 +1388,15 @@ body {
   20%{ transform: translateX(calc(150 * var(--s))) translateY(calc(-25 * var(--s))) scaleX(1); }
   21%{ transform: translateX(calc(200 * var(--s))) translateY(calc(-30 * var(--s))) scaleX(1); }
   38%{ transform: translateX(calc(200 * var(--s))) translateY(calc(-30 * var(--s))) scaleX(1); }
-  39%{ transform: translateX(calc(250 * var(--s))) translateY(calc(-40 * var(--s))) scaleX(1); }
-  40%{ transform: translateX(calc(300 * var(--s))) translateY(calc(-45 * var(--s))) scaleX(1); }
-  54%{ transform: translateX(calc(300 * var(--s))) translateY(calc(-45 * var(--s))) scaleX(1); }
-  54.5%{ transform: translateX(calc(300 * var(--s))) translateY(calc(-48 * var(--s))) scaleX(0.6); }
-  55%{ transform: translateX(calc(300 * var(--s))) translateY(calc(-49 * var(--s))) scaleX(0.05); }
-  55.5%{ transform: translateX(calc(300 * var(--s))) translateY(calc(-48 * var(--s))) scaleX(-0.6); }
-  56%{ transform: translateX(calc(300 * var(--s))) translateY(calc(-45 * var(--s))) scaleX(-1); }
-  60%{ transform: translateX(calc(300 * var(--s))) translateY(calc(-45 * var(--s))) scaleX(-1); }
-  61%{ transform: translateX(calc(250 * var(--s))) translateY(calc(-40 * var(--s))) scaleX(-1); }
+  39%{ transform: translateX(calc((200 + var(--gx)) / 2 * var(--s))) translateY(calc((-30 + var(--gy)) / 2 * var(--s))) scaleX(1); }
+  40%{ transform: translateX(calc(var(--gx) * var(--s))) translateY(calc(var(--gy) * var(--s))) scaleX(1); }
+  54%{ transform: translateX(calc(var(--gx) * var(--s))) translateY(calc(var(--gy) * var(--s))) scaleX(1); }
+  54.5%{ transform: translateX(calc(var(--gx) * var(--s))) translateY(calc((var(--gy) - 3) * var(--s))) scaleX(0.6); }
+  55%{ transform: translateX(calc(var(--gx) * var(--s))) translateY(calc((var(--gy) - 4) * var(--s))) scaleX(0.05); }
+  55.5%{ transform: translateX(calc(var(--gx) * var(--s))) translateY(calc((var(--gy) - 3) * var(--s))) scaleX(-0.6); }
+  56%{ transform: translateX(calc(var(--gx) * var(--s))) translateY(calc(var(--gy) * var(--s))) scaleX(-1); }
+  60%{ transform: translateX(calc(var(--gx) * var(--s))) translateY(calc(var(--gy) * var(--s))) scaleX(-1); }
+  61%{ transform: translateX(calc((200 + var(--gx)) / 2 * var(--s))) translateY(calc((-30 + var(--gy)) / 2 * var(--s))) scaleX(-1); }
   62%{ transform: translateX(calc(200 * var(--s))) translateY(calc(-30 * var(--s))) scaleX(-1); }
   74%{ transform: translateX(calc(200 * var(--s))) translateY(calc(-30 * var(--s))) scaleX(-1); }
   75%{ transform: translateX(calc(150 * var(--s))) translateY(calc(-25 * var(--s))) scaleX(-1); }
@@ -1406,6 +1409,49 @@ body {
   98%{ transform: translateX(0) translateY(calc(-4 * var(--s))) scaleX(-0.05); }
   98.5%{ transform: translateX(0) translateY(calc(-3 * var(--s))) scaleX(0.6); }
   99%,100%{ transform: translateX(0) translateY(0) scaleX(1); }
+}
+/* Second gecko scuttling along the FLOOR in front of the bar: viewport-based
+   (the floor is flat, no counter slope). Same sprint/freeze/whip-turn feel,
+   19s so he never syncs with the bar gecko. Sprite faces right at scaleX(1). */
+@keyframes ffGeckoFloor{
+  0%{ transform: translateX(0) scaleX(1); }
+  1.5%{ transform: translateX(15vw) scaleX(1); }
+  3%{ transform: translateX(30vw) scaleX(1); }
+  20%{ transform: translateX(30vw) scaleX(1); }
+  20.5%{ transform: translateX(30vw) translateY(-3px) scaleX(0.6); }
+  21%{ transform: translateX(30vw) translateY(-4px) scaleX(0.05); }
+  21.5%{ transform: translateX(30vw) translateY(-3px) scaleX(-0.6); }
+  22%{ transform: translateX(30vw) scaleX(-1); }
+  26%{ transform: translateX(30vw) scaleX(-1); }
+  27.5%{ transform: translateX(18vw) scaleX(-1); }
+  29%{ transform: translateX(6vw) scaleX(-1); }
+  48%{ transform: translateX(6vw) scaleX(-1); }
+  48.5%{ transform: translateX(6vw) translateY(-3px) scaleX(-0.6); }
+  49%{ transform: translateX(6vw) translateY(-4px) scaleX(-0.05); }
+  49.5%{ transform: translateX(6vw) translateY(-3px) scaleX(0.6); }
+  50%{ transform: translateX(6vw) scaleX(1); }
+  50.5%{ transform: translateX(25vw) scaleX(1); }
+  53%{ transform: translateX(44vw) scaleX(1); }
+  72%{ transform: translateX(44vw) scaleX(1); }
+  72.5%{ transform: translateX(44vw) translateY(-3px) scaleX(0.6); }
+  73%{ transform: translateX(44vw) translateY(-4px) scaleX(0.05); }
+  73.5%{ transform: translateX(44vw) translateY(-3px) scaleX(-0.6); }
+  74%{ transform: translateX(44vw) scaleX(-1); }
+  74.5%{ transform: translateX(22vw) scaleX(-1); }
+  77%{ transform: translateX(0) scaleX(-1); }
+  96%{ transform: translateX(0) scaleX(-1); }
+  96.5%{ transform: translateX(0) translateY(-3px) scaleX(-0.6); }
+  97%{ transform: translateX(0) translateY(-4px) scaleX(-0.05); }
+  97.5%{ transform: translateX(0) translateY(-3px) scaleX(0.6); }
+  98%,100%{ transform: translateX(0) scaleX(1); }
+}
+/* Floor gecko gait: stretch pulses timed to the FLOOR sprint windows */
+@keyframes ffGeckoFloorGait{
+  0%,3%,26%,29%,50%,53%,74%,77%,100%{ transform: scaleX(1) scaleY(1); }
+  0.8%,2.2%{ transform: scaleX(1.18) scaleY(0.88); }
+  27%,28%{ transform: scaleX(1.18) scaleY(0.88); }
+  51%,52.2%{ transform: scaleX(1.18) scaleY(0.88); }
+  75%,76%{ transform: scaleX(1.18) scaleY(0.88); }
 }
 @keyframes ffGeckoGait{
   0%{ transform: scaleX(0.9); }

@@ -1230,3 +1230,17 @@ See `/app/memory/test_credentials.md`.
 - deployment_agent: status PASS — env vars clean, CORS covers fork-fate.com +
   emergent.host + preview, supervisor valid, no hardcoded URLs/secrets. READY.
 - User deferred all further features ("save that stuff for later").
+
+## 2026-08-05 part 38: Tiki gecko mobile path fix + second floor gecko
+- BUG (user, live/mobile): bar gecko's far stop (300 canvas units) put him at
+  x=382 on a 390px phone — sliding off the counter/screen edge.
+- FIX: ffGeckoBar far stop parametrized via --gx/--gy CSS vars (canvas units,
+  set inline in ThemeScenes.jsx): desktop 300/-45 (unchanged), mobile 220/-33
+  (uses existing `mobile` state). Midpoints computed as calc((200+var(--gx))/2).
+  Probe-verified: mobile far stop x=302 (on counter), desktop x=1246 unchanged.
+- NEW: second gecko on the FLOOR (data-testid="tiki-gecko-floor", left 6%,
+  bottom 2vh, width clamp(54px,6vw,78px), z-[3]) — viewport-based ffGeckoFloor
+  19s (never syncs w/ 16s bar gecko): sprint/freeze/whip-turn legs 0-30-6-44-0vw;
+  ffGeckoFloorGait stretch pulses matched to its sprint windows.
+- NOTE: user still hasn't redeployed — these fixes + abduction tuning (if any)
+  reach fork-fate.com on next Publish.

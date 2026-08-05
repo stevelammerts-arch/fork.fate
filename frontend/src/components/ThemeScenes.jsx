@@ -517,12 +517,17 @@ export function AmbianceScene({ theme, cfg }) {
           />
         ))}
         {/* tiki gecko: anchored to the painted bar via the measured cover box
-            (canvas 1264x848) so he stays glued to the counter on any device */}
+            (canvas 1264x848) so he stays glued to the counter on any device.
+            Far stop --gx/--gy is shorter on mobile (he slid off the counter). */}
         {loungeBox && (
-          <div className="absolute z-[3]" style={{ left: loungeBox.offX + 520 * (loungeBox.dw / 1264), top: loungeBox.offY + 533 * (loungeBox.dw / 1264), width: 46 * (loungeBox.dw / 1264), "--s": `${loungeBox.dw / 1264}px`, animation: "ffGeckoBar 16s linear infinite" }} data-testid="tiki-gecko">
+          <div className="absolute z-[3]" style={{ left: loungeBox.offX + 520 * (loungeBox.dw / 1264), top: loungeBox.offY + 533 * (loungeBox.dw / 1264), width: 46 * (loungeBox.dw / 1264), "--s": `${loungeBox.dw / 1264}px`, "--gx": mobile ? 220 : 300, "--gy": mobile ? -33 : -45, animation: "ffGeckoBar 16s linear infinite" }} data-testid="tiki-gecko">
             <img src="/tiki-gecko.png" alt="" className="w-full" style={{ animation: "ffGeckoGait 16s linear infinite", transformOrigin: "50% 100%" }} />
           </div>
         )}
+        {/* second gecko scuttling along the floor in front of the bar */}
+        <div className="absolute z-[3]" style={{ left: "6%", bottom: "2vh", width: "clamp(54px, 6vw, 78px)", animation: "ffGeckoFloor 19s linear infinite" }} data-testid="tiki-gecko-floor">
+          <img src="/tiki-gecko.png" alt="" className="w-full" style={{ animation: "ffGeckoFloorGait 19s linear infinite", transformOrigin: "50% 100%" }} />
+        </div>
       </>)}
       {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
       {cfg.console && (
