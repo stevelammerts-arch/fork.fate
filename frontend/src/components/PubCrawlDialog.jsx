@@ -437,21 +437,21 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
           )}
           </div>
 
-          <div className="mt-4 flex shrink-0 flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <div className="mt-3 flex shrink-0 items-center gap-2">
             {!shared && (
               <button onClick={reshuffle} data-testid="crawl-reshuffle-button"
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[#3A3A3A] px-5 py-3 text-sm font-bold text-white hover:bg-white/10">
+                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-[#3A3A3A] px-3 py-2 text-xs font-bold text-white hover:bg-white/10 sm:px-5 sm:py-3 sm:text-sm">
                 <Shuffle className="h-4 w-4" /> {t("New crawl")}
               </button>
             )}
             <button onClick={shareCrawl} disabled={!stops.length || sharing} data-testid="crawl-share-button"
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#E01E26] px-5 py-3 text-sm font-bold text-white hover:bg-[#FF2E38] disabled:opacity-40">
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-2 text-xs font-bold text-white hover:bg-[#FF2E38] disabled:opacity-40 sm:px-5 sm:py-3 sm:text-sm">
               <Share2 className="h-4 w-4" /> {sharing ? t("Creating link…") : t("Share with group")}
             </button>
           </div>
 
           <button onClick={openBadge} disabled={!allDone} data-testid="crawl-complete-button"
-            className={`mt-1 inline-flex w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${allDone ? "border-[#4ADE80] bg-[#4ADE80] text-black hover:bg-[#3ecb70]" : "border-[#3A3A3A] text-[#8A8A8A]"}`}>
+            className={`mt-1.5 inline-flex w-full items-center justify-center gap-2 rounded-full border px-5 py-2 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40 sm:py-3 sm:text-sm ${allDone ? "border-[#4ADE80] bg-[#4ADE80] text-black hover:bg-[#3ecb70]" : "border-[#3A3A3A] text-[#8A8A8A]"}`}>
             <Trophy className="h-4 w-4" /> {allDone ? t("Crawl conquered — claim your badge") : `${t("Check off all stops to unlock")} (${visitedCount}/${stops.length})`}
           </button>
         </DialogContent>

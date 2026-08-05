@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem, Leaf, Flower2, Citrus, Coffee, Snowflake, Rocket, Grab, Bone } from "lucide-react";
+import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem, Leaf, Flower2, Citrus, Coffee, Snowflake, Rocket, Grab, Bone, Stamp, ChevronRight } from "lucide-react";
 import { RITUALS, readRitualsSeen, HEISTS, readHeistsSeen } from "../lib/rituals";
+import { readBingo } from "../lib/bingo";
 import { useLang } from "../i18n/i18n";
 
 const ICONS = {
@@ -17,6 +18,7 @@ export default function Rituals() {
   const { t } = useLang();
   const seen = readRitualsSeen();
   const heistsSeen = readHeistsSeen();
+  const bingo = readBingo();
   const unlocked = RITUALS.filter((r) => seen[r.key]?.count).length;
 
   return (
@@ -132,6 +134,26 @@ export default function Rituals() {
             );
           })}
         </div>
+
+        {/* cuisine bingo stamps live in the collection too */}
+        <Link
+          to="/bingo"
+          data-testid="bingo-collection-card"
+          className="mt-8 flex items-center justify-between rounded-2xl border border-[#E6B23A]/40 bg-white/5 p-4 transition-colors hover:bg-white/10"
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E6B23A]/15">
+              <Stamp className="h-5 w-5 text-[#E6B23A]" />
+            </span>
+            <div>
+              <p className="font-serif text-lg font-bold text-white">{t("Cuisine Bingo")}</p>
+              <p className="font-sans text-xs text-white/50">
+                {bingo.stamps} {t("stamps earned")}{bingo.cards > 0 ? ` · ${bingo.cards} ${t("cards conquered")}` : ""}
+              </p>
+            </div>
+          </div>
+          <ChevronRight className="h-5 w-5 text-white/40" />
+        </Link>
 
         <p className="mt-6 text-center font-sans text-xs text-white/40">
           {t("Exclusive rituals only appear in their home realm. Switch realms to hunt them all.")}

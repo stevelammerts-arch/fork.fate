@@ -7,6 +7,7 @@ import SponsorChains from "./pages/SponsorChains";
 import RarePreview from "./pages/RarePreview";
 import Rituals from "./pages/Rituals";
 import Journal from "./pages/Journal";
+import Bingo from "./pages/Bingo";
 import SharedCrawl from "./pages/SharedCrawl";
 import Passport from "./pages/Passport";
 import Wall from "./pages/Wall";
@@ -32,6 +33,7 @@ function App() {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/rituals" element={<Rituals />} />
           <Route path="/journal" element={<Journal />} />
+          <Route path="/bingo" element={<Bingo />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/sponsor/success" element={<SponsorStatus />} />

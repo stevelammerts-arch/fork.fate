@@ -1440,3 +1440,35 @@ See `/app/memory/test_credentials.md`.
 - All verified via e2e screenshots. Crawl testing recipe: crawl-mode-toggle ->
   fill "ZIP code" placeholder (e.g. 68046) -> crawl-deal-button -> dialog ~4s.
 - NOT ON PRODUCTION until user redeploys.
+
+## 2026-08-05 part 47: Cuisine Bingo (FF_BUILD 322)
+- ENGINE /app/frontend/src/lib/bingo.js: BINGO_POOL (36 common cuisines incl
+  Coffee/Bakery/Ice Cream/Pub so drinks/desserts/bars modes hit too);
+  ff_bingo = {seed, marked:{cuisine:iso}, lines:[r0..r4,c0..c4,d0,d1],
+  stamps, cards}. bingoCard(seed) = mulberry32 shuffle, 24 cells + FREE at
+  idx 12. markCuisine(cuisine): case-insensitive exact match, dupes -> null,
+  FREE counts toward lines, new lines increment stamps, blackout flag.
+  newBingoCard() rerolls seed, cards+1, stamps carry. UNIT-TESTED via node
+  eval w/ mocked localStorage (row + col-through-FREE + dup cases pass).
+- PAGE /bingo (Bingo.jsx): 5x5 grid (bingo-cell-{i}), red check stamps,
+  gold FREE crown, completed-line cells go gold (completedCellIndexes),
+  stamps counter (bingo-stamps), markedCount/24, blackout -> bingo-new-card
+  button ("Card conquered — deal a fresh card"), cards-conquered footer.
+- HOOKS: Home.landFate calls markCuisine(card.cuisine) after recordFate —
+  new line -> gold/red confetti + toast "BINGO! Line complete — stamp
+  earned." w/ View card action (navigate /bingo) + trackEvent bingo_line;
+  plain hit -> toast "Bingo square stamped: {cuisine}". VERIFIED LIVE: deal
+  landed Indian -> square stamped + toast on screen.
+- COLLECTION: /rituals shows bingo-collection-card (gold Stamp icon, "N
+  stamps earned · N cards conquered", links /bingo). HOME: cuisine-bingo-link
+  full-width gold button under the Fates Witnessed / Fate Journal pair.
+- i18n es added. Deterministic test recipe: seed ff_bingo {seed:12345,...} —
+  card row0 = Ramen/Fried Chicken/Mexican/Salads/Seafood, FREE at 12.
+- NOT ON PRODUCTION until user redeploys.
+
+## 2026-08-05 part 48: Crawl dialog compact footer (FF_BUILD 323)
+- User: "New crawl / Share with group pills too big on mobile — bottom,
+  smaller, or side". PubCrawlDialog footer now ONE side-by-side row on all
+  sizes (flex-1 each, px-3 py-2 text-xs on mobile, sm: restores py-3 text-sm);
+  crawl-complete-button slimmed (py-2 text-xs mobile). Reclaims ~110px —
+  stops 1-2 + cue now above the fold at 390x800. Verified via screenshot.

@@ -36,6 +36,7 @@ import { useLang } from "../i18n/i18n";
 import { trackEvent } from "../lib/analytics";
 import { recordRitualSeen, readRitualsSeen, RITUALS } from "../lib/rituals";
 import { recordFate } from "../lib/journal";
+import { markCuisine } from "../lib/bingo";
 import { readPassports } from "../lib/passports";
 import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene, ReaperHeist } from "../components/ThemeScenes";
 import { ReaperScene } from "../components/ReaperScene";
@@ -334,9 +335,23 @@ export default function Home() {
     return count;
   };
 
-  // Lands a fate: writes it into the on-device Fate Journal, then reveals it.
+  // Lands a fate: writes it into the on-device Fate Journal, stamps the
+  // Cuisine Bingo card, then reveals it.
   const landFate = (card, extra = {}) => {
     recordFate(card, { theme, mode, ...extra });
+    const b = markCuisine(card.cuisine);
+    if (b?.newLines) {
+      try {
+        confetti({ particleCount: 80, spread: 75, startVelocity: 38, origin: { x: 0.5, y: 0.7 }, colors: ["#E6B23A", "#E01E26", "#FFFFFF"] });
+      } catch (e) { /* canvas unavailable */ }
+      toast.success(t("BINGO! Line complete — stamp earned."), {
+        action: { label: t("View card"), onClick: () => navigate("/bingo") },
+        duration: 6000,
+      });
+      trackEvent("bingo_line", { stamps: b.stamps });
+    } else if (b?.hit) {
+      toast(`${t("Bingo square stamped:")} ${t(b.square)}`, { duration: 3500 });
+    }
     setResult(card);
   };
 
@@ -1306,6 +1321,14 @@ export default function Home() {
                   <BookOpen className="h-4 w-4" /> {t("Fate Journal")}
                 </Link>
               </div>
+
+              <Link
+                to="/bingo"
+                data-testid="cuisine-bingo-link"
+                className="inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-[#B98A22] bg-white px-4 py-2.5 text-sm font-bold text-[#8F6A18] transition-colors hover:bg-[#FDF6E7]"
+              >
+                <Stamp className="h-4 w-4" /> {t("Cuisine Bingo")}
+              </Link>
             </div>
             </div>
 
