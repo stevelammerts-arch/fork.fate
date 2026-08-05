@@ -1484,3 +1484,31 @@ See `/app/memory/test_credentials.md`.
   react-leaflet remounts cleanly per tab switch (bounds applied on mount).
 - Verified via screenshots: 4 stops above fold on Stops page, big map with
   numbered pins + START marker on Map page, switch back/forth works.
+
+## 2026-08-05 part 50: Live crew pins + bingo/journal share cards + bigger map (FF_BUILD 325)
+- LIVE CREW PINS (shared crawls): backend models.CrawlPositionCreate +
+  routes/crawls.py POST /crawls/{code}/position (rate_limit 120, upsert on
+  code+member_id, 15-min TTL via expire_at index on db.crawl_positions) and
+  GET /crawls/{code}/positions. CURL-VERIFIED (upsert + list). Frontend
+  PubCrawlDialog: ff_member_id (localStorage), broadcasts livePos max every
+  20s while autoGps on + crawlCode set (name = first token of crew input),
+  polls positions every 20s while dialog open, filters self, passes
+  crew={crewPos} to CrawlMap. CrawlMap crewIcon = blue pinging dot + name
+  tag divIcon (escapeHtml). Map caption swaps to "N crew pins live — blue
+  dots are your people." (singular variant too). VERIFIED via /c/{code}
+  route with a curl-seeded Bob position — blue named pin rendered.
+- MAP SIZE (user asked "big enough on mobile?"): map page now
+  height="max(260px, 44dvh)" (CrawlMap height prop takes strings) ≈ 370px
+  on a typical phone instead of fixed 330.
+- SHARE CARDS lib /app/frontend/src/lib/shareCards.js: shareImage(blob) =
+  navigator.canShare files -> share, else anchor download (AbortError -> null);
+  buildBingoShareImage 1080x1350 portrait (GRID OVERFLOWED at 1080x1080 —
+  5 rows need ~1170px, hence 4:5) gold line-cells/red stamps/FREE star;
+  buildJournalShareImage 1080x1080 stat rows (fates/chose-well%/dares/
+  streak) + "Fate keeps sending me to {topCuisine}" + "The Reaper remembers."
+  Buttons: bingo-share-button (Bingo.jsx), journal-share-button (Journal.jsx,
+  hidden when 0 fates). Both verified by intercepting URL.createObjectURL
+  (set hooks AFTER final navigation — goto wipes window overrides).
+- NOTE: a search_replace on Bingo.jsx matched the wrong anchor and left
+  dangling JSX (parse error) — caught by eslint, fixed. Always re-lint.
+- READY FOR USER REDEPLOY (FF_BUILD 325).

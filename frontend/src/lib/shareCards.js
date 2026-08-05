@@ -1,0 +1,176 @@
+// Shareable brag cards drawn on canvas: Cuisine Bingo snapshot + Fate Journal
+// story. Both return PNG blobs; shareImage() uses the Web Share API with a
+// download fallback.
+
+const GOLD = "#E6B23A";
+const GOLD_LIGHT = "#F3D9A0";
+const RED = "#E01E26";
+const BG = "#0B0B0D";
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function wrapLines(ctx, text, maxWidth) {
+  const words = String(text).split(" ");
+  const lines = [];
+  let cur = "";
+  for (const w of words) {
+    const trial = cur ? `${cur} ${w}` : w;
+    if (ctx.measureText(trial).width <= maxWidth || !cur) cur = trial;
+    else { lines.push(cur); cur = w; }
+  }
+  if (cur) lines.push(cur);
+  return lines.slice(0, 2);
+}
+
+export async function buildBingoShareImage(cells, marked, stamps, lineIdx) {
+  const S = 1080;
+  const H = 1350; // 4:5 portrait — the 5x5 grid needs the extra height
+  const canvas = document.createElement("canvas");
+  canvas.width = S; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = BG; ctx.fillRect(0, 0, S, H);
+  ctx.fillStyle = RED; ctx.fillRect(0, 0, S, 10);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = GOLD_LIGHT;
+  ctx.font = "700 62px Georgia, serif";
+  ctx.fillText("CUISINE BINGO", S / 2, 112);
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  ctx.font = "700 26px Arial, sans-serif";
+  ctx.fillText(`${stamps} ${stamps === 1 ? "STAMP" : "STAMPS"} EARNED`, S / 2, 162);
+
+  const margin = 60, gap = 12;
+  const cell = (S - margin * 2 - gap * 4) / 5;
+  const top = 215;
+  const markedCount = cells.filter((c) => c !== "FREE" && marked[c]).length;
+
+  cells.forEach((c, i) => {
+    const col = i % 5, row = Math.floor(i / 5);
+    const x = margin + col * (cell + gap);
+    const y = top + row * (cell + gap);
+    const free = c === "FREE";
+    const isMarked = free || !!marked[c];
+    const inLine = lineIdx.has(i);
+    roundRect(ctx, x, y, cell, cell, 16);
+    ctx.fillStyle = inLine ? "rgba(230,178,58,0.18)" : isMarked ? "rgba(224,30,38,0.14)" : "rgba(255,255,255,0.04)";
+    ctx.fill();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = inLine ? GOLD : isMarked ? "rgba(224,30,38,0.7)" : "rgba(255,255,255,0.12)";
+    ctx.stroke();
+    if (free) {
+      ctx.fillStyle = GOLD;
+      ctx.font = "700 64px Georgia, serif";
+      ctx.fillText("★", x + cell / 2, y + cell / 2 + 14);
+      ctx.font = "700 18px Arial, sans-serif";
+      ctx.fillText("FREE", x + cell / 2, y + cell - 22);
+    } else {
+      ctx.fillStyle = isMarked ? "#FFFFFF" : "rgba(255,255,255,0.5)";
+      ctx.font = "700 24px Arial, sans-serif";
+      const lines = wrapLines(ctx, c, cell - 20);
+      lines.forEach((ln, li) => {
+        ctx.fillText(ln, x + cell / 2, y + cell / 2 + (li - (lines.length - 1) / 2) * 30 + 8);
+      });
+      if (isMarked) {
+        ctx.beginPath();
+        ctx.arc(x + cell - 22, y + 22, 16, 0, Math.PI * 2);
+        ctx.fillStyle = inLine ? GOLD : RED;
+        ctx.fill();
+        ctx.fillStyle = inLine ? "#241804" : "#FFFFFF";
+        ctx.font = "700 20px Arial, sans-serif";
+        ctx.fillText("✓", x + cell - 22, y + 29);
+      }
+    }
+  });
+
+  ctx.fillStyle = "rgba(255,255,255,0.45)";
+  ctx.font = "600 26px Arial, sans-serif";
+  ctx.fillText(`${markedCount}/24 stamped — fate fills the card`, S / 2, H - 72);
+  ctx.fillStyle = GOLD;
+  ctx.font = "700 24px Georgia, serif";
+  ctx.fillText("fork-fate.com", S / 2, H - 30);
+
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+}
+
+export async function buildJournalShareImage(stats, streak) {
+  const S = 1080;
+  const canvas = document.createElement("canvas");
+  canvas.width = S; canvas.height = S;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = BG; ctx.fillRect(0, 0, S, S);
+  ctx.fillStyle = RED; ctx.fillRect(0, 0, S, 10);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = GOLD_LIGHT;
+  ctx.font = "700 58px Georgia, serif";
+  ctx.fillText("MY FORK·FATE STORY", S / 2, 120);
+
+  const rows = [
+    [String(stats.total), "FATES DEALT"],
+    [stats.wellPct === null ? "—" : `${stats.wellPct}%`, "TOLD FATE IT CHOSE WELL"],
+    [String(stats.dares), "DARES TAKEN"],
+    [streak > 0 ? `${streak}` : "—", "DAY STREAK"],
+  ];
+  const top = 235, rowH = 150;
+  rows.forEach(([val, label], i) => {
+    const y = top + i * rowH;
+    roundRect(ctx, 90, y - 82, S - 180, 118, 20);
+    ctx.fillStyle = "rgba(255,255,255,0.045)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(230,178,58,0.25)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.textAlign = "left";
+    ctx.fillStyle = RED;
+    ctx.font = "700 76px Georgia, serif";
+    ctx.fillText(val, 130, y + 8);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "rgba(255,255,255,0.75)";
+    ctx.font = "700 30px Arial, sans-serif";
+    ctx.fillText(label, S - 130, y);
+    ctx.textAlign = "center";
+  });
+
+  if (stats.topCuisine) {
+    ctx.fillStyle = GOLD;
+    ctx.font = "700 34px Georgia, serif";
+    ctx.fillText(`Fate keeps sending me to ${stats.topCuisine}`, S / 2, 880);
+  }
+
+  ctx.fillStyle = "rgba(255,255,255,0.5)";
+  ctx.font = "italic 600 30px Georgia, serif";
+  ctx.fillText("The Reaper remembers.", S / 2, S - 92);
+  ctx.fillStyle = GOLD;
+  ctx.font = "700 24px Georgia, serif";
+  ctx.fillText("fork-fate.com", S / 2, S - 40);
+
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+}
+
+/** Native share when possible, silent download otherwise.
+ * Returns "shared" | "downloaded" | null (user cancelled). */
+export async function shareImage(blob, filename, text) {
+  const file = new File([blob], filename, { type: "image/png" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: "Fork·Fate", text });
+      return "shared";
+    } catch (e) {
+      if (e?.name === "AbortError") return null;
+    }
+  }
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 4000);
+  return "downloaded";
+}

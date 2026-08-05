@@ -45,9 +45,27 @@ const liveIcon = L.divIcon({
   popupAnchor: [0, -9],
 });
 
+const escapeHtml = (s) => String(s || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// Blue pin + name tag for each live crew member on a shared crawl.
+const crewIcon = (name) =>
+  L.divIcon({
+    className: "",
+    html: `<div style="display:flex;flex-direction:column;align-items:center;transform:translateY(-6px)">
+      <div style="background:rgba(4,18,28,.85);color:#7DD3FC;font:700 9px/1 Arial;padding:2px 6px;border-radius:6px;border:1px solid #38BDF8;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.6)">${escapeHtml(name)}</div>
+      <div style="position:relative;width:14px;height:14px;margin-top:2px">
+        <span class="animate-ping" style="position:absolute;inset:0;border-radius:9999px;background:#38BDF8;opacity:.5"></span>
+        <span style="position:absolute;inset:2px;border-radius:9999px;background:#38BDF8;border:2px solid #04121c"></span>
+      </div>
+    </div>`,
+    iconSize: [60, 30],
+    iconAnchor: [30, 24],
+    popupAnchor: [0, -24],
+  });
+
 // Interactive, no-cost route map (OpenStreetMap data via CARTO dark tiles).
 // Renders numbered pins + a connecting line for the crawl route.
-export default function CrawlMap({ stops = [], origin = null, destination = null, visited = {}, livePos = null, height = 170 }) {
+export default function CrawlMap({ stops = [], origin = null, destination = null, visited = {}, livePos = null, crew = [], height = 170 }) {
   const pts = useMemo(
     () => stops.filter((s) => s.lat != null && s.lng != null).map((s) => ({ ...s, ll: [Number(s.lat), Number(s.lng)] })),
     [stops]
@@ -99,6 +117,11 @@ export default function CrawlMap({ stops = [], origin = null, destination = null
             <Popup>You are here</Popup>
           </Marker>
         )}
+        {crew.filter((c) => c.lat != null && c.lng != null).map((c) => (
+          <Marker key={c.member_id} position={[Number(c.lat), Number(c.lng)]} icon={crewIcon(c.name || "Crew")}>
+            <Popup>{c.name || "Crew"}</Popup>
+          </Marker>
+        ))}
       </MapContainer>
     </div>
   );

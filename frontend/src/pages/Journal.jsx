@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, BookOpen, Flame, Skull, Swords, Users } from "lucide-react";
+import { ArrowLeft, BookOpen, Flame, Skull, Swords, Users, Share2 } from "lucide-react";
+import { toast } from "sonner";
 import { readJournal, journalStats } from "../lib/journal";
+import { readStreak } from "./homeConstants";
+import { buildJournalShareImage, shareImage } from "../lib/shareCards";
 import { useLang } from "../i18n/i18n";
 
 const REALM_NAMES = {
@@ -23,6 +27,20 @@ export default function Journal() {
   const { t } = useLang();
   const entries = readJournal();
   const s = journalStats(entries);
+  const [sharing, setSharing] = useState(false);
+
+  const share = async () => {
+    if (sharing) return;
+    setSharing(true);
+    try {
+      const blob = await buildJournalShareImage(s, readStreak());
+      const out = await shareImage(blob, "forkfate-story.png", "My Fork·Fate story");
+      if (out === "downloaded") toast.success(t("Story card saved!"));
+    } catch (e) {
+      toast.error(t("Couldn't build the share image"));
+    }
+    setSharing(false);
+  };
 
   return (
     <div className="min-h-screen bg-[#0B0B0D] px-6 py-10 text-white md:px-12">
@@ -52,6 +70,17 @@ export default function Journal() {
           <p className="mt-4 text-center font-serif text-sm italic text-white/50" data-testid="journal-verdict-line">
             {t("You told fate it chose well")} {s.wellPct}% {t("of the time. The Reaper remembers.")}
           </p>
+        )}
+
+        {s.total > 0 && (
+          <button
+            onClick={share}
+            disabled={sharing}
+            data-testid="journal-share-button"
+            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#E01E26] px-5 py-2.5 font-sans text-sm font-bold text-[#FF6B71] transition-colors hover:bg-[#E01E26]/10 disabled:opacity-50"
+          >
+            <Share2 className="h-4 w-4" /> {sharing ? t("Building…") : t("Share my story")}
+          </button>
         )}
 
         {entries.length === 0 ? (

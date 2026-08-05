@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Stamp, Crown, Check, RotateCcw } from "lucide-react";
+import { ArrowLeft, Stamp, Crown, Check, RotateCcw, Share2 } from "lucide-react";
+import { toast } from "sonner";
 import { readBingo, bingoCard, completedCellIndexes, newBingoCard } from "../lib/bingo";
+import { buildBingoShareImage, shareImage } from "../lib/shareCards";
 import { useLang } from "../i18n/i18n";
 
 export default function Bingo() {
@@ -16,6 +18,20 @@ export default function Bingo() {
   const freshCard = () => {
     newBingoCard();
     setState(readBingo());
+  };
+
+  const [sharing, setSharing] = useState(false);
+  const share = async () => {
+    if (sharing) return;
+    setSharing(true);
+    try {
+      const blob = await buildBingoShareImage(cells, state.marked, state.stamps, lineCells);
+      const out = await shareImage(blob, "forkfate-bingo.png", "My Cuisine Bingo card on Fork·Fate");
+      if (out === "downloaded") toast.success(t("Bingo card saved!"));
+    } catch (e) {
+      toast.error(t("Couldn't build the share image"));
+    }
+    setSharing(false);
   };
 
   return (
@@ -96,6 +112,15 @@ export default function Bingo() {
             {t("Eat your way across the card — fate fills it in.")}
           </p>
         )}
+
+        <button
+          onClick={share}
+          disabled={sharing}
+          data-testid="bingo-share-button"
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#E6B23A] px-5 py-2.5 font-sans text-sm font-bold text-[#E6B23A] transition-colors hover:bg-[#E6B23A]/10 disabled:opacity-50"
+        >
+          <Share2 className="h-4 w-4" /> {sharing ? t("Building…") : t("Share my card")}
+        </button>
 
         {state.cards > 0 && (
           <p className="mt-2 text-center font-sans text-xs text-white/35" data-testid="bingo-cards-done">

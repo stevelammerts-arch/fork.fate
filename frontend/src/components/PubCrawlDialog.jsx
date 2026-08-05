@@ -401,7 +401,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
               <CrawlMap stops={stops} origin={origin} destination={destination} visited={visited} livePos={livePos} crew={crewPos} height="max(260px, 44dvh)" />
               <p className="mt-2 text-center text-[11px] font-semibold text-[#8A8A8A]">
                 {crewPos.length > 0
-                  ? `${crewPos.length} ${t("crew pins live — blue dots are your people.")}`
+                  ? `${crewPos.length} ${crewPos.length === 1 ? t("crew pin live — blue dots are your people.") : t("crew pins live — blue dots are your people.")}`
                   : t("Numbered pins follow your route — green means conquered.")}
               </p>
             </div>
