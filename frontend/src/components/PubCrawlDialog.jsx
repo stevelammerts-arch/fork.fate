@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Beer, MapPin, Star, Shuffle, ExternalLink, X, Share2, Trophy, Users, Check, Navigation, LocateFixed } from "lucide-react";
+import { Beer, MapPin, Star, Shuffle, ExternalLink, X, Share2, Trophy, Users, Check, Navigation, LocateFixed, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import CrawlBadgeDialog from "./CrawlBadgeDialog";
 import CrawlMap from "./CrawlMap";
@@ -51,6 +51,14 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
   const crawlCodeRef = useRef(code || null);
   const creatingRef = useRef(null);
   const postedRef = useRef(new Set());
+  // Scroll cue: new users don't know the stop list continues below the map.
+  const bodyRef = useRef(null);
+  const [moreBelow, setMoreBelow] = useState(false);
+  const updateCue = useCallback(() => {
+    const el = bodyRef.current;
+    if (!el) return;
+    setMoreBelow(el.scrollHeight - el.scrollTop - el.clientHeight > 48);
+  }, []);
 
   useEffect(() => { setCrawlCode(code || null); crawlCodeRef.current = code || null; }, [code]);
 
@@ -74,6 +82,11 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
   }, [open, results, shared, initialStops]);
 
   const stops = useMemo(() => route.filter((r) => !dropped[r.id]), [route, dropped]);
+  useEffect(() => {
+    if (!open) return;
+    const id = setTimeout(updateCue, 400);
+    return () => clearTimeout(id);
+  }, [open, stops.length, updateCue]);
   const CRAWL_LABELS = { bars: "Pub Crawl", food: "Food Crawl", drinks: "Drinks Crawl", desserts: "Dessert Crawl", shops: "Shop Crawl" };
   const label = crawlLabel || t(CRAWL_LABELS[mode] || "Pub Crawl");
   const crewLine = crew.trim() ? ` ${t("with")} ${crew.trim()}` : "";
@@ -94,6 +107,9 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
 
   const visitedCount = stops.filter((s) => visited[s.id]).length;
   const allDone = stops.length > 0 && visitedCount === stops.length;
+  // First unvisited stop: gets a "Start here / Next" marker so new users know
+  // exactly where the crawl begins.
+  const nextIdx = stops.findIndex((s) => !visited[s.id]);
   // Leaderboard-eligible only when EVERY conquered stop was confirmed by GPS.
   const crawlVerified = allDone && stops.every((s) => gpsVisited[s.id]);
 
@@ -302,7 +318,8 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
             </DialogDescription>
           </DialogHeader>
 
-          <div className="ff-crawl-body -mr-2 flex-1 space-y-0 overflow-y-auto pr-2">
+          <div className="relative flex min-h-0 flex-1 flex-col">
+          <div ref={bodyRef} onScroll={updateCue} className="ff-crawl-body -mr-2 flex-1 space-y-0 overflow-y-auto pr-2">
           {/* Route map */}
           {stops.length > 0 && (
             <div className="mt-2">
@@ -345,12 +362,19 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
                       onClick={() => toggleVisited(s.id)}
                       data-testid={`crawl-checkoff-${i}`}
                       aria-label={done ? t("Mark not visited") : t("Mark visited")}
-                      className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-bold transition-colors ${done ? "bg-[#4ADE80] text-black" : "bg-[#E01E26] text-white hover:bg-[#FF2E38]"}`}
+                      className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-bold transition-colors ${done ? "bg-[#4ADE80] text-black" : `bg-[#E01E26] text-white hover:bg-[#FF2E38]${i === nextIdx ? " ring-4 ring-[#E01E26]/30" : ""}`}`}
                     >
                       {done ? <Check className="h-5 w-5" /> : i + 1}
                     </button>
                     <div className="min-w-0 flex-1">
-                      <p className={`truncate font-serif text-lg ${done ? "text-[#8A8A8A] line-through" : "text-white"}`}>{s.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className={`truncate font-serif text-lg ${done ? "text-[#8A8A8A] line-through" : "text-white"}`}>{s.name}</p>
+                        {i === nextIdx && !done && (
+                          <span className="shrink-0 rounded-full bg-[#E01E26]/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#FF6B71]" data-testid={`crawl-next-chip-${i}`}>
+                            {visitedCount === 0 ? t("Start here") : t("Next")}
+                          </span>
+                        )}
+                      </div>
                       <p className="flex items-center gap-2 truncate text-xs text-[#A0A0A0]">
                         {s.rating ? <span className="inline-flex items-center gap-1"><Star className="h-3 w-3 fill-[#E01E26] text-[#E01E26]" />{s.rating}</span> : null}
                         {s.cuisine ? <span>· {s.cuisine}</span> : null}
@@ -403,6 +427,14 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
               className="w-full bg-transparent text-sm text-white placeholder-[#6B7075] outline-none"
             />
           </label>
+          </div>
+          {moreBelow && (
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-[#101010] via-[#101010]/70 to-transparent pb-1.5 pt-10" data-testid="crawl-scroll-cue">
+              <span className="flex animate-bounce items-center gap-1 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold text-white backdrop-blur">
+                <ChevronDown className="h-3.5 w-3.5" /> {t("Your stops")}
+              </span>
+            </div>
+          )}
           </div>
 
           <div className="mt-4 flex shrink-0 flex-col gap-3 sm:flex-row sm:flex-wrap">

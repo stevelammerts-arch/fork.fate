@@ -1413,3 +1413,30 @@ See `/app/memory/test_credentials.md`.
   days ago count=10 -> deal -> toast + {count:11,graceUsed:true} + badge 11.
 - i18n: es entries for all new strings (heists, grace toast, section copy).
 - NOT ON PRODUCTION until user redeploys.
+
+## 2026-08-05 part 46: Fate Journal + Dish Dare + Fate of the Day + crawl dialog UX (FF_BUILD 321)
+- FATE JOURNAL: new /app/frontend/src/lib/journal.js (ff_journal localStorage,
+  MAX 250; recordFate/recordVerdict/journalStats) + /journal page (Journal.jsx,
+  dark, stats tiles: fates dealt / chose-well % / dares / top cuisine +
+  "The Reaper remembers" line + entry list w/ realm chips + verdict icons).
+  Home.landFate(card, extra) wraps ALL result landings: rare flow, normal
+  ticker flow, doubleOrNothing({dared:true}), group onPick({group:true}),
+  fate-of-day deal. ReactionBar.vote() mirrors verdict via recordVerdict.
+  Nav: "Fate Journal" link paired with "Fates Witnessed" in More-ways row.
+- DISH DARE: DishDare.jsx (components/home) — dashed amber button on revealed
+  card (food/drinks/desserts/bars modes only, keyed dd-{card.id}); slot-machine
+  text flicker then locks one of 16 ordering dares. One dare per card.
+  Rendered in RevealStage under the verdict row.
+- FATE OF THE DAY: Home fateOfDay memo — deterministic hash(date|zip-or-
+  rounded-coords) over id-sorted results; gold banner (Crown, thumb via
+  cardImage, "Deal me this" -> landFate + scroll top) above "Nearby spots".
+- CRAWL DIALOG UX (user-reported: stops obscured, new users lost — their
+  screenshot was PRODUCTION/old build): CrawlMap 200->170px; scroll cue
+  (bouncing "Your stops" chip over gradient, data-testid=crawl-scroll-cue,
+  hides when scrolled via bodyRef/updateCue); first unvisited stop gets
+  pulsing ring + "Start here"/"Next" chip (crawl-next-chip-{i}).
+- i18n: es for all new strings; FIXED pre-existing duplicate keys in i18n.js
+  (Fall/Spring/Summer + my Fates dealt dupe) — eslint no-dupe-keys now clean.
+- All verified via e2e screenshots. Crawl testing recipe: crawl-mode-toggle ->
+  fill "ZIP code" placeholder (e.g. 68046) -> crawl-deal-button -> dialog ~4s.
+- NOT ON PRODUCTION until user redeploys.

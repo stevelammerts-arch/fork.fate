@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { Flame, Skull } from "lucide-react";
+import { recordVerdict } from "../../lib/journal";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const MIN_VOTES_TO_SHOW = 5;
@@ -32,6 +33,7 @@ export function ReactionBar({ placeId, stacked = false }) {
     if (myVote) return;
     setMyVote(v);
     try { localStorage.setItem(`ff_rxn_${placeId}`, v); } catch (e) { /* ignore */ }
+    recordVerdict(placeId, v); // mirror the verdict into the on-device Fate Journal
     // Optimistic bump so the % reacts instantly.
     setCounts((c) => {
       const up = (c?.up || 0) + (v === "up" ? 1 : 0);

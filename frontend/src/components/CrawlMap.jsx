@@ -67,7 +67,7 @@ export default function CrawlMap({ stops = [], origin = null, destination = null
       <MapContainer
         bounds={bounds}
         scrollWheelZoom={false}
-        style={{ height: 200, width: "100%", background: "#0B0B0B" }}
+        style={{ height: 170, width: "100%", background: "#0B0B0B" }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'

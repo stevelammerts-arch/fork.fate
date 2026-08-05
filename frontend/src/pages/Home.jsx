@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Search, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, ArrowDownWideNarrow, Flame, Users, Beer, Trophy, UtensilsCrossed, ChevronDown, Mountain, Tent, Stamp, Globe2, Sparkles } from "lucide-react";
+import { Dices, Search, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, ArrowDownWideNarrow, Flame, Users, Beer, Trophy, UtensilsCrossed, ChevronDown, Mountain, Tent, Stamp, Globe2, Sparkles, Crown, BookOpen } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
@@ -25,7 +25,7 @@ import { GroupPicker } from "../components/home/GroupPicker";
 import { haptic } from "../lib/pwa";
 import confetti from "canvas-confetti";
 import {
-  readStreak, bumpStreak, streakMilestone,
+  readStreak, bumpStreak, streakMilestone, cardImage,
   HERO_INITIAL, HERO_ANIMATE, HERO_TRANSITION, SPIN_TAP,
   FOOD_CUISINES, FOOD_GROUPS, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, BAR_GROUPS, SHOP_CUISINES, FUEL_CUISINES, FUEL_GROUPS, EXPLORE_CUISINES, EXPLORE_GROUPS, STAY_CUISINES, CRAWL_TYPES, crawlLabelForType, orderCrawlRoute,
 } from "./homeConstants";
@@ -35,6 +35,7 @@ import { useTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
 import { trackEvent } from "../lib/analytics";
 import { recordRitualSeen, readRitualsSeen, RITUALS } from "../lib/rituals";
+import { recordFate } from "../lib/journal";
 import { readPassports } from "../lib/passports";
 import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene, ReaperHeist } from "../components/ThemeScenes";
 import { ReaperScene } from "../components/ReaperScene";
@@ -333,6 +334,12 @@ export default function Home() {
     return count;
   };
 
+  // Lands a fate: writes it into the on-device Fate Journal, then reveals it.
+  const landFate = (card, extra = {}) => {
+    recordFate(card, { theme, mode, ...extra });
+    setResult(card);
+  };
+
   // Scratch completed: unveil with the full reveal fanfare (boom + flash).
   const surpriseDone = () => {
     // A fate counts as "witnessed" only once the ritual concludes; first-time
@@ -451,7 +458,7 @@ export default function Home() {
           if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e3) { /* ignore */ } grooveRef.current = null; }
         } catch (e) { /* audio unavailable */ }
         haptic(20);
-        setResult(chosen);
+        landFate(chosen);
         setSurpriseReveal(variant);
         setSpinning(false);
         setFlash(null);
@@ -499,7 +506,7 @@ export default function Home() {
           setTimeout(() => setRevealFlash(false), 1400);
           shuffleRef.current = setTimeout(() => {
             if (groupMode) setGroupPicks(picks);
-            else setResult(chosen);
+            else landFate(chosen);
             setSpinning(false);
             setFlash(null);
             setFlashHit(false);
@@ -842,7 +849,7 @@ export default function Home() {
     const pick = pool[Math.floor(Math.random() * pool.length)];
     trackEvent("double_or_nothing", { category: mode, theme });
     playSound("/card-deal.wav", 0.9);
-    setResult(pick);
+    landFate(pick, { dared: true });
     setLocked(true);
     toast.success(`${t("Locked in by fate")}: ${pick.name}`, { description: t("You took the dare — no takebacks.") });
   };
@@ -855,6 +862,20 @@ export default function Home() {
     lastPickRef.current = null;
     runShuffle(favorites);
   };
+
+  // Fate of the Day: one destined spot everyone in the same area sees today.
+  // Deterministic: seeded by date + area (zip or rounded coords) over the
+  // id-sorted pool, so it stays stable all day without any backend.
+  const fateOfDay = useMemo(() => {
+    if (!results.length) return null;
+    const day = new Date().toISOString().slice(0, 10);
+    const area = zip || (coords ? `${coords.lat.toFixed(2)},${coords.lng.toFixed(2)}` : "");
+    const seed = `${day}|${area}`;
+    let h = 0;
+    for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+    const sorted = [...results].sort((a, b) => String(a.id).localeCompare(String(b.id)));
+    return sorted[h % sorted.length];
+  }, [results, zip, coords]);
 
   const sortedResults = useMemo(() => {
     return [...results].sort((a, b) => {
@@ -1268,13 +1289,23 @@ export default function Home() {
                 </Link>
               </div>
 
-              <Link
-                to="/rituals"
-                data-testid="fates-witnessed-link"
-                className="inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-[#7A4DB2] bg-white px-4 py-2.5 text-sm font-bold text-[#5E3596] transition-colors hover:bg-[#F3EDFA]"
-              >
-                <Sparkles className="h-4 w-4" /> {t("Fates Witnessed")}
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/rituals"
+                  data-testid="fates-witnessed-link"
+                  className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-[#7A4DB2] bg-white px-4 py-2.5 text-sm font-bold text-[#5E3596] transition-colors hover:bg-[#F3EDFA]"
+                >
+                  <Sparkles className="h-4 w-4" /> {t("Fates Witnessed")}
+                </Link>
+
+                <Link
+                  to="/journal"
+                  data-testid="fate-journal-link"
+                  className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-[#B3141A] bg-white px-4 py-2.5 text-sm font-bold text-[#B3141A] transition-colors hover:bg-[#FCF4F4]"
+                >
+                  <BookOpen className="h-4 w-4" /> {t("Fate Journal")}
+                </Link>
+              </div>
             </div>
             </div>
 
@@ -1478,7 +1509,7 @@ export default function Home() {
             {theme === "steam" && result && !surpriseReveal && <SteamRise key={`steam-${result.id}`} />}
             <div ref={resultRef} className="relative z-10 min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
               {theme === "dark" && result && !surpriseReveal && <GhostEscort key={`esc-${result.id}`} />}
-              <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} light={light} theme={theme} onReset={() => { setResult(null); setGroupPicks(null); setLocked(false); setSurpriseReveal(null); setRerollsLeft(3); }} onReSpin={reSpin} onReport={reportClosed} onPick={setResult} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} onDare={doubleOrNothing} dareAvailable={results.length > 1} locked={locked} rerollsLeft={rerollsLeft} onSwipeReroll={swipeReroll} surprise={surpriseReveal} onSurpriseDone={surpriseDone} />
+              <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} light={light} theme={theme} onReset={() => { setResult(null); setGroupPicks(null); setLocked(false); setSurpriseReveal(null); setRerollsLeft(3); }} onReSpin={reSpin} onReport={reportClosed} onPick={(c) => landFate(c, { group: true })} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} onDare={doubleOrNothing} dareAvailable={results.length > 1} locked={locked} rerollsLeft={rerollsLeft} onSwipeReroll={swipeReroll} surprise={surpriseReveal} onSurpriseDone={surpriseDone} />
             </div>
           </div>
         </div>
@@ -1487,6 +1518,29 @@ export default function Home() {
       {/* Nearby results */}
       {results.length > 0 && (
         <section className="relative z-10 mx-auto max-w-6xl px-6 pb-24 pt-8 md:px-12">
+          {fateOfDay && !spinning && (
+            <div className="mb-8 flex items-center gap-4 rounded-2xl border-2 border-[#E6B23A] bg-gradient-to-r from-[#FDF6E7] to-white p-4" data-testid="fate-of-day-card">
+              {cardImage(fateOfDay) && (
+                <img src={cardImage(fateOfDay)} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover" />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="flex items-center gap-1.5 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-[#B98A22]">
+                  <Crown className="h-3.5 w-3.5" /> {t("Fate of the Day")}
+                </p>
+                <p className="truncate font-serif text-lg font-bold text-[#0E0E0E]">{fateOfDay.name}</p>
+                <p className="truncate font-sans text-xs text-[#6B7075]">
+                  {[fateOfDay.cuisine, fateOfDay.price, fateOfDay.distance != null ? `${fateOfDay.distance} ${t("mi away")}` : null].filter(Boolean).join(" · ")}
+                </p>
+              </div>
+              <button
+                onClick={() => { landFate(fateOfDay); window.scrollTo({ top: 0, behavior: "smooth" }); trackEvent("fate_of_day_deal", { theme }); }}
+                data-testid="fate-of-day-deal"
+                className="shrink-0 rounded-full bg-[#B98A22] px-4 py-2 font-sans text-xs font-bold text-white transition-colors hover:bg-[#8F6A18]"
+              >
+                {t("Deal me this")}
+              </button>
+            </div>
+          )}
           <div className="flex items-end justify-between border-b border-[#E2E4E7] pb-4">
             <h2 className="font-serif text-2xl font-medium tracking-tight text-[#0E0E0E] sm:text-3xl">
               {t("Nearby spots")}

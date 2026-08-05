@@ -18,6 +18,7 @@ import { CrankGear } from "./CrankGear";
 import { TikiShaker } from "./TikiShaker";
 import { SnowGlobe } from "./SnowGlobe";
 import { LatteStir } from "./LatteStir";
+import { DishDare } from "./DishDare";
 import { VolcanoReveal } from "./VolcanoReveal";
 import { TarotDraw } from "./TarotDraw";
 import { CoffinKnock } from "./CoffinKnock";
@@ -325,6 +326,8 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
               {/* verdict pills hug the right edge, opposite shuffle + dare */}
               <ReactionBar placeId={card.id} stacked />
             </div>
+            {/* Dish Dare: fate picked WHERE — let it pick HOW you order */}
+            {["food", "drinks", "desserts", "bars"].includes(mode) && <DishDare key={`dd-${card.id}`} />}
             {!card.open_now && (
               <p data-testid="closed-reroll-hint" className="rounded-xl bg-[#FCF4F4] px-3 py-2 font-sans text-xs font-bold text-[#E01E26]">
                 {t("Closed right now — shuffle again for an open spot.")}

@@ -1,0 +1,20 @@
+{
+  "summary": "Frontend E2E regression + new feature verification for Fork·Fate (mobile 390x800). Verified: (1) Home deal flow with muted/rare-guard localStorage produces a reveal card with dish-dare-button; (2) Dish Dare click renders dish-dare-result ('Close your eyes and point at the menu.') and the button disappears after one use; (3) ff_journal receives an entry with name/theme/mode after a deal, and reaction-up sets verdict='up'; (4) fate-of-day-card gold banner appears above Nearby spots with a restaurant name and Deal me this button; clicking fate-of-day-deal appends a second ff_journal entry and scrolls to top (scrollY=1534 -> reveal in view); (5) fate-journal-link on home navigates to /journal (URL confirmed); (6) Journal page: journal-title exists, stats tiles show journal-stat-total=2, journal-stat-well=100%, journal-stat-dares=0, journal-stat-cuisine=Italian, and entries list shows dealt restaurants with realm chip 'Reaper'; (7) Clearing ff_journal + reload renders journal-empty state; (8) Pub Crawl dialog: crawl-mode-toggle + ZIP 68046 + crawl-deal-button opens pub-crawl-dialog, crawl-scroll-cue is visible on open and removed after scrolling .ff-crawl-body to bottom, crawl-next-chip-0 reads 'Start here', after crawl-checkoff-0 the chip on stop 1 disappears and crawl-next-chip-1 reads 'Next'; (9) Regression: /rituals still renders and heists-grid exists.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_57.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home.jsx is a large monolithic file (references at lines ~330/900/1290/1530). Consider splitting fateOfDay memo and landFate helper into dedicated modules for maintainability."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "100% (all 8 flows in scope passed)"},
+  "seed_data_creation": "None. Used localStorage flags ff_muted=1, ff_rare_at=1000, and cleared ff_journal per test setup instructions.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All new features (Fate Journal, Dish Dare, Fate of the Day) and Pub Crawl scroll-cue UX fix are functioning correctly on the deployed preview. Realm chooser + intro wizard appear on fresh contexts — dismiss by clicking exact text 'Reaper (Original)' and 'Skip intro'. Set localStorage ff_muted='1' and ff_rare_at='1000' before reload to mute audio and prevent rare-ritual overlays. Reveal takes 8-14s in dark themes."
+}
