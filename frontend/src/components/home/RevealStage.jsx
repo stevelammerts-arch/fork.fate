@@ -49,10 +49,11 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
     if (!FLOURISH_THEMES.has(theme) || isCovered || resultId == null) return;
     setSteaming(true);
     // Cyber's matrix rain keeps falling for the life of the card; the reaper's
-    // staggered ghosts + wail and the falling showers (winter/spring/fall)
-    // get longer windows; all other flourishes clear after ~4.2s.
+    // staggered ghosts + wail, the falling showers (winter/spring/fall) and
+    // tiki (the gecko's long wander over the card) get longer windows; all
+    // other flourishes clear after ~4.2s.
     if (theme === "cyber") return;
-    const life = theme === "dark" ? 8800 : ["winter", "spring", "fall"].includes(theme) ? 8000 : 4200;
+    const life = theme === "dark" ? 8800 : ["winter", "spring", "fall"].includes(theme) ? 8000 : theme === "tiki" ? 13000 : 4200;
     const timer = setTimeout(() => setSteaming(false), life);
     return () => clearTimeout(timer);
   }, [resultId, isCovered, theme]);

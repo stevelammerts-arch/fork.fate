@@ -3,6 +3,20 @@ import { motion } from "framer-motion";
 import { SteamBurst } from "./SteamBurst";
 import { ButterflySprite } from "../ThemeScenes";
 
+/** Tan totem gecko gets in the way of the dealt fate card: corner-to-corner
+ * dash, back, a nosy pause dead-center, then scurries off the edge. An inner
+ * wrapper waddles side-to-side (perpendicular to his heading, since it lives
+ * inside the rotated frame) for that lizardy gait. */
+function GeckoCardCrawl() {
+  return (
+    <div className="absolute" style={{ width: 44, animation: "ffGeckoCard 12.6s linear forwards" }} data-testid="tiki-gecko-card">
+      <div style={{ animation: "ffGeckoWaddle 0.3s ease-in-out infinite alternate" }}>
+        <img src="/tiki-gecko-top.png" alt="" className="w-full" style={{ filter: "drop-shadow(1px 2px 2px rgba(0,0,0,0.4))" }} />
+      </div>
+    </div>
+  );
+}
+
 // Deterministic pseudo-random per particle index so re-renders don't reshuffle.
 const rnd = (i, salt) => {
   const x = Math.sin(i * 127.1 + salt * 311.7) * 43758.5453;
@@ -548,7 +562,10 @@ export function ThemeFlourish({ theme, variant = "reveal" }) {
       ) : theme === "cyber" ? (
         <MatrixRain height={height} />
       ) : theme === "tiki" ? (
-        <Fireflies />
+        <>
+          <Fireflies />
+          {variant !== "deck" && <GeckoCardCrawl />}
+        </>
       ) : theme === "summer" ? (
         <BeachBalls height={height} />
       ) : theme === "fantasy" ? (

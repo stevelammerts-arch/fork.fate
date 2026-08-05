@@ -1522,6 +1522,43 @@ body {
   0%{ transform: translate(0, 0); }
   100%{ transform: translate(1.5px, -2.5px); }
 }
+/* Totem gecko gets IN THE WAY of the dealt fate card (13s tiki flourish
+   window, 12.6s unhurried wander): darts bottom-left corner -> top-right
+   corner, back down, then wanders the card — parking dead-center like geckos
+   do — with look-around pauses before scurrying off the left edge. left/top
+   are % of the card; the sprite's head follows the travel direction. */
+@keyframes ffGeckoCard{
+  0%{ left: 8%; top: 96%; transform: translate(-50%, -50%) rotate(43deg); }
+  8%{ left: 86%; top: 12%; transform: translate(-50%, -50%) rotate(43deg); }
+  10.5%{ left: 86%; top: 12%; transform: translate(-50%, -50%) rotate(18deg); }
+  14%{ left: 86%; top: 12%; transform: translate(-50%, -50%) rotate(43deg); }
+  15.5%{ left: 86%; top: 12%; transform: translate(-50%, -50%) rotate(223deg); }
+  23%{ left: 14%; top: 88%; transform: translate(-50%, -50%) rotate(223deg); }
+  29%{ left: 14%; top: 88%; transform: translate(-50%, -50%) rotate(223deg); }
+  30.5%{ left: 14%; top: 88%; transform: translate(-50%, -50%) rotate(42deg); }
+  37%{ left: 50%; top: 48%; transform: translate(-50%, -50%) rotate(42deg); }
+  40%{ left: 50%; top: 48%; transform: translate(-50%, -50%) rotate(64deg); }
+  44%{ left: 50%; top: 48%; transform: translate(-50%, -50%) rotate(24deg); }
+  48%{ left: 50%; top: 48%; transform: translate(-50%, -50%) rotate(42deg); }
+  49.5%{ left: 50%; top: 48%; transform: translate(-50%, -50%) rotate(-35deg); }
+  55%{ left: 30%; top: 20%; transform: translate(-50%, -50%) rotate(-35deg); }
+  62%{ left: 30%; top: 20%; transform: translate(-50%, -50%) rotate(-35deg); }
+  63.5%{ left: 30%; top: 20%; transform: translate(-50%, -50%) rotate(135deg); }
+  70%{ left: 72%; top: 62%; transform: translate(-50%, -50%) rotate(135deg); }
+  74%{ left: 72%; top: 62%; transform: translate(-50%, -50%) rotate(152deg); }
+  78%{ left: 72%; top: 62%; transform: translate(-50%, -50%) rotate(135deg); }
+  79.5%{ left: 72%; top: 62%; transform: translate(-50%, -50%) rotate(261deg); }
+  86%{ left: 20%; top: 70%; transform: translate(-50%, -50%) rotate(261deg); }
+  92%{ left: 20%; top: 70%; transform: translate(-50%, -50%) rotate(261deg); }
+  93.5%{ left: 20%; top: 70%; transform: translate(-50%, -50%) rotate(291deg); }
+  100%{ left: -7%; top: 58%; transform: translate(-50%, -50%) rotate(291deg); }
+}
+/* Lizard waddle: quick side-to-side body swing perpendicular to the heading
+   (applied inside the rotated path frame) */
+@keyframes ffGeckoWaddle{
+  0%{ transform: translateX(-2.5px) rotate(-7deg); }
+  100%{ transform: translateX(2.5px) rotate(7deg); }
+}
 @keyframes ffGeckoGait{
   0%{ transform: scaleX(0.9); }
   0.5%{ transform: scaleX(1.18); }
