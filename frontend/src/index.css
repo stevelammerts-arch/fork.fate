@@ -1453,37 +1453,40 @@ body {
   51%,52.2%{ transform: scaleX(1.18) scaleY(0.88); }
   75%,76%{ transform: scaleX(1.18) scaleY(0.88); }
 }
-/* Third gecko (smaller) running along the roof's bamboo beam: canvas units
-   via --s like the bar gecko; beam slopes up to the right (~ -0.095 y/x).
-   18s so he never syncs with the bar (16s) or floor (19s) geckos. */
+/* Third gecko (smaller) running along the back-bar shelf edge among the
+   bottles: canvas units via --s. (The painted roof beams sit at canvas y<260,
+   permanently hidden behind the app header/banners on every breakpoint, so
+   the shelf is the highest ledge that's actually visible.) 18s so he never
+   syncs with the bar (16s) or floor (19s) geckos. Shelf slopes down-right
+   very slightly (+5y over 170x). */
 @keyframes ffGeckoBeam{
   0%{ transform: translateX(0) translateY(0) scaleX(1); }
-  1.2%{ transform: translateX(calc(70 * var(--s))) translateY(calc(-7 * var(--s))) scaleX(1); }
-  2.4%{ transform: translateX(calc(140 * var(--s))) translateY(calc(-13 * var(--s))) scaleX(1); }
-  16%{ transform: translateX(calc(140 * var(--s))) translateY(calc(-13 * var(--s))) scaleX(1); }
-  17.5%{ transform: translateX(calc(200 * var(--s))) translateY(calc(-19 * var(--s))) scaleX(1); }
-  19%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-25 * var(--s))) scaleX(1); }
-  30%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-25 * var(--s))) scaleX(1); }
-  30.5%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-27 * var(--s))) scaleX(0.05); }
-  31%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-25 * var(--s))) scaleX(-1); }
-  35%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-25 * var(--s))) scaleX(-1); }
-  35.5%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-27 * var(--s))) scaleX(-0.05); }
-  36%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-25 * var(--s))) scaleX(1); }
-  40%{ transform: translateX(calc(260 * var(--s))) translateY(calc(-25 * var(--s))) scaleX(1); }
-  41.5%{ transform: translateX(calc(320 * var(--s))) translateY(calc(-31 * var(--s))) scaleX(1); }
-  43%{ transform: translateX(calc(380 * var(--s))) translateY(calc(-36 * var(--s))) scaleX(1); }
-  58%{ transform: translateX(calc(380 * var(--s))) translateY(calc(-36 * var(--s))) scaleX(1); }
-  58.5%{ transform: translateX(calc(380 * var(--s))) translateY(calc(-39 * var(--s))) scaleX(0.6); }
-  59%{ transform: translateX(calc(380 * var(--s))) translateY(calc(-40 * var(--s))) scaleX(0.05); }
-  59.5%{ transform: translateX(calc(380 * var(--s))) translateY(calc(-39 * var(--s))) scaleX(-0.6); }
-  60%{ transform: translateX(calc(380 * var(--s))) translateY(calc(-36 * var(--s))) scaleX(-1); }
-  62%{ transform: translateX(calc(380 * var(--s))) translateY(calc(-36 * var(--s))) scaleX(-1); }
-  63.5%{ transform: translateX(calc(190 * var(--s))) translateY(calc(-18 * var(--s))) scaleX(-1); }
+  1.2%{ transform: translateX(calc(30 * var(--s))) translateY(calc(1 * var(--s))) scaleX(1); }
+  2.4%{ transform: translateX(calc(60 * var(--s))) translateY(calc(2 * var(--s))) scaleX(1); }
+  16%{ transform: translateX(calc(60 * var(--s))) translateY(calc(2 * var(--s))) scaleX(1); }
+  17.5%{ transform: translateX(calc(85 * var(--s))) translateY(calc(2.6 * var(--s))) scaleX(1); }
+  19%{ transform: translateX(calc(110 * var(--s))) translateY(calc(3.3 * var(--s))) scaleX(1); }
+  30%{ transform: translateX(calc(110 * var(--s))) translateY(calc(3.3 * var(--s))) scaleX(1); }
+  30.5%{ transform: translateX(calc(110 * var(--s))) translateY(calc(1.3 * var(--s))) scaleX(0.05); }
+  31%{ transform: translateX(calc(110 * var(--s))) translateY(calc(3.3 * var(--s))) scaleX(-1); }
+  35%{ transform: translateX(calc(110 * var(--s))) translateY(calc(3.3 * var(--s))) scaleX(-1); }
+  35.5%{ transform: translateX(calc(110 * var(--s))) translateY(calc(1.3 * var(--s))) scaleX(-0.05); }
+  36%{ transform: translateX(calc(110 * var(--s))) translateY(calc(3.3 * var(--s))) scaleX(1); }
+  40%{ transform: translateX(calc(110 * var(--s))) translateY(calc(3.3 * var(--s))) scaleX(1); }
+  41.5%{ transform: translateX(calc(140 * var(--s))) translateY(calc(4.2 * var(--s))) scaleX(1); }
+  43%{ transform: translateX(calc(170 * var(--s))) translateY(calc(5 * var(--s))) scaleX(1); }
+  58%{ transform: translateX(calc(170 * var(--s))) translateY(calc(5 * var(--s))) scaleX(1); }
+  58.5%{ transform: translateX(calc(170 * var(--s))) translateY(calc(2 * var(--s))) scaleX(0.6); }
+  59%{ transform: translateX(calc(170 * var(--s))) translateY(calc(1 * var(--s))) scaleX(0.05); }
+  59.5%{ transform: translateX(calc(170 * var(--s))) translateY(calc(2 * var(--s))) scaleX(-0.6); }
+  60%{ transform: translateX(calc(170 * var(--s))) translateY(calc(5 * var(--s))) scaleX(-1); }
+  62%{ transform: translateX(calc(170 * var(--s))) translateY(calc(5 * var(--s))) scaleX(-1); }
+  63.5%{ transform: translateX(calc(85 * var(--s))) translateY(calc(2.5 * var(--s))) scaleX(-1); }
   65%{ transform: translateX(0) translateY(0) scaleX(-1); }
   80%{ transform: translateX(0) translateY(0) scaleX(-1); }
-  80.5%{ transform: translateX(0) translateY(calc(-3 * var(--s))) scaleX(-0.6); }
-  81%{ transform: translateX(0) translateY(calc(-4 * var(--s))) scaleX(-0.05); }
-  81.5%{ transform: translateX(0) translateY(calc(-3 * var(--s))) scaleX(0.6); }
+  80.5%{ transform: translateX(0) translateY(calc(-2 * var(--s))) scaleX(-0.6); }
+  81%{ transform: translateX(0) translateY(calc(-3 * var(--s))) scaleX(-0.05); }
+  81.5%{ transform: translateX(0) translateY(calc(-2 * var(--s))) scaleX(0.6); }
   82%,100%{ transform: translateX(0) translateY(0) scaleX(1); }
 }
 /* Beam gecko gait: stretch pulses timed to the beam sprint windows */

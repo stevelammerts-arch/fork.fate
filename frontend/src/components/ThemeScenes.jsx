@@ -337,6 +337,49 @@ export function FlutterButterfly({ b, z = 3 }) {
 const TIKI_FLAME_FRAMES = ["/tiki-flame-1.png", "/tiki-flame-2.png", "/tiki-flame-3.png", "/tiki-flame-4.png", "/tiki-flame-5.png"];
 const TIKI_FLAME_FRAMES_GEN = ["/tiki-flame-gen-1.png", "/tiki-flame-gen-2.png", "/tiki-flame-gen-3.png", "/tiki-flame-gen-4.png"];
 
+const GECKO_FLOOR_LOOP_MS = 19000;
+const GECKO_CHASE_MS = 4600;
+
+/** Floor gecko + rare fly-chase micro-moment. Every ~35-80s a fly buzzes by
+ * and the gecko bolts after it, lunges, misses, and trots back. The chase is
+ * armed only at the 19s loop boundary (where the loop keyframes have him at
+ * translateX(0) facing right) so swapping animations never teleports him. */
+function TikiFloorGecko() {
+  const [chase, setChase] = useState(false);
+  const loopStartRef = useRef(Date.now());
+  useEffect(() => {
+    let t1, t2, t3;
+    const arm = () => {
+      const elapsed = (Date.now() - loopStartRef.current) % GECKO_FLOOR_LOOP_MS;
+      t2 = setTimeout(() => {
+        setChase(true);
+        t3 = setTimeout(() => {
+          setChase(false);
+          loopStartRef.current = Date.now(); // loop restarts fresh after the swap
+          schedule();
+        }, GECKO_CHASE_MS);
+      }, (GECKO_FLOOR_LOOP_MS - elapsed) % GECKO_FLOOR_LOOP_MS);
+    };
+    const schedule = () => { t1 = setTimeout(arm, 35000 + Math.random() * 45000); };
+    schedule();
+    const force = () => { clearTimeout(t1); clearTimeout(t2); loopStartRef.current = Date.now(); arm(); };
+    window.addEventListener("ff:gecko-chase", force);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); window.removeEventListener("ff:gecko-chase", force); };
+  }, []);
+  return (
+    <div className="absolute z-[3]" style={{ left: "6%", bottom: "2vh", width: "clamp(54px, 6vw, 78px)" }} data-testid="tiki-gecko-floor">
+      {chase && (
+        <div className="absolute left-0" style={{ top: -6, animation: `ffTikiFly ${GECKO_CHASE_MS}ms linear forwards` }} data-testid="tiki-fly">
+          <span className="block rounded-full" style={{ width: 7, height: 5, background: "radial-gradient(circle at 35% 35%, #4A3A26, #171008 70%)", boxShadow: "0 -2px 2px rgba(240,230,200,0.35)", animation: "ffFlyJitter 0.14s linear infinite alternate" }} />
+        </div>
+      )}
+      <div style={{ animation: chase ? `ffGeckoChase ${GECKO_CHASE_MS}ms linear forwards` : "ffGeckoFloor 19s linear infinite" }}>
+        <img src="/tiki-gecko.png" alt="" className="w-full" style={{ animation: chase ? "ffGeckoChaseGait 0.35s ease-in-out infinite" : "ffGeckoFloorGait 19s linear infinite", transformOrigin: "50% 100%" }} />
+      </div>
+    </div>
+  );
+}
+
 /** Rare easter egg: the stealth saucer sneaks in and ABDUCTS the header logo.
  * Runs once per session in Cyberspace, 45-105s after load (or immediately on a
  * `ff:abduct` window event, used for testing). The real logo medallion is
@@ -518,16 +561,24 @@ export function AmbianceScene({ theme, cfg }) {
         ))}
         {/* tiki gecko: anchored to the painted bar via the measured cover box
             (canvas 1264x848) so he stays glued to the counter on any device.
-            Far stop --gx/--gy is shorter on mobile (he slid off the counter). */}
+            On mobile his home base shifts RIGHT of the counter's front-left
+            corner (painted at ~canvas 480) and the far leg is shorter — at
+            full range he crowded/slid off both counter ends on phones. */}
         {loungeBox && (
-          <div className="absolute z-[3]" style={{ left: loungeBox.offX + 520 * (loungeBox.dw / 1264), top: loungeBox.offY + 533 * (loungeBox.dw / 1264), width: 46 * (loungeBox.dw / 1264), "--s": `${loungeBox.dw / 1264}px`, "--gx": mobile ? 220 : 300, "--gy": mobile ? -33 : -45, animation: "ffGeckoBar 16s linear infinite" }} data-testid="tiki-gecko">
+          <div className="absolute z-[3]" style={{ left: loungeBox.offX + (mobile ? 570 : 520) * (loungeBox.dw / 1264), top: loungeBox.offY + (mobile ? 526 : 533) * (loungeBox.dw / 1264), width: 46 * (loungeBox.dw / 1264), "--s": `${loungeBox.dw / 1264}px`, "--gx": mobile ? 180 : 300, "--gy": mobile ? -27 : -45, animation: "ffGeckoBar 16s linear infinite" }} data-testid="tiki-gecko">
             <img src="/tiki-gecko.png" alt="" className="w-full" style={{ animation: "ffGeckoGait 16s linear infinite", transformOrigin: "50% 100%" }} />
           </div>
         )}
-        {/* second gecko scuttling along the floor in front of the bar */}
-        <div className="absolute z-[3]" style={{ left: "6%", bottom: "2vh", width: "clamp(54px, 6vw, 78px)", animation: "ffGeckoFloor 19s linear infinite" }} data-testid="tiki-gecko-floor">
-          <img src="/tiki-gecko.png" alt="" className="w-full" style={{ animation: "ffGeckoFloorGait 19s linear infinite", transformOrigin: "50% 100%" }} />
-        </div>
+        {/* third gecko (smaller) running the back-bar shelf edge among the
+            bottles — the painted roof beams are hidden behind the app header
+            on every screen, so the shelf is the highest visible ledge */}
+        {loungeBox && (
+          <div className="absolute z-[3]" style={{ left: loungeBox.offX + 450 * (loungeBox.dw / 1264), top: loungeBox.offY + 331 * (loungeBox.dw / 1264), width: 30 * (loungeBox.dw / 1264), "--s": `${loungeBox.dw / 1264}px`, animation: "ffGeckoBeam 18s linear infinite" }} data-testid="tiki-gecko-shelf">
+            <img src="/tiki-gecko.png" alt="" className="w-full" style={{ animation: "ffGeckoBeamGait 18s linear infinite", transformOrigin: "50% 100%" }} />
+          </div>
+        )}
+        {/* second gecko scuttling along the floor — occasionally chases a fly */}
+        <TikiFloorGecko />
       </>)}
       {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
       {cfg.console && (

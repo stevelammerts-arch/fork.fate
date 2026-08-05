@@ -1244,3 +1244,27 @@ See `/app/memory/test_credentials.md`.
   ffGeckoFloorGait stretch pulses matched to its sprint windows.
 - NOTE: user still hasn't redeployed — these fixes + abduction tuning (if any)
   reach fork-fate.com on next Publish.
+
+## 2026-08-05 part 39: Tiki gecko trio finished
+- BAR GECKO (user screenshot showed him at the counter's front-left corner,
+  canvas ~480): mobile base moved RIGHT to (570,526) w/ far leg 180/-27; desktop
+  unchanged (520,533, 300/-45). Probe: mobile home x=136, far x=312 — both on
+  the counter, clear of the corner.
+- FLOOR GECKO + FLY CHASE: TikiFloorGecko component (ThemeScenes.jsx). Normal
+  ffGeckoFloor 19s loop; every 35-80s a chase arms and waits for the 19s loop
+  boundary (gecko at translateX(0) facing right) THEN swaps to one-shot
+  ffGeckoChase 4.6s — sprint, lunge (-9px hop at 47%), miss, trot back to 0 —
+  so animation swaps never teleport him. Fly (data-testid="tiki-fly", 7px dot,
+  ffTikiFly path + ffFlyJitter wing buzz) escapes upward at ~60%. Force-trigger
+  for tests: window.dispatchEvent(new CustomEvent('ff:gecko-chase')). Verified:
+  fly mounts mid-chase, gone after, loop resumes.
+- THIRD GECKO (smaller, 30 canvas units, data-testid="tiki-gecko-shelf"):
+  user asked for the roof beam, but ALL painted roof beams are at canvas y<260 —
+  permanently hidden behind the sticky header/banner stack on BOTH breakpoints
+  (scene is fixed; desktop crop starts ~canvas 233 + UI to ~282, mobile UI to
+  ~281). Placed on the highest VISIBLE ledge instead: the back-bar shelf edge
+  among the bottles, canvas (450,331), run 170 units, slope +5y. ffGeckoBeam
+  18s (no sync w/ 16s/19s). Probes match shelf line exactly on both breakpoints.
+- User idea logged: CAFE RARE RITUAL "Latte Stir" — realistic mug, cream latte
+  art forms the FF logo, you STIR the logo away to reveal the fate. NOT BUILT
+  YET (user said finish geckos first). Winter also has no exclusive ritual.
