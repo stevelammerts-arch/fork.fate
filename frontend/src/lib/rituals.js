@@ -22,6 +22,7 @@ export const RITUALS = [
   { key: "leaves", name: "Leaf Pile", realm: "Fall", theme: "fall", accent: "#D97A2B", desc: "Fate lies buried under the harvest — sweep the leaves until it shows." },
   { key: "bloom", name: "Cherry Bloom", realm: "Spring", theme: "spring", accent: "#E87BA8", desc: "Coax the sakura buds until the branch bursts into full blossom." },
   { key: "melon", name: "Watermelon Smash", realm: "Summer", theme: "summer", accent: "#E23B4A", desc: "Three good whacks and the melon splits in a juicy spray of seeds." },
+  { key: "globe", name: "Snow Globe", realm: "Winter", theme: "winter", accent: "#8FC6FF", desc: "Shake the globe into a blizzard — the fate settles with the snow." },
 ];
 
 export function readRitualsSeen() {

@@ -3,6 +3,23 @@ import { motion } from "framer-motion";
 import { SteamBurst } from "./SteamBurst";
 import { ButterflySprite } from "../ThemeScenes";
 
+/** Winter cardinal swoops in from the right, lands on the dealt card's top
+ * edge, perches with hops + head tilts, then flies off up-left. Must be
+ * rendered OUTSIDE the card's overflow-hidden wrappers so he can stand proud
+ * of the top border. Both sprites face left (right-to-left arrival). */
+export function CardinalPerch() {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-[6]" aria-hidden="true">
+      <div className="absolute" style={{ width: 46, transform: "translate(-50%, -100%)", animation: "ffCardinalCard 7.8s linear forwards" }} data-testid="winter-cardinal-card">
+        {/* flying pose: visible on approach + departure */}
+        <img src="/winter-cardinal-fly.png" alt="" className="absolute inset-0 w-full" style={{ animation: "ffCardinalCardFly 7.8s linear forwards, ffCardinalFlap 0.24s ease-in-out infinite alternate", transformOrigin: "50% 60%" }} />
+        {/* perched pose: visible while he sits on the card edge */}
+        <img src="/winter-cardinal.png" alt="" className="w-full opacity-0" style={{ animation: "ffCardinalCardPerch 7.8s linear forwards, ffCardinalCardLook 7.8s linear forwards", transformOrigin: "50% 100%" }} />
+      </div>
+    </div>
+  );
+}
+
 /** Tan totem gecko gets in the way of the dealt fate card: corner-to-corner
  * dash, back, a nosy pause dead-center, then scurries off the edge. An inner
  * wrapper waddles side-to-side (perpendicular to his heading, since it lives

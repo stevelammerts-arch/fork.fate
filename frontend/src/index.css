@@ -1149,6 +1149,48 @@ body {
   79%,95%{ opacity: 0.85; }
   96.5%,100%{ opacity: 0; }
 }
+/* Winter cardinal lands on the dealt fate card's top edge (7.8s one-shot,
+   inside winter's 8s flourish window): swoops in from off-right, perches at
+   44% of the card's width with little side-hops, then departs up-left. */
+@keyframes ffCardinalCard{
+  0%{ left: 112%; top: -22%; opacity: 1; }
+  9%{ left: 74%; top: 9%; opacity: 1; }
+  18%{ left: 44%; top: 0%; opacity: 1; }
+  31%{ left: 44%; top: 0%; opacity: 1; }
+  32.5%{ left: 47%; top: -0.6%; opacity: 1; }
+  34%{ left: 47.5%; top: 0%; opacity: 1; }
+  52%{ left: 47.5%; top: 0%; opacity: 1; }
+  53.5%{ left: 43%; top: -0.6%; opacity: 1; }
+  55%{ left: 42.5%; top: 0%; opacity: 1; }
+  82%{ left: 42.5%; top: 0%; opacity: 1; }
+  86%{ left: 30%; top: -14%; opacity: 1; }
+  96%{ left: -8%; top: -32%; opacity: 1; }
+  100%{ left: -14%; top: -36%; opacity: 0; }
+}
+/* Cross-fade: flying sprite on approach/departure, perched sprite in between */
+@keyframes ffCardinalCardFly{
+  0%, 16%{ opacity: 1; }
+  19%, 81%{ opacity: 0; }
+  84%, 100%{ opacity: 1; }
+}
+@keyframes ffCardinalCardPerch{
+  0%, 16%{ opacity: 0; }
+  19%, 81%{ opacity: 1; }
+  84%, 100%{ opacity: 0; }
+}
+/* Curious looks while perched: head tilts BOTH ways with quick whole-body
+   flips (scaleX) so he clearly looks left, then right, then left again */
+@keyframes ffCardinalCardLook{
+  0%, 22%{ transform: scaleX(1) rotate(0deg); }
+  26%, 30%{ transform: scaleX(1) rotate(-9deg); }
+  34%{ transform: scaleX(1) rotate(0deg); }
+  36%, 48%{ transform: scaleX(-1) rotate(0deg); }
+  40%, 44%{ transform: scaleX(-1) rotate(8deg); }
+  50%, 62%{ transform: scaleX(1) rotate(0deg); }
+  56%, 58%{ transform: scaleX(1) rotate(-7deg); }
+  64%, 70%{ transform: scaleX(-1) rotate(-6deg); }
+  74%, 100%{ transform: scaleX(1) rotate(0deg); }
+}
 /* Winter cardinal patrol (one 52s loop, two anchored instances):
    A (cabin roof): flies in beak-first from upper-right 0-6%, perches 6-27%
    (looks around twice + tail flicks), flies off LEFT 27-30%.
@@ -1552,6 +1594,19 @@ body {
   92%{ left: 20%; top: 70%; transform: translate(-50%, -50%) rotate(261deg); }
   93.5%{ left: 20%; top: 70%; transform: translate(-50%, -50%) rotate(291deg); }
   100%{ left: -7%; top: 58%; transform: translate(-50%, -50%) rotate(291deg); }
+}
+/* Snow globe ritual: flakes swirl inside the glass (speed scales with shakes
+   via animation-duration), then settle to the base when the fate is decided */
+@keyframes ffGlobeSwirl{
+  0%{ transform: translate(0, 0); }
+  25%{ transform: translate(13px, -9px); }
+  50%{ transform: translate(1px, -18px); }
+  75%{ transform: translate(-12px, -8px); }
+  100%{ transform: translate(0, 0); }
+}
+@keyframes ffGlobeSettle{
+  0%{ transform: translate(0, -8px); }
+  100%{ transform: translate(0, 78px); opacity: 0.9; }
 }
 /* Lizard waddle: quick side-to-side body swing perpendicular to the heading
    (applied inside the rotated path frame) */

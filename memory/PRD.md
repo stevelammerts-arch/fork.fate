@@ -1287,3 +1287,28 @@ See `/app/memory/test_credentials.md`.
   is wider and shows it fine).
 - STILL PENDING (user's chosen next): Latte Stir cafe ritual — FF logo in the
   cream, stir it away to reveal. Winter snow-globe ritual also proposed.
+
+## 2026-08-05 part 41: Cardinal-on-card (winter flourish) + Snow Globe ritual
+- CARDINAL PERCH (winter reveal flourish): CardinalPerch (exported from
+  ThemeFlourish.jsx, data-testid="winter-cardinal-card") — swoops in from
+  off-RIGHT (both sprites face left), lands ON the dealt card's TOP edge,
+  side-hops, looks BOTH ways (ffCardinalCardLook: scaleX flips + head tilts,
+  per user "only looks 1 direction" note), departs up-left at 7.8s (winter
+  window 8s). CLIPPING FIX (user mobile screenshot): spin-result-card's
+  overflow-hidden moved to an inner wrapper div; outer motion.div is now
+  "relative rounded-2xl" and CardinalPerch renders as its unclipped sibling
+  in RevealStage ({theme==="winter" && steaming}). Perch raised twice per
+  user: final = translate(-50%,-100%) + top:0% stops.
+- SNOW GLOBE RARE RITUAL (winter exclusive, user-approved asset with SNOWMAN
+  inside): /public/snow-globe.png (gen_snow_globe.py, 480px). SnowGlobe.jsx
+  modeled on TikiShaker: 5 taps to shake (wobble via motion key remount,
+  icy noise-burst jingle, progress dots), 26 deterministic flakes clipped to
+  the glass sphere (rounded-full overlay at 50%/40.5%, 88% width) swirl
+  faster per shake (ffGlobeSwirl duration scales), then ffGlobeSettle +
+  reveal-santa.wav on completion; onDone at 2.4s w/ cover fade.
+- WIRING: RARE_COVERS + "globe" + render branch (RevealStage), winter pool2
+  branch (Home.jsx ~line 413), rituals.js registry entry (auto passport
+  tracking -> "New fate witnessed! Snow Globe" toast verified).
+- TEST HOOKS: localStorage ff_deal_taps=99 + ff_rare_at=10 forces a rare fate;
+  ff_rare_force='globe' picks the ritual. Full flow verified on mobile 390:
+  cover -> 5 shakes -> settle -> card revealed + collection toast, no errors.

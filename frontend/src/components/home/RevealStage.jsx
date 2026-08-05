@@ -16,6 +16,7 @@ import { HackTerminal } from "./HackTerminal";
 import { CodeBreaker } from "./CodeBreaker";
 import { CrankGear } from "./CrankGear";
 import { TikiShaker } from "./TikiShaker";
+import { SnowGlobe } from "./SnowGlobe";
 import { VolcanoReveal } from "./VolcanoReveal";
 import { TarotDraw } from "./TarotDraw";
 import { CoffinKnock } from "./CoffinKnock";
@@ -26,7 +27,7 @@ import { TreasureChest } from "./TreasureChest";
 import { LeafPile } from "./LeafPile";
 import { CherryBloom } from "./CherryBloom";
 import { MelonSmash } from "./MelonSmash";
-import { ThemeFlourish, FLOURISH_THEMES } from "./ThemeFlourish";
+import { ThemeFlourish, FLOURISH_THEMES, CardinalPerch } from "./ThemeFlourish";
 import { Magic8Ball } from "./Magic8Ball";
 import { WheelOfFate } from "./WheelOfFate";
 import { useLang } from "../../i18n/i18n";
@@ -41,7 +42,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   // plays (steam, snow, petals, leaves, fireflies, sparkles, fire wall) —
   // re-fires per revealed place, and after a rare ritual unveils.
   // (Hooks live above the early returns to keep hook order stable.)
-  const RARE_COVERS = ["scratch", "8ball", "wheel", "wand", "hack", "code", "crank", "shaker", "volcano", "tarot", "coffin", "seance", "ouija", "eye", "chest", "leaves", "bloom", "melon"];
+  const RARE_COVERS = ["scratch", "8ball", "wheel", "wand", "hack", "code", "crank", "shaker", "volcano", "tarot", "coffin", "seance", "ouija", "eye", "chest", "leaves", "bloom", "melon", "globe"];
   const isCovered = RARE_COVERS.includes(surprise);
   const resultId = result ? result.id : null;
   const [steaming, setSteaming] = useState(false);
@@ -139,9 +140,10 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
         animate={{ opacity: 1, scale: 1, rotate: 0 }}
         exit={{ opacity: 0, scale: 0.98 }}
         transition={RESULT_SPRING}
-        className="overflow-hidden rounded-2xl"
+        className="relative rounded-2xl"
         data-testid="spin-result-card"
       >
+        <div className="overflow-hidden rounded-2xl">
         <motion.div
           className={`relative overflow-hidden rounded-2xl transition-[height] duration-300 ${covered ? "h-[26rem]" : "h-64"}`}
           data-testid="reveal-photo-header"
@@ -262,6 +264,9 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
           )}
           {surprise === "melon" && (
             <MelonSmash onDone={onSurpriseDone} />
+          )}
+          {surprise === "globe" && (
+            <SnowGlobe onDone={onSurpriseDone} />
           )}
           {surprise === "wheel" && (
             <WheelOfFate names={deck.map((d) => d.name)} winner={card.name} onDone={onSurpriseDone} />
@@ -456,6 +461,10 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
             )}
           </motion.div>
         )}
+        </div>
+        {/* winter cardinal perches on the card's TOP edge — rendered outside
+            the overflow-hidden wrapper so he isn't clipped by the border */}
+        {theme === "winter" && steaming && <CardinalPerch />}
       </motion.div>
     </AnimatePresence>
   );
