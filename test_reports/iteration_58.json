@@ -1,0 +1,22 @@
+{
+  "summary": "Final pre-deploy regression for Fork·Fate. Backend: 5/5 pytest passing for new POST /api/crawls/{code}/position + GET /api/crawls/{code}/positions (upsert=one entry per member with latest coords, invalid lat=422), plus GET /crawls/{code}, GET /crawls/leaderboard, POST /crawls/{code}/checkin regression. Frontend (mobile 390x800): Pub Crawl dialog auto-opens on /c/{code}, segmented tabs crawl-tab-stops / crawl-tab-map render, crawl-next-chip-0 shows 'Start here', crawl-scroll-cue hides after scrolling .ff-crawl-body, footer has 'New crawl' + 'Share with group' buttons. LIVE CREW PINS: after seeding position via API (Bob at 41.295,-96.115 for crawl SA6JY9YY), /c/SA6JY9YY dialog Map tab shows '1 crew pin live — blue dots are your people.' caption AND a marker containing 'Bob' in the leaflet DOM. CUISINE BINGO: /bingo renders bingo-grid with 25 cells, bingo-stamps='1', bingo-share-button click completes with zero JS errors after anchor.click override. FATE JOURNAL: /journal with 3 seeded entries shows title, journal-stat-total='3', 3 entry rows, journal-share-button click with zero JS errors; clearing ff_journal shows journal-empty and hides share button. COLLECTION /rituals: renders rituals grid + heists-grid + bingo-collection-card. Deal-flow, dish-dare, fate-of-day, and latte rare-ritual already verified in iteration_57 (same session).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iter58_positions.py",
+    "/app/test_reports/pytest/iter58_positions.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Home.jsx remains a large monolith (~1500+ lines) — consider splitting fateOfDay / landFate / crawl helpers into modules (carry-over from iter_57).",
+    "Position endpoint /api/crawls/{code}/position has no auth and rate_limit(120) — abuse potential to spam pins for any known code. Acceptable pre-launch given TTL=15min and 30-doc GET cap, but consider a signed member token in v2."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter58_positions.py"
+  ],
+  "success_rate": {"backend": "100% (5/5)", "frontend": "100% on scoped new features (crew pins, bingo, journal, collection, crawl dialog tabs/scroll-cue/footer)"},
+  "seed_data_creation": "Created crawl code SA6JY9YY with 2 stops and posted a Bob position (member_id=testbob_ui_001) for live-crew-pin UI test. TTL will auto-expire in 15 min. Seeded ff_bingo and ff_journal in localStorage per instructions.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All new features (crew pins API + Map tab pins, Cuisine Bingo, Fate Journal, Crawl dialog Stops/Map tabs w/ scroll cue + compact footer) verified. Backend regression suite at /app/backend/tests/test_iter58_positions.py. Deal-flow / dish-dare / fate-of-day / latte-rare-ritual covered by iter_57 report. App is deploy-ready from a regression standpoint."
+}
