@@ -42,6 +42,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
   const [livePos, setLivePos] = useState(null);
   const [crew, setCrew] = useState("");
   const [view, setView] = useState("stops"); // "stops" | "map" — two switchable pages
+  const [crewPos, setCrewPos] = useState([]); // other crew members' live pins
   const [sharing, setSharing] = useState(false);
   const [badgeOpen, setBadgeOpen] = useState(false);
   const [crawlCode, setCrawlCode] = useState(code || null);
@@ -209,6 +210,42 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
 
   useEffect(() => { if (!autoGps) setLivePos(null); }, [autoGps]);
 
+  // Live crew pins (shared crawls only): broadcast my GPS position at most
+  // every 20s while auto check-in is on, and poll everyone else's pins while
+  // the dialog is open. Positions are ephemeral server-side (15 min TTL).
+  const memberIdRef = useRef(null);
+  if (!memberIdRef.current) {
+    try {
+      let id = localStorage.getItem("ff_member_id");
+      if (!id) { id = Math.random().toString(36).slice(2, 12); localStorage.setItem("ff_member_id", id); }
+      memberIdRef.current = id;
+    } catch (e) { memberIdRef.current = Math.random().toString(36).slice(2, 12); }
+  }
+  const lastPosPostRef = useRef(0);
+  useEffect(() => {
+    if (!livePos || !crawlCode) return;
+    const now = Date.now();
+    if (now - lastPosPostRef.current < 20000) return;
+    lastPosPostRef.current = now;
+    const myName = (crew.trim().split(/[,&]/)[0] || "").slice(0, 16) || t("Crew");
+    axios.post(`${API}/crawls/${crawlCode}/position`, {
+      member_id: memberIdRef.current, name: myName, lat: livePos.lat, lng: livePos.lng,
+    }).catch(() => {});
+  }, [livePos, crawlCode, crew, t]);
+  useEffect(() => {
+    if (!open || !crawlCode) return;
+    let stopped = false;
+    const load = async () => {
+      try {
+        const { data } = await axios.get(`${API}/crawls/${crawlCode}/positions`);
+        if (!stopped) setCrewPos((data.positions || []).filter((p) => p.member_id !== memberIdRef.current));
+      } catch (e) { /* transient */ }
+    };
+    load();
+    const id = setInterval(load, 20000);
+    return () => { stopped = true; clearInterval(id); };
+  }, [open, crawlCode]);
+
   const buildStopsPayload = () =>
     stops.map((s) => ({
       id: String(s.id ?? ""),
@@ -361,9 +398,11 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
 
           {view === "map" && stops.length > 0 ? (
             <div className="mt-3 min-h-0 flex-1" data-testid="crawl-map-view">
-              <CrawlMap stops={stops} origin={origin} destination={destination} visited={visited} livePos={livePos} height={330} />
+              <CrawlMap stops={stops} origin={origin} destination={destination} visited={visited} livePos={livePos} crew={crewPos} height="max(260px, 44dvh)" />
               <p className="mt-2 text-center text-[11px] font-semibold text-[#8A8A8A]">
-                {t("Numbered pins follow your route — green means conquered.")}
+                {crewPos.length > 0
+                  ? `${crewPos.length} ${t("crew pins live — blue dots are your people.")}`
+                  : t("Numbered pins follow your route — green means conquered.")}
               </p>
             </div>
           ) : (

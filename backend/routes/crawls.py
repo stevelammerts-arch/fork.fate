@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional
 
 from core import db, logger, rate_limit
-from models import CrawlCreate, CrawlCompletionCreate, CrawlCheckinCreate
+from models import CrawlCreate, CrawlCompletionCreate, CrawlCheckinCreate, CrawlPositionCreate
 
 router = APIRouter()
 
@@ -201,6 +201,56 @@ async def _gps_checkin_count(code: str) -> int:
         "stop_id", {"code": code.strip().upper()[:12], "source": "gps"}
     )
     return len([s for s in stop_ids if s])
+
+
+# Live crew pins: short-lived member positions for shared crawls.
+POSITION_TTL_MINUTES = 15
+_position_index_ready = False
+
+
+async def _ensure_position_indexes():
+    global _position_index_ready
+    if _position_index_ready:
+        return
+    try:
+        await db.crawl_positions.create_index("expire_at", expireAfterSeconds=0)
+        await db.crawl_positions.create_index("code")
+    except Exception as e:
+        logger.warning(f"crawl_positions index setup failed: {e}")
+    _position_index_ready = True
+
+
+@router.post("/crawls/{code}/position", dependencies=[Depends(rate_limit(120))])
+async def update_position(code: str, payload: CrawlPositionCreate):
+    """Upsert one crew member's live pin for a shared crawl (TTL-expired)."""
+    await _ensure_position_indexes()
+    now = datetime.now(timezone.utc)
+    clean_code = (code or "").strip().upper()[:12]
+    await db.crawl_positions.update_one(
+        {"code": clean_code, "member_id": payload.member_id},
+        {"$set": {
+            "name": payload.name,
+            "lat": payload.lat,
+            "lng": payload.lng,
+            "updated_at": now.isoformat(),
+            "expire_at": now + timedelta(minutes=POSITION_TTL_MINUTES),
+        }},
+        upsert=True,
+    )
+    return {"ok": True, "expires_in_minutes": POSITION_TTL_MINUTES}
+
+
+@router.get("/crawls/{code}/positions")
+async def get_positions(code: str):
+    """All live crew pins for a shared crawl (TTL keeps this list fresh)."""
+    await _ensure_position_indexes()
+    clean_code = (code or "").strip().upper()[:12]
+    docs = [
+        d async for d in db.crawl_positions.find(
+            {"code": clean_code}, {"_id": 0, "expire_at": 0}
+        ).limit(30)
+    ]
+    return {"positions": docs}
 
 
 @router.get("/crawls/leaderboard")

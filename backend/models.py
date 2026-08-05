@@ -198,6 +198,18 @@ class CrawlCheckinCreate(BaseModel):
         return v if v in ("gps", "manual") else "manual"
 
 
+class CrawlPositionCreate(BaseModel):
+    """A crew member's live location during a shared crawl.
+
+    Ephemeral by design — rows ride a short TTL so we never retain a durable
+    trail of where people walked.
+    """
+    member_id: str = Field(..., min_length=4, max_length=64)
+    name: str = Field(default="", max_length=24)
+    lat: float = Field(..., ge=-90, le=90)
+    lng: float = Field(..., ge=-180, le=180)
+
+
 class PassportCreate(BaseModel):
     """A multi-day quest: N stops you stamp over days or weeks."""
     mode: str = "explore"
