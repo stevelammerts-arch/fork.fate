@@ -569,12 +569,12 @@ export function AmbianceScene({ theme, cfg }) {
             <img src="/tiki-gecko.png" alt="" className="w-full" style={{ animation: "ffGeckoGait 16s linear infinite", transformOrigin: "50% 100%" }} />
           </div>
         )}
-        {/* third gecko (smaller) running the back-bar shelf edge among the
-            bottles — the painted roof beams are hidden behind the app header
-            on every screen, so the shelf is the highest visible ledge */}
+        {/* totem climber: tan/green-spotted top-down gecko scaling the carved
+            totem left of the back-bar (the path the user drew) — climbs up
+            in sprints, looks around, flips head-down and descends */}
         {loungeBox && (
-          <div className="absolute z-[3]" style={{ left: loungeBox.offX + 450 * (loungeBox.dw / 1264), top: loungeBox.offY + 331 * (loungeBox.dw / 1264), width: 30 * (loungeBox.dw / 1264), "--s": `${loungeBox.dw / 1264}px`, animation: "ffGeckoBeam 18s linear infinite" }} data-testid="tiki-gecko-shelf">
-            <img src="/tiki-gecko.png" alt="" className="w-full" style={{ animation: "ffGeckoBeamGait 18s linear infinite", transformOrigin: "50% 100%" }} />
+          <div className="absolute z-[3]" style={{ left: loungeBox.offX + 422 * (loungeBox.dw / 1264), top: loungeBox.offY + 420 * (loungeBox.dw / 1264), width: 26 * (loungeBox.dw / 1264), "--s": `${loungeBox.dw / 1264}px`, animation: "ffGeckoClimb 20s linear infinite" }} data-testid="tiki-gecko-totem">
+            <img src="/tiki-gecko-top.png" alt="" className="w-full" style={{ filter: "drop-shadow(1px 2px 2px rgba(0,0,0,0.45))" }} />
           </div>
         )}
         {/* second gecko scuttling along the floor — occasionally chases a fly */}

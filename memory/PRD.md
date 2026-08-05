@@ -1268,3 +1268,22 @@ See `/app/memory/test_credentials.md`.
 - User idea logged: CAFE RARE RITUAL "Latte Stir" — realistic mug, cream latte
   art forms the FF logo, you STIR the logo away to reveal the fate. NOT BUILT
   YET (user said finish geckos first). Winter also has no exclusive ritual.
+
+## 2026-08-05 part 40: Shelf gecko CANCELLED -> totem climber (top-down sprite)
+- User cancelled the shelf gecko ("paths too similar") and drew the desired path:
+  vertical climb on the carved TOTEM left of the back-bar (canvas x~407-480,
+  y~267-467), from palm-frond level down to just above the pineapple.
+- NEW SPRITE per user: TAN with GREEN SPOTS, TOP-DOWN dorsal view, head up —
+  /public/tiki-gecko-top.png (gen_gecko_top.py, 160px, keyed+despilled).
+- ffGeckoBeam/ffGeckoBeamGait keyframes DELETED; new ffGeckoClimb 20s (no sync
+  w/ 16/19s): anchored canvas (422,420), climbs -125 units in 3 sprints w/
+  pauses, look-around wiggle (rotate -14deg) at top, flips rotate(180) head-down,
+  descends in 2 sprints, flips back via rotate(360) at bottom (=0 at loop wrap).
+  data-testid="tiki-gecko-totem"; drop-shadow filter for relief against the wood.
+- Verified: frozen rects (641,393)/(641,204)/(644,272) all on the painted totem
+  column at 1920px; zoomed clips visually confirm him on the totem face/chin.
+- NOTE: on very narrow phones (390px) the totem sits at the left crop edge so
+  the climber is partially clipped — inherent to the art crop (user's own device
+  is wider and shows it fine).
+- STILL PENDING (user's chosen next): Latte Stir cafe ritual — FF logo in the
+  cream, stir it away to reveal. Winter snow-globe ritual also proposed.
