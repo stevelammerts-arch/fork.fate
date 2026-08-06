@@ -2146,3 +2146,28 @@ timers, the established pattern), 3b (visuals only, NO audio for these four).
   window.__ffFateBusy before starting AND after the scroll (bails + retries in
   30s). Interval cleared on unmount. Verified: scrollY 1200 -> 0 -> crash in
   full view.
+
+## 2026-08-06 part 89: Neon sign dropped below the banner (FF_BUILD 390)
+- User: the sticky top banner covered the Neon Wreck. Measured: mobile header
+  bottom ~230px vs sign top 126px (crash zone fully buried); desktop header
+  145px vs sign top 120px.
+- CyberNeonSign container: top-[15%] -> top-[max(26%,235px)] sm:top-[20%] —
+  sign + crash now fully clear of the header/sponsor strip on both mobile
+  (390x844) and desktop (1920x800), screenshot-verified mid-impact on both.
+
+## 2026-08-06 part 90: Neon Wreck v2 (FF_BUILD 391)
+- User: fixed 26%/235px top STILL covered on their device + wants the neon to
+  flash on/off during the bzzz + car should hover UP into the sign.
+- CyberNeonSign now MEASURES the real banner bottom at runtime (max of
+  header + sponsor-marquee getBoundingClientRect().bottom, re-measured at
+  +1.5s and on resize) and hangs the sign 16px below it (floor 16vh). Mobile
+  verified: sign top 252px vs banner 230px.
+- Car now climbs UP from the streets below (ffCarHoverUp, 62vh rise with sway,
+  2.3s to match the crunch) into the sign's underside (impact right:16%
+  top:62%, sparks right:20% top:58%); still tumbles away (ffCarTumble).
+- Tubes SHORT-CIRCUIT during the buzz: ffNeonShort (4 on/off flashes over
+  3.9s, dying to exactly the opacity/filter state ffNeonRevive starts from)
+  + ffNeonHaloShort keeps the glow halo flashing in step. Replaced the old
+  ffNeonDieOut + halo opacity fade during crash===2.
+- Screenshot-verified full sequence on mobile: climb -> crunch -> flash-on ->
+  flash-off -> revive.

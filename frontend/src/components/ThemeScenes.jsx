@@ -2083,7 +2083,25 @@ function SteamGearsHeist() {
  * forces one, used for testing). */
 function CyberNeonSign({ neon }) {
   const witnessRef = useHeistWitness("wreck");
-  const [crash, setCrash] = useState(0); // 1 careening in, 2 impact + neons out, 3 humming back on
+  const [crash, setCrash] = useState(0); // 1 careening in, 2 impact + neons shorting, 3 humming back on
+  // The sticky banner's height varies by device — measure its real bottom and
+  // hang the sign safely below it, so no crash ever plays behind the header.
+  const [signTop, setSignTop] = useState(null);
+  useEffect(() => {
+    const measure = () => {
+      const bar = document.querySelector('[data-testid="sponsor-marquee"], [data-testid="sponsor-marquee-empty"]');
+      const hdr = document.querySelector("header");
+      const bottom = Math.max(
+        bar ? bar.getBoundingClientRect().bottom : 0,
+        hdr ? hdr.getBoundingClientRect().bottom : 0
+      );
+      setSignTop(Math.max(bottom + 16, window.innerHeight * 0.16));
+    };
+    measure();
+    const settle = setTimeout(measure, 1500); // re-measure after fonts/layout settle
+    window.addEventListener("resize", measure);
+    return () => { clearTimeout(settle); window.removeEventListener("resize", measure); };
+  }, []);
   useEffect(() => {
     const timers = [];
     let pending = null;
@@ -2130,20 +2148,20 @@ function CyberNeonSign({ neon }) {
     window.addEventListener("ff:neon-crash", start);
     return () => { clearTimeout(pending); clearInterval(poll); timers.forEach(clearTimeout); window.removeEventListener("ff:neon-crash", start); };
   }, []); // witnessRef is a stable ref
-  const out = crash === 2; // tubes dead
+  const out = crash === 2; // tubes shorting out
   return (
-    <div className="absolute left-1/2 top-[15%] z-[1] w-[62vw] max-w-xs -translate-x-1/2" data-testid="cyber-neon">
-      <div className="absolute left-1/2 top-1/2 h-[135%] w-[135%] -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ background: "radial-gradient(circle, rgba(199,125,255,0.42), rgba(34,224,224,0.18) 46%, transparent 70%)", filter: "blur(26px)", animation: "ffNeonFlash 3.4s ease-in-out infinite", opacity: out ? 0 : 1, transition: "opacity 0.25s ease" }} />
-      <img src={neon} alt="" className="relative w-full object-contain" data-testid="cyber-neon-sign" style={{ animation: out ? "ffNeonDieOut 0.8s steps(4,end) forwards" : crash === 3 ? "ffNeonRevive 1.2s steps(6,end) both, ffNeonFloat 6s ease-in-out infinite" : "ffNeonFloat 6s ease-in-out infinite" }} />
-      {/* the doomed car: sputters in from the right lane, crunches, tumbles */}
+    <div className="absolute left-1/2 z-[1] w-[62vw] max-w-xs -translate-x-1/2" style={{ top: signTop ?? "26%" }} data-testid="cyber-neon">
+      <div className="absolute left-1/2 top-1/2 h-[135%] w-[135%] -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ background: "radial-gradient(circle, rgba(199,125,255,0.42), rgba(34,224,224,0.18) 46%, transparent 70%)", filter: "blur(26px)", animation: out ? "ffNeonHaloShort 3.9s linear forwards" : "ffNeonFlash 3.4s ease-in-out infinite" }} />
+      <img src={neon} alt="" className="relative w-full object-contain" data-testid="cyber-neon-sign" style={{ animation: out ? "ffNeonShort 3.9s linear forwards" : crash === 3 ? "ffNeonRevive 1.2s steps(6,end) both, ffNeonFloat 6s ease-in-out infinite" : "ffNeonFloat 6s ease-in-out infinite" }} />
+      {/* the doomed car: sputters up from the streets below, crunches into the sign's underside, tumbles */}
       {(crash === 1 || crash === 2) && (
-        <div className="absolute" style={{ right: "-4%", top: "26%", transform: crash === 1 ? "translateX(60vw)" : "translateX(0)", transition: crash === 1 ? "none" : undefined, animation: crash === 1 ? "ffCarCareen 2.3s cubic-bezier(0.4,0.2,0.6,1) forwards" : "ffCarTumble 1.15s cubic-bezier(0.45,0.1,0.8,0.5) forwards" }} data-testid="neon-crash-car">
+        <div className="absolute" style={{ right: "16%", top: "62%", animation: crash === 1 ? "ffCarHoverUp 2.3s cubic-bezier(0.35,0.2,0.55,1) forwards" : "ffCarTumble 1.15s cubic-bezier(0.45,0.1,0.8,0.5) forwards" }} data-testid="neon-crash-car">
           <img src="/cyber-car2.png" alt="" className="w-[16vw] max-w-[86px] object-contain" style={{ transform: "scaleX(-1)", animation: crash === 1 ? "ffCarSputter 0.4s linear infinite" : "none", filter: "drop-shadow(0 0 8px rgba(34,224,224,0.5))" }} />
         </div>
       )}
       {/* impact flash + neon glass sparks */}
       {crash === 2 && (
-        <div className="absolute" style={{ right: "2%", top: "38%" }} data-testid="neon-crash-sparks">
+        <div className="absolute" style={{ right: "20%", top: "58%" }} data-testid="neon-crash-sparks">
           <span className="absolute rounded-full" style={{ left: -18, top: -18, width: 36, height: 36, background: "radial-gradient(circle, #FFFFFF, rgba(199,125,255,0.6) 45%, transparent 75%)", animation: "ffPoofSparkle 0.5s ease-out forwards" }} />
           {Array.from({ length: 10 }, (_, i) => {
             const a = (i / 10) * Math.PI * 2;

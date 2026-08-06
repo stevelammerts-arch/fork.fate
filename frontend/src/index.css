@@ -2212,3 +2212,47 @@ body.ff-badge-open .ff-theme-scene * {
   75%  { transform: rotate(12deg); }
   100% { transform: rotate(19deg); }
 }
+
+/* Neon Wreck v2: the tubes SHORT-CIRCUIT after the crunch — flashing on and
+   off with the bzzz before dying to the state ffNeonRevive picks up from */
+@keyframes ffNeonShort {
+  0%   { opacity: 1; filter: none; }
+  5%   { opacity: 0.12; filter: grayscale(0.9) brightness(0.4); }
+  11%  { opacity: 0.95; filter: none; }
+  16%  { opacity: 0.1; filter: grayscale(0.9) brightness(0.4); }
+  30%  { opacity: 0.1; filter: grayscale(0.9) brightness(0.4); }
+  34%  { opacity: 0.85; filter: none; }
+  40%  { opacity: 0.08; filter: grayscale(0.92) brightness(0.4); }
+  56%  { opacity: 0.08; filter: grayscale(0.92) brightness(0.4); }
+  60%  { opacity: 0.7; filter: grayscale(0.2) brightness(0.85); }
+  65%  { opacity: 0.07; filter: grayscale(0.93) brightness(0.4); }
+  82%  { opacity: 0.07; filter: grayscale(0.93) brightness(0.4); }
+  86%  { opacity: 0.5; filter: grayscale(0.4) brightness(0.7); }
+  91%  { opacity: 0.15; filter: grayscale(0.95) brightness(0.4); }
+  100% { opacity: 0.15; filter: grayscale(0.95) brightness(0.4); }
+}
+/* the halo flashes in step with the shorting tubes */
+@keyframes ffNeonHaloShort {
+  0%   { opacity: 1; }
+  5%   { opacity: 0; }
+  11%  { opacity: 0.9; }
+  16%  { opacity: 0; }
+  30%  { opacity: 0; }
+  34%  { opacity: 0.8; }
+  40%  { opacity: 0; }
+  56%  { opacity: 0; }
+  60%  { opacity: 0.6; }
+  65%  { opacity: 0; }
+  82%  { opacity: 0; }
+  86%  { opacity: 0.4; }
+  91%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+/* the doomed car struggles UP from the streets below, swaying as it climbs */
+@keyframes ffCarHoverUp {
+  0%   { transform: translateY(62vh) rotate(2deg); }
+  30%  { transform: translateY(38vh) rotate(-3deg); }
+  55%  { transform: translateY(20vh) rotate(2deg); }
+  80%  { transform: translateY(7vh) rotate(-2deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
