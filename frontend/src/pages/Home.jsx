@@ -1417,15 +1417,15 @@ export default function Home() {
                 </ol>
                 <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Pick your crawl")}</p>
                 <div className="flex flex-wrap gap-2">
-                  {CRAWL_TYPES.map((t) => (
+                  {CRAWL_TYPES.map((ct) => (
                     <button
-                      key={t.key}
+                      key={ct.key}
                       type="button"
-                      data-testid={`crawl-type-${t.key}`}
-                      onClick={() => applyCrawlType(t)}
-                      className={`rounded-full border px-4 py-2 text-sm font-bold transition-colors ${crawlType === t.key ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E2E4E7] bg-white text-[#6B7075] hover:bg-[#EDEEF0]"}`}
+                      data-testid={`crawl-type-${ct.key}`}
+                      onClick={() => applyCrawlType(ct)}
+                      className={`rounded-full border px-4 py-2 text-sm font-bold transition-colors ${crawlType === ct.key ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E2E4E7] bg-white text-[#6B7075] hover:bg-[#EDEEF0]"}`}
                     >
-                      {t.label}
+                      {ct.label}
                     </button>
                   ))}
                 </div>

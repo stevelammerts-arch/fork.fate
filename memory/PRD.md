@@ -2200,3 +2200,28 @@ timers, the established pattern), 3b (visuals only, NO audio for these four).
 - Verified on dark: plate heist running -> ff:heist/snatch/ghost all bounced
   (plate:1, grave:0, cooldown 110s remaining).
 - User must REDEPLOY to get FF_BUILD 388-393 changes on fork-fate.com.
+
+## 2026-08-06 part 93: Code review triage (FF_BUILD 394)
+APPLIED (real findings):
+- Home.jsx crawl-type map param `t` shadowed the i18n t() — renamed to `ct`
+  (verified: crawl picker renders all 8 types + translated labels).
+- scripts/gen_print_files.py + gen_snowman_wink.py unused imports removed
+  (kept flood_key_white which WAS used). pyflakes now clean across
+  backend/routes, backend/*.py and scripts/.
+INVESTIGATED, NO ACTION NEEDED (report noise):
+- "5 undefined Python variables": pyflakes 3.4 finds ZERO undefined names in
+  backend runtime code.
+- localStorage "security": audit found only client prefs/progress (theme,
+  rituals/heists seen, favorites, streaks, crawl progress, public opt-in URL).
+  No tokens/credentials; admin uses X-CSRF-Token from cookie.
+- Hook dependency warnings: flagged items are module imports (axios, API),
+  loop vars (a, b), stable setters (setHeistEpoch) — do not belong in dep
+  arrays; heist effects intentionally use [] with stable refs.
+- Array-index keys: all flagged spots are static, never-reordering decorative
+  or instruction lists — index keys are correct per React docs.
+DEFERRED TO BACKLOG (high regression risk pre-publish):
+- Split Home.jsx (1,552 lines) into HomeSearch/HomeResults/etc.
+- Decompose GuidedFlow (cx 69), BecomeSponsorDialog (44), CrawlBadgeDialog (58).
+- Backend complexity: stamp_passport, places_search, complete_crawl,
+  google_places_search, build_sponsor_summary helper extraction.
+- Python type hints (models.py, server.py).

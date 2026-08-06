@@ -12,7 +12,7 @@ import os
 from dotenv import load_dotenv
 from PIL import Image
 
-from gen_reaper_fly import flood_key_white, trim  # noqa: F401 (trim unused; union crop below)
+from gen_reaper_fly import flood_key_white
 
 load_dotenv("/app/backend/.env")
 

@@ -8,7 +8,6 @@ Printful's standard chest print (12" x 14" = 3600x4200 px) and full-back print
 Everything is composited from the app's original source assets so the print art
 matches what shows in the app's spring/fall theme scenes exactly.
 """
-import os
 import random
 from pathlib import Path
 
