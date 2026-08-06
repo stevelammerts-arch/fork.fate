@@ -61,6 +61,7 @@ export const HEISTS = [
   { key: "gears", name: "Open Works", realm: "Steampunk", accent: "#B98A44", desc: "The medallion swings open like a pocket-watch door, showing off its spinning gearworks — until they grind and cough smoke, the door drops off its hinge, and every gear spills out." },
   { key: "snatch", name: "Soul Snatch", realm: "Reaper", accent: "#9BA8C0", desc: "The white spectre materializes out of thin air behind the medallion — claws already around it — lingers with a mournful wail, then vanishes into the dark and takes it with him." },
   { key: "snowman", name: "Blown Away", realm: "Winter", accent: "#8FC7E8", desc: "A smiling snowman shuffles onto the banner — then a snowy gust blows his head clean off. It bonks the medallion out of its perch and squats there grinning until the breeze moves him along." },
+  { key: "owl", name: "Night Talons", realm: "Fall", accent: "#C67B3B", desc: "A great horned owl swoops across the banner on silent wings, closes its talons around the medallion and carries it clean off into the autumn sky." },
 ];
 
 export function readHeistsSeen() {

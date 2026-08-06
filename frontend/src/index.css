@@ -997,6 +997,11 @@ body {
 @keyframes ffLogoGearTick {
   to { transform: rotate(360deg); }
 }
+/* Fall heist: the owl rides the air on silent wings — a soft glide bob */
+@keyframes ffOwlGlide {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
 /* ...and the perched head throws a cheeky wink once it's settled in */
 @keyframes ffHeadWink {
   0%, 32%   { opacity: 0; }

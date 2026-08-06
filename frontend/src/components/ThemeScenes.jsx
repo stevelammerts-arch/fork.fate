@@ -288,6 +288,7 @@ export function SeasonScene({ theme, cfg }) {
     {theme === "summer" && <SummerBallHeist />}
     {theme === "summer" && <SummerCrabHeist />}
     {theme === "winter" && <SnowmanHeist />}
+    {theme === "fall" && <OwlHeist />}
   </>);
 }
 
@@ -1543,6 +1544,88 @@ function SnowmanHeist() {
         {phase === 3 && (
           <img src="/snowman-head-wink.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: 0, animation: "ffHeadWink 3.4s ease-in-out forwards", filter: "drop-shadow(0 4px 10px rgba(30,60,90,0.35))" }} data-testid="snowman-head-wink" />
         )}
+      </div>
+    </div>
+  );
+}
+
+/** Fall heist: a great horned owl swoops in from the RIGHT on beating wings,
+ * closes its talons around the medallion and carries it clean off the LEFT
+ * edge into the autumn sky. The logo pops back a beat later. First strike
+ * 25-45s after load, then every 2.5-5 min (or instantly on a `ff:owl-heist`
+ * window event, used for testing). Owl art 329x340 flying LEFT, open talons
+ * at (17%, 87%) of the sprite box. */
+function OwlHeist() {
+  const witnessRef = useHeistWitness("owl");
+  const [run, setRun] = useState(null);   // {cx, cy, w}
+  const [phase, setPhase] = useState(0);  // 1 swoop in, 2 the clamp beat, 3 carries it off
+  useEffect(() => {
+    // Warm the sprite so the very first strike doesn't pop in half-loaded.
+    { const im = new Image(); im.src = "/owl-fly-1.png"; }
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        timers.push(setTimeout(() => setPhase(1), 30));    // swoops in
+        timers.push(setTimeout(() => {                     // talons CLAMP shut on it
+          setPhase(2);
+          med.style.visibility = "hidden"; startleTitle();
+        }, 1450));
+        timers.push(setTimeout(() => setPhase(3), 1980));  // carries it off
+        timers.push(setTimeout(() => {
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // restart the pop on repeat strikes
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 3300));
+        timers.push(setTimeout(() => {
+          setRun(null); setPhase(0); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // hunts again in 2.5-5 min
+        }, 4100));
+      });
+    };
+    schedule(25000 + Math.random() * 20000);
+    const force = () => start(true);
+    window.addEventListener("ff:owl-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:owl-heist", force);
+      // Never leave the logo hidden if we unmount mid-heist (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run) return null;
+  const { cx, cy, w } = run;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const owlW = w * 3.5, owlH = owlW * (340 / 329);
+  const gx = 0.17, gy = 0.87; // open-talon pocket in the sprite box
+  const gripLeft = cx - owlW * gx, gripTop = cy - owlH * gy;
+  const x = phase === 0 ? vw + 40 : phase === 3 ? -owlW - vw * 0.12 : gripLeft;
+  const y = phase === 0 ? gripTop - 150 : phase === 3 ? gripTop - vh * 0.32 : gripTop;
+  const trans = phase === 1 ? "transform 1.4s cubic-bezier(0.3,0.7,0.3,1)" : phase === 3 ? "transform 1.3s cubic-bezier(0.55,0.05,0.8,0.4)" : "none";
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="owl-heist">
+      <div className="absolute left-0 top-0" style={{ transform: `translate(${x}px, ${y}px)`, transition: trans }}>
+        <div className="relative" style={{ width: owlW, height: owlH, filter: "drop-shadow(0 6px 14px rgba(40,25,10,0.45))" }}>
+          {/* the snatched medallion riding in his talons */}
+          {phase >= 2 && (
+            <div className="absolute overflow-hidden bg-[#F5F0E6] ring-1 ring-[#E4E4E7]" style={{ left: owlW * gx - w / 2, top: owlH * gy - w / 2, width: w, height: w, borderRadius: "9999px" }} data-testid="owl-heist-logo">
+              <img src="/logo-mark-light.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+            </div>
+          )}
+          <img src="/owl-fly-1.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ animation: "ffOwlGlide 1.3s ease-in-out infinite", rotate: phase === 1 ? "-5deg" : phase === 3 ? "7deg" : "0deg", transition: "rotate 0.7s ease-in-out" }} />
+        </div>
       </div>
     </div>
   );

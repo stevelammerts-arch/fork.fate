@@ -1950,3 +1950,28 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   (7.5deg every 0.75s), always on in Steampunk (independent of heists).
 - Verified: screenshot (teeth peeking around medallion) + computed transform
   advanced exactly one 7.5deg step clockwise.
+
+## 2026-08-06 part 76: Fall owl heist + Steampunk tick & steam bursts (FF_BUILD 376-377)
+- OWL HEIST "Night Talons" (user: "big owl grasp the logo and fly off with it",
+  theme==="fall" in SeasonScene, ff:owl-heist, witness "owl"): great horned owl
+  sprite /owl-fly-1.png (329x340, Nano Banana, flies LEFT, open talons at
+  17%/87%, owlW=w*3.5). Swoops in from right (1.4s), talons clamp 1.45s (med
+  hidden, clone logo-mark-light rides in talons), carries off up-left 1.98s,
+  ffLogoReturn 3.3s, cycle 4.1s. First strike 25-45s. NOTE: wing-flap frame 2
+  regen FAILED twice (model copies ref exactly) -> single frame + ffOwlGlide
+  bob + banking rotate (-5deg swoop / +7deg climb) instead; desc says "silent
+  wings". owl-fly-2.png deleted.
+- STEAMPUNK GEAR TICK (user liked it): /gear-tick.mp3 SYNTHESIZED (numpy: 70ms
+  damped 2.1kHz ping + noise transient). GearTicker in HomeHeader (mounted
+  theme==="steam" inside the medallion wrapper) plays it every 750ms (vol 0.12,
+  mute/hidden-aware) matching the gear's steps(48) cadence.
+- RANDOM STEAM BURSTS (user: "random steam burst noise here and there" + "a
+  burst of steam release behind the logo"): /steam-burst.mp3 SYNTHESIZED (1.6s
+  high-passed noise hiss). GearTicker vent() every 12-32s: plays hiss (vol
+  .14-.26, mute-aware) AND mounts a 5-puff ffBreakPuff volley behind the
+  medallion (testid "steam-logo-burst", clears 2.4s; visual fires even muted).
+  `ff:steam-burst` window event forces one for testing.
+- RECURRING TOOL ISSUE: search_replace edits to ThemeScenes.jsx/HomeHeader.jsx
+  sometimes report success but DON'T persist. ALWAYS grep-verify after editing.
+- Verified: owl swoop/clamp/carry-with-coin/return + "Night Talons" toast;
+  steam burst mounts+clears via force event with visible puffs.

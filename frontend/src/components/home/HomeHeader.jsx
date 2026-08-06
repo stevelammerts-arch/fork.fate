@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Palette, Sparkles, ShoppingBag, Store, Volume2, VolumeX } from "lucide-react";
 import { useLang } from "../../i18n/i18n";
@@ -7,6 +8,60 @@ import ReigningChampBadge from "../ReigningChampBadge";
 import FavoritesDrawer from "../FavoritesDrawer";
 import InstallAppButton from "../InstallAppButton";
 import BecomeSponsorDialog from "../BecomeSponsorDialog";
+
+/** Steampunk: a faint watch-tick every 0.75s — the same cadence as the gear
+ * notching behind the medallion — so the banner quietly keeps time. Every so
+ * often a random steam burst hisses out, venting a volley of puffs from
+ * behind the medallion (`ff:steam-burst` forces one, used for testing). */
+function GearTicker() {
+  const [burst, setBurst] = useState(0); // keyed puff volley behind the logo
+  useEffect(() => {
+    const tick = new Audio("/gear-tick.mp3");
+    tick.volume = 0.12;
+    const id = setInterval(() => {
+      if (document.hidden || localStorage.getItem("ff_muted") === "1") return;
+      try { tick.currentTime = 0; tick.play().catch(() => {}); } catch {}
+    }, 750);
+    // random steam bursts here and there (12-32s apart, varying strength)
+    let steamTimer = null;
+    let clearTimer = null;
+    const vent = () => {
+      if (localStorage.getItem("ff_muted") !== "1") {
+        try { const s = new Audio("/steam-burst.mp3"); s.volume = 0.14 + Math.random() * 0.12; s.play().catch(() => {}); } catch {}
+      }
+      setBurst(Date.now()); // the vent blows even with the sound off
+      clearTimeout(clearTimer);
+      clearTimer = setTimeout(() => setBurst(0), 2400);
+    };
+    const scheduleSteam = () => {
+      steamTimer = setTimeout(() => {
+        if (!document.hidden) vent();
+        scheduleSteam();
+      }, 12000 + Math.random() * 20000);
+    };
+    scheduleSteam();
+    window.addEventListener("ff:steam-burst", vent);
+    return () => { clearInterval(id); clearTimeout(steamTimer); clearTimeout(clearTimer); window.removeEventListener("ff:steam-burst", vent); };
+  }, []);
+  if (!burst) return null;
+  return (
+    <div key={burst} className="pointer-events-none absolute -inset-3" data-testid="steam-logo-burst">
+      {[0, 1, 2, 3, 4].map((i) => (
+        <span
+          key={i}
+          className="absolute rounded-full"
+          style={{
+            left: `${16 + i * 16}%`, top: `${40 - (i % 2) * 12}%`,
+            width: 13 + (i % 3) * 5, height: 13 + (i % 3) * 5,
+            background: "radial-gradient(circle, rgba(238,233,223,0.9), rgba(200,195,185,0.35) 55%, transparent 75%)",
+            filter: "blur(1.5px)",
+            animation: `ffBreakPuff 1.5s ease-out ${(i * 0.16).toFixed(2)}s both`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 /**
  * Sticky Home header: logo, language toggle, theme menu (+ first-visit hint),
@@ -27,6 +82,7 @@ export function HomeHeader({
           <div className="relative shrink-0">
             {/* Steampunk: a brass gear slightly larger than the medallion,
                 clicking clockwise behind it like a watch escapement */}
+            {theme === "steam" && <GearTicker />}
             {theme === "steam" && (
               <div className="pointer-events-none absolute left-1/2 top-1/2 w-[134%] -translate-x-1/2 -translate-y-1/2" style={{ aspectRatio: "1" }} data-testid="steam-logo-gear">
                 <div className="h-full w-full" style={{ animation: "ffLogoGearTick 36s steps(48, end) infinite", filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.55))" }}>
