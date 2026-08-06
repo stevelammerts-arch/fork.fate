@@ -1706,3 +1706,21 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   wanted.
 - All verified via screenshots/DOM: breath heist full cycle, pixie poof
   regression, claw grip fit, companions patrolling. Lint 0 errors.
+
+## 2026-08-06 part 60: Dragon occasional wing flap (FF_BUILD 340)
+- CompanionPatrol gains `flap` prop (default = pixie's constant 0.24s
+  swap). Dragon uses ffDragonFlap 3.4s linear infinite: 5 quick swaps
+  (~0.22s each, flurry ~1.2s) then wings-up glide hold for the rest.
+- Verified via computed-opacity sampling: 6 swaps clustered + long glide.
+
+## 2026-08-06 part 61: Wing cross-fade fix (FF_BUILD 341-342)
+- BUG (user): dragon flapped but "the original upward wings stay put" —
+  base frame s1 had no animation so both poses showed at once. Fix: s1 gets
+  a complementary `flapBase` animation (ffDragonFlapInv for dragon).
+- REGRESSION CAUGHT by sampling: pixie's alternate-reverse steps(1,end)
+  trick fails — CSS flips step timing on reversed cycles, s1 went invisible
+  half the time. Fix: explicit complementary keyframes ffPixieFlapA/B
+  (0.48s linear, hard swap at 50%); old ffPixieFlap keyframe removed.
+- VERIFIED: pixie 0/14 and dragon 0/14 non-complementary opacity samples.
+- User confirmed Dragon's Breath heist works (flame jet + scorch + Collection
+  card); strikes 45-75s after entering Dragon's Hoard then every 2.5-5min.

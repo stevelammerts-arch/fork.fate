@@ -929,11 +929,17 @@ body {
   68%,80%{ opacity:1; }
   94%,100%{ opacity:0; }
 }
-/* Tiny flourish pixie: toggles between her wings-up / wings-down sprite
-   frames — steps(1,end) + alternate = a hard swap every cycle. */
-@keyframes ffPixieFlap{
-  from{ opacity:0; }
-  to{ opacity:1; }
+/* Companion flutter: complementary hard swaps between the two wing frames
+   (0.24s per pose). NOTE: don't use steps() + alternate-reverse for the
+   inverse — CSS flips step timing on reversed cycles and the base frame
+   goes invisible. Explicit inverse keyframes are the safe pattern. */
+@keyframes ffPixieFlapA{
+  0%,49.9%{ opacity:0; }
+  50%,100%{ opacity:1; }
+}
+@keyframes ffPixieFlapB{
+  0%,49.9%{ opacity:1; }
+  50%,100%{ opacity:0; }
 }
 /* Pixie patrol: gentle hover bob while she supervises a section. */
 @keyframes ffPixieBob{
@@ -952,6 +958,26 @@ body {
 @keyframes ffPoofSparkle{
   0%{ transform: translate(-50%,-50%) scale(0.4); opacity:1; }
   100%{ transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1); opacity:0; }
+}
+/* Tiny dragon: mostly glides, with an occasional wing-flap flurry — five
+   quick swaps to the wings-down frame, then a long hold on the glide pose. */
+@keyframes ffDragonFlap{
+  0%,6.9%{ opacity:1; }
+  7%,13.9%{ opacity:0; }
+  14%,20.9%{ opacity:1; }
+  21%,27.9%{ opacity:0; }
+  28%,34.9%{ opacity:1; }
+  35%,100%{ opacity:0; }
+}
+/* Inverse of ffDragonFlap for the wings-up base frame so the two poses
+   cross-fade — only ONE set of wings is ever visible. */
+@keyframes ffDragonFlapInv{
+  0%,6.9%{ opacity:0; }
+  7%,13.9%{ opacity:1; }
+  14%,20.9%{ opacity:0; }
+  21%,27.9%{ opacity:1; }
+  28%,34.9%{ opacity:0; }
+  35%,100%{ opacity:1; }
 }
 /* Dragon's breath: flame blobs stream from the tiny dragon's mouth to the
    medallion (--dx/--dy = the flight vector per blob), growing as they go. */

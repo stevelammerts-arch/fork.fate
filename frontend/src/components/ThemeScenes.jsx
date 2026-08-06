@@ -518,7 +518,7 @@ const PIXIE_SPOTS = [
  * rAF lerp chasing a target point; a particle emitter sheds glowing dust.
  * heistKind: "poof" = the fairy wand-poofs the header medallion; "breath" =
  * the dragon torches it with a jet of flame. */
-function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heistKind = null, testid = "companion" }) {
+function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heistKind = null, testid = "companion", flap = "ffPixieFlapA 0.48s linear infinite", flapBase = "ffPixieFlapB 0.48s linear infinite" }) {
   const witnessRef = useHeistWitness(heistKind === "breath" ? "breath" : "pixie");
   const wrapRef = useRef(null);   // translated flight layer
   const faceRef = useRef(null);   // scaleX facing flip
@@ -800,8 +800,8 @@ function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heist
       <div ref={wrapRef} className="absolute left-0 top-0" data-testid={testid}>
         <div ref={faceRef}>
           <div className="relative" style={{ width: 100, height: 100, animation: "ffPixieBob 2.4s ease-in-out infinite", filter: `drop-shadow(0 0 7px ${glow})` }}>
-            <img src={s1} alt="" className="absolute inset-0 h-full w-full object-contain" />
-            <img src={s2} alt="" className="absolute inset-0 h-full w-full object-contain opacity-0" style={{ animation: "ffPixieFlap 0.24s steps(1,end) infinite alternate" }} />
+            <img src={s1} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ animation: flapBase }} />
+            <img src={s2} alt="" className="absolute inset-0 h-full w-full object-contain opacity-0" style={{ animation: flap }} />
             {casting && heistKind === "poof" && (
               <span className="absolute rounded-full" style={{ left: 78, top: 28, width: 18, height: 18, background: "radial-gradient(circle, #FFF9D9, #FFD36B 55%, transparent 78%)", boxShadow: "0 0 10px #FFD36B, 0 0 22px rgba(255,211,107,0.7)", animation: "ffWandStar 1.15s ease-out forwards" }} data-testid="pixie-wand-star" />
             )}
@@ -1302,7 +1302,7 @@ export function AmbianceScene({ theme, cfg }) {
     )}
     {cfg.saucer && <SaucerAbduction saucer={cfg.saucer} onActive={setAbducting} />}
     {cfg.gully && <CompanionPatrol s1="/fairy-pixie-1.png" s2="/fairy-pixie-2.png" glow="rgba(94,224,168,0.7)" heistKind="poof" testid="fairy-pixie" />}
-    {theme === "fantasy" && <CompanionPatrol s1="/dragon-tiny-1.png" s2="/dragon-tiny-2.png" glow="rgba(255,140,50,0.7)" dustCol={["#FFE9B0", "#FF8C3A"]} heistKind="breath" testid="tiny-dragon" />}
+    {theme === "fantasy" && <CompanionPatrol s1="/dragon-tiny-1.png" s2="/dragon-tiny-2.png" glow="rgba(255,140,50,0.7)" dustCol={["#FFE9B0", "#FF8C3A"]} heistKind="breath" testid="tiny-dragon" flap="ffDragonFlap 3.4s linear infinite" flapBase="ffDragonFlapInv 3.4s linear infinite" />}
     {theme === "fantasy" && <DragonHeist />}
   </>);
 }
