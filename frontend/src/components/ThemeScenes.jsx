@@ -65,17 +65,23 @@ const DRAGON_STEAM = [
     dx: 106 + (i % 4) * 8, dy: -(146 + (i % 3) * 12),
     dur: 7.4, delay: -(i * 0.74 + 0.37),
   })),
-  // left nostril: rises up-left past the brow into the painted wisp
+  // right nostril, third layer: widest, slowest billow riding above the rest
+  ...Array.from({ length: 9 }, (_, i) => ({
+    x: 836 + (i % 3) * 3, y: 426 + (i % 2) * 4, w: 21 + (i % 3) * 5, h: 23 + (i % 3) * 5,
+    dx: 94 + (i % 4) * 9, dy: -(158 + (i % 3) * 13),
+    dur: 8.6, delay: -(i * 0.956 + 0.62),
+  })),
+  // left nostril: exits angled DOWN along the snout, then lifts up-left
   ...Array.from({ length: 10 }, (_, i) => ({
     x: 770 + (i % 3) * 2, y: 415 + (i % 2) * 3, w: 14 + (i % 3) * 3, h: 16 + (i % 3) * 3,
-    dx: -(38 + (i % 3) * 6), dy: -(96 + (i % 3) * 10),
-    dur: 6.2, delay: -(i * 0.62 + 0.31),
+    dx: -(50 + (i % 3) * 7), dy: -(86 + (i % 3) * 10),
+    dur: 6.2, delay: -(i * 0.62 + 0.31), anim: "ffDragonSteamL",
   })),
   // left nostril, second layer
   ...Array.from({ length: 8 }, (_, i) => ({
     x: 766 + (i % 3) * 2, y: 420 + (i % 2) * 4, w: 16 + (i % 3) * 3, h: 18 + (i % 3) * 3,
-    dx: -(30 + (i % 3) * 7), dy: -(108 + (i % 3) * 9),
-    dur: 7.4, delay: -(i * 0.925 + 0.46),
+    dx: -(42 + (i % 3) * 8), dy: -(96 + (i % 3) * 9),
+    dur: 7.4, delay: -(i * 0.925 + 0.46), anim: "ffDragonSteamL",
   })),
 ];
 
@@ -1105,7 +1111,7 @@ export function AmbianceScene({ theme, cfg }) {
                 height: s.h * k,
                 "--sx": `${s.dx * k}px`,
                 "--sy": `${s.dy * k}px`,
-                animation: `ffDragonSteam ${s.dur}s linear ${s.delay}s infinite`,
+                animation: `${s.anim || "ffDragonSteam"} ${s.dur}s linear ${s.delay}s infinite`,
               }}
             />
           );

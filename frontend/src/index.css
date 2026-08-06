@@ -872,6 +872,15 @@ body {
   72%  { transform: translate(calc(var(--sx) * 1.02), calc(var(--sy) * 0.62)) rotate(-6deg) scale(1.25, 1.4); opacity: 0.38; }
   100% { transform: translate(calc(var(--sx) * 0.85), var(--sy)) rotate(-20deg) scale(1.65, 1.75); opacity: 0; }
 }
+@keyframes ffDragonSteamL {
+  /* Left nostril: exits pitched DOWN along the snout's slope, hangs low
+     while drifting left, then finally lifts and fades past the brow. */
+  0%   { transform: translate(0, 0) rotate(0deg) scale(0.45, 0.5); opacity: 0; }
+  10%  { opacity: 0.66; }
+  38%  { transform: translate(calc(var(--sx) * 0.5), calc(var(--sy) * -0.16)) rotate(-14deg) scale(0.9, 1.0); opacity: 0.54; }
+  68%  { transform: translate(calc(var(--sx) * 0.95), calc(var(--sy) * 0.3)) rotate(8deg) scale(1.2, 1.35); opacity: 0.36; }
+  100% { transform: translate(calc(var(--sx) * 1.12), var(--sy)) rotate(18deg) scale(1.6, 1.7); opacity: 0; }
+}
 @media (prefers-reduced-motion: reduce) {
   .ff-dragon-steam { animation: none; opacity: 0; }
 }
