@@ -2028,3 +2028,12 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   OVERWRITE /neon-crunch.mp3 and /neon-bzz.mp3 — no code changes (same
   filenames). Confirmed: the car wrecks into the big neon Fork·Fate sign and
   its neons flicker to black.
+
+## 2026-08-06 part 81: Pixie chime + tractor beam riser (FF_BUILD 383)
+- /pixie-chime.mp3 SYNTHESIZED (1.2s ascending fairy-bell arpeggio + glitter
+  pings) layers with her existing fairy-laugh giggle in CompanionPatrol's
+  poof branch (vol 0.5).
+- User-uploaded noise riser -> /beam-riser.mp3 (2.6s trim starting 1.2s in,
+  fades) plays at SaucerAbduction phase 2 "beam on" (1.38s) so the rise peaks
+  right as the coin enters the ship (~3.2s lift end). Both ff_muted-aware.
+- Every realm's heist now has sound.

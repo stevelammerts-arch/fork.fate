@@ -518,7 +518,13 @@ function SaucerAbduction({ saucer, onActive }) {
         setRun({ cx, cy, w: r.width, sx, sy });
         onActive(true);
         timers.push(setTimeout(() => setPhase(1), 30));                                     // fly in
-        timers.push(setTimeout(() => setPhase(2), 1380));                                   // beam on
+        timers.push(setTimeout(() => {                                                      // beam on
+          setPhase(2);
+          if (localStorage.getItem("ff_muted") !== "1") {
+            // the tractor beam spools up — riser peaks as the coin enters the ship
+            try { const b = new Audio("/beam-riser.mp3"); b.volume = 0.6; b.play().catch(() => {}); } catch {}
+          }
+        }, 1380));
         timers.push(setTimeout(() => { setPhase(3); med.style.visibility = "hidden"; startleTitle(); }, 1830)); // lift
         timers.push(setTimeout(() => setPhase(4), 3200));                                   // beam off + leave
         timers.push(setTimeout(() => {
@@ -891,7 +897,9 @@ export function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"]
             setKnock({ x: r2.x, y: r2.y, w: r2.width });
             timers.push(setTimeout(() => setKnock(null), 1000));
           } else if (localStorage.getItem("ff_muted") !== "1") {
+            // her giggle — plus a tiny sparkle chime as the coin poofs away
             try { const g = new Audio("/fairy-laugh.mp3"); g.volume = 0.35; g.play().catch(() => {}); } catch {}
+            try { const c = new Audio("/pixie-chime.mp3"); c.volume = 0.5; c.play().catch(() => {}); } catch {}
           }
           timers.push(setTimeout(() => { med.style.visibility = "hidden"; startleTitle(); }, heistKind === "crash" ? 60 : 420));
           timers.push(setTimeout(() => setCasting(false), 1200));
