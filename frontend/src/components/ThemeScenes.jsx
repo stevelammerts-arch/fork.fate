@@ -42,16 +42,37 @@ const CAVE_DRIPS = [
   { left: "54%", dur: 3.2, delay: 1.3 },
   { left: "79%", dur: 2.9, delay: 0.6 },
 ];
-// Hoard dragon's nostril steam: one STEADY string of smoke — many small,
+// Hoard dragon's steam: TWO steady strings of smoke that sit EXACTLY on the
+// white smoke painted in the art (not the nostrils themselves) — many small,
 // tightly-staggered puffs (negative delays = stream already formed) that
-// overlap into an unbroken ribbon tracing the PAINTED plume: out of the
-// nostril, sweeping right, rising, then curling back left at the top.
-// Coords are px in the 1264x848 cave art.
-const DRAGON_STEAM = Array.from({ length: 12 }, (_, i) => ({
-  x: 830 + (i % 3), y: 437, w: 12 + (i % 3) * 3, h: 14 + (i % 3) * 3,
-  dx: 96 + (i % 4) * 7, dy: -(168 + (i % 3) * 14),
-  dur: 6.2, delay: -(i * 0.517),
-}));
+// overlap into unbroken ribbons. Coords are px in the 1264x848 cave art.
+const DRAGON_STEAM = [
+  // right plume: base beside the cheek, rising up-right, curling left on top
+  ...Array.from({ length: 12 }, (_, i) => ({
+    x: 882 + (i % 3) * 3, y: 422 + (i % 2) * 4, w: 17 + (i % 3) * 4, h: 19 + (i % 3) * 4,
+    dx: 78 + (i % 4) * 7, dy: -(148 + (i % 3) * 14),
+    dur: 6.2, delay: -(i * 0.517),
+  })),
+  // right plume, second layer: offset + slower cycle so the two ribbons
+  // weave through each other and the smoke never thins out
+  ...Array.from({ length: 10 }, (_, i) => ({
+    x: 890 + (i % 3) * 3, y: 430 + (i % 2) * 5, w: 19 + (i % 3) * 4, h: 21 + (i % 3) * 4,
+    dx: 66 + (i % 4) * 8, dy: -(160 + (i % 3) * 12),
+    dur: 7.4, delay: -(i * 0.74 + 0.37),
+  })),
+  // left plume: in front of the far wing, rising nearly straight up
+  ...Array.from({ length: 10 }, (_, i) => ({
+    x: 742 + (i % 3) * 2, y: 425 + (i % 2) * 4, w: 14 + (i % 3) * 3, h: 16 + (i % 3) * 3,
+    dx: -(14 + (i % 3) * 6), dy: -(100 + (i % 3) * 10),
+    dur: 6.2, delay: -(i * 0.62 + 0.31),
+  })),
+  // left plume, second layer
+  ...Array.from({ length: 8 }, (_, i) => ({
+    x: 736 + (i % 3) * 2, y: 431 + (i % 2) * 5, w: 16 + (i % 3) * 3, h: 18 + (i % 3) * 3,
+    dx: -(6 + (i % 3) * 7), dy: -(112 + (i % 3) * 9),
+    dur: 7.4, delay: -(i * 0.925 + 0.46),
+  })),
+];
 
 export const SEASONS = {
   fall: {
@@ -1014,7 +1035,7 @@ function DragonHeist() {
       gripY={0.434}
       widthMult={2.4}
       cloneScale={1.25}
-      cloneSrc="/logo-crest-gold.png"
+      cloneSrc="/logo-ouroboros.png"
       shadow="drop-shadow(0 8px 16px rgba(0,0,0,0.6))"
       testid="dragon-heist"
       heistKey="dragon"

@@ -1724,3 +1724,26 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
 - VERIFIED: pixie 0/14 and dragon 0/14 non-complementary opacity samples.
 - User confirmed Dragon's Breath heist works (flame jet + scorch + Collection
   card); strikes 45-75s after entering Dragon's Hoard then every 2.5-5min.
+
+## 2026-08-06 part 62: Hoard dragon living smoke + horizontal breath heist + ouroboros logo (FF_BUILD 343-349)
+- BG DRAGON SMOKE (fantasy-cave.jpg, 1264x848): DRAGON_STEAM in ThemeScenes.jsx —
+  40 small puffs in 4 layers (2 per side, dur 6.2s/7.4s, negative delays) forming
+  two STEADY strings per user's iterations: puffs -> string -> both nostrils ->
+  aligned to the PAINTED white smoke (right base art(882,422) rising up-right w/
+  left curl at crown via ffDragonSteam keyframe --sx/--sy; left base art(742,425)
+  rising straight up). Anchored through loungeBox (useCoverAnchor 1264x848) so it
+  sticks to the art on any viewport incl. mobile. z-[2], mix-blend screen.
+- BREATH HEIST FIX (user: flame came from top of head): heistAnchorOf() perches him
+  LEVEL beside the medallion (r.right+64 or left-64, y = logo cy - MOUTH_DY);
+  MOUTH_DX=33, MOUTH_DY=7 (mouth measured at art px (248,162) of 300x280 sprite);
+  jet now starts at the mouth, dir-aware, streams horizontally. dart() flies
+  straight while running. USER: "Heist is perfect".
+- OUROBOROS LOGO: regenerated slim serpentine ring (mockup_dragon_logo.py, no ref
+  image, hole-centroid-centered composite) -> user approved -> transparent asset
+  /logo-ouroboros.png built by scripts/make_ouroboros_logo.py (reuses
+  redgold_ring_raw.png; rerun mockup script first if regenerating). Applied to
+  EVERYTHING hoard-related per user: HomeHeader fantasy logo (no scale-110),
+  DragonHeist cloneSrc, ShufflingDeck fantasy card back, homeFateCard fantasy art.
+  Passport crests left as app-wide branding.
+- Verified via screenshots: smoke alignment on painted plumes (both sides, double
+  layer), horizontal mouth flame, header ouroboros render.

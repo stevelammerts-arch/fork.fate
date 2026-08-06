@@ -124,7 +124,7 @@ function CardBack({ light, seasonItem, theme, golden }) {
     return (
       <div className="absolute inset-0 grid place-items-center overflow-hidden bg-[#0E0906]" data-testid="card-back">
         <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 50% 44%, rgba(230,178,58,0.22), rgba(0,0,0,0) 62%)" }} />
-        <img src="/fantasy-emblem.png" alt="" className="h-3/4 w-auto max-w-[82%] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.7)]" />
+        <img src="/logo-ouroboros.png" alt="" className="h-3/4 w-auto max-w-[82%] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.7)]" />
         <div className="absolute inset-2 rounded-xl border" style={{ borderColor: `${gold}99`, boxShadow: "inset 0 0 12px rgba(230,178,58,0.3)" }} />
         <div className="absolute inset-[10px] rounded-lg border" style={{ borderColor: `${gold}40` }} />
         <span className="absolute bottom-4 font-serif text-[9px] uppercase tracking-[0.4em]" style={{ color: gold }}>Fork · Fate</span>
