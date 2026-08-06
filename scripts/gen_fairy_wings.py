@@ -51,53 +51,24 @@ def feathered_crop(full: Image.Image, name: str) -> None:
     print(f"saved {out} {crop.size}")
 
 FRAMES = {
-    # Per-fairy frames: ONLY one fairy's wings move per frame so each fairy
-    # can get her own patch + independent flap timing. The other fairy must
-    # stay pixel-identical to the base painting (including her wings) so the
-    # patch boundary between them never shows a seam.
-    "lup": (
-        "Edit this fantasy painting. Treat it as a photocopy: every pixel "
-        "must stay exactly identical - composition, colors, lighting, tree "
-        "face, unicorn, mushrooms, flowers, butterflies. The RIGHT fairy "
-        "must remain COMPLETELY identical including her wings in their "
-        "original position. Both fairies' faces, hair, bodies, clothing and "
-        "poses must not change. ONLY change: the LEFT fairy's large "
+    "up": (
+        "Edit this fantasy painting. Keep EVERYTHING exactly identical - the "
+        "composition, colors, lighting, the tree face, unicorn, mushrooms, "
+        "flowers, butterflies, and both fairies' bodies, faces, hair, clothing "
+        "and poses must not change at all. ONLY change: both fairies' large "
         "translucent iridescent wings should be RAISED HIGH in an upward "
-        "flap upstroke, swept up above her shoulders. Same iridescent wing "
-        "style and colors, only her wing angle differs."
+        "wing-flap upstroke position, swept up above their shoulders. Same "
+        "iridescent wing style and colors, just a different wing position."
     ),
-    "ldown": (
-        "Edit this fantasy painting. Treat it as a photocopy: every pixel "
-        "must stay exactly identical - composition, colors, lighting, tree "
-        "face, unicorn, mushrooms, flowers, butterflies. The RIGHT fairy "
-        "must remain COMPLETELY identical including her wings in their "
-        "original position. Both fairies' faces, hair, bodies, clothing and "
-        "poses must not change. ONLY change: the LEFT fairy's large "
-        "translucent iridescent wings should be swept DOWNWARD in a "
-        "mid-downstroke flap, angled low behind her back. Same iridescent "
-        "wing style and colors, only her wing angle differs."
-    ),
-    "rup": (
-        "Edit this fantasy painting. Treat it as a photocopy: every pixel "
-        "must stay exactly identical - composition, colors, lighting, tree "
-        "face, unicorn, mushrooms, flowers, butterflies. The LEFT fairy "
-        "must remain COMPLETELY identical including her wings in their "
-        "original position. Both fairies' faces, hair, bodies, clothing and "
-        "poses must not change. ONLY change: the RIGHT fairy's large "
-        "translucent iridescent wings should be RAISED HIGH in an upward "
-        "flap upstroke, swept up above her shoulders. Same iridescent wing "
-        "style and colors, only her wing angle differs."
-    ),
-    "rdown": (
-        "Edit this fantasy painting. Treat it as a photocopy: every pixel "
-        "must stay exactly identical - composition, colors, lighting, tree "
-        "face, unicorn, mushrooms, flowers, butterflies. The LEFT fairy "
-        "must remain COMPLETELY identical including her wings in their "
-        "original position. Both fairies' faces, hair, bodies, clothing and "
-        "poses must not change. ONLY change: the RIGHT fairy's large "
-        "translucent iridescent wings should be swept DOWNWARD in a "
-        "mid-downstroke flap, angled low behind her back. Same iridescent "
-        "wing style and colors, only her wing angle differs."
+    "down": (
+        "Edit this fantasy painting. Treat it as a photocopy: every pixel must "
+        "stay exactly identical - composition, colors, lighting, tree face, "
+        "unicorn, mushrooms, flowers, butterflies. Both fairies' FACES, hair, "
+        "head angle, bodies, arms, legs, clothing and flying poses must be "
+        "pixel-identical to the original, do not redraw or rotate them. ONLY "
+        "their large translucent iridescent wings change: sweep the wings "
+        "DOWNWARD in a mid-downstroke flap, angled low behind their backs. "
+        "Same iridescent wing style and colors, only the wing angle differs."
     ),
 }
 

@@ -498,6 +498,205 @@ function summonToLogo(done) {
   return () => { clearInterval(poll); clearTimeout(settle); };
 }
 
+/** Home sections the pixie "supervises" — she only visits what's on screen
+ * and darts to whatever the user touches. */
+const PIXIE_SPOTS = [
+  '[data-testid="ff-title"]',
+  '[data-testid="zip-input"]',
+  '[data-testid="use-my-location-button"]',
+  '[data-testid="radius-control"]',
+  '[data-testid="mode-toggle"]',
+  '[data-testid="filters-toggle"]',
+  '[data-testid="fate-of-day-card"]',
+  '[data-testid="sort-select"]',
+];
+
+/** Fairy Gully ambient: the tiny third sister lives on the page like the
+ * cyber probe — but instead of a blind patrol she flits from section to
+ * section, hovering beside whatever's on screen like she's supervising, and
+ * darts straight to any section the user touches. Every few minutes she
+ * flies up to the header medallion and POOFS it with her wand (the Pixie
+ * Poof heist), then giggles it back. Movement is a rAF lerp chasing a
+ * target point; three wake sparkles chase her with softer lerps. */
+function PixiePatrol() {
+  const witnessRef = useHeistWitness("pixie");
+  const wrapRef = useRef(null);   // translated flight layer
+  const faceRef = useRef(null);   // scaleX facing flip
+  const trailRefs = useRef([]);
+  const [casting, setCasting] = useState(false);
+  const [burst, setBurst] = useState(null); // {x, y, w} sparkle poof over the logo
+
+  useEffect(() => {
+    const pos = { x: -80, y: window.innerHeight * 0.45 };
+    const trail = [0, 1, 2].map(() => ({ ...pos }));
+    const target = { x: window.innerWidth * 0.4, y: 150 };
+    let currentEl = null;
+    let overrideEl = null; // during the heist she locks onto the medallion
+    let facing = 1;
+    let raf, dwell, heistPending, cancelSummon;
+    let running = false;
+    const timers = [];
+
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+    const anchorOf = (el) => {
+      const r = el.getBoundingClientRect();
+      return {
+        x: clamp(r.right + 26, 44, window.innerWidth - 46),
+        y: clamp(r.top + r.height * 0.25, 74, window.innerHeight - 64),
+      };
+    };
+    const visible = (el) => {
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.bottom > 90 && r.top < window.innerHeight - 80;
+    };
+    const pickSpot = () => {
+      const els = PIXIE_SPOTS.map((s) => document.querySelector(s)).filter((el) => el && visible(el) && el !== currentEl);
+      currentEl = els.length ? els[Math.floor(Math.random() * els.length)] : currentEl;
+      if (currentEl) Object.assign(target, anchorOf(currentEl));
+    };
+
+    // Track the watched section as the page scrolls; re-pick when it leaves.
+    const anchorTick = setInterval(() => {
+      const el = overrideEl || currentEl;
+      if (el && document.contains(el) && visible(el)) Object.assign(target, anchorOf(el));
+      else if (!running) pickSpot();
+    }, 350);
+
+    const wander = () => {
+      if (!running) pickSpot();
+      dwell = setTimeout(wander, 6500 + Math.random() * 4500);
+    };
+    dwell = setTimeout(wander, 1200);
+
+    // She watches what YOU do: darts to whatever section you touch.
+    const onTouch = (e) => {
+      if (running || !(e.target instanceof Element)) return;
+      const hit = e.target.closest(PIXIE_SPOTS.join(","));
+      if (!hit) return;
+      currentEl = hit;
+      Object.assign(target, anchorOf(hit));
+      clearTimeout(dwell);
+      dwell = setTimeout(wander, 7500);
+    };
+    document.addEventListener("pointerdown", onTouch, true);
+    document.addEventListener("focusin", onTouch, true);
+
+    // Flight loop: she lerps to the target, the sparkle wake lerps after her.
+    const step = () => {
+      const dx = target.x - pos.x;
+      if (Math.abs(dx) > 26) {
+        const f = dx > 0 ? 1 : -1;
+        if (f !== facing) { facing = f; if (faceRef.current) faceRef.current.style.transform = `scaleX(${f})`; }
+      }
+      pos.x += (target.x - pos.x) * 0.045;
+      pos.y += (target.y - pos.y) * 0.045;
+      if (wrapRef.current) wrapRef.current.style.transform = `translate(${pos.x - 32}px, ${pos.y - 32}px)`;
+      let px = pos.x, py = pos.y;
+      trail.forEach((tp, i) => {
+        const k = 0.11 - i * 0.028;
+        tp.x += (px - tp.x) * k;
+        tp.y += (py - tp.y) * k;
+        const el = trailRefs.current[i];
+        if (el) el.style.transform = `translate(${tp.x - 3}px, ${tp.y + 14}px)`;
+        px = tp.x; py = tp.y;
+      });
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+
+    // ---- Pixie Poof: fly to the medallion, wand-wave it into sparkles ----
+    const scheduleHeist = (ms) => { clearTimeout(heistPending); heistPending = setTimeout(() => heist(false), ms); };
+    const heist = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) scheduleHeist(30000); return; }
+        overrideEl = med;
+        Object.assign(target, anchorOf(med));
+        timers.push(setTimeout(() => {           // she needs a beat to fly up
+          const r2 = med.getBoundingClientRect();
+          setCasting(true);
+          setBurst({ x: r2.x, y: r2.y, w: r2.width });
+          if (localStorage.getItem("ff_muted") !== "1") {
+            try { const g = new Audio("/fairy-laugh.mp3"); g.volume = 0.35; g.play().catch(() => {}); } catch {}
+          }
+          timers.push(setTimeout(() => { med.style.visibility = "hidden"; startleTitle(); }, 420));
+          timers.push(setTimeout(() => setCasting(false), 1200));
+          timers.push(setTimeout(() => {
+            const r3 = med.getBoundingClientRect();
+            setBurst({ x: r3.x, y: r3.y, w: r3.width });
+            med.style.visibility = "";
+            med.style.animation = "none";
+            void med.offsetWidth; // restart the pop on repeat strikes
+            med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+          }, 2600));
+          timers.push(setTimeout(() => {
+            setBurst(null); overrideEl = null; running = false;
+            witnessRef.current(true);
+            pickSpot();
+            scheduleHeist(150000 + Math.random() * 150000); // again in 2.5-5 min
+          }, 3500));
+        }, 1900));
+      });
+    };
+    scheduleHeist(45000 + Math.random() * 30000);
+    const force = () => heist(true);
+    window.addEventListener("ff:pixie-heist", force);
+
+    return () => {
+      cancelAnimationFrame(raf); clearTimeout(dwell); clearInterval(anchorTick);
+      clearTimeout(heistPending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      document.removeEventListener("pointerdown", onTouch, true);
+      document.removeEventListener("focusin", onTouch, true);
+      window.removeEventListener("ff:pixie-heist", force);
+      // Never leave the logo hidden if we unmount mid-poof (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[30] select-none overflow-hidden" data-testid="fairy-pixie-layer">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={`pxt-${i}`}
+          ref={(el) => { trailRefs.current[i] = el; }}
+          className="absolute left-0 top-0 rounded-full"
+          style={{ width: 6 - i, height: 6 - i, background: "radial-gradient(circle, #FFFFFF, #8FF0B0 55%, transparent 80%)", boxShadow: "0 0 5px #8FF0B0", animation: `ffWispGlow ${(1.1 + i * 0.3).toFixed(1)}s ease-in-out ${(i * 0.2).toFixed(1)}s infinite` }}
+        />
+      ))}
+      <div ref={wrapRef} className="absolute left-0 top-0" data-testid="fairy-pixie">
+        <div ref={faceRef}>
+          <div className="relative" style={{ width: 64, height: 64, animation: "ffPixieBob 2.4s ease-in-out infinite", filter: "drop-shadow(0 0 7px rgba(94,224,168,0.7))" }}>
+            <img src="/fairy-pixie-1.png" alt="" className="absolute inset-0 h-full w-full object-contain" />
+            <img src="/fairy-pixie-2.png" alt="" className="absolute inset-0 h-full w-full object-contain opacity-0" style={{ animation: "ffPixieFlap 0.24s steps(1,end) infinite alternate" }} />
+            {casting && (
+              <span className="absolute rounded-full" style={{ left: 50, top: 18, width: 16, height: 16, background: "radial-gradient(circle, #FFF9D9, #FFD36B 55%, transparent 78%)", boxShadow: "0 0 10px #FFD36B, 0 0 22px rgba(255,211,107,0.7)", animation: "ffWandStar 1.15s ease-out forwards" }} data-testid="pixie-wand-star" />
+            )}
+          </div>
+        </div>
+      </div>
+      {burst && (
+        <div className="absolute" style={{ left: burst.x, top: burst.y, width: burst.w, height: burst.w }} data-testid="pixie-poof-burst">
+          {Array.from({ length: 10 }, (_, i) => {
+            const a = (i / 10) * Math.PI * 2;
+            const d = burst.w * (0.55 + (i % 3) * 0.2);
+            return (
+              <span
+                key={`poof-${i}`}
+                className="absolute left-1/2 top-1/2 rounded-full"
+                style={{ width: 5 + (i % 3) * 2, height: 5 + (i % 3) * 2, "--dx": `${Math.cos(a) * d}px`, "--dy": `${Math.sin(a) * d}px`, background: i % 2 ? "radial-gradient(circle, #FFFFFF, #8FF0B0 60%, transparent 82%)" : "radial-gradient(circle, #FFF9D9, #FFD36B 60%, transparent 82%)", boxShadow: "0 0 6px rgba(255,244,200,0.8)", animation: "ffPoofSparkle 0.95s ease-out forwards" }}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** First-time heist sightings earn a toast pointing at the Collection. */
 function useHeistWitness(key) {
   const { t } = useLang();
@@ -941,6 +1140,7 @@ export function AmbianceScene({ theme, cfg }) {
       </div>
     )}
     {cfg.saucer && <SaucerAbduction saucer={cfg.saucer} onActive={setAbducting} />}
+    {cfg.gully && <PixiePatrol />}
     {theme === "fantasy" && <DragonHeist />}
   </>);
 }

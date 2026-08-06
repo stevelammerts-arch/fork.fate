@@ -36,7 +36,7 @@ function DemoCard({ title, children, resetKey, onReset, tall = false }) {
 
 /** Dev-only preview of the three rare-fate reveal rituals (unlisted route). */
 export default function RarePreview() {
-  const [keys, setKeys] = useState({ scratch: 0, ball: 0, wheel: 0, souls: 0, rain: 0 });
+  const [keys, setKeys] = useState({ scratch: 0, ball: 0, wheel: 0, souls: 0, rain: 0, pixie: 0 });
   const bump = (k) => setKeys((s) => ({ ...s, [k]: s[k] + 1 }));
 
   return (
@@ -77,6 +77,11 @@ export default function RarePreview() {
           <DemoCard title="Cyberpunk Rain (reveal flourish)" resetKey="rain" onReset={() => bump("rain")}>
             <div key={keys.rain} className="absolute inset-0">
               <ThemeFlourish theme="cyber" />
+            </div>
+          </DemoCard>
+          <DemoCard title="Fairy Butterflies (reveal flourish)" resetKey="pixie" onReset={() => bump("pixie")}>
+            <div key={keys.pixie} className="absolute inset-0">
+              <ThemeFlourish theme="fairy" />
             </div>
           </DemoCard>
         </div>

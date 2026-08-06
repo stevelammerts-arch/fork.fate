@@ -51,6 +51,7 @@ export const HEISTS = [
   { key: "saucer", name: "Saucer Abduction", realm: "Cyberscape", accent: "#22E0E0", desc: "A stealth saucer locks its tractor beam on the medallion and beams it up — then drops it back." },
   { key: "dragon", name: "Dragon Heist", realm: "Dragon's Hoard", accent: "#E6B23A", desc: "A scaled claw rises from the hoard and drags the medallion down into the gold." },
   { key: "grave", name: "Grave Snatch", realm: "Reaper", accent: "#E01E26", desc: "Skeletal hands reach up from the grave and pull the medallion under." },
+  { key: "pixie", name: "Pixie Poof", realm: "Fairy Gully", accent: "#5EE0A8", desc: "The tiny third sister flits up and — one wave of her wand — poofs the medallion into sparkles, then giggles it back." },
 ];
 
 export function readHeistsSeen() {

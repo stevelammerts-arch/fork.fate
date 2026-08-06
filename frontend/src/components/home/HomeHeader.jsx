@@ -29,6 +29,7 @@ export function HomeHeader({
               src={theme === "cyber" ? "/cyber-neon-logo.png" : theme === "fantasy" ? "/logo-crest-gold.png" : (light ? "/logo-mark-light.png" : "/logo-mark.png")}
               alt="Fork·Fate logo"
               className={`h-12 w-12 object-contain md:h-16 md:w-16 ${theme === "cyber" ? "p-0.5" : "scale-110"}`}
+              style={theme === "fairy" ? { filter: "hue-rotate(115deg) saturate(1.25) brightness(1.05)" } : undefined}
             />
             <motion.div
               className="pointer-events-none absolute inset-0"

@@ -501,6 +501,8 @@ export const ES = {
   "A stealth saucer locks its tractor beam on the medallion and beams it up — then drops it back.": "Un platillo sigiloso fija su rayo tractor en el medallón y lo eleva… luego lo devuelve.",
   "A scaled claw rises from the hoard and drags the medallion down into the gold.": "Una garra escamosa surge del tesoro y arrastra el medallón hacia el oro.",
   "Skeletal hands reach up from the grave and pull the medallion under.": "Manos esqueléticas emergen de la tumba y arrastran el medallón bajo tierra.",
+  "Pixie Poof": "¡Puf del Hada!",
+  "The tiny third sister flits up and — one wave of her wand — poofs the medallion into sparkles, then giggles it back.": "La diminuta tercera hermana sube volando y —con un toque de su varita— convierte el medallón en chispas, y luego lo devuelve entre risitas.",
   "Your stops": "Tus paradas",
   "Stops": "Paradas",
   "Numbered pins follow your route — green means conquered.": "Los pines numerados siguen tu ruta: el verde significa conquistado.",

@@ -1531,3 +1531,74 @@ See `/app/memory/test_credentials.md`.
   scrollY 0, reaper-heist overlay mounted, skeleton hands clamp visible at top.
 - NOTE: screenshot tool scripts must be FLAT statements (no `async def run(page)`
   wrapper) or prints/actions silently don't execute.
+
+## 2026-08-06 part 52: Fairy wings flap + tiny flourish pixie (FF_BUILD 328)
+- WING FLAP (user: "can't make the fairy's wings flap can we?"): the two
+  fairies are painted INTO fairy-gully.png (896x1200). Solution = tiki-flame
+  trick: Nano Banana (gemini-3.1-flash-image-preview via emergentintegrations,
+  script /app/scripts/gen_fairy_wings.py) generated 2 full-frame edits (wings
+  raised / wings swept down, "photocopy" prompts to prevent body drift — first
+  down frame DID drift the right fairy's pose, regenerated with stricter
+  prompt). Frames cropped to patch rect (450,380)-(896,830) — right edge MUST
+  reach the artwork edge (896) or the right fairy's painted wing tips peek out
+  past the feathered patch (double wings, seen on desktop). Feather 26px on
+  interior edges only. Overlays fairy-wings-up/down.png cross-fade over the
+  base via ffWingUp/ffWingDown keyframes (index.css), anchored through the
+  ripples' coverBox math in ThemeScenes.jsx gully block. Cycle speed iterated
+  by user: 2.4s -> 1.2s -> 1s ("less clunky"). Full frames kept at
+  /app/scripts/fairy_full_up|down.png for recropping without regen.
+- DESYNC EXPLORED, REJECTED: user asked if each fairy could beat at her own
+  time. Column motion-energy analysis showed their inner wings OVERLAP
+  (image x 650-720) so splitting the shared patch would chop wings; the clean
+  path = 4 per-fairy frames (only one fairy moves per frame). User chose to
+  KEEP SYNCED ("Ok, synced it is") — per-fairy prompts were drafted then
+  reverted; script documents the shipped 2-frame flow.
+- TINY FLOURISH PIXIE (user request, "match the other 2 in design" + sparkle
+  trail): /app/scripts/gen_tiny_fairy.py feeds fairy-gully.png as the design
+  ref, asks for a 2-pose sprite sheet (wings up | down) on pure black with a
+  glow aura, keys black->alpha, splits halves. CRITICAL post-step: the two
+  poses came back at different body scales/positions — normalized via
+  body-bbox detection (skin/hair/outfit hue filter, saturated-wing false
+  positives fixed with warm-hue + dark-green rules, rows/cols >=4 px) then
+  both anchored body-center on a shared 320x280 canvas; 50% blend QA confirms
+  alignment. Assets: fairy-pixie-1/2.png. TinyFairy in ThemeFlourish.jsx
+  (inside ButterflyBurst): framer-motion left/top percent path across the
+  card (4.1s), 2-frame flutter via ffPixieFlap 0.24s steps(1,end) alternate,
+  7 trailing sparkles fly the same path delayed 0.42+i*0.09s. Size iterated
+  54px -> 72px ("a third bigger"). data-testid="fairy-pixie".
+- /dev/rare now has a "Fairy Pixie + Butterflies (reveal flourish)" demo card
+  (resetKey pixie) for testing the fairy flourish without dealing a fate.
+- VERIFIED via screenshots: mobile+desktop wing frames aligned (no double
+  wings), pixie mid-flight with trail on /dev/rare at two timestamps.
+- NOTE screenshot tool scripts must be FLAT statements (no async def wrapper).
+
+## 2026-08-06 part 53: Pixie lives on the page + Pixie Poof heist + green logo (FF_BUILD 329)
+- PIXIE PROMOTED from flourish cameo to full-time page resident (user: "spend
+  time on the page like the probe", then "go from section to section like
+  she's watching what you are doing"). TinyFairy removed from ThemeFlourish
+  (ButterflyBurst back to butterflies only; /dev/rare card renamed "Fairy
+  Butterflies"). New PixiePatrol in ThemeScenes.jsx, mounted via
+  {cfg.gully && <PixiePatrol />}: own fixed z-[30] layer; rAF lerp (k=0.045)
+  chases a target anchored to VISIBLE sections from PIXIE_SPOTS testids
+  (ff-title, zip-input, use-my-location-button, radius-control, mode-toggle,
+  filters-toggle, fate-of-day-card, sort-select); 350ms interval re-anchors as
+  the page scrolls; re-picks every 6.5-11s; pointerdown/focusin capture
+  listeners dart her to whatever section the user touches; scaleX facing flip;
+  3 wake sparkles chase with softer lerps; ffPixieBob hover.
+- PIXIE POOF HEIST (user: "make the FF logo disappear with her wand like a
+  heist"): integrated into PixiePatrol — first strike 45-75s then 2.5-5min;
+  uses summonToLogo (scrolls user up first, same as all heists), flies to the
+  medallion (1.9s), wand star (ffWandStar) + 10-particle sparkle burst
+  (ffPoofSparkle, --dx/--dy per particle) + soft fairy-laugh (respects
+  ff_muted), medallion visibility hidden + startleTitle, second burst on
+  return + ffLogoReturn pop. Force event: window 'ff:pixie-heist'. Registry:
+  HEISTS += {key:"pixie", name:"Pixie Poof", realm:"Fairy Gully",
+  accent:#5EE0A8} (rituals.js), HEIST_ICONS.pixie=Wand2 (Rituals.jsx), es
+  i18n added ("¡Puf del Hada!").
+- GREEN LOGO (user request): HomeHeader medallion img gets
+  filter hue-rotate(115deg) saturate(1.25) brightness(1.05) when theme=fairy
+  (CSS-only, no new asset; can generate a dedicated green logo later).
+- VERIFIED via screenshot tool @1440px: pixie layer mounted + moving, she
+  hovers beside the radius control, forced ff:pixie-heist -> wand star True,
+  burst True, logo visibility 'hidden' then '' restored, green medallion
+  visible. Lint clean (5 pre-existing warnings, 0 errors).

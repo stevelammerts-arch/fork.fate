@@ -935,6 +935,24 @@ body {
   from{ opacity:0; }
   to{ opacity:1; }
 }
+/* Pixie patrol: gentle hover bob while she supervises a section. */
+@keyframes ffPixieBob{
+  0%,100%{ transform: translateY(0); }
+  50%{ transform: translateY(-6px); }
+}
+/* Wand flourish: the star pops, twirls and burns out as she casts. */
+@keyframes ffWandStar{
+  0%{ transform: scale(0) rotate(0deg); opacity:0; }
+  35%{ transform: scale(1.3) rotate(150deg); opacity:1; }
+  70%{ transform: scale(0.95) rotate(230deg); opacity:0.9; }
+  100%{ transform: scale(0.4) rotate(300deg); opacity:0; }
+}
+/* Poof sparkles: burst outward from the medallion and fade (--dx/--dy set
+   per particle). */
+@keyframes ffPoofSparkle{
+  0%{ transform: translate(-50%,-50%) scale(0.4); opacity:1; }
+  100%{ transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1); opacity:0; }
+}
 /* Fairy Gully realm: fate's red buttons, pills and accents wear forest green.
    Scoped by the root data-ff-theme attribute so no component changes needed. */
 [data-ff-theme="fairy"] .bg-\[\#E01E26\]{ background-color:#1E7A4A; }
