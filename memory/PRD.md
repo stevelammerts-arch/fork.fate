@@ -1939,3 +1939,14 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
 - User-uploaded fireball-whoosh -> /dragon-whoosh.mp3 (2.1s, used as-is).
 - Plays (vol 0.7, ff_muted-aware) in CompanionPatrol's breath branch the
   instant the tiny dragon's flame jet fires at the medallion.
+
+## 2026-08-06 part 75: Permanent Steampunk logo gear (FF_BUILD 375)
+- User: "gear slightly larger than the logo clicking clockwise behind the logo.
+  Permanently in Steampunk."
+- HomeHeader.jsx: medallion wrapped in a relative shrink-0 container; when
+  theme==="steam" an inline 12-tooth brass SVG gear (w-[134%], #B98A44 body,
+  #8A6428 rim, drop shadow, testid "steam-logo-gear") sits centered BEHIND the
+  medallion. Ticks clockwise via ffLogoGearTick 36s steps(48) infinite
+  (7.5deg every 0.75s), always on in Steampunk (independent of heists).
+- Verified: screenshot (teeth peeking around medallion) + computed transform
+  advanced exactly one 7.5deg step clockwise.

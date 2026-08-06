@@ -24,7 +24,23 @@ export function HomeHeader({
     <header className={`sticky top-0 z-30 border-b ${light ? "border-[#E4E4E7] bg-white/85 backdrop-blur-xl shadow-sm" : "border-[#E2E4E7] bg-[#0E0E0E]"}`}>
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:gap-3 md:px-12 md:py-6">
         <div className="flex items-center gap-2 md:gap-3">
-          <div className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-full md:h-16 md:w-16 ${light ? "ring-1 bg-[#F5F0E6] ring-[#E4E4E7]" : theme === "fairy" ? "bg-black ring-2 ring-[#E6B23A]" : "ring-1 bg-black ring-white/25"}`}>
+          <div className="relative shrink-0">
+            {/* Steampunk: a brass gear slightly larger than the medallion,
+                clicking clockwise behind it like a watch escapement */}
+            {theme === "steam" && (
+              <div className="pointer-events-none absolute left-1/2 top-1/2 w-[134%] -translate-x-1/2 -translate-y-1/2" style={{ aspectRatio: "1" }} data-testid="steam-logo-gear">
+                <div className="h-full w-full" style={{ animation: "ffLogoGearTick 36s steps(48, end) infinite", filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.55))" }}>
+                  <svg viewBox="0 0 100 100" className="h-full w-full">
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <rect key={i} x={45.5} y={1} width={9} height={16} rx={2} fill="#B98A44" transform={`rotate(${i * 30} 50 50)`} />
+                    ))}
+                    <circle cx="50" cy="50" r="38" fill="#B98A44" />
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="#8A6428" strokeWidth="2" />
+                  </svg>
+                </div>
+              </div>
+            )}
+            <div className={`relative h-12 w-12 overflow-hidden rounded-full md:h-16 md:w-16 ${light ? "ring-1 bg-[#F5F0E6] ring-[#E4E4E7]" : theme === "fairy" ? "bg-black ring-2 ring-[#E6B23A]" : "ring-1 bg-black ring-white/25"}`}>
             <img
               src={theme === "cyber" ? "/cyber-neon-logo.png" : theme === "fantasy" ? "/logo-ouroboros.png" : theme === "tiki" ? "/logo-tiki.png" : (light ? "/logo-mark-light.png" : "/logo-mark.png")}
               alt="Fork·Fate logo"
@@ -38,6 +54,7 @@ export function HomeHeader({
               transition={{ duration: 2.6, delay: 0.5, repeat: Infinity, repeatDelay: 5, ease: "easeInOut" }}
               style={{ background: "linear-gradient(115deg, transparent 46%, rgba(255,255,255,0.85) 50%, transparent 54%)" }}
             />
+            </div>
           </div>
           <span data-testid="ff-title" className={`inline-block font-serif text-3xl font-semibold tracking-tight md:text-5xl ${light ? "text-[#18181B]" : "text-white"}`}>
             Fork·Fate

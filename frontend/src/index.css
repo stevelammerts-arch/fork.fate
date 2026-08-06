@@ -992,6 +992,11 @@ body {
   70%  { transform: rotate(4deg); }
   100% { transform: rotate(0deg); }
 }
+/* Steampunk: the brass gear behind the header medallion clicks clockwise
+   (steps() makes the rotation tick like a watch escapement) */
+@keyframes ffLogoGearTick {
+  to { transform: rotate(360deg); }
+}
 /* ...and the perched head throws a cheeky wink once it's settled in */
 @keyframes ffHeadWink {
   0%, 32%   { opacity: 0; }
