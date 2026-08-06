@@ -1747,3 +1747,23 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   Passport crests left as app-wide branding.
 - Verified via screenshots: smoke alignment on painted plumes (both sides, double
   layer), horizontal mouth flame, header ouroboros render.
+
+## 2026-08-06 part 63: Nostril-anchored smoke tuning + SUMMER heists (FF_BUILD 350-353)
+- SMOKE FINAL: origins moved to user's arrow-pinpointed NOSTRILS — right art(828,419)
+  sweeps sideways-right then climbs (ffDragonSteam, 3 layers: dur 6.2/7.4/8.6s),
+  left art(770,415) exits angled DOWN along the snout via new ffDragonSteamL
+  keyframe (early -0.16*sy dip) then lifts up-left (2 layers). 49 wisps total.
+  Entries support per-wisp `anim` field.
+- SUMMER HEISTS (SeasonScene now returns fragment + mounts for theme==="summer"):
+  * SummerBallHeist (key "ball", ff:ball-heist): ball punted from bottom-left,
+    spins in (0.87s), BONKS med (ffLogoKnock tumble clone), squats in the logo
+    spot ~1.4s (ffBallSettle jiggle), rolls off down-right, ffLogoReturn.
+    First 25-45s, repeat 2.5-5min. Ball rendered w*1.42 (art padding).
+  * SummerCrabHeist (key "crab", ff:crab-heist): crab (w*1.7, 160x77 art) scuttles
+    from RIGHT at logo height (2.15s, ffCrabHaulBob), hoists med overhead
+    (ffCrabHoist pop, clone top -w*0.92), hauls LEFT off-screen (2.5s), return at
+    5.75s. First strike 70-110s (staggered clear of ball).
+  * Clones styled for LIGHT header: bg #F5F0E6 ring #E4E4E7 /logo-mark-light.png.
+  * HEISTS entries added in lib/rituals.js (realm "Summer").
+- Verified via screenshots: ball sit-in, logo return + witness toast, crab hoist
+  and haul frames.

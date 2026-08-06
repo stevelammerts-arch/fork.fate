@@ -110,7 +110,7 @@ export const SEASONS = {
 };
 
 export function SeasonScene({ theme, cfg }) {
-  return (
+  return (<>
     <div className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`season-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
       {cfg.ground && <img src={cfg.ground} alt="" className={`pointer-events-none absolute bottom-0 left-0 z-0 w-full select-none object-cover object-bottom opacity-[0.6] ${cfg.groundH || "h-[46vh]"}`} style={{ maskImage: "linear-gradient(to top, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)", WebkitMaskImage: "linear-gradient(to top, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)", ...(cfg.groundOpacity ? { opacity: cfg.groundOpacity } : {}) }} data-testid="spring-ground" />}
@@ -231,7 +231,9 @@ export function SeasonScene({ theme, cfg }) {
         </div>
       ))}
     </div>
-  );
+    {theme === "summer" && <SummerBallHeist />}
+    {theme === "summer" && <SummerCrabHeist />}
+  </>);
 }
 
 
@@ -1069,6 +1071,169 @@ export function ReaperHeist() {
       testid="reaper-heist"
       heistKey="grave"
     />
+  );
+}
+
+/** Summer heist #1: a runaway beach ball arcs in spinning, BONKS the header
+ * medallion clean off its perch (the logo tumbles away), then squats in the
+ * logo's spot for a beat acting innocent before rolling off — and the logo
+ * bounces back. First strike 25-45s after load, then every 2.5-5 min (or
+ * instantly on a `ff:ball-heist` window event, used for testing). */
+function SummerBallHeist() {
+  const witnessRef = useHeistWitness("ball");
+  const [run, setRun] = useState(null);   // {cx, cy, w}
+  const [phase, setPhase] = useState(0);  // 0 offscreen, 1 flight, 2 sits in the spot, 3 rolls off
+  const [knock, setKnock] = useState(false); // the bonked-away medallion clone
+  useEffect(() => {
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        timers.push(setTimeout(() => setPhase(1), 30));   // incoming!
+        timers.push(setTimeout(() => {                     // BONK
+          setPhase(2); setKnock(true);
+          med.style.visibility = "hidden"; startleTitle();
+        }, 900));
+        timers.push(setTimeout(() => setKnock(false), 1850));
+        timers.push(setTimeout(() => setPhase(3), 2300));  // rolls off
+        timers.push(setTimeout(() => {
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // restart the pop on repeat strikes
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 2600));
+        timers.push(setTimeout(() => {
+          setRun(null); setPhase(0); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // again in 2.5-5 min
+        }, 3400));
+      });
+    };
+    schedule(25000 + Math.random() * 20000);
+    const force = () => start(true);
+    window.addEventListener("ff:ball-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:ball-heist", force);
+      // Never leave the logo hidden if we unmount mid-heist (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run) return null;
+  const { cx, cy, w } = run;
+  const ballW = w * 1.42; // ball art has padding — this renders it medallion-sized
+  // punted up from low off the LEFT edge, exits bouncing away down-right
+  const sx = -ballW - 40, sy = cy + Math.min(340, window.innerHeight * 0.4);
+  const x = phase === 0 ? sx : phase === 3 ? cx + window.innerWidth * 0.35 : cx;
+  const y = phase === 0 ? sy : phase === 3 ? window.innerHeight + ballW : cy;
+  const trans = phase === 1 ? "transform 0.87s cubic-bezier(0.3,0,0.68,1)" : phase === 3 ? "transform 0.85s cubic-bezier(0.5,0.05,0.85,0.5)" : "none";
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="ball-heist">
+      {/* the bonked medallion tumbling away */}
+      {knock && (
+        <div className="absolute overflow-hidden bg-[#F5F0E6] ring-1 ring-[#E4E4E7]" style={{ left: cx - w / 2, top: cy - w / 2, width: w, height: w, borderRadius: "9999px", animation: "ffLogoKnock 0.9s cubic-bezier(0.25,0.8,0.5,1) forwards" }} data-testid="ball-heist-logo">
+          <img src="/logo-mark-light.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+        </div>
+      )}
+      <div className="absolute left-0 top-0" style={{ transform: `translate(${x - ballW / 2}px, ${y - ballW / 2}px)`, transition: trans }}>
+        <img
+          src="/summer-ball.png"
+          alt=""
+          className="block object-contain"
+          style={{
+            width: ballW, height: ballW,
+            filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.3))",
+            animation: phase === 2 ? "ffBallSettle 0.6s ease-out" : phase === 1 || phase === 3 ? "ffBallHeistSpin 0.7s linear infinite" : undefined,
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+/** Summer heist #2: a little red crab scuttles in from the RIGHT side of the
+ * banner at medallion height, hoists the medallion overhead, and hauls it
+ * away sideways off the LEFT edge — then it bounces back home. First strike
+ * 70-110s after load (staggered clear of the beach ball), then every 2.5-5
+ * min (or instantly on a `ff:crab-heist` window event, used for testing). */
+function SummerCrabHeist() {
+  const witnessRef = useHeistWitness("crab");
+  const [run, setRun] = useState(null);   // {cx, cy, w}
+  const [phase, setPhase] = useState(0);  // 0 offscreen right, 1 scuttle in, 2 hoist, 3 haul away left
+  useEffect(() => {
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        timers.push(setTimeout(() => setPhase(1), 30));   // scuttle over
+        timers.push(setTimeout(() => {                     // hoist!
+          setPhase(2);
+          med.style.visibility = "hidden"; startleTitle();
+        }, 2300));
+        timers.push(setTimeout(() => setPhase(3), 3050));  // haul it away
+        timers.push(setTimeout(() => {
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // restart the pop on repeat strikes
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 5750));
+        timers.push(setTimeout(() => {
+          setRun(null); setPhase(0); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // again in 2.5-5 min
+        }, 6500));
+      });
+    };
+    schedule(70000 + Math.random() * 40000);
+    const force = () => start(true);
+    window.addEventListener("ff:crab-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:crab-heist", force);
+      // Never leave the logo hidden if we unmount mid-heist (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run) return null;
+  const { cx, cy, w } = run;
+  const crabW = w * 1.7;
+  const crabH = crabW * (77 / 160);
+  const x = phase === 0 ? window.innerWidth + crabW : phase === 3 ? -(crabW / 2 + w + 60) : cx;
+  const trans = phase === 1 ? "transform 2.15s cubic-bezier(0.3,0,0.62,1)" : phase === 3 ? "transform 2.5s cubic-bezier(0.45,0.05,0.75,0.6)" : "none";
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="crab-heist">
+      <div className="absolute left-0 top-0" style={{ transform: `translate(${x - crabW / 2}px, ${cy - crabH * 0.22}px)`, transition: trans }}>
+        <div className="relative" style={{ width: crabW, height: crabH, animation: phase === 1 || phase === 3 ? "ffCrabHaulBob 0.36s linear infinite" : undefined }}>
+          {/* the hoisted medallion riding overhead in his claws */}
+          {(phase === 2 || phase === 3) && (
+            <div className="absolute overflow-hidden bg-[#F5F0E6] ring-1 ring-[#E4E4E7]" style={{ left: crabW / 2 - w / 2, top: -(w * 0.92), width: w, height: w, borderRadius: "9999px", animation: "ffCrabHoist 0.5s cubic-bezier(0.34,1.56,0.64,1)" }} data-testid="crab-heist-logo">
+              <img src="/logo-mark-light.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+            </div>
+          )}
+          <img src="/summer-crab.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.28))" }} />
+        </div>
+      </div>
+    </div>
   );
 }
 

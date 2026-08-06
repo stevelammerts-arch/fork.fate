@@ -722,6 +722,41 @@ body {
   100% { transform: rotate(0deg); }
 }
 
+/* Summer heists ------------------------------------------------------- */
+/* Beach Ball Bonk: the medallion is knocked clean off its perch, tumbling
+   away to the right before dropping out of sight */
+@keyframes ffLogoKnock {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  50%  { transform: translate(120px, -75px) rotate(170deg); opacity: 1; }
+  100% { transform: translate(225px, 90px) rotate(340deg); opacity: 0; }
+}
+/* The ball spins while airborne / rolling away */
+@keyframes ffBallHeistSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+/* ...and jiggles to a smug stop once it's squatting in the logo's spot */
+@keyframes ffBallSettle {
+  0%   { transform: rotate(-16deg) scale(1.1); }
+  38%  { transform: rotate(10deg) scale(1.02); }
+  70%  { transform: rotate(-4deg) scale(1); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+/* Crab Grab: quick leg-scrabble bob while the crab scuttles sideways */
+@keyframes ffCrabHaulBob {
+  0%   { transform: translateY(0) rotate(0deg); }
+  25%  { transform: translateY(-2.5px) rotate(-1.6deg); }
+  50%  { transform: translateY(0) rotate(0deg); }
+  75%  { transform: translateY(-2.5px) rotate(1.6deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+/* ...and the hoist: the medallion pops up overhead into his claws */
+@keyframes ffCrabHoist {
+  0%   { transform: translateY(88%) scale(0.55); opacity: 0.5; }
+  70%  { transform: translateY(-6%) scale(1.05); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
 /* Cyberpunk rain */
 .ff-rain{
   background-image:
