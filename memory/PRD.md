@@ -1675,3 +1675,34 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   ttl 0.33-0.67s (was 0.47-0.9) for snappy pops. User-approved burst feel.
 - VERIFIED: 13/15 hover ticks with dust (quick-fade gaps are the burst
   rhythm), screenshot shows sparkles flung wide of her body.
+
+## 2026-08-06 part 59: Pixie Reactions + Tiny Dragon companion + new claw (FF_BUILD 337-339)
+- PIXIE REACTIONS: Home.jsx landFate() dispatches 'ff:fate-dealt' (companion
+  zips beside the reveal zone + 2.6s dust fountain); runShuffle() dispatches
+  'ff:reshuffle' ONLY if result exists (companion pouts 3.2s: sinks 30px,
+  faces AWAY from lookX, zero dust, no micro-darts). Verified via events:
+  23-dust fountain + fly-to; pout dust=0 + sink + reversed facing.
+- COMPANION ENGINE: PixiePatrol generalized to CompanionPatrol({s1, s2, glow,
+  dustCol, heistKind: "poof"|"breath"|null, testid}). Mounts: fairy=poof
+  (fairy-pixie-*), fantasy=breath (dragon-tiny-*, ember dust #FFE9B0/#FF8C3A).
+- TINY DRAGON: /app/scripts/gen_tiny_dragon.py (2-pose sheet on black,
+  flood-key) + head TEMPLATE-MATCH alignment (gold-bbox failed; SSD search
+  found dy=-42) -> dragon-tiny-1/2.png on shared 300x280 canvases.
+- DRAGON'S BREATH HEIST: registry {key:"breath", realm:"Dragon's Hoard",
+  accent:#FF8C3A}, icon Flame, es i18n. Flame jet: 14 blobs stream from his
+  mouth to the medallion (ffFlameJet, --dx/--dy per blob), scorch burst =
+  flame-colored ffPoofSparkle (testid dragon-scorch-burst). Force event:
+  'ff:breath-heist'. Claw heist (ff:heist) kept separate per user ("do both").
+- NEW CLAW: /app/scripts/gen_claw2.py -> dragon-claw2.png (571x718 red/gold).
+  KEYING LESSON: threshold-alpha ate dark crevice shading (white lattice);
+  fix = flood-fill from borders with strict m<=16 + largest enclosed dark
+  region (grip void). DragonHeist: gripX .505, gripY .434, aspect 718/571,
+  widthMult 2.4 + NEW LogoHeist prop cloneScale=1.25 (user: "make logo
+  bigger" to fill the grip). Also fixed clone rendering as a SQUARE card:
+  inline borderRadius 9999px on clone div + img (rounded-full class wasn't
+  clipping).
+- OUROBOROS RING: CANCELLED by user ("doesn't make sense with the heist");
+  dragon-ring.png deleted, gen code remains in gen_tiny_dragon.py if ever
+  wanted.
+- All verified via screenshots/DOM: breath heist full cycle, pixie poof
+  regression, claw grip fit, companions patrolling. Lint 0 errors.

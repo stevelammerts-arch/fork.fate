@@ -12,7 +12,7 @@ const ICONS = {
   leaves: Leaf, bloom: Flower2, melon: Citrus, globe: Snowflake, latte: Coffee,
 };
 
-const HEIST_ICONS = { saucer: Rocket, dragon: Grab, grave: Bone, pixie: Wand2 };
+const HEIST_ICONS = { saucer: Rocket, dragon: Grab, grave: Bone, pixie: Wand2, breath: Flame };
 
 export default function Rituals() {
   const { t } = useLang();

@@ -503,6 +503,8 @@ export const ES = {
   "Skeletal hands reach up from the grave and pull the medallion under.": "Manos esqueléticas emergen de la tumba y arrastran el medallón bajo tierra.",
   "Pixie Poof": "¡Puf del Hada!",
   "The tiny third sister flits up and — one wave of her wand — poofs the medallion into sparkles, then giggles it back.": "La diminuta tercera hermana sube volando y —con un toque de su varita— convierte el medallón en chispas, y luego lo devuelve entre risitas.",
+  "Dragon's Breath": "Aliento de Dragón",
+  "The tiny dragon huffs, puffs, and torches the medallion to cinders — don't worry, it always grows back.": "El pequeño dragón resopla y reduce el medallón a cenizas — tranquilo, siempre vuelve a crecer.",
   "Your stops": "Tus paradas",
   "Stops": "Paradas",
   "Numbered pins follow your route — green means conquered.": "Los pines numerados siguen tu ruta: el verde significa conquistado.",

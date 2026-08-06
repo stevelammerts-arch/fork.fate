@@ -953,6 +953,13 @@ body {
   0%{ transform: translate(-50%,-50%) scale(0.4); opacity:1; }
   100%{ transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1); opacity:0; }
 }
+/* Dragon's breath: flame blobs stream from the tiny dragon's mouth to the
+   medallion (--dx/--dy = the flight vector per blob), growing as they go. */
+@keyframes ffFlameJet{
+  0%{ transform: translate(0,0) scale(0.35); opacity:0.95; }
+  70%{ opacity:0.9; }
+  100%{ transform: translate(var(--dx), var(--dy)) scale(1.25); opacity:0; }
+}
 /* Fairy Gully realm: fate's red buttons, pills and accents wear forest green.
    Scoped by the root data-ff-theme attribute so no component changes needed. */
 [data-ff-theme="fairy"] .bg-\[\#E01E26\]{ background-color:#1E7A4A; }

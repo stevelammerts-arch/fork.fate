@@ -353,6 +353,8 @@ export default function Home() {
       toast(`${t("Bingo square stamped:")} ${t(b.square)}`, { duration: 3500 });
     }
     setResult(card);
+    // The pixie (and future companions) celebrate a landed fate.
+    window.dispatchEvent(new Event("ff:fate-dealt"));
   };
 
   // Scratch completed: unveil with the full reveal fanfare (boom + flash).
@@ -383,6 +385,8 @@ export default function Home() {
   };
 
   const runShuffle = (pool) => {
+    // Re-shuffling away from a fate that was already dealt? The pixie pouts.
+    if (result) window.dispatchEvent(new Event("ff:reshuffle"));
     setResult(null);
     setGroupPicks(null);
     setSurpriseReveal(null);

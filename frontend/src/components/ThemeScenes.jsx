@@ -511,20 +511,21 @@ const PIXIE_SPOTS = [
   '[data-testid="sort-select"]',
 ];
 
-/** Fairy Gully ambient: the tiny third sister lives on the page like the
- * cyber probe — but instead of a blind patrol she flits from section to
- * section, hovering beside whatever's on screen like she's supervising, and
- * darts straight to any section the user touches. Every few minutes she
- * flies up to the header medallion and POOFS it with her wand (the Pixie
- * Poof heist), then giggles it back. Movement is a rAF lerp chasing a
- * target point; three wake sparkles chase her with softer lerps. */
-function PixiePatrol() {
-  const witnessRef = useHeistWitness("pixie");
+/** Shared companion engine (pixie, tiny dragon, ...): lives on the page like
+ * the cyber probe — flits from section to section, hovering beside whatever's
+ * on screen like it's supervising, darts straight to any section the user
+ * touches, celebrates dealt fates and pouts at re-shuffles. Movement is a
+ * rAF lerp chasing a target point; a particle emitter sheds glowing dust.
+ * heistKind: "poof" = the fairy wand-poofs the header medallion; "breath" =
+ * the dragon torches it with a jet of flame. */
+function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heistKind = null, testid = "companion" }) {
+  const witnessRef = useHeistWitness(heistKind === "breath" ? "breath" : "pixie");
   const wrapRef = useRef(null);   // translated flight layer
   const faceRef = useRef(null);   // scaleX facing flip
   const trailRefs = useRef([]);
   const [casting, setCasting] = useState(false);
-  const [burst, setBurst] = useState(null); // {x, y, w} sparkle poof over the logo
+  const [burst, setBurst] = useState(null); // {x, y, w} burst over the logo
+  const [jet, setJet] = useState(null);     // {sx, sy, tx, ty} flame stream
 
   useEffect(() => {
     const pos = { x: -80, y: window.innerHeight * 0.45 };
@@ -533,6 +534,24 @@ function PixiePatrol() {
     // shaken loose while she's darting fast.
     const dust = Array.from({ length: 28 }, () => ({ x: 0, y: 0, vx: 0, vy: 0, life: 0, ttl: 1 }));
     let burstIn = 20; // frames until the next pop
+    // Moods: a landed fate makes her celebrate (dust fountain by the card);
+    // re-shuffling a dealt fate makes her pout (sink, turn away, no dust).
+    let celebrateUntil = 0;
+    let poutUntil = 0;
+    let sink = 0;
+    const spawn = (n) => {
+      for (const p of dust) {
+        if (n <= 0) break;
+        if (p.life > 0) continue;
+        p.x = pos.x + (Math.random() - 0.5) * 34;
+        p.y = pos.y + (Math.random() - 0.5) * 26 + 6;
+        p.vx = (Math.random() - 0.5) * 3.4;
+        p.vy = (Math.random() - 0.35) * 2.6 + 0.4;
+        p.ttl = 20 + Math.random() * 20;
+        p.life = p.ttl;
+        n -= 1;
+      }
+    };
     // `base` = the section anchor she's watching; `target` = base plus a
     // restless micro-dart offset so she flits around it like a real pixie.
     const base = { x: window.innerWidth * 0.4, y: 150, lookX: window.innerWidth * 0.5 };
@@ -595,7 +614,10 @@ function PixiePatrol() {
     let jitter;
     const dart = () => {
       const d = Math.hypot(base.x - pos.x, base.y - pos.y);
-      if (d < 80) {
+      if (Date.now() < poutUntil) {
+        // Sulking: no playful hops, she just sits there.
+        target.x = base.x; target.y = base.y;
+      } else if (d < 80) {
         if (currentEl && !running && Math.random() < 0.22) {
           curSide = -curSide;
           Object.assign(base, anchorOf(currentEl, curSide));
@@ -639,6 +661,30 @@ function PixiePatrol() {
     document.addEventListener("pointerdown", onTouch, true);
     document.addEventListener("focusin", onTouch, true);
 
+    // Fate dealt: she zips over beside the revealed card and fountains dust.
+    const onDealt = () => {
+      if (running) return;
+      celebrateUntil = Date.now() + 2600;
+      poutUntil = 0;
+      currentEl = null;
+      base.x = clamp(window.innerWidth * 0.5 + Math.min(150, window.innerWidth * 0.28), 44, window.innerWidth - 46);
+      base.y = window.innerHeight * 0.3;
+      base.lookX = window.innerWidth * 0.5;
+      spawn(10);
+      clearTimeout(dwell);
+      dwell = setTimeout(wander, 5200);
+    };
+    // Fate rejected (re-shuffle): she pouts — sinks, turns away, no dust.
+    const onReshuffle = () => {
+      if (running) return;
+      poutUntil = Date.now() + 3200;
+      celebrateUntil = 0;
+      clearTimeout(dwell);
+      dwell = setTimeout(wander, 3600);
+    };
+    window.addEventListener("ff:fate-dealt", onDealt);
+    window.addEventListener("ff:reshuffle", onReshuffle);
+
     // Flight loop: quick darty lerp to the target, wake lerps after her.
     // Facing follows her REAL velocity — if she's moving she faces that way
     // (no backwards flying); only once she truly settles does she turn to
@@ -648,28 +694,25 @@ function PixiePatrol() {
       pos.x += (target.x - pos.x) * 0.13;
       pos.y += (target.y - pos.y) * 0.13;
       const vx = pos.x - prevX;
+      const now = Date.now();
+      const pouting = now < poutUntil;
       let f = facing;
       if (Math.abs(vx) > 0.9) f = vx > 0 ? 1 : -1;
-      else if (target.lookX != null && Math.abs(target.lookX - pos.x) > 8) f = target.lookX > pos.x ? 1 : -1;
+      else if (target.lookX != null && Math.abs(target.lookX - pos.x) > 8) {
+        // Pouting = she turns her BACK on the whole affair.
+        f = (target.lookX > pos.x ? 1 : -1) * (pouting ? -1 : 1);
+      }
       if (f !== facing) { facing = f; if (faceRef.current) faceRef.current.style.transform = `scaleX(${f})`; }
-      if (wrapRef.current) wrapRef.current.style.transform = `translate(${pos.x - 50}px, ${pos.y - 50}px)`;
-      // Emit: a pop of 5 every ~0.5-0.9s, plus loose dust while flying fast.
+      sink += ((pouting ? 30 : 0) - sink) * 0.08; // sulky slump down
+      if (wrapRef.current) wrapRef.current.style.transform = `translate(${pos.x - 50}px, ${pos.y - 50 + sink}px)`;
+      // Emit: a pop of 5 every ~0.5-0.9s, loose dust while flying fast, a
+      // full fountain while celebrating — and nothing at all while sulking.
       const speed = Math.hypot(target.x - pos.x, target.y - pos.y) * 0.13;
-      const spawn = (n) => {
-        for (const p of dust) {
-          if (n <= 0) break;
-          if (p.life > 0) continue;
-          p.x = pos.x + (Math.random() - 0.5) * 34;
-          p.y = pos.y + (Math.random() - 0.5) * 26 + 6;
-          p.vx = (Math.random() - 0.5) * 3.4;
-          p.vy = (Math.random() - 0.35) * 2.6 + 0.4;
-          p.ttl = 20 + Math.random() * 20;
-          p.life = p.ttl;
-          n -= 1;
-        }
-      };
-      if (--burstIn <= 0) { spawn(5); burstIn = 30 + Math.random() * 24; }
-      if (speed > 3) spawn(1);
+      if (!pouting) {
+        if (--burstIn <= 0) { spawn(5); burstIn = 30 + Math.random() * 24; }
+        if (speed > 3) spawn(1);
+        if (now < celebrateUntil) spawn(2);
+      }
       dust.forEach((p, i) => {
         const el = trailRefs.current[i];
         if (!el) return;
@@ -684,7 +727,7 @@ function PixiePatrol() {
     };
     raf = requestAnimationFrame(step);
 
-    // ---- Pixie Poof: fly to the medallion, wand-wave it into sparkles ----
+    // ---- Medallion heist: fly up, then poof it (wand) or torch it (fire) ----
     const scheduleHeist = (ms) => { clearTimeout(heistPending); heistPending = setTimeout(() => heist(false), ms); };
     const heist = (force) => {
       if (running) return;
@@ -694,11 +737,15 @@ function PixiePatrol() {
         if (!r || !r.width) { running = false; if (!force) scheduleHeist(30000); return; }
         overrideEl = med;
         Object.assign(base, anchorOf(med));
-        timers.push(setTimeout(() => {           // she needs a beat to fly up
+        timers.push(setTimeout(() => {           // a beat to fly up there
           const r2 = med.getBoundingClientRect();
           setCasting(true);
           setBurst({ x: r2.x, y: r2.y, w: r2.width });
-          if (localStorage.getItem("ff_muted") !== "1") {
+          if (heistKind === "breath") {
+            // Flame jet from the dragon's mouth to the medallion's heart.
+            setJet({ sx: pos.x - 26, sy: pos.y - 10, tx: r2.x + r2.width / 2, ty: r2.y + r2.width / 2 });
+            timers.push(setTimeout(() => setJet(null), 1400));
+          } else if (localStorage.getItem("ff_muted") !== "1") {
             try { const g = new Audio("/fairy-laugh.mp3"); g.volume = 0.35; g.play().catch(() => {}); } catch {}
           }
           timers.push(setTimeout(() => { med.style.visibility = "hidden"; startleTitle(); }, 420));
@@ -720,9 +767,10 @@ function PixiePatrol() {
         }, 1900));
       });
     };
-    scheduleHeist(45000 + Math.random() * 30000);
-    const force = () => heist(true);
-    window.addEventListener("ff:pixie-heist", force);
+    if (heistKind) scheduleHeist(45000 + Math.random() * 30000);
+    const heistEvent = heistKind === "breath" ? "ff:breath-heist" : "ff:pixie-heist";
+    const force = () => { if (heistKind) heist(true); };
+    window.addEventListener(heistEvent, force);
 
     return () => {
       cancelAnimationFrame(raf); clearTimeout(dwell); clearTimeout(jitter); clearInterval(anchorTick);
@@ -730,7 +778,9 @@ function PixiePatrol() {
       if (cancelSummon) cancelSummon();
       document.removeEventListener("pointerdown", onTouch, true);
       document.removeEventListener("focusin", onTouch, true);
-      window.removeEventListener("ff:pixie-heist", force);
+      window.removeEventListener("ff:fate-dealt", onDealt);
+      window.removeEventListener("ff:reshuffle", onReshuffle);
+      window.removeEventListener(heistEvent, force);
       // Never leave the logo hidden if we unmount mid-poof (theme switch).
       const img = document.querySelector('img[alt="Fork·Fate logo"]');
       if (img && img.parentElement) img.parentElement.style.visibility = "";
@@ -738,38 +788,65 @@ function PixiePatrol() {
   }, []); // witnessRef is a stable ref
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[45] select-none overflow-hidden" data-testid="fairy-pixie-layer">
-      {[0, 1, 2, 3, 4].map((c) =>
-        Array.from({ length: 6 }, (_, i) => (
-          <span
-            key={`pxt-${c}-${i}`}
-            ref={(el) => { trailRefs.current[c * 6 + i] = el; }}
-            className="absolute left-0 top-0 rounded-full"
-            style={{ width: Math.max(2.5, 5.5 - i * 0.55 - (c > 2 ? 0.6 : 0)), height: Math.max(2.5, 5.5 - i * 0.55 - (c > 2 ? 0.6 : 0)), background: "radial-gradient(circle, #FFF9D9, #FFD36B 55%, transparent 80%)", boxShadow: "0 0 5px #FFD36B", animation: `ffWispGlow ${(1 + i * 0.22 + c * 0.13).toFixed(2)}s ease-in-out ${(i * 0.14 + c * 0.09).toFixed(2)}s infinite` }}
-          />
-        ))
-      )}
-      <div ref={wrapRef} className="absolute left-0 top-0" data-testid="fairy-pixie">
+    <div className="pointer-events-none fixed inset-0 z-[45] select-none overflow-hidden" data-testid={`${testid}-layer`}>
+      {Array.from({ length: 28 }, (_, i) => (
+        <span
+          key={`pxd-${i}`}
+          ref={(el) => { trailRefs.current[i] = el; }}
+          className="absolute left-0 top-0 rounded-full"
+          style={{ opacity: 0, width: 3 + (i % 4), height: 3 + (i % 4), background: `radial-gradient(circle, ${dustCol[0]}, ${dustCol[1]} 55%, transparent 80%)`, boxShadow: `0 0 5px ${dustCol[1]}` }}
+        />
+      ))}
+      <div ref={wrapRef} className="absolute left-0 top-0" data-testid={testid}>
         <div ref={faceRef}>
-          <div className="relative" style={{ width: 100, height: 100, animation: "ffPixieBob 2.4s ease-in-out infinite", filter: "drop-shadow(0 0 7px rgba(94,224,168,0.7))" }}>
-            <img src="/fairy-pixie-1.png" alt="" className="absolute inset-0 h-full w-full object-contain" />
-            <img src="/fairy-pixie-2.png" alt="" className="absolute inset-0 h-full w-full object-contain opacity-0" style={{ animation: "ffPixieFlap 0.24s steps(1,end) infinite alternate" }} />
-            {casting && (
+          <div className="relative" style={{ width: 100, height: 100, animation: "ffPixieBob 2.4s ease-in-out infinite", filter: `drop-shadow(0 0 7px ${glow})` }}>
+            <img src={s1} alt="" className="absolute inset-0 h-full w-full object-contain" />
+            <img src={s2} alt="" className="absolute inset-0 h-full w-full object-contain opacity-0" style={{ animation: "ffPixieFlap 0.24s steps(1,end) infinite alternate" }} />
+            {casting && heistKind === "poof" && (
               <span className="absolute rounded-full" style={{ left: 78, top: 28, width: 18, height: 18, background: "radial-gradient(circle, #FFF9D9, #FFD36B 55%, transparent 78%)", boxShadow: "0 0 10px #FFD36B, 0 0 22px rgba(255,211,107,0.7)", animation: "ffWandStar 1.15s ease-out forwards" }} data-testid="pixie-wand-star" />
             )}
           </div>
         </div>
       </div>
+      {jet && (
+        <div className="absolute left-0 top-0" data-testid="dragon-flame-jet">
+          {Array.from({ length: 14 }, (_, i) => {
+            const spread = (i % 5 - 2) * 7;
+            return (
+              <span
+                key={`jet-${i}`}
+                className="absolute rounded-full"
+                style={{
+                  left: jet.sx, top: jet.sy,
+                  width: 7 + (i % 3) * 4, height: 7 + (i % 3) * 4,
+                  "--dx": `${jet.tx - jet.sx + spread}px`,
+                  "--dy": `${jet.ty - jet.sy + (i % 4 - 1.5) * 6}px`,
+                  background: i % 3 === 0
+                    ? "radial-gradient(circle, #FFFFFF, #FFD36B 55%, transparent 80%)"
+                    : i % 3 === 1
+                      ? "radial-gradient(circle, #FFE9B0, #FF8C3A 55%, transparent 80%)"
+                      : "radial-gradient(circle, #FF8C3A, #E01E26 60%, transparent 82%)",
+                  boxShadow: "0 0 8px rgba(255,140,58,0.9)",
+                  animation: `ffFlameJet 0.5s ease-in ${(i * 0.055).toFixed(2)}s both`,
+                }}
+              />
+            );
+          })}
+        </div>
+      )}
       {burst && (
-        <div className="absolute" style={{ left: burst.x, top: burst.y, width: burst.w, height: burst.w }} data-testid="pixie-poof-burst">
+        <div className="absolute" style={{ left: burst.x, top: burst.y, width: burst.w, height: burst.w }} data-testid={heistKind === "breath" ? "dragon-scorch-burst" : "pixie-poof-burst"}>
           {Array.from({ length: 10 }, (_, i) => {
             const a = (i / 10) * Math.PI * 2;
             const d = burst.w * (0.55 + (i % 3) * 0.2);
+            const cols = heistKind === "breath"
+              ? (i % 2 ? "radial-gradient(circle, #FFFFFF, #FF8C3A 60%, transparent 82%)" : "radial-gradient(circle, #FFE9B0, #E01E26 60%, transparent 82%)")
+              : (i % 2 ? "radial-gradient(circle, #FFFFFF, #8FF0B0 60%, transparent 82%)" : "radial-gradient(circle, #FFF9D9, #FFD36B 60%, transparent 82%)");
             return (
               <span
                 key={`poof-${i}`}
                 className="absolute left-1/2 top-1/2 rounded-full"
-                style={{ width: 5 + (i % 3) * 2, height: 5 + (i % 3) * 2, "--dx": `${Math.cos(a) * d}px`, "--dy": `${Math.sin(a) * d}px`, background: i % 2 ? "radial-gradient(circle, #FFFFFF, #8FF0B0 60%, transparent 82%)" : "radial-gradient(circle, #FFF9D9, #FFD36B 60%, transparent 82%)", boxShadow: "0 0 6px rgba(255,244,200,0.8)", animation: "ffPoofSparkle 0.95s ease-out forwards" }}
+                style={{ width: 5 + (i % 3) * 2, height: 5 + (i % 3) * 2, "--dx": `${Math.cos(a) * d}px`, "--dy": `${Math.sin(a) * d}px`, background: cols, boxShadow: heistKind === "breath" ? "0 0 6px rgba(255,160,80,0.85)" : "0 0 6px rgba(255,244,200,0.8)", animation: "ffPoofSparkle 0.95s ease-out forwards" }}
               />
             );
           })}
@@ -816,7 +893,7 @@ function startleTitle() {
  * Geometry: `gripX/gripY` are the grip point as fractions of the sprite box,
  * `widthMult` scales the sprite relative to the medallion, `aspect` = natural
  * height/width of the sprite art. */
-function LogoHeist({ sprite, aspect, gripX, gripY, widthMult, cloneSrc, shadow, testid, heistKey }) {
+function LogoHeist({ sprite, aspect, gripX, gripY, widthMult, cloneSrc, shadow, testid, heistKey, cloneScale = 1 }) {
   const [run, setRun] = useState(null);
   const [phase, setPhase] = useState(0); // 1 rise, 2 clamp, 3 yank down
   const witnessRef = useHeistWitness(heistKey);
@@ -882,11 +959,11 @@ function LogoHeist({ sprite, aspect, gripX, gripY, widthMult, cloneSrc, shadow, 
           {/* the stolen medallion: mounts in the grip the instant the grabber clamps */}
           {(phase === 2 || phase === 3) && (
             <div
-              className="absolute overflow-hidden rounded-full bg-black ring-1 ring-white/25"
-              style={{ left: boxW * gripX - w / 2, top: boxH * gripY - w / 2, width: w, height: w }}
+              className="absolute overflow-hidden bg-black ring-1 ring-white/25"
+              style={{ left: boxW * gripX - (w * cloneScale) / 2, top: boxH * gripY - (w * cloneScale) / 2, width: w * cloneScale, height: w * cloneScale, borderRadius: "9999px" }}
               data-testid={`${testid}-logo`}
             >
-              <img src={cloneSrc} alt="" className="h-full w-full scale-110 object-contain" />
+              <img src={cloneSrc} alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
             </div>
           )}
           <img src={sprite} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: shadow }} />
@@ -897,15 +974,17 @@ function LogoHeist({ sprite, aspect, gripX, gripY, widthMult, cloneSrc, shadow, 
 }
 
 /** Dragon's Hoard heist: a scaled dragon claw snatches the medallion.
- * Claw art is 896x1200 with the grip window centered at (50.8%, 56%). */
+ * Claw art is 571x718 (red/gold, regenerated) with the circular grip void
+ * centered at (50.5%, 43.4%), void ~44% of the art width. */
 function DragonHeist() {
   return (
     <LogoHeist
-      sprite="/dragon-claw.png"
-      aspect={1200 / 896}
-      gripX={0.508}
-      gripY={0.56}
-      widthMult={2.1}
+      sprite="/dragon-claw2.png"
+      aspect={718 / 571}
+      gripX={0.505}
+      gripY={0.434}
+      widthMult={2.4}
+      cloneScale={1.25}
       cloneSrc="/logo-crest-gold.png"
       shadow="drop-shadow(0 8px 16px rgba(0,0,0,0.6))"
       testid="dragon-heist"
@@ -1222,7 +1301,8 @@ export function AmbianceScene({ theme, cfg }) {
       </div>
     )}
     {cfg.saucer && <SaucerAbduction saucer={cfg.saucer} onActive={setAbducting} />}
-    {cfg.gully && <PixiePatrol />}
+    {cfg.gully && <CompanionPatrol s1="/fairy-pixie-1.png" s2="/fairy-pixie-2.png" glow="rgba(94,224,168,0.7)" heistKind="poof" testid="fairy-pixie" />}
+    {theme === "fantasy" && <CompanionPatrol s1="/dragon-tiny-1.png" s2="/dragon-tiny-2.png" glow="rgba(255,140,50,0.7)" dustCol={["#FFE9B0", "#FF8C3A"]} heistKind="breath" testid="tiny-dragon" />}
     {theme === "fantasy" && <DragonHeist />}
   </>);
 }

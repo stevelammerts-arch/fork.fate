@@ -52,6 +52,7 @@ export const HEISTS = [
   { key: "dragon", name: "Dragon Heist", realm: "Dragon's Hoard", accent: "#E6B23A", desc: "A scaled claw rises from the hoard and drags the medallion down into the gold." },
   { key: "grave", name: "Grave Snatch", realm: "Reaper", accent: "#E01E26", desc: "Skeletal hands reach up from the grave and pull the medallion under." },
   { key: "pixie", name: "Pixie Poof", realm: "Fairy Gully", accent: "#5EE0A8", desc: "The tiny third sister flits up and — one wave of her wand — poofs the medallion into sparkles, then giggles it back." },
+  { key: "breath", name: "Dragon's Breath", realm: "Dragon's Hoard", accent: "#FF8C3A", desc: "The tiny dragon huffs, puffs, and torches the medallion to cinders — don't worry, it always grows back." },
 ];
 
 export function readHeistsSeen() {
