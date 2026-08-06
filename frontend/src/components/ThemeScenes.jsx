@@ -1574,7 +1574,15 @@ function OwlHeist() {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
-        timers.push(setTimeout(() => setPhase(1), 30));    // swoops in
+        const cry = (src, vol) => {
+          if (localStorage.getItem("ff_muted") === "1") return;
+          try { const a = new Audio(src); a.volume = vol; a.play().catch(() => {}); } catch {}
+        };
+        timers.push(setTimeout(() => {                     // swoops in, hooting softly
+          setPhase(1);
+          cry("/owl-hoot.mp3", 0.45);
+        }, 30));
+        timers.push(setTimeout(() => cry("/wing-whoosh.mp3", 0.5), 800)); // feathers brake the dive
         timers.push(setTimeout(() => {                     // talons CLAMP shut on it
           setPhase(2);
           med.style.visibility = "hidden"; startleTitle();

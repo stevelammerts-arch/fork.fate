@@ -1975,3 +1975,9 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   sometimes report success but DON'T persist. ALWAYS grep-verify after editing.
 - Verified: owl swoop/clamp/carry-with-coin/return + "Night Talons" toast;
   steam burst mounts+clears via force event with visible puffs.
+
+## 2026-08-06 part 77: Owl hoot + wing-whoosh sfx (FF_BUILD 378)
+- User-uploaded barred-owl hooting -> /owl-hoot.mp3 (3.7s trim, fades) plays
+  soft (vol 0.45) at swoop start; /wing-whoosh.mp3 SYNTHESIZED (0.9s smoothed-
+  noise swell) plays at +800ms as the owl brakes into the clamp. Both via
+  cry() helper, ff_muted-aware, in OwlHeist. Grep-verified in file.
