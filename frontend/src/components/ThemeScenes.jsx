@@ -42,16 +42,16 @@ const CAVE_DRIPS = [
   { left: "54%", dur: 3.2, delay: 1.3 },
   { left: "79%", dur: 2.9, delay: 0.6 },
 ];
-// Hoard dragon's nostril steam: thin wisps rise from his snout and curl
-// up-and-right, matching the painted plume in the artwork. Coords are px in
-// the 1264x848 cave art; drift vectors (dx,dy) follow the painted smoke.
-const DRAGON_STEAM = [
-  { x: 833, y: 440, w: 16, h: 38, dx: 104, dy: -128, dur: 5.6, delay: 0 },
-  { x: 836, y: 440, w: 13, h: 32, dx: 122, dy: -112, dur: 5.6, delay: 1.9 },
-  { x: 830, y: 442, w: 15, h: 36, dx: 88, dy: -140, dur: 5.6, delay: 3.7 },
-  { x: 806, y: 452, w: 12, h: 30, dx: -46, dy: -104, dur: 6.8, delay: 0.9 },
-  { x: 803, y: 454, w: 11, h: 26, dx: -58, dy: -92, dur: 6.8, delay: 4.3 },
-];
+// Hoard dragon's nostril steam: one STEADY string of smoke — many small,
+// tightly-staggered puffs (negative delays = stream already formed) that
+// overlap into an unbroken ribbon tracing the PAINTED plume: out of the
+// nostril, sweeping right, rising, then curling back left at the top.
+// Coords are px in the 1264x848 cave art.
+const DRAGON_STEAM = Array.from({ length: 12 }, (_, i) => ({
+  x: 830 + (i % 3), y: 437, w: 12 + (i % 3) * 3, h: 14 + (i % 3) * 3,
+  dx: 96 + (i % 4) * 7, dy: -(168 + (i % 3) * 14),
+  dur: 6.2, delay: -(i * 0.517),
+}));
 
 export const SEASONS = {
   fall: {
@@ -591,6 +591,18 @@ function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heist
       const r = el.getBoundingClientRect();
       return r.width > 0 && r.bottom > 90 && r.top < window.innerHeight - 80;
     };
+    // Breath heist: he flies up LEVEL with the medallion — hovering beside
+    // it, facing it — so the flame streams straight across from his mouth
+    // into its heart. Mouth offset measured from the sprite art (100px box).
+    const MOUTH_DX = 33, MOUTH_DY = 7;
+    const heistAnchorOf = (el) => {
+      if (heistKind !== "breath") return anchorOf(el);
+      const r = el.getBoundingClientRect();
+      const lookX = r.left + r.width / 2;
+      const y = clamp(r.top + r.height / 2 - MOUTH_DY, 40, window.innerHeight - 64);
+      if (r.right + 64 <= window.innerWidth - 40) return { x: r.right + 64, y, lookX };
+      return { x: Math.max(44, r.left - 64), y, lookX };
+    };
     // Nothing watchable on screen (user scrolled deep)? Free-roam: flit
     // about the middle of wherever they are instead of parking at the top.
     const roam = () => {
@@ -614,7 +626,7 @@ function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heist
     // leaves the screen. While roaming, the wander cadence handles re-picks.
     const anchorTick = setInterval(() => {
       const el = overrideEl || currentEl;
-      if (el && document.contains(el) && visible(el)) Object.assign(base, anchorOf(el, curSide));
+      if (el && document.contains(el) && visible(el)) Object.assign(base, overrideEl ? heistAnchorOf(el) : anchorOf(el, curSide));
       else if (!running && el) pickSpot();
     }, 350);
 
@@ -624,7 +636,11 @@ function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heist
     let jitter;
     const dart = () => {
       const d = Math.hypot(base.x - pos.x, base.y - pos.y);
-      if (Date.now() < poutUntil) {
+      if (running) {
+        // Heist run: fly dead straight to the strike perch, no playful hops,
+        // so the flame lines up level with the medallion.
+        target.x = base.x; target.y = base.y;
+      } else if (Date.now() < poutUntil) {
         // Sulking: no playful hops, she just sits there.
         target.x = base.x; target.y = base.y;
       } else if (d < 80) {
@@ -746,14 +762,17 @@ function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heist
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) scheduleHeist(30000); return; }
         overrideEl = med;
-        Object.assign(base, anchorOf(med));
+        Object.assign(base, heistAnchorOf(med));
         timers.push(setTimeout(() => {           // a beat to fly up there
           const r2 = med.getBoundingClientRect();
           setCasting(true);
           setBurst({ x: r2.x, y: r2.y, w: r2.width });
           if (heistKind === "breath") {
-            // Flame jet from the dragon's mouth to the medallion's heart.
-            setJet({ sx: pos.x - 26, sy: pos.y - 10, tx: r2.x + r2.width / 2, ty: r2.y + r2.width / 2 });
+            // Flame jet from the dragon's MOUTH, streaming horizontally
+            // across into the medallion's heart (he hovers level with it).
+            const c2x = r2.x + r2.width / 2, c2y = r2.y + r2.height / 2;
+            const dir = c2x > pos.x ? 1 : -1; // the way he's facing
+            setJet({ sx: pos.x + dir * MOUTH_DX, sy: pos.y + MOUTH_DY, tx: c2x, ty: c2y });
             timers.push(setTimeout(() => setJet(null), 1400));
           } else if (localStorage.getItem("ff_muted") !== "1") {
             try { const g = new Audio("/fairy-laugh.mp3"); g.volume = 0.35; g.play().catch(() => {}); } catch {}
