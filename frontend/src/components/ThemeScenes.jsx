@@ -1407,6 +1407,84 @@ function TikiSpearHeist() {
   );
 }
 
+/** Steampunk heist: the medallion RATTLES loose, then BOINGS out of its
+ * socket on a coiled brass spring like a popped watch face — wobbles there
+ * a moment, then the spring gives out and it drops clean off the screen.
+ * First strike 40-70s after load, then every 2.5-5 min (`ff:spring-heist`
+ * forces it, used for testing). */
+function SteamSpringHeist() {
+  const witnessRef = useHeistWitness("spring");
+  const [run, setRun] = useState(null);     // {cx, cy, w}
+  const [stage, setStage] = useState(null); // "sprung" | "fall"
+  useEffect(() => {
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        timers.push(setTimeout(() => {                    // the socket rattles...
+          med.style.animation = "none";
+          void med.offsetWidth;
+          med.style.animation = "ffMedRattle 0.75s linear";
+        }, 30));
+        timers.push(setTimeout(() => {                    // BOING! out it pops
+          med.style.visibility = "hidden"; startleTitle();
+          setStage("sprung");
+        }, 850));
+        timers.push(setTimeout(() => setStage("fall"), 3700)); // the spring gives out
+        timers.push(setTimeout(() => {
+          setStage(null);
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // restart the pop on repeat strikes
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 4750));
+        timers.push(setTimeout(() => {
+          setRun(null); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // again in 2.5-5 min
+        }, 5500));
+      });
+    };
+    schedule(40000 + Math.random() * 30000);
+    const force = () => start(true);
+    window.addEventListener("ff:spring-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:spring-heist", force);
+      // Never leave the logo hidden if we unmount mid-heist (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run || !stage) return null;
+  const { cx, cy, w } = run;
+  const springH = Math.round(w * 1.15);
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="spring-heist">
+      {/* assembly hinged at the socket: coiled spring + the popped watch face */}
+      <div className="absolute" style={{ left: cx, top: cy, transformOrigin: "50% 0", animation: stage === "sprung" ? "ffSpringPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both, ffSpringWobble 2.6s ease-in-out 0.5s both" : "none" }}>
+        {/* the brass coil */}
+        <svg width={24} height={springH} viewBox="0 0 24 70" preserveAspectRatio="none" className="absolute left-1/2 -translate-x-1/2" style={{ top: 0, transformOrigin: "50% 0", animation: stage === "fall" ? "ffSpringRecoil 0.6s ease-out forwards" : "none", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.6))" }} data-testid="spring-heist-coil">
+          <path d="M12 0 C 26 5, -2 11, 12 16 C 26 21, -2 27, 12 32 C 26 37, -2 43, 12 48 C 26 53, -2 59, 12 64 L 12 70" stroke="#B98A44" strokeWidth="3.4" fill="none" strokeLinecap="round" />
+        </svg>
+        {/* the watch face (brass-bezel medallion) dangling at the spring's end */}
+        <div className="absolute overflow-hidden bg-black" style={{ left: -w / 2, top: springH - 2, width: w, height: w, borderRadius: "9999px", boxShadow: "0 0 0 3px #B98A44, 0 6px 14px rgba(0,0,0,0.55)", animation: stage === "fall" ? "ffLogoFallOff 0.95s cubic-bezier(0.4,0,0.9,0.6) forwards" : "none" }} data-testid="spring-heist-logo">
+          <img src="/logo-mark.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function AmbianceScene({ theme, cfg }) {
   const [mobile, setMobile] = useState(false);
   const [abducting, setAbducting] = useState(false);
@@ -1725,5 +1803,6 @@ export function AmbianceScene({ theme, cfg }) {
     {theme === "fantasy" && <DragonHeist />}
     {cfg.lounge && <CompanionPatrol s1="/tiki-man-surf.png" s2="/tiki-man-surf.png" glow="rgba(116,198,230,0.55)" dustCol={["#FFFFFF", "#74C6E6"]} heistKind="crash" testid="tiki-surfer" flap="none" flapBase="none" emitY={38} bob="ffTikiSurfBob 1.7s ease-in-out infinite" />}
     {cfg.lounge && <TikiSpearHeist />}
+    {theme === "steam" && <SteamSpringHeist />}
   </>);
 }

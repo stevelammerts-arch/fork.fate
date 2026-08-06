@@ -1808,3 +1808,14 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   (staggered dur 0.85-1.2s) + 2 full-screen dancing firelight overlays
   (ffTorchDance, mix-blend overlay/screen). Verified: 11 spans, opacity
   0->1->0 cycle + visual warmth.
+
+## 2026-08-06 part 66: Steampunk "Sprung Face" heist (FF_BUILD 360)
+- SteamSpringHeist (key "spring", ff:spring-heist, theme==="steam" mount in
+  AmbianceScene): med RATTLES (ffMedRattle 0.75s on real element) -> hidden at
+  0.85s -> assembly (brass SVG coil 24x70 stretched to w*1.15 + brass-bezel
+  /logo-mark.png face) POPS via ffSpringPop (squash-stretch scale, origin top)
+  + ffSpringWobble (independent `rotate` prop so it composes with transform)
+  -> at 3.7s ffSpringRecoil (coil) + ffLogoFallOff (face drops 115vh, rotates)
+  -> ffLogoReturn 4.75s, witness 5.5s. First strike 40-70s, repeat 2.5-5min.
+- HEISTS entry "Sprung Face" realm Steampunk (#D9A44E).
+- Verified all 4 stages via screenshots.

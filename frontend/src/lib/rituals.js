@@ -57,6 +57,7 @@ export const HEISTS = [
   { key: "crab", name: "Crab Grab", realm: "Summer", accent: "#E0451B", desc: "A little red crab scuttles across the banner, hoists the medallion overhead and hauls it away sideways." },
   { key: "surf", name: "Tiki Wipeout", realm: "Tiki Lounge", accent: "#F0A24E", desc: "The roaming tiki surfer loses control of his board and wipes out straight into the medallion — knocking it clean off the screen." },
   { key: "spear", name: "Spear Pop", realm: "Tiki Lounge", accent: "#E0451B", desc: "A tiki hunter charges across the banner to war drums and POPS the medallion like a balloon with one spear jab. It puffs right back up." },
+  { key: "spring", name: "Sprung Face", realm: "Steampunk", accent: "#D9A44E", desc: "The medallion rattles loose and BOINGS out of its socket on a coiled brass spring like a popped watch face — until the spring gives out." },
 ];
 
 export function readHeistsSeen() {

@@ -966,6 +966,47 @@ body {
   75%      { opacity: 0.38; transform: translateX(-0.8%) scale(1.06); }
 }
 
+/* Steampunk "Sprung Face" heist -------------------------------------- */
+/* the socket rattles as the spring works itself loose */
+@keyframes ffMedRattle {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  15% { transform: translate(-1.6px, 1px) rotate(-2.4deg); }
+  30% { transform: translate(1.6px, -1px) rotate(2.4deg); }
+  45% { transform: translate(-1.8px, 0.6px) rotate(-3deg); }
+  60% { transform: translate(1.8px, -0.6px) rotate(3deg); }
+  75% { transform: translate(-1.2px, 1px) rotate(-2deg); }
+  90% { transform: translate(1.2px, -1px) rotate(2deg); }
+}
+/* BOING: the spring extends out of the socket (cartoon squash-stretch) */
+@keyframes ffSpringPop {
+  0%   { transform: scale(1.25, 0.06); }
+  60%  { transform: scale(0.93, 1.14); }
+  100% { transform: scale(1, 1); }
+}
+/* ...then the whole assembly wobbles on the coil, settling down */
+@keyframes ffSpringWobble {
+  0%   { rotate: 0deg; }
+  14%  { rotate: -11deg; }
+  32%  { rotate: 8deg; }
+  52%  { rotate: -5deg; }
+  72%  { rotate: 3deg; }
+  88%  { rotate: -1.5deg; }
+  100% { rotate: 0deg; }
+}
+/* the spring gives out: recoils up into the socket and fades */
+@keyframes ffSpringRecoil {
+  0%   { transform: translateX(-50%) scaleY(1); opacity: 1; }
+  30%  { transform: translateX(-50%) scaleY(0.22); opacity: 1; }
+  50%  { transform: translateX(-50%) scaleY(0.52); opacity: 0.9; }
+  70%  { transform: translateX(-50%) scaleY(0.28); opacity: 0.6; }
+  100% { transform: translateX(-50%) scaleY(0.34); opacity: 0; }
+}
+/* ...and the watch face drops clean off the bottom of the screen */
+@keyframes ffLogoFallOff {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(34px, 115vh) rotate(230deg); }
+}
+
 /* Electric arc device: bolt climbs up/down between the electrodes, flickering */
 @keyframes ffArcClimb{
   0%{ transform: translateY(0%); }
