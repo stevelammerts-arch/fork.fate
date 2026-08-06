@@ -24,7 +24,7 @@ export function HomeHeader({
     <header className={`sticky top-0 z-30 border-b ${light ? "border-[#E4E4E7] bg-white/85 backdrop-blur-xl shadow-sm" : "border-[#E2E4E7] bg-[#0E0E0E]"}`}>
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:gap-3 md:px-12 md:py-6">
         <div className="flex items-center gap-2 md:gap-3">
-          <div className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-1 md:h-16 md:w-16 ${light ? "bg-[#F5F0E6] ring-[#E4E4E7]" : "bg-black ring-white/25"}`}>
+          <div className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-full md:h-16 md:w-16 ${light ? "ring-1 bg-[#F5F0E6] ring-[#E4E4E7]" : theme === "fairy" ? "bg-black ring-2 ring-[#E6B23A]" : "ring-1 bg-black ring-white/25"}`}>
             <img
               src={theme === "cyber" ? "/cyber-neon-logo.png" : theme === "fantasy" ? "/logo-crest-gold.png" : (light ? "/logo-mark-light.png" : "/logo-mark.png")}
               alt="Fork·Fate logo"

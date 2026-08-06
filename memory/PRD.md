@@ -1602,3 +1602,76 @@ See `/app/memory/test_credentials.md`.
   hovers beside the radius control, forced ff:pixie-heist -> wand star True,
   burst True, logo visibility 'hidden' then '' restored, green medallion
   visible. Lint clean (5 pre-existing warnings, 0 errors).
+
+## 2026-08-06 part 54: Pixie behavior polish round (FF_BUILD 330-331)
+User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
+- SIZE: 54 -> 72 (flourish era) -> 64 (patrol) -> 85 -> 100px. Wrap offset
+  -50px, wand star at (78,28) size 18, trail y-offset +22.
+- MOBILE ANCHOR FIX: sections span full width on mobile so "beside right"
+  always clamped to the screen edge ("she's on the right looking away").
+  anchorOf(el, side) now: side +1/-1 beside if it fits, else perch ABOVE the
+  matching corner. curSide picked randomly per visit; dart() has 22% chance
+  to swing to the OPPOSITE side (user: "observes from the opposite side /
+  flying back and forth"). onTouch/heist use default side 1.
+- FACING FIX (user: "doesn't change directions when she flies"): reproduced
+  via 250ms sampling — old target-distance threshold flipped her to lookX
+  mode while still visibly moving (backwards flying). Now facing = sign of
+  ACTUAL per-frame velocity (|vx| > 0.9px/frame), falls back to lookX
+  (section center) only when settled. Re-sampled: 15 flight ticks, 0 wrong.
+- DARTING (user: "rather have her darting around"): lerp k 0.045 -> 0.13;
+  base (anchor) vs target (base + micro-dart offset +-23/-17px every
+  0.65-1.4s) split; wander() has 25% "mischief dash" to a random roam point
+  for ~1.5-2.4s before the next section.
+- DEEP-SCROLL FIX (user: "she just sits at the top"): when no PIXIE_SPOTS
+  visible, roam() picks random mid-viewport points (15-85% w, 25-70% h)
+  instead of the last clamped top anchor; anchorTick only re-picks when a
+  WATCHED element vanishes (roam re-picks on wander cadence).
+- TRAIL x3: 3 -> 9 chained sparkles, k = 0.105 - i*0.0085 per link, sizes
+  6 -> 2.5px down the tail, staggered ffWispGlow twinkle.
+- VERIFIED @390px: 0 wrong-facing flight ticks, 9 trail nodes, deep-scroll
+  transform (118,168) = roaming not pinned, screenshot shows her hovering by
+  the How-It-Works copy. Lint: 0 errors.
+
+## 2026-08-06 part 55: Gold triple trail + heist visibility fix (FF_BUILD 332-333)
+- TRAIL: rebuilt as THREE gold ribbons (user request) — CHAINS fan offsets
+  {0,12}/{-12,28}/{12,32} from her body, 6 chained links each (18 spans),
+  link lerp k = 0.105 - i*0.012, gold palette (#FFF9D9 core -> #FFD36B,
+  gold glow), staggered ffWispGlow twinkle per chain+link.
+- PIXIE SIZE final: 100px (wrap offset -50, wand star 78,28 @18px).
+- HEIST VISIBILITY BUG (user: "she disappeared when logo disappeared"):
+  pixie layer was z-[30] = SAME as the sticky header which renders later in
+  the DOM -> header's opaque bg painted over her whenever she flew up to the
+  logo. Layer now z-[45]: above header (30) + content (40), below dialogs
+  (50/60). VERIFIED: forced ff:pixie-heist @390px — logo hidden, pixie
+  clearly visible casting at (43,36) over the header with gold trails.
+
+## 2026-08-06 part 56: Denser trails + gold medallion ring (FF_BUILD 334)
+- TRAIL: 5 gold ribbons (was 3), fan offsets {0,10}/{-10,24}/{10,26}/{-18,38}/
+  {18,40}, links CLOSER together (k = 0.17 - i*0.012, was 0.105), 30 spans
+  total, outer rows slightly smaller.
+- GOLD RING (user: "make the black border around the FF logo gold"): fairy
+  theme header medallion wrapper now ring-2 ring-[#E6B23A] (HomeHeader.jsx);
+  ring width moved INTO the conditional (ring-1 vs ring-2 both set the same
+  box-shadow var — don't stack them).
+- VERIFIED @390px: 30 trail spans, gold ring + green FF visible, she darted
+  to the touched zip input with the denser wake.
+
+## 2026-08-06 part 57: Pixie dust bursts + gold ring final (FF_BUILD 335)
+- SPARKLES REWORKED (user: "float below her but should be coming from her in
+  just a burst"): chain-follow ribbons REPLACED by a particle emitter — pool
+  of 28 gold spans, pops of 5 every 0.5-0.9s spawned AT her body (+-17/13px),
+  small outward/down velocities, ttl 0.47-0.9s, opacity = life/ttl*1.4; extra
+  dust each frame while she darts fast (speed>3px/frame). All updates in the
+  existing rAF step; dead particles opacity 0 + recycled.
+- Gold medallion ring (part 56) + green logo + heist all confirmed by user:
+  "heist was perfect."
+- VERIFIED: 20/20 hover samples show 1-9 visible dust sparkles (burst
+  rhythm), dart shake-loose works, screenshot shows dust at her body not
+  hanging below.
+
+## 2026-08-06 part 58: Faster dust bursts (FF_BUILD 336)
+- Dust ejection velocity up: vx (r-0.5)*3.4 (was 1.4), vy (r-0.35)*2.6+0.4
+  (was 0.15..1 down-only — now bursts in all directions with a down bias),
+  ttl 0.33-0.67s (was 0.47-0.9) for snappy pops. User-approved burst feel.
+- VERIFIED: 13/15 hover ticks with dust (quick-fade gaps are the burst
+  rhythm), screenshot shows sparkles flung wide of her body.

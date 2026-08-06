@@ -528,42 +528,100 @@ function PixiePatrol() {
 
   useEffect(() => {
     const pos = { x: -80, y: window.innerHeight * 0.45 };
-    const trail = [0, 1, 2].map(() => ({ ...pos }));
-    const target = { x: window.innerWidth * 0.4, y: 150 };
+    // Pixie-dust emitter: short-lived gold sparkles BURST out of her and
+    // fade (no floating chains). Rhythmic pops while she hovers, extra dust
+    // shaken loose while she's darting fast.
+    const dust = Array.from({ length: 28 }, () => ({ x: 0, y: 0, vx: 0, vy: 0, life: 0, ttl: 1 }));
+    let burstIn = 20; // frames until the next pop
+    // `base` = the section anchor she's watching; `target` = base plus a
+    // restless micro-dart offset so she flits around it like a real pixie.
+    const base = { x: window.innerWidth * 0.4, y: 150, lookX: window.innerWidth * 0.5 };
+    const target = { ...base };
     let currentEl = null;
     let overrideEl = null; // during the heist she locks onto the medallion
     let facing = 1;
+    let curSide = 1; // which side of the section she's observing from
     let raf, dwell, heistPending, cancelSummon;
     let running = false;
     const timers = [];
 
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-    const anchorOf = (el) => {
+    // Hover beside the section on the chosen side; if that side doesn't fit
+    // (mobile-wide sections) perch above the matching corner instead.
+    // lookX = the section's center — what she turns to watch.
+    const anchorOf = (el, side = 1) => {
       const r = el.getBoundingClientRect();
-      return {
-        x: clamp(r.right + 26, 44, window.innerWidth - 46),
-        y: clamp(r.top + r.height * 0.25, 74, window.innerHeight - 64),
-      };
+      const lookX = r.left + r.width / 2;
+      const yBeside = clamp(r.top + r.height * 0.25, 74, window.innerHeight - 64);
+      if (side === 1 && r.right + 26 <= window.innerWidth - 46) return { x: r.right + 26, y: yBeside, lookX };
+      if (side === -1 && r.left - 26 >= 44) return { x: r.left - 26, y: yBeside, lookX };
+      const ax = side === -1 ? r.left + 24 : r.right - 34;
+      return { x: clamp(ax, 44, window.innerWidth - 46), y: clamp(r.top - 36, 74, window.innerHeight - 64), lookX };
     };
     const visible = (el) => {
       const r = el.getBoundingClientRect();
       return r.width > 0 && r.bottom > 90 && r.top < window.innerHeight - 80;
     };
+    // Nothing watchable on screen (user scrolled deep)? Free-roam: flit
+    // about the middle of wherever they are instead of parking at the top.
+    const roam = () => {
+      currentEl = null;
+      base.x = window.innerWidth * (0.15 + Math.random() * 0.7);
+      base.y = window.innerHeight * (0.25 + Math.random() * 0.45);
+      base.lookX = base.x + (Math.random() > 0.5 ? 120 : -120);
+    };
     const pickSpot = () => {
       const els = PIXIE_SPOTS.map((s) => document.querySelector(s)).filter((el) => el && visible(el) && el !== currentEl);
-      currentEl = els.length ? els[Math.floor(Math.random() * els.length)] : currentEl;
-      if (currentEl) Object.assign(target, anchorOf(currentEl));
+      if (els.length) {
+        currentEl = els[Math.floor(Math.random() * els.length)];
+        curSide = Math.random() > 0.5 ? 1 : -1; // fresh side each visit
+        Object.assign(base, anchorOf(currentEl, curSide));
+      } else {
+        roam();
+      }
     };
 
-    // Track the watched section as the page scrolls; re-pick when it leaves.
+    // Track the watched section as the page scrolls; re-pick the moment it
+    // leaves the screen. While roaming, the wander cadence handles re-picks.
     const anchorTick = setInterval(() => {
       const el = overrideEl || currentEl;
-      if (el && document.contains(el) && visible(el)) Object.assign(target, anchorOf(el));
-      else if (!running) pickSpot();
+      if (el && document.contains(el) && visible(el)) Object.assign(base, anchorOf(el, curSide));
+      else if (!running && el) pickSpot();
     }, 350);
 
+    // Micro-darts + cross-swoops: near her spot she flits in quick hops, and
+    // sometimes swings clear across to observe from the OPPOSITE side.
+    // Mid-flight she heads straight for the anchor.
+    let jitter;
+    const dart = () => {
+      const d = Math.hypot(base.x - pos.x, base.y - pos.y);
+      if (d < 80) {
+        if (currentEl && !running && Math.random() < 0.22) {
+          curSide = -curSide;
+          Object.assign(base, anchorOf(currentEl, curSide));
+          target.x = base.x; target.y = base.y;
+        } else {
+          target.x = base.x + (Math.random() - 0.5) * 46;
+          target.y = base.y + (Math.random() - 0.5) * 34;
+        }
+      } else {
+        target.x = base.x; target.y = base.y;
+      }
+      target.lookX = base.lookX;
+      jitter = setTimeout(dart, 650 + Math.random() * 750);
+    };
+    dart();
+
     const wander = () => {
-      if (!running) pickSpot();
+      if (!running) {
+        // Mischief dash: sometimes she tears off to a random spot first.
+        if (Math.random() < 0.25) {
+          roam();
+          dwell = setTimeout(wander, 1500 + Math.random() * 900);
+          return;
+        }
+        pickSpot();
+      }
       dwell = setTimeout(wander, 6500 + Math.random() * 4500);
     };
     dwell = setTimeout(wander, 1200);
@@ -574,31 +632,53 @@ function PixiePatrol() {
       const hit = e.target.closest(PIXIE_SPOTS.join(","));
       if (!hit) return;
       currentEl = hit;
-      Object.assign(target, anchorOf(hit));
+      Object.assign(base, anchorOf(hit));
       clearTimeout(dwell);
       dwell = setTimeout(wander, 7500);
     };
     document.addEventListener("pointerdown", onTouch, true);
     document.addEventListener("focusin", onTouch, true);
 
-    // Flight loop: she lerps to the target, the sparkle wake lerps after her.
+    // Flight loop: quick darty lerp to the target, wake lerps after her.
+    // Facing follows her REAL velocity — if she's moving she faces that way
+    // (no backwards flying); only once she truly settles does she turn to
+    // LOOK AT what she's watching (lookX) — never off-screen.
     const step = () => {
-      const dx = target.x - pos.x;
-      if (Math.abs(dx) > 26) {
-        const f = dx > 0 ? 1 : -1;
-        if (f !== facing) { facing = f; if (faceRef.current) faceRef.current.style.transform = `scaleX(${f})`; }
-      }
-      pos.x += (target.x - pos.x) * 0.045;
-      pos.y += (target.y - pos.y) * 0.045;
-      if (wrapRef.current) wrapRef.current.style.transform = `translate(${pos.x - 32}px, ${pos.y - 32}px)`;
-      let px = pos.x, py = pos.y;
-      trail.forEach((tp, i) => {
-        const k = 0.11 - i * 0.028;
-        tp.x += (px - tp.x) * k;
-        tp.y += (py - tp.y) * k;
+      const prevX = pos.x;
+      pos.x += (target.x - pos.x) * 0.13;
+      pos.y += (target.y - pos.y) * 0.13;
+      const vx = pos.x - prevX;
+      let f = facing;
+      if (Math.abs(vx) > 0.9) f = vx > 0 ? 1 : -1;
+      else if (target.lookX != null && Math.abs(target.lookX - pos.x) > 8) f = target.lookX > pos.x ? 1 : -1;
+      if (f !== facing) { facing = f; if (faceRef.current) faceRef.current.style.transform = `scaleX(${f})`; }
+      if (wrapRef.current) wrapRef.current.style.transform = `translate(${pos.x - 50}px, ${pos.y - 50}px)`;
+      // Emit: a pop of 5 every ~0.5-0.9s, plus loose dust while flying fast.
+      const speed = Math.hypot(target.x - pos.x, target.y - pos.y) * 0.13;
+      const spawn = (n) => {
+        for (const p of dust) {
+          if (n <= 0) break;
+          if (p.life > 0) continue;
+          p.x = pos.x + (Math.random() - 0.5) * 34;
+          p.y = pos.y + (Math.random() - 0.5) * 26 + 6;
+          p.vx = (Math.random() - 0.5) * 3.4;
+          p.vy = (Math.random() - 0.35) * 2.6 + 0.4;
+          p.ttl = 20 + Math.random() * 20;
+          p.life = p.ttl;
+          n -= 1;
+        }
+      };
+      if (--burstIn <= 0) { spawn(5); burstIn = 30 + Math.random() * 24; }
+      if (speed > 3) spawn(1);
+      dust.forEach((p, i) => {
         const el = trailRefs.current[i];
-        if (el) el.style.transform = `translate(${tp.x - 3}px, ${tp.y + 14}px)`;
-        px = tp.x; py = tp.y;
+        if (!el) return;
+        if (p.life <= 0) { el.style.opacity = "0"; return; }
+        p.life -= 1;
+        p.x += p.vx;
+        p.y += p.vy;
+        el.style.transform = `translate(${p.x}px, ${p.y}px)`;
+        el.style.opacity = String(Math.min(1, (p.life / p.ttl) * 1.4).toFixed(2));
       });
       raf = requestAnimationFrame(step);
     };
@@ -613,7 +693,7 @@ function PixiePatrol() {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) scheduleHeist(30000); return; }
         overrideEl = med;
-        Object.assign(target, anchorOf(med));
+        Object.assign(base, anchorOf(med));
         timers.push(setTimeout(() => {           // she needs a beat to fly up
           const r2 = med.getBoundingClientRect();
           setCasting(true);
@@ -645,7 +725,7 @@ function PixiePatrol() {
     window.addEventListener("ff:pixie-heist", force);
 
     return () => {
-      cancelAnimationFrame(raf); clearTimeout(dwell); clearInterval(anchorTick);
+      cancelAnimationFrame(raf); clearTimeout(dwell); clearTimeout(jitter); clearInterval(anchorTick);
       clearTimeout(heistPending); timers.forEach(clearTimeout);
       if (cancelSummon) cancelSummon();
       document.removeEventListener("pointerdown", onTouch, true);
@@ -658,22 +738,24 @@ function PixiePatrol() {
   }, []); // witnessRef is a stable ref
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[30] select-none overflow-hidden" data-testid="fairy-pixie-layer">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={`pxt-${i}`}
-          ref={(el) => { trailRefs.current[i] = el; }}
-          className="absolute left-0 top-0 rounded-full"
-          style={{ width: 6 - i, height: 6 - i, background: "radial-gradient(circle, #FFFFFF, #8FF0B0 55%, transparent 80%)", boxShadow: "0 0 5px #8FF0B0", animation: `ffWispGlow ${(1.1 + i * 0.3).toFixed(1)}s ease-in-out ${(i * 0.2).toFixed(1)}s infinite` }}
-        />
-      ))}
+    <div className="pointer-events-none fixed inset-0 z-[45] select-none overflow-hidden" data-testid="fairy-pixie-layer">
+      {[0, 1, 2, 3, 4].map((c) =>
+        Array.from({ length: 6 }, (_, i) => (
+          <span
+            key={`pxt-${c}-${i}`}
+            ref={(el) => { trailRefs.current[c * 6 + i] = el; }}
+            className="absolute left-0 top-0 rounded-full"
+            style={{ width: Math.max(2.5, 5.5 - i * 0.55 - (c > 2 ? 0.6 : 0)), height: Math.max(2.5, 5.5 - i * 0.55 - (c > 2 ? 0.6 : 0)), background: "radial-gradient(circle, #FFF9D9, #FFD36B 55%, transparent 80%)", boxShadow: "0 0 5px #FFD36B", animation: `ffWispGlow ${(1 + i * 0.22 + c * 0.13).toFixed(2)}s ease-in-out ${(i * 0.14 + c * 0.09).toFixed(2)}s infinite` }}
+          />
+        ))
+      )}
       <div ref={wrapRef} className="absolute left-0 top-0" data-testid="fairy-pixie">
         <div ref={faceRef}>
-          <div className="relative" style={{ width: 64, height: 64, animation: "ffPixieBob 2.4s ease-in-out infinite", filter: "drop-shadow(0 0 7px rgba(94,224,168,0.7))" }}>
+          <div className="relative" style={{ width: 100, height: 100, animation: "ffPixieBob 2.4s ease-in-out infinite", filter: "drop-shadow(0 0 7px rgba(94,224,168,0.7))" }}>
             <img src="/fairy-pixie-1.png" alt="" className="absolute inset-0 h-full w-full object-contain" />
             <img src="/fairy-pixie-2.png" alt="" className="absolute inset-0 h-full w-full object-contain opacity-0" style={{ animation: "ffPixieFlap 0.24s steps(1,end) infinite alternate" }} />
             {casting && (
-              <span className="absolute rounded-full" style={{ left: 50, top: 18, width: 16, height: 16, background: "radial-gradient(circle, #FFF9D9, #FFD36B 55%, transparent 78%)", boxShadow: "0 0 10px #FFD36B, 0 0 22px rgba(255,211,107,0.7)", animation: "ffWandStar 1.15s ease-out forwards" }} data-testid="pixie-wand-star" />
+              <span className="absolute rounded-full" style={{ left: 78, top: 28, width: 18, height: 18, background: "radial-gradient(circle, #FFF9D9, #FFD36B 55%, transparent 78%)", boxShadow: "0 0 10px #FFD36B, 0 0 22px rgba(255,211,107,0.7)", animation: "ffWandStar 1.15s ease-out forwards" }} data-testid="pixie-wand-star" />
             )}
           </div>
         </div>
