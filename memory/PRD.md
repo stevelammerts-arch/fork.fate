@@ -2183,3 +2183,20 @@ timers, the established pattern), 3b (visuals only, NO audio for these four).
   @1780ms, carry @2310ms, return @3630ms, cleanup @4430ms.
 - Verified by position trace on 390x844: dive bottom at y=242 (fully visible
   mid-screen), grip, carry off, witness toast fired.
+
+## 2026-08-06 part 92: Global heist cool-down — no more clustering (FF_BUILD 393)
+- User saw 3 heists back-to-back on live mobile (dark realm has 3 heists on
+  independent timers; first strikes 25-75s can cluster).
+- summonToLogo now enforces a GLOBAL mutex + breather: bounces (done(null))
+  if Date.now() < window.__ffHeistCooldownUntil; reserves 90-120s (random)
+  right before handing back the medallion (both the instant path and the
+  scroll-settle path). Bounced heists retry ~30s later per the existing
+  null-medallion convention. Covers all 19 medallion heists in every realm
+  (16 call sites incl. LogoHeist, CompanionPatrol, SaucerAbduction).
+- CyberNeonSign (wreck, own start path) patched with the same check in
+  start() and claims the slot in go().
+- NOTE for testing: forced ff:*-heist events also respect the cooldown — set
+  window.__ffHeistCooldownUntil = 0 first in test scripts.
+- Verified on dark: plate heist running -> ff:heist/snatch/ghost all bounced
+  (plate:1, grave:0, cooldown 110s remaining).
+- User must REDEPLOY to get FF_BUILD 388-393 changes on fork-fate.com.

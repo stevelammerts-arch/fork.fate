@@ -600,11 +600,16 @@ function summonToLogo(done) {
   // keeps window.__ffFateBusy up to date), bow out — every heist treats a
   // null medallion as "try again in ~30s".
   if (window.__ffFateBusy) { done(null); return () => {}; }
+  // One heist at a time, with a breather: realms run several heists on
+  // independent timers, so without a global cool-down the strikes cluster
+  // back-to-back. A bounced heist simply retries in ~30s.
+  if (Date.now() < (window.__ffHeistCooldownUntil || 0)) { done(null); return () => {}; }
   const img = document.querySelector('img[alt="Fork·Fate logo"]');
   const med = img && img.parentElement;
   const r = med && med.getBoundingClientRect();
   if (!r || !r.width) { done(null); return () => {}; }
-  if (r.top >= 0 && r.bottom <= window.innerHeight) { done(med); return () => {}; }
+  const reserve = () => { window.__ffHeistCooldownUntil = Date.now() + 90000 + Math.random() * 30000; };
+  if (r.top >= 0 && r.bottom <= window.innerHeight) { reserve(); done(med); return () => {}; }
   window.scrollTo({ top: 0, behavior: "smooth" });
   const t0 = Date.now();
   let settle;
@@ -612,7 +617,10 @@ function summonToLogo(done) {
     if (window.scrollY <= 2 || Date.now() - t0 > 2500) {
       clearInterval(poll);
       // Re-check right before striking: fate may have turned busy mid-scroll.
-      settle = setTimeout(() => done(window.__ffFateBusy ? null : med), 250); // settle beat before measuring
+      settle = setTimeout(() => {
+        if (window.__ffFateBusy) { done(null); return; }
+        reserve(); done(med);
+      }, 250); // settle beat before measuring
     }
   }, 90);
   return () => { clearInterval(poll); clearTimeout(settle); };
@@ -2124,6 +2132,7 @@ function CyberNeonSign({ neon }) {
     // the sign once the user scrolls. So before a wreck, pull them back up to
     // the skyline for good viewing (same courtesy as the medallion heists).
     const go = () => {
+      window.__ffHeistCooldownUntil = Date.now() + 90000 + Math.random() * 30000; // claim the heist slot
       setCrash(1);                                          // careens out of traffic
       timers.push(setTimeout(() => {                        // CRUNCH
         setCrash(2);
@@ -2141,6 +2150,7 @@ function CyberNeonSign({ neon }) {
       if (running) return;
       running = true;
       if (window.__ffFateBusy) { bail(); return; }          // never talk over fate
+      if (Date.now() < (window.__ffHeistCooldownUntil || 0)) { bail(); return; } // one heist at a time
       if (window.scrollY <= 40) { go(); return; }
       window.scrollTo({ top: 0, behavior: "smooth" });
       const t0 = Date.now();
