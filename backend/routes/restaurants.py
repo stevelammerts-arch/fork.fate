@@ -53,14 +53,24 @@ async def create_report(payload: ReportCreate):
 
 @router.get("/cuisines", response_model=List[str])
 async def get_cuisines():
-    items = await db.restaurants.find({"status": {"$ne": "pending"}}, {"_id": 0, "cuisine": 1}).to_list(1000)
-    return sorted({i['cuisine'] for i in items})
+    # distinct() returns just the unique names — no documents shipped over the wire
+    vals = await db.restaurants.distinct("cuisine", {"status": {"$ne": "pending"}})
+    return sorted(v for v in vals if v)
 
 
 @router.post("/spin", response_model=Restaurant)
 async def spin(req: SpinRequest):
-    items = await db.restaurants.find({"status": {"$ne": "pending"}}, {"_id": 0}).to_list(1000)
-    filtered = apply_filters(items, req.cuisines, req.prices, req.max_distance)
+    # Filter on a slim projection (only the fields apply_filters reads),
+    # then fetch the single winner in full — stays snappy as data grows.
+    candidates = await db.restaurants.find(
+        {"status": {"$ne": "pending"}},
+        {"_id": 0, "id": 1, "cuisine": 1, "price": 1, "distance": 1},
+    ).to_list(None)
+    filtered = apply_filters(candidates, req.cuisines, req.prices, req.max_distance)
     if not filtered:
         raise HTTPException(status_code=404, detail="No restaurants match your filters")
-    return secrets.choice(filtered)
+    pick = secrets.choice(filtered)
+    doc = await db.restaurants.find_one({"id": pick["id"]}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="No restaurants match your filters")
+    return doc

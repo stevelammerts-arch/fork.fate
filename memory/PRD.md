@@ -2056,3 +2056,10 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   "*" + allow_credentials would be worse. Minor perf suggestions (query
   projections in routes/restaurants.py) noted for backlog.
 - App is PUBLISH-READY per user request.
+
+## 2026-08-06 part 83: Faster Menus — restaurant query tuning
+- routes/restaurants.py: /cuisines now uses db.distinct("cuisine", ...) (no
+  documents shipped); /spin filters on a slim projection (id, cuisine, price,
+  distance — the only fields apply_filters reads, uncapped to_list(None)) then
+  fetches ONLY the winning doc in full. Closes the deployment agent's perf note.
+- curl-verified: cuisines sorted list, spin full doc, empty-filter 404.
