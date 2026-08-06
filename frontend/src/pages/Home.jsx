@@ -37,7 +37,7 @@ import { recordRitualSeen, readRitualsSeen, RITUALS } from "../lib/rituals";
 import { recordFate } from "../lib/journal";
 import { markCuisine } from "../lib/bingo";
 import { readPassports } from "../lib/passports";
-import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene, ReaperHeist, GhostSnatchHeist, CompanionPatrol } from "../components/ThemeScenes";
+import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene, ReaperHeist, GhostSnatchHeist, ReaperPlateHeist, CoffeeSpillHeist, CompanionPatrol } from "../components/ThemeScenes";
 import { ReaperScene } from "../components/ReaperScene";
 import { CafeDustMotes } from "../components/CafeDustMotes";
 import { ShufflingDeck } from "../components/ShufflingDeck";
@@ -196,10 +196,16 @@ export default function Home() {
   const [mysticalReveal, setMysticalReveal] = useState(false);
 
   // Heists check this before striking so they never interrupt the show
-  // (mid-shuffle, mid-reveal, or while the guided intro is up).
+  // (mid-shuffle, mid-reveal, or while the guided intro is up). When fate
+  // turns busy, heistEpoch bumps — remounting every heist layer so any strike
+  // already mid-run aborts instantly (its unmount cleanup restores the logo).
+  const [heistEpoch, setHeistEpoch] = useState(0);
   useEffect(() => {
-    window.__ffFateBusy = !!(spinning || loading || surpriseReveal || showGuided);
-  }, [spinning, loading, surpriseReveal, showGuided]);
+    const busy = !!(spinning || loading || surpriseReveal || showGuided || mysticalReveal);
+    const was = window.__ffFateBusy;
+    window.__ffFateBusy = busy;
+    if (busy && !was) setHeistEpoch((n) => n + 1);
+  }, [spinning, loading, surpriseReveal, showGuided, mysticalReveal]);
 
   const finishGuided = () => {
     setShowGuided(false);
@@ -938,13 +944,16 @@ export default function Home() {
       {/* Coffee Shop ambience: dust motes drifting in warm café light */}
       {theme === "light" && <CafeDustMotes />}
       {/* Seasonal themes: tree + decor + falling sprites */}
-      {seasonCfg && <SeasonScene theme={theme} cfg={seasonCfg} />}
+      {seasonCfg && <SeasonScene theme={theme} cfg={seasonCfg} heistEpoch={heistEpoch} />}
       {/* Ambiance themes: cyberpunk / steampunk / tiki lounge */}
-      {ambCfg && <AmbianceScene theme={theme} cfg={ambCfg} />}
+      {ambCfg && <AmbianceScene theme={theme} cfg={ambCfg} heistEpoch={heistEpoch} />}
       {/* Dark-mode: decorative reaper background with load animation */}
       {theme === "dark" && <ReaperScene />}
-      {theme === "dark" && <ReaperHeist />}
-      {theme === "dark" && <GhostSnatchHeist />}
+      {theme === "dark" && <ReaperHeist key={`rh-${heistEpoch}`} />}
+      {theme === "dark" && <GhostSnatchHeist key={`gh-${heistEpoch}`} />}
+      {theme === "dark" && <ReaperPlateHeist key={`ph-${heistEpoch}`} />}
+      {/* Café: the runaway coffee cup that melts the medallion like sugar */}
+      {theme === "light" && <CoffeeSpillHeist key={`ch-${heistEpoch}`} />}
       {/* the little reaper follower: drifts around the page trailing black smoke */}
       {theme === "dark" && <CompanionPatrol s1="/reaper-fly-1.png" s2="/reaper-fly-2.png" glow="rgba(140,110,200,0.45)" dustCol={["#8E7BB8", "#2A2038"]} testid="reaper-companion" flap="ffReaperFrame 2.6s ease-in-out infinite" flapBase="ffReaperFrameInv 2.6s ease-in-out infinite" bob="ffPixieBob 3.6s ease-in-out infinite" />}
       {/* Header */}

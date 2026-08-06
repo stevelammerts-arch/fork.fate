@@ -64,6 +64,10 @@ export const HEISTS = [
   { key: "owl", name: "Night Talons", realm: "Fall", accent: "#C67B3B", desc: "A great horned owl swoops across the banner on silent wings, closes its talons around the medallion and carries it clean off into the autumn sky." },
   { key: "petals", name: "Petal Storm", realm: "Spring", accent: "#F49AC1", desc: "A warm gust sweeps a blizzard of cherry blossoms across the page — and the medallion gets knocked clean off the screen, riding the wind with them." },
   { key: "wreck", name: "Neon Wreck", realm: "Cyberscape", accent: "#C77DFF", desc: "A flying car sputters out of traffic and crunches into the neon sign — its tubes flutter out, bzzz... bzzz... then hum back to life." },
+  { key: "coffee", name: "Sugar Melt", realm: "Café", accent: "#C08A4E", desc: "A runaway cup of hot coffee slides onto the banner and tips over — the spill washes across the title and melts the medallion away like a sugar cube." },
+  { key: "plate", name: "Plated by Death", realm: "Reaper", accent: "#B03030", desc: "The little reaper drifts up to the medallion and — one flick of dark magic — turns it into the very plate of food his master is holding. Dinner is served." },
+  { key: "unicorn", name: "Unicorn Charge", realm: "Fairy Gully", accent: "#E6B23A", desc: "A white unicorn thunders across the banner at full gallop and punts the medallion clean off the screen with its golden horn — never breaking stride." },
+  { key: "cardinal", name: "Featherweight", realm: "Winter", accent: "#D2413A", desc: "The little cardinal flutters down for a rest on top of the medallion — which teeters under the featherweight and tips right off its perch." },
 ];
 
 export function readHeistsSeen() {

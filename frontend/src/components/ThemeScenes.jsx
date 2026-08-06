@@ -163,7 +163,7 @@ export const SEASONS = {
   },
 };
 
-export function SeasonScene({ theme, cfg }) {
+export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
   return (<>
     <div className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`season-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
@@ -292,11 +292,12 @@ export function SeasonScene({ theme, cfg }) {
         </div>
       ))}
     </div>
-    {theme === "summer" && <SummerBallHeist />}
-    {theme === "summer" && <SummerCrabHeist />}
-    {theme === "winter" && <SnowmanHeist />}
-    {theme === "fall" && <OwlHeist />}
-    {theme === "spring" && <SpringPetalHeist />}
+    {theme === "summer" && <SummerBallHeist key={`bh-${heistEpoch}`} />}
+    {theme === "summer" && <SummerCrabHeist key={`crh-${heistEpoch}`} />}
+    {theme === "winter" && <SnowmanHeist key={`sh-${heistEpoch}`} />}
+    {theme === "winter" && <CardinalTipHeist key={`cth-${heistEpoch}`} />}
+    {theme === "fall" && <OwlHeist key={`oh-${heistEpoch}`} />}
+    {theme === "spring" && <SpringPetalHeist key={`sph-${heistEpoch}`} />}
   </>);
 }
 
@@ -610,7 +611,8 @@ function summonToLogo(done) {
   const poll = setInterval(() => {
     if (window.scrollY <= 2 || Date.now() - t0 > 2500) {
       clearInterval(poll);
-      settle = setTimeout(() => done(med), 250); // settle beat before measuring
+      // Re-check right before striking: fate may have turned busy mid-scroll.
+      settle = setTimeout(() => done(window.__ffFateBusy ? null : med), 250); // settle beat before measuring
     }
   }, 90);
   return () => { clearInterval(poll); clearTimeout(settle); };
@@ -2139,7 +2141,7 @@ function CyberNeonSign({ neon }) {
   );
 }
 
-export function AmbianceScene({ theme, cfg }) {
+export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
   const [mobile, setMobile] = useState(false);
   const [abducting, setAbducting] = useState(false);
   const [anchorRef, coverBox] = useCoverAnchor(GULLY_NAT.w, GULLY_NAT.h);
@@ -2446,13 +2448,442 @@ export function AmbianceScene({ theme, cfg }) {
         </div>
       </div>
     )}
-    {cfg.saucer && <SaucerAbduction saucer={cfg.saucer} onActive={setAbducting} />}
+    {cfg.saucer && <SaucerAbduction key={`sa-${heistEpoch}`} saucer={cfg.saucer} onActive={setAbducting} />}
     {cfg.gully && <CompanionPatrol s1="/fairy-pixie-1.png" s2="/fairy-pixie-2.png" glow="rgba(94,224,168,0.7)" heistKind="poof" testid="fairy-pixie" />}
+    {cfg.gully && <UnicornChargeHeist />}
     {theme === "fantasy" && <CompanionPatrol s1="/dragon-tiny-1.png" s2="/dragon-tiny-2.png" glow="rgba(255,140,50,0.7)" dustCol={["#FFE9B0", "#FF8C3A"]} heistKind="breath" testid="tiny-dragon" flap="ffDragonFlap 3.4s linear infinite" flapBase="ffDragonFlapInv 3.4s linear infinite" />}
-    {theme === "fantasy" && <DragonHeist />}
+    {theme === "fantasy" && <DragonHeist key={`dh-${heistEpoch}`} />}
     {cfg.lounge && <CompanionPatrol s1="/tiki-man-surf.png" s2="/tiki-man-surf.png" glow="rgba(116,198,230,0.55)" dustCol={["#FFFFFF", "#74C6E6"]} heistKind="crash" testid="tiki-surfer" flap="none" flapBase="none" emitY={38} bob="ffTikiSurfBob 1.7s ease-in-out infinite" />}
-    {cfg.lounge && <TikiSpearHeist />}
-    {theme === "steam" && <SteamSpringHeist />}
-    {theme === "steam" && <SteamGearsHeist />}
+    {cfg.lounge && <TikiSpearHeist key={`th-${heistEpoch}`} />}
+    {theme === "steam" && <SteamSpringHeist key={`ssh-${heistEpoch}`} />}
+    {theme === "steam" && <SteamGearsHeist key={`sgh-${heistEpoch}`} />}
   </>);
+}
+
+/** Café heist: a runaway cup of hot coffee slides onto the banner, tips over
+ * and pours — the spill washes under the medallion and MELTS it away like a
+ * sugar cube (squash + drips), then the cup slinks off still tipped and the
+ * logo re-forms. First strike 30-50s after load, then every 2.5-5 min
+ * (`ff:coffee-heist` forces it, used for testing). Cup art 220x135, side
+ * view, handle right. */
+export function CoffeeSpillHeist() {
+  const witnessRef = useHeistWitness("coffee");
+  const [run, setRun] = useState(null);    // {cx, cy, w}
+  const [phase, setPhase] = useState(0);   // 0 offscreen right, 1 slid in, 2 tipped + pouring, 4 slinks off
+  const [melt, setMelt] = useState(false); // the medallion mid-melt
+  const [fade, setFade] = useState(false); // spill evaporating
+  useEffect(() => {
+    ["/cafe-cup-side.png"].forEach((s) => { const im = new Image(); im.src = s; });
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        timers.push(setTimeout(() => setPhase(1), 30));      // slides in beside the logo
+        timers.push(setTimeout(() => setPhase(2), 1450));    // tips over — the pour begins
+        timers.push(setTimeout(() => {                       // the spill reaches the medallion: MELT
+          setMelt(true);
+          med.style.visibility = "hidden"; startleTitle();
+        }, 2450));
+        timers.push(setTimeout(() => { setMelt(false); setFade(true); }, 4500)); // dissolved; spill dries up
+        timers.push(setTimeout(() => setPhase(4), 5200));    // the cup slinks away, still tipped
+        timers.push(setTimeout(() => {
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // restart the pop on repeat strikes
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 5700));
+        timers.push(setTimeout(() => {
+          setRun(null); setPhase(0); setFade(false); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // spills again in 2.5-5 min
+        }, 6900));
+      });
+    };
+    schedule(30000 + Math.random() * 20000);
+    const force = () => start(true);
+    window.addEventListener("ff:coffee-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:coffee-heist", force);
+      // Never leave the logo hidden if we unmount mid-heist (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run) return null;
+  const { cx, cy, w } = run;
+  const cupW = w * 1.55, cupH = cupW * (135 / 220);
+  const cupLeft = cx + w * 0.72, cupTop = cy - cupH * 0.62;
+  const slideX = phase === 0 ? window.innerWidth - cupLeft + 80 : phase === 4 ? window.innerWidth - cupLeft + 120 : 0;
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="coffee-heist">
+      {/* the pour: a thin stream falling from the tipped lip toward the logo */}
+      {phase >= 2 && (
+        <div
+          className="absolute"
+          data-testid="coffee-heist-stream"
+          style={{
+            left: cx + w * 0.42, top: cy - w * 0.52, width: 7, height: w * 0.82,
+            transformOrigin: "50% 0%", borderRadius: 4,
+            background: "linear-gradient(180deg, #6B4226, #8A5A2E 55%, #A06B38)",
+            boxShadow: "0 0 6px rgba(138,90,46,0.55)",
+            animation: "ffCoffeeStream 0.5s ease-out forwards",
+            opacity: fade ? 0 : undefined, transition: "opacity 0.5s ease-out",
+          }}
+        />
+      )}
+      {/* the spreading puddle washing across under the title */}
+      {phase >= 2 && (
+        <div
+          className="absolute"
+          data-testid="coffee-heist-puddle"
+          style={{
+            left: cx - w * 1.5, top: cy + w * 0.22, width: w * 3, height: w * 0.55,
+            borderRadius: "9999px",
+            background: "radial-gradient(ellipse at 60% 40%, rgba(160,107,56,0.9), rgba(138,90,46,0.8) 55%, rgba(107,66,38,0.5) 80%, rgba(107,66,38,0) 100%)",
+            boxShadow: "inset 0 2px 6px rgba(255,240,220,0.35)",
+            animation: "ffPuddleSpread 1.5s cubic-bezier(0.2,0.7,0.3,1) forwards",
+            opacity: fade ? 0 : undefined, transition: "opacity 0.8s ease-out",
+          }}
+        />
+      )}
+      {/* the medallion melting like a sugar cube */}
+      {melt && (
+        <>
+          <div
+            className="absolute overflow-hidden bg-[#F5F0E6] ring-1 ring-[#E4E4E7]"
+            data-testid="coffee-heist-logo-melt"
+            style={{
+              left: cx - w / 2, top: cy - w / 2, width: w, height: w, borderRadius: "9999px",
+              transformOrigin: "50% 100%",
+              animation: "ffLogoMelt 1.9s cubic-bezier(0.45,0,0.6,1) forwards",
+            }}
+          >
+            <img src="/logo-mark-light.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+          </div>
+          {/* syrupy drips sliding off the melting face */}
+          {Array.from({ length: 4 }, (_, i) => (
+            <span
+              key={`drip-${i}`}
+              className="absolute rounded-full"
+              style={{
+                left: cx - w * 0.32 + i * w * 0.21, top: cy + w * 0.32,
+                width: 6 + (i % 2) * 3, height: 16 + (i % 3) * 8,
+                background: "linear-gradient(180deg, #A06B38, #6B4226)",
+                "--fall": `${w * (0.5 + (i % 3) * 0.22)}px`,
+                animation: `ffMeltDrip 1.15s ease-in ${0.25 + i * 0.18}s forwards`,
+                opacity: 0,
+              }}
+            />
+          ))}
+        </>
+      )}
+      {/* the runaway cup — slides in upright, tips, and slinks off still tipped */}
+      <div className="absolute left-0 top-0" style={{ transform: `translate(${cupLeft + slideX}px, ${cupTop}px)`, transition: phase === 1 || phase === 2 ? "transform 1.0s cubic-bezier(0.25,0.9,0.35,1)" : phase === 4 ? "transform 1.1s cubic-bezier(0.5,0.05,0.85,0.5)" : "none" }} data-testid="coffee-heist-cup">
+        <div style={{ width: cupW, height: cupH, transformOrigin: "14% 86%", animation: phase >= 2 ? "ffCupTipOver 0.75s cubic-bezier(0.5,0,0.6,1.2) forwards" : undefined }}>
+          <img src="/cafe-cup-side.png" alt="" className="h-full w-full object-contain" style={{ filter: "drop-shadow(0 5px 10px rgba(90,60,30,0.35))" }} />
+        </div>
+        {/* wisp of steam while it's still upright */}
+        {phase < 2 && (
+          <span className="absolute rounded-full" style={{ left: cupW * 0.42, top: -cupH * 0.3, width: 8, height: 22, background: "linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.55))", filter: "blur(2px)", animation: "ffSteam 1.6s ease-in-out infinite" }} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Dark-realm heist: the little reaper drifts up beside the medallion and —
+ * one flick of dark magic — transmutes it into the very plate of glowing food
+ * his master is holding. Dinner hovers there a few beats, then he flicks it
+ * back and drifts off. First strike 35-60s after load, then every 2.5-5 min
+ * (`ff:plate-heist` forces it, used for testing). Plate art 300x180, cut
+ * straight from the big reaper's hands. */
+export function ReaperPlateHeist() {
+  const witnessRef = useHeistWitness("plate");
+  const [run, setRun] = useState(null);    // {cx, cy, w}
+  const [phase, setPhase] = useState(0);   // 0 offscreen left, 1 hover beside logo, 4 drift off right
+  const [plate, setPlate] = useState(false);
+  const [burst, setBurst] = useState(0);   // sparkle burst counter (0 none, 1 cast, 2 revert)
+  useEffect(() => {
+    ["/reaper-plate.png", "/reaper-fly-1.png", "/reaper-fly-2.png"].forEach((s) => { const im = new Image(); im.src = s; });
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        timers.push(setTimeout(() => setPhase(1), 30));      // drifts in beside the logo
+        timers.push(setTimeout(() => setBurst(1), 1550));    // the cast: dark sparkles swirl
+        timers.push(setTimeout(() => {                       // ...and dinner is served
+          setPlate(true);
+          med.style.visibility = "hidden"; startleTitle();
+        }, 1800));
+        timers.push(setTimeout(() => setBurst(2), 5100));    // the counter-spell
+        timers.push(setTimeout(() => {
+          setPlate(false);
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // restart the pop on repeat strikes
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 5350));
+        timers.push(setTimeout(() => setPhase(4), 5900));    // drifts away, work done
+        timers.push(setTimeout(() => {
+          setRun(null); setPhase(0); setBurst(0); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // serves again in 2.5-5 min
+        }, 7300));
+      });
+    };
+    schedule(35000 + Math.random() * 25000);
+    const force = () => start(true);
+    window.addEventListener("ff:plate-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:plate-heist", force);
+      // Never leave the logo hidden if we unmount mid-heist (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run) return null;
+  const { cx, cy, w } = run;
+  const RW = w * 1.45, RH = RW * (260 / 195);
+  const hoverLeft = cx - w * 0.85 - RW, hoverTop = cy - RH * 0.5;
+  const x = phase === 0 ? -(hoverLeft + RW + 90) : phase === 4 ? window.innerWidth - hoverLeft + 90 : 0;
+  const PW = w * 1.85, PH = PW * (180 / 300);
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="plate-heist">
+      {/* dark-magic sparkles swirling off the medallion */}
+      {burst > 0 && (
+        <div key={`burst-${burst}`} className="absolute" style={{ left: cx, top: cy }} data-testid="plate-heist-burst">
+          {Array.from({ length: 12 }, (_, i) => {
+            const a = (i / 12) * Math.PI * 2;
+            const d = w * (0.6 + (i % 3) * 0.24);
+            return (
+              <span key={`spark-${i}`} className="absolute rounded-full" style={{ width: 5 + (i % 3) * 3, height: 5 + (i % 3) * 3, "--dx": `${Math.cos(a) * d}px`, "--dy": `${Math.sin(a) * d}px`, background: i % 3 === 0 ? "radial-gradient(circle, #E8DFFF, #8E7BB8 60%, transparent 82%)" : i % 3 === 1 ? "radial-gradient(circle, #FF9A8E, #E01E26 60%, transparent 82%)" : "radial-gradient(circle, #B8A8E0, #2A2038 62%, transparent 82%)", boxShadow: "0 0 7px rgba(142,123,184,0.85)", animation: "ffPoofSparkle 0.95s ease-out forwards" }} />
+            );
+          })}
+        </div>
+      )}
+      {/* dinner, served in the medallion's place — hovering with a hungry glow */}
+      {plate && (
+        <div className="absolute" style={{ left: cx - PW / 2, top: cy - PH / 2, width: PW, height: PH, animation: "ffPixieBob 3.2s ease-in-out infinite" }} data-testid="plate-heist-plate">
+          <img src="/reaper-plate.png" alt="" className="h-full w-full object-contain" style={{ animation: "ffPlateReveal 0.55s cubic-bezier(0.34,1.56,0.64,1) both, ffPlateGlow 1.7s ease-in-out 0.55s infinite" }} />
+        </div>
+      )}
+      {/* the little reaper, hovering beside his handiwork */}
+      <div className="absolute left-0 top-0" style={{ transform: `translate(${hoverLeft + x}px, ${hoverTop}px)`, transition: phase === 1 ? "transform 1.25s cubic-bezier(0.25,0.9,0.35,1)" : phase === 4 ? "transform 1.25s cubic-bezier(0.5,0.05,0.85,0.5)" : "none" }} data-testid="plate-heist-reaper">
+        <div className="relative" style={{ width: RW, height: RH, animation: "ffPixieBob 3.6s ease-in-out infinite", filter: "drop-shadow(0 0 9px rgba(140,110,200,0.45))" }}>
+          <img src="/reaper-fly-1.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ animation: "ffReaperFrameInv 2.6s ease-in-out infinite" }} />
+          <img src="/reaper-fly-2.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ animation: "ffReaperFrame 2.6s ease-in-out infinite" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Fairy Gully heist: a white unicorn thunders across the banner right-to-left
+ * and punts the medallion clean off the screen with its golden horn, never
+ * breaking stride. First strike 40-65s after load, then every 2.5-5 min
+ * (`ff:unicorn-heist` forces it, used for testing). Unicorn art 360x177
+ * galloping LEFT, horn tip at (1.5%, 30%) of the sprite box. */
+function UnicornChargeHeist() {
+  const witnessRef = useHeistWitness("unicorn");
+  const [run, setRun] = useState(null);    // {cx, cy, w}
+  const [phase, setPhase] = useState(0);   // 0 offscreen right, 1 charge, 3 gallop off left
+  const [knock, setKnock] = useState(false);
+  useEffect(() => {
+    ["/fairy-unicorn.png"].forEach((s) => { const im = new Image(); im.src = s; });
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        timers.push(setTimeout(() => setPhase(1), 30));      // CHARGE!
+        timers.push(setTimeout(() => {                       // the horn connects: PUNT
+          setKnock(true);
+          med.style.visibility = "hidden"; startleTitle();
+        }, 1080));
+        timers.push(setTimeout(() => setPhase(3), 1150));    // never breaks stride
+        timers.push(setTimeout(() => setKnock(false), 2050));
+        timers.push(setTimeout(() => {
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // restart the pop on repeat strikes
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 2650));
+        timers.push(setTimeout(() => {
+          setRun(null); setPhase(0); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // charges again in 2.5-5 min
+        }, 3600));
+      });
+    };
+    schedule(40000 + Math.random() * 25000);
+    const force = () => start(true);
+    window.addEventListener("ff:unicorn-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:unicorn-heist", force);
+      // Never leave the logo hidden if we unmount mid-heist (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run) return null;
+  const { cx, cy, w } = run;
+  const UW = w * 3.0, UH = UW * (177 / 360);
+  // Gallops RIGHT-to-LEFT; horn tip = (1.5%, 30%) of the box, so the wrapper
+  // sits so the tip lands square on the medallion's heart at impact.
+  const x = phase === 0 ? window.innerWidth + 80 : phase === 3 ? -(UW + 140) : cx - UW * 0.015;
+  const trans = phase === 1 ? "transform 1.05s cubic-bezier(0.3,0,0.7,1)"
+    : phase === 3 ? "transform 1.05s cubic-bezier(0.55,0,0.85,0.5)" : "none";
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="unicorn-heist">
+      {/* the punted medallion, spinning away off the left edge */}
+      {knock && (<>
+        <div className="absolute overflow-hidden bg-black ring-2 ring-[#E6B23A]" style={{ left: cx - w / 2, top: cy - w / 2, width: w, height: w, borderRadius: "9999px", animation: "ffLogoKnockL 0.9s cubic-bezier(0.25,0.8,0.5,1) forwards" }} data-testid="unicorn-heist-logo">
+          <img src="/logo-mark.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px", filter: "hue-rotate(115deg) saturate(1.25) brightness(1.05)" }} />
+        </div>
+        {/* fae sparkles bursting off the horn strike */}
+        <div className="absolute" style={{ left: cx, top: cy }} data-testid="unicorn-heist-burst">
+          {Array.from({ length: 12 }, (_, i) => {
+            const a = (i / 12) * Math.PI * 2;
+            const d = w * (0.65 + (i % 3) * 0.24);
+            return (
+              <span key={`fae-${i}`} className="absolute rounded-full" style={{ width: 5 + (i % 3) * 3, height: 5 + (i % 3) * 3, "--dx": `${Math.cos(a) * d}px`, "--dy": `${Math.sin(a) * d}px`, background: i % 3 === 0 ? "radial-gradient(circle, #FFFFFF, #FFF3C4 60%, transparent 82%)" : i % 3 === 1 ? "radial-gradient(circle, #FFF3C4, #E6B23A 60%, transparent 82%)" : "radial-gradient(circle, #C4FFE0, #5EE0A8 62%, transparent 82%)", boxShadow: "0 0 7px rgba(230,178,58,0.9)", animation: "ffPoofSparkle 0.95s ease-out forwards" }} />
+            );
+          })}
+        </div>
+      </>)}
+      {/* the unicorn at full gallop */}
+      <div className="absolute left-0 top-0" style={{ transform: `translate(${x}px, ${cy - UH * 0.3}px)`, transition: trans }} data-testid="unicorn-heist-runner">
+        <div style={{ width: UW, height: UH, animation: phase === 1 || phase === 3 ? "ffTikiStrut 0.32s linear infinite" : undefined }}>
+          <img src="/fairy-unicorn.png" alt="" className="h-full w-full object-contain" style={{ filter: "drop-shadow(0 6px 14px rgba(20,40,30,0.45)) drop-shadow(0 0 10px rgba(94,224,168,0.35))" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Winter heist: the little cardinal flutters down for a rest ON TOP of the
+ * medallion — which teeters under the featherweight, tips right off its perch
+ * and plummets. The startled bird flutters up and beats it. First strike
+ * 30-55s after load, then every 2.5-5 min (`ff:cardinal-heist` forces it,
+ * used for testing). Perched art 200x123, flying art 220x141, both face LEFT. */
+function CardinalTipHeist() {
+  const witnessRef = useHeistWitness("cardinal");
+  const [run, setRun] = useState(null);    // {cx, cy, w}
+  const [phase, setPhase] = useState(0);   // 0 offscreen right, 1 fly to perch, 2 perched + teeter, 3 the fall, 4 fly off
+  useEffect(() => {
+    ["/winter-cardinal.png", "/winter-cardinal-fly.png"].forEach((s) => { const im = new Image(); im.src = s; });
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        timers.push(setTimeout(() => setPhase(1), 30));      // flutters in for a landing
+        timers.push(setTimeout(() => {                       // touchdown — the perch teeters
+          setPhase(2);
+          med.style.visibility = "hidden"; startleTitle();
+        }, 1450));
+        timers.push(setTimeout(() => setPhase(3), 2850));    // over she goes!
+        timers.push(setTimeout(() => setPhase(4), 3950));    // the bird beats it
+        timers.push(setTimeout(() => {
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // restart the pop on repeat strikes
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 4350));
+        timers.push(setTimeout(() => {
+          setRun(null); setPhase(0); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // rests again in 2.5-5 min
+        }, 5400));
+      });
+    };
+    schedule(30000 + Math.random() * 25000);
+    const force = () => start(true);
+    window.addEventListener("ff:cardinal-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:cardinal-heist", force);
+      // Never leave the logo hidden if we unmount mid-heist (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run) return null;
+  const { cx, cy, w } = run;
+  const vw = window.innerWidth;
+  const FW = w * 1.05, FH = FW * (141 / 220);   // flying box
+  const PW = w * 0.95, PH = PW * (123 / 200);   // perched box
+  // Bird position: perched bottom-center sits on the medallion's crown.
+  const perchX = cx - PW / 2, perchY = cy - w / 2 - PH + w * 0.06;
+  const bx = phase === 0 ? vw + 70 : phase === 4 ? vw + 90 : perchX;
+  const by = phase === 0 ? perchY - w * 1.1 : phase === 3 ? perchY - w * 0.55 : phase === 4 ? perchY - w * 1.4 : perchY;
+  const birdTrans = phase === 1 ? "transform 1.3s cubic-bezier(0.25,0.9,0.35,1)"
+    : phase === 3 ? "transform 0.45s cubic-bezier(0.2,0.9,0.4,1)"
+    : phase === 4 ? "transform 1.1s cubic-bezier(0.5,0.05,0.85,0.5)" : "none";
+  const flying = phase !== 2;
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="cardinal-heist">
+      {/* the medallion: teeters under the bird, then tips off its perch */}
+      {(phase === 2 || phase === 3) && (
+        <div
+          className="absolute overflow-visible"
+          style={{ left: cx - w / 2, top: cy - w / 2, width: w, height: w, transformOrigin: "100% 100%", animation: phase === 2 ? "ffMedTeeter 1.4s ease-in-out forwards" : "ffLogoFallOff 0.9s cubic-bezier(0.45,0,0.8,0.6) forwards" }}
+          data-testid="cardinal-heist-logo"
+        >
+          <div className="h-full w-full overflow-hidden bg-[#F5F0E6] ring-1 ring-[#E4E4E7]" style={{ borderRadius: "9999px" }}>
+            <img src="/logo-mark-light.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+          </div>
+        </div>
+      )}
+      {/* the featherweight herself */}
+      <div className="absolute left-0 top-0" style={{ transform: `translate(${bx}px, ${by}px)`, transition: birdTrans }} data-testid="cardinal-heist-bird">
+        <div style={{ transform: phase === 4 ? "scaleX(-1)" : undefined }}>
+          <div className="relative" style={{ width: flying ? FW : PW, height: flying ? FH : PH, transformOrigin: "80% 100%", animation: phase === 2 ? "ffMedTeeter 1.4s ease-in-out forwards" : undefined }}>
+            {flying ? (
+              <img src="/winter-cardinal-fly.png" alt="" className="h-full w-full object-contain" style={{ animation: "ffCardinalFlap 0.24s ease-in-out infinite alternate", transformOrigin: "50% 60%", filter: "drop-shadow(0 4px 8px rgba(30,60,90,0.35))" }} />
+            ) : (
+              <img src="/winter-cardinal.png" alt="" className="h-full w-full object-contain" style={{ filter: "drop-shadow(0 4px 8px rgba(30,60,90,0.35))" }} />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

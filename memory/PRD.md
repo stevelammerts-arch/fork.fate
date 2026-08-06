@@ -2097,3 +2097,39 @@ User: "Hold this on the back burner" — do NOT build until user asks.
 4. Cardinal Tip Heist (Winter #2) — the little cardinal lands on top of the
    logo, tipping it over.
 These would bring the heist total from 16 to 20.
+
+## 2026-08-06 part 86: The final four heists — an even 20 (FF_BUILD 388)
+User choices: 2a (realms with multiple heists alternate via independent random
+timers, the established pattern), 3b (visuals only, NO audio for these four).
+- New assets: /fairy-unicorn.png + /cafe-cup-side.png (Nano Banana via
+  scripts/gen_heist20.py, magenta-keyed + despilled); /reaper-plate.png cut
+  straight from the big reaper's hands in reaper.png (elliptical mask).
+- CoffeeSpillHeist (light/Café, key "coffee", ff:coffee-heist): cup slides in,
+  tips (ffCupTipOver), pours (ffCoffeeStream + ffPuddleSpread), medallion melts
+  like sugar (ffLogoMelt + ffMeltDrip), cup slinks off tipped. Mounted Home.jsx.
+- ReaperPlateHeist (dark, key "plate", ff:plate-heist): mini reaper (fly frames)
+  hovers in, dark sparkles, medallion becomes the master's plate (ffPlateReveal
+  + ffPlateGlow + ffPixieBob), reverts, drifts off. Mounted Home.jsx (dark #3).
+- UnicornChargeHeist (fairy, key "unicorn", ff:unicorn-heist): TikiSpear-style
+  right-to-left charge, horn punt (ffLogoKnockL + fae sparkles), never breaks
+  stride. Mounted AmbianceScene (cfg.gully).
+- CardinalTipHeist (winter, key "cardinal", ff:cardinal-heist): cardinal lands
+  on the medallion, it teeters (ffMedTeeter, origin bottom-right) and tips off
+  (ffLogoFallOff); startled bird flies off flipped. Mounted SeasonScene.
+- rituals.js HEISTS +4: Sugar Melt / Plated by Death / Unicorn Charge /
+  Featherweight — trophy shelf picks them up automatically (verified: unlocked
+  cards glow with count badge, unwitnessed stay ??? locked).
+- All four screenshot-verified end-to-end incl. witness toasts. Total: 20.
+
+## 2026-08-06 part 87: Heists never interrupt a shuffle/reveal
+- Home.jsx: busy flag now includes mysticalReveal (was missing). New
+  heistEpoch state bumps on each not-busy->busy edge; every heist mount (Home,
+  SeasonScene, AmbianceScene — 14 components incl. SaucerAbduction) is keyed
+  by it, so a mid-run heist REMOUNTS the instant fate turns busy: its unmount
+  cleanup clears timers and restores the medallion instantly (battle-tested
+  path). CompanionPatrol intentionally NOT keyed (would teleport the roaming
+  companion; its heists are still start-guarded).
+- summonToLogo: re-checks window.__ffFateBusy after the scroll-settle poll,
+  closing the ~2.5s race where fate turned busy mid-scroll.
+- Verified: coffee heist mid-melt + Guided opened -> heist layer gone (0 nodes)
+  and medallion visibility restored to "visible" immediately.

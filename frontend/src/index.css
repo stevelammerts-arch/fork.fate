@@ -2159,3 +2159,56 @@ body.ff-badge-open .ff-theme-scene * {
   animation-play-state: paused !important;
 }
 
+
+/* ---- The final four heists (Sugar Melt / Plated by Death / Unicorn Charge / Featherweight) ---- */
+/* Sugar Melt: the cup tips hard past vertical, bounces, settles tipped */
+@keyframes ffCupTipOver {
+  0%   { transform: rotate(0deg); }
+  55%  { transform: rotate(-118deg); }
+  75%  { transform: rotate(-104deg); }
+  100% { transform: rotate(-110deg); }
+}
+/* the pour: a stream unrolling from the tipped lip */
+@keyframes ffCoffeeStream {
+  0%   { transform: scaleY(0); opacity: 0; }
+  25%  { transform: scaleY(0.5); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+/* the puddle washing out across the banner */
+@keyframes ffPuddleSpread {
+  0%   { transform: scale(0.08, 0.25); opacity: 0; }
+  30%  { opacity: 0.9; }
+  100% { transform: scale(1, 1); opacity: 0.85; }
+}
+/* the medallion dissolving like a sugar cube (origin bottom, set inline) */
+@keyframes ffLogoMelt {
+  0%   { transform: scale(1, 1) translateY(0); opacity: 1; }
+  35%  { transform: scale(1.06, 0.74) translateY(9%); opacity: 1; }
+  70%  { transform: scale(1.28, 0.32) translateY(30%); opacity: 0.9; }
+  100% { transform: scale(1.62, 0.05) translateY(48%); opacity: 0; }
+}
+/* syrupy drips sliding off the melting face (--fall set inline) */
+@keyframes ffMeltDrip {
+  0%   { transform: translateY(0) scaleY(0.4); opacity: 0; }
+  20%  { opacity: 0.95; }
+  100% { transform: translateY(var(--fall)) scaleY(1.6); opacity: 0; }
+}
+/* Plated by Death: dinner pops into existence with a flourish... */
+@keyframes ffPlateReveal {
+  0%   { transform: scale(0.3) rotate(-16deg); opacity: 0; }
+  60%  { transform: scale(1.12) rotate(4deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+/* ...and hovers with a hungry red glow */
+@keyframes ffPlateGlow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(224,30,38,0.45)); }
+  50%      { filter: drop-shadow(0 0 22px rgba(224,30,38,0.85)); }
+}
+/* Featherweight: the medallion teeters under the bird (origin bottom-right) */
+@keyframes ffMedTeeter {
+  0%   { transform: rotate(0deg); }
+  30%  { transform: rotate(7deg); }
+  50%  { transform: rotate(3deg); }
+  75%  { transform: rotate(12deg); }
+  100% { transform: rotate(19deg); }
+}
