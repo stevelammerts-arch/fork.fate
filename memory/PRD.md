@@ -1981,3 +1981,43 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   soft (vol 0.45) at swoop start; /wing-whoosh.mp3 SYNTHESIZED (0.9s smoothed-
   noise swell) plays at +800ms as the owl brakes into the clamp. Both via
   cry() helper, ff_muted-aware, in OwlHeist. Grep-verified in file.
+
+## 2026-08-06 part 78: Spring "Petal Storm" heist + ambient petal cleanup (FF_BUILD 379-380)
+- PETAL STORM (user: "rush of wind... big pile of cherry blossoms blow across
+  the page into the logo knocking it off the screen", theme==="spring" in
+  SeasonScene, ff:petal-heist, witness "petals"): 60 CSS petals (PETALS array,
+  deterministic pseudo-random top/delay/dur/size/drift, pink tones, petal
+  border-radius) sweep right-to-left across full page via ffPetalSweep
+  (translate -100vw + --pd vertical wander, rotate -540deg). Wind sfx
+  /spring-wind.mp3 (3.8s trim of winter wind file t=16.2-20s, +4dB) at gust
+  start. Knock at 1.25s: med hidden, clone ffLogoKnockL off LEFT edge.
+  ffLogoReturn 4.2s, cycle 5s. HEISTS entry "Petal Storm" (#F49AC1). Verified
+  via screenshots (sweep, knock, return).
+- AMBIENT FIX (user: "I don't like the big flat orange blobs that fall"):
+  /petal-coral.png (flat coral blob) REMOVED from spring falling items AND from
+  homeFateCard.js spring scatter (asset deleted). Spring now falls only
+  blossom-pink + blossom-white. Verified: no orange blobs.
+
+## 2026-08-06 part 79: Realistic petals, reveal-guard, Cyber "Neon Wreck" (FF_BUILD 380-381)
+- REALISTIC PETAL (user): /petal-pink.png generated (Nano Banana realistic
+  sakura petal, keyed, 96px). Ambient spring falling items now
+  [blossom-pink, blossom-white, petal-pink] with petals rendered at 0.58x of
+  FALLING_SPRITES size (user: "a little too big"); heist storm petals are now
+  this sprite at p.size*1.15 w/ tone filters (hue-rotate/blur variants).
+  petal-coral.png deleted everywhere (incl. homeFateCard.js scatter).
+- REVEAL GUARD (user: "petal storm interrupted a card reveal — could that
+  happen live?" YES it could): Home.jsx now keeps window.__ffFateBusy =
+  spinning||loading||surpriseReveal||showGuided; summonToLogo bows out with
+  done(null) when busy, and every heist already treats a null medallion as
+  "retry in ~30s". Forced test events during busy also no-op.
+- NEON WRECK heist (user: flying car "lost control and crashed into the logo
+  putting out its neons" "with a crunch and bzzz bzzz bzzz"): cfg.neon block
+  extracted into CyberNeonSign component (witness "wreck", ff:neon-crash
+  forces, first 30-60s then 3-6min). Car (/cyber-car2.png flipped) careens in
+  ffCarCareen 2.3s with ffCarSputter jitter -> CRUNCH at 2.3s
+  (/neon-crunch.mp3 SYNTH + white flash + 10 cyan/magenta ffPoofSparkle
+  sparks + ffCarTumble off-sky) -> /neon-bzz.mp3 SYNTH (3 gated buzz bursts)
+  as sign runs ffNeonDieOut (flicker to 0.15 grayscale, halo off) -> dark
+  ~3.5s -> ffNeonRevive stutter 6.2s -> witness 7.6s. HEISTS #16 "Neon Wreck".
+- Verified via DOM trace: car 0-2.3s, sparks+dark 2.7-6.2s, revive flickers,
+  toast at 7.9s. Sounds: crunch 0.47s, bzz 1.54s, both 200-served.

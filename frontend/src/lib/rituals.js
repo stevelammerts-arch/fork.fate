@@ -62,6 +62,8 @@ export const HEISTS = [
   { key: "snatch", name: "Soul Snatch", realm: "Reaper", accent: "#9BA8C0", desc: "The white spectre materializes out of thin air behind the medallion — claws already around it — lingers with a mournful wail, then vanishes into the dark and takes it with him." },
   { key: "snowman", name: "Blown Away", realm: "Winter", accent: "#8FC7E8", desc: "A smiling snowman shuffles onto the banner — then a snowy gust blows his head clean off. It bonks the medallion out of its perch and squats there grinning until the breeze moves him along." },
   { key: "owl", name: "Night Talons", realm: "Fall", accent: "#C67B3B", desc: "A great horned owl swoops across the banner on silent wings, closes its talons around the medallion and carries it clean off into the autumn sky." },
+  { key: "petals", name: "Petal Storm", realm: "Spring", accent: "#F49AC1", desc: "A warm gust sweeps a blizzard of cherry blossoms across the page — and the medallion gets knocked clean off the screen, riding the wind with them." },
+  { key: "wreck", name: "Neon Wreck", realm: "Cyberscape", accent: "#C77DFF", desc: "A flying car sputters out of traffic and crunches into the neon sign — its tubes flutter out, bzzz... bzzz... then hum back to life." },
 ];
 
 export function readHeistsSeen() {

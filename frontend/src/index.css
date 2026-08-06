@@ -1002,6 +1002,51 @@ body {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-6px); }
 }
+/* Spring heist: cherry blossoms riding the gust right-to-left across the page */
+@keyframes ffPetalSweep {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  8%   { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translate(calc(-100vw - 160px), var(--pd, 40px)) rotate(-540deg); opacity: 0; }
+}
+/* Cyberscape "Neon Wreck": the doomed car careens out of traffic... */
+@keyframes ffCarCareen {
+  0%   { transform: translateX(60vw) translateY(-30px); }
+  60%  { transform: translateX(20vw) translateY(-18px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+/* ...engine sputtering all the way... */
+@keyframes ffCarSputter {
+  0%, 100% { transform: scaleX(-1) translateY(0) rotate(0deg); }
+  20% { transform: scaleX(-1) translateY(-6px) rotate(7deg); }
+  40% { transform: scaleX(-1) translateY(3px) rotate(-5deg); }
+  60% { transform: scaleX(-1) translateY(-4px) rotate(9deg); }
+  80% { transform: scaleX(-1) translateY(5px) rotate(-4deg); }
+}
+/* ...CRUNCH — and it tumbles smoking out of the sky */
+@keyframes ffCarTumble {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translate(-9vw, 70vh) rotate(290deg); opacity: 0; }
+}
+/* the sign's tubes flutter out... */
+@keyframes ffNeonDieOut {
+  0%   { opacity: 1; filter: none; }
+  25%  { opacity: 0.28; }
+  40%  { opacity: 0.85; }
+  60%  { opacity: 0.12; }
+  80%  { opacity: 0.45; filter: grayscale(0.6) brightness(0.6); }
+  100% { opacity: 0.15; filter: grayscale(0.95) brightness(0.4); }
+}
+/* ...then stutter and hum back to life */
+@keyframes ffNeonRevive {
+  0%   { opacity: 0.15; filter: grayscale(0.95) brightness(0.4); }
+  28%  { opacity: 0.7; filter: none; }
+  44%  { opacity: 0.2; filter: grayscale(0.8) brightness(0.5); }
+  66%  { opacity: 1; filter: none; }
+  80%  { opacity: 0.4; }
+  100% { opacity: 1; filter: none; }
+}
 /* ...and the perched head throws a cheeky wink once it's settled in */
 @keyframes ffHeadWink {
   0%, 32%   { opacity: 0; }

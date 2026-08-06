@@ -34,7 +34,7 @@ const FATE_CARD = {
   light:  { lightBg: true,  bg1: "#F7F1E6", bg2: "#E9DAC1", accent: "#4F6F47", art: "/logo-mark-light.png", artSize: 190, kicker: "FATE HAS DEALT YOUR TABLE" },
   fall:   { lightBg: true,  bg1: "#F6E9D4", bg2: "#E7C79B", accent: "#C0451B", art: "/leaf-orange.png",     artSize: 170, kicker: "FATE FALLS TO", scatter: ["/leaf-red.png", "/leaf-yellow.png", "/leaf-brown.png"] },
   winter: { lightBg: true,  bg1: "#EAF3FA", bg2: "#C6DCEE", accent: "#2E77A6", art: "/flake-white.png",     artSize: 160, kicker: "FATE IS SEALED IN FROST", scatter: ["/flake-blue.png", "/flake-silver.png", "/flake-white.png"] },
-  spring: { lightBg: true,  bg1: "#F6FBEF", bg2: "#F3D9E7", accent: "#D46A9F", art: "/blossom-pink.png",    artSize: 165, kicker: "FATE BLOOMS AT", scatter: ["/blossom-white.png", "/petal-coral.png", "/blossom-pink.png"] },
+  spring: { lightBg: true,  bg1: "#F6FBEF", bg2: "#F3D9E7", accent: "#D46A9F", art: "/blossom-pink.png",    artSize: 165, kicker: "FATE BLOOMS AT", scatter: ["/blossom-white.png", "/blossom-pink.png", "/blossom-white.png"] },
   summer: { lightBg: true,  bg1: "#BFE8F7", bg2: "#EAD199", accent: "#E07E17", art: "/summer-sun.png",      artSize: 195, kicker: "FATE UNDER THE SUN" },
   cyber:  { lightBg: false, bg1: "#070A16", bg2: "#160A28", accent: "#22E0E0", art: "/cyber-neon-logo.png", artSize: 300, kicker: "FATE.EXE // EXECUTED", glow2: "#C77DFF" },
   steam:  { lightBg: false, bg1: "#1B120A", bg2: "#0F0A06", accent: "#D9A44E", art: "/steam-gears.png",     artSize: 260, kicker: "THE MACHINE DECREES" },

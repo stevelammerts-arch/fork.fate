@@ -154,7 +154,7 @@ export const SEASONS = {
   spring: {
     grad: "linear-gradient(180deg,#F3FBEF 0%,#FBEFF5 55%,#EFF7E6 100%)",
     tree: "/spring-tree.png", treeBig: true, ground: "/spring-ground2.png", decorLeft: "/spring-decor.png", decorLeftBig: true, rabbits: "/spring-rabbit.png",
-    items: ["/blossom-pink.png", "/blossom-white.png", "/petal-coral.png"], falling: true, hint: "#D46A9F",
+    items: ["/blossom-pink.png", "/blossom-white.png", "/petal-pink.png"], falling: true, hint: "#D46A9F",
   },
   summer: {
     grad: "linear-gradient(180deg,#BFE8F7 0%,#8FD3EE 44%,#5FB8D9 62%,#F3E2B3 62%,#EAD199 100%)",
@@ -275,10 +275,14 @@ export function SeasonScene({ theme, cfg }) {
       </>)}
       {cfg.moon && <div className="absolute top-[6%] left-[24%] z-[1] aspect-square w-[24vw] rounded-full sm:left-[27%] sm:w-[14vw]" style={{ background: "radial-gradient(circle at 42% 40%, #FCF4DA 0%, #EDDCAB 60%, #D6C084 100%)", boxShadow: "0 0 90px 34px rgba(255,240,205,0.38), 0 0 44px 14px rgba(255,246,222,0.55)", opacity: 0.6 }} />}
       {cfg.owl && <img src={cfg.owl} alt="" className="absolute top-[13%] left-[30%] z-[2] w-[13vw] max-w-[150px] object-contain opacity-[0.72] sm:w-[9vw]" />}
-      {cfg.falling && FALLING_SPRITES.map((l, i) => (
-        <img key={`leaf-${l.left}-${l.dur}-${i}`} src={cfg.items[i % cfg.items.length]} alt="" className="absolute top-0 opacity-40"
-          style={{ left: l.left, width: l.size, height: l.size, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }} />
-      ))}
+      {cfg.falling && FALLING_SPRITES.map((l, i) => {
+        const src = cfg.items[i % cfg.items.length];
+        const s = src.includes("petal") ? l.size * 0.58 : l.size; // lone petals fall smaller than whole blossoms
+        return (
+          <img key={`leaf-${l.left}-${l.dur}-${i}`} src={src} alt="" className="absolute top-0 opacity-40"
+            style={{ left: l.left, width: s, height: s, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }} />
+        );
+      })}
       {cfg.birds && FLYING_BIRDS.map((b, i) => (
         <div key={`bird-${i}`} className="absolute left-0" style={{ top: b.top, animation: `ffFly ${b.dur}s linear ${b.delay}s infinite`, willChange: "transform", backfaceVisibility: "hidden" }}>
           <img src={cfg.birds} alt="" className="ff-gull block opacity-40 drop-shadow-sm" style={{ width: b.size, animationDuration: `${b.flap}s`, animationDelay: `${b.flapDelay}s` }} />
@@ -289,6 +293,7 @@ export function SeasonScene({ theme, cfg }) {
     {theme === "summer" && <SummerCrabHeist />}
     {theme === "winter" && <SnowmanHeist />}
     {theme === "fall" && <OwlHeist />}
+    {theme === "spring" && <SpringPetalHeist />}
   </>);
 }
 
@@ -581,6 +586,10 @@ function SaucerAbduction({ saucer, onActive }) {
  * they never miss the show, then hand back the medallion element to measure.
  * Returns a cancel function for unmount-mid-scroll safety. */
 function summonToLogo(done) {
+  // Never interrupt the show: if fate is mid-shuffle or mid-reveal (Home
+  // keeps window.__ffFateBusy up to date), bow out — every heist treats a
+  // null medallion as "try again in ~30s".
+  if (window.__ffFateBusy) { done(null); return () => {}; }
   const img = document.querySelector('img[alt="Fork·Fate logo"]');
   const med = img && img.parentElement;
   const r = med && med.getBoundingClientRect();
@@ -1639,6 +1648,105 @@ function OwlHeist() {
   );
 }
 
+/** Spring heist: a warm gust rushes across the page carrying a blizzard of
+ * cherry blossom petals right-to-left — the wave slams into the medallion
+ * and knocks it clean off the LEFT edge of the screen. It pops back once
+ * the wind dies down. First strike 25-45s after load, then every 2.5-5 min
+ * (or instantly on a `ff:petal-heist` window event, used for testing). */
+const PETALS = Array.from({ length: 60 }, (_, i) => ({
+  top: 2 + ((i * 37) % 94),               // vh
+  delay: ((i * 53) % 160) / 100,          // s
+  dur: 1.7 + ((i * 29) % 80) / 100,       // s
+  size: 9 + (i % 6) * 2,                  // px
+  drift: -80 + ((i * 61) % 160),          // px of vertical wander
+  tone: i % 3,
+}));
+const PETAL_TONES = ["#FFB7CD", "#F8C8DC", "#FFD7E6"];
+function SpringPetalHeist() {
+  const witnessRef = useHeistWitness("petals");
+  const [run, setRun] = useState(null);   // {cx, cy, w}
+  const [phase, setPhase] = useState(0);  // 1 the gust sweeps, 2 the coin is knocked away
+  useEffect(() => {
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        timers.push(setTimeout(() => {                     // the gust picks up
+          setPhase(1);
+          if (localStorage.getItem("ff_muted") !== "1") {
+            try { const g = new Audio("/spring-wind.mp3"); g.volume = 0.7; g.play().catch(() => {}); } catch {}
+          }
+        }, 30));
+        timers.push(setTimeout(() => {                     // the wave-front slams the coin
+          setPhase(2);
+          med.style.visibility = "hidden"; startleTitle();
+        }, 1250));
+        timers.push(setTimeout(() => {
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // restart the pop on repeat strikes
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 4200));
+        timers.push(setTimeout(() => {
+          setRun(null); setPhase(0); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // blows through again in 2.5-5 min
+        }, 5000));
+      });
+    };
+    schedule(25000 + Math.random() * 20000);
+    const force = () => start(true);
+    window.addEventListener("ff:petal-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:petal-heist", force);
+      // Never leave the logo hidden if we unmount mid-heist (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run) return null;
+  const { cx, cy, w } = run;
+  const vw = window.innerWidth;
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="petal-heist">
+      {/* the blossom blizzard streaming right-to-left across the whole page */}
+      {phase >= 1 && PETALS.map((p, i) => (
+        <img
+          key={`petal-${i}`}
+          src="/petal-pink.png"
+          alt=""
+          className="absolute"
+          data-testid={i === 0 ? "petal-heist-petal" : undefined}
+          style={{
+            left: vw, top: `${p.top}vh`,
+            width: p.size * 1.15,
+            "--pd": `${p.drift}px`,
+            opacity: 0,
+            filter: p.tone === 2 ? "blur(1px) brightness(1.08)" : p.tone === 1 ? "hue-rotate(-8deg)" : undefined,
+            animation: `ffPetalSweep ${p.dur}s linear ${p.delay}s both`,
+          }}
+        />
+      ))}
+      {/* the medallion knocked clean off the screen, riding the gust */}
+      {phase === 2 && (
+        <div className="absolute overflow-hidden bg-[#F5F0E6] ring-1 ring-[#E4E4E7]" style={{ left: cx - w / 2, top: cy - w / 2, width: w, height: w, borderRadius: "9999px", animation: "ffLogoKnockL 0.95s cubic-bezier(0.3,0.4,0.5,1) forwards" }} data-testid="petal-heist-logo">
+          <img src="/logo-mark-light.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** Tiki spear heist: a tiki hunter CHARGES across the screen from the
  * right to war drums, spear leveled — one jab and the medallion POPS like a
  * balloon in a burst of sparks. He struts on out the left edge while it
@@ -1955,6 +2063,71 @@ function SteamGearsHeist() {
   );
 }
 
+/** Cyberscape neon sign — with the "Neon Wreck" heist baked in: every so
+ * often a flying car sputters out of traffic, CRUNCHES into the sign, and
+ * the neon tubes flutter out (bzzz bzzz bzzz) before humming back to life.
+ * First wreck 30-60s after load, then every 3-6 min (`ff:neon-crash`
+ * forces one, used for testing). */
+function CyberNeonSign({ neon }) {
+  const witnessRef = useHeistWitness("wreck");
+  const [crash, setCrash] = useState(0); // 1 careening in, 2 impact + neons out, 3 humming back on
+  useEffect(() => {
+    const timers = [];
+    let pending = null;
+    let running = false;
+    const play = (src, vol) => {
+      if (localStorage.getItem("ff_muted") === "1") return;
+      try { const a = new Audio(src); a.volume = vol; a.play().catch(() => {}); } catch {}
+    };
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(start, ms); };
+    const start = () => {
+      if (running) return;
+      running = true;
+      setCrash(1);                                          // careens out of traffic
+      timers.push(setTimeout(() => {                        // CRUNCH
+        setCrash(2);
+        play("/neon-crunch.mp3", 0.7);
+      }, 2300));
+      timers.push(setTimeout(() => play("/neon-bzz.mp3", 0.55), 2550)); // bzzz bzzz bzzz
+      timers.push(setTimeout(() => setCrash(3), 6200));     // ...and hums back to life
+      timers.push(setTimeout(() => {
+        setCrash(0); running = false;
+        witnessRef.current(true);
+        schedule(180000 + Math.random() * 180000);          // next wreck in 3-6 min
+      }, 7600));
+    };
+    schedule(30000 + Math.random() * 30000);
+    window.addEventListener("ff:neon-crash", start);
+    return () => { clearTimeout(pending); timers.forEach(clearTimeout); window.removeEventListener("ff:neon-crash", start); };
+  }, []); // witnessRef is a stable ref
+  const out = crash === 2; // tubes dead
+  return (
+    <div className="absolute left-1/2 top-[15%] z-[1] w-[62vw] max-w-xs -translate-x-1/2" data-testid="cyber-neon">
+      <div className="absolute left-1/2 top-1/2 h-[135%] w-[135%] -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ background: "radial-gradient(circle, rgba(199,125,255,0.42), rgba(34,224,224,0.18) 46%, transparent 70%)", filter: "blur(26px)", animation: "ffNeonFlash 3.4s ease-in-out infinite", opacity: out ? 0 : 1, transition: "opacity 0.25s ease" }} />
+      <img src={neon} alt="" className="relative w-full object-contain" data-testid="cyber-neon-sign" style={{ animation: out ? "ffNeonDieOut 0.8s steps(4,end) forwards" : crash === 3 ? "ffNeonRevive 1.2s steps(6,end) both, ffNeonFloat 6s ease-in-out infinite" : "ffNeonFloat 6s ease-in-out infinite" }} />
+      {/* the doomed car: sputters in from the right lane, crunches, tumbles */}
+      {(crash === 1 || crash === 2) && (
+        <div className="absolute" style={{ right: "-4%", top: "26%", transform: crash === 1 ? "translateX(60vw)" : "translateX(0)", transition: crash === 1 ? "none" : undefined, animation: crash === 1 ? "ffCarCareen 2.3s cubic-bezier(0.4,0.2,0.6,1) forwards" : "ffCarTumble 1.15s cubic-bezier(0.45,0.1,0.8,0.5) forwards" }} data-testid="neon-crash-car">
+          <img src="/cyber-car2.png" alt="" className="w-[16vw] max-w-[86px] object-contain" style={{ transform: "scaleX(-1)", animation: crash === 1 ? "ffCarSputter 0.4s linear infinite" : "none", filter: "drop-shadow(0 0 8px rgba(34,224,224,0.5))" }} />
+        </div>
+      )}
+      {/* impact flash + neon glass sparks */}
+      {crash === 2 && (
+        <div className="absolute" style={{ right: "2%", top: "38%" }} data-testid="neon-crash-sparks">
+          <span className="absolute rounded-full" style={{ left: -18, top: -18, width: 36, height: 36, background: "radial-gradient(circle, #FFFFFF, rgba(199,125,255,0.6) 45%, transparent 75%)", animation: "ffPoofSparkle 0.5s ease-out forwards" }} />
+          {Array.from({ length: 10 }, (_, i) => {
+            const a = (i / 10) * Math.PI * 2;
+            const d = 26 + (i % 3) * 16;
+            return (
+              <span key={`spark-${i}`} className="absolute rounded-full" style={{ width: 4 + (i % 3) * 2, height: 4 + (i % 3) * 2, "--dx": `${Math.cos(a) * d}px`, "--dy": `${Math.sin(a) * d}px`, background: i % 2 ? "#22E0E0" : "#C77DFF", boxShadow: `0 0 6px ${i % 2 ? "#22E0E0" : "#C77DFF"}`, animation: "ffPoofSparkle 0.85s ease-out forwards" }} />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function AmbianceScene({ theme, cfg }) {
   const [mobile, setMobile] = useState(false);
   const [abducting, setAbducting] = useState(false);
@@ -2067,12 +2240,7 @@ export function AmbianceScene({ theme, cfg }) {
             style={{ width: c.size, filter: c.bus ? "none" : `drop-shadow(0 0 ${c.spinner ? 12 : 8}px rgba(34,224,224,${c.spinner ? 0.65 : 0.5}))`, ...(c.bus ? { maskImage: "linear-gradient(to bottom, #000 72%, rgba(0,0,0,0.68) 90%, rgba(0,0,0,0.48) 100%)", WebkitMaskImage: "linear-gradient(to bottom, #000 72%, rgba(0,0,0,0.68) 90%, rgba(0,0,0,0.48) 100%)" } : {}) }} />
         </div>
       ))}
-      {cfg.neon && (
-        <div className="absolute left-1/2 top-[15%] z-[1] w-[62vw] max-w-xs -translate-x-1/2" data-testid="cyber-neon">
-          <div className="absolute left-1/2 top-1/2 h-[135%] w-[135%] -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ background: "radial-gradient(circle, rgba(199,125,255,0.42), rgba(34,224,224,0.18) 46%, transparent 70%)", filter: "blur(26px)", animation: "ffNeonFlash 3.4s ease-in-out infinite" }} />
-          <img src={cfg.neon} alt="" className="relative w-full object-contain" style={{ animation: "ffNeonFloat 6s ease-in-out infinite" }} />
-        </div>
-      )}
+      {cfg.neon && <CyberNeonSign neon={cfg.neon} />}
       {cfg.wall && <img src={cfg.wall} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-60" style={{ objectPosition: "center top" }} />}
       {cfg.lounge && (<>
         <img src={cfg.lounge} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-90" style={{ objectPosition: "center center" }} data-testid="tiki-lounge-bg" />

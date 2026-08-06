@@ -196,6 +196,12 @@ export default function Home() {
   };
   const [mysticalReveal, setMysticalReveal] = useState(false);
 
+  // Heists check this before striking so they never interrupt the show
+  // (mid-shuffle, mid-reveal, or while the guided intro is up).
+  useEffect(() => {
+    window.__ffFateBusy = !!(spinning || loading || surpriseReveal || showGuided);
+  }, [spinning, loading, surpriseReveal, showGuided]);
+
   const finishGuided = () => {
     setShowGuided(false);
   };
