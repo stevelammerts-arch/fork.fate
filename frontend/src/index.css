@@ -951,6 +951,48 @@ body {
   .ff-dragon-steam { animation: none; opacity: 0; }
 }
 
+/* Soul Snatch: the spectre fades in out of thin air behind the medallion... */
+@keyframes ffGhostMaterialize {
+  0%   { opacity: 0; filter: blur(10px) drop-shadow(0 0 16px rgba(190,208,235,0)); transform: scale(1.05); }
+  100% { opacity: 0.96; filter: blur(0.4px) drop-shadow(0 0 16px rgba(190,208,235,0.45)); transform: scale(1); }
+}
+/* ...hangs there with a slow mournful sway (starts dead-still on the coin)... */
+@keyframes ffGhostHold {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  35%      { transform: translateY(-7px) rotate(1.4deg); }
+  70%      { transform: translateY(2px) rotate(-1.2deg); }
+}
+/* ...then dissolves upward into the dark, coin and all */
+@keyframes ffGhostVanish {
+  0%   { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+  100% { opacity: 0; filter: blur(9px); transform: translateY(-36px) scale(0.94); }
+}
+/* the little reaper companion: his tattered robe flutters between two frames */
+@keyframes ffReaperFrame {
+  0%, 38%  { opacity: 0; }
+  50%, 88% { opacity: 1; }
+  100%     { opacity: 0; }
+}
+@keyframes ffReaperFrameInv {
+  0%, 38%  { opacity: 1; }
+  50%, 88% { opacity: 0; }
+  100%     { opacity: 1; }
+}
+/* Winter heist: the snowy gust — white streaks + flecks howling right-to-left */
+@keyframes ffSnowGust {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  12%  { opacity: 0.9; }
+  80%  { opacity: 0.7; }
+  100% { transform: translate(calc(-100vw - 240px), 26px); opacity: 0; }
+}
+/* ...the headless body staggers into the wind as its head rips away */
+@keyframes ffSnowLean {
+  0%   { transform: rotate(0deg); }
+  35%  { transform: rotate(-11deg); }
+  70%  { transform: rotate(4deg); }
+  100% { transform: rotate(0deg); }
+}
+
 /* Torch Nightfall: lounge lights flare and firelight dances on a dealt fate */
 @keyframes ffTorchFlare {
   0%, 100% { opacity: 0.5; transform: scale(1); }

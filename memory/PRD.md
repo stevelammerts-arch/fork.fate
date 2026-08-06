@@ -1833,3 +1833,73 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
 - NOTE: summonToLogo adds ~0-1.5s offset before timeline starts (varies).
 - HEISTS entry "Open Works" (#B98A44). Verified: open w/ spinning works+spring,
   door falling, gear+coil mid-spill, fresh face return + toast.
+
+## 2026-08-06 part 68: Reaper realm "Soul Snatch" ghost companion (FF_BUILD 365)
+- User chose: no new reaper design — use the LEFT ghost (reaper-ghost-1.png skull
+  spectre, "hands already positioned to go around the logo"), coin carried BARE
+  (no black plate).
+- Sprite: /ghost-snatch.png (trimmed, MIRRORED to face right, 206x360).
+- CompanionPatrol EXPORTED + new heistKind "snatch" (witness key "snatch",
+  ff:ghost-heist): anchor hovers claws over coin (x=lookX+8, y=cy+26), plays
+  /soul-wail.wav (vol .55, mute-aware), med hidden at 60ms, bare coin clone
+  rides inside flip container at (50+8-w/2, 50-26-w/2) -z-[1] under claws,
+  overrideEl cleared +700ms so he pickSpot()-flees WITH the coin, coin released
+  + ffLogoReturn at 2.6s. No burst for snatch.
+- Mounted in Home.jsx (theme==="dark", next to ReaperHeist): smoke trail
+  dustCol ["#8A8A96","#3A3A44"], emitY 30, bob ffGhostSway (new keyframe).
+- HEISTS entry "Soul Snatch" realm Reaper (#9BA8C0).
+- Verified: roam w/ smoke, claw grab, carry-away, return + witness toast.
+
+## 2026-08-06 part 69: Ghost heist rework + Reaper follower + Winter snowman heist (FF_BUILD 366-367)
+- REWORK of part 68 (user: "white ghost steals logo and vanishes. The Black
+  reaper in the background is the one that stays" + "materialize behind the
+  logo for a few seconds then vanish with it"):
+  - CompanionPatrol "snatch" heistKind REMOVED (dead code reverted; export kept).
+  - NEW standalone GhostSnatchHeist (ThemeScenes, mounted Home theme==="dark",
+    ff:ghost-heist, witness "snatch"): white spectre /reaper-ghost-1.png
+    (695x1211, grip pocket 36%/26.5%, boxW=w*2.75) MATERIALIZES BEHIND the
+    medallion (ffGhostMaterialize 1.6s blur-in; clone coin bg-black rendered in
+    FRONT; real med hidden at +30ms; soul-wail plays), sways ~4s (ffGhostHold),
+    then ffGhostVanish 1s takes coin with him; ffLogoReturn at 5.4s; cycle 6.1s.
+    First strike 45-75s, then 2.5-5min. Sprite preloaded on mount.
+  - NEW roaming BLACK REAPER follower (user msg 1: "little reaper follower...
+    black smoke trailing"): generated /reaper-fly-1.png + /reaper-fly-2.png
+    (Nano Banana, ref=reaper.png, NO plate, side profile facing right, white-bg
+    flood-keyed via /app/scripts/gen_reaper_fly.py). Mounted in Home.jsx as
+    CompanionPatrol heistKind=null, dust ["#8E7BB8","#2A2038"] violet smoke,
+    frames crossfade ffReaperFrame/Inv 2.6s, bob ffPixieBob 3.6s,
+    testid "reaper-companion". ffGhostSway keyframe replaced by ffGhostHold etc.
+- WINTER "Blown Away" SNOWMAN HEIST (user: "smiling carrot nosed snowman appears
+  right side of banner. A strong snowy breeze blows his head off to the left,
+  bumping the logo and replacing it for a few [seconds]"):
+  - Sprites via /app/scripts/gen_snowman.py: /snowman-body.png (257x260 headless,
+    red scarf blowing left, black-keyed) + /snowman-head.png (188x200, carrot
+    points LEFT, top hat; model returned WHITE bg -> re-keyed w/ flood_key_white
+    thresh 240 from raw).
+  - SnowmanHeist (ThemeScenes, SeasonScene theme==="winter", ff:snowman-heist,
+    witness "snowman"): slides in right (bodyLeft=vw-bodyW-24, head level w/
+    logo cy), gust at 2.3s (14 ice-blue streaks/flecks ffSnowGust 1.05s, tinted
+    #BFDFF5 + shadows for light-bg visibility), head rips off 2.7s (tumbles
+    rotate -340 -> settles -360 = upright), BONK 3.55s (ffLogoKnockL clone
+    logo-mark-light + 8-sparkle ice flurry ffPoofSparkle, ffSnowLean on body),
+    head SITS in logo spot 3.55-7.1s, blown away down-left + body exits right,
+    ffLogoReturn 7.9s, cycle 9.1s. First strike 25-45s. Sprites preloaded.
+  - HEISTS entry "Blown Away" realm Winter (#8FC7E8). ffSnowGust/ffSnowLean CSS.
+- Verified via screenshots: ghost materialize/linger/vanish/return + toast; no
+  auto-fire when idle (earlier "early trigger" = networkidle reload delay in the
+  test script letting the 45s timer expire, NOT a bug); snowman arrive/gust/
+  head-flight/sit/return all correct.
+
+## 2026-08-06 part 70: "Wipe Out" sfx on the Tiki surfer heist (FF_BUILD 368)
+- User-uploaded clip saved as /app/frontend/public/surf-wipeout.mp3 (~3.6s).
+- Plays (vol 0.65, ff_muted-aware) in CompanionPatrol heist() when
+  heistKind==="crash", right as the surfer lines up his charge — the 1.9s
+  fly-up beat puts the crash impact mid-drum-roll.
+
+## 2026-08-06 part 71: Shortened heist sfx (FF_BUILD 369)
+- User asked to shorten the spear-heist drums + ghost-heist moan. Originals are
+  shared with reveal flourishes, so heist-only trims were created via ffmpeg:
+  /tiki-drums-short.mp3 (4.0s, 0.8s fade from reveal-drums-groove.wav 7s) and
+  /soul-wail-short.mp3 (5.6s, 1.4s fade from soul-wail.wav 10.8s — ends right
+  after the ghost vanishes at 5.1s). TikiSpearHeist + GhostSnatchHeist updated;
+  GhostRise/deal flourishes still use the full-length originals.

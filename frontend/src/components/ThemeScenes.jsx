@@ -287,6 +287,7 @@ export function SeasonScene({ theme, cfg }) {
     </div>
     {theme === "summer" && <SummerBallHeist />}
     {theme === "summer" && <SummerCrabHeist />}
+    {theme === "winter" && <SnowmanHeist />}
   </>);
 }
 
@@ -616,7 +617,7 @@ const PIXIE_SPOTS = [
  * rAF lerp chasing a target point; a particle emitter sheds glowing dust.
  * heistKind: "poof" = the fairy wand-poofs the header medallion; "breath" =
  * the dragon torches it with a jet of flame. */
-function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heistKind = null, testid = "companion", flap = "ffPixieFlapA 0.48s linear infinite", flapBase = "ffPixieFlapB 0.48s linear infinite", emitY = 0, bob = "ffPixieBob 2.4s ease-in-out infinite" }) {
+export function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heistKind = null, testid = "companion", flap = "ffPixieFlapA 0.48s linear infinite", flapBase = "ffPixieFlapB 0.48s linear infinite", emitY = 0, bob = "ffPixieBob 2.4s ease-in-out infinite" }) {
   const witnessRef = useHeistWitness(heistKind === "breath" ? "breath" : heistKind === "crash" ? "surf" : "pixie");
   const wrapRef = useRef(null);   // translated flight layer
   const faceRef = useRef(null);   // scaleX facing flip
@@ -856,6 +857,11 @@ function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heist
         if (!r || !r.width) { running = false; if (!force) scheduleHeist(30000); return; }
         overrideEl = med;
         Object.assign(base, heistAnchorOf(med));
+        if (heistKind === "crash" && localStorage.getItem("ff_muted") !== "1") {
+          // "Wipe Out" riff kicks in as he lines up his charge — the crash
+          // lands right in the middle of the drum roll (clip is ~3.6s).
+          try { const s = new Audio("/surf-wipeout.mp3"); s.volume = 0.65; s.play().catch(() => {}); } catch {}
+        }
         timers.push(setTimeout(() => {           // a beat to fly up there
           const r2 = med.getBoundingClientRect();
           setCasting(true);
@@ -1144,6 +1150,95 @@ export function ReaperHeist() {
   );
 }
 
+/** Soul Snatch: the white spectre MATERIALIZES out of thin air BEHIND the
+ * header medallion — his claws already bracketing it — hangs there for a few
+ * haunted seconds while the soul-wail rings out, then vanishes and takes the
+ * medallion with him. The logo pops back a beat later. First strike 45-75s
+ * after load, then every 2.5-5 min (or instantly on a `ff:ghost-heist`
+ * window event, used for testing). Ghost art is 695x1211; the pocket his
+ * claws wrap sits at (36%, 26.5%) of the sprite box. */
+export function GhostSnatchHeist() {
+  const witnessRef = useHeistWitness("snatch");
+  const [run, setRun] = useState(null);  // {cx, cy, w}
+  const [phase, setPhase] = useState(0); // 1 materialize + linger, 2 vanish with the coin
+  useEffect(() => {
+    // Warm the sprite so his very first haunting doesn't pop in half-loaded.
+    { const im = new Image(); im.src = "/reaper-ghost-1.png"; }
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        timers.push(setTimeout(() => {
+          // Our clone coin (rendered in FRONT of the ghost) takes over the
+          // real medallion seamlessly, so he truly fades in BEHIND it.
+          setPhase(1);
+          med.style.visibility = "hidden";
+          if (localStorage.getItem("ff_muted") !== "1") {
+            try { const m = new Audio("/soul-wail-short.mp3"); m.volume = 0.55; m.play().catch(() => {}); } catch {}
+          }
+        }, 30));
+        timers.push(setTimeout(() => { setPhase(2); startleTitle(); }, 4100)); // gone — and the coin goes with him
+        timers.push(setTimeout(() => {
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // restart the pop on repeat hauntings
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 5400));
+        timers.push(setTimeout(() => {
+          setRun(null); setPhase(0); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // haunts again in 2.5-5 min
+        }, 6100));
+      });
+    };
+    schedule(45000 + Math.random() * 30000);
+    const force = () => start(true);
+    window.addEventListener("ff:ghost-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:ghost-heist", force);
+      // Never leave the logo hidden if we unmount mid-haunt (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run) return null;
+  const { cx, cy, w } = run;
+  const boxW = w * 2.75;
+  const boxH = boxW * (1211 / 695);
+  const gripX = 0.36, gripY = 0.265;
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="ghost-snatch-heist">
+      <div className="absolute" style={{ left: cx - boxW * gripX, top: cy - boxH * gripY, width: boxW, height: boxH, animation: phase === 2 ? "ffGhostVanish 1s ease-in forwards" : undefined }}>
+        <div className="h-full w-full" style={{ animation: "ffGhostHold 3.4s ease-in-out infinite" }}>
+          <img
+            src="/reaper-ghost-1.png"
+            alt=""
+            className="absolute inset-0 h-full w-full object-contain"
+            style={{ opacity: 0, filter: "blur(0.4px) drop-shadow(0 0 16px rgba(190,208,235,0.45))", animation: phase >= 1 ? "ffGhostMaterialize 1.6s ease-out both" : undefined }}
+            data-testid="ghost-snatch-spectre"
+          />
+          {/* the coveted coin — rendered in FRONT so he appears behind it */}
+          {phase >= 1 && (
+            <div className="absolute overflow-hidden bg-black ring-1 ring-white/25" style={{ left: boxW * gripX - w / 2, top: boxH * gripY - w / 2, width: w, height: w, borderRadius: "9999px" }} data-testid="ghost-snatch-logo">
+              <img src="/logo-mark.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** Summer heist #1: a runaway beach ball arcs in spinning, BONKS the header
  * medallion clean off its perch (the logo tumbles away), then squats in the
  * logo's spot for a beat acting innocent before rolling off — and the logo
@@ -1307,6 +1402,140 @@ function SummerCrabHeist() {
   );
 }
 
+/** Winter heist: a smiling carrot-nosed snowman slides onto the RIGHT side
+ * of the banner — then a snowy gust howls across and blows his HEAD clean
+ * off to the LEFT. The head bonks the medallion out of its perch and sits
+ * in its place looking pleased for a few seconds, until the breeze carries
+ * it off and the logo pops back (his body shuffles off after it). First
+ * strike 25-45s after load, then every 2.5-5 min (or instantly on a
+ * `ff:snowman-heist` window event, used for testing). Body art 257x260,
+ * head art 188x200 (carrot points LEFT). */
+function SnowmanHeist() {
+  const witnessRef = useHeistWitness("snowman");
+  const [run, setRun] = useState(null);   // {cx, cy, w}
+  const [phase, setPhase] = useState(0);  // 1 slide in, 2 gust rips the head off, 3 head sits in the logo spot, 4 blown away
+  const [gust, setGust] = useState(false);   // snow streaks howling right-to-left
+  const [knock, setKnock] = useState(false); // the bonked-away medallion clone
+  useEffect(() => {
+    // Warm the sprites so the very first strike doesn't pop in half-loaded.
+    ["/snowman-body.png", "/snowman-head.png"].forEach((s) => { const im = new Image(); im.src = s; });
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        timers.push(setTimeout(() => setPhase(1), 30));    // shuffles in, all smiles
+        timers.push(setTimeout(() => setGust(true), 2300)); // the wind picks up...
+        timers.push(setTimeout(() => setPhase(2), 2700));   // ...and POP, off comes the head
+        timers.push(setTimeout(() => {                      // BONK — it takes the logo's perch
+          setPhase(3); setKnock(true);
+          med.style.visibility = "hidden"; startleTitle();
+        }, 3550));
+        timers.push(setTimeout(() => { setKnock(false); setGust(false); }, 4450));
+        timers.push(setTimeout(() => setGust(true), 6900)); // the breeze returns for him
+        timers.push(setTimeout(() => setPhase(4), 7100));   // head tumbles off, body shuffles away
+        timers.push(setTimeout(() => {
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // restart the pop on repeat strikes
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 7900));
+        timers.push(setTimeout(() => setGust(false), 8400));
+        timers.push(setTimeout(() => {
+          setRun(null); setPhase(0); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // blows back in 2.5-5 min
+        }, 9100));
+      });
+    };
+    schedule(25000 + Math.random() * 20000);
+    const force = () => start(true);
+    window.addEventListener("ff:snowman-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:snowman-heist", force);
+      // Never leave the logo hidden if we unmount mid-heist (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run) return null;
+  const { cx, cy, w } = run;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const headW = w * 1.5, headH = headW * (200 / 188);
+  const bodyW = w * 2.4, bodyH = bodyW * (260 / 257);
+  const bodyLeft = vw - bodyW - 24;
+  const bodyTop = cy + headH * 0.42;
+  const hx = bodyLeft + bodyW * 0.52, hy = cy; // head perched on the neck, level with the logo
+  const slide = bodyW + 90;
+  // head centre + tumble per phase (lands upright: -340 settles to -360 ≡ 0)
+  const hcx = phase === 0 ? hx + slide : phase < 2 ? hx : phase < 4 ? cx : cx - vw * 0.4;
+  const hcy = phase === 0 ? hy : phase < 2 ? hy : phase < 4 ? cy : cy + vh * 0.75;
+  const hrot = phase < 2 ? 0 : phase === 2 ? -340 : phase === 3 ? -360 : -1080;
+  const headTrans =
+    phase === 1 ? "transform 0.9s cubic-bezier(0.25,0.9,0.35,1)"
+    : phase === 2 ? "transform 0.85s cubic-bezier(0.35,0,0.55,1)"
+    : phase === 3 ? "transform 0.35s ease-out"
+    : phase === 4 ? "transform 0.85s cubic-bezier(0.5,0.05,0.85,0.5)" : "none";
+  const bodyX = phase === 0 || phase >= 4 ? slide : 0;
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="snowman-heist">
+      {/* the snowy gust: white streaks + flecks howling right-to-left */}
+      {gust && Array.from({ length: 14 }, (_, i) => {
+        const dot = i % 3 === 0;
+        return (
+          <span
+            key={`gust-${i}`}
+            className="absolute rounded-full"
+            data-testid={i === 0 ? "snowman-gust" : undefined}
+            style={{
+              left: vw, top: cy - 44 + ((i * 37) % 130),
+              width: dot ? 5 : 90 + ((i * 53) % 70), height: dot ? 5 : 2.5,
+              background: dot ? "radial-gradient(circle, #FFFFFF, #BFDFF5 60%, rgba(191,223,245,0) 80%)" : "linear-gradient(90deg, rgba(191,223,245,0), rgba(240,250,255,0.98), rgba(191,223,245,0))",
+              boxShadow: dot ? "0 0 6px rgba(130,180,225,0.7)" : "0 1px 5px rgba(120,170,215,0.6)",
+              animation: `ffSnowGust 1.05s linear ${(i * 0.07).toFixed(2)}s both`,
+            }}
+          />
+        );
+      })}
+      {/* the bonked medallion tumbling away downwind (left) */}
+      {knock && (
+        <div className="absolute overflow-hidden bg-[#F5F0E6] ring-1 ring-[#E4E4E7]" style={{ left: cx - w / 2, top: cy - w / 2, width: w, height: w, borderRadius: "9999px", animation: "ffLogoKnockL 0.9s cubic-bezier(0.25,0.8,0.5,1) forwards" }} data-testid="snowman-heist-logo">
+          <img src="/logo-mark-light.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+        </div>
+      )}
+      {/* impact flurry as the head takes the perch */}
+      {knock && (
+        <div className="absolute" style={{ left: cx, top: cy }}>
+          {Array.from({ length: 8 }, (_, i) => {
+            const a = (i / 8) * Math.PI * 2;
+            const d = w * (0.6 + (i % 3) * 0.22);
+            return (
+              <span key={`flur-${i}`} className="absolute rounded-full" style={{ width: 5 + (i % 3) * 2, height: 5 + (i % 3) * 2, "--dx": `${Math.cos(a) * d}px`, "--dy": `${Math.sin(a) * d}px`, background: i % 2 ? "radial-gradient(circle, #FFFFFF, #DCEEFA 60%, transparent 82%)" : "radial-gradient(circle, #F2FAFF, #B7DCF2 60%, transparent 82%)", boxShadow: "0 0 6px rgba(220,240,255,0.85)", animation: "ffPoofSparkle 0.95s ease-out forwards" }} />
+            );
+          })}
+        </div>
+      )}
+      {/* the headless body, waiting patiently on the right */}
+      <div className="absolute" style={{ left: bodyLeft, top: bodyTop, width: bodyW, height: bodyH, transform: `translateX(${bodyX}px)`, transition: phase === 1 ? "transform 0.9s cubic-bezier(0.25,0.9,0.35,1)" : phase === 4 ? "transform 0.9s cubic-bezier(0.5,0.05,0.85,0.5)" : "none" }} data-testid="snowman-body">
+        <img src="/snowman-body.png" alt="" className="h-full w-full object-contain" style={{ transformOrigin: "50% 100%", animation: phase === 2 ? "ffSnowLean 0.6s ease-in-out" : undefined, filter: "drop-shadow(0 4px 10px rgba(30,60,90,0.35))" }} />
+      </div>
+      {/* the head: smiling through the whole ordeal */}
+      <div className="absolute" style={{ left: 0, top: 0, width: headW, height: headH, transform: `translate(${hcx - headW / 2}px, ${hcy - headH / 2}px) rotate(${hrot}deg)`, transition: headTrans }} data-testid="snowman-head">
+        <img src="/snowman-head.png" alt="" className="h-full w-full object-contain" style={{ filter: "drop-shadow(0 4px 10px rgba(30,60,90,0.35))" }} />
+      </div>
+    </div>
+  );
+}
+
 /** Tiki spear heist: a tiki hunter CHARGES across the screen from the
  * right to war drums, spear leveled — one jab and the medallion POPS like a
  * balloon in a burst of sparks. He struts on out the left edge while it
@@ -1335,7 +1564,7 @@ function TikiSpearHeist() {
         timers.push(setTimeout(() => {                     // CHARGE! (war drums)
           setPhase(1);
           if (localStorage.getItem("ff_muted") !== "1") {
-            try { const d = new Audio("/reveal-drums-groove.wav"); d.volume = 0.9; d.play().catch(() => {}); } catch {}
+            try { const d = new Audio("/tiki-drums-short.mp3"); d.volume = 0.9; d.play().catch(() => {}); } catch {}
           }
         }, 30));
         timers.push(setTimeout(() => {                     // the jab lands: POP!

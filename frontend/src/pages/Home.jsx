@@ -38,7 +38,7 @@ import { recordRitualSeen, readRitualsSeen, RITUALS } from "../lib/rituals";
 import { recordFate } from "../lib/journal";
 import { markCuisine } from "../lib/bingo";
 import { readPassports } from "../lib/passports";
-import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene, ReaperHeist } from "../components/ThemeScenes";
+import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene, ReaperHeist, GhostSnatchHeist, CompanionPatrol } from "../components/ThemeScenes";
 import { ReaperScene } from "../components/ReaperScene";
 import { CafeDustMotes } from "../components/CafeDustMotes";
 import { ShufflingDeck } from "../components/ShufflingDeck";
@@ -939,6 +939,9 @@ export default function Home() {
       {/* Dark-mode: decorative reaper background with load animation */}
       {theme === "dark" && <ReaperScene />}
       {theme === "dark" && <ReaperHeist />}
+      {theme === "dark" && <GhostSnatchHeist />}
+      {/* the little reaper follower: drifts around the page trailing black smoke */}
+      {theme === "dark" && <CompanionPatrol s1="/reaper-fly-1.png" s2="/reaper-fly-2.png" glow="rgba(140,110,200,0.45)" dustCol={["#8E7BB8", "#2A2038"]} testid="reaper-companion" flap="ffReaperFrame 2.6s ease-in-out infinite" flapBase="ffReaperFrameInv 2.6s ease-in-out infinite" bob="ffPixieBob 3.6s ease-in-out infinite" />}
       {/* Header */}
       <HomeHeader
         light={light}

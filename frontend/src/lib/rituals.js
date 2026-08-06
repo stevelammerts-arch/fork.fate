@@ -59,6 +59,8 @@ export const HEISTS = [
   { key: "spear", name: "Spear Pop", realm: "Tiki Lounge", accent: "#E0451B", desc: "A tiki hunter charges across the banner to war drums and POPS the medallion like a balloon with one spear jab. It puffs right back up." },
   { key: "spring", name: "Sprung Face", realm: "Steampunk", accent: "#D9A44E", desc: "The medallion rattles loose and BOINGS out of its socket on a coiled brass spring like a popped watch face — until the spring gives out." },
   { key: "gears", name: "Open Works", realm: "Steampunk", accent: "#B98A44", desc: "The medallion swings open like a pocket-watch door, showing off its spinning gearworks — until they grind and cough smoke, the door drops off its hinge, and every gear spills out." },
+  { key: "snatch", name: "Soul Snatch", realm: "Reaper", accent: "#9BA8C0", desc: "The white spectre materializes out of thin air behind the medallion — claws already around it — lingers with a mournful wail, then vanishes into the dark and takes it with him." },
+  { key: "snowman", name: "Blown Away", realm: "Winter", accent: "#8FC7E8", desc: "A smiling snowman shuffles onto the banner — then a snowy gust blows his head clean off. It bonks the medallion out of its perch and squats there grinning until the breeze moves him along." },
 ];
 
 export function readHeistsSeen() {
