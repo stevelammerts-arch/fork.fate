@@ -2037,3 +2037,22 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   fades) plays at SaucerAbduction phase 2 "beam on" (1.38s) so the rise peaks
   right as the coin enters the ship (~3.2s lift end). Both ff_muted-aware.
 - Every realm's heist now has sound.
+
+## 2026-08-06 part 82: Trophy Shelf + pre-publish test pass (FF_BUILD 384)
+- TROPHY SHELF on /rituals (Collection) above the heists grid: 2 shelf rows of
+  8 trophies (16 heists), witnessed = glowing accent-tinted orb + icon
+  (ffTrophyGlow brightness pulse, staggered spring entrance, accent pedestal),
+  locked = dark orb w/ Lock + dim pedestal; gold shelf planks; "N / 16"
+  counter [data-testid=trophy-count]. HEIST_ICONS completed for ALL 16 keys
+  (was 5): ball=Volleyball, crab=Shell, surf=Waves, spear=Target,
+  spring=Watch, gears=Cog, snatch=Ghost, snowman=Snowflake, owl=Bird,
+  petals=Flower2, wreck=CarFront (lucide 0.516).
+- TESTING: testing agent iteration_59.json — 100% frontend pass: all 10 themes
+  render clean, all 6 new heists verified via force events, trophy shelf,
+  16 heist cards, all 16 audio + 7 sprite assets 200, no console errors.
+- DEPLOYMENT CHECK: deployment_agent = WARN (deployable). CORS left AS-IS
+  deliberately: backend/core.py ALLOWED_ORIGIN_REGEX already covers
+  fork-fate.com + *.emergent.host + previews with hardened security headers;
+  "*" + allow_credentials would be worse. Minor perf suggestions (query
+  projections in routes/restaurants.py) noted for backlog.
+- App is PUBLISH-READY per user request.
