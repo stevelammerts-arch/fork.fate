@@ -869,6 +869,9 @@ export function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"]
           if (heistKind === "breath") {
             // Flame jet from the dragon's MOUTH, streaming horizontally
             // across into the medallion's heart (he hovers level with it).
+            if (localStorage.getItem("ff_muted") !== "1") {
+              try { const fw = new Audio("/dragon-whoosh.mp3"); fw.volume = 0.7; fw.play().catch(() => {}); } catch {}
+            }
             const c2x = r2.x + r2.width / 2, c2y = r2.y + r2.height / 2;
             const dir = c2x > pos.x ? 1 : -1; // the way he's facing
             setJet({ sx: pos.x + dir * MOUTH_DX, sy: pos.y + MOUTH_DY, tx: c2x, ty: c2y });

@@ -1934,3 +1934,8 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
 - SteamGearsHeist clank() helper (ff_muted-aware): gears-run plays at stage
   "open" (vol 0.7, whirs while the works spin, fades right into the jam) and
   boing plays at stage "break" 2.9s (vol 0.75).
+
+## 2026-08-06 part 74: Dragon breath whoosh sfx (FF_BUILD 374)
+- User-uploaded fireball-whoosh -> /dragon-whoosh.mp3 (2.1s, used as-is).
+- Plays (vol 0.7, ff_muted-aware) in CompanionPatrol's breath branch the
+  instant the tiny dragon's flame jet fires at the medallion.
