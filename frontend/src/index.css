@@ -864,13 +864,13 @@ body {
   will-change: transform, opacity;
 }
 @keyframes ffDragonSteam {
-  /* Traces the painted plume: out of the nostril to the right, up the
-     plume's spine, then a curl back LEFT at the crown as it thins out. */
+  /* Leaves the nostril mostly SIDEWAYS first (like the painted smoke),
+     then climbs the plume's spine and curls back at the crown. */
   0%   { transform: translate(0, 0) rotate(0deg) scale(0.45, 0.5); opacity: 0; }
   10%  { opacity: 0.68; }
-  40%  { transform: translate(calc(var(--sx) * 0.58), calc(var(--sy) * 0.34)) rotate(18deg) scale(0.9, 1.05); opacity: 0.55; }
-  72%  { transform: translate(calc(var(--sx) * 1.06), calc(var(--sy) * 0.68)) rotate(-6deg) scale(1.25, 1.4); opacity: 0.38; }
-  100% { transform: translate(calc(var(--sx) * 0.86), var(--sy)) rotate(-20deg) scale(1.65, 1.75); opacity: 0; }
+  40%  { transform: translate(calc(var(--sx) * 0.55), calc(var(--sy) * 0.2)) rotate(18deg) scale(0.9, 1.05); opacity: 0.55; }
+  72%  { transform: translate(calc(var(--sx) * 1.02), calc(var(--sy) * 0.62)) rotate(-6deg) scale(1.25, 1.4); opacity: 0.38; }
+  100% { transform: translate(calc(var(--sx) * 0.85), var(--sy)) rotate(-20deg) scale(1.65, 1.75); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ff-dragon-steam { animation: none; opacity: 0; }

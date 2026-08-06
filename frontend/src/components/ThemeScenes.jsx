@@ -46,30 +46,35 @@ const CAVE_DRIPS = [
 // white smoke painted in the art (not the nostrils themselves) — many small,
 // tightly-staggered puffs (negative delays = stream already formed) that
 // overlap into unbroken ribbons. Coords are px in the 1264x848 cave art.
+// Hoard dragon's steam: TWO steady strings of smoke rising from his
+// NOSTRILS (user-pinpointed: left nostril art(770,415), right art(828,419))
+// and flowing out along the white smoke painted in the art — many small,
+// tightly-staggered puffs (negative delays = stream already formed) that
+// overlap into unbroken ribbons. Coords are px in the 1264x848 cave art.
 const DRAGON_STEAM = [
-  // right plume: base beside the cheek, rising up-right, curling left on top
+  // right nostril: sweeps right along the painted plume, curling at the top
   ...Array.from({ length: 12 }, (_, i) => ({
-    x: 882 + (i % 3) * 3, y: 422 + (i % 2) * 4, w: 17 + (i % 3) * 4, h: 19 + (i % 3) * 4,
-    dx: 78 + (i % 4) * 7, dy: -(148 + (i % 3) * 14),
+    x: 828 + (i % 3) * 2, y: 419 + (i % 2) * 3, w: 17 + (i % 3) * 4, h: 19 + (i % 3) * 4,
+    dx: 118 + (i % 4) * 7, dy: -(132 + (i % 3) * 14),
     dur: 6.2, delay: -(i * 0.517),
   })),
-  // right plume, second layer: offset + slower cycle so the two ribbons
+  // right nostril, second layer: offset + slower cycle so the two ribbons
   // weave through each other and the smoke never thins out
   ...Array.from({ length: 10 }, (_, i) => ({
-    x: 890 + (i % 3) * 3, y: 430 + (i % 2) * 5, w: 19 + (i % 3) * 4, h: 21 + (i % 3) * 4,
-    dx: 66 + (i % 4) * 8, dy: -(160 + (i % 3) * 12),
+    x: 832 + (i % 3) * 2, y: 423 + (i % 2) * 4, w: 19 + (i % 3) * 4, h: 21 + (i % 3) * 4,
+    dx: 106 + (i % 4) * 8, dy: -(146 + (i % 3) * 12),
     dur: 7.4, delay: -(i * 0.74 + 0.37),
   })),
-  // left plume: in front of the far wing, rising nearly straight up
+  // left nostril: rises up-left past the brow into the painted wisp
   ...Array.from({ length: 10 }, (_, i) => ({
-    x: 742 + (i % 3) * 2, y: 425 + (i % 2) * 4, w: 14 + (i % 3) * 3, h: 16 + (i % 3) * 3,
-    dx: -(14 + (i % 3) * 6), dy: -(100 + (i % 3) * 10),
+    x: 770 + (i % 3) * 2, y: 415 + (i % 2) * 3, w: 14 + (i % 3) * 3, h: 16 + (i % 3) * 3,
+    dx: -(38 + (i % 3) * 6), dy: -(96 + (i % 3) * 10),
     dur: 6.2, delay: -(i * 0.62 + 0.31),
   })),
-  // left plume, second layer
+  // left nostril, second layer
   ...Array.from({ length: 8 }, (_, i) => ({
-    x: 736 + (i % 3) * 2, y: 431 + (i % 2) * 5, w: 16 + (i % 3) * 3, h: 18 + (i % 3) * 3,
-    dx: -(6 + (i % 3) * 7), dy: -(112 + (i % 3) * 9),
+    x: 766 + (i % 3) * 2, y: 420 + (i % 2) * 4, w: 16 + (i % 3) * 3, h: 18 + (i % 3) * 3,
+    dx: -(30 + (i % 3) * 7), dy: -(108 + (i % 3) * 9),
     dur: 7.4, delay: -(i * 0.925 + 0.46),
   })),
 ];
