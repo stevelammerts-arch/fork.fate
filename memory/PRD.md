@@ -2133,3 +2133,16 @@ timers, the established pattern), 3b (visuals only, NO audio for these four).
   closing the ~2.5s race where fate turned busy mid-scroll.
 - Verified: coffee heist mid-melt + Guided opened -> heist layer gone (0 nodes)
   and medallion visibility restored to "visible" immediately.
+
+## 2026-08-06 part 88: Snowman attach + Neon Wreck summon (FF_BUILD 389)
+- SnowmanHeist: body raised so the neck tucks under the head (bodyTop = cy +
+  headH*0.5 - bodyH*0.14; the body art's ball top sits ~10% down, twig arms
+  reach y=0) and head recentered on the torso (hx = bodyLeft + bodyW*0.53).
+  Screenshot-verified attached.
+- CyberNeonSign (Neon Wreck): the cyberscape is a FIXED backdrop, so scrolled
+  page content covered the crash (user missed it). Wreck now scrolls smoothly
+  to top and waits for settle before the car careens in (same pattern as
+  summonToLogo, incl. 2.5s poll timeout + settle beat), and checks
+  window.__ffFateBusy before starting AND after the scroll (bails + retries in
+  30s). Interval cleared on unmount. Verified: scrollY 1200 -> 0 -> crash in
+  full view.

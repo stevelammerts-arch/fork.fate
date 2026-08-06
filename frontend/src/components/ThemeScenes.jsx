@@ -1504,8 +1504,8 @@ function SnowmanHeist() {
   const headW = w * 1.5, headH = headW * (220 / 207);
   const bodyW = w * 2.4, bodyH = bodyW * (320 / 316);
   const bodyLeft = vw - bodyW - 24;
-  const bodyTop = cy + headH * 0.42;
-  const hx = bodyLeft + bodyW * 0.50, hy = cy; // head perched on the neck, level with the logo
+  const bodyTop = cy + headH * 0.5 - bodyH * 0.14; // neck tucks right up under the head
+  const hx = bodyLeft + bodyW * 0.53, hy = cy; // head perched on the neck, level with the logo
   const slide = bodyW + 90;
   // head centre + tumble per phase (lands upright: -340 settles to -360 ≡ 0)
   const hcx = phase === 0 ? hx + slide : phase < 2 ? hx : phase < 4 ? cx : cx - vw * 0.4;
@@ -2087,15 +2087,18 @@ function CyberNeonSign({ neon }) {
   useEffect(() => {
     const timers = [];
     let pending = null;
+    let poll = null;
     let running = false;
     const play = (src, vol) => {
       if (localStorage.getItem("ff_muted") === "1") return;
       try { const a = new Audio(src); a.volume = vol; a.play().catch(() => {}); } catch {}
     };
     const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(start, ms); };
-    const start = () => {
-      if (running) return;
-      running = true;
+    const bail = () => { running = false; schedule(30000); };
+    // The whole cyberscape is a FIXED backdrop — page content rolls right over
+    // the sign once the user scrolls. So before a wreck, pull them back up to
+    // the skyline for good viewing (same courtesy as the medallion heists).
+    const go = () => {
       setCrash(1);                                          // careens out of traffic
       timers.push(setTimeout(() => {                        // CRUNCH
         setCrash(2);
@@ -2109,9 +2112,23 @@ function CyberNeonSign({ neon }) {
         schedule(180000 + Math.random() * 180000);          // next wreck in 3-6 min
       }, 7600));
     };
+    const start = () => {
+      if (running) return;
+      running = true;
+      if (window.__ffFateBusy) { bail(); return; }          // never talk over fate
+      if (window.scrollY <= 40) { go(); return; }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      const t0 = Date.now();
+      poll = setInterval(() => {
+        if (window.scrollY <= 2 || Date.now() - t0 > 2500) {
+          clearInterval(poll);
+          timers.push(setTimeout(() => (window.__ffFateBusy ? bail() : go()), 250)); // settle beat
+        }
+      }, 90);
+    };
     schedule(30000 + Math.random() * 30000);
     window.addEventListener("ff:neon-crash", start);
-    return () => { clearTimeout(pending); timers.forEach(clearTimeout); window.removeEventListener("ff:neon-crash", start); };
+    return () => { clearTimeout(pending); clearInterval(poll); timers.forEach(clearTimeout); window.removeEventListener("ff:neon-crash", start); };
   }, []); // witnessRef is a stable ref
   const out = crash === 2; // tubes dead
   return (
