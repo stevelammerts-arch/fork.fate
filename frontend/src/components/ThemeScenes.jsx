@@ -1580,7 +1580,7 @@ function SnowmanHeist() {
 function OwlHeist() {
   const witnessRef = useHeistWitness("owl");
   const [run, setRun] = useState(null);   // {cx, cy, w}
-  const [phase, setPhase] = useState(0);  // 1 swoop in, 2 the clamp beat, 3 carries it off
+  const [phase, setPhase] = useState(0);  // 1 dive down-left, 2 swoop up to the logo, 3 the clamp beat, 4 carries it off
   useEffect(() => {
     // Warm the sprite so the very first strike doesn't pop in half-loaded.
     { const im = new Image(); im.src = "/owl-fly-1.png"; }
@@ -1600,27 +1600,30 @@ function OwlHeist() {
           if (localStorage.getItem("ff_muted") === "1") return;
           try { const a = new Audio(src); a.volume = vol; a.play().catch(() => {}); } catch {}
         };
-        timers.push(setTimeout(() => {                     // swoops in, hooting softly
+        timers.push(setTimeout(() => {                     // dives DOWN out of the sky, hooting
           setPhase(1);
           cry("/owl-hoot.mp3", 0.45);
         }, 30));
-        timers.push(setTimeout(() => cry("/wing-whoosh.mp3", 0.5), 800)); // feathers brake the dive
-        timers.push(setTimeout(() => {                     // talons CLAMP shut on it
+        timers.push(setTimeout(() => {                     // hauls up toward the medallion
           setPhase(2);
+          cry("/wing-whoosh.mp3", 0.5);
+        }, 1000));
+        timers.push(setTimeout(() => {                     // talons CLAMP shut on it
+          setPhase(3);
           med.style.visibility = "hidden"; startleTitle();
-        }, 1450));
-        timers.push(setTimeout(() => setPhase(3), 1980));  // carries it off
+        }, 1780));
+        timers.push(setTimeout(() => setPhase(4), 2310));  // carries it off
         timers.push(setTimeout(() => {
           med.style.visibility = "";
           med.style.animation = "none";
           void med.offsetWidth; // restart the pop on repeat strikes
           med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
-        }, 3300));
+        }, 3630));
         timers.push(setTimeout(() => {
           setRun(null); setPhase(0); running = false;
           witnessRef.current(true);
           schedule(150000 + Math.random() * 150000); // hunts again in 2.5-5 min
-        }, 4100));
+        }, 4430));
       });
     };
     schedule(25000 + Math.random() * 20000);
@@ -1641,20 +1644,24 @@ function OwlHeist() {
   const owlW = w * 3.5, owlH = owlW * (340 / 329);
   const gx = 0.17, gy = 0.87; // open-talon pocket in the sprite box
   const gripLeft = cx - owlW * gx, gripTop = cy - owlH * gy;
-  const x = phase === 0 ? vw + 40 : phase === 3 ? -owlW - vw * 0.12 : gripLeft;
-  const y = phase === 0 ? gripTop - 150 : phase === 3 ? gripTop - vh * 0.32 : gripTop;
-  const trans = phase === 1 ? "transform 1.4s cubic-bezier(0.3,0.7,0.3,1)" : phase === 3 ? "transform 1.3s cubic-bezier(0.55,0.05,0.8,0.4)" : "none";
+  // The J-swoop: off-screen top-right -> DIVES down-left into mid-screen
+  // (impossible to miss on mobile) -> hauls back UP to the medallion -> off.
+  const x = phase === 0 ? vw + 40 : phase === 1 ? vw * 0.5 - owlW * 0.5 : phase === 4 ? -owlW - vw * 0.12 : gripLeft;
+  const y = phase === 0 ? gripTop - 80 : phase === 1 ? gripTop + vh * 0.42 : phase === 4 ? gripTop - vh * 0.32 : gripTop;
+  const trans = phase === 1 ? "transform 0.95s cubic-bezier(0.4,0.1,0.7,1)"
+    : phase === 2 ? "transform 0.75s cubic-bezier(0.25,0.6,0.35,1)"
+    : phase === 4 ? "transform 1.3s cubic-bezier(0.55,0.05,0.8,0.4)" : "none";
   return (
     <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="owl-heist">
       <div className="absolute left-0 top-0" style={{ transform: `translate(${x}px, ${y}px)`, transition: trans }}>
         <div className="relative" style={{ width: owlW, height: owlH, filter: "drop-shadow(0 6px 14px rgba(40,25,10,0.45))" }}>
           {/* the snatched medallion riding in his talons */}
-          {phase >= 2 && (
+          {phase >= 3 && (
             <div className="absolute overflow-hidden bg-[#F5F0E6] ring-1 ring-[#E4E4E7]" style={{ left: owlW * gx - w / 2, top: owlH * gy - w / 2, width: w, height: w, borderRadius: "9999px" }} data-testid="owl-heist-logo">
               <img src="/logo-mark-light.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
             </div>
           )}
-          <img src="/owl-fly-1.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ animation: "ffOwlGlide 1.3s ease-in-out infinite", rotate: phase === 1 ? "-5deg" : phase === 3 ? "7deg" : "0deg", transition: "rotate 0.7s ease-in-out" }} />
+          <img src="/owl-fly-1.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ animation: "ffOwlGlide 1.3s ease-in-out infinite", rotate: phase === 1 ? "16deg" : phase === 2 ? "-11deg" : phase === 4 ? "7deg" : "0deg", transition: "rotate 0.7s ease-in-out" }} />
         </div>
       </div>
     </div>

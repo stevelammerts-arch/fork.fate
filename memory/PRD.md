@@ -2171,3 +2171,15 @@ timers, the established pattern), 3b (visuals only, NO audio for these four).
   ffNeonDieOut + halo opacity fade during crash===2.
 - Screenshot-verified full sequence on mobile: climb -> crunch -> flash-on ->
   flash-off -> revive.
+
+## 2026-08-06 part 91: Owl J-swoop for mobile visibility (FF_BUILD 392)
+- User: owl heist hard to see on mobile (old path flew flat across the very
+  top, behind the banner zone).
+- OwlHeist re-choreographed: phases now 1 dive / 2 rise / 3 clamp / 4 carry.
+  Off-screen top-right -> DIVES down-left to mid-screen (x = vw*0.5-owlW*0.5,
+  y = gripTop + vh*0.42, rotate 16deg) -> swoops UP to the grip (rotate -11deg,
+  feather-brake easing) -> clamp beat -> carries off up-left. Medallion clone
+  mounts at phase >= 3 now. Timings: dive 0.95s, rise 0.75s @1000ms, clamp
+  @1780ms, carry @2310ms, return @3630ms, cleanup @4430ms.
+- Verified by position trace on 390x844: dive bottom at y=242 (fully visible
+  mid-screen), grip, carry off, witness toast fired.
