@@ -42,6 +42,16 @@ const CAVE_DRIPS = [
   { left: "54%", dur: 3.2, delay: 1.3 },
   { left: "79%", dur: 2.9, delay: 0.6 },
 ];
+// Hoard dragon's nostril steam: thin wisps rise from his snout and curl
+// up-and-right, matching the painted plume in the artwork. Coords are px in
+// the 1264x848 cave art; drift vectors (dx,dy) follow the painted smoke.
+const DRAGON_STEAM = [
+  { x: 833, y: 440, w: 16, h: 38, dx: 104, dy: -128, dur: 5.6, delay: 0 },
+  { x: 836, y: 440, w: 13, h: 32, dx: 122, dy: -112, dur: 5.6, delay: 1.9 },
+  { x: 830, y: 442, w: 15, h: 36, dx: 88, dy: -140, dur: 5.6, delay: 3.7 },
+  { x: 806, y: 452, w: 12, h: 30, dx: -46, dy: -104, dur: 6.8, delay: 0.9 },
+  { x: 803, y: 454, w: 11, h: 26, dx: -58, dy: -92, dur: 6.8, delay: 4.3 },
+];
 
 export const SEASONS = {
   fall: {
@@ -1034,6 +1044,27 @@ export function AmbianceScene({ theme, cfg }) {
         <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(180deg, rgba(10,7,5,0.55) 0%, rgba(10,7,5,0.12) 34%, rgba(10,7,5,0.28) 70%, rgba(8,5,3,0.72) 100%)" }} />
         <div className="absolute inset-0 z-[1]" style={{ background: "radial-gradient(ellipse at 50% 80%, rgba(230,160,60,0.30), rgba(224,86,30,0.10) 44%, transparent 72%)", mixBlendMode: "screen", animation: "ffCaveFlicker 3.4s ease-in-out infinite" }} data-testid="fantasy-firelight" />
         <img src="/fantasy-eyes.png" alt="" className="pointer-events-none absolute inset-0 z-[2] h-full w-full object-cover" style={{ objectPosition: "center center", mixBlendMode: "screen", animation: "ffEyeGlow 2.4s ease-in-out infinite" }} data-testid="fantasy-eyes" />
+        {/* Living nostril steam: pinned to the artwork through the same
+            1264x848 object-cover mapping the lounge anchor measures. */}
+        {loungeBox && DRAGON_STEAM.map((s, i) => {
+          const k = loungeBox.dw / 1264;
+          return (
+            <span
+              key={`dsteam-${i}`}
+              className="ff-dragon-steam pointer-events-none absolute z-[2]"
+              data-testid="dragon-nostril-steam"
+              style={{
+                left: loungeBox.offX + s.x * k - (s.w * k) / 2,
+                top: loungeBox.offY + s.y * k - s.h * k,
+                width: s.w * k,
+                height: s.h * k,
+                "--sx": `${s.dx * k}px`,
+                "--sy": `${s.dy * k}px`,
+                animation: `ffDragonSteam ${s.dur}s linear ${s.delay}s infinite`,
+              }}
+            />
+          );
+        })}
         {GOLD_GLITTER.map((g, i) => (
           <span key={`glit-${i}`} className="pointer-events-none absolute z-[2] rounded-full" style={{ left: g.left, top: g.top, width: g.size, height: g.size, background: "radial-gradient(circle, #FFF6D5, rgba(255,220,130,0.6) 42%, rgba(255,220,130,0) 74%)", animation: `ffGoldTwinkle ${g.dur}s ease-in-out ${g.delay}s infinite` }} />
         ))}

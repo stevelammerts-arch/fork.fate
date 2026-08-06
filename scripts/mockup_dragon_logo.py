@@ -18,15 +18,20 @@ from PIL import Image, ImageDraw
 load_dotenv("/app/backend/.env")
 
 PROMPT = (
-    "Using this image as the exact composition reference, paint an ouroboros "
-    "dragon: a majestic dragon with deep RED scales and rich GOLD belly "
-    "plates, gold fins, gold horns and warm gold highlights, coiled in a "
-    "PERFECT CIRCLE biting toward its own tail, head at the top left, ornate "
-    "scales, painterly dark-fantasy style with warm ember lighting (no white "
-    "frost, no pale rim light). The CENTER of the circle must be completely "
-    "EMPTY pure black, and the background around the outside must be PURE "
-    "SOLID BLACK (#000000). The dragon's coiled body should form an evenly "
-    "thick ring so it can frame a circular coin logo."
+    "Paint a SLENDER serpentine ouroboros dragon: a graceful, snake-like "
+    "dragon with deep RED scales and rich GOLD belly plates, small delicate "
+    "gold fins and horns, coiled into a PERFECT GEOMETRIC CIRCLE biting its "
+    "own tail. CRITICAL: the dragon must be THIN and elegant like a ribbon - "
+    "its body thickness must be a uniform, slim band no thicker than 10% of "
+    "the circle's diameter all the way around. The head must be SMALL and "
+    "proportional to the slim body (like a snake's head, NOT a bulky beefy "
+    "dragon head), positioned at the top of the circle, gently biting the "
+    "tail tip. No legs, no claws, no wings - pure serpentine coil. Painterly "
+    "dark-fantasy style with warm ember lighting. The circle must be "
+    "perfectly round and CONCENTRIC with a huge completely EMPTY pure black "
+    "center hole (the hole is at least 75% of the outer diameter), and the "
+    "background outside must be PURE SOLID BLACK (#000000). It will frame a "
+    "circular coin logo placed in the center hole."
 )
 
 
@@ -71,22 +76,23 @@ def flood_key(img, thresh=16):
                 r, g, b = px[x, y]
                 opx[x, y] = (r, g, b, 0)
     hole_r = math.sqrt(len(hole) / math.pi) if hole else 0
-    return out, hole_r
+    if hole:
+        hx = sum(p[0] for p in hole) / len(hole)
+        hy = sum(p[1] for p in hole) / len(hole)
+    else:
+        hx, hy = w / 2, h / 2
+    return out, hole_r, (hx, hy)
 
 
 async def main():
-    from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
-    with open("/app/scripts/ouroboros_ref.jpg", "rb") as f:
-        ref = base64.b64encode(f.read()).decode("utf-8")
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
     chat = LlmChat(
         api_key=os.getenv("EMERGENT_LLM_KEY"),
-        session_id="red-gold-ouroboros",
+        session_id="red-gold-ouroboros-slim",
         system_message="You are an expert fantasy ornament artist.",
     )
     chat.with_model("gemini", "gemini-3.1-flash-image-preview").with_params(modalities=["image", "text"])
-    text, images = await chat.send_message_multimodal_response(
-        UserMessage(text=PROMPT, file_contents=[ImageContent(ref)])
-    )
+    text, images = await chat.send_message_multimodal_response(UserMessage(text=PROMPT))
     if not images:
         print(f"NO IMAGE. text={str(text)[:200]}")
         return
@@ -94,10 +100,12 @@ async def main():
         f.write(base64.b64decode(images[0]["data"]))
     raw = Image.open("/app/scripts/redgold_ring_raw.png")
     print("raw:", raw.size)
-    ring, hole_r = flood_key(raw)
+    ring, hole_r, (hx, hy) = flood_key(raw)
     bbox = ring.getbbox()
     ring = ring.crop(bbox)
-    print("ring trimmed:", ring.size, "| hole radius:", round(hole_r))
+    hx -= bbox[0]
+    hy -= bbox[1]
+    print("ring trimmed:", ring.size, "| hole radius:", round(hole_r), "| hole center:", (round(hx), round(hy)))
 
     # ---- composite mockup ----
     S = 900
@@ -106,20 +114,23 @@ async def main():
     for y in range(S):
         v = int(6 + 10 * y / S)
         ImageDraw.Draw(canvas).line([(0, y), (S, y)], fill=(18 + v // 2, 10 + v // 3, 6 + v // 4))
-    ring_size = 760
+    ring_size = 780
     rs = ring.resize((ring_size, int(ring.height * ring_size / ring.width)), Image.LANCZOS)
     scale = ring_size / ring.width
     hole_px = hole_r * scale * 2 if hole_r else ring_size * 0.5
     logo = Image.open("/app/frontend/public/logo-crest-gold.png").convert("RGBA")
-    coin_d = int(hole_px * 0.96)
+    coin_d = int(hole_px * 0.94)
     logo = logo.resize((coin_d, coin_d), Image.LANCZOS)
     mask = Image.new("L", (coin_d, coin_d), 0)
     ImageDraw.Draw(mask).ellipse([0, 0, coin_d, coin_d], fill=255)
     black = Image.new("RGB", (coin_d, coin_d), (0, 0, 0))
     cx, cy = S // 2, S // 2
+    # place ring so its HOLE CENTROID sits at canvas center (concentric with coin)
+    ring_x = int(cx - hx * scale)
+    ring_y = int(cy - hy * scale)
     canvas.paste(black, (cx - coin_d // 2, cy - coin_d // 2), mask)
     canvas.paste(logo, (cx - coin_d // 2, cy - coin_d // 2), logo)
-    canvas.paste(rs, (cx - rs.width // 2, cy - rs.height // 2), rs)
+    canvas.paste(rs, (ring_x, ring_y), rs)
     canvas.save("/app/frontend/public/dragon-logo-mockup.jpg", quality=90)
     print("saved /app/frontend/public/dragon-logo-mockup.jpg")
 
