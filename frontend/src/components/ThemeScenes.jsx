@@ -908,7 +908,7 @@ function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heist
       )}
       {knock && heistKind === "crash" && (
         <div className="absolute overflow-hidden bg-black ring-1 ring-white/25" style={{ left: knock.x, top: knock.y, width: knock.w, height: knock.w, borderRadius: "9999px", animation: "ffLogoKnockL 0.9s cubic-bezier(0.25,0.8,0.5,1) forwards" }} data-testid="surf-heist-logo">
-          <img src="/logo-mark.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+          <img src="/logo-tiki.png" alt="" className="h-full w-full object-contain" style={{ borderRadius: "9999px" }} />
         </div>
       )}
       {burst && (
@@ -1253,18 +1253,16 @@ function SummerCrabHeist() {
   );
 }
 
-/** Tiki spear heist: a tiki warrior CHARGES across the screen from the
- * right, spear leveled — skewers the medallion clean onto the tip without
- * breaking stride, skids to a stop, TOSSES it away off the spear, then
- * charges on out the left edge. First strike 85-125s after load (staggered
- * clear of the surfer), then every 2.5-5 min (`ff:spear-heist` forces it
- * for testing). */
+/** Tiki spear heist: a tiki hunter CHARGES across the screen from the
+ * right to war drums, spear leveled — one jab and the medallion POPS like a
+ * balloon in a burst of sparks. He struts on out the left edge while it
+ * puffs itself back up. First strike 85-125s after load (staggered clear of
+ * the surfer), then every 2.5-5 min (`ff:spear-heist` forces it, testing). */
 function TikiSpearHeist() {
   const witnessRef = useHeistWitness("spear");
   const [run, setRun] = useState(null);    // {cx, cy, w}
-  const [phase, setPhase] = useState(0);   // 0 offscreen right, 1 charge, 2 skid stop, 3 charge off left
-  const [skewer, setSkewer] = useState(false); // medallion riding the spear tip
-  const [toss, setToss] = useState(null);      // {x, y} flung medallion
+  const [phase, setPhase] = useState(0);   // 0 offscreen right, 1 charge, 2 the jab beat, 3 charge off left
+  const [pop, setPop] = useState(false);   // the medallion mid-POP
   useEffect(() => {
     const timers = [];
     let pending = null;
@@ -1280,29 +1278,29 @@ function TikiSpearHeist() {
         const w = r.width;
         const cx = r.x + w / 2, cy = r.y + r.height / 2;
         setRun({ cx, cy, w });
-        timers.push(setTimeout(() => setPhase(1), 30));   // CHARGE!
-        timers.push(setTimeout(() => {                     // skewered mid-stride
-          setSkewer(true);
+        timers.push(setTimeout(() => {                     // CHARGE! (war drums)
+          setPhase(1);
+          if (localStorage.getItem("ff_muted") !== "1") {
+            try { const d = new Audio("/reveal-drums-groove.wav"); d.volume = 0.9; d.play().catch(() => {}); } catch {}
+          }
+        }, 30));
+        timers.push(setTimeout(() => {                     // the jab lands: POP!
+          setPhase(2); setPop(true);
           med.style.visibility = "hidden"; startleTitle();
-          setPhase(2);                                     // skid to a stop just past it
         }, 1200));
-        timers.push(setTimeout(() => {                     // the TOSS
-          setSkewer(false);
-          setToss({ x: cx - w * 0.7, y: cy });
-        }, 2050));
-        timers.push(setTimeout(() => setPhase(3), 2450));  // charges on out
-        timers.push(setTimeout(() => setToss(null), 3050));
+        timers.push(setTimeout(() => setPop(false), 2200));
+        timers.push(setTimeout(() => setPhase(3), 2100));  // struts on out
         timers.push(setTimeout(() => {
           med.style.visibility = "";
           med.style.animation = "none";
-          void med.offsetWidth; // restart the pop on repeat strikes
-          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
-        }, 3850));
+          void med.offsetWidth; // restart the re-inflate on repeat strikes
+          med.style.animation = "ffLogoReinflate 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 3450));
         timers.push(setTimeout(() => {
           setRun(null); setPhase(0); running = false;
           witnessRef.current(true);
           schedule(150000 + Math.random() * 150000); // again in 2.5-5 min
-        }, 4700));
+        }, 4300));
       });
     };
     schedule(85000 + Math.random() * 40000);
@@ -1322,29 +1320,29 @@ function TikiSpearHeist() {
   const SH = w * 2.4;
   const SW = SH * (287 / 260); // tiki-man-spear.png natural aspect
   // He charges RIGHT-to-LEFT (sprite flipped), spear tip = LEFT edge of the
-  // box, running ~47% down the art. Position the wrapper by its LEFT edge
-  // (= the spear tip x). He skids to a stop with the tip just past the
-  // medallion's heart, tosses, then bolts out the left side.
-  const tipStop = cx - w * 0.25;
-  const x = phase === 0 ? window.innerWidth + 60 : phase === 1 ? tipStop + w * 0.05 : phase === 3 ? -(SW + w + 80) : tipStop;
+  // box, running ~47% down the art. Wrapper is positioned by its LEFT edge
+  // (= the spear tip x): the tip lands right on the medallion's heart.
+  const x = phase === 0 ? window.innerWidth + 60 : phase === 3 ? -(SW + w + 80) : cx - w * 0.1;
   const trans = phase === 1 ? "transform 1.15s cubic-bezier(0.3,0,0.7,1)"
-    : phase === 2 ? "transform 0.3s ease-out"
     : phase === 3 ? "transform 1.2s cubic-bezier(0.55,0,0.85,0.5)" : "none";
   return (
     <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="spear-heist">
-      {/* the flung medallion sailing away off the spear */}
-      {toss && (
-        <div className="absolute overflow-hidden bg-black ring-1 ring-white/25" style={{ left: toss.x - w / 2, top: toss.y - w / 2, width: w, height: w, borderRadius: "9999px", animation: "ffLogoToss 0.95s cubic-bezier(0.3,0.4,0.6,1) forwards" }} data-testid="spear-heist-logo-toss">
-          <img src="/logo-mark.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+      {/* the medallion POPPING like a balloon on the spear tip */}
+      {pop && (<>
+        <div className="absolute overflow-hidden bg-black ring-1 ring-white/25" style={{ left: cx - w / 2, top: cy - w / 2, width: w, height: w, borderRadius: "9999px", animation: "ffLogoPop 0.34s ease-in forwards" }} data-testid="spear-heist-logo-pop">
+          <img src="/logo-tiki.png" alt="" className="h-full w-full object-contain" style={{ borderRadius: "9999px" }} />
         </div>
-      )}
+        <div className="absolute" style={{ left: cx, top: cy }} data-testid="spear-heist-burst">
+          {Array.from({ length: 12 }, (_, i) => {
+            const a = (i / 12) * Math.PI * 2;
+            const d = w * (0.65 + (i % 3) * 0.24);
+            return (
+              <span key={`pop-${i}`} className="absolute rounded-full" style={{ width: 5 + (i % 3) * 3, height: 5 + (i % 3) * 3, "--dx": `${Math.cos(a) * d}px`, "--dy": `${Math.sin(a) * d}px`, background: i % 3 === 0 ? "radial-gradient(circle, #FFFFFF, #FBE3C0 60%, transparent 82%)" : i % 3 === 1 ? "radial-gradient(circle, #FBE3C0, #F0A24E 60%, transparent 82%)" : "radial-gradient(circle, #F0A24E, #E0451B 62%, transparent 82%)", boxShadow: "0 0 6px rgba(240,162,78,0.9)", animation: "ffPoofSparkle 0.95s ease-out forwards" }} />
+            );
+          })}
+        </div>
+      </>)}
       <div className="absolute left-0 top-0" style={{ transform: `translate(${x}px, ${cy - SH * 0.47}px)`, transition: trans }}>
-        {/* the medallion skewered on the spear tip, riding along */}
-        {skewer && (
-          <div className="absolute overflow-hidden bg-black ring-1 ring-white/25 z-[1]" style={{ left: -w * 0.45, top: SH * 0.47 - w / 2, width: w, height: w, borderRadius: "9999px" }} data-testid="spear-heist-logo">
-            <img src="/logo-mark.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
-          </div>
-        )}
         <div style={{ transform: "scaleX(-1)" }}>
           <div style={{ width: SW, height: SH, animation: phase === 1 || phase === 3 ? "ffTikiStrut 0.28s linear infinite" : undefined }}>
             <img src="/tiki-man-spear.png" alt="" className="h-full w-full object-contain" style={{ filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.45))" }} />

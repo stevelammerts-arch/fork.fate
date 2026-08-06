@@ -26,9 +26,9 @@ export function HomeHeader({
         <div className="flex items-center gap-2 md:gap-3">
           <div className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-full md:h-16 md:w-16 ${light ? "ring-1 bg-[#F5F0E6] ring-[#E4E4E7]" : theme === "fairy" ? "bg-black ring-2 ring-[#E6B23A]" : "ring-1 bg-black ring-white/25"}`}>
             <img
-              src={theme === "cyber" ? "/cyber-neon-logo.png" : theme === "fantasy" ? "/logo-ouroboros.png" : (light ? "/logo-mark-light.png" : "/logo-mark.png")}
+              src={theme === "cyber" ? "/cyber-neon-logo.png" : theme === "fantasy" ? "/logo-ouroboros.png" : theme === "tiki" ? "/logo-tiki.png" : (light ? "/logo-mark-light.png" : "/logo-mark.png")}
               alt="Fork·Fate logo"
-              className={`h-12 w-12 object-contain md:h-16 md:w-16 ${theme === "cyber" ? "p-0.5" : theme === "fantasy" ? "" : "scale-110"}`}
+              className={`h-12 w-12 object-contain md:h-16 md:w-16 ${theme === "cyber" ? "p-0.5" : theme === "fantasy" || theme === "tiki" ? "" : "scale-110"}`}
               style={theme === "fairy" ? { filter: "hue-rotate(115deg) saturate(1.25) brightness(1.05)" } : undefined}
             />
             <motion.div

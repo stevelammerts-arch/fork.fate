@@ -1767,3 +1767,36 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   * HEISTS entries added in lib/rituals.js (realm "Summer").
 - Verified via screenshots: ball sit-in, logo return + witness toast, crab hoist
   and haul frames.
+
+## 2026-08-06 part 64: TIKI LOUNGE takeover (FF_BUILD 354-357)
+- TIKI MEN (user's chibi tiki-warrior reference; scripts/gen_tiki_man.py w/
+  border flood_key, "dangerous but funny" + "a little color" = red-orange/teal
+  feathers, ember eyes): tiki-man-surf.png (209x260), tiki-man-spear.png (287x260),
+  tiki-guy-card.png (front-facing torch+spear, big dark blob >1200px post-cleared).
+- ROAMING SURFER: CompanionPatrol gained emitY (spray from board bottom, 38) +
+  bob prop + heistKind "crash" (key "surf", ff:surf-heist, ffLogoKnockL knocks
+  med OFF-SCREEN left ~58vw, foam burst colors, casting=ffBallHeistSpin dizzy).
+  Mounted for cfg.lounge with white/#74C6E6 spray, ffTikiSurfBob bob, flap="none"
+  (single sprite trick: s1=s2, animations none).
+- SPEAR TOSS (TikiSpearHeist, key "spear", ff:spear-heist): hunter charges
+  RIGHT->LEFT (flipped, tip=left edge ~47% down, wrapper positioned by tip x),
+  war drums /reveal-drums-groove.wav on charge (mute-aware), skewers med onto
+  spear (clone rides at -w*0.45), skids, ffLogoToss fling (up-left, spins, fades),
+  exits left, ffLogoReturn at 3.85s. First strike 85-125s.
+- TIKI LOGO (user chose carved-wood option A, approved): mockup_tiki_logo.py ->
+  logo-tiki.png 512px (koa disc, chiseled FF crest, tiki-mask+zigzag rim, twin
+  torches, teal/orange accents). Applied: HomeHeader tiki branch (no scale),
+  crash knock clone, spear skewer + toss clones (object-contain, no scale-110).
+- CARD ART: tiki shuffle card back (ShufflingDeck) + fate card art (homeFateCard,
+  artSize 260) now /tiki-guy-card.png (was realistic /tiki-mask.png).
+- HEISTS lib entries: surf "Tiki Wipeout", spear "Spear Toss" (realm Tiki Lounge).
+- Old standalone TikiSurfHeist deleted (replaced by companion crash).
+- Verified via screenshots: roaming surfer + spray, wipeout crash + witness toast,
+  skewer carry w/ tiki logo, header tiki medallion.
+
+## 2026-08-06 part 64b: Spear heist reworked to POP (FF_BUILD 358)
+- User changed skewer+toss -> balloon POP: TikiSpearHeist now charges, jab at
+  1.2s POPS the med (ffLogoPop 0.34s clone of logo-tiki + 12-spark burst via
+  ffPoofSparkle, orange/amber), struts off left at 2.1s, med returns with new
+  ffLogoReinflate at 3.45s. ffLogoToss keyframe removed; HEISTS entry renamed
+  "Spear Pop". Verified all 3 states via screenshots.
