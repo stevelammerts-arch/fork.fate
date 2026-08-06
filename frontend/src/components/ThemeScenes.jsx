@@ -397,41 +397,44 @@ function SaucerAbduction({ saucer, onActive }) {
     const timers = [];
     let pending = null;
     let running = false;
+    let cancelSummon = null;
     const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
     const start = (force) => {
       if (running) return;
-      const img = document.querySelector('img[alt="Fork·Fate logo"]');
-      const med = img && img.parentElement;
-      const r = med && med.getBoundingClientRect();
-      if (!r || !r.width) { if (!force) schedule(30000); return; }
       running = true;
-      const cx = r.x + r.width / 2, cy = r.y + r.height / 2;
-      // Hover point: below-right of the logo so the beam angles up at it
-      const sx = Math.min(cx + 170, window.innerWidth - 100);
-      const sy = cy + 130;
-      setRun({ cx, cy, w: r.width, sx, sy });
-      onActive(true);
-      timers.push(setTimeout(() => setPhase(1), 30));                                     // fly in
-      timers.push(setTimeout(() => setPhase(2), 1380));                                   // beam on
-      timers.push(setTimeout(() => { setPhase(3); med.style.visibility = "hidden"; startleTitle(); }, 1830)); // lift
-      timers.push(setTimeout(() => setPhase(4), 3200));                                   // beam off + leave
-      timers.push(setTimeout(() => {
-        med.style.visibility = "";
-        med.style.animation = "none";
-        void med.offsetWidth; // restart the bounce on repeat strikes
-        med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
-      }, 4200));
-      timers.push(setTimeout(() => {
-        setRun(null); setPhase(0); onActive(false); running = false;
-        witnessRef.current(true);
-        schedule(150000 + Math.random() * 150000); // strikes again in 2.5-5 min
-      }, 4900));
+      // Scroll the user back up to the header first — the show is up there.
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        const cx = r.x + r.width / 2, cy = r.y + r.height / 2;
+        // Hover point: below-right of the logo so the beam angles up at it
+        const sx = Math.min(cx + 170, window.innerWidth - 100);
+        const sy = cy + 130;
+        setRun({ cx, cy, w: r.width, sx, sy });
+        onActive(true);
+        timers.push(setTimeout(() => setPhase(1), 30));                                     // fly in
+        timers.push(setTimeout(() => setPhase(2), 1380));                                   // beam on
+        timers.push(setTimeout(() => { setPhase(3); med.style.visibility = "hidden"; startleTitle(); }, 1830)); // lift
+        timers.push(setTimeout(() => setPhase(4), 3200));                                   // beam off + leave
+        timers.push(setTimeout(() => {
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // restart the bounce on repeat strikes
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 4200));
+        timers.push(setTimeout(() => {
+          setRun(null); setPhase(0); onActive(false); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // strikes again in 2.5-5 min
+        }, 4900));
+      });
     };
     schedule(20000 + Math.random() * 20000);
     const force = () => start(true);
     window.addEventListener("ff:abduct", force);
     return () => {
       clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
       window.removeEventListener("ff:abduct", force);
       // If we unmount mid-heist (theme switch), never leave the logo hidden.
       const img = document.querySelector('img[alt="Fork·Fate logo"]');
@@ -471,6 +474,28 @@ function SaucerAbduction({ saucer, onActive }) {
       )}
     </div>
   );
+}
+
+/** Every heist strikes the header logo. If the user has scrolled it out of
+ * view (mobile, mid-list), smoothly pull the page back to the top first so
+ * they never miss the show, then hand back the medallion element to measure.
+ * Returns a cancel function for unmount-mid-scroll safety. */
+function summonToLogo(done) {
+  const img = document.querySelector('img[alt="Fork·Fate logo"]');
+  const med = img && img.parentElement;
+  const r = med && med.getBoundingClientRect();
+  if (!r || !r.width) { done(null); return () => {}; }
+  if (r.top >= 0 && r.bottom <= window.innerHeight) { done(med); return () => {}; }
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  const t0 = Date.now();
+  let settle;
+  const poll = setInterval(() => {
+    if (window.scrollY <= 2 || Date.now() - t0 > 2500) {
+      clearInterval(poll);
+      settle = setTimeout(() => done(med), 250); // settle beat before measuring
+    }
+  }, 90);
+  return () => { clearInterval(poll); clearTimeout(settle); };
 }
 
 /** First-time heist sightings earn a toast pointing at the Collection. */
@@ -518,35 +543,38 @@ function LogoHeist({ sprite, aspect, gripX, gripY, widthMult, cloneSrc, shadow, 
     const timers = [];
     let pending = null;
     let running = false;
+    let cancelSummon = null;
     const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
     const start = (force) => {
       if (running) return;
-      const img = document.querySelector('img[alt="Fork·Fate logo"]');
-      const med = img && img.parentElement;
-      const r = med && med.getBoundingClientRect();
-      if (!r || !r.width) { if (!force) schedule(30000); return; }
       running = true;
-      setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
-      timers.push(setTimeout(() => setPhase(1), 30));                                          // rise up to the logo
-      timers.push(setTimeout(() => { setPhase(2); med.style.visibility = "hidden"; startleTitle(); }, 1180)); // clamp shut on it
-      timers.push(setTimeout(() => setPhase(3), 1800));                                        // yank it down below
-      timers.push(setTimeout(() => {
-        med.style.visibility = "";
-        med.style.animation = "none";
-        void med.offsetWidth; // restart the bounce on repeat strikes
-        med.style.animation = "ffLogoReturnUp 0.55s cubic-bezier(0.34,1.56,0.64,1)";
-      }, 2950));
-      timers.push(setTimeout(() => {
-        setRun(null); setPhase(0); running = false;
-        witnessRef.current(true);
-        schedule(150000 + Math.random() * 150000); // strikes again in 2.5-5 min
-      }, 3650));
+      // Scroll the user back up to the header first — the show is up there.
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        timers.push(setTimeout(() => setPhase(1), 30));                                          // rise up to the logo
+        timers.push(setTimeout(() => { setPhase(2); med.style.visibility = "hidden"; startleTitle(); }, 1180)); // clamp shut on it
+        timers.push(setTimeout(() => setPhase(3), 1800));                                        // yank it down below
+        timers.push(setTimeout(() => {
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // restart the bounce on repeat strikes
+          med.style.animation = "ffLogoReturnUp 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 2950));
+        timers.push(setTimeout(() => {
+          setRun(null); setPhase(0); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // strikes again in 2.5-5 min
+        }, 3650));
+      });
     };
     schedule(25000 + Math.random() * 20000);
     const force = () => start(true);
     window.addEventListener("ff:heist", force);
     return () => {
       clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
       window.removeEventListener("ff:heist", force);
       // If we unmount mid-heist (theme switch), never leave the logo hidden.
       const img = document.querySelector('img[alt="Fork·Fate logo"]');

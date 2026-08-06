@@ -1512,3 +1512,22 @@ See `/app/memory/test_credentials.md`.
 - NOTE: a search_replace on Bingo.jsx matched the wrong anchor and left
   dangling JSX (parse error) — caught by eslint, fixed. Always re-lint.
 - READY FOR USER REDEPLOY (FF_BUILD 325).
+
+## 2026-08-05 part 51: Heist visibility fix — auto-scroll to the show (FF_BUILD 326)
+- BUG (user): "I keep getting heist witness. Problem is if I'm in the middle of
+  the page on mobile, I don't see anything." Root cause: heists target the header
+  logo via getBoundingClientRect, but Home's root wrapper `overflow-hidden`
+  BREAKS the header's `sticky top-0` — so when scrolled, the logo is above the
+  viewport and the whole animation (saucer/dragon/reaper) plays off-screen while
+  the witness toast still fires.
+- FIX (user chose "Scroll" over wait-for-visibility): new `summonToLogo(done)`
+  helper in ThemeScenes.jsx — if the medallion isn't fully in the viewport,
+  window.scrollTo({top:0, behavior:"smooth"}), poll scrollY every 90ms (2.5s
+  failsafe), 250ms settle beat, then re-measure and run the heist. Returns a
+  cancel fn; both SaucerAbduction and LogoHeist (dragon + reaper share it) call
+  it inside start() with `running=true` set BEFORE the scroll, and cancel on
+  unmount. Rect is measured AFTER the scroll completes so coordinates are fresh.
+- VERIFIED via screenshot tool on 390x800: scrollY 1400 -> dispatch ff:heist ->
+  scrollY 0, reaper-heist overlay mounted, skeleton hands clamp visible at top.
+- NOTE: screenshot tool scripts must be FLAT statements (no `async def run(page)`
+  wrapper) or prints/actions silently don't execute.
