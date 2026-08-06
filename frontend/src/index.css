@@ -398,15 +398,36 @@ body {
 }
 @keyframes ffSeaFlowA { from { transform: translateY(0); } to { transform: translateY(58px); } }
 @keyframes ffSeaFlowB { from { transform: translateY(0); } to { transform: translateY(89px); } }
-/* Seagull wingbeat — vertical squash/stretch of the silhouette reads as flapping */
+/* Seagull wingbeat: a few quick beats... then wings locked out in a GLIDE —
+   the squash/stretch of the silhouette reads as flapping */
 .ff-gull {
   transform-origin: 50% 42%;
   will-change: transform;
-  animation: ffFlap 0.8s ease-in-out infinite;
+  animation: ffFlap 2.6s ease-in-out infinite;
 }
 @keyframes ffFlap {
-  0%, 100% { transform: scaleY(1); }
-  50%      { transform: scaleY(0.6); }
+  0%   { transform: scaleY(1); }
+  7%   { transform: scaleY(0.55); }
+  14%  { transform: scaleY(1.06); }
+  21%  { transform: scaleY(0.55); }
+  28%  { transform: scaleY(1.06); }
+  35%  { transform: scaleY(0.58); }
+  44%  { transform: scaleY(0.95); }
+  52%, 90% { transform: scaleY(0.88); } /* wings held out — gliding */
+  100% { transform: scaleY(1); }
+}
+/* the long haul across the sky — horizontal only, the bob rides on top */
+@keyframes ffGullCruise {
+  0%   { transform: translateX(-24vw); }
+  100% { transform: translateX(126vw); }
+}
+/* climbs on the wingbeats, sinks through the glide, banking gently */
+@keyframes ffGullBob {
+  0%   { transform: translateY(0) rotate(0deg); }
+  30%  { transform: translateY(-13px) rotate(-4deg); }
+  55%  { transform: translateY(-7px) rotate(1.5deg); }
+  82%  { transform: translateY(6px) rotate(3deg); }
+  100% { transform: translateY(0) rotate(0deg); }
 }
 /* Seagulls gliding across the summer sky */
 @keyframes ffFly {

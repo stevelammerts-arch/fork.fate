@@ -2071,3 +2071,17 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
 - Admin BetaTesters section left intact (admin-only tooling, not user-facing).
 - Verified: 0 elements containing "beta" on Home; header flows into sponsor
   marquee cleanly.
+
+## 2026-08-06 part 85: Reaper Hand Heist cleanup (FF_BUILD 387)
+- Bug: /skeleton-hands.png contained a faint baked-in rectangle outline (source
+  art had hands holding a card; background removal left the rectangle edges) —
+  rendered in-app as the "big black square" (same class of artifact as the old
+  dragon-hoard claw issue).
+- Fix (PIL, in place, dimensions unchanged 848x1264 so LogoHeist geometry
+  gripX=0.5/gripY=0.65/aspect kept valid): morphological opening on the alpha
+  channel (MinFilter x4 -> MaxFilter x5) erased the thin rectangle lines while
+  preserving the hands. Then per user request the two hands were shifted 55px
+  each toward center (halves recomposited) for a tighter, believable clutch.
+- FF_BUILD bumped 386 -> 387. Screenshot-verified live in Dark realm via
+  ff:heist event: clamp frame clean, no square, hands wrap the medallion.
+  User confirmed: "Looks better now".

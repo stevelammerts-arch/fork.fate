@@ -16,7 +16,7 @@ const FLYING_BIRDS = Array.from({ length: 8 }).map((_, i) => ({
   size: 38 + (i % 3) * 20,
   dur: 14 + (i % 5) * 3,
   delay: -(i * 3.2),
-  flap: 0.7 + (i % 3) * 0.16,
+  cycle: 2.6 + (i % 3) * 0.5, // one full flap-flap-flap... then glide
   flapDelay: -(i * 0.13),
 }));
 
@@ -284,8 +284,11 @@ export function SeasonScene({ theme, cfg }) {
         );
       })}
       {cfg.birds && FLYING_BIRDS.map((b, i) => (
-        <div key={`bird-${i}`} className="absolute left-0" style={{ top: b.top, animation: `ffFly ${b.dur}s linear ${b.delay}s infinite`, willChange: "transform", backfaceVisibility: "hidden" }}>
-          <img src={cfg.birds} alt="" className="ff-gull block opacity-40 drop-shadow-sm" style={{ width: b.size, animationDuration: `${b.flap}s`, animationDelay: `${b.flapDelay}s` }} />
+        <div key={`bird-${i}`} className="absolute left-0" style={{ top: b.top, animation: `ffGullCruise ${b.dur}s linear ${b.delay}s infinite`, willChange: "transform", backfaceVisibility: "hidden" }}>
+          {/* rises on the wingbeats, sinks into the glide, banking gently */}
+          <div style={{ animation: `ffGullBob ${b.cycle}s ease-in-out ${b.flapDelay}s infinite` }}>
+            <img src={cfg.birds} alt="" className="ff-gull block opacity-40 drop-shadow-sm" style={{ width: b.size, animationDuration: `${b.cycle}s`, animationDelay: `${b.flapDelay}s` }} />
+          </div>
         </div>
       ))}
     </div>
