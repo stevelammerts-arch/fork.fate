@@ -8,7 +8,6 @@ import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
 import SponsorMarquee from "../components/SponsorMarquee";
-import AndroidBetaBanner from "../components/AndroidBetaBanner";
 import SocialShare from "../components/SocialShare";
 import { useFavorites } from "../hooks/useFavorites";
 import { useShake, requestMotionPermission } from "../hooks/useShake";
@@ -971,7 +970,6 @@ export default function Home() {
       />
 
       <div className="relative z-40">
-        <AndroidBetaBanner light={light} />
         <SponsorMarquee light={light} onSponsor={() => setSponsorOpen(true)} />
       </div>
 

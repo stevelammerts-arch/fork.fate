@@ -2063,3 +2063,11 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   distance — the only fields apply_filters reads, uncapped to_list(None)) then
   fetches ONLY the winning doc in full. Closes the deployment agent's perf note.
 - curl-verified: cuisines sorted list, spin full doc, empty-filter 404.
+
+## 2026-08-06 part 84: Beta banner removed (FF_BUILD 385)
+- AndroidBetaBanner removed from Home.jsx (import + render) and the component
+  file deleted. NOTE: while editing, a duplicate GuidedFlow import was briefly
+  introduced and fixed — Home now has exactly one GuidedFlow import.
+- Admin BetaTesters section left intact (admin-only tooling, not user-facing).
+- Verified: 0 elements containing "beta" on Home; header flows into sponsor
+  marquee cleanly.
