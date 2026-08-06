@@ -37,6 +37,60 @@ const GOLD_GLITTER = Array.from({ length: 16 }).map((_, i) => ({
   dur: 1.6 + ((i * 7) % 5) * 0.4,
   delay: ((i * 11) % 13) * 0.3,
 }));
+// Torch Nightfall: every painted light source in the tiki lounge art
+// (lanterns, hanging lamps, candles — px in the 1264x848 canvas). When fate
+// deals a card they all flare up and throw dancing firelight for a few beats.
+const TIKI_TORCHES = [
+  { x: 145, y: 322, r: 52, d: 0.9, dl: 0 },     // left wall lantern
+  { x: 268, y: 332, r: 46, d: 1.1, dl: -0.3 },  // left wall lantern 2
+  { x: 128, y: 618, r: 44, d: 1.0, dl: -0.6 },  // table lamp, bottom-left
+  { x: 510, y: 245, r: 58, d: 1.2, dl: -0.2 },  // hanging lantern
+  { x: 712, y: 262, r: 56, d: 0.95, dl: -0.5 }, // hanging lantern 2
+  { x: 845, y: 310, r: 48, d: 1.15, dl: -0.8 }, // hanging lantern 3
+  { x: 773, y: 330, r: 36, d: 1.05, dl: -0.15 },// small hanging lamp
+  { x: 963, y: 332, r: 42, d: 0.9, dl: -0.7 },  // wicker lantern right
+  { x: 1163, y: 265, r: 50, d: 1.2, dl: -0.4 }, // right wall lantern
+  { x: 963, y: 487, r: 26, d: 0.85, dl: -0.25 },// booth candle
+  { x: 1168, y: 600, r: 30, d: 1.0, dl: -0.55 },// table candle right
+];
+
+/** Torch Nightfall: when fate deals a card in the Tiki Lounge, every
+ * lantern and candle in the painted art flares up bright and dancing
+ * firelight rolls across the whole lounge for a few seconds. */
+function TikiTorchNightfall({ box }) {
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    let t = null;
+    const onDeal = () => { setActive(true); clearTimeout(t); t = setTimeout(() => setActive(false), 4600); };
+    window.addEventListener("ff:fate-dealt", onDeal);
+    return () => { clearTimeout(t); window.removeEventListener("ff:fate-dealt", onDeal); };
+  }, []);
+  if (!box) return null;
+  const k = box.dw / 1264;
+  return (
+    <div className="pointer-events-none absolute inset-0 z-[2] transition-opacity duration-700" style={{ opacity: active ? 1 : 0 }} data-testid="tiki-torch-nightfall">
+      {TIKI_TORCHES.map((t, i) => (
+        <span
+          key={`torch-${i}`}
+          className="absolute rounded-full mix-blend-screen"
+          style={{
+            left: box.offX + (t.x - t.r) * k,
+            top: box.offY + (t.y - t.r) * k,
+            width: t.r * 2 * k,
+            height: t.r * 2 * k,
+            background: "radial-gradient(circle, rgba(255,198,98,0.9), rgba(255,142,42,0.4) 46%, rgba(255,120,30,0) 72%)",
+            filter: "blur(2px)",
+            animation: active ? `ffTorchFlare ${t.d}s ease-in-out ${t.dl}s infinite` : "none",
+          }}
+        />
+      ))}
+      {/* firelight dancing across the walls and floor */}
+      <div className="absolute inset-0 mix-blend-overlay" style={{ background: "radial-gradient(120% 90% at 22% 38%, rgba(255,170,70,0.55), transparent 55%), radial-gradient(110% 90% at 78% 30%, rgba(255,150,50,0.5), transparent 55%)", animation: active ? "ffTorchDance 1.6s ease-in-out infinite" : "none" }} />
+      <div className="absolute inset-0 mix-blend-screen" style={{ background: "radial-gradient(130% 100% at 50% 85%, rgba(255,150,60,0.3), transparent 60%)", animation: active ? "ffTorchDance 2.3s ease-in-out -0.7s infinite" : "none" }} />
+    </div>
+  );
+}
+
 const CAVE_DRIPS = [
   { left: "22%", dur: 2.7, delay: 0 },
   { left: "54%", dur: 3.2, delay: 1.3 },
@@ -1524,6 +1578,8 @@ export function AmbianceScene({ theme, cfg }) {
         )}
         {/* second gecko scuttling along the floor — occasionally chases a fly */}
         <TikiFloorGecko />
+        {/* Torch Nightfall: all the lounge lights flare when fate deals */}
+        <TikiTorchNightfall box={loungeBox} />
       </>)}
       {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
       {cfg.console && (

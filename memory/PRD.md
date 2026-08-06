@@ -1800,3 +1800,11 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   ffPoofSparkle, orange/amber), struts off left at 2.1s, med returns with new
   ffLogoReinflate at 3.45s. ffLogoToss keyframe removed; HEISTS entry renamed
   "Spear Pop". Verified all 3 states via screenshots.
+
+## 2026-08-06 part 65: Torch Nightfall (FF_BUILD 359)
+- TikiTorchNightfall (in cfg.lounge block, box=loungeBox): listens ff:fate-dealt
+  -> active 4.6s w/ 0.7s opacity fade. 11 TIKI_TORCHES art-px glow points
+  (lanterns/lamps/candles in tiki-lounge-full.png 1264x848), each ffTorchFlare
+  (staggered dur 0.85-1.2s) + 2 full-screen dancing firelight overlays
+  (ffTorchDance, mix-blend overlay/screen). Verified: 11 spans, opacity
+  0->1->0 cycle + visual warmth.
