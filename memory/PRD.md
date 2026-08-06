@@ -2021,3 +2021,10 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   ~3.5s -> ffNeonRevive stutter 6.2s -> witness 7.6s. HEISTS #16 "Neon Wreck".
 - Verified via DOM trace: car 0-2.3s, sparks+dark 2.7-6.2s, revive flickers,
   toast at 7.9s. Sounds: crunch 0.47s, bzz 1.54s, both 200-served.
+
+## 2026-08-06 part 80: Real crash + buzz sfx for Neon Wreck (FF_BUILD 382)
+- User-uploaded car-crash (2.1s, used whole) and cyberpunk neon-flicker-buzz
+  (trimmed to 3.7s w/ fade so it ends right as ffNeonRevive starts at 6.2s)
+  OVERWRITE /neon-crunch.mp3 and /neon-bzz.mp3 — no code changes (same
+  filenames). Confirmed: the car wrecks into the big neon Fork·Fate sign and
+  its neons flicker to black.
