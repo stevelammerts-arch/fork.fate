@@ -562,14 +562,15 @@ const PIXIE_SPOTS = [
  * rAF lerp chasing a target point; a particle emitter sheds glowing dust.
  * heistKind: "poof" = the fairy wand-poofs the header medallion; "breath" =
  * the dragon torches it with a jet of flame. */
-function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heistKind = null, testid = "companion", flap = "ffPixieFlapA 0.48s linear infinite", flapBase = "ffPixieFlapB 0.48s linear infinite" }) {
-  const witnessRef = useHeistWitness(heistKind === "breath" ? "breath" : "pixie");
+function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heistKind = null, testid = "companion", flap = "ffPixieFlapA 0.48s linear infinite", flapBase = "ffPixieFlapB 0.48s linear infinite", emitY = 0, bob = "ffPixieBob 2.4s ease-in-out infinite" }) {
+  const witnessRef = useHeistWitness(heistKind === "breath" ? "breath" : heistKind === "crash" ? "surf" : "pixie");
   const wrapRef = useRef(null);   // translated flight layer
   const faceRef = useRef(null);   // scaleX facing flip
   const trailRefs = useRef([]);
   const [casting, setCasting] = useState(false);
   const [burst, setBurst] = useState(null); // {x, y, w} burst over the logo
   const [jet, setJet] = useState(null);     // {sx, sy, tx, ty} flame stream
+  const [knock, setKnock] = useState(null); // {x, y, w} crash-knocked medallion
 
   useEffect(() => {
     const pos = { x: -80, y: window.innerHeight * 0.45 };
@@ -588,7 +589,7 @@ function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heist
         if (n <= 0) break;
         if (p.life > 0) continue;
         p.x = pos.x + (Math.random() - 0.5) * 34;
-        p.y = pos.y + (Math.random() - 0.5) * 26 + 6;
+        p.y = pos.y + (Math.random() - 0.5) * 26 + 6 + emitY;
         p.vx = (Math.random() - 0.5) * 3.4;
         p.vy = (Math.random() - 0.35) * 2.6 + 0.4;
         p.ttl = 20 + Math.random() * 20;
@@ -630,9 +631,13 @@ function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heist
     // into its heart. Mouth offset measured from the sprite art (100px box).
     const MOUTH_DX = 33, MOUTH_DY = 7;
     const heistAnchorOf = (el) => {
-      if (heistKind !== "breath") return anchorOf(el);
       const r = el.getBoundingClientRect();
       const lookX = r.left + r.width / 2;
+      if (heistKind === "crash") {
+        // Wipeout: he plows straight into the medallion's face.
+        return { x: lookX + r.width * 0.2, y: r.top + r.height / 2 + 4, lookX };
+      }
+      if (heistKind !== "breath") return anchorOf(el);
       const y = clamp(r.top + r.height / 2 - MOUTH_DY, 40, window.innerHeight - 64);
       if (r.right + 64 <= window.innerWidth - 40) return { x: r.right + 64, y, lookX };
       return { x: Math.max(44, r.left - 64), y, lookX };
@@ -808,10 +813,14 @@ function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heist
             const dir = c2x > pos.x ? 1 : -1; // the way he's facing
             setJet({ sx: pos.x + dir * MOUTH_DX, sy: pos.y + MOUTH_DY, tx: c2x, ty: c2y });
             timers.push(setTimeout(() => setJet(null), 1400));
+          } else if (heistKind === "crash") {
+            // Wipeout: the medallion is knocked flying on impact.
+            setKnock({ x: r2.x, y: r2.y, w: r2.width });
+            timers.push(setTimeout(() => setKnock(null), 1000));
           } else if (localStorage.getItem("ff_muted") !== "1") {
             try { const g = new Audio("/fairy-laugh.mp3"); g.volume = 0.35; g.play().catch(() => {}); } catch {}
           }
-          timers.push(setTimeout(() => { med.style.visibility = "hidden"; startleTitle(); }, 420));
+          timers.push(setTimeout(() => { med.style.visibility = "hidden"; startleTitle(); }, heistKind === "crash" ? 60 : 420));
           timers.push(setTimeout(() => setCasting(false), 1200));
           timers.push(setTimeout(() => {
             const r3 = med.getBoundingClientRect();
@@ -831,7 +840,7 @@ function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heist
       });
     };
     if (heistKind) scheduleHeist(45000 + Math.random() * 30000);
-    const heistEvent = heistKind === "breath" ? "ff:breath-heist" : "ff:pixie-heist";
+    const heistEvent = heistKind === "breath" ? "ff:breath-heist" : heistKind === "crash" ? "ff:surf-heist" : "ff:pixie-heist";
     const force = () => { if (heistKind) heist(true); };
     window.addEventListener(heistEvent, force);
 
@@ -862,7 +871,7 @@ function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heist
       ))}
       <div ref={wrapRef} className="absolute left-0 top-0" data-testid={testid}>
         <div ref={faceRef}>
-          <div className="relative" style={{ width: 100, height: 100, animation: "ffPixieBob 2.4s ease-in-out infinite", filter: `drop-shadow(0 0 7px ${glow})` }}>
+          <div className="relative" style={{ width: 100, height: 100, animation: casting && heistKind === "crash" ? "ffBallHeistSpin 0.55s linear infinite" : bob, filter: `drop-shadow(0 0 7px ${glow})` }}>
             <img src={s1} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ animation: flapBase }} />
             <img src={s2} alt="" className="absolute inset-0 h-full w-full object-contain opacity-0" style={{ animation: flap }} />
             {casting && heistKind === "poof" && (
@@ -897,19 +906,26 @@ function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heist
           })}
         </div>
       )}
+      {knock && heistKind === "crash" && (
+        <div className="absolute overflow-hidden bg-black ring-1 ring-white/25" style={{ left: knock.x, top: knock.y, width: knock.w, height: knock.w, borderRadius: "9999px", animation: "ffLogoKnockL 0.9s cubic-bezier(0.25,0.8,0.5,1) forwards" }} data-testid="surf-heist-logo">
+          <img src="/logo-mark.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+        </div>
+      )}
       {burst && (
-        <div className="absolute" style={{ left: burst.x, top: burst.y, width: burst.w, height: burst.w }} data-testid={heistKind === "breath" ? "dragon-scorch-burst" : "pixie-poof-burst"}>
+        <div className="absolute" style={{ left: burst.x, top: burst.y, width: burst.w, height: burst.w }} data-testid={heistKind === "breath" ? "dragon-scorch-burst" : heistKind === "crash" ? "surf-crash-burst" : "pixie-poof-burst"}>
           {Array.from({ length: 10 }, (_, i) => {
             const a = (i / 10) * Math.PI * 2;
             const d = burst.w * (0.55 + (i % 3) * 0.2);
             const cols = heistKind === "breath"
               ? (i % 2 ? "radial-gradient(circle, #FFFFFF, #FF8C3A 60%, transparent 82%)" : "radial-gradient(circle, #FFE9B0, #E01E26 60%, transparent 82%)")
-              : (i % 2 ? "radial-gradient(circle, #FFFFFF, #8FF0B0 60%, transparent 82%)" : "radial-gradient(circle, #FFF9D9, #FFD36B 60%, transparent 82%)");
+              : heistKind === "crash"
+                ? (i % 2 ? "radial-gradient(circle, #FFFFFF, #BFE9F4 60%, transparent 82%)" : "radial-gradient(circle, #E9FBFF, #74C6E6 60%, transparent 82%)")
+                : (i % 2 ? "radial-gradient(circle, #FFFFFF, #8FF0B0 60%, transparent 82%)" : "radial-gradient(circle, #FFF9D9, #FFD36B 60%, transparent 82%)");
             return (
               <span
                 key={`poof-${i}`}
                 className="absolute left-1/2 top-1/2 rounded-full"
-                style={{ width: 5 + (i % 3) * 2, height: 5 + (i % 3) * 2, "--dx": `${Math.cos(a) * d}px`, "--dy": `${Math.sin(a) * d}px`, background: cols, boxShadow: heistKind === "breath" ? "0 0 6px rgba(255,160,80,0.85)" : "0 0 6px rgba(255,244,200,0.8)", animation: "ffPoofSparkle 0.95s ease-out forwards" }}
+                style={{ width: 5 + (i % 3) * 2, height: 5 + (i % 3) * 2, "--dx": `${Math.cos(a) * d}px`, "--dy": `${Math.sin(a) * d}px`, background: cols, boxShadow: heistKind === "breath" ? "0 0 6px rgba(255,160,80,0.85)" : heistKind === "crash" ? "0 0 6px rgba(190,235,250,0.85)" : "0 0 6px rgba(255,244,200,0.8)", animation: "ffPoofSparkle 0.95s ease-out forwards" }}
               />
             );
           })}
@@ -1237,6 +1253,108 @@ function SummerCrabHeist() {
   );
 }
 
+/** Tiki spear heist: a tiki warrior CHARGES across the screen from the
+ * right, spear leveled — skewers the medallion clean onto the tip without
+ * breaking stride, skids to a stop, TOSSES it away off the spear, then
+ * charges on out the left edge. First strike 85-125s after load (staggered
+ * clear of the surfer), then every 2.5-5 min (`ff:spear-heist` forces it
+ * for testing). */
+function TikiSpearHeist() {
+  const witnessRef = useHeistWitness("spear");
+  const [run, setRun] = useState(null);    // {cx, cy, w}
+  const [phase, setPhase] = useState(0);   // 0 offscreen right, 1 charge, 2 skid stop, 3 charge off left
+  const [skewer, setSkewer] = useState(false); // medallion riding the spear tip
+  const [toss, setToss] = useState(null);      // {x, y} flung medallion
+  useEffect(() => {
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        const w = r.width;
+        const cx = r.x + w / 2, cy = r.y + r.height / 2;
+        setRun({ cx, cy, w });
+        timers.push(setTimeout(() => setPhase(1), 30));   // CHARGE!
+        timers.push(setTimeout(() => {                     // skewered mid-stride
+          setSkewer(true);
+          med.style.visibility = "hidden"; startleTitle();
+          setPhase(2);                                     // skid to a stop just past it
+        }, 1200));
+        timers.push(setTimeout(() => {                     // the TOSS
+          setSkewer(false);
+          setToss({ x: cx - w * 0.7, y: cy });
+        }, 2050));
+        timers.push(setTimeout(() => setPhase(3), 2450));  // charges on out
+        timers.push(setTimeout(() => setToss(null), 3050));
+        timers.push(setTimeout(() => {
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // restart the pop on repeat strikes
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 3850));
+        timers.push(setTimeout(() => {
+          setRun(null); setPhase(0); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // again in 2.5-5 min
+        }, 4700));
+      });
+    };
+    schedule(85000 + Math.random() * 40000);
+    const force = () => start(true);
+    window.addEventListener("ff:spear-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:spear-heist", force);
+      // Never leave the logo hidden if we unmount mid-heist (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run) return null;
+  const { cx, cy, w } = run;
+  const SH = w * 2.4;
+  const SW = SH * (287 / 260); // tiki-man-spear.png natural aspect
+  // He charges RIGHT-to-LEFT (sprite flipped), spear tip = LEFT edge of the
+  // box, running ~47% down the art. Position the wrapper by its LEFT edge
+  // (= the spear tip x). He skids to a stop with the tip just past the
+  // medallion's heart, tosses, then bolts out the left side.
+  const tipStop = cx - w * 0.25;
+  const x = phase === 0 ? window.innerWidth + 60 : phase === 1 ? tipStop + w * 0.05 : phase === 3 ? -(SW + w + 80) : tipStop;
+  const trans = phase === 1 ? "transform 1.15s cubic-bezier(0.3,0,0.7,1)"
+    : phase === 2 ? "transform 0.3s ease-out"
+    : phase === 3 ? "transform 1.2s cubic-bezier(0.55,0,0.85,0.5)" : "none";
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="spear-heist">
+      {/* the flung medallion sailing away off the spear */}
+      {toss && (
+        <div className="absolute overflow-hidden bg-black ring-1 ring-white/25" style={{ left: toss.x - w / 2, top: toss.y - w / 2, width: w, height: w, borderRadius: "9999px", animation: "ffLogoToss 0.95s cubic-bezier(0.3,0.4,0.6,1) forwards" }} data-testid="spear-heist-logo-toss">
+          <img src="/logo-mark.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+        </div>
+      )}
+      <div className="absolute left-0 top-0" style={{ transform: `translate(${x}px, ${cy - SH * 0.47}px)`, transition: trans }}>
+        {/* the medallion skewered on the spear tip, riding along */}
+        {skewer && (
+          <div className="absolute overflow-hidden bg-black ring-1 ring-white/25 z-[1]" style={{ left: -w * 0.45, top: SH * 0.47 - w / 2, width: w, height: w, borderRadius: "9999px" }} data-testid="spear-heist-logo">
+            <img src="/logo-mark.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+          </div>
+        )}
+        <div style={{ transform: "scaleX(-1)" }}>
+          <div style={{ width: SW, height: SH, animation: phase === 1 || phase === 3 ? "ffTikiStrut 0.28s linear infinite" : undefined }}>
+            <img src="/tiki-man-spear.png" alt="" className="h-full w-full object-contain" style={{ filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.45))" }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function AmbianceScene({ theme, cfg }) {
   const [mobile, setMobile] = useState(false);
   const [abducting, setAbducting] = useState(false);
@@ -1551,5 +1669,7 @@ export function AmbianceScene({ theme, cfg }) {
     {cfg.gully && <CompanionPatrol s1="/fairy-pixie-1.png" s2="/fairy-pixie-2.png" glow="rgba(94,224,168,0.7)" heistKind="poof" testid="fairy-pixie" />}
     {theme === "fantasy" && <CompanionPatrol s1="/dragon-tiny-1.png" s2="/dragon-tiny-2.png" glow="rgba(255,140,50,0.7)" dustCol={["#FFE9B0", "#FF8C3A"]} heistKind="breath" testid="tiny-dragon" flap="ffDragonFlap 3.4s linear infinite" flapBase="ffDragonFlapInv 3.4s linear infinite" />}
     {theme === "fantasy" && <DragonHeist />}
+    {cfg.lounge && <CompanionPatrol s1="/tiki-man-surf.png" s2="/tiki-man-surf.png" glow="rgba(116,198,230,0.55)" dustCol={["#FFFFFF", "#74C6E6"]} heistKind="crash" testid="tiki-surfer" flap="none" flapBase="none" emitY={38} bob="ffTikiSurfBob 1.7s ease-in-out infinite" />}
+    {cfg.lounge && <TikiSpearHeist />}
   </>);
 }

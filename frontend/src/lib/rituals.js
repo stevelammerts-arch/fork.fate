@@ -55,6 +55,8 @@ export const HEISTS = [
   { key: "breath", name: "Dragon's Breath", realm: "Dragon's Hoard", accent: "#FF8C3A", desc: "The tiny dragon huffs, puffs, and torches the medallion to cinders — don't worry, it always grows back." },
   { key: "ball", name: "Beach Ball Bonk", realm: "Summer", accent: "#E07E17", desc: "A runaway beach ball bonks the medallion clean off its perch — then squats in its spot acting innocent." },
   { key: "crab", name: "Crab Grab", realm: "Summer", accent: "#E0451B", desc: "A little red crab scuttles across the banner, hoists the medallion overhead and hauls it away sideways." },
+  { key: "surf", name: "Tiki Wipeout", realm: "Tiki Lounge", accent: "#F0A24E", desc: "A tiki man rides a curling wave clean across the lounge and wipes out straight into the medallion." },
+  { key: "spear", name: "Spear Pop", realm: "Tiki Lounge", accent: "#E0451B", desc: "A tiki warrior struts up, jabs his spear — POP! — the medallion bursts like a balloon. It puffs right back up." },
 ];
 
 export function readHeistsSeen() {

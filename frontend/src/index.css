@@ -757,6 +757,37 @@ body {
   100% { transform: translateY(0) scale(1); opacity: 1; }
 }
 
+/* Tiki Lounge heists ---------------------------------------------------- */
+/* Tiki Wipeout: bob and carve while he rides the wave in */
+@keyframes ffTikiSurfBob {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50%      { transform: translateY(-7px) rotate(3deg); }
+}
+/* Spear Pop: bouncy warrior strut */
+@keyframes ffTikiStrut {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25%      { transform: translateY(-2.5px) rotate(-1.8deg); }
+  75%      { transform: translateY(-2.5px) rotate(1.8deg); }
+}
+/* the medallion knocked flying to the LEFT (hit by the surfer from the right) */
+@keyframes ffLogoKnockL {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  50%  { transform: translate(-120px, -75px) rotate(-170deg); opacity: 1; }
+  100% { transform: translate(-225px, 90px) rotate(-340deg); opacity: 0; }
+}
+/* the medallion bursting like a balloon on the spear tip... */
+@keyframes ffLogoPop {
+  0%   { transform: scale(1); opacity: 1; }
+  40%  { transform: scale(1.22); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
+}
+/* ...and puffing itself back up afterwards */
+@keyframes ffLogoReinflate {
+  0%   { transform: scale(0); opacity: 0; }
+  65%  { transform: scale(1.18); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 /* Cyberpunk rain */
 .ff-rain{
   background-image:
