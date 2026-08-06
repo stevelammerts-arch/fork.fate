@@ -494,6 +494,57 @@ const FAIRY_FLOURISH_COLORS = [
   ["#F2A0E0", "#C86BD8"], ["#8FD3FF", "#5B9EF0"], ["#FFD36B", "#F0A24E"],
   ["#8FF0B0", "#4ECF8A"], ["#FF9FA8", "#E86B7C"], ["#B7A0FF", "#8A6BE0"],
 ];
+/** The very tiny third sister: she darts across the revealed card leaving a
+ * comet trail of sparkles, wings fluttering (2-frame sprite generated from
+ * the same gully painting so she matches the two big fairies), then zips off
+ * the top edge. Sparkles fly the same path a beat behind her. */
+const PIXIE_PATH = {
+  left: ["-10%", "18%", "42%", "28%", "58%", "82%", "106%"],
+  top: ["72%", "34%", "58%", "18%", "42%", "12%", "-14%"],
+};
+const PIXIE_SPARKS = ["#D6FFEC", "#8FF0B0", "#FFD36B", "#8FD3FF", "#F2A0E0"];
+function TinyFairy() {
+  return (
+    <>
+      {Array.from({ length: 7 }, (_, i) => {
+        const c = PIXIE_SPARKS[i % PIXIE_SPARKS.length];
+        const s = 4 + rnd(i, 21) * 4;
+        return (
+          <motion.span
+            key={`pxs-${i}`}
+            className="absolute rounded-full"
+            style={{ width: s, height: s, background: `radial-gradient(circle, #FFFFFF, ${c} 55%, transparent 78%)`, boxShadow: `0 0 6px ${c}` }}
+            initial={{ left: PIXIE_PATH.left[0], top: PIXIE_PATH.top[0], opacity: 0 }}
+            animate={{
+              left: PIXIE_PATH.left,
+              top: PIXIE_PATH.top,
+              opacity: [0, 0.95, 0.7, 0.9, 0.5, 0.8, 0],
+              scale: [0.6, 1.2, 0.7, 1.1, 0.6, 1, 0.4],
+            }}
+            transition={{ duration: 4.1, delay: 0.42 + i * 0.09, ease: "easeInOut" }}
+          />
+        );
+      })}
+      <motion.div
+        className="absolute"
+        data-testid="fairy-pixie"
+        style={{ width: 54, height: 54, marginLeft: -27, marginTop: -27, filter: "drop-shadow(0 0 7px rgba(94,224,168,0.75))" }}
+        initial={{ left: PIXIE_PATH.left[0], top: PIXIE_PATH.top[0], opacity: 0 }}
+        animate={{
+          left: PIXIE_PATH.left,
+          top: PIXIE_PATH.top,
+          opacity: [0, 1, 1, 1, 1, 1, 0],
+          rotate: [-8, 10, -6, 12, -4, 8, 0],
+        }}
+        transition={{ duration: 4.1, delay: 0.3, ease: "easeInOut" }}
+      >
+        <img src="/fairy-pixie-1.png" alt="" className="absolute inset-0 h-full w-full object-contain" />
+        <img src="/fairy-pixie-2.png" alt="" className="absolute inset-0 h-full w-full object-contain opacity-0" style={{ animation: "ffPixieFlap 0.24s steps(1,end) infinite alternate" }} />
+      </motion.div>
+    </>
+  );
+}
+
 function ButterflyBurst() {
   // Fae giggle as the butterflies take wing (user-uploaded clip).
   useEffect(() => {
@@ -540,6 +591,7 @@ function ButterflyBurst() {
           transition={{ delay: rnd(i, 16) * 1.5, duration: 3.4 + rnd(i, 17) * 1.4, ease: "easeOut" }}
         />
       ))}
+      <TinyFairy />
     </>
   );
 }

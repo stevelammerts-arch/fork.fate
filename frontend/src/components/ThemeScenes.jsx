@@ -706,6 +706,31 @@ export function AmbianceScene({ theme, cfg }) {
         {FAIRY_BUTTERFLIES.map((b, i) => (
           <FlutterButterfly key={`bf-${i}`} b={b} />
         ))}
+        {/* The painted fairies' wings BEAT: two AI-edited patches of the same
+            artwork (wings raised / wings swept down, feathered edges) cross-
+            fade over the base painting (wings mid). Anchored to the measured
+            cover box so the patches stay glued to the fairies at any size.
+            Patch rect in image px: (450,380)-(896,830) of the 896x1200 art
+            (right edge = artwork edge so no painted wing tips peek out). */}
+        {coverBox && [
+          { name: "up", anim: "ffWingUp" },
+          { name: "down", anim: "ffWingDown" },
+        ].map((f) => (
+          <img
+            key={`wings-${f.name}`}
+            src={`/fairy-wings-${f.name}.png`}
+            alt=""
+            data-testid={`fairy-wings-${f.name}`}
+            className="pointer-events-none absolute z-[2]"
+            style={{
+              left: coverBox.offX + (450 / GULLY_NAT.w) * coverBox.dw,
+              top: coverBox.offY + (380 / GULLY_NAT.h) * coverBox.dh,
+              width: ((896 - 450) / GULLY_NAT.w) * coverBox.dw,
+              opacity: 0,
+              animation: `${f.anim} 1s ease-in-out infinite`,
+            }}
+          />
+        ))}
       </>)}
       {cfg.skyline && <img src={cfg.skyline} alt="" className="absolute bottom-0 left-0 w-full object-cover opacity-70" style={{ maxHeight: "52vh" }} />}
       {cfg.rain && <div className="absolute inset-0 ff-rain" />}

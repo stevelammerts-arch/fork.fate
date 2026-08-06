@@ -917,6 +917,24 @@ body {
   0%,100%{ opacity:0.35; }
   50%{ opacity:0.95; }
 }
+/* Fairy wing flap: AI-edited patches of the gully art (wings up / wings down)
+   cross-fade over the base painting (wings mid) — one gentle beat per cycle. */
+@keyframes ffWingUp{
+  0%,6%{ opacity:0; }
+  20%,32%{ opacity:1; }
+  46%,100%{ opacity:0; }
+}
+@keyframes ffWingDown{
+  0%,54%{ opacity:0; }
+  68%,80%{ opacity:1; }
+  94%,100%{ opacity:0; }
+}
+/* Tiny flourish pixie: toggles between her wings-up / wings-down sprite
+   frames — steps(1,end) + alternate = a hard swap every cycle. */
+@keyframes ffPixieFlap{
+  from{ opacity:0; }
+  to{ opacity:1; }
+}
 /* Fairy Gully realm: fate's red buttons, pills and accents wear forest green.
    Scoped by the root data-ff-theme attribute so no component changes needed. */
 [data-ff-theme="fairy"] .bg-\[\#E01E26\]{ background-color:#1E7A4A; }
