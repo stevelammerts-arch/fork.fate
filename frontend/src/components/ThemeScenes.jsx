@@ -206,7 +206,7 @@ export function SeasonScene({ theme, cfg }) {
             <span key={`smoke-${i}`} className="ff-chimney-smoke" style={{ left: cfg.chimney.left, top: cfg.chimney.top, width: s.size, height: s.size, animationDuration: `${s.dur}s`, animationDelay: `${s.delay}s` }} />
           ))}
           {cfg.snowmanArm && (
-            <div className="absolute w-[6%]" style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%", opacity: 0 }} data-testid="winter-snowman-arm">
+            <div className="absolute w-[6%]" style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%" }} data-testid="winter-snowman-arm">
               <img src={cfg.snowmanArm} alt="" className="w-full" />
             </div>
           )}
@@ -1408,8 +1408,9 @@ function SummerCrabHeist() {
  * in its place looking pleased for a few seconds, until the breeze carries
  * it off and the logo pops back (his body shuffles off after it). First
  * strike 25-45s after load, then every 2.5-5 min (or instantly on a
- * `ff:snowman-heist` window event, used for testing). Body art 257x260,
- * head art 188x200 (carrot points LEFT). */
+ * `ff:snowman-heist` window event, used for testing). Body art 316x320,
+ * head art 207x220 (carrot points LEFT; a matching wink frame overlays
+ * briefly while the head sits in the logo spot). */
 function SnowmanHeist() {
   const witnessRef = useHeistWitness("snowman");
   const [run, setRun] = useState(null);   // {cx, cy, w}
@@ -1418,7 +1419,7 @@ function SnowmanHeist() {
   const [knock, setKnock] = useState(false); // the bonked-away medallion clone
   useEffect(() => {
     // Warm the sprites so the very first strike doesn't pop in half-loaded.
-    ["/snowman-body.png", "/snowman-head.png"].forEach((s) => { const im = new Image(); im.src = s; });
+    ["/snowman-body.png", "/snowman-head.png", "/snowman-head-wink.png"].forEach((s) => { const im = new Image(); im.src = s; });
     const timers = [];
     let pending = null;
     let running = false;
@@ -1432,14 +1433,18 @@ function SnowmanHeist() {
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
         timers.push(setTimeout(() => setPhase(1), 30));    // shuffles in, all smiles
-        timers.push(setTimeout(() => setGust(true), 2300)); // the wind picks up...
+        const howl = (vol) => {
+          if (localStorage.getItem("ff_muted") === "1") return;
+          try { const g = new Audio("/snow-gust.mp3"); g.volume = vol; g.play().catch(() => {}); } catch {}
+        };
+        timers.push(setTimeout(() => { setGust(true); howl(0.75); }, 2300)); // the wind picks up...
         timers.push(setTimeout(() => setPhase(2), 2700));   // ...and POP, off comes the head
         timers.push(setTimeout(() => {                      // BONK — it takes the logo's perch
           setPhase(3); setKnock(true);
           med.style.visibility = "hidden"; startleTitle();
         }, 3550));
         timers.push(setTimeout(() => { setKnock(false); setGust(false); }, 4450));
-        timers.push(setTimeout(() => setGust(true), 6900)); // the breeze returns for him
+        timers.push(setTimeout(() => { setGust(true); howl(0.55); }, 6900)); // the breeze returns for him
         timers.push(setTimeout(() => setPhase(4), 7100));   // head tumbles off, body shuffles away
         timers.push(setTimeout(() => {
           med.style.visibility = "";
@@ -1470,11 +1475,11 @@ function SnowmanHeist() {
   if (!run) return null;
   const { cx, cy, w } = run;
   const vw = window.innerWidth, vh = window.innerHeight;
-  const headW = w * 1.5, headH = headW * (200 / 188);
-  const bodyW = w * 2.4, bodyH = bodyW * (260 / 257);
+  const headW = w * 1.5, headH = headW * (220 / 207);
+  const bodyW = w * 2.4, bodyH = bodyW * (320 / 316);
   const bodyLeft = vw - bodyW - 24;
   const bodyTop = cy + headH * 0.42;
-  const hx = bodyLeft + bodyW * 0.52, hy = cy; // head perched on the neck, level with the logo
+  const hx = bodyLeft + bodyW * 0.50, hy = cy; // head perched on the neck, level with the logo
   const slide = bodyW + 90;
   // head centre + tumble per phase (lands upright: -340 settles to -360 ≡ 0)
   const hcx = phase === 0 ? hx + slide : phase < 2 ? hx : phase < 4 ? cx : cx - vw * 0.4;
@@ -1531,6 +1536,10 @@ function SnowmanHeist() {
       {/* the head: smiling through the whole ordeal */}
       <div className="absolute" style={{ left: 0, top: 0, width: headW, height: headH, transform: `translate(${hcx - headW / 2}px, ${hcy - headH / 2}px) rotate(${hrot}deg)`, transition: headTrans }} data-testid="snowman-head">
         <img src="/snowman-head.png" alt="" className="h-full w-full object-contain" style={{ filter: "drop-shadow(0 4px 10px rgba(30,60,90,0.35))" }} />
+        {/* settled in the logo's perch, he throws a cheeky wink */}
+        {phase === 3 && (
+          <img src="/snowman-head-wink.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: 0, animation: "ffHeadWink 3.4s ease-in-out forwards", filter: "drop-shadow(0 4px 10px rgba(30,60,90,0.35))" }} data-testid="snowman-head-wink" />
+        )}
       </div>
     </div>
   );
@@ -1753,11 +1762,19 @@ function SteamGearsHeist() {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        const clank = (src, vol) => {
+          if (localStorage.getItem("ff_muted") === "1") return;
+          try { const a = new Audio(src); a.volume = vol; a.play().catch(() => {}); } catch {}
+        };
         timers.push(setTimeout(() => {                    // the case creaks open
           med.style.visibility = "hidden"; startleTitle();
           setStage("open");
+          clank("/steam-gears-run.mp3", 0.7); // the works whirring away (runs up to the break)
         }, 30));
-        timers.push(setTimeout(() => setStage("break"), 2900));    // the works give out
+        timers.push(setTimeout(() => {                    // the works give out — BOING
+          setStage("break");
+          clank("/steam-boing.mp3", 0.75);
+        }, 2900));
         timers.push(setTimeout(() => setStage("collapse"), 4400)); // door off, gears spill
         timers.push(setTimeout(() => {
           setStage(null); setRun(null);

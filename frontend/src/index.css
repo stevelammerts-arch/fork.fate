@@ -992,6 +992,12 @@ body {
   70%  { transform: rotate(4deg); }
   100% { transform: rotate(0deg); }
 }
+/* ...and the perched head throws a cheeky wink once it's settled in */
+@keyframes ffHeadWink {
+  0%, 32%   { opacity: 0; }
+  36%, 50%  { opacity: 1; }
+  54%, 100% { opacity: 0; }
+}
 
 /* Torch Nightfall: lounge lights flare and firelight dances on a dealt fate */
 @keyframes ffTorchFlare {
@@ -1647,15 +1653,14 @@ body {
 /* Snowman wave: stick arm fades in raised at the shoulder and waves a few
    times, once per long cycle */
 @keyframes ffSnowmanWave{
-  0%,77.5%{ opacity: 0; transform: rotate(-10deg); }
-  78.3%{ opacity: 1; transform: rotate(-10deg); }
-  79.3%{ opacity: 1; transform: rotate(18deg); }
-  80.3%{ opacity: 1; transform: rotate(-12deg); }
-  81.3%{ opacity: 1; transform: rotate(18deg); }
-  82.3%{ opacity: 1; transform: rotate(-12deg); }
-  83.3%{ opacity: 1; transform: rotate(14deg); }
-  84.3%{ opacity: 1; transform: rotate(-6deg); }
-  85.3%,100%{ opacity: 0; transform: rotate(-10deg); }
+  0%,78.3%{ transform: rotate(-10deg); }
+  79.3%{ transform: rotate(18deg); }
+  80.3%{ transform: rotate(-12deg); }
+  81.3%{ transform: rotate(18deg); }
+  82.3%{ transform: rotate(-12deg); }
+  83.3%{ transform: rotate(14deg); }
+  84.3%{ transform: rotate(-6deg); }
+  85.3%,100%{ transform: rotate(-10deg); }
 }
 /* Falling coconut: drops from the palm's coconut cluster once per cycle,
    accelerating, thuds into the sand (squash + tiny bounce + sand puff),

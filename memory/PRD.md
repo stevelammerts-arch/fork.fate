@@ -1903,3 +1903,34 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   /soul-wail-short.mp3 (5.6s, 1.4s fade from soul-wail.wav 10.8s — ends right
   after the ghost vanishes at 5.1s). TikiSpearHeist + GhostSnatchHeist updated;
   GhostRise/deal flourishes still use the full-length originals.
+
+## 2026-08-06 part 72: Snowman heist polish + cabin arm fix (FF_BUILD 370-372)
+- WIND SFX: user-uploaded gentle-wind-gusts clip -> /snow-gust.mp3 (2.8s trim of
+  the loudest segment t=1.8-4.6s, fades, +4dB). howl() plays at both gust
+  moments in SnowmanHeist (0.75 behead / 0.55 departure), ff_muted-aware.
+- WAVE (built then REMOVED per user "No waving for the heist snowman"):
+  snowman-body-wave.png + ffSnowWaveA/B flip were implemented, verified, then
+  fully stripped. Side effect kept: snowman-body.png is now the 316x320 union
+  crop (constants: bodyH=bodyW*(320/316), neck hx frac 0.50).
+- WINK (user: "Can the snowman that replaced the logo wink after it does?"):
+  /snowman-head-wink.png generated via Nano Banana image-edit of the head raw
+  (right eye closed), union-cropped with base head for pixel alignment — BOTH
+  head sprites now 207x220 (headH=headW*(220/207)). Wink overlay img mounts at
+  phase 3 with ffHeadWink 3.4s forwards (visible ~32-54% => winks ~1.2s after
+  settling). Verified via screenshot: closed eye while perched next to the
+  Fork·Fate title. Head fully covers base frame so no inverse-hide needed.
+- CABIN ARM BUG (user: "arm next to the cabin disappears after his wave"):
+  the painted winter-decor snowman has NO left arm — the winter-arm.png overlay
+  was opacity-0 for 92% of its 34s ffSnowmanWave cycle. Fixed: keyframes no
+  longer animate opacity (rotation wag only), inline opacity:0 removed — the
+  arm now rests visible at -10deg between waves. DOM-verified opacity 1 at rest.
+- LESSON: a search_replace on ThemeScenes.jsx reported success but the change
+  was NOT in the file (constants edit landed, JSX block edit vanished). Always
+  grep-verify after batch edits to this file.
+
+## 2026-08-06 part 73: Steampunk "Open Works" sfx (FF_BUILD 373)
+- User-uploaded clips: running-gear -> /steam-gears-run.mp3 (3.0s trim, fade-out
+  ending at the break) + boing-bounce -> /steam-boing.mp3 (1.67s as-is).
+- SteamGearsHeist clank() helper (ff_muted-aware): gears-run plays at stage
+  "open" (vol 0.7, whirs while the works spin, fades right into the jam) and
+  boing plays at stage "break" 2.9s (vol 0.75).
