@@ -2085,3 +2085,15 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
 - FF_BUILD bumped 386 -> 387. Screenshot-verified live in Dark realm via
   ff:heist event: clamp frame clean, no square, hands wrap the medallion.
   User confirmed: "Looks better now".
+
+## BACKLOG (user, 2026-08-06): Four new heists to reach an even 20
+User: "Hold this on the back burner" — do NOT build until user asks.
+1. Coffee Cup Heist — a cup of hot coffee tips over, flows across the title
+   and melts the logo like sugar. (Realm TBD — likely light/default or fall.)
+2. Mini Reaper Heist (Dark realm #2) — the mini reaper companion turns the
+   logo into the plate of food the big background reaper is holding.
+3. Unicorn Charge Heist — a white unicorn charges the logo like the Tiki
+   surfer does. (Realm TBD — likely fantasy/fairy.)
+4. Cardinal Tip Heist (Winter #2) — the little cardinal lands on top of the
+   logo, tipping it over.
+These would bring the heist total from 16 to 20.
