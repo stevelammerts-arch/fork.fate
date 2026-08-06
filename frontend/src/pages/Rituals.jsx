@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem, Leaf, Flower2, Citrus, Coffee, Snowflake, Rocket, Grab, Bone, Stamp, ChevronRight } from "lucide-react";
+import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem, Leaf, Flower2, Citrus, Coffee, Snowflake, Rocket, Grab, Bone, Stamp, ChevronRight, Volleyball, Shell, Waves, Bird, CarFront, Watch, Target } from "lucide-react";
 import { RITUALS, readRitualsSeen, HEISTS, readHeistsSeen } from "../lib/rituals";
 import { readBingo } from "../lib/bingo";
 import { useLang } from "../i18n/i18n";
@@ -12,7 +12,11 @@ const ICONS = {
   leaves: Leaf, bloom: Flower2, melon: Citrus, globe: Snowflake, latte: Coffee,
 };
 
-const HEIST_ICONS = { saucer: Rocket, dragon: Grab, grave: Bone, pixie: Wand2, breath: Flame };
+const HEIST_ICONS = {
+  saucer: Rocket, dragon: Grab, grave: Bone, pixie: Wand2, breath: Flame,
+  ball: Volleyball, crab: Shell, surf: Waves, spear: Target, spring: Watch,
+  gears: Cog, snatch: Ghost, snowman: Snowflake, owl: Bird, petals: Flower2, wreck: CarFront,
+};
 
 export default function Rituals() {
   const { t } = useLang();
@@ -93,6 +97,50 @@ export default function Rituals() {
         {/* realm heists: rare medallion thefts, tracked like rituals */}
         <h2 className="mt-8 font-serif text-2xl font-bold" data-testid="heists-title">{t("Realm Heists")}</h2>
         <p className="mt-1 font-sans text-sm text-white/60">{t("Sometimes the realm itself steals the house medallion. Keep your eyes on the logo.")}</p>
+
+        {/* the trophy shelf: witnessed heists gleam, the rest wait in shadow */}
+        <div className="mt-4 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-4" data-testid="heist-trophy-shelf">
+          <div className="flex items-baseline justify-between">
+            <span className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-white/50">{t("Trophy Shelf")}</span>
+            <span className="font-serif text-lg font-bold text-[#E6B23A]" data-testid="trophy-count">
+              {HEISTS.filter((h) => heistsSeen[h.key]?.count).length} <span className="text-sm text-white/50">/ {HEISTS.length}</span>
+            </span>
+          </div>
+          {[0, 1].map((row) => (
+            <div key={`shelf-${row}`} className="mt-3">
+              <div className="grid grid-cols-8 gap-1.5">
+                {HEISTS.slice(row * 8, row * 8 + 8).map((h, i) => {
+                  const got = Boolean(heistsSeen[h.key]?.count);
+                  const Icon = HEIST_ICONS[h.key] || Lock;
+                  return (
+                    <div key={h.key} className="flex flex-col items-center" data-testid={`trophy-${h.key}`}>
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.5, y: 8 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ delay: (row * 8 + i) * 0.05, type: "spring", stiffness: 260, damping: 18 }}
+                        className="flex h-10 w-10 items-center justify-center rounded-full"
+                        style={got ? {
+                          background: `radial-gradient(circle at 35% 30%, ${h.accent}55, ${h.accent}14 72%)`,
+                          boxShadow: `0 0 14px ${h.accent}59, inset 0 0 8px ${h.accent}40`,
+                          animation: "ffTrophyGlow 2.6s ease-in-out infinite",
+                          animationDelay: `${(i % 4) * 0.55}s`,
+                        } : { background: "rgba(255,255,255,0.04)" }}
+                      >
+                        {got
+                          ? <Icon className="h-5 w-5" style={{ color: h.accent, filter: `drop-shadow(0 0 4px ${h.accent})` }} data-testid={`trophy-icon-${h.key}`} />
+                          : <Lock className="h-3.5 w-3.5 text-white/20" />}
+                      </motion.div>
+                      {/* the pedestal it sits on */}
+                      <div className="mt-1 h-1.5 w-8 rounded-[2px]" style={{ background: got ? `linear-gradient(180deg, ${h.accent}77, ${h.accent}1a)` : "linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03))" }} />
+                    </div>
+                  );
+                })}
+              </div>
+              {/* the shelf plank */}
+              <div className="mt-1 h-[3px] rounded-full bg-gradient-to-r from-transparent via-[#E6B23A]/40 to-transparent" />
+            </div>
+          ))}
+        </div>
         <div className="mt-4 grid grid-cols-2 gap-3" data-testid="heists-grid">
           {HEISTS.map((h, idx) => {
             const info = heistsSeen[h.key];

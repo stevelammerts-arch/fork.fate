@@ -1047,6 +1047,11 @@ body {
   80%  { opacity: 0.4; }
   100% { opacity: 1; filter: none; }
 }
+/* Collection: witnessed heist trophies breathe with a soft glow */
+@keyframes ffTrophyGlow {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.4); }
+}
 /* ...and the perched head throws a cheeky wink once it's settled in */
 @keyframes ffHeadWink {
   0%, 32%   { opacity: 0; }
