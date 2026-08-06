@@ -1006,6 +1006,49 @@ body {
   0%   { transform: translate(0, 0) rotate(0deg); }
   100% { transform: translate(34px, 115vh) rotate(230deg); }
 }
+/* "Open Works": the logo is the DOOR — it creaks open on its left hinge... */
+@keyframes ffLidOpen {
+  0%   { transform: rotateY(0deg); }
+  80%  { transform: rotateY(-118deg); }
+  100% { transform: rotateY(-108deg); }
+}
+/* ...and after the break, the DOOR drops off its hinge entirely... */
+@keyframes ffDoorFall {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(-34px, 112vh) rotate(-250deg); }
+}
+/* ...and the gears + mainspring tumble out of the bare socket */
+@keyframes ffGearDrop {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(24px, 105vh) rotate(430deg); }
+}
+/* the works BREAK: gears shudder to a grinding jam... */
+@keyframes ffGearJam {
+  0%   { rotate: 0deg; }
+  20%  { rotate: 10deg; }
+  40%  { rotate: -7deg; }
+  60%  { rotate: 4deg; }
+  80%  { rotate: -2deg; }
+  100% { rotate: 0deg; }
+}
+/* ...a gear pops clean out and tumbles off... */
+@keyframes ffPartFly {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  25%  { transform: translate(34px, -34px) rotate(160deg); opacity: 1; }
+  100% { transform: translate(110px, 70vh) rotate(660deg); opacity: 1; }
+}
+/* ...with a little screw pinging the other way... */
+@keyframes ffPartFly2 {
+  0%   { transform: translate(0, 0); opacity: 1; }
+  30%  { transform: translate(-30px, -26px); opacity: 1; }
+  100% { transform: translate(-72px, 55vh); opacity: 1; }
+}
+/* ...and a cough of smoke puffing up from the case */
+@keyframes ffBreakPuff {
+  0%   { transform: translateY(0) scale(0.5); opacity: 0; }
+  25%  { opacity: 0.8; }
+  100% { transform: translateY(-44px) scale(1.5); opacity: 0; }
+}
 
 /* Electric arc device: bolt climbs up/down between the electrodes, flickering */
 @keyframes ffArcClimb{

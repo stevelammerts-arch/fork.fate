@@ -1485,6 +1485,136 @@ function SteamSpringHeist() {
   );
 }
 
+/** A chunky solid brass gear (8 teeth) that spins forever (or jams). */
+function BrassGear({ size, color = "#B98A44", dur = 4, rev = false, anim, style = {} }) {
+  return (
+    <div className="absolute" style={{ width: size, height: size, animation: anim !== undefined ? anim : `ffSpin ${dur}s linear infinite ${rev ? "reverse" : ""}`, ...style }}>
+      <svg viewBox="0 0 100 100" className="h-full w-full">
+        {Array.from({ length: 8 }, (_, i) => (
+          <rect key={i} x={44} y={2} width={12} height={18} rx={2.5} fill={color} transform={`rotate(${i * 45} 50 50)`} />
+        ))}
+        <circle cx="50" cy="50" r="34" fill={color} />
+        <circle cx="50" cy="50" r="12" fill="#1A120A" />
+      </svg>
+    </div>
+  );
+}
+
+/** Steampunk heist #2: the medallion swings open like a pocket-watch DOOR,
+ * baring live spinning gearworks — until the works BREAK: gears grind to a
+ * jam, one pops out with a screw, smoke coughs up... then the door drops
+ * clean off its hinge and every gear and the mainspring spill out of the
+ * bare socket. A fresh face pops back on after. First strike 110-150s after
+ * load (staggered clear of the spring), then every 2.5-5 min
+ * (`ff:gears-heist` forces it, used for testing). */
+function SteamGearsHeist() {
+  const witnessRef = useHeistWitness("gears");
+  const [run, setRun] = useState(null);     // {cx, cy, w}
+  const [stage, setStage] = useState(null); // "open" | "break" | "collapse"
+  useEffect(() => {
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        timers.push(setTimeout(() => {                    // the case creaks open
+          med.style.visibility = "hidden"; startleTitle();
+          setStage("open");
+        }, 30));
+        timers.push(setTimeout(() => setStage("break"), 2900));    // the works give out
+        timers.push(setTimeout(() => setStage("collapse"), 4400)); // door off, gears spill
+        timers.push(setTimeout(() => {
+          setStage(null); setRun(null);
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // a fresh face pops back on
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 6200));
+        timers.push(setTimeout(() => {
+          running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // again in 2.5-5 min
+        }, 6900));
+      });
+    };
+    schedule(110000 + Math.random() * 40000);
+    const force = () => start(true);
+    window.addEventListener("ff:gears-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:gears-heist", force);
+      // Never leave the logo hidden if we unmount mid-heist (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run || !stage) return null;
+  const { cx, cy, w } = run;
+  const jam = stage !== "open" ? "ffGearJam 0.5s ease-out forwards" : undefined;
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="gears-heist">
+      {/* broken bits flying out of the works */}
+      {stage === "break" && (<>
+        <div className="absolute" style={{ left: cx, top: cy, animation: "ffPartFly 1.2s cubic-bezier(0.3,0,0.8,0.6) forwards" }} data-testid="gears-heist-flying-gear">
+          <BrassGear size={w * 0.3} dur={0.5} anim={undefined} style={{ position: "relative" }} />
+        </div>
+        <div className="absolute rounded-full" style={{ left: cx - 4, top: cy - 4, width: 9, height: 9, background: "radial-gradient(circle at 35% 35%, #E8C588, #8A6428)", animation: "ffPartFly2 1s cubic-bezier(0.3,0,0.8,0.6) forwards" }} />
+        {[0, 1, 2].map((i) => (
+          <span key={`bp-${i}`} className="absolute rounded-full" style={{ left: cx - 8 + i * 9, top: cy - w * 0.42, width: 13 + i * 4, height: 13 + i * 4, background: "radial-gradient(circle, rgba(225,220,210,0.75), rgba(160,155,148,0.3) 55%, transparent 75%)", filter: "blur(1.5px)", mixBlendMode: "screen", animation: `ffBreakPuff 1.3s ease-out ${i * 0.35}s infinite` }} />
+        ))}
+      </>)}
+      {/* the grand collapse: the door drops off its hinge, then every gear
+          and the mainspring tumble out of the bare socket one by one */}
+      {stage === "collapse" && (<>
+        <div className="absolute" style={{ left: cx - w / 2 + w * 0.04, top: cy - w / 2 + w * 0.24, animation: "ffGearDrop 0.95s cubic-bezier(0.4,0,0.9,0.6) 0.25s both" }}>
+          <BrassGear size={w * 0.56} anim="none" style={{ position: "relative" }} />
+        </div>
+        <div className="absolute" style={{ left: cx - w / 2 + w * 0.5, top: cy - w / 2 + w * 0.08, animation: "ffGearDrop 0.95s cubic-bezier(0.4,0,0.9,0.6) 0.5s both" }}>
+          <BrassGear size={w * 0.42} color="#D9A44E" anim="none" style={{ position: "relative" }} />
+        </div>
+        <svg viewBox="0 0 24 70" className="absolute" style={{ left: cx - w / 2 + w * 0.16, top: cy - w / 2 + w * 0.6, width: w * 0.14, height: w * 0.34, rotate: "90deg", animation: "ffGearDrop 0.95s cubic-bezier(0.4,0,0.9,0.6) 0.72s both" }}>
+          <path d="M12 0 C 26 5, -2 11, 12 16 C 26 21, -2 27, 12 32 C 26 37, -2 43, 12 48 C 26 53, -2 59, 12 64 L 12 70" stroke="#B98A44" strokeWidth="4" fill="none" strokeLinecap="round" />
+        </svg>
+      </>)}
+      {/* the opened case, hinged at its LEFT edge like a pocket watch */}
+      <div className="absolute" style={{ left: cx - w / 2, top: cy - w / 2, width: w, height: w, perspective: "600px" }}>
+        {/* the works: spinning brass gears inside the case */}
+        <div className="absolute inset-0 overflow-hidden ring-1 ring-[#B98A44]" style={{ borderRadius: "9999px", background: "radial-gradient(circle at 40% 35%, #241708, #120B05 75%)", boxShadow: "inset 0 2px 8px rgba(0,0,0,0.9)" }} data-testid="gears-heist-works">
+          {stage !== "collapse" && (<>
+            <BrassGear size={w * 0.56} dur={5} anim={jam} style={{ left: w * 0.04, top: w * 0.24 }} />
+            <BrassGear size={w * 0.42} dur={3.6} rev color="#D9A44E" anim={jam} style={{ left: w * 0.5, top: w * 0.08 }} />
+            {/* the mainspring coiled at the bottom of the works */}
+            <svg viewBox="0 0 24 70" className="absolute" style={{ left: w * 0.16, top: w * 0.6, width: w * 0.14, height: w * 0.34, transform: "rotate(90deg)" }}>
+              <path d="M12 0 C 26 5, -2 11, 12 16 C 26 21, -2 27, 12 32 C 26 37, -2 43, 12 48 C 26 53, -2 59, 12 64 L 12 70" stroke="#B98A44" strokeWidth="4" fill="none" strokeLinecap="round" />
+            </svg>
+          </>)}
+          {/* the little gear vacates its post when the works break */}
+          {stage === "open" && <BrassGear size={w * 0.32} dur={2.6} style={{ left: w * 0.56, top: w * 0.55 }} />}
+          {/* glint sweeping across the works (stops when broken) */}
+          {stage === "open" && <div className="absolute inset-0" style={{ background: "linear-gradient(115deg, transparent 30%, rgba(255,226,160,0.22) 46%, transparent 60%)", animation: "ffTikiTwinkle 2.2s ease-in-out infinite" }} />}
+        </div>
+        {/* the logo DOOR: hinged open — and it drops clean off in the collapse */}
+        <div className="absolute inset-0" style={{ animation: stage === "collapse" ? "ffDoorFall 1.05s cubic-bezier(0.4,0,0.9,0.6) forwards" : "none" }}>
+          <div className="absolute inset-0" style={{ transformStyle: "preserve-3d", transformOrigin: "0% 50%", animation: "ffLidOpen 0.9s cubic-bezier(0.34,1.56,0.64,1) forwards" }} data-testid="gears-heist-lid">
+            <div className="absolute inset-0 overflow-hidden bg-black" style={{ borderRadius: "9999px", backfaceVisibility: "hidden", boxShadow: "0 0 0 2px #B98A44, 0 6px 14px rgba(0,0,0,0.55)" }}>
+              <img src="/logo-mark.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+            </div>
+            <div className="absolute inset-0" style={{ borderRadius: "9999px", transform: "rotateY(180deg)", backfaceVisibility: "hidden", background: "radial-gradient(circle at 45% 40%, #C89A54, #8A6428 78%)", boxShadow: "0 0 0 2px #B98A44" }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function AmbianceScene({ theme, cfg }) {
   const [mobile, setMobile] = useState(false);
   const [abducting, setAbducting] = useState(false);
@@ -1804,5 +1934,6 @@ export function AmbianceScene({ theme, cfg }) {
     {cfg.lounge && <CompanionPatrol s1="/tiki-man-surf.png" s2="/tiki-man-surf.png" glow="rgba(116,198,230,0.55)" dustCol={["#FFFFFF", "#74C6E6"]} heistKind="crash" testid="tiki-surfer" flap="none" flapBase="none" emitY={38} bob="ffTikiSurfBob 1.7s ease-in-out infinite" />}
     {cfg.lounge && <TikiSpearHeist />}
     {theme === "steam" && <SteamSpringHeist />}
+    {theme === "steam" && <SteamGearsHeist />}
   </>);
 }

@@ -1819,3 +1819,17 @@ User iterated rapid-fire on PixiePatrol (ThemeScenes.jsx). Final state:
   -> ffLogoReturn 4.75s, witness 5.5s. First strike 40-70s, repeat 2.5-5min.
 - HEISTS entry "Sprung Face" realm Steampunk (#D9A44E).
 - Verified all 4 stages via screenshots.
+
+## 2026-08-06 part 67: Steampunk "Open Works" heist (FF_BUILD 361-364)
+- SteamGearsHeist (key "gears", ff:gears-heist, theme==="steam"): the LOGO IS THE
+  DOOR (user-clarified) — hinged left, ffLidOpen to -108deg (perspective 600,
+  preserve-3d, brass back w/ backface-hidden). Socket = works: BrassGear helper
+  (8-tooth solid SVG, anim override prop), 3 gears + rotated mainspring coil SVG,
+  sweeping glint. Stages: open(30ms) -> break(2.9s: ffGearJam via `rotate` prop,
+  small gear ffPartFly out, screw ffPartFly2, 3x ffBreakPuff smoke) ->
+  collapse(4.4s: ffDoorFall door off hinge 112vh, gears+coil spill as absolute
+  clones w/ ffGearDrop staggered .25/.5/.72s, in-case originals hidden) ->
+  med ffLogoReturn 6.2s, witness 6.9s. First strike 110-150s.
+- NOTE: summonToLogo adds ~0-1.5s offset before timeline starts (varies).
+- HEISTS entry "Open Works" (#B98A44). Verified: open w/ spinning works+spring,
+  door falling, gear+coil mid-spill, fresh face return + toast.
