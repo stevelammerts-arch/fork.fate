@@ -57,6 +57,15 @@
   "launch_handler": { "client_mode": "navigate-existing" },
   "handle_links": "preferred",
   "prefer_related_applications": false,
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "params": {
+      "title": "share_title",
+      "text": "share_text",
+      "url": "share_url"
+    }
+  },
   "related_applications": [
     {
       "platform": "play",

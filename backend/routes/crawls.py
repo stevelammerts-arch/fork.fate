@@ -242,7 +242,7 @@ async def update_position(code: str, payload: CrawlPositionCreate):
 
 @router.get("/crawls/{code}/positions")
 async def get_positions(code: str):
-    """All live crew pins for a shared crawl (TTL keeps this list fresh)."""
+    """All live crew pins + active flares for a shared crawl (TTL-fresh)."""
     await _ensure_position_indexes()
     clean_code = (code or "").strip().upper()[:12]
     docs = [
@@ -250,7 +250,41 @@ async def get_positions(code: str):
             {"code": clean_code}, {"_id": 0, "expire_at": 0}
         ).limit(30)
     ]
-    return {"positions": docs}
+    flares = [
+        f async for f in db.crawl_flares.find(
+            {"code": clean_code}, {"_id": 0, "expire_at": 0}
+        ).limit(10)
+    ]
+    return {"positions": docs, "flares": flares}
+
+
+# "Flare on me": a member pops a bright beacon at their spot that the whole
+# crew sees on the map for a couple of minutes (TTL-expired like positions).
+FLARE_TTL_MINUTES = 3
+
+
+@router.post("/crawls/{code}/flare", dependencies=[Depends(rate_limit(30))])
+async def pop_flare(code: str, payload: CrawlPositionCreate):
+    """Drop (or refresh) one member's flare on the shared crawl map."""
+    await _ensure_position_indexes()
+    try:
+        await db.crawl_flares.create_index("expire_at", expireAfterSeconds=0)
+    except Exception as e:
+        logger.warning(f"crawl_flares index setup failed: {e}")
+    now = datetime.now(timezone.utc)
+    clean_code = (code or "").strip().upper()[:12]
+    await db.crawl_flares.update_one(
+        {"code": clean_code, "member_id": payload.member_id},
+        {"$set": {
+            "name": payload.name,
+            "lat": payload.lat,
+            "lng": payload.lng,
+            "at": now.isoformat(),
+            "expire_at": now + timedelta(minutes=FLARE_TTL_MINUTES),
+        }},
+        upsert=True,
+    )
+    return {"ok": True, "expires_in_minutes": FLARE_TTL_MINUTES}
 
 
 @router.get("/crawls/leaderboard")

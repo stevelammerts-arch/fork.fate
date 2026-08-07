@@ -2265,3 +2265,15 @@ body.ff-badge-open .ff-theme-scene * {
   80%  { transform: translateY(7vh) rotate(-2deg); }
   100% { transform: translateY(0) rotate(0deg); }
 }
+
+/* BINGO Blackout ritual: golden squares rain down behind the slammed stamp */
+@keyframes ffBlackoutSquare {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+  8%   { opacity: 0.9; }
+  100% { transform: translateY(110vh) rotate(300deg); opacity: 0.5; }
+}
+@keyframes ffBlackoutFlash {
+  0%   { opacity: 0; }
+  25%  { opacity: 1; }
+  100% { opacity: 0.55; }
+}

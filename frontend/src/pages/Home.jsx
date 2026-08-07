@@ -34,6 +34,7 @@ import { useTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
 import { trackEvent } from "../lib/analytics";
 import { recordRitualSeen, readRitualsSeen, RITUALS } from "../lib/rituals";
+import BlackoutRitual from "../components/BlackoutRitual";
 import { recordFate } from "../lib/journal";
 import { markCuisine } from "../lib/bingo";
 import { readPassports } from "../lib/passports";
@@ -182,6 +183,30 @@ export default function Home() {
   const startCards = () => {};
   useEffect(() => () => { if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e) { /* ignore */ } grooveRef.current = null; } }, []);
   const { favorites, isFavorite, toggleFavorite, removeFavorite } = useFavorites();
+  // PWA share target: a friend shares a restaurant link/name INTO Fork·Fate
+  // (manifest share_target) — we tuck it into Favorites and say so.
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const sTitle = params.get("share_title") || "";
+      const sText = params.get("share_text") || "";
+      const sUrl = params.get("share_url") || "";
+      if (!sTitle && !sText && !sUrl) return;
+      // Best-guess name: the title, else the text minus any URL inside it.
+      const urlInText = (sText.match(/https?:\/\/\S+/) || [])[0] || "";
+      const name = (sTitle || sText.replace(urlInText, "").trim() || "Shared spot").slice(0, 80);
+      const link = sUrl || urlInText;
+      const shared = { id: `shared-${Date.now()}`, name, cuisine: t("Shared with you"), address: "", category: "food", google_url: link, image: "" };
+      if (!isFavorite(shared)) toggleFavorite(shared);
+      toast.success(`${t("Saved to Favorites:")} ${name}`, { duration: 6000 });
+      trackEvent("share_target_in", {});
+      // Clean the params so refreshes don't re-save it.
+      ["share_title", "share_text", "share_url"].forEach((k) => params.delete(k));
+      const qs = params.toString();
+      window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
+    } catch (e) { /* malformed share — ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [showGuided, setShowGuided] = useState(true);
   const [muted, setMuted] = useState(() => {
     try { return localStorage.getItem("ff_muted") === "1"; } catch { return false; }
@@ -200,12 +225,13 @@ export default function Home() {
   // turns busy, heistEpoch bumps — remounting every heist layer so any strike
   // already mid-run aborts instantly (its unmount cleanup restores the logo).
   const [heistEpoch, setHeistEpoch] = useState(0);
+  const [blackout, setBlackout] = useState(false); // BINGO blackout celebration
   useEffect(() => {
-    const busy = !!(spinning || loading || surpriseReveal || showGuided || mysticalReveal);
+    const busy = !!(spinning || loading || surpriseReveal || showGuided || mysticalReveal || blackout);
     const was = window.__ffFateBusy;
     window.__ffFateBusy = busy;
     if (busy && !was) setHeistEpoch((n) => n + 1);
-  }, [spinning, loading, surpriseReveal, showGuided, mysticalReveal]);
+  }, [spinning, loading, surpriseReveal, showGuided, mysticalReveal, blackout]);
 
   const finishGuided = () => {
     setShowGuided(false);
@@ -351,7 +377,16 @@ export default function Home() {
   const landFate = (card, extra = {}) => {
     recordFate(card, { theme, mode, ...extra });
     const b = markCuisine(card.cuisine);
-    if (b?.newLines) {
+    if (b?.blackout) {
+      // BLACKOUT: all 25 squares stamped — the rarest feat in the collection.
+      recordRitualSeen("blackout");
+      setBlackout(true);
+      try {
+        confetti({ particleCount: 160, spread: 100, startVelocity: 48, origin: { x: 0.5, y: 0.6 }, colors: ["#E6B23A", "#F5D98B", "#FFFFFF"] });
+        setTimeout(() => confetti({ particleCount: 120, spread: 120, startVelocity: 40, origin: { x: 0.5, y: 0.4 }, colors: ["#E6B23A", "#C08A2E"] }), 600);
+      } catch (e) { /* canvas unavailable */ }
+      trackEvent("bingo_blackout", { stamps: b.stamps });
+    } else if (b?.newLines) {
       try {
         confetti({ particleCount: 80, spread: 75, startVelocity: 38, origin: { x: 0.5, y: 0.7 }, colors: ["#E6B23A", "#E01E26", "#FFFFFF"] });
       } catch (e) { /* canvas unavailable */ }
@@ -954,6 +989,8 @@ export default function Home() {
       {theme === "dark" && <ReaperPlateHeist key={`ph-${heistEpoch}`} />}
       {/* Café: the runaway coffee cup that melts the medallion like sugar */}
       {theme === "light" && <CoffeeSpillHeist key={`ch-${heistEpoch}`} />}
+      {/* BINGO blackout: all 25 squares stamped — golden full-screen ritual */}
+      <BlackoutRitual open={blackout} onClose={() => setBlackout(false)} />
       {/* the little reaper follower: drifts around the page trailing black smoke */}
       {theme === "dark" && <CompanionPatrol s1="/reaper-fly-1.png" s2="/reaper-fly-2.png" glow="rgba(140,110,200,0.45)" dustCol={["#8E7BB8", "#2A2038"]} testid="reaper-companion" flap="ffReaperFrame 2.6s ease-in-out infinite" flapBase="ffReaperFrameInv 2.6s ease-in-out infinite" bob="ffPixieBob 3.6s ease-in-out infinite" />}
       {/* Header */}

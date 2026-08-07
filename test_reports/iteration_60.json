@@ -1,0 +1,38 @@
+{
+  "summary": "Batch of 4 features tested (backend flares + 3 frontend features + regression). Backend flare endpoint: 6/6 pytest tests PASS (pop, upsert, multi-member, code normalization, short-id 422, positions response). Frontend Heist Hunter: FULL 20/20 shows crown + late trophies (coffee/plate/unicorn/cardinal) all rendered; PARTIAL 3/20 correctly hides crown and shows progress pill 'Witness all 20 ... 3/20'. Frontend Blackout: localStorage seeding + landFate side-effect verified (ff_rituals_seen.blackout recorded, /rituals page renders Blackout card unlocked with ×1 count); overlay component code inspected and matches spec (data-testid=blackout-ritual, blackout-view-card, 6.5s auto-dismiss). Full E2E landFate overlay trigger not driven (required a real deal-flow with Google Places) — verified indirectly per acceptable-workaround in the spec. Frontend Share Target: favorite saved to ff_favorites with correct name/cuisine/google_url, URL params cleaned via replaceState — WORKS. HOWEVER: the success toast 'Saved to Favorites: Tony's Pizza' does NOT render — sonner section exists but stays empty even at 8s. Regression: /bingo, /rituals, / all load with zero console errors. Flare UI in PubCrawlDialog not exercised (requires deep crew-mode setup) — backend confirmed working, code inspected.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Share Target toast (Home.jsx line ~201)",
+        "issue": "toast.success('Saved to Favorites: ...') is called inside the mount-time useEffect but the sonner <section aria-label='Notifications alt+T'> stays empty. Favorite IS saved to ff_favorites and URL IS cleaned (both verified), but user never sees confirmation. Root cause is timing: Home's useEffect runs before the Toaster component (mounted as a sibling in App.js line 47) has subscribed to the sonner store on initial page load. Toasts fired during that window are dropped by sonner v2.0.3.",
+        "selector": "section[aria-label*='Notifications' i] (found, but empty)",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_flares.py",
+    "/app/test_reports/pytest/flares_results.xml"
+  ],
+  "action_items": [
+    "Fix share-target toast: defer the toast.success() call by a microtask/timeout (e.g. setTimeout(()=>toast.success(...), 0) or requestAnimationFrame) so it fires after Toaster subscribes. Alternatively move the share-intake effect into a component that renders AFTER <Toaster/> in the tree, or wrap it in a small delay. Favorite persistence + URL cleanup already work correctly — this is a UI-confirmation-only fix."
+  ],
+  "critical_code_review_comments": [
+    "Home.jsx is 1656 lines — well over the 700-line guideline. Consider splitting the share-intake, blackout-trigger, heist-cooldown, and reveal-orchestration effects into small hooks/modules to make the surface easier to test and reason about.",
+    "Share-target useEffect (Home.jsx ~188) has 'eslint-disable-next-line react-hooks/exhaustive-deps' with a truly empty dep array — fine intent, but 't' (i18n) and 'isFavorite/toggleFavorite' are captured from first render; if the LangProvider ever swaps t() async on mount, the toast/favorite label may be untranslated for the first shared item.",
+    "BlackoutRitual auto-dismiss timer (6500ms) can be reset by re-open — currently guarded by 'if (!open) return;'. If parent rapidly toggles open false→true, the old timeout is cleared on cleanup — behaviour is correct. No action needed.",
+    "PubCrawlDialog flare button correctly binds `data-testid='crawl-flare-button'` and shows the disabled hint 'Turn on location to pop a flare' when livePos is null (code inspection). Not exercised E2E because reaching the map view requires building a crawl in crew mode — spec explicitly permits skipping."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_flares.py (new — 6 pytest cases for /crawls/{code}/flare + /positions)"
+  ],
+  "success_rate": {"backend": "100% (6/6)", "frontend": "3/4 features fully verified; Share Target 50% (persistence works, toast broken)"},
+  "seed_data_creation": "localStorage per-test: ff_theme=dark, ff_theme_chosen=1, ff_theme_hint_seen=1, ff_muted=1, sessionStorage ff_build_reloaded=1. Heist tests seeded ff_heists_seen (3-key partial and full 20-key). Blackout test seeded ff_bingo (24/25 marked) then final mark + ff_rituals_seen.blackout={count:1}. Share test cleared ff_favorites before navigation to share URL.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Share Target toast issue: sonner <section aria-label='Notifications alt+T'> mounts (verified) but stays empty even 8s after the share-intake useEffect fires on first-visit navigation. Favorite persists in ff_favorites and URL is cleaned via replaceState. Suggest E1 wrap toast.success in setTimeout(...,0) or move the intake logic into a child of <Toaster/>. Heist Hunter crown, both partial and full states, verified pixel-clean via data-testid='heist-hunter-crown-icon' and data-testid='trophy-count'. Blackout overlay was NOT triggered E2E (would need geolocation + Google Places deal); verified via localStorage state + /rituals rendering. Backend flare endpoint fully verified — upsert on same member_id, multi-member accumulation, code normalization (uppercase + truncate to 12), and 422 rejection for member_id<4 chars all pass.",
+  "rca of the issue": "Share Target missing toast — Home.jsx line ~201 calls toast.success inside a useEffect(() => { ... }, []) that runs during the first commit of the Home page. React fires effects bottom-up; Home is deeply nested inside <BrowserRouter><Routes>, while <Toaster/> is a sibling rendered after </BrowserRouter> in App.js line 47. On the initial mount both effects fire in the same tick, but Home's runs before Toaster's subscription is registered with sonner's global store, so the emit gets dropped. Reproduction: nav to /?share_title=X → favorite appears in ff_favorites, URL cleared, but <section aria-label='Notifications'> never gets a <li>. Mitigation: setTimeout(() => toast.success(...), 0) inside the effect, or a requestAnimationFrame, or lift the share intake into a component rendered as a child of/after <Toaster/>."
+}

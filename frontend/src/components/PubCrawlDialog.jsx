@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Beer, MapPin, Star, Shuffle, ExternalLink, X, Share2, Trophy, Users, Check, Navigation, LocateFixed, ChevronDown, ListOrdered, Map as MapIcon } from "lucide-react";
+import { Beer, MapPin, Star, Shuffle, ExternalLink, X, Share2, Trophy, Users, Check, Navigation, LocateFixed, ChevronDown, ListOrdered, Map as MapIcon, Flame } from "lucide-react";
 import { toast } from "sonner";
+import { trackEvent } from "../lib/analytics";
 import CrawlBadgeDialog from "./CrawlBadgeDialog";
 import CrawlMap from "./CrawlMap";
 import { orderCrawlRoute as orderRoute, crawlHaversine as haversine } from "../pages/homeConstants";
@@ -238,13 +239,39 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
     const load = async () => {
       try {
         const { data } = await axios.get(`${API}/crawls/${crawlCode}/positions`);
-        if (!stopped) setCrewPos((data.positions || []).filter((p) => p.member_id !== memberIdRef.current));
+        if (stopped) return;
+        setCrewPos((data.positions || []).filter((p) => p.member_id !== memberIdRef.current));
+        setFlares(data.flares || []); // everyone's flares, including my own
       } catch (e) { /* transient */ }
     };
     load();
     const id = setInterval(load, 20000);
     return () => { stopped = true; clearInterval(id); };
   }, [open, crawlCode]);
+
+  // "Flare on me": pop a bright beacon at my spot that the whole crew sees.
+  const [flares, setFlares] = useState([]);
+  const [flareBusy, setFlareBusy] = useState(false);
+  const popFlare = async () => {
+    if (!livePos || !crawlCode || flareBusy) return;
+    setFlareBusy(true);
+    const myName = (crew.trim().split(/[,&]/)[0] || "").slice(0, 16) || t("Crew");
+    try {
+      await axios.post(`${API}/crawls/${crawlCode}/flare`, {
+        member_id: memberIdRef.current, name: myName, lat: livePos.lat, lng: livePos.lng,
+      });
+      setFlares((prev) => [
+        ...prev.filter((f) => f.member_id !== memberIdRef.current),
+        { member_id: memberIdRef.current, name: myName, lat: livePos.lat, lng: livePos.lng },
+      ]);
+      toast.success(t("Flare popped! Your crew can see you on the map for the next few minutes."));
+      trackEvent("crawl_flare", {});
+    } catch (e) {
+      toast.error(t("Couldn't pop the flare — try again."));
+    } finally {
+      setTimeout(() => setFlareBusy(false), 5000); // gentle spam brake
+    }
+  };
 
   const buildStopsPayload = () =>
     stops.map((s) => ({
@@ -398,12 +425,22 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
 
           {view === "map" && stops.length > 0 ? (
             <div className="mt-3 min-h-0 flex-1" data-testid="crawl-map-view">
-              <CrawlMap stops={stops} origin={origin} destination={destination} visited={visited} livePos={livePos} crew={crewPos} height="max(260px, 44dvh)" />
+              <CrawlMap stops={stops} origin={origin} destination={destination} visited={visited} livePos={livePos} crew={crewPos} flares={flares} height="max(260px, 44dvh)" />
               <p className="mt-2 text-center text-[11px] font-semibold text-[#8A8A8A]">
                 {crewPos.length > 0
                   ? `${crewPos.length} ${crewPos.length === 1 ? t("crew pin live — blue dots are your people.") : t("crew pins live — blue dots are your people.")}`
                   : t("Numbered pins follow your route — green means conquered.")}
               </p>
+              {crawlCode && (
+                <button
+                  onClick={popFlare}
+                  disabled={!livePos || flareBusy}
+                  data-testid="crawl-flare-button"
+                  className="mx-auto mt-2 flex items-center gap-1.5 rounded-full border border-[#FF7A1A]/60 bg-[#FF7A1A]/15 px-4 py-2 text-xs font-bold text-[#FFB25E] transition-colors hover:bg-[#FF7A1A]/30 disabled:opacity-40"
+                >
+                  <Flame className="h-4 w-4" /> {livePos ? t("Flare on me — show the crew where I am") : t("Turn on location to pop a flare")}
+                </button>
+              )}
             </div>
           ) : (
           <>

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem, Leaf, Flower2, Citrus, Coffee, Snowflake, Rocket, Grab, Bone, Stamp, ChevronRight, Volleyball, Shell, Waves, Bird, CarFront, Watch, Target } from "lucide-react";
+import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem, Leaf, Flower2, Citrus, Coffee, Snowflake, Rocket, Grab, Bone, Stamp, ChevronRight, Volleyball, Shell, Waves, Bird, CarFront, Watch, Target, Crown, Feather, Rainbow, Utensils } from "lucide-react";
 import { RITUALS, readRitualsSeen, HEISTS, readHeistsSeen } from "../lib/rituals";
 import { readBingo } from "../lib/bingo";
 import { useLang } from "../i18n/i18n";
@@ -10,12 +10,14 @@ const ICONS = {
   code: KeyRound, crank: Cog, shaker: CupSoda, volcano: Mountain, tarot: Moon,
   coffin: Skull, seance: Flame, ouija: Ghost, eye: Eye, chest: Gem,
   leaves: Leaf, bloom: Flower2, melon: Citrus, globe: Snowflake, latte: Coffee,
+  blackout: Stamp,
 };
 
 const HEIST_ICONS = {
   saucer: Rocket, dragon: Grab, grave: Bone, pixie: Wand2, breath: Flame,
   ball: Volleyball, crab: Shell, surf: Waves, spear: Target, spring: Watch,
   gears: Cog, snatch: Ghost, snowman: Snowflake, owl: Bird, petals: Flower2, wreck: CarFront,
+  coffee: Coffee, plate: Utensils, unicorn: Rainbow, cardinal: Feather,
 };
 
 export default function Rituals() {
@@ -106,7 +108,35 @@ export default function Rituals() {
               {HEISTS.filter((h) => heistsSeen[h.key]?.count).length} <span className="text-sm text-white/50">/ {HEISTS.length}</span>
             </span>
           </div>
-          {[0, 1].map((row) => (
+          {/* HEIST HUNTER: witness every last heist and the crown descends */}
+          {(() => {
+            const witnessed = HEISTS.filter((h) => heistsSeen[h.key]?.count).length;
+            const allDone = witnessed === HEISTS.length;
+            return (
+              <div className="mt-3 flex flex-col items-center" data-testid="heist-hunter-crown">
+                {allDone ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: -24, scale: 0.6 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ type: "spring", stiffness: 220, damping: 14 }}
+                    className="flex flex-col items-center"
+                  >
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full" style={{ background: "radial-gradient(circle at 35% 30%, #E6B23A66, #E6B23A14 72%)", boxShadow: "0 0 26px #E6B23A80, inset 0 0 12px #E6B23A50", animation: "ffTrophyGlow 2.2s ease-in-out infinite" }}>
+                      <Crown className="h-9 w-9 text-[#E6B23A]" style={{ filter: "drop-shadow(0 0 8px #E6B23A)" }} data-testid="heist-hunter-crown-icon" />
+                    </div>
+                    <p className="mt-1.5 font-serif text-base font-bold text-[#E6B23A]" style={{ textShadow: "0 0 12px rgba(230,178,58,0.5)" }}>{t("Heist Hunter")}</p>
+                    <p className="font-sans text-[11px] text-white/50">{t("Every heist in every realm — witnessed.")}</p>
+                  </motion.div>
+                ) : (
+                  <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5">
+                    <Crown className="h-4 w-4 text-white/25" />
+                    <span className="font-sans text-[11px] text-white/40">{t("Witness all")} {HEISTS.length} {t("to claim the Heist Hunter crown")} · {witnessed}/{HEISTS.length}</span>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+          {Array.from({ length: Math.ceil(HEISTS.length / 8) }, (_, row) => row).map((row) => (
             <div key={`shelf-${row}`} className="mt-3">
               <div className="grid grid-cols-8 gap-1.5">
                 {HEISTS.slice(row * 8, row * 8 + 8).map((h, i) => {

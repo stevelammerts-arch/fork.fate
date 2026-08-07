@@ -63,9 +63,26 @@ const crewIcon = (name) =>
     popupAnchor: [0, -24],
   });
 
+// Blazing orange beacon for a popped "flare on me" — impossible to miss.
+const flareIcon = (name) =>
+  L.divIcon({
+    className: "",
+    html: `<div style="display:flex;flex-direction:column;align-items:center;transform:translateY(-8px)">
+      <div style="background:rgba(28,10,2,.9);color:#FFB25E;font:700 9px/1 Arial;padding:2px 6px;border-radius:6px;border:1px solid #FF7A1A;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.6)">FLARE · ${escapeHtml(name)}</div>
+      <div style="position:relative;width:26px;height:26px;margin-top:2px">
+        <span class="animate-ping" style="position:absolute;inset:0;border-radius:9999px;background:#FF7A1A;opacity:.7"></span>
+        <span class="animate-ping" style="position:absolute;inset:4px;border-radius:9999px;background:#FFB25E;opacity:.6;animation-delay:.35s"></span>
+        <span style="position:absolute;inset:7px;border-radius:9999px;background:radial-gradient(circle at 40% 35%, #FFE3B8, #FF7A1A 65%);border:2px solid #1c0a02;box-shadow:0 0 12px #FF7A1A"></span>
+      </div>
+    </div>`,
+    iconSize: [70, 36],
+    iconAnchor: [35, 28],
+    popupAnchor: [0, -28],
+  });
+
 // Interactive, no-cost route map (OpenStreetMap data via CARTO dark tiles).
 // Renders numbered pins + a connecting line for the crawl route.
-export default function CrawlMap({ stops = [], origin = null, destination = null, visited = {}, livePos = null, crew = [], height = 170 }) {
+export default function CrawlMap({ stops = [], origin = null, destination = null, visited = {}, livePos = null, crew = [], flares = [], height = 170 }) {
   const pts = useMemo(
     () => stops.filter((s) => s.lat != null && s.lng != null).map((s) => ({ ...s, ll: [Number(s.lat), Number(s.lng)] })),
     [stops]
@@ -120,6 +137,11 @@ export default function CrawlMap({ stops = [], origin = null, destination = null
         {crew.filter((c) => c.lat != null && c.lng != null).map((c) => (
           <Marker key={c.member_id} position={[Number(c.lat), Number(c.lng)]} icon={crewIcon(c.name || "Crew")}>
             <Popup>{c.name || "Crew"}</Popup>
+          </Marker>
+        ))}
+        {flares.filter((f) => f.lat != null && f.lng != null).map((f) => (
+          <Marker key={`flare-${f.member_id}`} position={[Number(f.lat), Number(f.lng)]} icon={flareIcon(f.name || "Crew")} zIndexOffset={1000}>
+            <Popup>{(f.name || "Crew") + " popped a flare here!"}</Popup>
           </Marker>
         ))}
       </MapContainer>
