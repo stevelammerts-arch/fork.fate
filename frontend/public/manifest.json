@@ -36,5 +36,32 @@
     { "name": "Shop", "short_name": "Shop", "url": "/shop", "description": "Fork·Fate merch" }
   ],
   "lang": "en",
-  "dir": "auto"
+  "dir": "auto",
+  "screenshots": [
+    {
+      "src": "screenshots/home-narrow.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Let fate pick tonight's table — shuffle nearby restaurants, bars and more"
+    },
+    {
+      "src": "screenshots/home-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Fork·Fate on desktop — filters, search radius and the deal deck"
+    }
+  ],
+  "display_override": ["standalone", "minimal-ui"],
+  "launch_handler": { "client_mode": "navigate-existing" },
+  "handle_links": "preferred",
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.fork_fate.twa",
+      "id": "com.fork_fate.twa"
+    }
+  ]
 }

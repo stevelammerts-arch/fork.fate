@@ -2260,3 +2260,16 @@ DEFERRED TO BACKLOG (high regression risk pre-publish):
 - Verified via UA-emulated contexts (iPhone Safari UA + CriOS UA): dialog
   opens from the "Download the app!" button with the correct branch text.
 - apple-touch-icon.png present; manifest solid (icons, maskable, standalone).
+
+## 2026-08-07 part 96: PWABuilder manifest score boost (FF_BUILD 397)
+- User shared PWABuilder score: Manifest 22/45, SW +3, Capabilities +1.
+- manifest.json upgraded with the missing scored fields: screenshots (narrow
+  390x844 + wide 1280x720, captured from the dark realm home and saved to
+  /public/screenshots/), display_override, launch_handler
+  (navigate-existing), handle_links preferred, prefer_related_applications
+  false + related_applications (Play: com.fork_fate.twa).
+- Remaining unscored bits (intentionally skipped): iarc_rating_id (needs the
+  user's IARC cert from Play Console), share_target/file/protocol handlers +
+  widgets (behavior changes, not wanted yet).
+- Verified: manifest valid JSON, screenshot URLs 200. PWABuilder scores
+  PRODUCTION, so the new number shows after redeploy.
