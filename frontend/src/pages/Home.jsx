@@ -198,7 +198,9 @@ export default function Home() {
       const link = sUrl || urlInText;
       const shared = { id: `shared-${Date.now()}`, name, cuisine: t("Shared with you"), address: "", category: "food", google_url: link, image: "" };
       if (!isFavorite(shared)) toggleFavorite(shared);
-      toast.success(`${t("Saved to Favorites:")} ${name}`, { duration: 6000 });
+      // Defer past first paint — sonner's Toaster subscribes after this
+      // mount-time effect runs, and toasts fired before that are dropped.
+      setTimeout(() => toast.success(`${t("Saved to Favorites:")} ${name}`, { duration: 6000 }), 600);
       trackEvent("share_target_in", {});
       // Clean the params so refreshes don't re-save it.
       ["share_title", "share_text", "share_url"].forEach((k) => params.delete(k));

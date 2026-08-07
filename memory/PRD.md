@@ -2273,3 +2273,29 @@ DEFERRED TO BACKLOG (high regression risk pre-publish):
   widgets (behavior changes, not wanted yet).
 - Verified: manifest valid JSON, screenshot URLs 200. PWABuilder scores
   PRODUCTION, so the new number shows after redeploy.
+
+## 2026-08-07 part 97: Four-feature batch (FF_BUILD 399)
+All tested via testing agent iteration_60.json (backend 6/6 pytest pass at
+/app/backend/tests/test_flares.py) + follow-up toast fix verified by screenshot.
+1. FLARE ON ME: POST /api/crawls/{code}/flare (CrawlPositionCreate payload,
+   member_id >=4 chars, upserts per member, TTL 3 min via crawl_flares
+   expire_at index); GET positions now returns {positions, flares}.
+   PubCrawlDialog: popFlare() + crawl-flare-button in map view (disabled
+   without livePos, 5s spam brake); CrawlMap: flares prop + flareIcon
+   (pulsing orange beacon w/ FLARE·name tag, zIndexOffset 1000).
+2. BLACKOUT RITUAL: Home landFate b?.blackout branch -> recordRitualSeen
+   ("blackout") + gold double confetti + BlackoutRitual.jsx overlay (golden
+   stamp slam, square rain via ffBlackoutSquare/ffBlackoutFlash, Admire the
+   card -> /bingo, auto-dismiss 6.5s). blackout added to __ffFateBusy so
+   heists can't strike mid-celebration. RITUALS registry + ICONS (Stamp) got
+   "blackout" entry -> Collection card.
+3. SHARE TARGET: manifest share_target (GET /, share_title/text/url params);
+   Home mount effect saves shared spot to ff_favorites (name from title or
+   text-minus-URL), cleans params via replaceState, toast DEFERRED 600ms
+   (sonner Toaster subscribes after mount effects; undeferred toasts drop).
+4. HEIST HUNTER: Rituals.jsx shelf rows now dynamic (was hardcoded [0,1] =
+   16 slots, missing the 4 newest heists!); crown centerpiece when 20/20
+   (heist-hunter-crown-icon) else progress pill; HEIST_ICONS +4 (coffee
+   Coffee, plate Utensils, unicorn Rainbow, cardinal Feather).
+- NOTE: a Home.jsx state edit silently didn't persist once mid-session
+  (interrupted turn); re-applied. Always re-grep after interrupted turns.
