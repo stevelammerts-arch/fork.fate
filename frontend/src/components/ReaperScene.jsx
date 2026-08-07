@@ -33,7 +33,7 @@ export function ReaperScene() {
 
   return (
     <>
-      <div className="pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid="reaper-ambiance">
+      <div className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid="reaper-ambiance">
         <div className="ff-night-sky" />
         <motion.div className="ff-moon" data-testid="reaper-moon" style={{ x: moonX, y: moonY }}>
           <img src="/reaper-moon.png" alt="" aria-hidden="true" className="ff-moon-img" />

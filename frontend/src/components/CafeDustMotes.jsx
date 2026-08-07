@@ -11,7 +11,7 @@ const rnd = (i, salt) => {
  */
 export function CafeDustMotes() {
   return (
-    <div className="pointer-events-none fixed inset-0 z-0 select-none" data-testid="cafe-dust-motes" aria-hidden="true">
+    <div className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none" data-testid="cafe-dust-motes" aria-hidden="true">
       {Array.from({ length: 16 }, (_, i) => {
         const s = 2 + rnd(i, 1) * 3.5;
         const dur = 14 + rnd(i, 2) * 14;

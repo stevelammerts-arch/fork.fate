@@ -110,9 +110,15 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
   // generating the 1080×1920 badge canvas spikes GPU memory and the compositor
   // starts thrashing the many looping scene animations (esp. Tiki flames),
   // which shows up as irregular screen flashing. Freezing them prevents that.
+  // Heists are also held off (cooldown claim) so nothing strikes mid-ceremony.
   useEffect(() => {
-    if (open) document.body.classList.add("ff-badge-open");
-    else document.body.classList.remove("ff-badge-open");
+    if (open) {
+      document.body.classList.add("ff-badge-open");
+      window.__ffHeistCooldownUntil = Math.max(window.__ffHeistCooldownUntil || 0, Date.now() + 15 * 60000);
+    } else {
+      document.body.classList.remove("ff-badge-open");
+      window.__ffHeistCooldownUntil = Date.now() + 60000; // a breather after the ceremony
+    }
     return () => document.body.classList.remove("ff-badge-open");
   }, [open]);
 

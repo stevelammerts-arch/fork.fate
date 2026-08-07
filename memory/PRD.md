@@ -2225,3 +2225,22 @@ DEFERRED TO BACKLOG (high regression risk pre-publish):
 - Backend complexity: stamp_passport, places_search, complete_crawl,
   google_places_search, build_sponsor_summary helper extraction.
 - Python type hints (models.py, server.py).
+
+## 2026-08-07 part 94: Crawl reward screen black-flash fix (FF_BUILD 395)
+- User (live mobile, pub crawl): selfie/reward step glitched with black flashes.
+- Root causes (4 compounding, dark theme = default):
+  1. ReaperScene root LACKED the ff-theme-scene class, so the existing
+     ff-badge-open pause never froze the dark realm's looping animations
+     while the 1080x1920 badge canvas builds. Added (also to CafeDustMotes).
+  2. .flame-text "Congratulations" animates drop-shadow filters on
+     background-clip:text every 1.05s — a known Android Chrome black-flash
+     trigger. Mobile (<=640px) now gets animation:none + one static glow.
+     (Also applies to Leaderboard title, same class.)
+  3. The reaper-shocked cinematic animated filter:blur(3->0->1.5->8px) on a
+     240px image — blur keyframes removed (opacity/scale/y kept).
+  4. Heists could strike mid-ceremony (badge dialog not in __ffFateBusy):
+     CrawlBadgeDialog now claims the heist cooldown slot on open (+15min cap)
+     and leaves a 60s breather on close.
+- Verified: scene animation-play-state paused<->running with the body class;
+  flame-text computed animationName none at 390px. NEEDS REDEPLOY to hit
+  fork-fate.com.
