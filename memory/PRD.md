@@ -2299,3 +2299,11 @@ All tested via testing agent iteration_60.json (backend 6/6 pytest pass at
    Coffee, plate Utensils, unicorn Rainbow, cardinal Feather).
 - NOTE: a Home.jsx state edit silently didn't persist once mid-session
   (interrupted turn); re-applied. Always re-grep after interrupted turns.
+
+## 2026-08-07 part 98: Winter chimney smoke fix (FF_BUILD 400)
+- User: winter smoke looked like a black smudge. Cause: mid-gray smoke colors
+  (rgba(140,148,162,0.5)) + heavy blur over the pale sky and a cabin drawn at
+  0.32 opacity.
+- ff-chimney-column + ff-chimney-smoke recolored to near-white winter tones
+  (rgba(234-249,239-251,246-254)) with slightly higher puff opacity peaks
+  (0.6/0.5) to stay visible. Screenshot-verified: soft pale plume, no smudge.
