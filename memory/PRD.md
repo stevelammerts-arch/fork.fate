@@ -2244,3 +2244,19 @@ DEFERRED TO BACKLOG (high regression risk pre-publish):
 - Verified: scene animation-play-state paused<->running with the body class;
   flame-text computed animationName none at 390px. NEEDS REDEPLOY to hit
   fork-fate.com.
+
+## 2026-08-07 part 95: iPhone install experience (FF_BUILD 396)
+- Context: user cannot pursue App Store publishing (no Mac/iPhone/personal
+  computer) — iPhone users are served via PWA Add to Home Screen instead.
+  App Store route documented in chat, deferred indefinitely.
+- InstallAppButton iOS dialog: non-Safari branch REWRITTEN — since iOS 16.4
+  all iOS browsers install from their own share menu, so Chrome/Edge/Firefox
+  users get numbered steps (share icon top-right in Chrome) with a Safari
+  fallback note, instead of being detoured to Safari. Safari branch already
+  had good steps (bottom toolbar hint).
+- InstallHelper bottom sheet: Safari steps now say WHERE the share button is;
+  non-Safari iOS gets the same share->add steps + fallback line (replaces the
+  old "Open this page in Safari" note). pwa.js comment updated.
+- Verified via UA-emulated contexts (iPhone Safari UA + CriOS UA): dialog
+  opens from the "Download the app!" button with the correct branch text.
+- apple-touch-icon.png present; manifest solid (icons, maskable, standalone).

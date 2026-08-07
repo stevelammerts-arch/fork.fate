@@ -70,15 +70,17 @@ export default function InstallHelper() {
   if (ios && iosSafari) {
     steps = (
       <ol className="mt-2 space-y-1.5 text-sm text-[#C7CBD1]" data-testid="install-helper-ios-steps">
-        <li className="flex items-center gap-2"><Share className="h-4 w-4 shrink-0 text-[#E01E26]" /> {t("Tap the Share button in Safari")}</li>
+        <li className="flex items-center gap-2"><Share className="h-4 w-4 shrink-0 text-[#E01E26]" /> {t("Tap Share at the bottom of Safari")}</li>
         <li className="flex items-center gap-2"><Plus className="h-4 w-4 shrink-0 text-[#E01E26]" /> {t("Choose \u201CAdd to Home Screen\u201D")}</li>
       </ol>
     );
   } else if (ios && !iosSafari) {
     steps = (
-      <p className="mt-2 text-sm text-[#C7CBD1]" data-testid="install-helper-ios-safari-note">
-        {t("Open this page in Safari, then tap Share \u2192 Add to Home Screen.")}
-      </p>
+      <ol className="mt-2 space-y-1.5 text-sm text-[#C7CBD1]" data-testid="install-helper-ios-steps">
+        <li className="flex items-center gap-2"><Share className="h-4 w-4 shrink-0 text-[#E01E26]" /> {t("Tap your browser's Share icon")}</li>
+        <li className="flex items-center gap-2"><Plus className="h-4 w-4 shrink-0 text-[#E01E26]" /> {t("Choose \u201CAdd to Home Screen\u201D")}</li>
+        <li className="text-xs text-[#8A8F95]">{t("Don't see it? Open this page in Safari and try there.")}</li>
+      </ol>
     );
   } else if (!canOneTap) {
     steps = (

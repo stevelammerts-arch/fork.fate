@@ -90,13 +90,29 @@ export default function InstallAppButton() {
           </DialogHeader>
 
           {!isIOSSafari() ? (
-            <div className="rounded-xl border border-[#E01E26]/40 bg-[#E01E26]/10 p-4 text-sm" data-testid="ios-open-in-safari">
-              <p className="font-bold text-white">Open this page in Safari first</p>
-              <p className="mt-1 text-[#C7CBD1]">
-                On iPhone, only <span className="font-semibold text-white">Safari</span> can add apps to your home screen.
-                Tap the <span className="font-semibold text-white">•••</span> menu and choose “Open in Safari,” then come back and tap “Download the app!” again.
-              </p>
-            </div>
+            <ol className="mt-1 space-y-3" data-testid="ios-install-steps">
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#E01E26] text-sm font-bold text-white">1</span>
+                <p className="text-sm text-[#E6E8EB]">
+                  Tap the <span className="font-semibold text-white">Share</span> icon
+                  <Share className="mx-1 inline h-4 w-4 -translate-y-0.5 text-[#4FA3FF]" />
+                  in your browser (top right in Chrome).
+                </p>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#E01E26] text-sm font-bold text-white">2</span>
+                <p className="text-sm text-[#E6E8EB]">
+                  Scroll down and tap <span className="font-semibold text-white">“Add to Home Screen”</span>
+                  <Plus className="mx-1 inline h-4 w-4 -translate-y-0.5 rounded border border-white/40 p-0.5 text-white" />
+                </p>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#E01E26] text-sm font-bold text-white">3</span>
+                <p className="text-sm text-[#E6E8EB]">
+                  Tap <span className="font-semibold text-white">“Add”</span>. Don't see the option? Open this page in <span className="font-semibold text-white">Safari</span> and try there.
+                </p>
+              </li>
+            </ol>
           ) : (
             <ol className="mt-1 space-y-3" data-testid="ios-install-steps">
               <li className="flex items-start gap-3">
