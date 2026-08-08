@@ -2315,3 +2315,21 @@ All tested via testing agent iteration_60.json (backend 6/6 pytest pass at
   pops out (scale .22->.55 @7%), rises 180px with drift, swells to 1.45 and
   fades; blur cut 9->4px with brighter white core for defined puff shapes.
 - Screenshot-verified: 3-4 separate puffs visible in trail at once.
+
+## 2026-08-08 part 100: Rising smokestack puffs (FF_BUILD 402)
+- User refined: puffs should RISE like a smokestack train. Keyframe reworked:
+  coherent cotton-ball puffs (blur 2.5px, bright off-center core, opacity held
+  ~0.85 through 65% of the ride, small scale growth to 1.2) climbing 192px
+  with a gentle left/right wobble baked into the path. Screenshot-verified:
+  vertical train of 4-5 distinct balls above the chimney.
+
+## 2026-08-08 part 101: Gusting snow + chimney polish (FF_BUILD 403-405)
+- 403: chimney puffs pinned to the chimney mouth (marginTop: -size anchors the
+  puff BOTTOM at the anchor; on mobile's small cabin the puff box previously
+  hung visibly below the lip). Mobile-verified with content hidden.
+- 404: winter's big flake sprites REPLACED with gust snow: cfg.gustSnow flag
+  (items/falling removed from winter), GUST_SNOW particles + .ff-gust-snow /
+  ffGustSnow keyframe (sideways wind ride: gust-lull-gust profile crossing
+  108vw, sinking --dip vh, per-fleck --op).
+- 405: user wanted "a lot more snow" — GUST_SNOW 26 -> 70 flecks (sizes
+  1.5-6px, dur 4.5-11s). Screenshot-verified thick flurry on mobile.

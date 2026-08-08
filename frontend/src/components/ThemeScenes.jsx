@@ -150,7 +150,7 @@ export const SEASONS = {
     grad: "linear-gradient(180deg,#EAF3FA 0%,#DCEAF5 55%,#CFE0EE 100%)",
     tree: "/winter-tree.png", treeSide: "left", treeFlip: true, treeZ: "z-[2]",
     decorRight: "/winter-decor.png", decorRightBig: true, decorRightPos: "right-[-10%] sm:right-[-5%]", santa: "/santa-sleigh.png", chimney: { left: "58.5%", top: "16%" }, cardinal: "/winter-cardinal.png", snowmanArm: "/winter-arm.png",
-    items: ["/flake-blue.png", "/flake-white.png", "/flake-silver.png"], falling: true, hint: "#2E77A6",
+    gustSnow: true, hint: "#2E77A6",
   },
   spring: {
     grad: "linear-gradient(180deg,#F3FBEF 0%,#FBEFF5 55%,#EFF7E6 100%)",
@@ -163,6 +163,17 @@ export const SEASONS = {
     items: ["/summer-sun.png", "/summer-ball.png", "/summer-icecream.png"], falling: false, hint: "#E07E17", crabs: "/summer-crab.png", coconut: "/summer-coconut.png",
   },
 };
+
+// Winter gust snow: a THICK flurry of tiny flecks carried sideways on the
+// wind — each rides the same gust profile at its own height, speed and size.
+const GUST_SNOW = Array.from({ length: 70 }).map((_, i) => ({
+  top: `${(i * 29 + 3) % 86}%`,
+  size: 1.5 + (i % 5),
+  dur: 4.5 + (i % 8) * 0.9,
+  delay: -((i * 1.3) % 12),
+  op: 0.4 + (i % 5) * 0.13,
+  dip: 6 + (i % 7) * 4, // how far it sinks (vh) while crossing
+}));
 
 export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
   return (<>
@@ -203,7 +214,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
         <div className={`absolute bottom-0 ${cfg.decorRightPos || "right-[3%]"} ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={{ aspectRatio: "1264 / 848" }} data-testid="winter-cabin">
           <img src={cfg.decorRight} alt="" className="absolute inset-0 h-full w-full object-contain opacity-[0.32]" />
           {CHIMNEY_SMOKE.map((s, i) => (
-            <span key={`smoke-${i}`} className="ff-chimney-smoke" style={{ left: cfg.chimney.left, top: cfg.chimney.top, width: s.size, height: s.size, "--drift": `${s.drift}px`, animationDuration: `${s.dur}s`, animationDelay: `${s.delay}s` }} />
+            <span key={`smoke-${i}`} className="ff-chimney-smoke" style={{ left: cfg.chimney.left, top: cfg.chimney.top, width: s.size, height: s.size, marginTop: -s.size, "--drift": `${s.drift}px`, animationDuration: `${s.dur}s`, animationDelay: `${s.delay}s` }} />
           ))}
           {cfg.snowmanArm && (
             <div className="absolute w-[6%]" style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%" }} data-testid="winter-snowman-arm">
@@ -283,6 +294,9 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
             style={{ left: l.left, width: s, height: s, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }} />
         );
       })}
+      {cfg.gustSnow && GUST_SNOW.map((f, i) => (
+        <span key={`gust-${i}`} className="ff-gust-snow" style={{ top: f.top, width: f.size, height: f.size, "--op": f.op, "--dip": `${f.dip}vh`, animationDuration: `${f.dur}s`, animationDelay: `${f.delay}s` }} />
+      ))}
       {cfg.birds && FLYING_BIRDS.map((b, i) => (
         <div key={`bird-${i}`} className="absolute left-0" style={{ top: b.top, animation: `ffGullCruise ${b.dur}s linear ${b.delay}s infinite`, willChange: "transform", backfaceVisibility: "hidden" }}>
           {/* rises on the wingbeats, sinks into the glide, banking gently */}
