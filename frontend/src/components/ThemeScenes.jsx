@@ -20,12 +20,13 @@ const FLYING_BIRDS = Array.from({ length: 8 }).map((_, i) => ({
   flapDelay: -(i * 0.13),
 }));
 
-// Continuous rising plume from the winter cabin chimney: many overlapping
-// puffs emitted ~1s apart so they merge into one cohesive column of smoke.
-const CHIMNEY_SMOKE = Array.from({ length: 9 }).map((_, i) => ({
-  size: 30 + (i % 3) * 8,
-  dur: 9,
-  delay: -(i * 1.0),
+// Chimney puffs: distinct light puffs pop out every ~1.6s, each rising,
+// drifting and swelling on its own before fading — puff... puff... puff.
+const CHIMNEY_SMOKE = Array.from({ length: 5 }).map((_, i) => ({
+  size: 26 + (i % 3) * 9,
+  dur: 8,
+  delay: -(i * 1.6),
+  drift: 16 + (i % 3) * 9, // px of sideways drift as it rises
 }));
 
 // Fantasy "Dragon's Hoard": glittering gold sparkles across the treasure pile
@@ -201,9 +202,8 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
       {cfg.decorRight && (cfg.chimney ? (
         <div className={`absolute bottom-0 ${cfg.decorRightPos || "right-[3%]"} ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={{ aspectRatio: "1264 / 848" }} data-testid="winter-cabin">
           <img src={cfg.decorRight} alt="" className="absolute inset-0 h-full w-full object-contain opacity-[0.32]" />
-          <span className="ff-chimney-column" style={{ left: cfg.chimney.left, top: cfg.chimney.top }} />
           {CHIMNEY_SMOKE.map((s, i) => (
-            <span key={`smoke-${i}`} className="ff-chimney-smoke" style={{ left: cfg.chimney.left, top: cfg.chimney.top, width: s.size, height: s.size, animationDuration: `${s.dur}s`, animationDelay: `${s.delay}s` }} />
+            <span key={`smoke-${i}`} className="ff-chimney-smoke" style={{ left: cfg.chimney.left, top: cfg.chimney.top, width: s.size, height: s.size, "--drift": `${s.drift}px`, animationDuration: `${s.dur}s`, animationDelay: `${s.delay}s` }} />
           ))}
           {cfg.snowmanArm && (
             <div className="absolute w-[6%]" style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%" }} data-testid="winter-snowman-arm">

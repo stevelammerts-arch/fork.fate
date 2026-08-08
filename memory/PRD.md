@@ -2307,3 +2307,11 @@ All tested via testing agent iteration_60.json (backend 6/6 pytest pass at
 - ff-chimney-column + ff-chimney-smoke recolored to near-white winter tones
   (rgba(234-249,239-251,246-254)) with slightly higher puff opacity peaks
   (0.6/0.5) to stay visible. Screenshot-verified: soft pale plume, no smudge.
+
+## 2026-08-08 part 99: Chimney puffs (FF_BUILD 401)
+- User wants distinct light puffs (not a merged plume). Static
+  ff-chimney-column REMOVED (JSX + CSS + sway keyframe). CHIMNEY_SMOKE now 5
+  puffs, 8s dur, emitted every 1.6s, each with a --drift px var; keyframe
+  pops out (scale .22->.55 @7%), rises 180px with drift, swells to 1.45 and
+  fades; blur cut 9->4px with brighter white core for defined puff shapes.
+- Screenshot-verified: 3-4 separate puffs visible in trail at once.

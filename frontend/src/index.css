@@ -910,28 +910,13 @@ body {
   0%,100%{ transform: translateY(0) rotate(-2deg); }
   50%{ transform: translateY(-6px) rotate(1deg); }
 }
-/* Continuous rising plume from the winter cabin chimney — pale, near-white
-   so it reads as soft woodsmoke against the bright sky (dark gray smudged) */
-.ff-chimney-column {
-  position: absolute;
-  width: 40px;
-  height: 130px;
-  transform: translate(-50%, -72%);
-  background: linear-gradient(to top, rgba(234,239,246,0.7), rgba(238,242,248,0.38) 42%, rgba(238,242,248,0) 100%);
-  filter: blur(11px);
-  border-radius: 50%;
-  will-change: transform;
-  animation: ffSmokeColumnSway 6s ease-in-out infinite;
-}
-@keyframes ffSmokeColumnSway {
-  0%, 100% { transform: translate(-50%, -72%) skewX(-5deg) scaleX(1); }
-  50%      { transform: translate(calc(-50% + 9px), -74%) skewX(5deg) scaleX(1.14); }
-}
+/* Winter cabin chimney: distinct puffs of pale woodsmoke — each pops out,
+   rises with a sideways drift (--drift), swells and fades on its own */
 .ff-chimney-smoke {
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(249,251,254,0.85), rgba(230,236,244,0.42) 52%, rgba(230,236,244,0) 74%);
-  filter: blur(9px);
+  background: radial-gradient(circle, rgba(252,253,255,0.95), rgba(233,239,247,0.55) 46%, rgba(233,239,247,0) 68%);
+  filter: blur(4px);
   opacity: 0;
   transform-origin: center bottom;
   will-change: transform, opacity;
@@ -940,14 +925,14 @@ body {
   animation-iteration-count: infinite;
 }
 @keyframes ffChimneySmoke {
-  0%   { transform: translate(-50%, 0) scale(0.5); opacity: 0; }
-  12%  { opacity: 0.6; }
-  70%  { opacity: 0.5; }
-  100% { transform: translate(calc(-50% + 30px), -155px) scale(1.9); opacity: 0; }
+  0%   { transform: translate(-50%, 4px) scale(0.22); opacity: 0; }
+  7%   { transform: translate(-50%, -14px) scale(0.55); opacity: 0.9; }
+  30%  { transform: translate(calc(-50% + var(--drift, 20px) * 0.35), -68px) scale(0.85); opacity: 0.8; }
+  60%  { transform: translate(calc(-50% + var(--drift, 20px) * 0.7), -122px) scale(1.1); opacity: 0.6; }
+  100% { transform: translate(calc(-50% + var(--drift, 20px)), -180px) scale(1.45); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ff-chimney-smoke, .ff-chimney-column { animation: none; }
-  .ff-chimney-smoke { opacity: 0; }
+  .ff-chimney-smoke { animation: none; opacity: 0; }
 }
 
 /* Dragon's Hoard: thin wispy steam curling from the dragon's nostrils */
