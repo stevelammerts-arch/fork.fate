@@ -1,7 +1,7 @@
 import { toast } from "sonner";
 import {
   MoreHorizontal, ChevronDown, MapPin, Star, Share2, ImageDown, ExternalLink,
-  Facebook, Twitter, Instagram, MessageCircle, Link2,
+  Facebook, Twitter, Instagram, MessageCircle, Link2, Swords,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -21,6 +21,7 @@ export function FateActionsDropdown({
   card,
   onShareText,
   onShareImage,
+  onDuel,
   className = "",
   triggerTestId = "fate-actions-trigger",
 }) {
@@ -75,6 +76,7 @@ export function FateActionsDropdown({
   };
 
   const primary = [
+    onDuel && { key: "duel", label: t("Duel a friend"), Icon: Swords, onSelect: onDuel },
     { key: "check-in", label: t("Check in here"), Icon: MapPin, onSelect: checkIn },
     card.google_url && {
       key: "reviews",

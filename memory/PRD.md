@@ -2333,3 +2333,33 @@ All tested via testing agent iteration_60.json (backend 6/6 pytest pass at
   108vw, sinking --dip vh, per-fleck --op).
 - 405: user wanted "a lot more snow" — GUST_SNOW 26 -> 70 flecks (sizes
   1.5-6px, dur 4.5-11s). Screenshot-verified thick flurry on mobile.
+
+## 2026-02 (fork) part 102: Fate Duels + Conquest Map (FF_BUILD 406)
+Both features user-approved (duel style: both spin the SAME location, fate-score
+crowns winner; link-based, no accounts). Tested iteration_61.json — 100% pass.
+1. FATE DUELS: routes/duels.py (registered in server.py) — POST /api/duels
+   (challenger, pick, search context replaying PlacesSearchRequest fields),
+   GET /api/duels/{code} (verdict computed when both picks: _fate_score =
+   sha256(code:role:name) -> 55.0-99.9, winner = higher; deterministic,
+   nothing stored), POST /api/duels/{code}/respond (409 on double-answer).
+   Pytest: backend/tests/test_duels.py (6/6).
+   Frontend: pages/Duel.jsx at /d/:code — responder panel (name input +
+   "Let fate deal mine" replays duel.search via /api/places/search, excludes
+   challenger's pick name, 1.4s dramatic beat), creator waiting panel
+   (localStorage ff_duel_mine_<code>, 8s poll, share-link button), verdict
+   arena (two DuelCards, scores, Crown on winner, confetti once via
+   celebratedRef). Creation: FateActionsDropdown gained optional onDuel prop
+   ("Duel a friend" FIRST item, Swords icon) <- RevealStage onDuel prop <-
+   Home.jsx startDuel() (uses lastSearchRef captured in doSearch; fallback =
+   card lat/lng; ff_duel_name reused; toast with "View duel" action).
+2. CONQUEST MAP: lib/journal.js recordFate now stores card.lat/lng (null for
+   pre-406 entries). pages/Conquest.jsx at /conquest — dark CARTO leaflet map,
+   numbered red pins for entries with coords, empty state + legacy note.
+   Journal.jsx gained conquest-map-link banner under the stat tiles.
+- ES translations added for all new strings. FF_BUILD -> 2026.06-406.
+- Known cosmetic (low prio): duel verdict confetti briefly overlaps the
+  "Fate favors X!" banner text (~2s). Sonner action buttons need native
+  element.click() in Playwright (pre-existing, not a bug).
+- Google Play closed test: 12 testers at 7/14 days (user FYI 2026-02) —
+  production access application unlocks ~Feb 15.
+- STILL PENDING FROM USER: IARC certificate ID for manifest.json.

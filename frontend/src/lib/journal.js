@@ -1,6 +1,7 @@
 // Fate Journal: per-device history of every fate dealt (localStorage).
 // Entries: { id, name, cuisine, price, distance, theme, mode, dared, group,
-//            date, verdict } — verdict is null | "up" | "down".
+//            date, verdict, lat, lng } — verdict is null | "up" | "down";
+//            lat/lng feed the Conquest Map (null for pre-406 entries).
 
 const KEY = "ff_journal";
 const MAX = 250;
@@ -23,6 +24,8 @@ export function recordFate(card, { theme, mode, dared = false, group = false } =
       cuisine: card.cuisine || "",
       price: card.price || "",
       distance: card.distance ?? null,
+      lat: card.lat ?? null,
+      lng: card.lng ?? null,
       theme,
       mode,
       dared,

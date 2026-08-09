@@ -376,6 +376,43 @@ export default function Home() {
 
   // Lands a fate: writes it into the on-device Fate Journal, stamps the
   // Cuisine Bingo card, then reveals it.
+  const lastSearchRef = useRef(null);
+
+  // FATE DUEL: lock in this pick + the search grounds, mint a share link the
+  // rival opens at /d/<code> to spin the SAME location. Fate crowns a winner.
+  const startDuel = async (card) => {
+    try {
+      const search = lastSearchRef.current
+        || (card.lat != null ? { lat: card.lat, lng: card.lng, category: mode, radius_miles: 15 } : { category: mode });
+      const { data } = await axios.post(`${API}/duels`, {
+        challenger: localStorage.getItem("ff_duel_name") || "A challenger",
+        pick: {
+          id: card.id || "",
+          name: card.name,
+          cuisine: card.cuisine || "",
+          address: card.address || "",
+          image: card.photo_url || card.image || "",
+        },
+        search,
+      });
+      const code = data.code;
+      try { localStorage.setItem(`ff_duel_mine_${code}`, "1"); } catch (e) { /* ignore */ }
+      const url = `${window.location.origin}/d/${code}`;
+      const text = t("I challenge you to a Fate Duel! Fate dealt me") + ` ${card.name} — ` + t("let it deal yours and see who fate favors:");
+      trackEvent("duel_created", { mode });
+      try {
+        if (navigator.share) await navigator.share({ title: "Fate Duel", text, url });
+        else await navigator.clipboard.writeText(`${text} ${url}`);
+      } catch (e) { /* share sheet cancelled */ }
+      toast.success(t("Duel created! Send the link, then watch the arena."), {
+        action: { label: t("View duel"), onClick: () => navigate(`/d/${code}`) },
+        duration: 8000,
+      });
+    } catch (e) {
+      toast.error(t("Couldn't forge the duel — try again"));
+    }
+  };
+
   const landFate = (card, extra = {}) => {
     recordFate(card, { theme, mode, ...extra });
     const b = markCuisine(card.cuisine);
@@ -609,6 +646,8 @@ export default function Home() {
         open_now: openNow,
         radius_miles: rad,
       };
+      // Remembered so "Duel a friend" can replay the exact same grounds for the rival.
+      lastSearchRef.current = { ...body, category: categoryArg, cuisines: cuisinesArg || [] };
       const batches = await Promise.all(
         cats.map((c) =>
           axios
@@ -1591,7 +1630,7 @@ export default function Home() {
             {theme === "steam" && result && !surpriseReveal && <SteamRise key={`steam-${result.id}`} />}
             <div ref={resultRef} className="relative z-10 min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white p-4 shadow-xl shadow-black/5">
               {theme === "dark" && result && !surpriseReveal && <GhostEscort key={`esc-${result.id}`} />}
-              <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} light={light} theme={theme} onReset={() => { setResult(null); setGroupPicks(null); setLocked(false); setSurpriseReveal(null); setRerollsLeft(3); }} onReSpin={reSpin} onReport={reportClosed} onPick={(c) => landFate(c, { group: true })} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} onDare={doubleOrNothing} dareAvailable={results.length > 1} locked={locked} rerollsLeft={rerollsLeft} onSwipeReroll={swipeReroll} surprise={surpriseReveal} onSurpriseDone={surpriseDone} />
+              <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} light={light} theme={theme} onReset={() => { setResult(null); setGroupPicks(null); setLocked(false); setSurpriseReveal(null); setRerollsLeft(3); }} onReSpin={reSpin} onReport={reportClosed} onPick={(c) => landFate(c, { group: true })} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} onDare={doubleOrNothing} dareAvailable={results.length > 1} locked={locked} rerollsLeft={rerollsLeft} onSwipeReroll={swipeReroll} surprise={surpriseReveal} onSurpriseDone={surpriseDone} onDuel={startDuel} />
             </div>
           </div>
         </div>

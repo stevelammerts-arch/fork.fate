@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, BookOpen, Flame, Skull, Swords, Users, Share2 } from "lucide-react";
+import { ArrowLeft, BookOpen, Flame, Skull, Swords, Users, Share2, Map } from "lucide-react";
 import { toast } from "sonner";
 import { readJournal, journalStats } from "../lib/journal";
 import { readStreak } from "./homeConstants";
@@ -65,6 +65,19 @@ export default function Journal() {
           <StatTile label={t("Dares taken")} value={s.dares} testid="journal-stat-dares" />
           <StatTile label={t("Top cuisine")} value={s.topCuisine ? t(s.topCuisine) : "—"} testid="journal-stat-cuisine" />
         </div>
+
+        <Link
+          to="/conquest"
+          data-testid="conquest-map-link"
+          className="mt-4 flex items-center justify-between rounded-2xl border border-[#E01E26]/40 bg-[#E01E26]/10 px-4 py-3.5 transition-colors hover:bg-[#E01E26]/15"
+        >
+          <span className="flex items-center gap-2.5">
+            <Map className="h-5 w-5 text-[#FF6B71]" />
+            <span className="font-sans text-sm font-bold text-white">{t("Conquest Map")}</span>
+            <span className="hidden font-sans text-xs text-white/50 sm:inline">{t("— every spot fate ever sent you, pinned")}</span>
+          </span>
+          <ArrowLeft className="h-4 w-4 rotate-180 text-white/50" />
+        </Link>
 
         {s.judged > 0 && (
           <p className="mt-4 text-center font-serif text-sm italic text-white/50" data-testid="journal-verdict-line">

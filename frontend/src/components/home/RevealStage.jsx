@@ -37,7 +37,7 @@ import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reape
 import { buildFateCard } from "../../pages/homeFateCard";
 import { trackEvent } from "../../lib/analytics";
 
-export default function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, theme, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite, onDare, dareAvailable, locked, rerollsLeft = 0, onSwipeReroll, surprise = null, onSurpriseDone }) {
+export default function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, theme, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite, onDare, dareAvailable, locked, rerollsLeft = 0, onSwipeReroll, surprise = null, onSurpriseDone, onDuel }) {
   const { t } = useLang();
   const [confirmingDare, setConfirmingDare] = useState(false);
   // Themed flourish: one-shot burst over the card while the reveal sound
@@ -359,6 +359,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
                 card={card}
                 onShareText={shareFate}
                 onShareImage={shareFateImage}
+                onDuel={onDuel ? () => onDuel(card) : undefined}
               />
               <button
                 onClick={onReset}
