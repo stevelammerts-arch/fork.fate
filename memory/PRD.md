@@ -2363,3 +2363,34 @@ crowns winner; link-based, no accounts). Tested iteration_61.json — 100% pass.
 - Google Play closed test: 12 testers at 7/14 days (user FYI 2026-02) —
   production access application unlocks ~Feb 15.
 - STILL PENDING FROM USER: IARC certificate ID for manifest.json.
+
+## 2026-02 (fork) part 103: Duel Streaks + big refactor (FF_BUILD 407)
+Tested iteration_62.json — 100% after one fix. Frontend-only changes.
+1. DUEL STREAKS: lib/duelRecord.js (readDuelRecord/recordDuelOutcome/duelStats,
+   localStorage ff_duel_record, deduped by code, MAX 100). Duel.jsx records on
+   verdict — challenger via ff_duel_mine_<code>, responder via NEW
+   ff_duel_answered_<code> flag set after a successful respond POST;
+   spectators record nothing. Journal.jsx shows duel-record-card (W-L tally
+   duel-record-wl, streak line at >=2, last-3 rows duel-record-row-i).
+   ES strings added.
+2. THEMESCENES SPLIT: components/ThemeScenes.jsx (2955 lines) -> 6-line
+   barrel re-exporting components/scenes/{heistLib(161), companion(408),
+   seasonHeists(600), realmHeists(885), SeasonScene(~210), AmbianceScene(~730)}.
+   Verbatim moves via /app/scripts/split_theme_scenes.py (one-shot, already
+   run). Cross-module exports promoted (summonToLogo, LogoHeist, all heists).
+   GOLD_GLITTER moved to AmbianceScene (fantasy-only). TESTING AGENT FIX:
+   AmbianceScene used <React.Fragment> -> needed default React import (only
+   file in split using React.*; swept clean).
+3. HOME SPLIT: Home.jsx 1698 -> 1511 lines. Extracted verbatim:
+   components/home/ShuffleOverlay.jsx (shuffle popup + mist + ShufflingDeck),
+   components/home/RevealFlash.jsx, components/home/CrawlSetupPanel.jsx
+   (setup prop pattern like PassportPicker), lib/rareFate.js (shouldRareFate +
+   rarePoolFor(theme) ritual pools). All testids unchanged.
+- Eslint: 0 errors; the 17 witnessRef exhaustive-deps warnings PRE-EXISTED
+  identically in the original ThemeScenes (verified against copy).
+  Pre-existing unused state in Home (source, addOpen) left as-is.
+- iteration_62 verified: all 11 realms render zero-console-error, deal flow on
+  dark/winter/cyber, rare scratch force, crawl panel + deal, duel streak
+  responder/challenger/dedupe/spectator, pages regression.
+- Note: 'rival shows The challenged' observation = curl omitted name (backend
+  default), NOT a bug.
