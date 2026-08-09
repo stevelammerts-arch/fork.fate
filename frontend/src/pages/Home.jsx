@@ -41,7 +41,10 @@ import { readPassports } from "../lib/passports";
 import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene, ReaperHeist, GhostSnatchHeist, ReaperPlateHeist, CoffeeSpillHeist, CompanionPatrol } from "../components/ThemeScenes";
 import { ReaperScene } from "../components/ReaperScene";
 import { CafeDustMotes } from "../components/CafeDustMotes";
-import { ShufflingDeck } from "../components/ShufflingDeck";
+import { ShuffleOverlay } from "../components/home/ShuffleOverlay";
+import { RevealFlash } from "../components/home/RevealFlash";
+import { CrawlSetupPanel } from "../components/home/CrawlSetupPanel";
+import { shouldRareFate, rarePoolFor } from "../lib/rareFate";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -333,24 +336,6 @@ export default function Home() {
 
   // Every 10 deal taps (persisted per device) fate arrives as a RARE ritual
   // instead of the usual shuffle reveal.
-  const shouldRareFate = () => {
-    try {
-      const taps = parseInt(localStorage.getItem("ff_deal_taps") || "0", 10) + 1;
-      let target = parseInt(localStorage.getItem("ff_rare_at") || "0", 10);
-      if (!target) target = 10;
-      if (taps >= target) {
-        localStorage.setItem("ff_deal_taps", "0");
-        localStorage.setItem("ff_rare_at", "10");
-        return true;
-      }
-      localStorage.setItem("ff_deal_taps", String(taps));
-      localStorage.setItem("ff_rare_at", String(target));
-      return false;
-    } catch (e) {
-      return Math.random() < 1 / 10;
-    }
-  };
-
   // Bump the daily streak and throw confetti + a toast the first time a
   // 7- or 30-day milestone is reached (once per streak run).
   const dealStreak = () => {
@@ -541,12 +526,8 @@ export default function Home() {
     // short dramatic beat, present the winner hidden behind a surprise ritual:
     // themed scratch foil, or a Magic 8-ball the user must shake.
     if (rareFate) {
-      // Theme-exclusive rituals: fairy wand, cyber hacking terminal + keypad,
-      // steampunk crank gear, tiki cocktail shaker + volcano, reaper tarot /
-      // coffin / seance / ouija, dragon's hoard eye + chest, fall leaf pile,
-      // spring cherry bloom, summer watermelon smash, winter snow globe,
-      // cafe latte stir.
-      const pool2 = theme === "fairy" ? ["scratch", "8ball", "wheel", "wand"] : theme === "cyber" ? ["scratch", "8ball", "wheel", "hack", "code"] : theme === "steam" ? ["scratch", "8ball", "wheel", "crank"] : theme === "tiki" ? ["scratch", "8ball", "wheel", "shaker", "volcano"] : theme === "dark" ? ["scratch", "8ball", "wheel", "tarot", "coffin", "seance", "ouija"] : theme === "fantasy" ? ["scratch", "8ball", "wheel", "eye", "chest"] : theme === "fall" ? ["scratch", "8ball", "wheel", "leaves"] : theme === "spring" ? ["scratch", "8ball", "wheel", "bloom"] : theme === "summer" ? ["scratch", "8ball", "wheel", "melon"] : theme === "winter" ? ["scratch", "8ball", "wheel", "globe"] : theme === "light" ? ["scratch", "8ball", "wheel", "latte"] : ["scratch", "8ball", "wheel"];
+      // Theme-exclusive ritual pools live in lib/rareFate.js.
+      const pool2 = rarePoolFor(theme);
       let variant = pool2[Math.floor(Math.random() * pool2.length)];
       try {
         const forced = localStorage.getItem("ff_rare_force");
@@ -1066,88 +1047,10 @@ export default function Home() {
       </div>
 
       {/* Full-screen shuffle pop-up */}
-      <AnimatePresence>
-        {spinning && !result && !rare8Ball && (
-          <motion.div
-            key="shuffle-popup"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className={`fixed inset-0 z-[60] flex items-center justify-center px-6 backdrop-blur-sm ${light ? "bg-white/70" : "bg-black/50"}`}
-            data-testid="shuffle-popup"
-            style={{ pointerEvents: flashHit ? "none" : "auto" }}
-          >
-            {/* Ominous drifting red/black mist — dark mode only */}
-            {!light && (
-            <div className="pointer-events-none absolute inset-0 overflow-hidden" data-testid="shuffle-mist">
-              <motion.div
-                className="absolute left-[10%] top-1/4 h-72 w-72 rounded-full bg-[#E01E26] blur-[90px]"
-                animate={{ x: [0, 70, 0], y: [0, -40, 0], opacity: [0.12, 0.34, 0.12] }}
-                transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
-              />
-              <motion.div
-                className="absolute right-[8%] top-1/3 h-96 w-96 rounded-full bg-black blur-[100px]"
-                animate={{ x: [0, -60, 0], y: [0, 50, 0], opacity: [0.35, 0.65, 0.35] }}
-                transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut" }}
-              />
-              <motion.div
-                className="absolute bottom-[6%] left-1/3 h-80 w-80 rounded-full bg-[#7A0C10] blur-[90px]"
-                animate={{ x: [0, 45, 0], y: [0, -25, 0], opacity: [0.15, 0.4, 0.15] }}
-                transition={{ duration: 8.5, repeat: Infinity, ease: "easeInOut" }}
-              />
-            </div>
-            )}
-            <motion.div
-              initial={{ scale: 0.8, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 24 }}
-              className="relative z-10 w-full max-w-sm p-8"
-            >
-              <ShufflingDeck cards={results} flash={flash} landed={flashHit} light={light} theme={theme} season={season} seasonItems={seasonCfg?.items || null} seasonAccent={seasonCfg?.hint || null} />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <ShuffleOverlay open={spinning && !result && !rare8Ball} light={light} flash={flash} flashHit={flashHit} cards={results} theme={theme} season={season} seasonItems={seasonCfg?.items || null} seasonAccent={seasonCfg?.hint || null} />
 
       {/* Reveal flash — quick white flash + lingering red glow behind the reveal */}
-      <AnimatePresence>
-        {revealFlash && (
-          <motion.div
-            key="reveal-flash"
-            aria-hidden
-            data-testid="reveal-flash"
-            className="pointer-events-none fixed inset-0 z-[70]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* lingering glow — warm golden in light mode, blood-red in dark */}
-            <motion.div
-              className="absolute inset-0"
-              style={{ background: theme === "cyber"
-                ? "radial-gradient(circle at 50% 45%, rgba(34,224,224,0.5), rgba(199,125,255,0.28) 38%, rgba(0,0,0,0) 66%)"
-                : theme === "fantasy"
-                ? "radial-gradient(circle at 50% 45%, rgba(230,178,58,0.6), rgba(224,86,30,0.28) 38%, rgba(0,0,0,0) 66%)"
-                : light
-                ? "radial-gradient(circle at 50% 45%, rgba(255,193,80,0.45), rgba(255,255,255,0) 60%)"
-                : "radial-gradient(circle at 50% 45%, rgba(224,30,38,0.55), rgba(0,0,0,0) 60%)" }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 0.9, 0.4, 0] }}
-              transition={{ duration: 1.4, times: [0, 0.12, 0.55, 1], ease: "easeOut" }}
-            />
-            {/* quick white flash — strobes 3 times */}
-            <motion.div
-              className="absolute inset-0 bg-white"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 1, 0, 1, 0, 1, 0] }}
-              transition={{ duration: 1.0, times: [0, 0.08, 0.2, 0.34, 0.46, 0.6, 0.75], ease: "easeOut" }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <RevealFlash active={revealFlash} theme={theme} light={light} />
 
       {/* Hero / Roulette */}
       <section className="relative z-10 mx-auto max-w-6xl px-6 pt-12 pb-8 md:px-12 md:pt-16">
@@ -1480,108 +1383,19 @@ export default function Home() {
             )}
 
             {crawlMode && (
-              <div className="mt-2 w-full basis-full rounded-2xl border border-[#E01E26]/30 bg-[#FDF6F6] p-4" data-testid="crawl-type-picker">
-                <ol className="mb-4 space-y-1.5">
-                  {[
-                    t("Pick the kind of crawl you want."),
-                    t("Set your start (and an optional end point) plus how far to search."),
-                    t("Deal the crawl — we'll order the stops into a walkable route."),
-                  ].map((s, i) => (
-                    <li key={i} className="flex gap-2.5 font-sans text-sm text-[#3A3F45]">
-                      <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#E01E26] text-[11px] font-bold text-white">{i + 1}</span>
-                      <span>{s}</span>
-                    </li>
-                  ))}
-                </ol>
-                <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Pick your crawl")}</p>
-                <div className="flex flex-wrap gap-2">
-                  {CRAWL_TYPES.map((ct) => (
-                    <button
-                      key={ct.key}
-                      type="button"
-                      data-testid={`crawl-type-${ct.key}`}
-                      onClick={() => applyCrawlType(ct)}
-                      className={`rounded-full border px-4 py-2 text-sm font-bold transition-colors ${crawlType === ct.key ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E2E4E7] bg-white text-[#6B7075] hover:bg-[#EDEEF0]"}`}
-                    >
-                      {ct.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Location A (start / your area) */}
-                <p className="mb-1.5 mt-4 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Start / your area")}</p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <input
-                    value={coords ? "" : zip}
-                    onChange={(e) => { const v = e.target.value.replace(/[^\d]/g, "").slice(0, 5); setZip(v); setCoords(null); }}
-                    placeholder={coords ? t("Using your location") : t("ZIP code")}
-                    data-testid="crawl-zip-a"
-                    inputMode="numeric"
-                    className="w-32 rounded-full border border-[#E2E4E7] bg-white px-4 py-2.5 text-sm text-[#0E0E0E] outline-none placeholder-[#9AA0A6] focus:border-[#E01E26]"
-                  />
-                  <button
-                    type="button"
-                    onClick={useMyLocation}
-                    disabled={geoLoading}
-                    data-testid="crawl-use-location-a"
-                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-70 ${coords ? "bg-[#E01E26] text-white hover:bg-[#B3141A]" : "border border-[#E2E4E7] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
-                  >
-                    <LocateFixed className="h-4 w-4" /> {geoLoading ? t("Locating…") : coords ? t("Using your location") : t("Use my location")}
-                  </button>
-                </div>
-
-                {/* Location B (optional end point) */}
-                <p className="mb-1.5 mt-3 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("End point")} <span className="text-[#9AA0A6]">{t("(optional — crawl toward here)")}</span></p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <input
-                    value={coordsB ? "" : zipB}
-                    onChange={(e) => { const v = e.target.value.replace(/[^\d]/g, "").slice(0, 5); setZipB(v); setCoordsB(null); }}
-                    placeholder={coordsB ? t("2nd location set") : t("ZIP code")}
-                    data-testid="crawl-zip-b"
-                    inputMode="numeric"
-                    className="w-32 rounded-full border border-[#E2E4E7] bg-white px-4 py-2.5 text-sm text-[#0E0E0E] outline-none placeholder-[#9AA0A6] focus:border-[#E01E26]"
-                  />
-                  <button
-                    type="button"
-                    onClick={useMyLocationB}
-                    disabled={geoLoadingB}
-                    data-testid="crawl-use-location-b"
-                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-70 ${coordsB ? "bg-[#E01E26] text-white hover:bg-[#B3141A]" : "border border-[#E2E4E7] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
-                  >
-                    <LocateFixed className="h-4 w-4" /> {geoLoadingB ? t("Locating…") : coordsB ? t("2nd location set") : t("Use this location")}
-                  </button>
-                  {(coordsB || (zipB || "").length === 5) && (
-                    <button type="button" onClick={() => { setZipB(""); setCoordsB(null); }} data-testid="crawl-clear-b"
-                      className="text-xs font-semibold text-[#9AA0A6] underline underline-offset-2 hover:text-[#E01E26]">{t("clear")}</button>
-                  )}
-                </div>
-
-                <div className="mt-4 rounded-xl border border-[#E2E4E7] bg-white px-4 py-3" data-testid="crawl-radius-control">
-                  <div className="mb-2 flex items-center justify-between">
-                    <p className="font-sans text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Search radius")}</p>
-                    <span data-testid="crawl-radius-value" className="font-serif text-lg font-semibold text-[#E01E26]">
-                      {radius} <span className="text-sm text-[#6B7075]">mi</span>
-                    </span>
-                  </div>
-                  <Slider data-testid="crawl-radius-slider" value={[radius]} min={1} max={radiusMax} step={1} onValueChange={(v) => setRadius(v[0])} aria-label="Search radius in miles" />
-                  <div className="mt-1.5 flex justify-between font-sans text-[10px] font-bold uppercase tracking-wider text-[#B8BCC2]">
-                    <span>1 mi</span>
-                    <span>{radiusMax} mi</span>
-                  </div>
-                </div>
-
-                <motion.button
-                  data-testid="crawl-deal-button"
-                  onClick={dealCrawl}
-                  disabled={spinning || loading}
-                  whileHover={{ scale: spinning || loading ? 1 : 1.03 }}
-                  whileTap={SPIN_TAP}
-                  className="mt-4 inline-flex items-center gap-3 rounded-full border-2 border-[#0E0E0E] bg-[#E01E26] px-10 py-4 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
-                >
-                  <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
-                  {loading ? t("Finding spots…") : spinning ? t("Shuffling…") : (light ? t("Plan a Crawl") : t("Deal a Crawl!"))}
-                </motion.button>
-              </div>
+              <CrawlSetupPanel
+                crawlType={crawlType}
+                onPickType={applyCrawlType}
+                light={light}
+                setup={{
+                  zip, setZip, coords, setCoords,
+                  onUseLocation: useMyLocation, geoLoading,
+                  zipB, setZipB, coordsB, setCoordsB,
+                  onUseLocationB: useMyLocationB, geoLoadingB,
+                  radius, setRadius, radiusMax,
+                  spinning, loading, onDeal: dealCrawl,
+                }}
+              />
             )}
 
             {fatesDealt !== null && (

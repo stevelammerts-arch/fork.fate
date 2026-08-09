@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, BookOpen, Flame, Skull, Swords, Users, Share2, Map } from "lucide-react";
 import { toast } from "sonner";
 import { readJournal, journalStats } from "../lib/journal";
+import { readDuelRecord, duelStats } from "../lib/duelRecord";
 import { readStreak } from "./homeConstants";
 import { buildJournalShareImage, shareImage } from "../lib/shareCards";
 import { useLang } from "../i18n/i18n";
@@ -27,6 +28,8 @@ export default function Journal() {
   const { t } = useLang();
   const entries = readJournal();
   const s = journalStats(entries);
+  const duels = readDuelRecord();
+  const d = duelStats(duels);
   const [sharing, setSharing] = useState(false);
 
   const share = async () => {
@@ -78,6 +81,40 @@ export default function Journal() {
           </span>
           <ArrowLeft className="h-4 w-4 rotate-180 text-white/50" />
         </Link>
+
+        {duels.length > 0 && (
+          <div className="mt-4 rounded-2xl border border-[#E6B23A]/30 bg-[#E6B23A]/5 p-4" data-testid="duel-record-card">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-2.5">
+                <Swords className="h-5 w-5 text-[#E6B23A]" />
+                <span className="font-sans text-sm font-bold text-white">{t("Duel Record")}</span>
+              </span>
+              <span className="font-serif text-xl font-bold text-[#E6B23A]" data-testid="duel-record-wl">
+                {d.wins}W – {d.losses}L
+              </span>
+            </div>
+            {d.streak >= 2 && (
+              <p className="mt-1 font-sans text-xs text-white/60" data-testid="duel-record-streak">
+                {d.streakWon
+                  ? `${d.streak} ${t("wins in a row — fate favors you.")}`
+                  : `${d.streak} ${t("losses in a row — fate demands tribute.")}`}
+              </p>
+            )}
+            <div className="mt-3 space-y-1.5">
+              {duels.slice(0, 3).map((duel, i) => (
+                <div key={duel.code} className="flex items-center gap-2 text-xs" data-testid={`duel-record-row-${i}`}>
+                  <span className={`rounded-full px-2 py-0.5 font-sans font-bold ${duel.won ? "bg-[#4ADE80]/15 text-[#4ADE80]" : "bg-[#E01E26]/15 text-[#FF6B71]"}`}>
+                    {duel.won ? t("W") : t("L")}
+                  </span>
+                  <span className="truncate font-sans text-white/70">
+                    {duel.myPick} <span className="text-white/35">{t("vs")}</span> {duel.theirPick}
+                    {duel.rival ? <span className="text-white/35"> · {duel.rival}</span> : null}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {s.judged > 0 && (
           <p className="mt-4 text-center font-serif text-sm italic text-white/50" data-testid="journal-verdict-line">

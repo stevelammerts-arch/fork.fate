@@ -680,6 +680,12 @@ export const ES = {
   "spots conquered — every pin is a place fate sent you.": "lugares conquistados — cada pin es un lugar al que el destino te envió.",
   "No pins yet — from now on, every fate you land drops a pin here. Go let fate deal!": "Aún no hay pines — desde ahora, cada destino que caiga deja un pin aquí. ¡Ve y deja que el destino reparta!",
   "Your past fates were recorded before map pins existed — new deals will start pinning from here on out.": "Tus destinos pasados se registraron antes de que existieran los pines — los nuevos repartos empezarán a marcarse desde ahora.",
+  "Duel Record": "Historial de Duelos",
+  "wins in a row — fate favors you.": "victorias seguidas — el destino te favorece.",
+  "losses in a row — fate demands tribute.": "derrotas seguidas — el destino exige tributo.",
+  "W": "V",
+  "L": "D",
+  "vs": "vs",
 };
 
 const DICTS = { es: ES };

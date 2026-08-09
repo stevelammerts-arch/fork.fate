@@ -5,6 +5,7 @@ import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { ArrowLeft, Swords, Crown, Dices, MapPin, Link2, Skull } from "lucide-react";
+import { recordDuelOutcome } from "../lib/duelRecord";
 import { useLang } from "../i18n/i18n";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -85,14 +86,18 @@ export default function Duel() {
     return () => clearInterval(id);
   }, [status, answered, isMine, load]);
 
-  // Crown-drop confetti the first time the verdict shows.
+  // Crown-drop confetti the first time the verdict shows — and write the
+  // outcome into this device's duel record (participants only, deduped).
   useEffect(() => {
     if (!duel?.verdict || celebratedRef.current) return;
     celebratedRef.current = true;
+    const answeredHere = !!localStorage.getItem(`ff_duel_answered_${(code || "").toUpperCase()}`);
+    if (isMine) recordDuelOutcome(duel, "challenger");
+    else if (answeredHere) recordDuelOutcome(duel, "responder");
     try {
       confetti({ particleCount: 120, spread: 85, startVelocity: 42, origin: { x: 0.5, y: 0.6 }, colors: ["#E6B23A", "#E01E26", "#FFFFFF"] });
     } catch { /* canvas unavailable */ }
-  }, [duel]);
+  }, [duel, code, isMine]);
 
   const spinMine = async () => {
     if (spinning) return;
@@ -135,6 +140,7 @@ export default function Duel() {
           image: pick.photo_url || pick.image || "",
         },
       });
+      try { localStorage.setItem(`ff_duel_answered_${(code || "").toUpperCase()}`, "1"); } catch (e) { /* ignore */ }
       setDuel(result);
     } catch (e) {
       if (e.response?.status === 409) {

@@ -1,0 +1,29 @@
+{
+  "summary": "Frontend regression for the Home/Scenes refactor + DUEL STREAKS feature. Found and fixed one CRITICAL crash in the scenes split (React undefined in Fantasy/Dragon's Hoard). After fix: all 11 realm themes render with zero console errors; DEAL flow works on dark/winter/cyber (shuffle-popup + reveal-flash + fate-actions-trigger); rare-fate scratch cover triggers on ff_rare_force='scratch' + deal_taps=9; CrawlSetupPanel renders all expected testids and Deal a Crawl opens pub-crawl-dialog with stops. DUEL STREAKS pass end-to-end: responder records W/L to ff_duel_record + ff_duel_answered_<code>='1' + Journal duel-record-card shows '1W – 0L' and correct row; challenger records via ff_duel_mine_<CODE>='1' + verdict poll; DEDUPE holds (reload keeps len=1); SPECTATOR exclusion holds (no mine/no answered => ff_duel_record stays null). Pages regression /journal /conquest /bingo /rituals /shop all load cleanly; conquest-map-link present on /journal.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "components/scenes/AmbianceScene.jsx", "issue": "Fantasy (Dragon's Hoard) theme crashes page with 'React is not defined'. Line 462 uses <React.Fragment> in CAVE_DRIPS block but file only imports {useState,useEffect,useRef} from 'react' — missing default React import (regression from the ThemeScenes 2955->6-module split). FIXED by testing agent.", "selector": "[data-testid=\"theme-welcome-option-fantasy\"]", "priority": "CRITICAL"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Review the applied fix (added default React import in components/scenes/AmbianceScene.jsx) and consider replacing <React.Fragment> with <> shorthand across the split for defense-in-depth.",
+    "Pre-existing (not part of this refactor): on the challenger side of a settled duel, verdict UI + duel-record 'rival' shows 'The challenged' instead of the actual responder name (Duel.jsx polled state may not update the display name)."
+  ],
+  "critical_code_review_comments": [
+    "Scenes split silently lost the React default binding used inside AmbianceScene.jsx — the barrel/verbatim-move check must include a regex scan for 'React.' symbols vs. named-only imports.",
+    "shouldRareFate() writes to localStorage on every deal — fine, but a try/catch around parseInt would handle non-numeric leftovers gracefully.",
+    "duelRecord.recordDuelOutcome dedupes by code, but a follow-up outcome (challenger records first, then responder ff_duel_answered_<CODE> fires) is silently dropped. Intentional per spec (per-device), but worth a comment."
+  ],
+  "updated_files": ["/app/frontend/src/components/scenes/AmbianceScene.jsx"],
+  "success_rate": {"backend": "n/a (frontend-only run)", "frontend": "100% after fix"},
+  "test_credentials": "None required",
+  "seed_data_creation": "Two Fate Duels created via POST /api/duels (Streak Tester + Chal Alice) purely for streak recording tests.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "The scenes split (components/scenes/*) was verbatim-moved from a 2955-line ThemeScenes.jsx. During this run, the only missing symbol found was React default in AmbianceScene.jsx (fixed). If future edits reintroduce <React.Fragment>/React.createElement in the split, add 'import React' to those files. Duel-streak testids are on the Journal page: duel-record-card, duel-record-wl, duel-record-row-{i}. LocalStorage keys: ff_duel_record (JSON array), ff_duel_mine_<CODE>, ff_duel_answered_<CODE>.",
+  "rca of the issue": "AmbianceScene.jsx (extracted from ThemeScenes) uses <React.Fragment key=...> inside the fantasy CAVE_DRIPS map (line 462) but only imports named hooks from 'react'. Under fantasy theme, the AmbianceScene renders that branch and throws ReferenceError: React is not defined, which the React error boundary/rendering surfaces as a blank page + 'PAGEERROR: React is not defined' in console. Repro: set theme via localStorage/theme-menu-button -> option-fantasy. Mitigation applied: changed import to `import React, { useState, useEffect, useRef } from 'react';`. Retested: fantasy loads cleanly, tiny-dragon mounts, dragon-nostril-steam sprites present, zero console errors."
+}
