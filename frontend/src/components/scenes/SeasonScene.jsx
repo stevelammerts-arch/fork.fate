@@ -75,7 +75,7 @@ export const SEASONS = {
     gustSnow: true, hint: "#2E77A6",
   },
   spring: {
-    grad: "linear-gradient(180deg,#F3FBEF 0%,#FBEFF5 55%,#EFF7E6 100%)",
+    grad: "linear-gradient(180deg,#CDE8F8 0%,#DEF0FA 38%,#FBEFF5 68%,#EFF7E6 100%)",
     tree: "/spring-tree.png", treeBig: true, ground: "/spring-ground2.png", decorLeft: "/spring-decor.png", decorLeftBig: true, rabbits: "/spring-rabbit.png",
     items: ["/blossom-pink.png", "/blossom-white.png", "/petal-pink.png"], falling: true, petalFeather: true, hint: "#D46A9F",
   },
