@@ -102,7 +102,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
           <div className="absolute inset-x-0 top-0" style={{ height: "45%", background: "radial-gradient(ellipse 64vw 36vh at 34% 100%, rgba(255,190,110,0.55), rgba(255,170,90,0.2) 48%, rgba(255,170,90,0) 74%)" }} />
           {/* realistic glowing sun disc, half-dipped at the waterline — the
               sea (painted after) clips its lower limb */}
-          <div className="absolute" data-testid="summer-horizon-sun" style={{ left: "34%", top: "45%", width: "min(22vw, 208px)", aspectRatio: "1 / 1", transform: "translate(-50%, -27%)", borderRadius: "9999px", background: "radial-gradient(circle, #FFFBE8 0%, #FFE9A8 34%, #FFC96B 62%, #FFA94F 82%, rgba(255,160,70,0) 100%)", boxShadow: "0 0 70px 28px rgba(255,190,110,0.55)", animation: "ffGlow 6s ease-in-out infinite" }} />
+          <div className="absolute" data-testid="summer-horizon-sun" style={{ left: "34%", top: "45%", width: "min(22vw, 208px)", aspectRatio: "1 / 1", transform: "translate(-50%, -38%)", borderRadius: "9999px", background: "radial-gradient(circle, #FFFBE8 0%, #FFE9A8 34%, #FFC96B 62%, #FFA94F 82%, rgba(255,160,70,0) 100%)", boxShadow: "0 0 70px 28px rgba(255,190,110,0.55)", animation: "ffGlow 6s ease-in-out infinite" }} />
         </>)}
         <div className="absolute inset-x-0" style={{ top: "45%", height: "20%", background: "linear-gradient(180deg,#2C86C4 0%,#3CA0D4 38%,#74C6E6 80%,#BFE9F4 100%)" }} />
         <div className="ff-sea-shimmer absolute inset-x-0 overflow-hidden" style={{ top: "46%", height: "17.5%" }}>
