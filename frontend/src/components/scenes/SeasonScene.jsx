@@ -21,6 +21,23 @@ const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => ({
   delay: (i % 6) * 1.6,
 }));
 
+// Spring feather-petals: each pairs a slow linear fall with its own C-arc
+// swing rhythm. A third of them zig-zag tighter (narrow, quick arcs); the
+// rest sweep wide and lazy. Negative delays pre-populate the sky on load.
+const PETALS = Array.from({ length: 24 }).map((_, i) => {
+  const tight = i % 3 === 2;
+  return {
+    left: `${(i * 37 + 6) % 94}%`,
+    size: 15 + (i % 4) * 5,
+    fall: 18 + (i % 5) * 3,
+    swing: tight ? 2.4 + (i % 3) * 0.5 : 4.6 + (i % 4) * 0.9,
+    sx: tight ? "3vw" : "7vw",
+    sy: tight ? "1.4vh" : "2.8vh",
+    delay: -((i * 2.9) % 20),
+    swingDelay: -((i * 1.7) % 6),
+  };
+});
+
 const FLYING_BIRDS = Array.from({ length: 8 }).map((_, i) => ({
   top: `${4 + i * 5}%`,
   size: 38 + (i % 3) * 20,
@@ -230,11 +247,14 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
       </>)}
       {cfg.moon && <div className="absolute top-[6%] left-[24%] z-[1] aspect-square w-[24vw] rounded-full sm:left-[27%] sm:w-[14vw]" style={{ background: "radial-gradient(circle at 42% 40%, #FCF4DA 0%, #EDDCAB 60%, #D6C084 100%)", boxShadow: "0 0 90px 34px rgba(255,240,205,0.38), 0 0 44px 14px rgba(255,246,222,0.55)", opacity: 0.6 }} />}
       {cfg.owl && <img src={cfg.owl} alt="" className="absolute top-[13%] left-[30%] z-[2] w-[13vw] max-w-[150px] object-contain opacity-[0.72] sm:w-[9vw]" />}
-      {cfg.falling && cfg.petalFeather && FALLING_SPRITES.slice(0, 6).map((l, i) => (
-        // a few lone petals drifting down like feathers: lazy side-to-side
-        // glides with a rocking tilt, not a straight fall
-        <img key={`petal-${l.left}-${i}`} src="/petal-pink.png" alt="" className="absolute top-0 opacity-50"
-          style={{ left: l.left, width: l.size * 0.62, height: l.size * 0.62, animation: `ffPetalFeather ${l.dur * 2.4}s ease-in-out ${l.delay}s infinite` }} />
+      {cfg.falling && cfg.petalFeather && PETALS.map((p, i) => (
+        // feather-fall petals: outer span = steady linear descent, inner
+        // span = side-to-side C-arc swing, img = edge-on flutter
+        <span key={`petal-${i}`} className="absolute top-0" data-testid={i === 0 ? "spring-petal" : undefined} style={{ left: p.left, animation: `ffPetalFall ${p.fall}s linear ${p.delay}s infinite` }}>
+          <span className="inline-block" style={{ "--sx": p.sx, "--sy": p.sy, animation: `ffPetalSwing ${p.swing}s linear ${p.swingDelay}s infinite` }}>
+            <img src="/petal-pink.png" alt="" className="opacity-60" style={{ width: p.size, height: p.size, animation: `ffPetalRock ${2.8 + (i % 3)}s ease-in-out infinite` }} />
+          </span>
+        </span>
       ))}
       {cfg.falling && !cfg.petalFeather && FALLING_SPRITES.map((l, i) => {
         const src = cfg.items[i % cfg.items.length];

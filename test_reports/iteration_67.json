@@ -1,0 +1,29 @@
+{
+  "summary": "Iter67 frontend-only verification of FF_BUILD 2026.06-412 polish. All 7 requested items pass. First-run flow restored (welcome dialog + guided intro both appear on fresh context). Scenery mode toggles ff-scenery-hide class -> opacity 0 + pointer-events none, shows 'Enjoy the view' toast, keeps header/logo + eye button visible, restores fully on second toggle, and does NOT persist across reload. Summer golden-hour scene has tanbark sailboat, warm horizon sun with 9 glint spans, beachball rolling with 'reverse' baked into animation shorthand (ballAnim='13s linear infinite reverse ffBallTravel'), and 8 gulls at opacity 0.9. Spring scene shows exactly 6 petals with ffPetalFeather; both rabbits have 3 imgs (sit/air/upright) and the upright frame was observed reaching opacity 1 within 1s of load. Ball heist dispatched 5x with ZERO React animation-shorthand warnings (iter66 regression fixed). 16 theme values cycled -> 0 console errors. Deal flow on dark theme reached 'Your fate is written'. /journal and /conquest loaded clean. Total console errors: 0, total pageerrors: 0 across the full run.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/screenshots/iter67/01_first_run.png",
+    "/app/test_reports/screenshots/iter67/03_summer_golden_hour.png",
+    "/app/test_reports/screenshots/iter67/04_spring.png",
+    "/app/test_reports/screenshots/iter67/05_scenery_on.png",
+    "/app/test_reports/screenshots/iter67/06_deal.png"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Iter66 shorthand+longhand warning is fully resolved by baking 'reverse' into the animation shorthand (verified: ballAnim reads '13s linear infinite reverse ffBallTravel', 5 forced heists produced 0 warnings).",
+    "GuidedFlow z-[100] overlay intercepts pointer events across the entire viewport when active — expected, but note that automated tests must dismiss guided-skip before interacting with any Home controls including scenery-toggle."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "test_credentials": "None required",
+  "seed_data_creation": "localStorage flags only: ff_theme, ff_theme_chosen='1', ff_theme_hint_seen='1' per theme; ff_deal_taps='1' for deal smoke. No backend seeds.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Scenery-toggle test requires clicking [data-testid=guided-skip] first if guided flow is showing (z-[100] fixed overlay intercepts all clicks). Scenery-wrap always has base class 'ff-scenery-fade '; when active, class becomes 'ff-scenery-fade ff-scenery-hide' with opacity 0 and pointer-events none. Toast text is exactly 'Enjoy the view — tap the eye to bring everything back'. Rabbit upright img reaches opacity 1 quickly (within ~1s in observation); do not need long polling.",
+  "rca of the issue": "No new issues."
+}
