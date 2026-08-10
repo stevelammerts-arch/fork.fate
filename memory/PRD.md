@@ -2444,3 +2444,29 @@ Tested: backend pytest tests/test_geo_stats.py 4/4 + curl (count, 6h dedupe,
    SubmissionsQueue and FeedbackList.
 - Pod egress IP resolves to Kansas City, Missouri, US (expected test row).
 - FF_BUILD -> 2026.06-409. No new backend deps (httpx already present).
+
+## 2026-02 (fork) part 106: Heist audio delay fix (FF_BUILD 410)
+User bug: heist sounds delayed on live mobile (dragon breath, spinner/surf
+crash etc). ROOT CAUSE: every heist did `new Audio(src).play()` at the strike
+moment -> mobile download+decode put audio seconds behind visuals.
+FIX (components/scenes/heistLib.jsx): module-level _audioBank +
+preloadHeistAudio(srcs) (Audio preload='auto' + load() at component mount;
+strikes fire minutes later so clips are warm) + playHeistSound(src, vol)
+(warm element, rewind if mid-flight, honors ff_muted, fresh fallback).
+All 9 sound-emitting heists patched to preload at mount + play via bank:
+companion.jsx CompanionPatrol (surf-wipeout/dragon-whoosh/fairy-laugh+
+pixie-chime by heistKind), realmHeists SaucerAbduction(beam-riser),
+GhostSnatch(soul-wail-short), TikiSpear(tiki-drums-short),
+SteamGears(steam-gears-run+steam-boing), seasonHeists Snowman(snow-gust),
+Owl(owl-hoot+wing-whoosh), SpringPetal(spring-wind), AmbianceScene
+CyberNeonSign(neon-crunch+neon-bzz). All ff_muted checks preserved (now
+inside playHeistSound).
+- GOTCHA hit: one search_replace on companion.jsx reported success but
+  actually APPENDED an orphan JSX fragment at EOF without replacing (parsing
+  error) — fixed via python; verify tails after tool-glitch suspicion.
+- Tested iteration_65.json 100%: mp3 GETs confirmed AT MOUNT via network
+  interception (cyber/fantasy/winter), zero console errors across all 11
+  themes, forced gears heist OK, mute respected. Tester notes explained:
+  OwlHeist mounts in FALL (not winter); fairy pixie preloads at companion
+  mount (cfg.gully) — both correct.
+- FF_BUILD -> 2026.06-410.

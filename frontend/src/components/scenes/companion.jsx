@@ -1,7 +1,7 @@
 // The realm companions (fairy pixie, tiny dragon, tiki surfer): a shared
 // patrol engine that lives on the page, visits sections, and pulls heists.
 import { useState, useEffect, useRef } from "react";
-import { summonToLogo, startleTitle, useHeistWitness } from "./heistLib";
+import { summonToLogo, startleTitle, useHeistWitness, preloadHeistAudio, playHeistSound } from "./heistLib";
 
 /** Home sections the pixie "supervises" — she only visits what's on screen
  * and darts to whatever the user touches. */
@@ -25,6 +25,9 @@ const PIXIE_SPOTS = [
  * the dragon torches it with a jet of flame. */
 export function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"], heistKind = null, testid = "companion", flap = "ffPixieFlapA 0.48s linear infinite", flapBase = "ffPixieFlapB 0.48s linear infinite", emitY = 0, bob = "ffPixieBob 2.4s ease-in-out infinite" }) {
   const witnessRef = useHeistWitness(heistKind === "breath" ? "breath" : heistKind === "crash" ? "surf" : "pixie");
+  useEffect(() => {
+    preloadHeistAudio(heistKind === "crash" ? ["/surf-wipeout.mp3"] : heistKind === "breath" ? ["/dragon-whoosh.mp3"] : ["/fairy-laugh.mp3", "/pixie-chime.mp3"]);
+  }, [heistKind]);
   const wrapRef = useRef(null);   // translated flight layer
   const faceRef = useRef(null);   // scaleX facing flip
   const trailRefs = useRef([]);
@@ -263,10 +266,10 @@ export function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"]
         if (!r || !r.width) { running = false; if (!force) scheduleHeist(30000); return; }
         overrideEl = med;
         Object.assign(base, heistAnchorOf(med));
-        if (heistKind === "crash" && localStorage.getItem("ff_muted") !== "1") {
+        if (heistKind === "crash") {
           // "Wipe Out" riff kicks in as he lines up his charge — the crash
           // lands right in the middle of the drum roll (clip is ~3.6s).
-          try { const s = new Audio("/surf-wipeout.mp3"); s.volume = 0.65; s.play().catch(() => {}); } catch {}
+          playHeistSound("/surf-wipeout.mp3", 0.65);
         }
         timers.push(setTimeout(() => {           // a beat to fly up there
           const r2 = med.getBoundingClientRect();
@@ -275,9 +278,7 @@ export function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"]
           if (heistKind === "breath") {
             // Flame jet from the dragon's MOUTH, streaming horizontally
             // across into the medallion's heart (he hovers level with it).
-            if (localStorage.getItem("ff_muted") !== "1") {
-              try { const fw = new Audio("/dragon-whoosh.mp3"); fw.volume = 0.7; fw.play().catch(() => {}); } catch {}
-            }
+            playHeistSound("/dragon-whoosh.mp3", 0.7);
             const c2x = r2.x + r2.width / 2, c2y = r2.y + r2.height / 2;
             const dir = c2x > pos.x ? 1 : -1; // the way he's facing
             setJet({ sx: pos.x + dir * MOUTH_DX, sy: pos.y + MOUTH_DY, tx: c2x, ty: c2y });
@@ -286,10 +287,10 @@ export function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"]
             // Wipeout: the medallion is knocked flying on impact.
             setKnock({ x: r2.x, y: r2.y, w: r2.width });
             timers.push(setTimeout(() => setKnock(null), 1000));
-          } else if (localStorage.getItem("ff_muted") !== "1") {
+          } else {
             // her giggle — plus a tiny sparkle chime as the coin poofs away
-            try { const g = new Audio("/fairy-laugh.mp3"); g.volume = 0.35; g.play().catch(() => {}); } catch {}
-            try { const c = new Audio("/pixie-chime.mp3"); c.volume = 0.5; c.play().catch(() => {}); } catch {}
+            playHeistSound("/fairy-laugh.mp3", 0.35);
+            playHeistSound("/pixie-chime.mp3", 0.5);
           }
           timers.push(setTimeout(() => { med.style.visibility = "hidden"; startleTitle(); }, heistKind === "crash" ? 60 : 420));
           timers.push(setTimeout(() => setCasting(false), 1200));

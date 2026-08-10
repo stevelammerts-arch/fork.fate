@@ -61,6 +61,38 @@ export function useHeistWitness(key) {
   return ref;
 }
 
+/** Warmed heist audio bank: on live mobile, `new Audio(src).play()` at the
+ * strike moment had to download + decode first, landing the sound seconds
+ * behind the visuals. Heists preload their clips at mount (long before the
+ * multi-minute strike timers fire) and play from the warm element. */
+const _audioBank = {};
+
+export function preloadHeistAudio(srcs) {
+  for (const src of srcs) {
+    if (_audioBank[src]) continue;
+    try {
+      const a = new Audio(src);
+      a.preload = "auto";
+      a.load();
+      _audioBank[src] = a;
+    } catch { /* audio unavailable */ }
+  }
+}
+
+/** Play from the warmed bank (fresh-element fallback), honoring global mute. */
+export function playHeistSound(src, vol = 0.7) {
+  try {
+    if (localStorage.getItem("ff_muted") === "1") return;
+    let a = _audioBank[src];
+    if (a) {
+      try { a.pause(); a.currentTime = 0; } catch { a = null; }
+    }
+    if (!a) a = new Audio(src);
+    a.volume = vol;
+    a.play().catch(() => {});
+  } catch { /* audio unavailable */ }
+}
+
 /** The Fork·Fate title does a startled little hop when its medallion is
  * stolen by any of the realm heists. */
 export function startleTitle() {

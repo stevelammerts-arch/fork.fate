@@ -1,7 +1,7 @@
 // Seasonal-realm logo heists: beach ball, crab, snowman, owl, petal gust,
 // cardinal tip. Each strikes the header medallion via the shared heist lib.
 import { useState, useEffect } from "react";
-import { summonToLogo, startleTitle, useHeistWitness } from "./heistLib";
+import { summonToLogo, startleTitle, useHeistWitness, preloadHeistAudio, playHeistSound } from "./heistLib";
 
 /** Summer heist #1: a runaway beach ball arcs in spinning, BONKS the header
  * medallion clean off its perch (the logo tumbles away), then squats in the
@@ -177,6 +177,7 @@ export function SummerCrabHeist() {
  * briefly while the head sits in the logo spot). */
 export function SnowmanHeist() {
   const witnessRef = useHeistWitness("snowman");
+  useEffect(() => { preloadHeistAudio(["/snow-gust.mp3"]); }, []);
   const [run, setRun] = useState(null);   // {cx, cy, w}
   const [phase, setPhase] = useState(0);  // 1 slide in, 2 gust rips the head off, 3 head sits in the logo spot, 4 blown away
   const [gust, setGust] = useState(false);   // snow streaks howling right-to-left
@@ -197,10 +198,7 @@ export function SnowmanHeist() {
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
         timers.push(setTimeout(() => setPhase(1), 30));    // shuffles in, all smiles
-        const howl = (vol) => {
-          if (localStorage.getItem("ff_muted") === "1") return;
-          try { const g = new Audio("/snow-gust.mp3"); g.volume = vol; g.play().catch(() => {}); } catch {}
-        };
+        const howl = (vol) => playHeistSound("/snow-gust.mp3", vol);
         timers.push(setTimeout(() => { setGust(true); howl(0.75); }, 2300)); // the wind picks up...
         timers.push(setTimeout(() => setPhase(2), 2700));   // ...and POP, off comes the head
         timers.push(setTimeout(() => {                      // BONK — it takes the logo's perch
@@ -317,6 +315,7 @@ export function SnowmanHeist() {
  * at (17%, 87%) of the sprite box. */
 export function OwlHeist() {
   const witnessRef = useHeistWitness("owl");
+  useEffect(() => { preloadHeistAudio(["/owl-hoot.mp3", "/wing-whoosh.mp3"]); }, []);
   const [run, setRun] = useState(null);   // {cx, cy, w}
   const [phase, setPhase] = useState(0);  // 1 dive down-left, 2 swoop up to the logo, 3 the clamp beat, 4 carries it off
   useEffect(() => {
@@ -334,10 +333,7 @@ export function OwlHeist() {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
-        const cry = (src, vol) => {
-          if (localStorage.getItem("ff_muted") === "1") return;
-          try { const a = new Audio(src); a.volume = vol; a.play().catch(() => {}); } catch {}
-        };
+        const cry = (src, vol) => playHeistSound(src, vol);
         timers.push(setTimeout(() => {                     // dives DOWN out of the sky, hooting
           setPhase(1);
           cry("/owl-hoot.mp3", 0.45);
@@ -422,6 +418,7 @@ const PETALS = Array.from({ length: 60 }, (_, i) => ({
 const PETAL_TONES = ["#FFB7CD", "#F8C8DC", "#FFD7E6"];
 export function SpringPetalHeist() {
   const witnessRef = useHeistWitness("petals");
+  useEffect(() => { preloadHeistAudio(["/spring-wind.mp3"]); }, []);
   const [run, setRun] = useState(null);   // {cx, cy, w}
   const [phase, setPhase] = useState(0);  // 1 the gust sweeps, 2 the coin is knocked away
   useEffect(() => {
@@ -439,9 +436,7 @@ export function SpringPetalHeist() {
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
         timers.push(setTimeout(() => {                     // the gust picks up
           setPhase(1);
-          if (localStorage.getItem("ff_muted") !== "1") {
-            try { const g = new Audio("/spring-wind.mp3"); g.volume = 0.7; g.play().catch(() => {}); } catch {}
-          }
+          playHeistSound("/spring-wind.mp3", 0.7);
         }, 30));
         timers.push(setTimeout(() => {                     // the wave-front slams the coin
           setPhase(2);

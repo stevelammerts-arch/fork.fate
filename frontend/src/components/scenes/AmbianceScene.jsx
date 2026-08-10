@@ -2,7 +2,7 @@
 // background art, ambient sprites, neon sign, gecko, torches — plus each
 // realm's companions and heists.
 import React, { useState, useEffect, useRef } from "react";
-import { useHeistWitness } from "./heistLib";
+import { useHeistWitness, preloadHeistAudio, playHeistSound } from "./heistLib";
 import { CompanionPatrol } from "./companion";
 import { SaucerAbduction, DragonHeist, TikiSpearHeist, SteamSpringHeist, SteamGearsHeist, UnicornChargeHeist } from "./realmHeists";
 
@@ -315,6 +315,7 @@ function TikiFloorGecko() {
  * forces one, used for testing). */
 function CyberNeonSign({ neon }) {
   const witnessRef = useHeistWitness("wreck");
+  useEffect(() => { preloadHeistAudio(["/neon-crunch.mp3", "/neon-bzz.mp3"]); }, []);
   const [crash, setCrash] = useState(0); // 1 careening in, 2 impact + neons shorting, 3 humming back on
   // The sticky banner's height varies by device — measure its real bottom and
   // hang the sign safely below it, so no crash ever plays behind the header.
@@ -339,10 +340,7 @@ function CyberNeonSign({ neon }) {
     let pending = null;
     let poll = null;
     let running = false;
-    const play = (src, vol) => {
-      if (localStorage.getItem("ff_muted") === "1") return;
-      try { const a = new Audio(src); a.volume = vol; a.play().catch(() => {}); } catch {}
-    };
+    const play = (src, vol) => playHeistSound(src, vol);
     const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(start, ms); };
     const bail = () => { running = false; schedule(30000); };
     // The whole cyberscape is a FIXED backdrop — page content rolls right over

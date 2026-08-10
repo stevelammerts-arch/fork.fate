@@ -2,7 +2,7 @@
 // soul snatch, tiki spear, steam spring/gears, coffee spill, reaper plate,
 // unicorn charge. Each strikes the header medallion via the shared heist lib.
 import { useState, useEffect } from "react";
-import { LogoHeist, summonToLogo, startleTitle, useHeistWitness } from "./heistLib";
+import { LogoHeist, summonToLogo, startleTitle, useHeistWitness, preloadHeistAudio, playHeistSound } from "./heistLib";
 
 /** Rare easter egg: the stealth saucer sneaks in and ABDUCTS the header logo.
  * First strike 20-40s after load, then again every 2.5-5 minutes (or
@@ -13,6 +13,7 @@ export function SaucerAbduction({ saucer, onActive }) {
   const [run, setRun] = useState(null);
   const [phase, setPhase] = useState(0); // 1 fly-in, 2 beam on, 3 lift, 4 leave
   const witnessRef = useHeistWitness("saucer");
+  useEffect(() => { preloadHeistAudio(["/beam-riser.mp3"]); }, []);
   useEffect(() => {
     const timers = [];
     let pending = null;
@@ -35,10 +36,8 @@ export function SaucerAbduction({ saucer, onActive }) {
         timers.push(setTimeout(() => setPhase(1), 30));                                     // fly in
         timers.push(setTimeout(() => {                                                      // beam on
           setPhase(2);
-          if (localStorage.getItem("ff_muted") !== "1") {
-            // the tractor beam spools up — riser peaks as the coin enters the ship
-            try { const b = new Audio("/beam-riser.mp3"); b.volume = 0.6; b.play().catch(() => {}); } catch {}
-          }
+          // the tractor beam spools up — riser peaks as the coin enters the ship
+          playHeistSound("/beam-riser.mp3", 0.6);
         }, 1380));
         timers.push(setTimeout(() => { setPhase(3); med.style.visibility = "hidden"; startleTitle(); }, 1830)); // lift
         timers.push(setTimeout(() => setPhase(4), 3200));                                   // beam off + leave
@@ -150,6 +149,7 @@ export function ReaperHeist() {
  * claws wrap sits at (36%, 26.5%) of the sprite box. */
 export function GhostSnatchHeist() {
   const witnessRef = useHeistWitness("snatch");
+  useEffect(() => { preloadHeistAudio(["/soul-wail-short.mp3"]); }, []);
   const [run, setRun] = useState(null);  // {cx, cy, w}
   const [phase, setPhase] = useState(0); // 1 materialize + linger, 2 vanish with the coin
   useEffect(() => {
@@ -172,9 +172,7 @@ export function GhostSnatchHeist() {
           // real medallion seamlessly, so he truly fades in BEHIND it.
           setPhase(1);
           med.style.visibility = "hidden";
-          if (localStorage.getItem("ff_muted") !== "1") {
-            try { const m = new Audio("/soul-wail-short.mp3"); m.volume = 0.55; m.play().catch(() => {}); } catch {}
-          }
+          playHeistSound("/soul-wail-short.mp3", 0.55);
         }, 30));
         timers.push(setTimeout(() => { setPhase(2); startleTitle(); }, 4100)); // gone — and the coin goes with him
         timers.push(setTimeout(() => {
@@ -238,6 +236,7 @@ export function GhostSnatchHeist() {
  * the surfer), then every 2.5-5 min (`ff:spear-heist` forces it, testing). */
 export function TikiSpearHeist() {
   const witnessRef = useHeistWitness("spear");
+  useEffect(() => { preloadHeistAudio(["/tiki-drums-short.mp3"]); }, []);
   const [run, setRun] = useState(null);    // {cx, cy, w}
   const [phase, setPhase] = useState(0);   // 0 offscreen right, 1 charge, 2 the jab beat, 3 charge off left
   const [pop, setPop] = useState(false);   // the medallion mid-POP
@@ -258,9 +257,7 @@ export function TikiSpearHeist() {
         setRun({ cx, cy, w });
         timers.push(setTimeout(() => {                     // CHARGE! (war drums)
           setPhase(1);
-          if (localStorage.getItem("ff_muted") !== "1") {
-            try { const d = new Audio("/tiki-drums-short.mp3"); d.volume = 0.9; d.play().catch(() => {}); } catch {}
-          }
+          playHeistSound("/tiki-drums-short.mp3", 0.9);
         }, 30));
         timers.push(setTimeout(() => {                     // the jab lands: POP!
           setPhase(2); setPop(true);
@@ -433,6 +430,7 @@ function BrassGear({ size, color = "#B98A44", dur = 4, rev = false, anim, style 
  * (`ff:gears-heist` forces it, used for testing). */
 export function SteamGearsHeist() {
   const witnessRef = useHeistWitness("gears");
+  useEffect(() => { preloadHeistAudio(["/steam-gears-run.mp3", "/steam-boing.mp3"]); }, []);
   const [run, setRun] = useState(null);     // {cx, cy, w}
   const [stage, setStage] = useState(null); // "open" | "break" | "collapse"
   useEffect(() => {
@@ -448,10 +446,7 @@ export function SteamGearsHeist() {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
-        const clank = (src, vol) => {
-          if (localStorage.getItem("ff_muted") === "1") return;
-          try { const a = new Audio(src); a.volume = vol; a.play().catch(() => {}); } catch {}
-        };
+        const clank = (src, vol) => playHeistSound(src, vol);
         timers.push(setTimeout(() => {                    // the case creaks open
           med.style.visibility = "hidden"; startleTitle();
           setStage("open");
