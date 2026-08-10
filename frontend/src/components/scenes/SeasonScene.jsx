@@ -3,6 +3,17 @@
 import { useState } from "react";
 import { SummerBallHeist, SummerCrabHeist, SnowmanHeist, CardinalTipHeist, OwlHeist, SpringPetalHeist } from "./seasonHeists";
 
+// Golden-hour sun path: individual shimmering glints down the water instead
+// of a solid streak — narrow near the horizon, wider and fainter near shore.
+const SUN_GLINTS = Array.from({ length: 9 }).map((_, i) => ({
+  top: `${i * 11 + 2}%`,
+  w: 40 + i * 10,
+  op: 0.55 - i * 0.05,
+  dur: 2.4 + (i % 3) * 0.9,
+  delay: (i % 4) * 0.55,
+  dx: (i % 2 ? -1 : 1) * (2 + i * 1.5),
+}));
+
 const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => ({
   left: `${(i * 8 + 4) % 94}%`,
   size: 22 + (i % 3) * 12,
@@ -50,9 +61,9 @@ export const SEASONS = {
     items: ["/blossom-pink.png", "/blossom-white.png", "/petal-pink.png"], falling: true, hint: "#D46A9F",
   },
   summer: {
-    grad: "linear-gradient(180deg,#BFE8F7 0%,#8FD3EE 44%,#5FB8D9 62%,#F3E2B3 62%,#EAD199 100%)",
-    tree: "/summer-tree.png", treeH: "h-[60svh] sm:h-[92vh] z-[3]", treeOpacity: 0.92, ocean: true, decorLeft: "/summer-decor.png", decorLeftBig: true, decorLeftW: "w-[50vw] max-w-none sm:w-[46vw]", decorLeftOpacity: 0.92, decorLeftZ: "z-[3]", sun: "/summer-sun.png", birds: "/summer-seagull.png",
-    items: ["/summer-sun.png", "/summer-ball.png", "/summer-icecream.png"], falling: false, hint: "#E07E17", crabs: "/summer-crab.png", coconut: "/summer-coconut.png",
+    grad: "linear-gradient(180deg,#8FC4E8 0%,#A9D3EC 26%,#F7D9A8 40%,#FFBE7D 45%,#5FB8D9 62%,#F7E3B0 62%,#EDD49B 100%)",
+    tree: "/summer-tree.png", treeH: "h-[60svh] sm:h-[92vh] z-[3]", treeOpacity: 0.92, ocean: true, decorLeft: "/summer-decor.png", decorLeftBig: true, decorLeftW: "w-[50vw] max-w-none sm:w-[46vw]", decorLeftOpacity: 0.92, decorLeftZ: "z-[3]", birds: "/summer-seagull.png",
+    items: ["/summer-sun.png", "/summer-ball.png", "/summer-icecream.png"], falling: false, hint: "#E07E17", crabs: "/summer-crab.png", coconut: "/summer-coconut.png", sunHorizon: true,
   },
 };
 
@@ -86,11 +97,27 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
             <feDisplacementMap in="SourceGraphic" in2="n" scale="20" xChannelSelector="R" yChannelSelector="G" />
           </filter>
         </svg>
+        {cfg.sunHorizon && (<>
+          {/* golden-hour bloom in the sky around the sun */}
+          <div className="absolute inset-x-0 top-0" style={{ height: "45%", background: "radial-gradient(ellipse 64vw 36vh at 34% 100%, rgba(255,190,110,0.55), rgba(255,170,90,0.2) 48%, rgba(255,170,90,0) 74%)" }} />
+          {/* realistic glowing sun disc, half-dipped at the waterline — the
+              sea (painted after) clips its lower limb */}
+          <div className="absolute" data-testid="summer-horizon-sun" style={{ left: "34%", top: "45%", width: "min(22vw, 208px)", aspectRatio: "1 / 1", transform: "translate(-50%, -27%)", borderRadius: "9999px", background: "radial-gradient(circle, #FFFBE8 0%, #FFE9A8 34%, #FFC96B 62%, #FFA94F 82%, rgba(255,160,70,0) 100%)", boxShadow: "0 0 70px 28px rgba(255,190,110,0.55)", animation: "ffGlow 6s ease-in-out infinite" }} />
+        </>)}
         <div className="absolute inset-x-0" style={{ top: "45%", height: "20%", background: "linear-gradient(180deg,#2C86C4 0%,#3CA0D4 38%,#74C6E6 80%,#BFE9F4 100%)" }} />
         <div className="ff-sea-shimmer absolute inset-x-0 overflow-hidden" style={{ top: "46%", height: "17.5%" }}>
           <div className="ff-sea-wave ff-sea-wave-a" />
           <div className="ff-sea-wave ff-sea-wave-b" />
         </div>
+        {cfg.sunHorizon && (<>
+          {/* warm wash on the far water + the shimmering sun-path reflection */}
+          <div className="absolute inset-x-0" style={{ top: "45%", height: "8%", background: "linear-gradient(180deg, rgba(255,180,100,0.34), rgba(255,180,100,0))" }} />
+          <div className="absolute" data-testid="summer-sun-path" style={{ left: "34%", top: "45.3%", width: "min(20vw, 190px)", height: "19%", transform: "translateX(-50%)" }}>
+            {SUN_GLINTS.map((g, i) => (
+              <span key={`glint-${i}`} className="absolute rounded-full" style={{ left: `calc(50% + ${g.dx}px)`, top: g.top, width: g.w, height: 3.5, transform: "translateX(-50%)", background: "linear-gradient(90deg, rgba(255,214,140,0) 0%, rgba(255,226,160,0.95) 50%, rgba(255,214,140,0) 100%)", opacity: g.op, filter: "blur(1.2px)", animation: `ffGlow ${g.dur}s ease-in-out ${g.delay}s infinite` }} />
+            ))}
+          </div>
+        </>)}
         {/* tiny sailboat tacking slowly back and forth along the horizon —
             faces right on the outbound leg, flips for the return */}
         <div className="absolute left-[4%] z-[1]" style={{ top: "41.5%", animation: "ffSailVoyage 100s ease-in-out infinite", animationDelay: `${flair.sailDelay}s` }} data-testid="summer-sailboat">

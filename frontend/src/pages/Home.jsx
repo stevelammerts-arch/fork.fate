@@ -212,7 +212,7 @@ export default function Home() {
     } catch (e) { /* malformed share — ignore */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [showGuided, setShowGuided] = useState(true);
+  const [showGuided, setShowGuided] = useState(false); // TEMP-SCREENSHOT: restore to true
   const [muted, setMuted] = useState(() => {
     try { return localStorage.getItem("ff_muted") === "1"; } catch { return false; }
   });
