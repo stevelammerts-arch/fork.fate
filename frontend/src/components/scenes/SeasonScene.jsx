@@ -1,5 +1,6 @@
 // Seasonal realm scenery (fall / winter / spring / summer): background art,
 // falling sprites, gust snow, chimney smoke — plus that season's heists.
+import { useState } from "react";
 import { SummerBallHeist, SummerCrabHeist, SnowmanHeist, CardinalTipHeist, OwlHeist, SpringPetalHeist } from "./seasonHeists";
 
 const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => ({
@@ -67,6 +68,13 @@ const GUST_SNOW = Array.from({ length: 70 }).map((_, i) => ({
 }));
 
 export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
+  // Per-visit variety: the sailboat joins its voyage at a random point (so it
+  // may first appear from either side, mid-tack), and the rolling beach ball
+  // picks a random shore to enter from.
+  const [flair] = useState(() => ({
+    sailDelay: -(Math.random() * 100),
+    ballReverse: Math.random() < 0.5 ? " reverse" : "",
+  }));
   return (<>
     <div className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`season-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
@@ -85,8 +93,8 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
         </div>
         {/* tiny sailboat tacking slowly back and forth along the horizon —
             faces right on the outbound leg, flips for the return */}
-        <div className="absolute left-[4%] z-[1]" style={{ top: "41.5%", animation: "ffSailVoyage 100s ease-in-out infinite" }} data-testid="summer-sailboat">
-          <div style={{ animation: "ffSailTack 100s step-end infinite" }}>
+        <div className="absolute left-[4%] z-[1]" style={{ top: "41.5%", animation: "ffSailVoyage 100s ease-in-out infinite", animationDelay: `${flair.sailDelay}s` }} data-testid="summer-sailboat">
+          <div style={{ animation: "ffSailTack 100s step-end infinite", animationDelay: `${flair.sailDelay}s` }}>
             <img src="/summer-sailboat.png" alt="" className="w-9 opacity-85 sm:w-10" style={{ animation: "ffSailBob 4.6s ease-in-out infinite", transformOrigin: "50% 88%" }} />
           </div>
         </div>
@@ -169,9 +177,9 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
           <img src={cfg.crabs} alt="" className="w-9 opacity-90 sm:w-10" />
         </div>
         {/* breeze-blown beach ball bouncing across the sand */}
-        <div className="absolute bottom-[4%] left-0 z-[3]" style={{ animation: "ffBallTravel 13s linear infinite" }} data-testid="summer-beachball">
+        <div className="absolute bottom-[4%] left-0 z-[3]" style={{ animation: `ffBallTravel 13s linear infinite${flair.ballReverse}` }} data-testid="summer-beachball">
           <div style={{ animation: "ffBallBounce 1.6s infinite" }}>
-            <img src="/summer-ball.png" alt="" className="w-10 opacity-90 sm:w-12" style={{ animation: "ffBallSpin 2.2s linear infinite" }} />
+            <img src="/summer-ball.png" alt="" className="w-10 opacity-90 sm:w-12" style={{ animation: `ffBallSpin 2.2s linear infinite${flair.ballReverse}` }} />
           </div>
         </div>
         {/* a coconut drops from the palm now and then and thuds into the sand */}
@@ -196,10 +204,10 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
         <span key={`gust-${i}`} className="ff-gust-snow" style={{ top: f.top, width: f.size, height: f.size, "--op": f.op, "--dip": `${f.dip}vh`, animationDuration: `${f.dur}s`, animationDelay: `${f.delay}s` }} />
       ))}
       {cfg.birds && FLYING_BIRDS.map((b, i) => (
-        <div key={`bird-${i}`} className="absolute left-0" style={{ top: b.top, animation: `ffGullCruise ${b.dur}s linear ${b.delay}s infinite`, willChange: "transform", backfaceVisibility: "hidden" }}>
+        <div key={`bird-${i}`} className="absolute left-0 z-[2]" style={{ top: b.top, animation: `ffGullCruise ${b.dur}s linear ${b.delay}s infinite`, willChange: "transform", backfaceVisibility: "hidden" }}>
           {/* rises on the wingbeats, sinks into the glide, banking gently */}
           <div style={{ animation: `ffGullBob ${b.cycle}s ease-in-out ${b.flapDelay}s infinite` }}>
-            <img src={cfg.birds} alt="" className="ff-gull block opacity-40 drop-shadow-sm" style={{ width: b.size, animationDuration: `${b.cycle}s`, animationDelay: `${b.flapDelay}s` }} />
+            <img src={cfg.birds} alt="" className="ff-gull block opacity-90 drop-shadow-sm" style={{ width: b.size, animationDuration: `${b.cycle}s`, animationDelay: `${b.flapDelay}s` }} />
           </div>
         </div>
       ))}

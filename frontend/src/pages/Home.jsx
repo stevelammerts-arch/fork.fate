@@ -97,7 +97,7 @@ export default function Home() {
   // First-run "Choose your realm" window — appears before the guided ritual's
   // first step; sealed once so returning visitors go straight in.
   const [showThemeWelcome, setShowThemeWelcome] = useState(() => {
-    try { return localStorage.getItem("ff_theme_chosen") !== "1"; } catch (e) { return false; }
+    try { return false && localStorage.getItem("ff_theme_chosen") !== "1"; } catch (e) { return false; }
   });
   const sealThemeChoice = () => {
     setShowThemeWelcome(false);

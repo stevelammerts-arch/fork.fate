@@ -14,7 +14,7 @@ function stored() {
 // First visit (nothing stored): Reaper — the original. The "Choose your realm"
 // welcome window handles the user's real pick; no more seasonal auto-defaults.
 function read() {
-  return stored() || "dark";
+  return stored() || "summer";
 }
 
 let current = read();
