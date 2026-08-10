@@ -2495,3 +2495,17 @@ inside playHeistSound).
 - Verified via screenshots + DOM checks: 18 pink + 6 white rendering, computed
   opacity 1, blue sky live. FF_BUILD -> 2026.06-417.
 - STILL PENDING FROM USER: IARC certificate ID (user confirmed not received yet).
+
+## 2026-08-10 part 91: Grey/white checker in spring sky FIXED (FF_BUILD 419)
+- User screenshot showed grey/white checkerboard across the spring sky.
+  ROOT CAUSE: spring-ground2.png had the transparency checkerboard BAKED IN
+  as opaque pixels (#FEFEFE / #E9E9E9, alpha 255) across its whole sky half
+  (48% of image). Invisible vs old pastel sky; exposed by new blue sky.
+- FIX: /app/scripts/fix_spring_ground_checker.py — BFS flood fill from top
+  edge over near-neutral light px (min>=200, channel spread<=8) -> alpha 0,
+  + edge feathering (half alpha). Pass 2 (inline) expanded from transparent
+  region over pale tinted residue (min>=205, max-min<=16), +30895 px.
+  Verified: zoom composite on blue = clean horizon, mobile screenshot clean.
+- LESSON: when adding/regenerating scene art, CHECK for baked-in checker
+  (opaque near-white/grey alternating squares) — spring-ground.png (unused)
+  also has it (20%). season-spring-bloom.png has 2% suspicious px (unverified).
