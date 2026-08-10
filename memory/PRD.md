@@ -2470,3 +2470,28 @@ inside playHeistSound).
   OwlHeist mounts in FALL (not winter); fairy pixie preloads at companion
   mount (cfg.gully) — both correct.
 - FF_BUILD -> 2026.06-410.
+
+## 2026-08-10 part 90: Spring petal feather-fall final + light blue sky (FF_BUILD 413-417)
+- PETAL C-SHAPE FALL (user: "downwards C shape, side to side in the downward
+  half loop"): rebuilt as two layers — outer span ffPetalFall (linear descent,
+  -10vh to 104vh) + inner span ffPetalSwing (C-arc: translateX(+-var(--sx)) with
+  translateY dip var(--sy); per-segment timing ease-in INTO arc bottom,
+  ease-out climbing to edges = hover at tips, swoosh through dip). img keeps
+  ffPetalRock edge-on flutter. Old ffPetalFeather keyframe removed.
+- MORE + TIGHTER (user: "more of them, tighter zig zags on some"): PETALS
+  array now 24 (was 10 slice); every 3rd is "tight" (sx 3vw, sy 1.4vh, swing
+  2.4-3.4s) vs wide (7vw/2.8vh, 4.6-7.3s). Negative delays pre-populate sky.
+- WHITE PETALS (user: "few white ones for contrast"): /petal-white.png
+  generated via /app/scripts/gen_petal_white.py (PIL recolor of petal-pink:
+  push lum to white keeping alpha/shading + ivory warmth). Every 4th petal
+  white (6 of 24).
+- NO TRANSPARENCY (user): petal img opacity now 1 (removed 0.6/0.75);
+  ffPetalFall holds opacity 1 from 5%-92% (fades only at spawn/exit).
+- LIGHT BLUE SKY (user, then "extend it further down"): spring grad now
+  #CDE8F8 0% -> #D9EEFA 55% -> #FBEFF5 82% -> #EFF7E6 100% (blue holds past
+  mid-screen before blending to blossom pink/meadow green). FF_BUILD 418.
+- GOTCHA (again): one search_replace on SeasonScene.jsx reported success but
+  did NOT persist (img src edit); re-grep after edits when suspicious.
+- Verified via screenshots + DOM checks: 18 pink + 6 white rendering, computed
+  opacity 1, blue sky live. FF_BUILD -> 2026.06-417.
+- STILL PENDING FROM USER: IARC certificate ID (user confirmed not received yet).
