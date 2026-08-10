@@ -2379,8 +2379,8 @@ body.ff-badge-open .ff-theme-scene * {
    the far edge before swinging back the other way. */
 @keyframes ffPetalFall{
   0%   { transform: translateY(-10vh); opacity: 0; }
-  5%   { opacity: 0.85; }
-  92%  { opacity: 0.7; }
+  5%   { opacity: 1; }
+  92%  { opacity: 1; }
   100% { transform: translateY(104vh); opacity: 0; }
 }
 
