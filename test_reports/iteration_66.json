@@ -1,0 +1,31 @@
+{
+  "summary": "Verified Summer beach-ball heist randomization enhancement. Forced 15 strikes via ff:ball-heist event with summer theme. Both entry sides observed (left+right); right entry correctly exits toward LEFT-bottom (xN≈-253, medallion cx≈470); left entry exits right (xN≈1090). Launch height (dip) varies per strike — captured y0 values 435, 371, 337, 375, 372 (all distinct). Bonk logo clone [data-testid=ball-heist-logo] appears; medallion visibility is restored after each strike. One console warning found (see issues).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "SummerBallHeist (seasonHeists.jsx lines 96-97)",
+        "issue": "React console warning every strike: 'Updating a style property during rerender when a conflicting property is set... Updating animation animationDirection'. The inline style sets both the shorthand `animation` and the longhand `animationDirection` on the same element, which React explicitly warns against because the order can produce inconsistent results.",
+        "selector": "[data-testid='ball-heist'] > div > img",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/right_entry_midflight.png"],
+  "action_items": [
+    "Fix animation/animationDirection shorthand-longhand conflict in SummerBallHeist. Recommended: fold direction into the shorthand, e.g. `animation: phase === 1 || phase === 3 ? \\`ffBallHeistSpin 0.7s linear infinite ${fromLeft ? 'normal' : 'reverse'}\\` : (phase === 2 ? 'ffBallSettle 0.6s ease-out' : undefined)` and drop the separate `animationDirection` line. This will silence the React warning without changing behavior."
+  ],
+  "critical_code_review_comments": [
+    "Mixing shorthand `animation` with longhand `animationDirection` in the same style object triggers React warning on every strike (30+ warnings observed in one test session).",
+    "New randomization logic itself is correct — side/dip are chosen at strike time inside setRun, and fromLeft/sx/exitX/animationDirection all derive from `run` state consistently within a strike."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "95%"},
+  "seed_data_creation": "None. Set localStorage keys ff_theme=summer, ff_theme_chosen=1, ff_theme_hint_seen=1 before load.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "To force the ball heist quickly: set localStorage['ff_theme']='summer' + '1' flags, reload, then dispatch `ff:ball-heist` event. Reset window.__ffHeistCooldownUntil=0 and window.__ffFateBusy=false between forces. Phase 0 only lasts ~30ms — poll for [data-testid='ball-heist'] every 5ms in a loop to catch initial transform. Alternatively infer entry side from final translate X: xN≈-253 → right entry, xN≈1090 → left entry (based on 1920px viewport).",
+  "rca of the issue": "React 18+ warns when inline `style` mixes CSS shorthand and longhand properties for the same property, because React iterates keys in object order and can't guarantee which wins. In seasonHeists.jsx the new right-side feature added `animationDirection: fromLeft ? undefined : 'reverse'` alongside the pre-existing `animation: ...` shorthand. Even when animationDirection is undefined, React's warning still fires. Reproduction: force any strike; warning appears once per re-render (phase changes trigger 3+ warnings per heist). Mitigation: include direction inside the shorthand string; remove the separate animationDirection key."
+}

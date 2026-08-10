@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react";
 import { summonToLogo, startleTitle, useHeistWitness, preloadHeistAudio, playHeistSound } from "./heistLib";
 
-/** Summer heist #1: a runaway beach ball arcs in spinning, BONKS the header
- * medallion clean off its perch (the logo tumbles away), then squats in the
- * logo's spot for a beat acting innocent before rolling off — and the logo
- * bounces back. First strike 25-45s after load, then every 2.5-5 min (or
- * instantly on a `ff:ball-heist` window event, used for testing). */
+/** Summer heist #1: a runaway beach ball arcs in spinning — usually punted up
+ * from the LEFT edge but ~40% of the time from the RIGHT, at a slightly
+ * different height every strike — BONKS the header medallion clean off its
+ * perch (the logo tumbles away), then squats in the logo's spot for a beat
+ * acting innocent before rolling off the far side — and the logo bounces
+ * back. First strike 25-45s after load, then every 2.5-5 min (or instantly
+ * on a `ff:ball-heist` window event, used for testing). */
 export function SummerBallHeist() {
   const witnessRef = useHeistWitness("ball");
   const [run, setRun] = useState(null);   // {cx, cy, w}
@@ -25,7 +27,13 @@ export function SummerBallHeist() {
       cancelSummon = summonToLogo((med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
-        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        setRun({
+          cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width,
+          // Keep it unpredictable: ~40% of strikes punt in from the RIGHT
+          // edge instead, and the launch height varies a little every time.
+          side: Math.random() < 0.4 ? "right" : "left",
+          dip: 260 + Math.random() * 160,
+        });
         timers.push(setTimeout(() => setPhase(1), 30));   // incoming!
         timers.push(setTimeout(() => {                     // BONK
           setPhase(2); setKnock(true);
@@ -59,11 +67,14 @@ export function SummerBallHeist() {
     };
   }, []); // witnessRef is a stable ref
   if (!run) return null;
-  const { cx, cy, w } = run;
+  const { cx, cy, w, side, dip } = run;
   const ballW = w * 1.42; // ball art has padding — this renders it medallion-sized
-  // punted up from low off the LEFT edge, exits bouncing away down-right
-  const sx = -ballW - 40, sy = cy + Math.min(340, window.innerHeight * 0.4);
-  const x = phase === 0 ? sx : phase === 3 ? cx + window.innerWidth * 0.35 : cx;
+  // punted up from low off a random edge, exits bouncing away down the far side
+  const fromLeft = side !== "right";
+  const sx = fromLeft ? -ballW - 40 : window.innerWidth + ballW + 40;
+  const sy = cy + Math.min(dip, window.innerHeight * 0.42);
+  const exitX = fromLeft ? cx + window.innerWidth * 0.35 : cx - window.innerWidth * 0.35;
+  const x = phase === 0 ? sx : phase === 3 ? exitX : cx;
   const y = phase === 0 ? sy : phase === 3 ? window.innerHeight + ballW : cy;
   const trans = phase === 1 ? "transform 0.87s cubic-bezier(0.3,0,0.68,1)" : phase === 3 ? "transform 0.85s cubic-bezier(0.5,0.05,0.85,0.5)" : "none";
   return (
@@ -82,7 +93,7 @@ export function SummerBallHeist() {
           style={{
             width: ballW, height: ballW,
             filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.3))",
-            animation: phase === 2 ? "ffBallSettle 0.6s ease-out" : phase === 1 || phase === 3 ? "ffBallHeistSpin 0.7s linear infinite" : undefined,
+            animation: phase === 2 ? "ffBallSettle 0.6s ease-out" : phase === 1 || phase === 3 ? `ffBallHeistSpin 0.7s linear infinite${fromLeft ? "" : " reverse"}` : undefined,
           }}
         />
       </div>

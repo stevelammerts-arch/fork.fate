@@ -2291,3 +2291,20 @@ body.ff-badge-open .ff-theme-scene * {
 @media (prefers-reduced-motion: reduce) {
   .ff-gust-snow { animation: none; opacity: 0; }
 }
+
+/* Summer sailboat: slow tack across the horizon, flip on the turn, gentle
+   bob + heel. Voyage and tack share one 100s clock so the flip lands exactly
+   at the far end of each leg. */
+@keyframes ffSailVoyage {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(74vw); }
+}
+@keyframes ffSailTack {
+  0% { transform: scaleX(1); }
+  50% { transform: scaleX(-1); }
+  100% { transform: scaleX(1); }
+}
+@keyframes ffSailBob {
+  0%, 100% { transform: translateY(0) rotate(-1.4deg); }
+  50% { transform: translateY(2px) rotate(1.6deg); }
+}

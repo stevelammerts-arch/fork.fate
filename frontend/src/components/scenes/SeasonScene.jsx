@@ -83,6 +83,13 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
           <div className="ff-sea-wave ff-sea-wave-a" />
           <div className="ff-sea-wave ff-sea-wave-b" />
         </div>
+        {/* tiny sailboat tacking slowly back and forth along the horizon —
+            faces right on the outbound leg, flips for the return */}
+        <div className="absolute left-[4%] z-[1]" style={{ top: "41.5%", animation: "ffSailVoyage 100s ease-in-out infinite" }} data-testid="summer-sailboat">
+          <div style={{ animation: "ffSailTack 100s step-end infinite" }}>
+            <img src="/summer-sailboat.png" alt="" className="w-9 opacity-85 sm:w-10" style={{ animation: "ffSailBob 4.6s ease-in-out infinite", transformOrigin: "50% 88%" }} />
+          </div>
+        </div>
         <div className="absolute inset-x-0" style={{ top: "63.5%", height: "2.4%", background: "linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.9) 55%,rgba(255,255,255,0) 100%)", filter: "blur(1.5px)" }} />
         <div className="absolute inset-x-0" style={{ top: "65%", height: "5%", background: "linear-gradient(180deg,rgba(196,168,110,0.55),rgba(196,168,110,0))" }} />
       </>)}
