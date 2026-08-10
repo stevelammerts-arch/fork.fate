@@ -2394,3 +2394,28 @@ Tested iteration_62.json — 100% after one fix. Frontend-only changes.
   responder/challenger/dedupe/spectator, pages regression.
 - Note: 'rival shows The challenged' observation = curl omitted name (backend
   default), NOT a bug.
+
+## 2026-02 (fork) part 104: Duel Rematch + Share Verdict (FF_BUILD 408)
+Tested iteration_63.json — 100%, zero issues, no tester code changes.
+1. DUEL REMATCH (Duel.jsx): rematch() spins a fresh pick from the SAME
+   duel.search grounds (shared searchBody() helper with spinMine), POSTs a
+   new duel (challenger name carried over from this device's side), sets
+   ff_duel_mine_<newcode>, share-sheet/clipboard, navigates /d/<newcode>.
+   Button duel-rematch-button shows for participants only (isMine ||
+   answeredHere, both now component-level consts); label 'Run it back' when
+   this side won, 'Demand a rematch' when it lost (myRole/iWon derivation).
+   NEW useEffect [code] resets duel/status/celebratedRef so rematch
+   navigation starts clean (no stale verdict, no duplicate record).
+2. SHARE VERDICT: buildDuelShareImage(duel) in lib/shareCards.js — 1080px
+   square canvas brag card (both panels, fate-scores, gold crown polygon over
+   winner, VS medallion, 'Fate favors X!', fork-fate.com). shareVerdict()
+   button duel-share-verdict -> shareImage() (Web Share, download fallback +
+   'Verdict card saved!' toast). Sample card saved at
+   /app/test_reports/screenshots/iter63/forkfate-duel.png.
+- ES translations added. FF_BUILD -> 2026.06-408.
+- User asked how to see visitor locations: GA4 already wired
+  (G-4E739B8J0H in index.html) — pointed to Reports > Realtime map +
+  Demographic details (country/city). Offered optional in-app admin
+  geo-analytics panel (GA4 Data API) — NOT built, awaiting user interest.
+- REMINDER pendings: IARC cert ID from user; Play closed test hits 14 days
+  ~Feb 15 (was 7/14 on user's screenshot this week).

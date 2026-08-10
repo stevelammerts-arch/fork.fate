@@ -686,6 +686,14 @@ export const ES = {
   "W": "V",
   "L": "D",
   "vs": "vs",
+  "Run it back": "Otra ronda",
+  "Demand a rematch": "Exige la revancha",
+  "Dealing a new hand…": "Repartiendo una nueva mano…",
+  "Rematch! Fate dealt me a new hand — your move:": "¡Revancha! El destino me repartió una nueva mano — tu turno:",
+  "Share the verdict": "Comparte el veredicto",
+  "Building card…": "Creando la tarjeta…",
+  "Verdict card saved!": "¡Tarjeta del veredicto guardada!",
+  "Fate has spoken — think you can beat my pick? Duel me on Fork·Fate:": "El destino ha hablado — ¿crees que puedes superar mi elección? Rétame en Fork·Fate:",
 };
 
 const DICTS = { es: ES };

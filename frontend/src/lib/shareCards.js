@@ -155,6 +155,103 @@ export async function buildJournalShareImage(stats, streak) {
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
 
+/** Fate Duel verdict brag card: both picks, both fate-scores, crowned winner. */
+export async function buildDuelShareImage(duel) {
+  const S = 1080;
+  const canvas = document.createElement("canvas");
+  canvas.width = S; canvas.height = S;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = BG; ctx.fillRect(0, 0, S, S);
+  ctx.fillStyle = RED; ctx.fillRect(0, 0, S, 10);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = GOLD_LIGHT;
+  ctx.font = "700 64px Georgia, serif";
+  ctx.fillText("FATE DUEL", S / 2, 118);
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  ctx.font = "700 26px Arial, sans-serif";
+  ctx.fillText("TWO MORTALS. ONE LOCATION. ONE WINNER.", S / 2, 168);
+
+  const v = duel.verdict || {};
+  const panels = [
+    { name: duel.challenger || "The challenger", pick: duel.challenger_pick, score: v.challenger_score, won: v.winner === "challenger", x: 70 },
+    { name: duel.responder || "The challenged", pick: duel.responder_pick, score: v.responder_score, won: v.winner === "responder", x: S / 2 + 20 },
+  ];
+  const pw = S / 2 - 90, py = 250, ph = 520;
+
+  panels.forEach((p) => {
+    roundRect(ctx, p.x, py, pw, ph, 24);
+    ctx.fillStyle = p.won ? "rgba(230,178,58,0.10)" : "rgba(255,255,255,0.045)";
+    ctx.fill();
+    ctx.strokeStyle = p.won ? GOLD : "rgba(255,255,255,0.18)";
+    ctx.lineWidth = p.won ? 5 : 2;
+    ctx.stroke();
+
+    const cx = p.x + pw / 2;
+    if (p.won) {
+      // Simple crown above the winning panel.
+      ctx.fillStyle = GOLD;
+      const cw = 84, chh = 52, bx = cx - cw / 2, by = py - 74;
+      ctx.beginPath();
+      ctx.moveTo(bx, by + chh);
+      ctx.lineTo(bx, by + 14);
+      ctx.lineTo(bx + cw * 0.25, by + chh * 0.55);
+      ctx.lineTo(bx + cw * 0.5, by);
+      ctx.lineTo(bx + cw * 0.75, by + chh * 0.55);
+      ctx.lineTo(bx + cw, by + 14);
+      ctx.lineTo(bx + cw, by + chh);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.font = "700 24px Arial, sans-serif";
+    const nm = p.name.length > 18 ? `${p.name.slice(0, 17)}…` : p.name;
+    ctx.fillText(nm.toUpperCase(), cx, py + 64);
+
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "700 42px Georgia, serif";
+    const lines = wrapLines(ctx, p.pick?.name || "?", pw - 60);
+    lines.forEach((ln, li) => ctx.fillText(ln, cx, py + 150 + li * 52));
+
+    if (p.pick?.cuisine) {
+      ctx.fillStyle = "rgba(255,255,255,0.5)";
+      ctx.font = "600 28px Arial, sans-serif";
+      ctx.fillText(p.pick.cuisine, cx, py + 282);
+    }
+
+    ctx.fillStyle = p.won ? GOLD : "rgba(255,255,255,0.65)";
+    ctx.font = "700 108px Georgia, serif";
+    ctx.fillText(p.score != null ? p.score.toFixed(1) : "—", cx, py + 430);
+    ctx.fillStyle = "rgba(255,255,255,0.4)";
+    ctx.font = "700 22px Arial, sans-serif";
+    ctx.fillText("FATE-SCORE", cx, py + 470);
+  });
+
+  // Center VS medallion.
+  ctx.beginPath();
+  ctx.arc(S / 2, py + ph / 2, 56, 0, Math.PI * 2);
+  ctx.fillStyle = BG; ctx.fill();
+  ctx.strokeStyle = RED; ctx.lineWidth = 4; ctx.stroke();
+  ctx.fillStyle = RED;
+  ctx.font = "700 44px Georgia, serif";
+  ctx.fillText("VS", S / 2, py + ph / 2 + 16);
+
+  const winner = v.winner === "challenger" ? panels[0].name : panels[1].name;
+  ctx.fillStyle = GOLD;
+  ctx.font = "700 54px Georgia, serif";
+  ctx.fillText(`Fate favors ${winner}!`, S / 2, 880);
+  ctx.fillStyle = "rgba(255,255,255,0.5)";
+  ctx.font = "italic 600 30px Georgia, serif";
+  ctx.fillText("The Reaper has spoken.", S / 2, S - 92);
+  ctx.fillStyle = GOLD;
+  ctx.font = "700 24px Georgia, serif";
+  ctx.fillText("fork-fate.com", S / 2, S - 40);
+
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+}
+
 /** Native share when possible, silent download otherwise.
  * Returns "shared" | "downloaded" | null (user cancelled). */
 export async function shareImage(blob, filename, text) {

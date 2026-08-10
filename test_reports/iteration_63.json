@@ -1,0 +1,24 @@
+{
+  "summary": "Frontend-only testing of Duel Rematch + Share Verdict features on /d/:code. All 6 scenarios verified end-to-end against the live preview backend. Spectator view hides rematch button. Loser (challenger) rematch label='Demand a rematch'; winner (responder) label='Run it back'. Clicking rematch POSTs a fresh duel with same search context (zip 10001), inherits challenger name, navigates to /d/<newcode>, shows waiting panel with a real Google Places pick (e.g. 'Death Ave', 'queensyard'), sets ff_duel_mine_<newcode>=1, no old verdict flash, no duplicate ff_duel_record entries. Share the verdict downloads forkfate-duel.png (121KB PNG saved to /app/test_reports/screenshots/iter63/forkfate-duel.png) and toasts 'Verdict card saved!'. Responder respond regression still yields verdict + ff_duel_record entry. Zero console/page errors across all runs.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/screenshots/iter63/verdict_with_rematch.png",
+    "/app/test_reports/screenshots/iter63/forkfate-duel.png"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "shareCards.js buildDuelShareImage: p.name.length>18 truncates via slice(0,17)+ellipsis but the length check uses UTF-16 code units; long emoji-containing names may split surrogate pairs. Minor cosmetic.",
+    "Duel.jsx rematch(): uses `duel.responder || localStorage.getItem('ff_duel_name')` as myName when isMine=false; if a device replayed a spectator-turned-responder path without setting ff_duel_name, fallback is 'A challenger' — acceptable but consider persisting responder name at respond time (already done via ff_duel_name in spinMine)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "seed_data_creation": "Minted duels via API for testing: 55ESA6 (rematch child of G4E3JH), 4KH3YK (Alice vs Bob, challenger wins), 4Y643Y (Bob's responder-side rematch child), 3UQFSW (Zed vs Regression Bob respond regression), DK8Y8S/4DCJZF (winner-label check where responder wins).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Duel rematch + share-verdict features are fully functional as of FF_BUILD 2026.06-408. Settled reference duel G4E3JH still exists. When testing rematch flows, always set ff_duel_mine_<CODE> or ff_duel_answered_<CODE> in localStorage BEFORE reload (page reads them on render). Web Share API is not available in headless Chromium, so shareImage() falls through to the download fallback + toast — use page.expect_download() to capture the PNG. Sonner toasts appear in DOM text after ~500ms."
+}

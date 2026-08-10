@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { ArrowLeft, Swords, Crown, Dices, MapPin, Link2, Skull } from "lucide-react";
+import { ArrowLeft, Swords, Crown, Dices, MapPin, Link2, Skull, ImageDown, RefreshCcw } from "lucide-react";
 import { recordDuelOutcome } from "../lib/duelRecord";
+import { buildDuelShareImage, shareImage } from "../lib/shareCards";
 import { useLang } from "../i18n/i18n";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -59,12 +60,23 @@ function DuelCard({ label, name, pick, score, winner, revealed, testid }) {
 export default function Duel() {
   const { t } = useLang();
   const { code } = useParams();
+  const navigate = useNavigate();
   const [duel, setDuel] = useState(null);
   const [status, setStatus] = useState("loading"); // loading | missing | ready
   const [name, setName] = useState(() => localStorage.getItem("ff_duel_name") || "");
   const [spinning, setSpinning] = useState(false);
+  const [rematching, setRematching] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const celebratedRef = useRef(false);
   const isMine = !!localStorage.getItem(`ff_duel_mine_${(code || "").toUpperCase()}`);
+  const answeredHere = !!localStorage.getItem(`ff_duel_answered_${(code || "").toUpperCase()}`);
+
+  // A rematch navigates to a fresh /d/<code> — reset everything for it.
+  useEffect(() => {
+    setDuel(null);
+    setStatus("loading");
+    celebratedRef.current = false;
+  }, [code]);
 
   const load = useCallback(async () => {
     try {
@@ -91,31 +103,33 @@ export default function Duel() {
   useEffect(() => {
     if (!duel?.verdict || celebratedRef.current) return;
     celebratedRef.current = true;
-    const answeredHere = !!localStorage.getItem(`ff_duel_answered_${(code || "").toUpperCase()}`);
     if (isMine) recordDuelOutcome(duel, "challenger");
     else if (answeredHere) recordDuelOutcome(duel, "responder");
     try {
       confetti({ particleCount: 120, spread: 85, startVelocity: 42, origin: { x: 0.5, y: 0.6 }, colors: ["#E6B23A", "#E01E26", "#FFFFFF"] });
     } catch { /* canvas unavailable */ }
-  }, [duel, code, isMine]);
+  }, [duel, code, isMine, answeredHere]);
+
+  const searchBody = () => {
+    const search = duel.search || {};
+    return {
+      zip_code: search.zip_code || null,
+      place_query: search.place_query || null,
+      lat: search.lat ?? null,
+      lng: search.lng ?? null,
+      cuisines: search.cuisines || [],
+      price_levels: search.price_levels || [],
+      category: search.category || "food",
+      open_now: !!search.open_now,
+      radius_miles: search.radius_miles || 15,
+    };
+  };
 
   const spinMine = async () => {
     if (spinning) return;
     setSpinning(true);
     try {
-      const search = duel.search || {};
-      const body = {
-        zip_code: search.zip_code || null,
-        place_query: search.place_query || null,
-        lat: search.lat ?? null,
-        lng: search.lng ?? null,
-        cuisines: search.cuisines || [],
-        price_levels: search.price_levels || [],
-        category: search.category || "food",
-        open_now: !!search.open_now,
-        radius_miles: search.radius_miles || 15,
-      };
-      const { data } = await axios.post(`${API}/places/search`, body);
+      const { data } = await axios.post(`${API}/places/search`, searchBody());
       const pool = (data.restaurants || []).filter(
         (r) => r.name !== duel.challenger_pick?.name
       );
@@ -161,8 +175,63 @@ export default function Duel() {
     } catch { /* share sheet cancelled */ }
   };
 
+  // REMATCH: fate deals THIS device a fresh hand at the same grounds, mints a
+  // new duel with the same search context, and sends the rival the new link.
+  const rematch = async () => {
+    if (rematching) return;
+    setRematching(true);
+    try {
+      const { data } = await axios.post(`${API}/places/search`, searchBody());
+      const all = data.restaurants || [];
+      if (!all.length) {
+        toast.error(t("Fate found nothing near the duel grounds — try again in a moment"));
+        setRematching(false);
+        return;
+      }
+      const pick = all[Math.floor(Math.random() * all.length)];
+      const myName = (isMine ? duel.challenger : duel.responder) || localStorage.getItem("ff_duel_name") || "A challenger";
+      const { data: created } = await axios.post(`${API}/duels`, {
+        challenger: myName,
+        pick: {
+          id: pick.id || "",
+          name: pick.name,
+          cuisine: pick.cuisine || "",
+          address: pick.address || "",
+          image: pick.photo_url || pick.image || "",
+        },
+        search: duel.search || null,
+      });
+      try { localStorage.setItem(`ff_duel_mine_${created.code}`, "1"); } catch (e) { /* ignore */ }
+      const url = `${window.location.origin}/d/${created.code}`;
+      try {
+        if (navigator.share) await navigator.share({ title: "Fate Duel", text: t("Rematch! Fate dealt me a new hand — your move:"), url });
+        else { await navigator.clipboard.writeText(url); toast.success(t("Duel link copied — send it to your rival!")); }
+      } catch (e) { /* share sheet cancelled */ }
+      navigate(`/d/${created.code}`);
+    } catch (e) {
+      toast.error(t("Fate stumbled — try again"));
+    }
+    setRematching(false);
+  };
+
+  // Bragging card: both picks + fate-scores + crowned winner, as a PNG.
+  const shareVerdict = async () => {
+    if (sharing || !duel?.verdict) return;
+    setSharing(true);
+    try {
+      const blob = await buildDuelShareImage(duel);
+      const out = await shareImage(blob, "forkfate-duel.png", t("Fate has spoken — think you can beat my pick? Duel me on Fork·Fate:"));
+      if (out === "downloaded") toast.success(t("Verdict card saved!"));
+    } catch (e) {
+      toast.error(t("Couldn't build the share image"));
+    }
+    setSharing(false);
+  };
+
   const v = duel?.verdict;
   const winnerName = v ? (v.winner === "challenger" ? duel.challenger : duel.responder) : null;
+  const myRole = isMine ? "challenger" : answeredHere ? "responder" : null;
+  const iWon = v && myRole ? v.winner === myRole : null;
 
   return (
     <div className="min-h-screen bg-[#0B0B0D] px-6 py-10 text-white md:px-12" data-testid="duel-page">
@@ -228,9 +297,30 @@ export default function Duel() {
                 <p className="mt-1 font-sans text-sm text-white/60">
                   {v.winner === "challenger" ? duel.challenger_pick?.name : duel.responder_pick?.name} {t("carries the higher fate-score. The Reaper has spoken.")}
                 </p>
-                <Link to="/" className="mt-4 inline-block rounded-full bg-[#E01E26] px-6 py-2.5 font-sans text-sm font-bold text-white" data-testid="duel-deal-own">
-                  {t("Deal your own fate")}
-                </Link>
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
+                  <button
+                    onClick={shareVerdict}
+                    disabled={sharing}
+                    data-testid="duel-share-verdict"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#E6B23A] px-5 py-2.5 font-sans text-sm font-bold text-[#0B0B0D] transition-colors hover:bg-[#F3D9A0] disabled:opacity-60"
+                  >
+                    <ImageDown className="h-4 w-4" /> {sharing ? t("Building card…") : t("Share the verdict")}
+                  </button>
+                  {(isMine || answeredHere) && (
+                    <button
+                      onClick={rematch}
+                      disabled={rematching}
+                      data-testid="duel-rematch-button"
+                      className="inline-flex items-center gap-2 rounded-full border-2 border-[#E01E26] px-5 py-2.5 font-sans text-sm font-bold text-[#FF6B71] transition-colors hover:bg-[#E01E26]/10 disabled:opacity-60"
+                    >
+                      <RefreshCcw className={`h-4 w-4 ${rematching ? "animate-spin" : ""}`} />
+                      {rematching ? t("Dealing a new hand…") : iWon ? t("Run it back") : t("Demand a rematch")}
+                    </button>
+                  )}
+                  <Link to="/" className="inline-block rounded-full border border-white/20 px-5 py-2.5 font-sans text-sm font-bold text-white/80 transition-colors hover:bg-white/10" data-testid="duel-deal-own">
+                    {t("Deal your own fate")}
+                  </Link>
+                </div>
               </div>
             )}
 
