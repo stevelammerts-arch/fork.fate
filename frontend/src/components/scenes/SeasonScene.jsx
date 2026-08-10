@@ -26,6 +26,7 @@ const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => ({
 // rest sweep wide and lazy. Negative delays pre-populate the sky on load.
 const PETALS = Array.from({ length: 24 }).map((_, i) => {
   const tight = i % 3 === 2;
+  const white = i % 4 === 1; // a sprinkle of pale petals for contrast
   return {
     left: `${(i * 37 + 6) % 94}%`,
     size: 15 + (i % 4) * 5,
@@ -35,6 +36,8 @@ const PETALS = Array.from({ length: 24 }).map((_, i) => {
     sy: tight ? "1.4vh" : "2.8vh",
     delay: -((i * 2.9) % 20),
     swingDelay: -((i * 1.7) % 6),
+    src: white ? "/petal-white.png" : "/petal-pink.png",
+    op: white ? 0.75 : 0.6,
   };
 });
 
@@ -252,7 +255,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
         // span = side-to-side C-arc swing, img = edge-on flutter
         <span key={`petal-${i}`} className="absolute top-0" data-testid={i === 0 ? "spring-petal" : undefined} style={{ left: p.left, animation: `ffPetalFall ${p.fall}s linear ${p.delay}s infinite` }}>
           <span className="inline-block" style={{ "--sx": p.sx, "--sy": p.sy, animation: `ffPetalSwing ${p.swing}s linear ${p.swingDelay}s infinite` }}>
-            <img src="/petal-pink.png" alt="" className="opacity-60" style={{ width: p.size, height: p.size, animation: `ffPetalRock ${2.8 + (i % 3)}s ease-in-out infinite` }} />
+            <img src={p.src} alt="" style={{ width: p.size, height: p.size, opacity: p.op, animation: `ffPetalRock ${2.8 + (i % 3)}s ease-in-out infinite` }} />
           </span>
         </span>
       ))}
