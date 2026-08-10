@@ -58,7 +58,7 @@ export const SEASONS = {
   spring: {
     grad: "linear-gradient(180deg,#F3FBEF 0%,#FBEFF5 55%,#EFF7E6 100%)",
     tree: "/spring-tree.png", treeBig: true, ground: "/spring-ground2.png", decorLeft: "/spring-decor.png", decorLeftBig: true, rabbits: "/spring-rabbit.png",
-    items: ["/blossom-pink.png", "/blossom-white.png", "/petal-pink.png"], falling: true, hint: "#D46A9F",
+    items: ["/blossom-pink.png", "/blossom-white.png", "/petal-pink.png"], falling: true, petalFeather: true, hint: "#D46A9F",
   },
   summer: {
     grad: "linear-gradient(180deg,#8FC4E8 0%,#A9D3EC 26%,#F7D9A8 40%,#FFBE7D 45%,#5FB8D9 62%,#F7E3B0 62%,#EDD49B 100%)",
@@ -166,22 +166,22 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
       ))}
       {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className={`absolute bottom-0 left-0 object-contain opacity-[0.32] sm:left-[2%] ${cfg.decorLeftZ || ""} ${cfg.decorLeftW ? cfg.decorLeftW : (cfg.decorLeftBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-42vw] max-w-sm sm:w-[26vw]")}`} style={cfg.decorLeftOpacity ? { opacity: cfg.decorLeftOpacity } : undefined} />}
       {cfg.rabbits && (<>
-        {/* two tiny cottontails: legs gathered on the ground, stretched only
-            mid-hop, rearing up on their haunches for a look around mid-pause */}
+        {/* two tiny cottontails, three photo frames each: legs gathered on
+            the ground, stretched mid-hop, and standing UPRIGHT for mid-pause
+            look-arounds and turns (the mirror flip hides behind the
+            camera-facing pose, so turning reads as sit-up-spin-drop) */}
         <div className="absolute bottom-[2.5%] left-[14%] z-[3]" style={{ animation: "ffRabbitPatrol 18s linear infinite" }} data-testid="spring-rabbit-1">
-          <div style={{ animation: "ffRabbitSitUp 18s linear infinite", transformOrigin: "62% 100%" }}>
-            <div className="relative" style={{ animation: "ffRabbitGait 18s linear infinite", transformOrigin: "50% 100%" }}>
-              <img src="/spring-rabbit-sit.png" alt="" className="w-10 opacity-95 sm:w-12" style={{ animation: "ffRabbitGround 18s linear infinite" }} />
-              <img src={cfg.rabbits} alt="" className="absolute inset-0 w-10 opacity-95 sm:w-12" style={{ animation: "ffRabbitAir 18s linear infinite" }} />
-            </div>
+          <div className="relative" style={{ animation: "ffRabbitGait 18s linear infinite", transformOrigin: "50% 100%" }}>
+            <img src="/spring-rabbit-sit.png" alt="" className="w-10 opacity-95 sm:w-12" style={{ animation: "ffRabbitGround 18s linear infinite" }} />
+            <img src={cfg.rabbits} alt="" className="absolute inset-0 w-10 opacity-95 sm:w-12" style={{ animation: "ffRabbitAir 18s linear infinite" }} />
+            <img src="/spring-rabbit-up.png" alt="" className="absolute bottom-0 left-1/2 opacity-95" style={{ width: "30%", transform: "translateX(-50%)", animation: "ffRabbitUpright 18s linear infinite" }} />
           </div>
         </div>
         <div className="absolute bottom-[5%] right-[30%] z-[3]" style={{ animation: "ffRabbitPatrolL 20s linear infinite", animationDelay: "2.5s" }} data-testid="spring-rabbit-2">
-          <div style={{ animation: "ffRabbitSitUp 20s linear infinite", animationDelay: "2.5s", transformOrigin: "62% 100%" }}>
-            <div className="relative" style={{ animation: "ffRabbitGait 20s linear infinite", animationDelay: "2.5s", transformOrigin: "50% 100%" }}>
-              <img src="/spring-rabbit-sit.png" alt="" className="w-8 opacity-90 sm:w-10" style={{ animation: "ffRabbitGround 20s linear infinite", animationDelay: "2.5s" }} />
-              <img src={cfg.rabbits} alt="" className="absolute inset-0 w-8 opacity-90 sm:w-10" style={{ animation: "ffRabbitAir 20s linear infinite", animationDelay: "2.5s" }} />
-            </div>
+          <div className="relative" style={{ animation: "ffRabbitGait 20s linear infinite", animationDelay: "2.5s", transformOrigin: "50% 100%" }}>
+            <img src="/spring-rabbit-sit.png" alt="" className="w-8 opacity-90 sm:w-10" style={{ animation: "ffRabbitGround 20s linear infinite", animationDelay: "2.5s" }} />
+            <img src={cfg.rabbits} alt="" className="absolute inset-0 w-8 opacity-90 sm:w-10" style={{ animation: "ffRabbitAir 20s linear infinite", animationDelay: "2.5s" }} />
+            <img src="/spring-rabbit-up.png" alt="" className="absolute bottom-0 left-1/2 opacity-90" style={{ width: "30%", transform: "translateX(-50%)", animation: "ffRabbitUpright 20s linear infinite", animationDelay: "2.5s" }} />
           </div>
         </div>
       </>)}
@@ -230,7 +230,13 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
       </>)}
       {cfg.moon && <div className="absolute top-[6%] left-[24%] z-[1] aspect-square w-[24vw] rounded-full sm:left-[27%] sm:w-[14vw]" style={{ background: "radial-gradient(circle at 42% 40%, #FCF4DA 0%, #EDDCAB 60%, #D6C084 100%)", boxShadow: "0 0 90px 34px rgba(255,240,205,0.38), 0 0 44px 14px rgba(255,246,222,0.55)", opacity: 0.6 }} />}
       {cfg.owl && <img src={cfg.owl} alt="" className="absolute top-[13%] left-[30%] z-[2] w-[13vw] max-w-[150px] object-contain opacity-[0.72] sm:w-[9vw]" />}
-      {cfg.falling && FALLING_SPRITES.map((l, i) => {
+      {cfg.falling && cfg.petalFeather && FALLING_SPRITES.slice(0, 6).map((l, i) => (
+        // a few lone petals drifting down like feathers: lazy side-to-side
+        // glides with a rocking tilt, not a straight fall
+        <img key={`petal-${l.left}-${i}`} src="/petal-pink.png" alt="" className="absolute top-0 opacity-50"
+          style={{ left: l.left, width: l.size * 0.62, height: l.size * 0.62, animation: `ffPetalFeather ${l.dur * 2.4}s ease-in-out ${l.delay}s infinite` }} />
+      ))}
+      {cfg.falling && !cfg.petalFeather && FALLING_SPRITES.map((l, i) => {
         const src = cfg.items[i % cfg.items.length];
         const s = src.includes("petal") ? l.size * 0.58 : l.size; // lone petals fall smaller than whole blossoms
         return (

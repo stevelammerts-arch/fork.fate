@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Search, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, ArrowDownWideNarrow, Flame, Users, Beer, Trophy, UtensilsCrossed, ChevronDown, Mountain, Tent, Stamp, Globe2, Sparkles, Crown, BookOpen } from "lucide-react";
+import { Dices, Search, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, ArrowDownWideNarrow, Flame, Users, Beer, Trophy, UtensilsCrossed, ChevronDown, Mountain, Tent, Stamp, Globe2, Sparkles, Crown, BookOpen, Eye, EyeOff } from "lucide-react";
 import Filters from "../components/Filters";
 import { RestaurantCard } from "../components/RestaurantCard";
 import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
@@ -213,6 +213,24 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [showGuided, setShowGuided] = useState(true);
+
+  // SCENERY MODE: fades every card/pill/word below the header so the realm
+  // (heists, companions, sailboat…) can be admired. Session-only by design.
+  const [scenery, setScenery] = useState(false);
+  const toggleScenery = () => {
+    setScenery((s) => {
+      const on = !s;
+      if (on) {
+        try {
+          if (!localStorage.getItem("ff_scenery_tip")) {
+            localStorage.setItem("ff_scenery_tip", "1");
+            toast(t("Enjoy the view — tap the eye to bring everything back"));
+          }
+        } catch (e) { /* storage unavailable */ }
+      }
+      return on;
+    });
+  };
   const [muted, setMuted] = useState(() => {
     try { return localStorage.getItem("ff_muted") === "1"; } catch { return false; }
   });
@@ -1037,6 +1055,21 @@ export default function Home() {
         setSponsorOpen={setSponsorOpen}
       />
 
+      {/* SCENERY MODE eye: floats above everything; the wrapper below fades */}
+      <button
+        onClick={toggleScenery}
+        data-testid="scenery-toggle"
+        aria-label={scenery ? "Bring the interface back" : "Hide the interface to enjoy the scenery"}
+        className={`fixed bottom-5 right-5 z-[75] grid h-11 w-11 place-items-center rounded-full border backdrop-blur-sm transition-all duration-300 ${scenery
+          ? "border-white/30 bg-black/30 text-white/80 opacity-60 hover:opacity-100"
+          : light
+          ? "border-[#E2E4E7] bg-white/85 text-[#6B7075] shadow-sm hover:text-[#0E0E0E]"
+          : "border-white/15 bg-black/40 text-white/60 hover:text-white"}`}
+      >
+        {scenery ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+      </button>
+
+      <div className={`ff-scenery-fade ${scenery ? "ff-scenery-hide" : ""}`} data-testid="scenery-wrap">
       <div className="relative z-40">
         <SponsorMarquee light={light} onSponsor={() => setSponsorOpen(true)} />
       </div>
@@ -1506,6 +1539,7 @@ export default function Home() {
       <HomeInfoSections light={light} onSponsor={() => setSponsorOpen(true)} />
 
       <HomeFooter light={light} />
+      </div>
     </div>
   );
 }

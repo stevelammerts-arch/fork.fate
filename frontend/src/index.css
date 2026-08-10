@@ -1356,9 +1356,8 @@ body {
   29.2%{ transform: translateX(19.8vw) translateY(-7px) scaleX(1); }
   30.6%{ transform: translateX(22vw) translateY(0) scaleX(1); }
   47%{ transform: translateX(22vw) translateY(0) scaleX(1); }
-  48%{ transform: translateX(22vw) translateY(-6px) scaleX(0.6); }
-  48.5%{ transform: translateX(22vw) translateY(-7px) scaleX(0.05); }
-  49%{ transform: translateX(22vw) translateY(-6px) scaleX(-0.6); }
+  48.4%{ transform: translateX(22vw) translateY(0) scaleX(1); }
+  48.6%{ transform: translateX(22vw) translateY(0) scaleX(-1); }
   50%{ transform: translateX(22vw) translateY(0) scaleX(-1); }
   51.4%{ transform: translateX(19.8vw) translateY(-7px) scaleX(-1); }
   52.8%{ transform: translateX(17.6vw) translateY(0) scaleX(-1); }
@@ -1372,9 +1371,8 @@ body {
   79.2%{ transform: translateX(2.2vw) translateY(-7px) scaleX(-1); }
   80.6%{ transform: translateX(0) translateY(0) scaleX(-1); }
   97%{ transform: translateX(0) translateY(0) scaleX(-1); }
-  98.6%{ transform: translateX(0) translateY(-6px) scaleX(-0.6); }
-  99%{ transform: translateX(0) translateY(-7px) scaleX(-0.05); }
-  99.4%{ transform: translateX(0) translateY(-6px) scaleX(0.6); }
+  98.4%{ transform: translateX(0) translateY(0) scaleX(-1); }
+  98.6%{ transform: translateX(0) translateY(0) scaleX(1); }
   100%{ transform: translateX(0) translateY(0) scaleX(1); }
 }
 @keyframes ffRabbitPatrolL{
@@ -1391,9 +1389,8 @@ body {
   29.2%{ transform: translateX(-19.8vw) translateY(-7px) scaleX(-1); }
   30.6%{ transform: translateX(-22vw) translateY(0) scaleX(-1); }
   47%{ transform: translateX(-22vw) translateY(0) scaleX(-1); }
-  48%{ transform: translateX(-22vw) translateY(-6px) scaleX(-0.6); }
-  48.5%{ transform: translateX(-22vw) translateY(-7px) scaleX(-0.05); }
-  49%{ transform: translateX(-22vw) translateY(-6px) scaleX(0.6); }
+  48.4%{ transform: translateX(-22vw) translateY(0) scaleX(-1); }
+  48.6%{ transform: translateX(-22vw) translateY(0) scaleX(1); }
   50%{ transform: translateX(-22vw) translateY(0) scaleX(1); }
   51.4%{ transform: translateX(-19.8vw) translateY(-7px) scaleX(1); }
   52.8%{ transform: translateX(-17.6vw) translateY(0) scaleX(1); }
@@ -1407,9 +1404,8 @@ body {
   79.2%{ transform: translateX(-2.2vw) translateY(-7px) scaleX(1); }
   80.6%{ transform: translateX(0) translateY(0) scaleX(1); }
   97%{ transform: translateX(0) translateY(0) scaleX(1); }
-  98%{ transform: translateX(0) translateY(-6px) scaleX(0.6); }
-  98.5%{ transform: translateX(0) translateY(-7px) scaleX(0.05); }
-  99%{ transform: translateX(0) translateY(-6px) scaleX(-0.6); }
+  98.4%{ transform: translateX(0) translateY(0) scaleX(1); }
+  98.6%{ transform: translateX(0) translateY(0) scaleX(-1); }
   100%{ transform: translateX(0) translateY(0) scaleX(-1); }
 }
 /* Rabbit gait + sniff: body stretches at each leap apex (legs out) and
@@ -2317,19 +2313,90 @@ body.ff-badge-open .ff-theme-scene * {
   0.6%,2.2%,3.4%,5%,6.2%,7.8%,25.6%,27.2%,28.4%,30%,50.6%,52.2%,53.4%,55%,56.2%,57.8%,75.6%,77.2%,78.4%,80%{ opacity:1; }
 }
 @keyframes ffRabbitGround{
-  0%,0.4%,2.4%,3.2%,5.2%,6%,8%,25.4%,27.4%,28.2%,30.2%,50.4%,52.4%,53.2%,55.2%,56%,58%,75.4%,77.4%,78.2%,80.2%,100%{ opacity:1; }
-  0.6%,2.2%,3.4%,5%,6.2%,7.8%,25.6%,27.2%,28.4%,30%,50.6%,52.2%,53.4%,55%,56.2%,57.8%,75.6%,77.2%,78.4%,80%{ opacity:0; }
+  0%{ opacity:0; }
+  2.3%{ opacity:0; }
+  2.5%{ opacity:1; }
+  3.3%{ opacity:1; }
+  3.5%{ opacity:0; }
+  5.1%{ opacity:0; }
+  5.3%{ opacity:1; }
+  6.1%{ opacity:1; }
+  6.3%{ opacity:0; }
+  7.9%{ opacity:0; }
+  8.1%{ opacity:1; }
+  12.2%{ opacity:1; }
+  12.8%{ opacity:0; }
+  18.8%{ opacity:0; }
+  19.4%{ opacity:1; }
+  25.5%{ opacity:1; }
+  25.7%{ opacity:0; }
+  27.3%{ opacity:0; }
+  27.5%{ opacity:1; }
+  28.3%{ opacity:1; }
+  28.5%{ opacity:0; }
+  30.1%{ opacity:0; }
+  30.3%{ opacity:1; }
+  47.0%{ opacity:1; }
+  47.6%{ opacity:0; }
+  50.2%{ opacity:0; }
+  50.45%{ opacity:1; }
+  50.6%{ opacity:1; }
+  50.8%{ opacity:0; }
+  52.3%{ opacity:0; }
+  52.5%{ opacity:1; }
+  53.3%{ opacity:1; }
+  53.5%{ opacity:0; }
+  55.1%{ opacity:0; }
+  55.3%{ opacity:1; }
+  56.1%{ opacity:1; }
+  56.3%{ opacity:0; }
+  57.9%{ opacity:0; }
+  58.1%{ opacity:1; }
+  63.0%{ opacity:1; }
+  63.6%{ opacity:0; }
+  69.8%{ opacity:0; }
+  70.4%{ opacity:1; }
+  75.5%{ opacity:1; }
+  75.7%{ opacity:0; }
+  77.3%{ opacity:0; }
+  77.5%{ opacity:1; }
+  78.3%{ opacity:1; }
+  78.5%{ opacity:0; }
+  80.1%{ opacity:0; }
+  80.3%{ opacity:1; }
+  96.9%{ opacity:1; }
+  97.5%{ opacity:0; }
+  100%{ opacity:0; }
 }
-/* Periodic sit-up: mid-pause the rabbit rears up on its haunches for a look
-   around (twice per patrol loop), pivoting off its rump. */
-@keyframes ffRabbitSitUp{
-  0%,12%{ transform: rotate(0deg); }
-  13.2%{ transform: rotate(-32deg); }
-  15.5%{ transform: rotate(-28deg); }
-  18%{ transform: rotate(-32deg); }
-  19.2%,63%{ transform: rotate(0deg); }
-  64.2%{ transform: rotate(-32deg); }
-  66.5%{ transform: rotate(-28deg); }
-  69%{ transform: rotate(-32deg); }
-  70.2%,100%{ transform: rotate(0deg); }
+
+/* Scenery mode: the foreground melts away so the realm can shine. */
+.ff-scenery-fade { transition: opacity 0.6s ease; }
+.ff-scenery-hide { opacity: 0; pointer-events: none; }
+
+/* Spring petals: feather-fall — glide right, stall, glide left, rocking the
+   whole way down like a feather on still air. */
+@keyframes ffPetalFeather{
+  0%   { transform: translate(0, -8vh) rotate(-14deg); opacity: 0; }
+  6%   { opacity: 0.8; }
+  16%  { transform: translate(7vw, 12vh) rotate(16deg); }
+  32%  { transform: translate(-4vw, 30vh) rotate(-18deg); }
+  48%  { transform: translate(8vw, 48vh) rotate(16deg); }
+  64%  { transform: translate(-4vw, 66vh) rotate(-18deg); }
+  80%  { transform: translate(7vw, 84vh) rotate(14deg); }
+  94%  { opacity: 0.65; }
+  100% { transform: translate(-2vw, 106vh) rotate(-12deg); opacity: 0; }
+}
+
+/* Upright frame: shows during the two mid-pause sit-ups AND through each
+   turn — the direction flip happens while the rabbit faces the camera. */
+@keyframes ffRabbitUpright{
+  0%{ opacity:1; }
+  0.6%,11.9%{ opacity:0; }
+  12.5%,19.1%{ opacity:1; }
+  19.7%,46.9%{ opacity:0; }
+  47.5%,50.1%{ opacity:1; }
+  50.7%,62.9%{ opacity:0; }
+  63.5%,69.9%{ opacity:1; }
+  70.5%,96.9%{ opacity:0; }
+  97.5%,100%{ opacity:1; }
 }

@@ -685,6 +685,7 @@ export const ES = {
   "W": "V",
   "L": "D",
   "vs": "vs",
+  "Enjoy the view — tap the eye to bring everything back": "Disfruta la vista — toca el ojo para traerlo todo de vuelta",
   "Run it back": "Otra ronda",
   "Demand a rematch": "Exige la revancha",
   "Dealing a new hand…": "Repartiendo una nueva mano…",
