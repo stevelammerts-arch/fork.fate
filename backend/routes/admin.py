@@ -109,6 +109,38 @@ async def list_feedback():
     return {"feedback": docs, "count": len(docs)}
 
 
+@router.get("/admin/geo-stats", dependencies=[Depends(require_admin)])
+async def geo_stats(days: int = 30):
+    """Visitor geography from the anonymous pageview beacon: unique-ish views
+    (one per visitor per 6h) grouped by country and by city."""
+    days = max(0, min(days, 3650))
+    match = {}
+    if days:
+        match = {"ts": {"$gte": datetime.now(timezone.utc) - timedelta(days=days)}}
+    total = await db.pageviews.count_documents(match)
+    countries = await db.pageviews.aggregate([
+        {"$match": match},
+        {"$group": {"_id": "$country", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 30},
+    ]).to_list(30)
+    cities = await db.pageviews.aggregate([
+        {"$match": {**match, "city": {"$ne": ""}}},
+        {"$group": {"_id": {"city": "$city", "region": "$region", "country": "$country"}, "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 20},
+    ]).to_list(20)
+    return {
+        "days": days,
+        "total": total,
+        "countries": [{"name": c["_id"] or "Unknown", "count": c["count"]} for c in countries],
+        "cities": [
+            {"name": c["_id"]["city"], "region": c["_id"].get("region", ""), "country": c["_id"]["country"], "count": c["count"]}
+            for c in cities
+        ],
+    }
+
+
 @router.delete("/admin/feedback/{fid}", dependencies=[Depends(require_admin)])
 async def delete_feedback(fid: str):
     r = await db.feedback.delete_one({"id": fid})

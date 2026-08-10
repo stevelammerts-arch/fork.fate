@@ -11,6 +11,7 @@ import { SubmissionsQueue } from "../components/admin/SubmissionsQueue";
 import { SponsorForm } from "../components/admin/SponsorForm";
 import { SponsorList } from "../components/admin/SponsorList";
 import { FeedbackList } from "../components/admin/FeedbackList";
+import { GeoPanel } from "../components/admin/GeoPanel";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 // Admin session lives in an HttpOnly cookie set by the backend; send it on every request.
@@ -46,6 +47,9 @@ export default function Admin() {
   const [betaTesters, setBetaTesters] = useState([]);
   const [merch, setMerch] = useState({ signups: [], count: 0, by_design: {} });
   const [feedback, setFeedback] = useState([]);
+  const [geo, setGeo] = useState(null);
+  const [geoDays, setGeoDays] = useState(30);
+  const [geoLoading, setGeoLoading] = useState(false);
   const [optInLink, setOptInLink] = useState(() => {
     try { return localStorage.getItem("ff_optin_link") || "https://play.google.com/apps/testing/com.fork_fate.twa"; }
     catch (e) { return "https://play.google.com/apps/testing/com.fork_fate.twa"; }
@@ -174,6 +178,21 @@ export default function Admin() {
       toast.error("Could not delete feedback");
     }
   };
+
+  const loadGeo = useCallback(async (days) => {
+    setGeoLoading(true);
+    try {
+      const { data } = await axios.get(`${API}/admin/geo-stats?days=${days}`, WC);
+      setGeo(data);
+    } catch (e) {
+      if (e.response?.status === 401) logout();
+    }
+    setGeoLoading(false);
+  }, [logout]);
+
+  useEffect(() => {
+    if (authed) loadGeo(geoDays);
+  }, [authed, geoDays, loadGeo]);
 
   // Check for an existing admin session (HttpOnly cookie) on mount.
   useEffect(() => {
@@ -408,6 +427,7 @@ export default function Admin() {
           deleteBeta={deleteBeta}
         />
         <SubmissionsQueue submissions={submissions} approveSubmission={approveSubmission} rejectSubmission={rejectSubmission} />
+        <GeoPanel geo={geo} geoDays={geoDays} setGeoDays={setGeoDays} loading={geoLoading} />
         <FeedbackList feedback={feedback} deleteFeedback={deleteFeedback} />
         <MerchInterest data={merch} />
         <SponsorForm form={form} set={set} saving={saving} addSponsor={addSponsor} />

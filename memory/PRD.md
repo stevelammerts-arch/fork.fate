@@ -2419,3 +2419,28 @@ Tested iteration_63.json — 100%, zero issues, no tester code changes.
   geo-analytics panel (GA4 Data API) — NOT built, awaiting user interest.
 - REMINDER pendings: IARC cert ID from user; Play closed test hits 14 days
   ~Feb 15 (was 7/14 on user's screenshot this week).
+
+## 2026-02 (fork) part 105: Admin Geo Panel (FF_BUILD 409)
+Self-hosted visitor geography (user picked this over GA4 Data API — zero
+setup, collects from deploy onward; GA4 keeps full history for older data).
+Tested: backend pytest tests/test_geo_stats.py 4/4 + curl (count, 6h dedupe,
+401 unauth, days clamp 3650); frontend iteration_64.json 100%.
+1. BEACON: App.js useEffect POSTs /api/stats/pageview once per browser
+   session (sessionStorage ff_pv_sent guard, fetch keepalive).
+2. BACKEND (routes/stats.py bottom): pageview endpoint hashes IP
+   (sha256 'ffgeo:'+ip, first 32 hex — raw IP never stored), dedupes one
+   view per ip_hash per 6h, geolocates via http://ip-api.com/json/{ip}
+   (free, 45/min, server-side; cached 30d in db.geo_cache keyed ip_hash;
+   cf-ipcountry header fallback; private IPs -> Unknown). db.pageviews docs
+   {ip_hash, country, region, city, ts(BSON), expire_at(TTL 180d)}; lazy
+   index creation _ensure_pageview_indexes (stat_dedupe pattern).
+3. ADMIN (routes/admin.py): GET /api/admin/geo-stats?days=N (require_admin,
+   clamp 0..3650, 0=all) -> {days,total,countries[{name,count}] top30,
+   cities[{name,region,country,count}] top20} via aggregation.
+4. FRONTEND: components/admin/GeoPanel.jsx ('Where your visitors are',
+   testids geo-section/-total-badge/-range-7d|30d|90d|all/-countries/
+   -cities/-country-i/-city-i/-empty, red count bars). Admin.jsx: geo/
+   geoDays(default 30)/geoLoading state + loadGeo, panel placed between
+   SubmissionsQueue and FeedbackList.
+- Pod egress IP resolves to Kansas City, Missouri, US (expected test row).
+- FF_BUILD -> 2026.06-409. No new backend deps (httpx already present).

@@ -1,4 +1,5 @@
 import "./App.css";
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Admin from "./pages/Admin";
@@ -22,6 +23,15 @@ import InstallHelper from "./components/InstallHelper";
 import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
+  // Anonymous visitor beacon (once per browser session): feeds the Admin
+  // "Where your visitors are" panel. Server hashes the IP and dedupes per 6h.
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem("ff_pv_sent") === "1") return;
+      sessionStorage.setItem("ff_pv_sent", "1");
+      fetch(`${process.env.REACT_APP_BACKEND_URL}/api/stats/pageview`, { method: "POST", keepalive: true }).catch(() => {});
+    } catch (e) { /* storage/fetch unavailable — non-critical */ }
+  }, []);
   return (
     <div className="App">
       <LangProvider>
