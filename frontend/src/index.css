@@ -2308,3 +2308,28 @@ body.ff-badge-open .ff-theme-scene * {
   0%, 100% { transform: translateY(0) rotate(-1.4deg); }
   50% { transform: translateY(2px) rotate(1.6deg); }
 }
+
+/* Rabbit frame swap: the leap photo shows only mid-hop (airborne windows of
+   ffRabbitPatrol); the gathered-legs frame shows on the ground, during sits
+   and through turns — so the legs visibly move instead of a frozen leap. */
+@keyframes ffRabbitAir{
+  0%,0.4%,2.4%,3.2%,5.2%,6%,8%,25.4%,27.4%,28.2%,30.2%,50.4%,52.4%,53.2%,55.2%,56%,58%,75.4%,77.4%,78.2%,80.2%,100%{ opacity:0; }
+  0.6%,2.2%,3.4%,5%,6.2%,7.8%,25.6%,27.2%,28.4%,30%,50.6%,52.2%,53.4%,55%,56.2%,57.8%,75.6%,77.2%,78.4%,80%{ opacity:1; }
+}
+@keyframes ffRabbitGround{
+  0%,0.4%,2.4%,3.2%,5.2%,6%,8%,25.4%,27.4%,28.2%,30.2%,50.4%,52.4%,53.2%,55.2%,56%,58%,75.4%,77.4%,78.2%,80.2%,100%{ opacity:1; }
+  0.6%,2.2%,3.4%,5%,6.2%,7.8%,25.6%,27.2%,28.4%,30%,50.6%,52.2%,53.4%,55%,56.2%,57.8%,75.6%,77.2%,78.4%,80%{ opacity:0; }
+}
+/* Periodic sit-up: mid-pause the rabbit rears up on its haunches for a look
+   around (twice per patrol loop), pivoting off its rump. */
+@keyframes ffRabbitSitUp{
+  0%,12%{ transform: rotate(0deg); }
+  13.2%{ transform: rotate(-32deg); }
+  15.5%{ transform: rotate(-28deg); }
+  18%{ transform: rotate(-32deg); }
+  19.2%,63%{ transform: rotate(0deg); }
+  64.2%{ transform: rotate(-32deg); }
+  66.5%{ transform: rotate(-28deg); }
+  69%{ transform: rotate(-32deg); }
+  70.2%,100%{ transform: rotate(0deg); }
+}

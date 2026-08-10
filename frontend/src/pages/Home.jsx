@@ -97,7 +97,7 @@ export default function Home() {
   // First-run "Choose your realm" window — appears before the guided ritual's
   // first step; sealed once so returning visitors go straight in.
   const [showThemeWelcome, setShowThemeWelcome] = useState(() => {
-    try { return false && localStorage.getItem("ff_theme_chosen") !== "1"; } catch (e) { return false; }
+    try { return localStorage.getItem("ff_theme_chosen") !== "1"; } catch (e) { return false; }
   });
   const sealThemeChoice = () => {
     setShowThemeWelcome(false);
@@ -212,7 +212,7 @@ export default function Home() {
     } catch (e) { /* malformed share — ignore */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [showGuided, setShowGuided] = useState(false); // TEMP-SCREENSHOT: restore to true
+  const [showGuided, setShowGuided] = useState(true);
   const [muted, setMuted] = useState(() => {
     try { return localStorage.getItem("ff_muted") === "1"; } catch { return false; }
   });

@@ -661,7 +661,6 @@ export const ES = {
   "Your fate is sealed. Waiting for your rival to answer…": "Tu destino está sellado. Esperando a que tu rival responda…",
   "Share the duel link": "Comparte el enlace del duelo",
   "has locked in fate's pick and challenges you. Let fate deal yours for the same grounds.": "ha sellado la elección del destino y te reta. Deja que el destino reparta el tuyo en el mismo territorio.",
-  "Your name": "Tu nombre",
   "Fate is dealing…": "El destino está repartiendo…",
   "Let fate deal mine": "Que el destino reparta el mío",
   "Fate picks from the challenger's location — no peeking, no rerolls.": "El destino elige desde la ubicación del retador — sin mirar, sin repetir.",

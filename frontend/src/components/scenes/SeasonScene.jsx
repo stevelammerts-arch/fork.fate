@@ -166,12 +166,23 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
       ))}
       {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className={`absolute bottom-0 left-0 object-contain opacity-[0.32] sm:left-[2%] ${cfg.decorLeftZ || ""} ${cfg.decorLeftW ? cfg.decorLeftW : (cfg.decorLeftBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-42vw] max-w-sm sm:w-[26vw]")}`} style={cfg.decorLeftOpacity ? { opacity: cfg.decorLeftOpacity } : undefined} />}
       {cfg.rabbits && (<>
-        {/* two tiny cottontails: one patrols the gazebo lawn, one the tree side */}
+        {/* two tiny cottontails: legs gathered on the ground, stretched only
+            mid-hop, rearing up on their haunches for a look around mid-pause */}
         <div className="absolute bottom-[2.5%] left-[14%] z-[3]" style={{ animation: "ffRabbitPatrol 18s linear infinite" }} data-testid="spring-rabbit-1">
-          <img src={cfg.rabbits} alt="" className="w-10 opacity-95 sm:w-12" style={{ animation: "ffRabbitGait 18s linear infinite", transformOrigin: "50% 100%" }} />
+          <div style={{ animation: "ffRabbitSitUp 18s linear infinite", transformOrigin: "62% 100%" }}>
+            <div className="relative" style={{ animation: "ffRabbitGait 18s linear infinite", transformOrigin: "50% 100%" }}>
+              <img src="/spring-rabbit-sit.png" alt="" className="w-10 opacity-95 sm:w-12" style={{ animation: "ffRabbitGround 18s linear infinite" }} />
+              <img src={cfg.rabbits} alt="" className="absolute inset-0 w-10 opacity-95 sm:w-12" style={{ animation: "ffRabbitAir 18s linear infinite" }} />
+            </div>
+          </div>
         </div>
         <div className="absolute bottom-[5%] right-[30%] z-[3]" style={{ animation: "ffRabbitPatrolL 20s linear infinite", animationDelay: "2.5s" }} data-testid="spring-rabbit-2">
-          <img src={cfg.rabbits} alt="" className="w-8 opacity-90 sm:w-10" style={{ animation: "ffRabbitGait 20s linear infinite", animationDelay: "2.5s", transformOrigin: "50% 100%" }} />
+          <div style={{ animation: "ffRabbitSitUp 20s linear infinite", animationDelay: "2.5s", transformOrigin: "62% 100%" }}>
+            <div className="relative" style={{ animation: "ffRabbitGait 20s linear infinite", animationDelay: "2.5s", transformOrigin: "50% 100%" }}>
+              <img src="/spring-rabbit-sit.png" alt="" className="w-8 opacity-90 sm:w-10" style={{ animation: "ffRabbitGround 20s linear infinite", animationDelay: "2.5s" }} />
+              <img src={cfg.rabbits} alt="" className="absolute inset-0 w-8 opacity-90 sm:w-10" style={{ animation: "ffRabbitAir 20s linear infinite", animationDelay: "2.5s" }} />
+            </div>
+          </div>
         </div>
       </>)}
       {cfg.scarecrow && (
