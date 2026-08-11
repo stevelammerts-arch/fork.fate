@@ -2693,3 +2693,10 @@ inside playHeistSound).
 - fantasy = "Rise from the Ashes O Dragon" 0:00-2:03 with 3s fade out (user:
   "Play until 2:03. Fade out") -> /fantasy-ambient.mp3 (123s, 1.9MB).
 - Verified firing on entry. Only Cafe (light) realm remains without a sting.
+
+## 2026-08-11 part 104: Cafe entry sting — FULL SET COMPLETE (FF_BUILD 435)
+- light(cafe) = coffee-shop-jazz 28-54s -> /cafe-ambient.mp3
+- ALL 11 REALMS verified firing their unique entry sting in one sweep:
+  light/cafe, dark/reaper, cyber, steam, tiki, fantasy, fairy, fall, winter,
+  spring, summer. User: "That should be all of them."
+- Reminder given to user: stings are on PREVIEW; production needs a deploy.

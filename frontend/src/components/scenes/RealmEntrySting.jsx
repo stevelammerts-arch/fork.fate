@@ -16,6 +16,7 @@ const STINGS = {
   dark: "/reaper-ambient.mp3",
   steam: "/steam-ambient.mp3",
   fantasy: "/fantasy-ambient.mp3",
+  light: "/cafe-ambient.mp3",
 };
 
 export function RealmEntrySting({ theme }) {
