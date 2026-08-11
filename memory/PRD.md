@@ -2614,3 +2614,27 @@ inside playHeistSound).
 - PIL mock scripts kept: gen_cyber_police.py (superseded by Nano Banana gen).
 - STILL PENDING: "Hot Pursuit" logo-crash heist (chase doubles back across
   header, crashes into logo medallion, new collectible ritual).
+
+## 2026-08-11 part 98: "Hot Pursuit" logo-crash heist SHIPPED (FF_BUILD 429)
+- HotPursuitHeist (realmHeists.jsx), mounted for cfg.cars in AmbianceScene
+  (key hp-heistEpoch). Force event: ff:pursuit-heist. Registered in rituals.js
+  HEISTS (key "pursuit", accent #4078FF) — verified on Collection page.
+- Choreography (all beats verified via scripted browser positions):
+  30ms first pass L->R below medallion (2.3s), 2450 restage offscreen right on
+  medallion line, 2600 return R->L (prey 1.18s bezier(0.4,0,0.9,1) slams into
+  crashX = cx - PW*0.067 flipped-nose; cop 1.9s bezier(0.45,0,0.25,1) stops at
+  crashX + PW*0.95 + 6, clear of wreck), 3750 CRASH (crash SFX, medallion hidden,
+  ffLogoKnockL clone, 14 neon sparks, ffCarSputter + ffPursuitSmoke on wreck),
+  5700 wreck tumbles out of sky (ffCarTumble), 6800 cop peels off left,
+  7400 ffLogoReturn, 8400 witness + reschedule 2.5-5min. First strike 35-60s.
+- AUDIO (user-provided): /police-siren.mp3 = 7s window @17.0s of user's
+  emergency-vehicles-31578 clip (fades + loudnorm); /logo-crash.mp3 = user's
+  car-crash SFX (loudnorm + fade). Played via preloadHeistAudio/playHeistSound;
+  verified siren at dt=1ms, crash at dt=3788ms via HTMLMediaElement.play hook.
+- BUGFIX (pre-existing): CrawlBadgeDialog effect else-branch claimed a 60s heist
+  cooldown on EVERY page load; now gated by wasOpenRef (only after real ceremony).
+- BUGFIX (pre-existing, user's "don't have the police back up"): ambient chase cop
+  regressed on narrow screens — ffChasePursuitRun 30% waypoint 20vw could sit ahead
+  of 48% (44vw-160px) when vw small; both Run/Rev 30% waypoints now pinned relative
+  to the prey line (38vw-190px / 62vw+205px). Monotonic for all viewports.
+- STILL PENDING: IARC rating ID for manifest.json (user hasn't received cert).

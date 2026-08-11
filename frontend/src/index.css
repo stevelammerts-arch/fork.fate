@@ -487,9 +487,9 @@ body {
 }
 @keyframes ffChasePursuitRun{
   0%   { transform: translateX(calc(-30vw - 320px)) translateY(2px); animation-timing-function: cubic-bezier(0.1,0.4,0.4,1); }
-  30%  { transform: translateX(20vw) translateY(-2px); animation-timing-function: ease-out; }
-  48%  { transform: translateX(35vw) translateY(6px); animation-timing-function: linear; }
-  58%  { transform: translateX(41vw) translateY(8px); animation-timing-function: cubic-bezier(0.75,0,0.9,0.5); }
+  30%  { transform: translateX(calc(38vw - 190px)) translateY(-2px); animation-timing-function: ease-out; }
+  48%  { transform: translateX(calc(44vw - 160px)) translateY(6px); animation-timing-function: linear; }
+  58%  { transform: translateX(calc(46vw - 135px)) translateY(8px); animation-timing-function: cubic-bezier(0.75,0,0.9,0.5); }
   100% { transform: translateX(calc(106vw + 60px)) translateY(0); }
 }
 /* mirrored stop-and-go for chases entering from the right */
@@ -502,9 +502,9 @@ body {
 }
 @keyframes ffChasePursuitRunRev{
   0%   { transform: translateX(calc(130vw + 320px)) translateY(2px); animation-timing-function: cubic-bezier(0.1,0.4,0.4,1); }
-  30%  { transform: translateX(80vw) translateY(-2px); animation-timing-function: ease-out; }
-  48%  { transform: translateX(65vw) translateY(6px); animation-timing-function: linear; }
-  58%  { transform: translateX(59vw) translateY(8px); animation-timing-function: cubic-bezier(0.75,0,0.9,0.5); }
+  30%  { transform: translateX(calc(62vw + 205px)) translateY(-2px); animation-timing-function: ease-out; }
+  48%  { transform: translateX(calc(56vw + 175px)) translateY(6px); animation-timing-function: linear; }
+  58%  { transform: translateX(calc(54vw + 150px)) translateY(8px); animation-timing-function: cubic-bezier(0.75,0,0.9,0.5); }
   100% { transform: translateX(calc(-8vw - 340px)) translateY(0); }
 }
 /* red/blue light-bar strobes — hard alternation, no fade */
@@ -1115,6 +1115,12 @@ body {
   40% { transform: scaleX(-1) translateY(3px) rotate(-5deg); }
   60% { transform: scaleX(-1) translateY(-4px) rotate(9deg); }
   80% { transform: scaleX(-1) translateY(5px) rotate(-4deg); }
+}
+/* Hot Pursuit: smoke coughing off the wrecked prey car's crumpled nose */
+@keyframes ffPursuitSmoke {
+  0%   { transform: translate(0, 0) scale(0.5); opacity: 0; }
+  20%  { opacity: 0.75; }
+  100% { transform: translate(9px, -30px) scale(1.7); opacity: 0; }
 }
 /* ...CRUNCH — and it tumbles smoking out of the sky */
 @keyframes ffCarTumble {

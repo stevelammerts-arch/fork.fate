@@ -873,6 +873,141 @@ export function UnicornChargeHeist() {
   );
 }
 
+/** Cyberscape heist: HOT PURSUIT. The police chase screams LEFT-to-RIGHT
+ * across the header under full siren, doubles back on the medallion's line —
+ * and the fleeing car slams nose-first into the logo, knocking it clean off
+ * the screen. The wreck sputters and coughs smoke while the cruiser skids to
+ * a stop beside it, lights strobing... then the wreck tumbles out of the sky
+ * and the unit peels off. First strike 35-60s after load, then every
+ * 2.5-5 min (`ff:pursuit-heist` forces it, used for testing).
+ * Prey art /cyber-car.png faces RIGHT (1264x848 box, visible car x 8.6-93.3%,
+ * visual centre y ~49%); cruiser art 900x349 full-bleed, both facings. */
+export function HotPursuitHeist() {
+  const witnessRef = useHeistWitness("pursuit");
+  const [run, setRun] = useState(null);  // {cx, cy, w}
+  const [ph, setPh] = useState(0);       // 0 staged L, 1 first pass ->R, 2 restage R, 3 return+impact, 4 wreck falls, 5 unit flees
+  const [crash, setCrash] = useState(false);
+  useEffect(() => {
+    preloadHeistAudio(["/police-siren.mp3", "/logo-crash.mp3"]);
+    ["/cyber-car.png", "/cyber-police.png", "/cyber-police-left.png"].forEach((s) => { const im = new Image(); im.src = s; });
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        playHeistSound("/police-siren.mp3", 0.55);
+        timers.push(setTimeout(() => setPh(1), 30));       // first pass, L->R
+        timers.push(setTimeout(() => setPh(2), 2450));     // restage offscreen right, crash lane
+        timers.push(setTimeout(() => setPh(3), 2600));     // doubles back, full speed at the logo
+        timers.push(setTimeout(() => {                     // CRUNCH
+          setCrash(true);
+          playHeistSound("/logo-crash.mp3", 0.85);
+          med.style.visibility = "hidden"; startleTitle();
+        }, 3750));
+        timers.push(setTimeout(() => setPh(4), 5700));     // the wreck drops out of the sky
+        timers.push(setTimeout(() => setPh(5), 6800));     // the unit peels off
+        timers.push(setTimeout(() => {
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // restart the pop on repeat strikes
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 7400));
+        timers.push(setTimeout(() => {
+          setRun(null); setPh(0); setCrash(false); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000); // strikes again in 2.5-5 min
+        }, 8400));
+      });
+    };
+    schedule(35000 + Math.random() * 25000);
+    const force = () => start(true);
+    window.addEventListener("ff:pursuit-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:pursuit-heist", force);
+      // Never leave the logo hidden if we unmount mid-heist (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run) return null;
+  const { cx, cy, w } = run;
+  const vw = window.innerWidth;
+  const PW = w * 2.1, PH = PW * (848 / 1264);   // prey box (art has transparent padding)
+  const CW = w * 1.6, CH = CW * (349 / 900);    // cruiser box (full-bleed art)
+  // Lane 1 (first pass) sweeps just under the medallion; lane 2 is dead on it.
+  const y1p = cy + w * 0.75 - PH * 0.49, y1c = cy + w * 0.82 - CH * 0.5;
+  const y2p = cy - PH * 0.49, y2c = cy + w * 0.07 - CH * 0.5;
+  const crashX = cx - PW * 0.067;               // flipped nose lands square on the medallion heart
+  const faceLeft = ph >= 2;
+  let px, py, cxx, cyy, pTrans, cTrans;
+  if (ph === 0) {
+    px = -(PW + 60); py = y1p; cxx = -(PW + CW + 220); cyy = y1c; pTrans = cTrans = "none";
+  } else if (ph === 1) {
+    px = vw + 140; py = y1p; cxx = vw + 20 - CW * 0.2; cyy = y1c;
+    pTrans = "transform 2.3s cubic-bezier(0.45,0,0.6,1)"; cTrans = "transform 2.3s cubic-bezier(0.45,0,0.6,1)";
+  } else if (ph === 2) {
+    px = vw + 90; py = y2p; cxx = vw + 90 + PW + 260; cyy = y2c; pTrans = cTrans = "none";
+  } else {
+    px = crashX; py = y2p; cyy = y2c;
+    cxx = ph === 5 ? -(CW + 240) : crashX + PW * 0.95 + 6;
+    pTrans = ph === 3 ? "transform 1.18s cubic-bezier(0.4,0,0.9,1)" : "none"; // slams in at full speed
+    cTrans = ph === 5 ? "transform 0.9s cubic-bezier(0.55,0,0.85,0.6)" : "transform 1.9s cubic-bezier(0.45,0,0.25,1)"; // trails, then skids to a stop clear of the wreck
+  }
+  const lights = faceLeft ? { red: "49.1%", blue: "43%" } : { red: "45.7%", blue: "51.9%" };
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="pursuit-heist">
+      {/* the medallion, punted clean off the left edge by the impact */}
+      {crash && (<>
+        <div className="absolute overflow-hidden bg-black ring-2 ring-[#22E0E0]" style={{ left: cx - w / 2, top: cy - w / 2, width: w, height: w, borderRadius: "9999px", animation: "ffLogoKnockL 0.95s cubic-bezier(0.25,0.8,0.5,1) forwards" }} data-testid="pursuit-heist-logo">
+          <img src="/logo-mark.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+        </div>
+        {/* impact sparks: neon shrapnel off the crumpled nose */}
+        <div className="absolute" style={{ left: cx, top: cy }} data-testid="pursuit-heist-burst">
+          {Array.from({ length: 14 }, (_, i) => {
+            const a = (i / 14) * Math.PI * 2;
+            const d = w * (0.7 + (i % 3) * 0.26);
+            const col = i % 3 === 0 ? "#22E0E0" : i % 3 === 1 ? "#FF2D55" : "#4078FF";
+            return (
+              <span key={`spk-${i}`} className="absolute rounded-full" style={{ width: 4 + (i % 3) * 3, height: 4 + (i % 3) * 3, "--dx": `${Math.cos(a) * d}px`, "--dy": `${Math.sin(a) * d}px`, background: `radial-gradient(circle, #FFFFFF, ${col} 55%, transparent 82%)`, boxShadow: `0 0 8px ${col}`, animation: "ffPoofSparkle 0.9s ease-out forwards" }} />
+            );
+          })}
+        </div>
+      </>)}
+      {/* the prey: flat out... then a hood ornament of the Fork·Fate header */}
+      <div className="absolute left-0 top-0" style={{ transform: `translate(${px}px, ${py}px)`, transition: pTrans }} data-testid="pursuit-heist-prey">
+        <div className="relative" style={{ width: PW, animation: ph >= 4 ? "ffCarTumble 1.05s cubic-bezier(0.5,0,0.85,0.6) forwards" : undefined }}>
+          <img src="/cyber-car.png" alt="" className="block object-contain" style={{ width: PW, opacity: 0.95, transform: faceLeft ? "scaleX(-1)" : "none", animation: crash ? "ffCarSputter 0.5s linear infinite" : undefined, filter: "drop-shadow(0 0 10px rgba(34,224,224,0.55))" }} />
+          {/* smoke coughing off the crumpled nose */}
+          {crash && [0, 1, 2].map((i) => (
+            <span key={`smk-${i}`} className="absolute rounded-full" style={{ left: `${8 + i * 5}%`, top: "26%", width: PW * 0.11, height: PW * 0.11, background: "radial-gradient(circle, rgba(200,205,220,0.75), rgba(140,145,165,0.35) 55%, transparent 78%)", filter: "blur(2px)", animation: `ffPursuitSmoke 1.1s ease-out ${i * 0.36}s infinite` }} />
+          ))}
+        </div>
+      </div>
+      {/* the law: unit 07, lights blazing the whole way */}
+      <div className="absolute left-0 top-0" style={{ transform: `translate(${cxx}px, ${cyy}px)`, transition: cTrans }} data-testid="pursuit-heist-police">
+        <div className="relative" style={{ width: CW }}>
+          {/* strobing halo washes the whole unit red/blue */}
+          <span className="pointer-events-none absolute -inset-4" style={{ background: "radial-gradient(ellipse at 42% 30%, rgba(255,45,85,0.45), transparent 68%)", filter: "blur(8px)", animation: "ffCopFlashA 0.55s steps(1,end) infinite" }} />
+          <span className="pointer-events-none absolute -inset-4" style={{ background: "radial-gradient(ellipse at 58% 30%, rgba(64,120,255,0.5), transparent 68%)", filter: "blur(8px)", animation: "ffCopFlashB 0.55s steps(1,end) infinite" }} />
+          {/* flashing blooms sitting exactly on the sprite's baked beacons */}
+          <span className="pointer-events-none absolute rounded-full" style={{ left: lights.red, top: "-4%", width: "7%", aspectRatio: "1", background: "radial-gradient(circle, rgba(255,45,85,1) 30%, rgba(255,45,85,0) 70%)", boxShadow: "0 0 16px 8px rgba(255,45,85,0.95)", animation: "ffCopFlashA 0.55s steps(1,end) infinite" }} />
+          <span className="pointer-events-none absolute rounded-full" style={{ left: lights.blue, top: "-3%", width: "7%", aspectRatio: "1", background: "radial-gradient(circle, rgba(64,120,255,1) 30%, rgba(64,120,255,0) 70%)", boxShadow: "0 0 16px 8px rgba(64,120,255,0.95)", animation: "ffCopFlashB 0.55s steps(1,end) infinite" }} />
+          <img src={faceLeft ? "/cyber-police-left.png" : "/cyber-police.png"} alt="" className="block w-full object-contain" style={{ opacity: 0.95, filter: "drop-shadow(0 0 8px rgba(120,150,255,0.45))" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** Winter heist: the little cardinal flutters down for a rest ON TOP of the
  * medallion — which teeters under the featherweight, tips right off its perch
  * and plummets. The startled bird flutters up and beats it. First strike

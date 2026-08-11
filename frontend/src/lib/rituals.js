@@ -69,6 +69,7 @@ export const HEISTS = [
   { key: "plate", name: "Plated by Death", realm: "Reaper", accent: "#B03030", desc: "The little reaper drifts up to the medallion and — one flick of dark magic — turns it into the very plate of food his master is holding. Dinner is served." },
   { key: "unicorn", name: "Unicorn Charge", realm: "Fairy Gully", accent: "#E6B23A", desc: "A white unicorn thunders across the banner at full gallop and punts the medallion clean off the screen with its golden horn — never breaking stride." },
   { key: "cardinal", name: "Featherweight", realm: "Winter", accent: "#D2413A", desc: "The little cardinal flutters down for a rest on top of the medallion — which teeters under the featherweight and tips right off its perch." },
+  { key: "pursuit", name: "Hot Pursuit", realm: "Cyberscape", accent: "#4078FF", desc: "A police chase screams across the header under full siren, doubles back — and the fleeing car slams nose-first into the medallion, knocking it clean off the screen." },
 ];
 
 export function readHeistsSeen() {

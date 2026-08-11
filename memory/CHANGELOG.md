@@ -529,3 +529,21 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Passports are deletable: DELETE /api/passports/{code} + two-tap delete on the page.
 - Steampunk: two extra vents anchored to painted pipe mouths via an object-cover-matched
   overlay box (steam-vents / steam-jet-low / steam-jet-floor).
+
+## 2026-06 — Hot Pursuit heist (Cyberscape) — self-tested via scripted browser beats
+- NEW HEIST "Hot Pursuit" (key: pursuit): police chase screams L->R across the header
+  under the user's siren (public/police-siren.mp3, best 7s window @17.0s of their
+  emergency-vehicles clip), doubles back on the medallion line, prey slams nose-first
+  into the logo (public/logo-crash.mp3 at impact, dt=3788ms verified), medallion
+  knocked off screen (ffLogoKnockL), wreck sputters + smokes (ffPursuitSmoke), cop
+  skids to a stop clear behind the wreck, wreck tumbles out of the sky (ffCarTumble),
+  cop peels off, logo returns. HotPursuitHeist in realmHeists.jsx, mounted for
+  cfg.cars in AmbianceScene; force event: ff:pursuit-heist. Registered in
+  rituals.js HEISTS -> shows on Collection page (verified unlocked card).
+- BUGFIX: CrawlBadgeDialog claimed a 60s heist cooldown on every page load (effect's
+  else branch ran on mount). Now only after a real ceremony (wasOpenRef).
+- BUGFIX: ambient chase cop backed up mid-pursuit on narrow screens (mixed vw/px
+  waypoints in ffChasePursuitRun/-Rev); 30% waypoints now pinned relative to prey line.
+- Verified: cop trailing gap stays positive through entire return approach
+  (+134..+463px sampled at 6 beats), stop position clear of wreck content edge.
+- FF_BUILD bumped to 2026.06-429.

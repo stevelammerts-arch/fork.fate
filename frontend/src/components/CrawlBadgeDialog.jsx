@@ -111,14 +111,19 @@ export default function CrawlBadgeDialog({ open, onClose, mode, crawlLabel = "",
   // starts thrashing the many looping scene animations (esp. Tiki flames),
   // which shows up as irregular screen flashing. Freezing them prevents that.
   // Heists are also held off (cooldown claim) so nothing strikes mid-ceremony.
+  const wasOpenRef = useRef(false);
   useEffect(() => {
     if (open) {
       document.body.classList.add("ff-badge-open");
       window.__ffHeistCooldownUntil = Math.max(window.__ffHeistCooldownUntil || 0, Date.now() + 15 * 60000);
     } else {
       document.body.classList.remove("ff-badge-open");
-      window.__ffHeistCooldownUntil = Date.now() + 60000; // a breather after the ceremony
+      // Only claim the post-ceremony breather when a ceremony actually ended —
+      // this effect also runs on mount (open=false), which used to freeze all
+      // heists for the first 60s of every page load.
+      if (wasOpenRef.current) window.__ffHeistCooldownUntil = Date.now() + 60000;
     }
+    wasOpenRef.current = open;
     return () => document.body.classList.remove("ff-badge-open");
   }, [open]);
 
