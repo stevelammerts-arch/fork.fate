@@ -2688,3 +2688,8 @@ inside playHeistSound).
 - All verified firing on entry. Realms with stings: cyber, summer, spring,
   tiki, fairy, winter, fall, dark, steam. Still without: fantasy, light(cafe).
 - User re-uploaded the fairy chant; confirmed already wired (first 40s).
+
+## 2026-08-11 part 103: Dragon's Hoard entry sting (FF_BUILD 434)
+- fantasy = "Rise from the Ashes O Dragon" 0:00-2:03 with 3s fade out (user:
+  "Play until 2:03. Fade out") -> /fantasy-ambient.mp3 (123s, 1.9MB).
+- Verified firing on entry. Only Cafe (light) realm remains without a sting.
