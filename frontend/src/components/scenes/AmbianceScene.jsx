@@ -537,7 +537,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             {/* engine plumes under each hover pod (pods sit ~26% / ~77% across the sprite) */}
             <span className="pointer-events-none absolute" style={{ left: "20%", bottom: "-6%", width: "13%", height: "36%", transformOrigin: "50% 0%", background: "radial-gradient(ellipse at 50% 18%, rgba(150,255,246,0.9) 0%, rgba(34,224,224,0.5) 40%, rgba(34,224,224,0) 74%)", filter: "blur(6px)", animation: "ffThrusterPlume 1.1s ease-in-out infinite" }} />
             <span className="pointer-events-none absolute" style={{ left: "70.5%", bottom: "-6%", width: "13%", height: "36%", transformOrigin: "50% 0%", background: "radial-gradient(ellipse at 50% 18%, rgba(150,255,246,0.9) 0%, rgba(34,224,224,0.5) 40%, rgba(34,224,224,0) 74%)", filter: "blur(6px)", animation: "ffThrusterPlume 1.35s ease-in-out -0.45s infinite" }} />
-          </>)}}
+          </>)}
           <img src={c.bus ? cfg.bus : (c.bus2 ? cfg.bus2 : (c.spinner ? cfg.spinner : (c.rev ? cfg.cars2 : cfg.cars)))} alt="" className="relative block object-contain opacity-90"
             style={{ width: c.size, filter: c.bus ? "none" : `drop-shadow(0 0 ${c.spinner ? 12 : 8}px rgba(34,224,224,${c.spinner ? 0.65 : 0.5}))`, ...(c.bus ? { maskImage: "linear-gradient(to bottom, #000 72%, rgba(0,0,0,0.68) 90%, rgba(0,0,0,0.48) 100%)", WebkitMaskImage: "linear-gradient(to bottom, #000 72%, rgba(0,0,0,0.68) 90%, rgba(0,0,0,0.48) 100%)" } : {}) }} />
         </div>
@@ -551,16 +551,16 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
               style={{ width: mobile ? 92 : 128, filter: "drop-shadow(0 0 10px rgba(34,224,224,0.55))" }} />
           </span>
         </div>
-        {/* the law: police spinner running the same line 0.55s behind */}
+        {/* the law: police spinner on its own pursuit line, gap held open */}
         <div className="absolute left-0 z-[4]" data-testid="cyber-chase-police"
-          style={{ top: mobile ? "46.5%" : "26.5%", animation: "ffChaseRun 7s cubic-bezier(0.3,0,0.7,1) 0.55s both" }}>
+          style={{ top: mobile ? "46.5%" : "26.5%", animation: "ffChasePursuitRun 7s cubic-bezier(0.3,0,0.7,1) both" }}>
           <div className="relative">
             {/* strobing halo washes the whole unit red/blue */}
-            <span className="pointer-events-none absolute -inset-4" style={{ background: "radial-gradient(ellipse at 42% 30%, rgba(255,45,85,0.42), transparent 68%)", filter: "blur(8px)", animation: "ffCopFlashA 0.55s steps(1,end) infinite" }} />
-            <span className="pointer-events-none absolute -inset-4" style={{ background: "radial-gradient(ellipse at 58% 30%, rgba(64,120,255,0.48), transparent 68%)", filter: "blur(8px)", animation: "ffCopFlashB 0.55s steps(1,end) infinite" }} />
-            {/* roof light bar */}
-            <span className="pointer-events-none absolute" style={{ left: "34%", top: "-7%", width: "9%", height: "13%", borderRadius: 2, background: "#FF2D55", boxShadow: "0 0 14px 4px rgba(255,45,85,0.9)", animation: "ffCopFlashA 0.55s steps(1,end) infinite" }} />
-            <span className="pointer-events-none absolute" style={{ left: "45%", top: "-7%", width: "9%", height: "13%", borderRadius: 2, background: "#4078FF", boxShadow: "0 0 14px 4px rgba(64,120,255,0.9)", animation: "ffCopFlashB 0.55s steps(1,end) infinite" }} />
+            <span className="pointer-events-none absolute -inset-4" style={{ background: "radial-gradient(ellipse at 42% 30%, rgba(255,45,85,0.45), transparent 68%)", filter: "blur(8px)", animation: "ffCopFlashA 0.55s steps(1,end) infinite" }} />
+            <span className="pointer-events-none absolute -inset-4" style={{ background: "radial-gradient(ellipse at 58% 30%, rgba(64,120,255,0.5), transparent 68%)", filter: "blur(8px)", animation: "ffCopFlashB 0.55s steps(1,end) infinite" }} />
+            {/* two small round beacons above the windshield, swapping red/blue */}
+            <span className="pointer-events-none absolute rounded-full" style={{ left: "55%", top: "-8%", width: "5.5%", aspectRatio: "1", animation: "ffCopLightA 0.55s steps(1,end) infinite" }} />
+            <span className="pointer-events-none absolute rounded-full" style={{ left: "63%", top: "-8%", width: "5.5%", aspectRatio: "1", animation: "ffCopLightB 0.55s steps(1,end) infinite" }} />
             <img src={cfg.spinner} alt="" className="block object-contain opacity-95"
               style={{ width: mobile ? 110 : 152, filter: "drop-shadow(0 0 10px rgba(120,150,255,0.5))" }} />
           </div>

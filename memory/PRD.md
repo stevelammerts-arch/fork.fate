@@ -2571,3 +2571,21 @@ inside playHeistSound).
   in AmbianceScene: first at 25-60s, then every 50-140s, 9s mount. testids:
   cyber-chase-car, cyber-chase-police. Verified live via screenshot (spawned
   at 24s, both frames show pursuit). User approved bus ("Bus looks great").
+
+## 2026-08-11 part 96: Chase polish + brace bug (FF_BUILD 423-424)
+- BUNCHING FIX: pursuer now runs its OWN keyframe path (ffChasePursuitRun,
+  constant ~16vw gap closing to ~8vw) instead of shared path + time delay
+  (eased motion collapsed the gap at slow phases).
+- BUG FIX (user screenshot): literal "{" floating above ALL cyber cars —
+  stray double "}}" in AmbianceScene.jsx line 540 from the thruster edit
+  rendered as text. Fixed; verified 0 stray glyphs via DOM scan.
+- POLICE LIGHTS (user: "2 small round lights above windshield changing
+  red and blue"): replaced light bar with two round beacons (left 55%/63%,
+  top -8%, aspect-ratio 1) using ffCopLightA/B keyframes that SWAP
+  background red<->blue out of phase (0.55s steps). Halo washes kept.
+  Verified via clipped screenshots 280ms apart showing colors swapped.
+- USER DECLINED cruiser image generation (wanted light tweak instead).
+- PENDING USER IDEA (not yet built): chase returns R->L across the HEADER and
+  crashes into the logo as a new collectible heist ("Hot Pursuit"). Heist
+  infra studied: realmHeists.jsx pattern (summonToLogo/claim slot/witness),
+  rituals.js has 41 ritual keys, /neon-crunch.mp3 available for impact.

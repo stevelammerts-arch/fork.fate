@@ -484,6 +484,16 @@ body {
   72%  { transform: translateX(84vw) translateY(-12px); }
   100% { transform: translateX(calc(118vw + 40px)) translateY(6px); }
 }
+/* the pursuer runs its OWN path a fixed distance behind — a shared path with
+   only a time delay made the gap collapse at the eased start/end (bunching).
+   The gap tightens from ~16vw to ~8vw across the run: the law is closing in. */
+@keyframes ffChasePursuitRun{
+  0%   { transform: translateX(calc(-28vw - 300px)) translateY(2px); }
+  22%  { transform: translateX(calc(4vw - 80px)) translateY(-12px); }
+  46%  { transform: translateX(calc(36vw - 70px)) translateY(14px); }
+  72%  { transform: translateX(calc(72vw - 50px)) translateY(-10px); }
+  100% { transform: translateX(calc(110vw + 40px)) translateY(8px); }
+}
 /* the prey drives scared — quick jitters and tilts */
 @keyframes ffChaseSwerve{
   0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -494,6 +504,17 @@ body {
 /* red/blue light-bar strobes — hard alternation, no fade */
 @keyframes ffCopFlashA{ 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes ffCopFlashB{ 0%, 45% { opacity: 0; } 50%, 95% { opacity: 1; } 100% { opacity: 0; } }
+/* round windshield beacons: each lamp SWAPS color red<->blue, out of phase */
+@keyframes ffCopLightA{
+  0%, 45%  { background: #FF2D55; box-shadow: 0 0 12px 5px rgba(255,45,85,0.95); }
+  50%, 95% { background: #4078FF; box-shadow: 0 0 12px 5px rgba(64,120,255,0.95); }
+  100%     { background: #FF2D55; box-shadow: 0 0 12px 5px rgba(255,45,85,0.95); }
+}
+@keyframes ffCopLightB{
+  0%, 45%  { background: #4078FF; box-shadow: 0 0 12px 5px rgba(64,120,255,0.95); }
+  50%, 95% { background: #FF2D55; box-shadow: 0 0 12px 5px rgba(255,45,85,0.95); }
+  100%     { background: #4078FF; box-shadow: 0 0 12px 5px rgba(64,120,255,0.95); }
+}
 /* Reaper ambiance — broad low-lying atmospheric haze + rising smoke plumes */
 /* Night-sky darkener: deepens the top sky + a pool behind the cemetery so the
    graveyard reads clearly, while leaving the upper-left hero text zone light. */
