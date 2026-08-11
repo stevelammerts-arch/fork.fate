@@ -10,6 +10,8 @@ const STINGS = {
   summer: "/summer-ambient.mp3",
   spring: "/spring-ambient.mp3",
   tiki: "/tiki-ambient.mp3",
+  fairy: "/fairy-ambient.mp3",
+  winter: "/winter-ambient.mp3",
 };
 
 export function RealmEntrySting({ theme }) {

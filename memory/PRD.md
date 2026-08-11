@@ -2671,3 +2671,12 @@ inside playHeistSound).
   tiki   = reggae-island-vibes 60-84s -> /tiki-ambient.mp3
 - Verified via init-script play hook: each realm entry fires its sting, dark
   fires none. Dev StrictMode double-play is self-fading; prod single.
+
+## 2026-08-11 part 101: Fairy + Winter entry stings (FF_BUILD 432)
+- fairy = FIRST 40s of juliush fairy-chant (user corrected from my 18-58s pick)
+  -> /fairy-ambient.mp3
+- winter = Sugar Plum Fairy electro-house 44-72s peak drop ("not whole song")
+  -> /winter-ambient.mp3
+- Both added to RealmEntrySting STINGS map; verified firing on realm entry via
+  init-script play hook. Realms with stings now: cyber, summer, spring, tiki,
+  fairy, winter. Still without: steam, fantasy, fall, dark(reaper), light(cafe).
