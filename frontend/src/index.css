@@ -438,23 +438,37 @@ body {
   82%  { transform: translateY(6px) rotate(3deg); }
   100% { transform: translateY(0) rotate(0deg); }
 }
-/* Seagulls gliding across the summer sky */
-@keyframes ffFly {
-  0%   { transform: translateX(-24vw) translateY(0); }
-  25%  { transform: translateX(24vw) translateY(-16px); }
-  50%  { transform: translateX(58vw) translateY(8px); }
-  75%  { transform: translateX(92vw) translateY(-12px); }
-  100% { transform: translateX(126vw) translateY(4px); }
+/* Cyber traffic round trip: cruise L->R, then return R->L mirrored so the
+   vehicle always faces its travel direction. The scaleX flip happens fully
+   off-screen (49-51% and 99-100% holds) so it's never visible. */
+@keyframes ffFlyBoth {
+  0%    { transform: translateX(-26vw) translateY(0) scaleX(1); }
+  12.5% { transform: translateX(24vw) translateY(-16px) scaleX(1); }
+  25%   { transform: translateX(58vw) translateY(8px) scaleX(1); }
+  37.5% { transform: translateX(92vw) translateY(-12px) scaleX(1); }
+  49%   { transform: translateX(128vw) translateY(4px) scaleX(1); }
+  51%   { transform: translateX(128vw) translateY(4px) scaleX(-1); }
+  62.5% { transform: translateX(92vw) translateY(-14px) scaleX(-1); }
+  75%   { transform: translateX(58vw) translateY(8px) scaleX(-1); }
+  87.5% { transform: translateX(24vw) translateY(-10px) scaleX(-1); }
+  99%   { transform: translateX(-26vw) translateY(4px) scaleX(-1); }
+  100%  { transform: translateX(-26vw) translateY(4px) scaleX(1); }
 }
 
-/* Close-up bus is 300px wide — plain -24vw isn't fully off-screen on narrow
-   windows, so it "popped" into view. Enter from beyond the sprite's width. */
-@keyframes ffFlyBus {
-  0%   { transform: translateX(calc(-24vw - 340px)) translateY(0); }
-  25%  { transform: translateX(24vw) translateY(-16px); }
-  50%  { transform: translateX(58vw) translateY(8px); }
-  75%  { transform: translateX(92vw) translateY(-12px); }
-  100% { transform: translateX(126vw) translateY(4px); }
+/* Close-up bus round trip: the 300px sprite needs to clear beyond the plain
+   vw margins on narrow windows, so enter/exit beyond the sprite's width. */
+@keyframes ffFlyBusBoth {
+  0%    { transform: translateX(calc(-24vw - 340px)) translateY(0) scaleX(1); }
+  12.5% { transform: translateX(24vw) translateY(-16px) scaleX(1); }
+  25%   { transform: translateX(58vw) translateY(8px) scaleX(1); }
+  37.5% { transform: translateX(92vw) translateY(-12px) scaleX(1); }
+  49%   { transform: translateX(calc(126vw + 340px)) translateY(4px) scaleX(1); }
+  51%   { transform: translateX(calc(126vw + 340px)) translateY(4px) scaleX(-1); }
+  62.5% { transform: translateX(92vw) translateY(-14px) scaleX(-1); }
+  75%   { transform: translateX(58vw) translateY(8px) scaleX(-1); }
+  87.5% { transform: translateX(24vw) translateY(-10px) scaleX(-1); }
+  99%   { transform: translateX(calc(-24vw - 340px)) translateY(4px) scaleX(-1); }
+  100%  { transform: translateX(calc(-24vw - 340px)) translateY(4px) scaleX(1); }
 }
 
 /* Bus hover thrusters: the engine's output visibly varies — each plume
@@ -689,14 +703,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .ff-lightning, .ff-sky-flash { animation: none; opacity: 0; }
 }
-/* Cyber spinner flying right-to-left (mirrored) */
-@keyframes ffFlyRev {
-  0%   { transform: translateX(126vw) translateY(0) scaleX(-1); }
-  25%  { transform: translateX(80vw) translateY(-14px) scaleX(-1); }
-  50%  { transform: translateX(46vw) translateY(8px) scaleX(-1); }
-  75%  { transform: translateX(10vw) translateY(-10px) scaleX(-1); }
-  100% { transform: translateX(-26vw) translateY(4px) scaleX(-1); }
-}
+/* (cyber traffic now uses the ffFlyBoth round-trip keyframes above) */
 /* Cyber stealth saucer: 60s round-trip patrol (position only — facing/flips
    live in ffSaucerSideFace/ffSaucerFrontFace). First half enters from the
    RIGHT and exits left; second half re-enters from the LEFT and exits right,

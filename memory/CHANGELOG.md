@@ -547,3 +547,29 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Verified: cop trailing gap stays positive through entire return approach
   (+134..+463px sampled at 6 beats), stop position clear of wreck content edge.
 - FF_BUILD bumped to 2026.06-429.
+
+## 2026-06 — Bidirectional Cyberscape traffic — self-tested (DOM anim check + screenshot)
+- Ambient cyber traffic now flows BOTH directions (user request). Added an oncoming
+  lane to CYBER_CARS in AmbianceScene.jsx: reversed spinner SUV (16s, 15% top),
+  reversed runabout (14s, 7% top), and a second close-up people bus heading
+  right-to-left (31s, 32% top, 235px — slightly higher/further back than the L->R one).
+- New keyframe ffFlyBusRev in index.css (enters beyond sprite width from the right,
+  scaleX(-1) mirrored so the bus faces its travel direction; thruster plumes flip
+  with the wrapper and stay under the hover pods).
+- Animation pick logic now: bus? (rev? ffFlyBusRev : ffFlyBus) : rev? ffFlyRev : ffFly.
+- Final mix: 3 vehicles L->R (spinner, car, close bus) + 5 R->L (2 cars, spinner,
+  close bus, far transit bus). Verified all 8 mounted with correct anim names via DOM.
+- FF_BUILD bumped to 2026.06-446.
+
+## 2026-06 — Traffic rework: round trips, no doubles (FF_BUILD 447) — self-tested (DOM dx sampling)
+- User: "have the vehicles not double on the screen" — the oncoming-lane approach
+  duplicated sprites (two spinners, two buses). REPLACED with round-trip scheme:
+  back to 5 vehicles, each appears ONCE and flies L->R then returns R->L mirrored.
+- New keyframes ffFlyBoth / ffFlyBusBoth (index.css): 0-49% outbound scaleX(1),
+  49-51% off-screen hold flips to scaleX(-1), 51-99% return leg, 99-100% flips
+  back off-screen left. REMOVED ffFly / ffFlyBus / ffFlyRev / ffFlyBusRev (dead).
+- CYBER_CARS: dur now full round trip (28/32/36/54/68s); negative delays (-22, -40)
+  start car2 + far bus mid-return so both directions flow from page load; `rev`
+  flag renamed `alt` (cars2 sprite pick only).
+- Verified via DOM matrix sampling: 5 unique sprites, spinner+bus moving L->R
+  facing right, car2+bus2 moving R->L facing left, flips never visible.

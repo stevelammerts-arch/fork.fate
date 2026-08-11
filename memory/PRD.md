@@ -2787,3 +2787,21 @@ inside playHeistSound).
 - OCCASIONAL CHATTER: SeasonScene fall effect plays /stash-chatter.mp3 at
   vol 0.3 first 50-110s then every 2-4.5 min; respects mute; force event
   ff:squirrel-chatter (verified firing).
+
+## 2026-08-11 part 96: Bidirectional Cyberscape traffic (FF_BUILD 446)
+- User request: "I'd like the vehicles to go both directions."
+- Added oncoming lane to CYBER_CARS (AmbianceScene.jsx): reversed spinner SUV,
+  reversed runabout, and a second close-up people bus flying R->L on its own
+  lane (32% top, 235px, 31s). New ffFlyBusRev keyframe (index.css) mirrors the
+  bus via scaleX(-1) and enters from beyond sprite width on the right.
+- Traffic mix now 3 L->R + 5 R->L. Verified via DOM (all 8 anims mounted:
+  ffFly x2, ffFlyBus, ffFlyRev x4, ffFlyBusRev) + screenshot.
+- Confirmed for user: yes, the cyber tow-truck exists — rare "Tow Job" cameo,
+  ~35% follow-up to the Hot Pursuit heist (cyber-tow.png, phases 6-9).
+
+## 2026-08-11 part 97: Traffic round trips — no duplicate vehicles (FF_BUILD 447)
+- User follow-up: vehicles must not "double on the screen". Replaced the added
+  oncoming-lane duplicates with a round-trip scheme: 5 unique vehicles, each
+  flying L->R then returning R->L mirrored (ffFlyBoth/ffFlyBusBoth; direction
+  flip held off-screen). Old one-way keyframes ffFly/ffFlyBus/ffFlyRev/
+  ffFlyBusRev deleted. Verified via DOM transform sampling + screenshot.

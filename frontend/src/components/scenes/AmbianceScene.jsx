@@ -147,14 +147,18 @@ const STEAM_JET_FLOOR = Array.from({ length: 6 }).map((_, i) => ({
 }));
 
 const CYBER_CARS = [
+  // Each vehicle appears ONCE and flies a round trip (L->R, then back R->L
+  // mirrored) so traffic moves both directions with no duplicate sprites.
+  // dur = full round trip; negative delays start some mid-return so both
+  // directions are flowing right from page load.
   // Distant traffic — small & high up, feels far away
-  { top: "12%", topM: "40%", size: 96, dur: 13, delay: 0, rev: false, spinner: true },
-  { top: "9%", topM: "36%", size: 78, dur: 15, delay: 4, rev: false },
-  { top: "19%", topM: "52%", size: 56, dur: 18, delay: 7, rev: true },
+  { top: "12%", topM: "40%", size: 96, dur: 28, delay: 0, spinner: true },
+  { top: "9%", topM: "36%", size: 78, dur: 32, delay: 6 },
+  { top: "19%", topM: "52%", size: 56, dur: 36, delay: -22, alt: true },
   // Close-up people bus — big, low and in front
-  { top: "40%", topM: "58%", size: 300, dur: 26, delay: 2, rev: false, bus: true },
+  { top: "40%", topM: "58%", size: 300, dur: 54, delay: 3, bus: true },
   // Far-away transit bus — small, high up, drifting slowly in the distance
-  { top: "6%", topM: "14%", size: 62, dur: 34, delay: 15, rev: true, bus2: true },
+  { top: "6%", topM: "14%", size: 62, dur: 68, delay: -40, bus2: true },
 ];
 
 // A dense mass of steel cables hanging + swaying from the roof (steampunk)
@@ -530,7 +534,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       {cfg.rain && <div className="absolute inset-0 ff-rain" />}
       {cfg.cars && CYBER_CARS.map((c, i) => (
         <div key={`car-${i}`} className={`absolute left-0 ${c.bus ? "z-[6]" : c.bus2 ? "z-[2]" : c.spinner ? "z-[5]" : "z-[3]"}`}
-          style={{ top: mobile ? c.topM : c.top, willChange: "transform", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", animation: `${c.bus ? "ffFlyBus" : c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite both` }}>
+          style={{ top: mobile ? c.topM : c.top, willChange: "transform", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", animation: `${c.bus ? "ffFlyBusBoth" : "ffFlyBoth"} ${c.dur}s linear ${c.delay}s infinite both` }}>
           {c.bus && (<>
             {/* broad soft under-glow, breathing slowly */}
             <span className="pointer-events-none absolute" style={{ left: "20%", bottom: "-2%", width: "60%", height: "40%", transformOrigin: "50% 0%", background: "radial-gradient(ellipse at center, rgba(34,224,224,0.4) 0%, rgba(34,224,224,0.18) 46%, rgba(34,224,224,0) 72%)", filter: "blur(9px)", animation: "ffThrusterHaze 2.6s ease-in-out infinite" }} />
@@ -538,7 +542,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             <span className="pointer-events-none absolute" style={{ left: "20%", bottom: "-6%", width: "13%", height: "36%", transformOrigin: "50% 0%", background: "radial-gradient(ellipse at 50% 18%, rgba(150,255,246,0.9) 0%, rgba(34,224,224,0.5) 40%, rgba(34,224,224,0) 74%)", filter: "blur(6px)", animation: "ffThrusterPlume 1.1s ease-in-out infinite" }} />
             <span className="pointer-events-none absolute" style={{ left: "70.5%", bottom: "-6%", width: "13%", height: "36%", transformOrigin: "50% 0%", background: "radial-gradient(ellipse at 50% 18%, rgba(150,255,246,0.9) 0%, rgba(34,224,224,0.5) 40%, rgba(34,224,224,0) 74%)", filter: "blur(6px)", animation: "ffThrusterPlume 1.35s ease-in-out -0.45s infinite" }} />
           </>)}
-          <img src={c.bus ? cfg.bus : (c.bus2 ? cfg.bus2 : (c.spinner ? cfg.spinner : (c.rev ? cfg.cars2 : cfg.cars)))} alt="" className="relative block object-contain opacity-90"
+          <img src={c.bus ? cfg.bus : (c.bus2 ? cfg.bus2 : (c.spinner ? cfg.spinner : (c.alt ? cfg.cars2 : cfg.cars)))} alt="" className="relative block object-contain opacity-90"
             style={{ width: c.size, filter: c.bus ? "none" : `drop-shadow(0 0 ${c.spinner ? 12 : 8}px rgba(34,224,224,${c.spinner ? 0.65 : 0.5}))`, ...(c.bus ? { maskImage: "linear-gradient(to bottom, #000 72%, rgba(0,0,0,0.68) 90%, rgba(0,0,0,0.48) 100%)", WebkitMaskImage: "linear-gradient(to bottom, #000 72%, rgba(0,0,0,0.68) 90%, rgba(0,0,0,0.48) 100%)" } : {}) }} />
         </div>
       ))}
@@ -771,4 +775,5 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
     {theme === "steam" && <SteamGearsHeist key={`sgh-${heistEpoch}`} />}
   </>);
 }
+
 
