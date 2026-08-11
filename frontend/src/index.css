@@ -474,32 +474,38 @@ body {
   50%      { opacity: .7;  transform: scaleY(1.15); }
 }
 
-/* Police chase: a fleeing car tears across the skyline with a spinner in hot
-   pursuit — same path, the pursuer runs it with a delay (fill: both keeps it
-   hidden off-screen until its turn). Faster + swervier than ambient traffic. */
+/* Police chase, stop-and-go: the prey tears in, DECELERATES like it's pulling
+   over (dips slightly as it settles), creeps while the unit closes right up
+   behind it — then launches off the far side. Per-segment timing functions
+   drive the deceleration/launch feel. */
 @keyframes ffChaseRun{
-  0%   { transform: translateX(calc(-12vw - 200px)) translateY(0); }
-  22%  { transform: translateX(20vw) translateY(-16px); }
-  46%  { transform: translateX(50vw) translateY(12px); }
-  72%  { transform: translateX(84vw) translateY(-12px); }
-  100% { transform: translateX(calc(118vw + 40px)) translateY(6px); }
+  0%   { transform: translateX(calc(-12vw - 200px)) translateY(0); animation-timing-function: cubic-bezier(0.1,0.4,0.4,1); }
+  30%  { transform: translateX(38vw) translateY(4px); animation-timing-function: ease-out; }
+  48%  { transform: translateX(44vw) translateY(10px); animation-timing-function: linear; }
+  58%  { transform: translateX(46vw) translateY(10px); animation-timing-function: cubic-bezier(0.75,0,0.9,0.5); }
+  100% { transform: translateX(calc(122vw + 60px)) translateY(-4px); }
 }
-/* the pursuer runs its OWN path a fixed distance behind — a shared path with
-   only a time delay made the gap collapse at the eased start/end (bunching).
-   The gap tightens from ~16vw to ~8vw across the run: the law is closing in. */
 @keyframes ffChasePursuitRun{
-  0%   { transform: translateX(calc(-28vw - 300px)) translateY(2px); }
-  22%  { transform: translateX(calc(4vw - 80px)) translateY(-12px); }
-  46%  { transform: translateX(calc(36vw - 70px)) translateY(14px); }
-  72%  { transform: translateX(calc(72vw - 50px)) translateY(-10px); }
-  100% { transform: translateX(calc(110vw + 40px)) translateY(8px); }
+  0%   { transform: translateX(calc(-30vw - 320px)) translateY(2px); animation-timing-function: cubic-bezier(0.1,0.4,0.4,1); }
+  30%  { transform: translateX(20vw) translateY(-2px); animation-timing-function: ease-out; }
+  48%  { transform: translateX(35vw) translateY(6px); animation-timing-function: linear; }
+  58%  { transform: translateX(41vw) translateY(8px); animation-timing-function: cubic-bezier(0.75,0,0.9,0.5); }
+  100% { transform: translateX(calc(106vw + 60px)) translateY(0); }
 }
-/* the prey drives scared — quick jitters and tilts */
-@keyframes ffChaseSwerve{
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25%      { transform: translateY(-4px) rotate(-2.2deg); }
-  55%      { transform: translateY(3px) rotate(1.6deg); }
-  80%      { transform: translateY(-2px) rotate(-1.2deg); }
+/* mirrored stop-and-go for chases entering from the right */
+@keyframes ffChaseRunRev{
+  0%   { transform: translateX(calc(112vw + 200px)) translateY(0); animation-timing-function: cubic-bezier(0.1,0.4,0.4,1); }
+  30%  { transform: translateX(62vw) translateY(4px); animation-timing-function: ease-out; }
+  48%  { transform: translateX(56vw) translateY(10px); animation-timing-function: linear; }
+  58%  { transform: translateX(54vw) translateY(10px); animation-timing-function: cubic-bezier(0.75,0,0.9,0.5); }
+  100% { transform: translateX(calc(-22vw - 260px)) translateY(-4px); }
+}
+@keyframes ffChasePursuitRunRev{
+  0%   { transform: translateX(calc(130vw + 320px)) translateY(2px); animation-timing-function: cubic-bezier(0.1,0.4,0.4,1); }
+  30%  { transform: translateX(80vw) translateY(-2px); animation-timing-function: ease-out; }
+  48%  { transform: translateX(65vw) translateY(6px); animation-timing-function: linear; }
+  58%  { transform: translateX(59vw) translateY(8px); animation-timing-function: cubic-bezier(0.75,0,0.9,0.5); }
+  100% { transform: translateX(calc(-8vw - 340px)) translateY(0); }
 }
 /* red/blue light-bar strobes — hard alternation, no fade */
 @keyframes ffCopFlashA{ 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0; } 100% { opacity: 1; } }

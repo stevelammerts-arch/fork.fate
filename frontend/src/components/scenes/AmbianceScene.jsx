@@ -412,20 +412,20 @@ function CyberNeonSign({ neon }) {
 export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
   const [mobile, setMobile] = useState(false);
   const [abducting, setAbducting] = useState(false);
-  const [chase, setChase] = useState(false);
+  const [chase, setChase] = useState(null); // null | { dir: 1 (L->R) | -1 (R->L) }
   // Occasional police pursuit across the cyber skyline: first one ~25-60s in,
-  // then every ~50-140s. The pair stays mounted for 9s (7s run + tail).
+  // then every ~50-140s, entering from a random side. 9s mount (7s run + tail).
   useEffect(() => {
     if (!cfg.cars) return;
     let t1, t2;
     const schedule = (min, spread) => {
       t1 = setTimeout(() => {
-        setChase(true);
-        t2 = setTimeout(() => { setChase(false); schedule(50000, 90000); }, 9000);
+        setChase({ dir: Math.random() < 0.5 ? 1 : -1 });
+        t2 = setTimeout(() => { setChase(null); schedule(50000, 90000); }, 11000);
       }, min + Math.random() * spread);
     };
     schedule(25000, 35000);
-    return () => { clearTimeout(t1); clearTimeout(t2); setChase(false); };
+    return () => { clearTimeout(t1); clearTimeout(t2); setChase(null); };
   }, [cfg.cars]);
   const [anchorRef, coverBox] = useCoverAnchor(GULLY_NAT.w, GULLY_NAT.h);
   const [loungeRef, loungeBox] = useCoverAnchor(1264, 848);
@@ -543,26 +543,24 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
         </div>
       ))}
       {cfg.cars && chase && (<>
-        {/* the prey: a car swerving hard, tearing across faster than traffic */}
+        {/* the prey: pulls over for the unit... then bolts */}
         <div className="absolute left-0 z-[4]" data-testid="cyber-chase-car"
-          style={{ top: mobile ? "46%" : "26%", animation: "ffChaseRun 7s cubic-bezier(0.3,0,0.7,1) both" }}>
-          <span style={{ display: "block", animation: "ffChaseSwerve 0.55s ease-in-out infinite" }}>
-            <img src={cfg.cars} alt="" className="block object-contain opacity-95"
-              style={{ width: mobile ? 92 : 128, filter: "drop-shadow(0 0 10px rgba(34,224,224,0.55))" }} />
-          </span>
+          style={{ top: mobile ? "40%" : "22%", animation: `${chase.dir === 1 ? "ffChaseRun" : "ffChaseRunRev"} 9s both` }}>
+          <img src={cfg.cars} alt="" className="block object-contain opacity-95"
+            style={{ width: mobile ? 66 : 94, opacity: 0.85, transform: chase.dir === 1 ? "none" : "scaleX(-1)", filter: "drop-shadow(0 0 8px rgba(34,224,224,0.5))" }} />
         </div>
-        {/* the law: police spinner on its own pursuit line, gap held open */}
+        {/* the law: black/white unit 07 on its own pursuit line, gap held open */}
         <div className="absolute left-0 z-[4]" data-testid="cyber-chase-police"
-          style={{ top: mobile ? "46.5%" : "26.5%", animation: "ffChasePursuitRun 7s cubic-bezier(0.3,0,0.7,1) both" }}>
+          style={{ top: mobile ? "40.4%" : "22.4%", animation: `${chase.dir === 1 ? "ffChasePursuitRun" : "ffChasePursuitRunRev"} 9s both` }}>
           <div className="relative">
             {/* strobing halo washes the whole unit red/blue */}
             <span className="pointer-events-none absolute -inset-4" style={{ background: "radial-gradient(ellipse at 42% 30%, rgba(255,45,85,0.45), transparent 68%)", filter: "blur(8px)", animation: "ffCopFlashA 0.55s steps(1,end) infinite" }} />
             <span className="pointer-events-none absolute -inset-4" style={{ background: "radial-gradient(ellipse at 58% 30%, rgba(64,120,255,0.5), transparent 68%)", filter: "blur(8px)", animation: "ffCopFlashB 0.55s steps(1,end) infinite" }} />
-            {/* two small round beacons above the windshield, swapping red/blue */}
-            <span className="pointer-events-none absolute rounded-full" style={{ left: "55%", top: "-8%", width: "5.5%", aspectRatio: "1", animation: "ffCopLightA 0.55s steps(1,end) infinite" }} />
-            <span className="pointer-events-none absolute rounded-full" style={{ left: "63%", top: "-8%", width: "5.5%", aspectRatio: "1", animation: "ffCopLightB 0.55s steps(1,end) infinite" }} />
-            <img src={cfg.spinner} alt="" className="block object-contain opacity-95"
-              style={{ width: mobile ? 110 : 152, filter: "drop-shadow(0 0 10px rgba(120,150,255,0.5))" }} />
+            {/* flashing blooms sitting exactly on the sprite's baked beacons */}
+            <span className="pointer-events-none absolute rounded-full" style={{ left: chase.dir === 1 ? "45.7%" : "49.1%", top: "-4%", width: "7%", aspectRatio: "1", background: "radial-gradient(circle, rgba(255,45,85,1) 30%, rgba(255,45,85,0) 70%)", boxShadow: "0 0 16px 8px rgba(255,45,85,0.95)", animation: "ffCopFlashA 0.55s steps(1,end) infinite" }} />
+            <span className="pointer-events-none absolute rounded-full" style={{ left: chase.dir === 1 ? "51.9%" : "43%", top: "-3%", width: "7%", aspectRatio: "1", background: "radial-gradient(circle, rgba(64,120,255,1) 30%, rgba(64,120,255,0) 70%)", boxShadow: "0 0 16px 8px rgba(64,120,255,0.95)", animation: "ffCopFlashB 0.55s steps(1,end) infinite" }} />
+            <img src={chase.dir === 1 ? "/cyber-police.png" : "/cyber-police-left.png"} alt="" className="block object-contain opacity-95"
+              style={{ width: mobile ? 60 : 86, opacity: 0.88, filter: "drop-shadow(0 0 8px rgba(120,150,255,0.45))" }} />
           </div>
         </div>
       </>)}

@@ -2589,3 +2589,28 @@ inside playHeistSound).
   crashes into the logo as a new collectible heist ("Hot Pursuit"). Heist
   infra studied: realmHeists.jsx pattern (summonToLogo/claim slot/witness),
   rituals.js has 41 ritual keys, /neon-crunch.mp3 available for impact.
+
+## 2026-08-11 part 97: Police cruiser + stop-and-go chase (FF_BUILD 425-428)
+- NEW SPRITES (Nano Banana, gemini-3.1-flash-image-preview via
+  emergentintegrations): /cyber-police.png (faces right) + /cyber-police-left.png
+  (faces left, lettering NOT mirrored) — black/white livery, unit "07" on white
+  front door, POLICE on rear quarter, baked-in red/blue round beacons above
+  windshield, cyan hover pods. Gen: /app/scripts/gen_police_cruiser.py
+  (right first, then left using keyed right as reference). Keying:
+  /app/scripts/key_police.py (edge BFS flood fill, soft alpha ramp — enclosed
+  white door panel survives). Note: user riffed "07 = F's place in alphabet"
+  (actually 6th; user informed, kept 07).
+- CHASE BEHAVIOR (user iterations): no shake; STOP-AND-GO — prey decelerates
+  like pulling over (~44-46vw, dips), unit closes to bumper-to-bumper (gap
+  0px verified), prey launches off (per-segment timing functions in
+  ffChaseRun/ffChasePursuitRun + Rev mirrors, 9s, mount 11s).
+- BOTH DIRECTIONS: chase state {dir: 1|-1} random; rev keyframes; prey img
+  scaleX(-1) when R->L; police swaps sprite (no mirrored text). Beacon bloom
+  overlays positioned per direction (right: 45.7%/51.9%, left: 49.1%/43%).
+- DISTANCE (user): smaller (prey 94/66, police 86/60), higher lane (22%/40%
+  desktop/mobile), opacity ~0.85-0.88, beacon blooms enlarged (7%) so the
+  red/blue still reads. Old ffCopLightA/B round-lamp keyframes remain in CSS
+  but unused by chase (halos ffCopFlashA/B + blooms are active).
+- PIL mock scripts kept: gen_cyber_police.py (superseded by Nano Banana gen).
+- STILL PENDING: "Hot Pursuit" logo-crash heist (chase doubles back across
+  header, crashes into logo medallion, new collectible ritual).
