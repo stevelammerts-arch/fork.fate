@@ -412,6 +412,21 @@ function CyberNeonSign({ neon }) {
 export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
   const [mobile, setMobile] = useState(false);
   const [abducting, setAbducting] = useState(false);
+  const [chase, setChase] = useState(false);
+  // Occasional police pursuit across the cyber skyline: first one ~25-60s in,
+  // then every ~50-140s. The pair stays mounted for 9s (7s run + tail).
+  useEffect(() => {
+    if (!cfg.cars) return;
+    let t1, t2;
+    const schedule = (min, spread) => {
+      t1 = setTimeout(() => {
+        setChase(true);
+        t2 = setTimeout(() => { setChase(false); schedule(50000, 90000); }, 9000);
+      }, min + Math.random() * spread);
+    };
+    schedule(25000, 35000);
+    return () => { clearTimeout(t1); clearTimeout(t2); setChase(false); };
+  }, [cfg.cars]);
   const [anchorRef, coverBox] = useCoverAnchor(GULLY_NAT.w, GULLY_NAT.h);
   const [loungeRef, loungeBox] = useCoverAnchor(1264, 848);
   const setSceneRef = (el) => { anchorRef.current = el; loungeRef.current = el; };
@@ -527,6 +542,30 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             style={{ width: c.size, filter: c.bus ? "none" : `drop-shadow(0 0 ${c.spinner ? 12 : 8}px rgba(34,224,224,${c.spinner ? 0.65 : 0.5}))`, ...(c.bus ? { maskImage: "linear-gradient(to bottom, #000 72%, rgba(0,0,0,0.68) 90%, rgba(0,0,0,0.48) 100%)", WebkitMaskImage: "linear-gradient(to bottom, #000 72%, rgba(0,0,0,0.68) 90%, rgba(0,0,0,0.48) 100%)" } : {}) }} />
         </div>
       ))}
+      {cfg.cars && chase && (<>
+        {/* the prey: a car swerving hard, tearing across faster than traffic */}
+        <div className="absolute left-0 z-[4]" data-testid="cyber-chase-car"
+          style={{ top: mobile ? "46%" : "26%", animation: "ffChaseRun 7s cubic-bezier(0.3,0,0.7,1) both" }}>
+          <span style={{ display: "block", animation: "ffChaseSwerve 0.55s ease-in-out infinite" }}>
+            <img src={cfg.cars} alt="" className="block object-contain opacity-95"
+              style={{ width: mobile ? 92 : 128, filter: "drop-shadow(0 0 10px rgba(34,224,224,0.55))" }} />
+          </span>
+        </div>
+        {/* the law: police spinner running the same line 0.55s behind */}
+        <div className="absolute left-0 z-[4]" data-testid="cyber-chase-police"
+          style={{ top: mobile ? "46.5%" : "26.5%", animation: "ffChaseRun 7s cubic-bezier(0.3,0,0.7,1) 0.55s both" }}>
+          <div className="relative">
+            {/* strobing halo washes the whole unit red/blue */}
+            <span className="pointer-events-none absolute -inset-4" style={{ background: "radial-gradient(ellipse at 42% 30%, rgba(255,45,85,0.42), transparent 68%)", filter: "blur(8px)", animation: "ffCopFlashA 0.55s steps(1,end) infinite" }} />
+            <span className="pointer-events-none absolute -inset-4" style={{ background: "radial-gradient(ellipse at 58% 30%, rgba(64,120,255,0.48), transparent 68%)", filter: "blur(8px)", animation: "ffCopFlashB 0.55s steps(1,end) infinite" }} />
+            {/* roof light bar */}
+            <span className="pointer-events-none absolute" style={{ left: "34%", top: "-7%", width: "9%", height: "13%", borderRadius: 2, background: "#FF2D55", boxShadow: "0 0 14px 4px rgba(255,45,85,0.9)", animation: "ffCopFlashA 0.55s steps(1,end) infinite" }} />
+            <span className="pointer-events-none absolute" style={{ left: "45%", top: "-7%", width: "9%", height: "13%", borderRadius: 2, background: "#4078FF", boxShadow: "0 0 14px 4px rgba(64,120,255,0.9)", animation: "ffCopFlashB 0.55s steps(1,end) infinite" }} />
+            <img src={cfg.spinner} alt="" className="block object-contain opacity-95"
+              style={{ width: mobile ? 110 : 152, filter: "drop-shadow(0 0 10px rgba(120,150,255,0.5))" }} />
+          </div>
+        </div>
+      </>)}
       {cfg.neon && <CyberNeonSign neon={cfg.neon} />}
       {cfg.wall && <img src={cfg.wall} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-60" style={{ objectPosition: "center top" }} />}
       {cfg.lounge && (<>

@@ -473,6 +473,27 @@ body {
   0%, 100% { opacity: .35; transform: scaleY(1); }
   50%      { opacity: .7;  transform: scaleY(1.15); }
 }
+
+/* Police chase: a fleeing car tears across the skyline with a spinner in hot
+   pursuit — same path, the pursuer runs it with a delay (fill: both keeps it
+   hidden off-screen until its turn). Faster + swervier than ambient traffic. */
+@keyframes ffChaseRun{
+  0%   { transform: translateX(calc(-12vw - 200px)) translateY(0); }
+  22%  { transform: translateX(20vw) translateY(-16px); }
+  46%  { transform: translateX(50vw) translateY(12px); }
+  72%  { transform: translateX(84vw) translateY(-12px); }
+  100% { transform: translateX(calc(118vw + 40px)) translateY(6px); }
+}
+/* the prey drives scared — quick jitters and tilts */
+@keyframes ffChaseSwerve{
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25%      { transform: translateY(-4px) rotate(-2.2deg); }
+  55%      { transform: translateY(3px) rotate(1.6deg); }
+  80%      { transform: translateY(-2px) rotate(-1.2deg); }
+}
+/* red/blue light-bar strobes — hard alternation, no fade */
+@keyframes ffCopFlashA{ 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes ffCopFlashB{ 0%, 45% { opacity: 0; } 50%, 95% { opacity: 1; } 100% { opacity: 0; } }
 /* Reaper ambiance — broad low-lying atmospheric haze + rising smoke plumes */
 /* Night-sky darkener: deepens the top sky + a pool behind the cemetery so the
    graveyard reads clearly, while leaving the upper-left hero text zone light. */

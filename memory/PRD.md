@@ -2554,3 +2554,20 @@ inside playHeistSound).
   surprise-me, +N more expanders, seal flip -> shuffle. 0 console errors.
 - To retrigger guided flow in tests: localStorage.clear(); set ff_theme,
   ff_theme_chosen=1, ff_theme_hint_seen=1; reload (showGuided defaults true).
+
+## 2026-08-11 part 95: Cyberscape polish (FF_BUILD 421-422)
+- BUS ENTRY FIX: ffFly starts at -24vw which didn't hide the 300px bus on
+  narrow windows ("pops into view"). New ffFlyBus keyframe starts at
+  calc(-24vw - 340px). Bus now uses ffFlyBus in AmbianceScene.
+- THRUSTER GLOW (user: "less solid, fuzzy, moving / engine producing it"):
+  (1) /app/scripts/soften_bus_thrusters.py PIL-faded the solid teal cones
+  baked into cyber-bus.png (alpha 62%->6% vertical fade below y=242 + 2.2px
+  alpha blur). Backup: /tmp/cyber-bus-backup.png.
+  (2) CSS: ffThrusterPlume (irregular scaleY/opacity pulses, origin top) on
+  two pod plumes (1.1s / 1.35s -0.45s) + ffThrusterHaze breathing underglow.
+- POLICE CHASE (user request): occasional pursuit — swerving prey car
+  (ffChaseRun 7s + ffChaseSwerve jitter) chased by cyber-spinner-suv with
+  red/blue strobing light bar + halos (ffCopFlashA/B 0.55s steps). Scheduler
+  in AmbianceScene: first at 25-60s, then every 50-140s, 9s mount. testids:
+  cyber-chase-car, cyber-chase-police. Verified live via screenshot (spawned
+  at 24s, both frames show pursuit). User approved bus ("Bus looks great").
