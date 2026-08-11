@@ -2661,3 +2661,13 @@ inside playHeistSound).
 - DEPTH FIX (user: "bigger vehicles should be in front of the pursuit"):
   CYBER_CARS z-order now size-based — bus(300) z-6, spinner SUV(96) z-5,
   ambient pursuit z-4, small cars z-3, distant bus2 z-2.
+
+## 2026-08-11 part 100: Realm-entry stings for Summer/Spring/Tiki (FF_BUILD 431)
+- Generalized the entry ambient into RealmEntrySting.jsx (mounted in Home,
+  works for season + ambiance realms). Cyber effect removed from AmbianceScene.
+- User tracks (all one-shot, vol 0.18, loudnorm I=-20, fades, "not full song"):
+  summer = atlas-hawaii 60-84s -> /summer-ambient.mp3
+  spring = whisper-of-bamboo 0-29.5s (silent tail trimmed) -> /spring-ambient.mp3
+  tiki   = reggae-island-vibes 60-84s -> /tiki-ambient.mp3
+- Verified via init-script play hook: each realm entry fires its sting, dark
+  fires none. Dev StrictMode double-play is self-fading; prod single.

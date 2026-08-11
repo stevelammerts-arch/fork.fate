@@ -427,34 +427,6 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
     schedule(25000, 35000);
     return () => { clearTimeout(t1); clearTimeout(t2); setChase(null); };
   }, [cfg.cars]);
-  // One-shot ambient entry bed for the Cyberscape realm (user-provided track):
-  // plays once at ambient volume upon entering the realm, fades out if the
-  // user leaves mid-track. Autoplay-blocked cold loads retry on first tap.
-  useEffect(() => {
-    if (theme !== "cyber") return;
-    let a = null;
-    const retry = () => { if (a) a.play().catch(() => {}); };
-    try {
-      if (localStorage.getItem("ff_muted") !== "1") {
-        a = new Audio("/cyber-ambient.mp3");
-        a.volume = 0.18;
-        a.play().catch(() => window.addEventListener("pointerdown", retry, { once: true }));
-      }
-    } catch { /* audio unavailable */ }
-    const muteWatch = setInterval(() => {
-      try { if (a && localStorage.getItem("ff_muted") === "1") { a.pause(); a = null; } } catch { /* ignore */ }
-    }, 400);
-    return () => {
-      clearInterval(muteWatch);
-      window.removeEventListener("pointerdown", retry);
-      if (!a) return;
-      const el = a; // quick fade so leaving the realm doesn't clip the track
-      const fade = setInterval(() => {
-        el.volume = Math.max(0, el.volume - 0.03);
-        if (el.volume <= 0) { clearInterval(fade); el.pause(); }
-      }, 60);
-    };
-  }, [theme]);
   const [anchorRef, coverBox] = useCoverAnchor(GULLY_NAT.w, GULLY_NAT.h);
   const [loungeRef, loungeBox] = useCoverAnchor(1264, 848);
   const setSceneRef = (el) => { anchorRef.current = el; loungeRef.current = el; };

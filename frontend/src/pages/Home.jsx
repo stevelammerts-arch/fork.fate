@@ -39,6 +39,7 @@ import { recordFate } from "../lib/journal";
 import { markCuisine } from "../lib/bingo";
 import { readPassports } from "../lib/passports";
 import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene, ReaperHeist, GhostSnatchHeist, ReaperPlateHeist, CoffeeSpillHeist, CompanionPatrol } from "../components/ThemeScenes";
+import { RealmEntrySting } from "../components/scenes/RealmEntrySting";
 import { ReaperScene } from "../components/ReaperScene";
 import { CafeDustMotes } from "../components/CafeDustMotes";
 import { ShuffleOverlay } from "../components/home/ShuffleOverlay";
@@ -1020,6 +1021,8 @@ export default function Home() {
       {theme === "light" && <CafeDustMotes />}
       {/* Seasonal themes: tree + decor + falling sprites */}
       {seasonCfg && <SeasonScene theme={theme} cfg={seasonCfg} heistEpoch={heistEpoch} />}
+      {/* One-shot realm-entry music stings (user-provided tracks) */}
+      <RealmEntrySting theme={theme} />
       {/* Ambiance themes: cyberpunk / steampunk / tiki lounge */}
       {ambCfg && <AmbianceScene theme={theme} cfg={ambCfg} heistEpoch={heistEpoch} />}
       {/* Dark-mode: decorative reaper background with load animation */}
