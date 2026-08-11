@@ -1116,6 +1116,47 @@ body {
   60% { transform: scaleX(-1) translateY(-4px) rotate(9deg); }
   80% { transform: scaleX(-1) translateY(5px) rotate(-4deg); }
 }
+/* Winter Stash: the squirrel's header heist */
+@keyframes ffStashBob {
+  0%, 100% { transform: translateY(0); }
+  45% { transform: translateY(-9px); }
+}
+@keyframes ffStashAir {
+  0%, 18% { opacity: 0; }
+  22%, 68% { opacity: 1; }
+  72%, 100% { opacity: 0; }
+}
+@keyframes ffStashGround {
+  0%, 18% { opacity: 1; }
+  22%, 68% { opacity: 0; }
+  72%, 100% { opacity: 1; }
+}
+@keyframes ffStashPanic {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(-1); }
+}
+/* the over-stuffed medallion straining at the seams */
+@keyframes ffStashStrain {
+  0%, 100% { transform: scale(1.03) rotate(-2deg); }
+  25% { transform: scale(1.06) rotate(3deg); }
+  75% { transform: scale(1.07) rotate(-5deg); }
+}
+/* the logo blasted open — pops up, then tumbles down to the ground */
+@keyframes ffLogoBlownUp {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  30%  { transform: translate(5vw, -16vh) rotate(150deg); }
+  100% { transform: translate(9vw, 105vh) rotate(430deg); }
+}
+/* the nut avalanche: burst out, drop to the ground, one bounce, settle */
+@keyframes ffNutTumble {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  16%  { transform: translate(calc(var(--dx) * 0.4), -42px) rotate(140deg); opacity: 1; }
+  62%  { transform: translate(var(--dx), var(--fy)) rotate(480deg); opacity: 1; }
+  74%  { transform: translate(calc(var(--dx) * 1.05), calc(var(--fy) - 22px)) rotate(560deg); opacity: 1; }
+  84%  { transform: translate(calc(var(--dx) * 1.09), var(--fy)) rotate(620deg); opacity: 1; }
+  92%  { transform: translate(calc(var(--dx) * 1.09), var(--fy)) rotate(620deg); opacity: 1; }
+  100% { transform: translate(calc(var(--dx) * 1.09), var(--fy)) rotate(620deg); opacity: 0; }
+}
 /* Café: steam wisps curling up off the coffee cup */
 @keyframes ffCupSteam {
   0%   { transform: translate(0, 0) scale(0.6); opacity: 0; }

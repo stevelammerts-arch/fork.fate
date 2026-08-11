@@ -1,7 +1,7 @@
 // Seasonal realm scenery (fall / winter / spring / summer): background art,
 // falling sprites, gust snow, chimney smoke — plus that season's heists.
 import { useState } from "react";
-import { SummerBallHeist, SummerCrabHeist, SnowmanHeist, CardinalTipHeist, OwlHeist, SpringPetalHeist } from "./seasonHeists";
+import { SummerBallHeist, SummerCrabHeist, SnowmanHeist, CardinalTipHeist, OwlHeist, SpringPetalHeist, WinterStashHeist } from "./seasonHeists";
 
 // Golden-hour sun path: individual shimmering glints down the water instead
 // of a solid streak — narrow near the horizon, wider and fainter near shore.
@@ -283,6 +283,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
     {theme === "winter" && <SnowmanHeist key={`sh-${heistEpoch}`} />}
     {theme === "winter" && <CardinalTipHeist key={`cth-${heistEpoch}`} />}
     {theme === "fall" && <OwlHeist key={`oh-${heistEpoch}`} />}
+    {theme === "fall" && <WinterStashHeist key={`wsh-${heistEpoch}`} />}
     {theme === "spring" && <SpringPetalHeist key={`sph-${heistEpoch}`} />}
   </>);
 }

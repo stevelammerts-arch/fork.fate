@@ -2712,3 +2712,25 @@ inside playHeistSound).
   (755,507, w=34). Reuses /cafe-cup-side.png at 0.6 opacity + sepia; 3 steam
   wisps via new ffCupSteam keyframe. Verified desktop (1920x950: cup on table
   bottom-right) + mobile (390x844: cup on counter).
+
+## 2026-08-11 part 106: "Winter Stash" squirrel heist — Fall realm (FF_BUILD 439)
+- WinterStashHeist in seasonHeists.jsx, mounted for fall in SeasonScene
+  (key wsh-heistEpoch). Force event: ff:stash-heist. HEISTS key "stash"
+  ("Winter Stash", acorn brown #B5651D).
+- Rabbit-style pose rig (user request): 3 new Nano Banana poses generated from
+  /fall-squirrel.png ref (gen_squirrel_poses.py) -> fall-squirrel-sit/-up/-hold
+  (260px wide, keyed). Move phases swap run/sit sprites via ffStashAir/
+  ffStashGround 0.36s loops synced to ffStashBob hop.
+- Choreography (verified via beat probes + screenshots): scamper in w/ acorn
+  in cheeks (0-2.3s) -> upright look-around w/ L/R glances -> stuffs acorn
+  behind logo (acorn flight el) -> medallion bulges (direct med.style
+  transform) -> strains (ffStashStrain) -> 5.9s BURSTS OPEN (ffLogoBlownUp:
+  pops up then tumbles to ground) + 13 acorns tumble ALL THE WAY to the ground
+  (ffNutTumble w/ --dx/--fy vars, bounce+settle+fade) -> panic flips
+  (ffStashPanic) -> grabs one nut (hold pose) -> bolts left -> logo returns
+  with ONE ACORN TIP left peeking from behind the rim (persists while mounted).
+- BUG FIXED: Tailwind preflight img{max-width:100%} clamped nut imgs to 0 width
+  (zero-width parent container) — fixed with max-w-none. LESSON for future
+  heists: any img inside a zero-size positioned container needs max-w-none.
+- Deployed note: production is live at fork-fate.com; these changes are
+  preview-only until next deploy.

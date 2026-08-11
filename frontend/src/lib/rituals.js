@@ -71,6 +71,7 @@ export const HEISTS = [
   { key: "cardinal", name: "Featherweight", realm: "Winter", accent: "#D2413A", desc: "The little cardinal flutters down for a rest on top of the medallion — which teeters under the featherweight and tips right off its perch." },
   { key: "pursuit", name: "Hot Pursuit", realm: "Cyberscape", accent: "#4078FF", desc: "A police chase screams across the header under full siren, doubles back — and the fleeing car slams nose-first into the medallion, knocking it clean off the screen." },
   { key: "tow", name: "Tow Job", realm: "Cyberscape", accent: "#E0A422", desc: "The rarest ending to the Hot Pursuit: a hover wrecker floats down, hooks the smoking wreck by the nose, and hauls it off into the skyline — beacon blinking all the way." },
+  { key: "stash", name: "Winter Stash", realm: "Fall", accent: "#B5651D", desc: "The squirrel checks both ways and stuffs one acorn too many behind the medallion — which bursts clean off as its entire hidden cache tumbles to the ground." },
 ];
 
 export function readHeistsSeen() {

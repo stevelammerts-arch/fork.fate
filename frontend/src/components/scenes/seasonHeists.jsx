@@ -604,3 +604,158 @@ export function CardinalTipHeist() {
     </div>
   );
 }
+
+/** Fall heist: WINTER STASH. The little squirrel scampers in along the header
+ * with the rabbit-style pose rig (leap sprite mid-hop, crouch sprite between
+ * hops), an acorn in its cheeks. It stops beside the medallion, stands upright
+ * and checks both ways, then stuffs the acorn behind the logo — which bulges,
+ * strains... and BURSTS clean off as the squirrel's entire hidden cache of
+ * acorns explodes out and tumbles all the way down to the ground. The squirrel
+ * panics, snatches one nut back, and bolts. The logo pops back into place with
+ * one acorn tip still peeking out from behind it for the rest of the visit.
+ * First strike 40-70s after load, then every 2.5-5 min (`ff:stash-heist`
+ * forces it). Poses: /fall-squirrel.png (run/leap, 260x139), -sit (260x138),
+ * -up (260x159), -hold (260x147, acorn in paws); all face RIGHT. */
+export function WinterStashHeist() {
+  const witnessRef = useHeistWitness("stash");
+  const [run, setRun] = useState(null);    // {cx, cy, w}
+  const [ph, setPh] = useState(0);         // 0 staged, 1 scamper in, 2 look around, 3 stash, 4 calm sit, 5 panic, 6 grab, 7 bolt
+  const [face, setFace] = useState("R");   // brief look-left flips
+  const [acorn, setAcorn] = useState(null);// carried acorn: "paws" -> "slot" -> null
+  const [burst, setBurst] = useState(false);
+  const [peek, setPeek] = useState(null);  // the tip left peeking after the heist
+  useEffect(() => {
+    ["/fall-squirrel.png", "/fall-squirrel-sit.png", "/fall-squirrel-up.png", "/fall-squirrel-hold.png", "/fall-acorn.png"].forEach((s) => { const im = new Image(); im.src = s; });
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        setPeek(null);
+        timers.push(setTimeout(() => { setPh(1); setAcorn("paws"); }, 30));   // scampers in, nut in cheeks
+        timers.push(setTimeout(() => setPh(2), 2300));                        // upright... anyone watching?
+        timers.push(setTimeout(() => setFace("L"), 2650));                    // glance left
+        timers.push(setTimeout(() => setFace("R"), 3050));                    // glance right
+        timers.push(setTimeout(() => { setPh(3); setAcorn("slot"); }, 3450)); // stuffs it behind the logo
+        timers.push(setTimeout(() => {                                        // the medallion bulges
+          setAcorn(null);
+          med.style.transition = "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)";
+          med.style.transform = "scale(1.09) rotate(-6deg)";
+        }, 4050));
+        timers.push(setTimeout(() => {                                        // pats it flat... almost
+          setPh(4);
+          med.style.transform = "scale(1.03) rotate(-2deg)";
+        }, 4600));
+        timers.push(setTimeout(() => {                                        // it's straining...
+          med.style.animation = "ffStashStrain 0.42s ease-in-out 2";
+        }, 5300));
+        timers.push(setTimeout(() => {                                        // BURSTS OPEN — nut avalanche
+          setBurst(true); setPh(5);
+          med.style.animation = "none"; med.style.transform = ""; med.style.transition = "";
+          med.style.visibility = "hidden"; startleTitle();
+        }, 5900));
+        timers.push(setTimeout(() => setPh(6), 7400));                        // snatches one nut back
+        timers.push(setTimeout(() => setPh(7), 7900));                        // bolts for the trees
+        timers.push(setTimeout(() => {                                        // logo pops back — one tip peeking
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth;
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+          setPeek({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        }, 9700));
+        timers.push(setTimeout(() => {
+          setRun(null); setPh(0); setBurst(false); setFace("R"); running = false;
+          witnessRef.current(true);
+          schedule(150000 + Math.random() * 150000);
+        }, 10900));
+      });
+    };
+    schedule(40000 + Math.random() * 30000);
+    const force = () => start(true);
+    window.addEventListener("ff:stash-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:stash-heist", force);
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) {
+        img.parentElement.style.visibility = "";
+        img.parentElement.style.transform = "";
+        img.parentElement.style.transition = "";
+      }
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run && !peek) return null;
+  const g = run || peek;
+  const { cx, cy, w } = g;
+  const vh = window.innerHeight;
+  const SW = w * 1.5, SH = SW * 0.62;              // pose box (tallest pose is 159/260)
+  const baseY = cy + w * 0.5;                       // squirrel feet share the logo's bottom line
+  const stopX = cx - w * 0.5 - SW * 0.82;           // parks just left of the medallion
+  const sqX = ph === 0 ? -(SW + 60) : ph >= 7 ? -(SW + 80) : ph === 3 ? stopX + w * 0.22 : stopX;
+  const sqTrans = ph === 1 ? "left 2.1s linear" : ph === 7 ? "left 1.7s linear" : ph === 3 ? "left 0.4s ease-out" : "none";
+  const moving = ph === 1 || ph === 7;
+  const pose = moving ? "move" : ph === 2 || ph === 5 ? "up" : ph === 3 || ph === 6 ? "hold" : "sit";
+  const faceL = ph >= 7 || face === "L";
+  const nutFall = vh - cy - w * 0.6;                // how far the avalanche drops to the ground
+  const poseImg = (src, key, on, extraAnim) => (
+    <img key={key} src={src} alt="" className="absolute bottom-0 left-0 w-full object-contain object-bottom"
+      style={{ opacity: extraAnim ? 1 : on ? 1 : 0, animation: extraAnim, filter: "drop-shadow(0 3px 5px rgba(60,40,20,0.35))" }} />
+  );
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="stash-heist">
+      {/* the medallion blasted off its perch by the nut avalanche */}
+      {burst && run && (
+        <div className="absolute overflow-hidden bg-black ring-2 ring-[#B5651D]" style={{ left: cx - w / 2, top: cy - w / 2, width: w, height: w, borderRadius: "9999px", animation: "ffLogoBlownUp 1.4s cubic-bezier(0.3,0.6,0.6,1) forwards" }} data-testid="stash-heist-logo">
+          <img src="/logo-mark.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+        </div>
+      )}
+      {/* the entire hidden cache tumbles all the way down to the ground */}
+      {burst && run && (
+        <div className="absolute" style={{ left: cx, top: cy }} data-testid="stash-heist-nuts">
+          {Array.from({ length: 13 }, (_, i) => (
+            <img key={`nut-${i}`} src="/fall-acorn.png" alt="" className="absolute max-w-none"
+              style={{ width: w * (0.24 + (i % 3) * 0.05), "--dx": `${((i / 12) - 0.5) * w * 5.2}px`, "--fy": `${nutFall - (i % 4) * 14}px`,
+                animation: `ffNutTumble ${(1.5 + (i % 5) * 0.14).toFixed(2)}s cubic-bezier(0.35,0,0.75,0.7) ${(i * 0.045).toFixed(2)}s forwards`, opacity: 0 }} />
+          ))}
+        </div>
+      )}
+      {/* the carried acorn slipping from its paws into the slot behind the logo */}
+      {acorn && run && (
+        <img src="/fall-acorn.png" alt="" className="absolute" data-testid="stash-heist-acorn"
+          style={{ width: w * 0.32, left: acorn === "paws" ? stopX + SW * 0.6 : cx - w * 0.3, top: acorn === "paws" ? baseY - SH * 0.52 : cy - w * 0.16,
+            transform: acorn === "slot" ? "scale(0.6) rotate(40deg)" : "rotate(-12deg)",
+            transition: "left 0.55s ease-in, top 0.55s ease-in, transform 0.55s ease-in" }} />
+      )}
+      {/* the squirrel — rabbit-style pose rig */}
+      {run && (
+        <div className="absolute" style={{ left: sqX, top: baseY - SH, width: SW, height: SH, transition: sqTrans }} data-testid="stash-heist-squirrel">
+          <div className="relative h-full w-full" style={{ transform: faceL ? "scaleX(-1)" : "none", animation: ph === 5 ? "ffStashPanic 0.55s steps(1,end) 3" : undefined }}>
+            <div className="relative h-full w-full" style={{ animation: moving ? "ffStashBob 0.36s ease-in-out infinite" : undefined }}>
+              {poseImg("/fall-squirrel.png", "p-run", false, moving ? "ffStashAir 0.36s linear infinite" : undefined)}
+              {poseImg("/fall-squirrel-sit.png", "p-sit", pose === "sit", moving ? "ffStashGround 0.36s linear infinite" : undefined)}
+              {poseImg("/fall-squirrel-up.png", "p-up", pose === "up")}
+              {poseImg("/fall-squirrel-hold.png", "p-hold", pose === "hold")}
+              {/* the nut in its cheeks on the way in */}
+              {ph === 1 && <img src="/fall-acorn.png" alt="" className="absolute" style={{ width: "22%", right: "4%", top: "34%", transform: "rotate(-18deg)" }} />}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* one acorn tip left peeking out from behind the medallion */}
+      {peek && (
+        <div className="absolute overflow-hidden" data-testid="stash-heist-peek"
+          style={{ left: cx + w * 0.12, top: cy - w * 0.72, width: w * 0.34, height: w * 0.24 }}>
+          <img src="/fall-acorn.png" alt="" style={{ width: "100%", transform: "rotate(64deg) translateY(18%)", opacity: 0.95 }} />
+        </div>
+      )}
+    </div>
+  );
+}
