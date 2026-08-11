@@ -2539,3 +2539,18 @@ inside playHeistSound).
   * Passport stamps have 60s anti-cheat cooldown; crawl codes are 8 chars;
     SEC-002: only GPS-verified plausible runs rank on crawl leaderboards;
     public restaurant submissions are pending until admin approval.
+
+## 2026-08-11 part 94: GuidedFlow refactor DONE (FF_BUILD 420)
+- 448-line GuidedFlow.jsx monolith split into an orchestrator (~132 lines,
+  owns state + progress chrome) + /app/frontend/src/components/guided/:
+  theme.jsx (buildGuidedTheme tokens incl. radiusLabel/groupLabel, SEAL_ICONS,
+  MushroomIcon, pageVariants), GuidedChips.jsx, StepInterest.jsx,
+  StepLocation.jsx (owns geoLoading locally), StepChips.jsx, StepSeal.jsx
+  (ReaperCardFront + ThemedCardFront + card back).
+- ThemeWelcomeDialog.jsx imports MushroomIcon from ./guided/theme (no shim).
+- Pure refactor: all data-testids + behavior identical. Testing agent
+  iteration_69: 100% PASS across spring/dark(Reaper)/fairy themes, back-state
+  preservation, skip, ZIP gating, 50/150mi radius caps, grouped chips,
+  surprise-me, +N more expanders, seal flip -> shuffle. 0 console errors.
+- To retrigger guided flow in tests: localStorage.clear(); set ff_theme,
+  ff_theme_chosen=1, ff_theme_hint_seen=1; reload (showGuided defaults true).

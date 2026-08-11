@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Moon, Sun, Leaf, Snowflake, Flower2, Umbrella, Zap, Cog, Wine, Swords, Dices, Check } from "lucide-react";
-import { MushroomIcon } from "./GuidedFlow";
+import { MushroomIcon } from "./guided/theme";
 import { useTheme, setTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
 
