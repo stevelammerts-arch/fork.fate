@@ -515,8 +515,14 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       {cfg.rain && <div className="absolute inset-0 ff-rain" />}
       {cfg.cars && CYBER_CARS.map((c, i) => (
         <div key={`car-${i}`} className={`absolute left-0 ${c.bus ? "z-[5]" : c.bus2 ? "z-[2]" : c.spinner ? "z-[4]" : "z-[3]"}`}
-          style={{ top: mobile ? c.topM : c.top, willChange: "transform", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", animation: `${c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite both` }}>
-          {c.bus && <span className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2" style={{ width: "60%", height: "42%", background: "radial-gradient(ellipse at center, rgba(34,224,224,0.7) 0%, rgba(34,224,224,0.32) 44%, rgba(34,224,224,0) 72%)", filter: "blur(5px)" }} />}
+          style={{ top: mobile ? c.topM : c.top, willChange: "transform", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", animation: `${c.bus ? "ffFlyBus" : c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite both` }}>
+          {c.bus && (<>
+            {/* broad soft under-glow, breathing slowly */}
+            <span className="pointer-events-none absolute" style={{ left: "20%", bottom: "-2%", width: "60%", height: "40%", transformOrigin: "50% 0%", background: "radial-gradient(ellipse at center, rgba(34,224,224,0.4) 0%, rgba(34,224,224,0.18) 46%, rgba(34,224,224,0) 72%)", filter: "blur(9px)", animation: "ffThrusterHaze 2.6s ease-in-out infinite" }} />
+            {/* engine plumes under each hover pod (pods sit ~26% / ~77% across the sprite) */}
+            <span className="pointer-events-none absolute" style={{ left: "20%", bottom: "-6%", width: "13%", height: "36%", transformOrigin: "50% 0%", background: "radial-gradient(ellipse at 50% 18%, rgba(150,255,246,0.9) 0%, rgba(34,224,224,0.5) 40%, rgba(34,224,224,0) 74%)", filter: "blur(6px)", animation: "ffThrusterPlume 1.1s ease-in-out infinite" }} />
+            <span className="pointer-events-none absolute" style={{ left: "70.5%", bottom: "-6%", width: "13%", height: "36%", transformOrigin: "50% 0%", background: "radial-gradient(ellipse at 50% 18%, rgba(150,255,246,0.9) 0%, rgba(34,224,224,0.5) 40%, rgba(34,224,224,0) 74%)", filter: "blur(6px)", animation: "ffThrusterPlume 1.35s ease-in-out -0.45s infinite" }} />
+          </>)}}
           <img src={c.bus ? cfg.bus : (c.bus2 ? cfg.bus2 : (c.spinner ? cfg.spinner : (c.rev ? cfg.cars2 : cfg.cars)))} alt="" className="relative block object-contain opacity-90"
             style={{ width: c.size, filter: c.bus ? "none" : `drop-shadow(0 0 ${c.spinner ? 12 : 8}px rgba(34,224,224,${c.spinner ? 0.65 : 0.5}))`, ...(c.bus ? { maskImage: "linear-gradient(to bottom, #000 72%, rgba(0,0,0,0.68) 90%, rgba(0,0,0,0.48) 100%)", WebkitMaskImage: "linear-gradient(to bottom, #000 72%, rgba(0,0,0,0.68) 90%, rgba(0,0,0,0.48) 100%)" } : {}) }} />
         </div>
