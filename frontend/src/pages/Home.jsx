@@ -41,7 +41,7 @@ import { readPassports } from "../lib/passports";
 import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene, ReaperHeist, GhostSnatchHeist, ReaperPlateHeist, CoffeeSpillHeist, CompanionPatrol } from "../components/ThemeScenes";
 import { RealmEntrySting } from "../components/scenes/RealmEntrySting";
 import { ReaperScene } from "../components/ReaperScene";
-import { CafeDustMotes } from "../components/CafeDustMotes";
+import { CafeDustMotes, CafeCounterCup } from "../components/CafeDustMotes";
 import { ShuffleOverlay } from "../components/home/ShuffleOverlay";
 import { RevealFlash } from "../components/home/RevealFlash";
 import { CrawlSetupPanel } from "../components/home/CrawlSetupPanel";
@@ -1019,6 +1019,8 @@ export default function Home() {
       )}
       {/* Coffee Shop ambience: dust motes drifting in warm café light */}
       {theme === "light" && <CafeDustMotes />}
+      {/* ...and a steaming cup of coffee resting in the scene */}
+      {theme === "light" && <CafeCounterCup />}
       {/* Seasonal themes: tree + decor + falling sprites */}
       {seasonCfg && <SeasonScene theme={theme} cfg={seasonCfg} heistEpoch={heistEpoch} />}
       {/* One-shot realm-entry music stings (user-provided tracks) */}

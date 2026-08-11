@@ -2700,3 +2700,15 @@ inside playHeistSound).
   light/cafe, dark/reaper, cyber, steam, tiki, fantasy, fairy, fall, winter,
   spring, summer. User: "That should be all of them."
 - Reminder given to user: stings are on PREVIEW; production needs a deploy.
+
+## 2026-08-11 part 105: Cafe steaming coffee cup + cafe sting (FF_BUILD 435-436)
+- light(cafe) sting = coffee-shop-jazz 28-54s -> /cafe-ambient.mp3. ALL 11
+  realms now verified firing their unique entry sting in one sweep.
+- CafeCounterCup (in CafeDustMotes.jsx, mounted for light theme in Home):
+  steaming cup pinned to the painted art through the exact bg-cover bg-center
+  mapping (art 1264x848). User: "right table in full screen, counter in
+  mobile" -> spot chosen dynamically from the cover crop: foreground table
+  (1130,730, w=64 image px) when it fits the frame, else white counter
+  (755,507, w=34). Reuses /cafe-cup-side.png at 0.6 opacity + sepia; 3 steam
+  wisps via new ffCupSteam keyframe. Verified desktop (1920x950: cup on table
+  bottom-right) + mobile (390x844: cup on counter).
