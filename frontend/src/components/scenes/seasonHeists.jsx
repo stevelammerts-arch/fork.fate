@@ -625,6 +625,7 @@ export function WinterStashHeist() {
   const [burst, setBurst] = useState(false);
   const [peek, setPeek] = useState(null);  // the tip left peeking after the heist
   useEffect(() => {
+    preloadHeistAudio(["/stash-rustle.mp3", "/stash-pop.mp3", "/stash-chatter.mp3"]);
     ["/fall-squirrel.png", "/fall-squirrel-sit.png", "/fall-squirrel-up.png", "/fall-squirrel-hold.png", "/fall-acorn.png"].forEach((s) => { const im = new Image(); im.src = s; });
     const timers = [];
     let pending = null;
@@ -643,7 +644,7 @@ export function WinterStashHeist() {
         timers.push(setTimeout(() => setPh(2), 2300));                        // upright... anyone watching?
         timers.push(setTimeout(() => setFace("L"), 2650));                    // glance left
         timers.push(setTimeout(() => setFace("R"), 3050));                    // glance right
-        timers.push(setTimeout(() => { setPh(3); setAcorn("slot"); }, 3450)); // stuffs it behind the logo
+        timers.push(setTimeout(() => { setPh(3); setAcorn("slot"); playHeistSound("/stash-rustle.mp3", 0.5); }, 3450)); // stuffs it behind the logo
         timers.push(setTimeout(() => {                                        // the medallion bulges
           setAcorn(null);
           med.style.transition = "transform 0.35s cubic-bezier(0.34,1.56,0.64,1)";
@@ -658,9 +659,11 @@ export function WinterStashHeist() {
         }, 5300));
         timers.push(setTimeout(() => {                                        // BURSTS OPEN — nut avalanche
           setBurst(true); setPh(5);
+          playHeistSound("/stash-pop.mp3", 0.7);
           med.style.animation = "none"; med.style.transform = ""; med.style.transition = "";
           med.style.visibility = "hidden"; startleTitle();
         }, 5900));
+        timers.push(setTimeout(() => playHeistSound("/stash-chatter.mp3", 0.55), 6150)); // outraged squirrel chatter
         timers.push(setTimeout(() => setPh(6), 7400));                        // snatches one nut back
         timers.push(setTimeout(() => setPh(7), 7900));                        // bolts for the trees
         timers.push(setTimeout(() => {                                        // logo pops back — one tip peeking

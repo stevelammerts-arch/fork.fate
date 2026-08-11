@@ -262,7 +262,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
         const src = cfg.items[i % cfg.items.length];
         const s = src.includes("petal") ? l.size * 0.58 : l.size; // lone petals fall smaller than whole blossoms
         return (
-          <img key={`leaf-${l.left}-${l.dur}-${i}`} src={src} alt="" className="absolute top-0 opacity-40"
+          <img key={`leaf-${l.left}-${l.dur}-${i}`} src={src} alt="" className="absolute top-0 opacity-80"
             style={{ left: l.left, width: s, height: s, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }} />
         );
       })}

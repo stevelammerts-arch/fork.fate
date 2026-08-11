@@ -2734,3 +2734,11 @@ inside playHeistSound).
   heists: any img inside a zero-size positioned container needs max-w-none.
 - Deployed note: production is live at fork-fate.com; these changes are
   preview-only until next deploy.
+
+## 2026-08-11 part 107: Winter Stash sounds + solid leaves (FF_BUILD 440)
+- Stash heist scored with user's 3 sounds (all verified firing on cue):
+  /stash-rustle.mp3 (rustling 3.6-5.6s window) at stash beat 3450ms vol 0.5;
+  /stash-pop.mp3 (clean minimal pop, 1.3s) at burst 5900ms vol 0.7;
+  /stash-chatter.mp3 (squirrel squawks 10-11.9s window) at panic 6150ms vol 0.55.
+- Fall falling leaves: opacity-40 -> opacity-80 ("more solid", user request).
+  Only fall uses that FALLING_SPRITES branch (winter=gustSnow, spring=petals).
