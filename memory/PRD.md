@@ -2742,3 +2742,48 @@ inside playHeistSound).
   /stash-chatter.mp3 (squirrel squawks 10-11.9s window) at panic 6150ms vol 0.55.
 - Fall falling leaves: opacity-40 -> opacity-80 ("more solid", user request).
   Only fall uses that FALLING_SPRITES branch (winter=gustSnow, spring=petals).
+
+## 2026-08-11 part 108: Realistic gallop for ambient fall squirrel (FF_BUILD 441)
+- Generated 2 more Nano Banana frames from fall-squirrel.png ref
+  (gen_squirrel_gallop.py): fall-squirrel-stand.png (alert on all fours,
+  260x138) + fall-squirrel-bound.png (gathered mid-bound, rear legs tucked in,
+  260x86).
+- SeasonScene ambient squirrel now a 3-frame rig synced to the 14s
+  ffSquirrelDart cycle: ffSqExtend/ffSqGather alternate every 1% (0.14s)
+  inside the four move windows (0-4/22-26/49-53/72-76%), ffSqStand holds
+  through pauses + turns. Gait nibble + acorn overlay unchanged.
+- Verified: sampled computed opacities across a full cycle — each frame
+  becomes visible in its window, exactly one visible at a time.
+- Squirrel sprite set now: run, sit, up, hold, stand, bound (6 poses).
+
+## 2026-08-11 part 109: Nibble pause pose + front-facing turns + sprite scrub (FF_BUILD 442-444)
+- fall-squirrel-nibble.png: upright-on-haunches acorn-nibbling pose (user
+  reference photo) — now the PAUSE frame; alert stand appears 0.42s before
+  each dart (nibble -> alert -> dart). ffSqNibble/ffSqStand windows updated.
+- fall-squirrel-front.png (v2, dense dark tail after user rejected v1's white
+  frosting): front-facing frame shown during BOTH turn windows (46-48.9%,
+  97-99.9%) via ffSqFront; ffSquirrelDart turn squish REMOVED — scaleX flips
+  instantly at turn midpoint behind the front frame ("no more paper flip").
+- WHITE HALO FIX (user screenshot showed white matte): all 6 side sprites
+  rescrubbed via edge-crawling BFS white-matte eraser (threshold 219/215/210,
+  sat<=26, 8-connected) + edge feather + de-fringe unmultiply. Script pattern
+  kept in PRD; sources in /tmp/squirrel_*_keyed.png. Verified clean over
+  scene-tan composite AND 5x in-page inspection.
+- NOTE: '[data-testid="fall-squirrel"] div img' selector ALSO matches the
+  acorn overlay img — pose img indices are offset by 1 (acorn first).
+- Ambient squirrel frame set: run, bound, stand, nibble, front (+acorn).
+
+## 2026-08-11 part 110: Stationary turns + occasional chatter (FF_BUILD 445)
+- ENCLOSED WHITE POCKETS FIX (user annotated: tail curve, under chin, between
+  run-pose legs): scrub upgraded with connected-component pass removing sealed
+  background-bright pockets (near-white >=226/222/218 sat<=22, comp>=20px,
+  mean-min>=234). Applied to ALL 8 squirrel sprites incl. the original
+  fall-squirrel.png run pose (never scrubbed before).
+- STATIONARY TURNS (user: "stay in place, only move after he turns"):
+  dart move windows shifted to 0.6-4% and 50-54%; sequence now face-us
+  (46-48.4 / 97-99.1) -> side-facing alert stand (48.5-49.9 / 99.2-0.5) ->
+  dart. All frame keyframes (ffSqExtend/Gather/Stand/Nibble/Front) resynced.
+  Verified: front frame never moves (x delta 0 across sampled turns).
+- OCCASIONAL CHATTER: SeasonScene fall effect plays /stash-chatter.mp3 at
+  vol 0.3 first 50-110s then every 2-4.5 min; respects mute; force event
+  ff:squirrel-chatter (verified firing).

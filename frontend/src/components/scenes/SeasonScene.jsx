@@ -1,6 +1,6 @@
 // Seasonal realm scenery (fall / winter / spring / summer): background art,
 // falling sprites, gust snow, chimney smoke — plus that season's heists.
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SummerBallHeist, SummerCrabHeist, SnowmanHeist, CardinalTipHeist, OwlHeist, SpringPetalHeist, WinterStashHeist } from "./seasonHeists";
 
 // Golden-hour sun path: individual shimmering glints down the water instead
@@ -105,6 +105,25 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
     sailDelay: -(Math.random() * 100),
     ballReverse: Math.random() < 0.5 ? " reverse" : "",
   }));
+  // The little ground squirrel chatters now and then (soft, respects mute).
+  // `ff:squirrel-chatter` forces one for testing.
+  useEffect(() => {
+    if (theme !== "fall") return;
+    let t = null;
+    const chatter = () => {
+      try {
+        if (localStorage.getItem("ff_muted") !== "1") {
+          const a = new Audio("/stash-chatter.mp3");
+          a.volume = 0.3;
+          a.play().catch(() => {});
+        }
+      } catch { /* audio unavailable */ }
+    };
+    const loop = () => { chatter(); t = setTimeout(loop, 120000 + Math.random() * 150000); };
+    t = setTimeout(loop, 50000 + Math.random() * 60000);
+    window.addEventListener("ff:squirrel-chatter", chatter);
+    return () => { clearTimeout(t); window.removeEventListener("ff:squirrel-chatter", chatter); };
+  }, [theme]);
   return (<>
     <div className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`season-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
@@ -220,7 +239,15 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
       {cfg.squirrel && (
         <div className="absolute bottom-[1.5%] left-[20%] z-[4]" style={{ animation: "ffSquirrelDart 14s linear infinite" }} data-testid="fall-squirrel">
           <img src="/fall-acorn.png" alt="" className="absolute -right-2 bottom-0 w-4 opacity-0" style={{ animation: "ffAcornShow 14s linear infinite" }} data-testid="fall-acorn" />
-          <img src={cfg.squirrel} alt="" className="w-14 sm:w-16" style={{ animation: "ffSquirrelGait 14s linear infinite", transformOrigin: "60% 100%" }} />
+          <div className="relative h-[30px] w-14 sm:h-[34px] sm:w-16" style={{ animation: "ffSquirrelGait 14s linear infinite", transformOrigin: "60% 100%" }}>
+            {/* real gallop frames: extended stride, gathered bound (rear legs in),
+                upright nibbling through each pause, alert stand just before darting */}
+            <img src={cfg.squirrel} alt="" className="absolute bottom-0 left-0 w-full" style={{ animation: "ffSqExtend 14s linear infinite", opacity: 0 }} />
+            <img src="/fall-squirrel-bound.png" alt="" className="absolute bottom-0 left-0 w-full" style={{ animation: "ffSqGather 14s linear infinite", opacity: 0 }} />
+            <img src="/fall-squirrel-stand.png" alt="" className="absolute bottom-0 left-0 w-full" style={{ animation: "ffSqStand 14s linear infinite", opacity: 0 }} />
+            <img src="/fall-squirrel-nibble.png" alt="" className="absolute bottom-0 left-0 w-full" style={{ animation: "ffSqNibble 14s linear infinite", opacity: 0 }} />
+            <img src="/fall-squirrel-front.png" alt="" className="absolute bottom-0 left-1/2 max-w-none -translate-x-1/2" style={{ height: "126%", width: "auto", animation: "ffSqFront 14s linear infinite", opacity: 0 }} />
+          </div>
         </div>
       )}
       {cfg.crabs && (<>
