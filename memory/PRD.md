@@ -2680,3 +2680,11 @@ inside playHeistSound).
 - Both added to RealmEntrySting STINGS map; verified firing on realm entry via
   init-script play hook. Realms with stings now: cyber, summer, spring, tiki,
   fairy, winter. Still without: steam, fantasy, fall, dark(reaper), light(cafe).
+
+## 2026-08-11 part 102: Fall / Reaper / Steampunk entry stings (FF_BUILD 433)
+- fall  = twilight-halloween logo sting, whole 12.8s (silent tail trimmed)
+- dark  = sigmamusicart horror, first 26s -> /reaper-ambient.mp3
+- steam = clockwork-adventure 42-68s peak -> /steam-ambient.mp3
+- All verified firing on entry. Realms with stings: cyber, summer, spring,
+  tiki, fairy, winter, fall, dark, steam. Still without: fantasy, light(cafe).
+- User re-uploaded the fairy chant; confirmed already wired (first 40s).
