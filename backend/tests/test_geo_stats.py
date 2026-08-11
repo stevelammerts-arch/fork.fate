@@ -1,4 +1,5 @@
 """Backend tests for the visitor-geography beacon + admin geo-stats panel."""
+from _helpers import mint_admin_token
 import os
 import requests
 
@@ -22,6 +23,8 @@ def _admin_session():
     s = requests.Session()
     r = s.post(f"{API}/admin/login", json={"password": password}, timeout=15)
     assert r.status_code == 200, r.text
+    # Secure cookie is not sent over plain http; use Bearer (CSRF-exempt).
+    s.headers["Authorization"] = f"Bearer {mint_admin_token()}"
     return s
 
 

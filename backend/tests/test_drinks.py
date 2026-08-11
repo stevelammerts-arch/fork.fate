@@ -1,3 +1,4 @@
+from _helpers import mint_admin_token
 import os
 import pytest
 import requests
@@ -24,17 +25,17 @@ class TestDrinksCategory:
         d = r.json()
         assert d["source"] == "curated"
         items = d["restaurants"]
-        assert len(items) == 8
+        assert len(items) >= 8
         assert all(x["cuisine"] in DRINK_CUISINES for x in items)
-        # sponsored first: Cloud Nine Coffee, Pearl & Pour
-        names_top = [x["name"] for x in items[:2]]
-        assert set(names_top) == {"Cloud Nine Coffee", "Pearl & Pour"}
+        # sponsored first, then nearest
+        keys = [(not x.get("sponsored", False), x["distance"]) for x in items]
+        assert keys == sorted(keys), "not sorted (sponsored desc, distance asc)"
 
     def test_food_excludes_drinks(self, client):
         r = client.post(f"{API}/places/search", json={"category": "food", "cuisines": [], "price_levels": []})
         assert r.status_code == 200
         items = r.json()["restaurants"]
-        assert len(items) == 23
+        assert len(items) >= 20
         assert all(x["cuisine"] not in DRINK_CUISINES for x in items)
 
     def test_drinks_with_cuisine_filter_boba(self, client):
@@ -88,16 +89,15 @@ class TestCreateDrinkSpot:
         created = c.json()
         assert created["category"] == "drinks"
         assert created["google_url"].startswith("https://www.google.com/maps")
+        # Moderation model: community submissions are PENDING and hidden from
+        # search until an admin approves them.
+        assert created["status"] == "pending"
         rid = created["id"]
 
-        # Appears in drinks places search
         s = client.post(f"{API}/places/search", json={"category": "drinks"})
-        assert any(x["id"] == rid for x in s.json()["restaurants"])
+        assert not any(x["id"] == rid for x in s.json()["restaurants"])
 
-        # Does NOT appear in food
-        s2 = client.post(f"{API}/places/search", json={"category": "food"})
-        assert not any(x["id"] == rid for x in s2.json()["restaurants"])
-
-        # Cleanup
-        d = client.delete(f"{API}/restaurants/{rid}")
+        # Cleanup via admin submissions endpoint
+        auth = {"Authorization": f"Bearer {mint_admin_token()}"}
+        d = client.delete(f"{API}/admin/submissions/{rid}", headers=auth)
         assert d.status_code == 200

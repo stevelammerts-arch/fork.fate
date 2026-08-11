@@ -1,4 +1,5 @@
 """Iter51: JWT iss/aud, rate limit, passkey origin gating."""
+from _helpers import mint_admin_token
 import os
 import time
 import jwt
@@ -9,15 +10,23 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 BASE = os.environ.get("REACT_APP_BACKEND_URL", "https://lucky-bite-1.preview.emergentagent.com").rstrip("/")
+# Origin/x-forwarded-host gating needs the real ingress in front:
+EXT = os.environ.get("FF_EXTERNAL_BASE_URL", BASE).rstrip("/")
+EXT_API = f"{EXT}/api"
 API = f"{BASE}/api"
 ADMIN_PW = os.environ.get("ADMIN_PASSWORD", "")
 JWT_SECRET = os.environ["JWT_SECRET"]
 
 
 def _login_token():
-    r = requests.post(f"{API}/admin/login", json={"password": ADMIN_PW}, timeout=15)
-    assert r.status_code == 200, f"admin login failed: {r.status_code} {r.text}"
-    return r.json()["token"]
+    # Verify the login endpoint works once per module (limit 10/min), then
+    # mint Bearer tokens locally for the rest — login sets an HttpOnly
+    # cookie and carries no token in the body anymore.
+    if not getattr(_login_token, "_verified", False):
+        r = requests.post(f"{API}/admin/login", json={"password": ADMIN_PW}, timeout=15)
+        assert r.status_code == 200, f"admin login failed: {r.status_code} {r.text}"
+        _login_token._verified = True
+    return mint_admin_token()  # login sets HttpOnly cookie; body carries no token
 
 
 # ── SECURITY: JWT iss/aud ────────────────────────────────────────────────
@@ -58,7 +67,7 @@ def test_passkey_register_options_spoofed_client_origin_ignored():
     cross-origin protection, not this preflight-style header check."""
     tok = _login_token()
     r = requests.get(
-        f"{API}/admin/passkey/register-options",
+        f"{EXT_API}/admin/passkey/register-options",
         headers={"Authorization": f"Bearer {tok}", "Origin": "https://evil.com", "Referer": "https://evil.com/"},
         timeout=15,
     )
@@ -73,8 +82,8 @@ def test_passkey_register_options_allowed_origin():
     on the allowlist -> 200. Referer alone also works."""
     tok = _login_token()
     r = requests.get(
-        f"{API}/admin/passkey/register-options",
-        headers={"Authorization": f"Bearer {tok}", "Referer": BASE + "/admin"},
+        f"{EXT_API}/admin/passkey/register-options",
+        headers={"Authorization": f"Bearer {tok}", "Referer": EXT + "/admin"},
         timeout=15,
     )
     assert r.status_code == 200, f"expected 200, got {r.status_code} {r.text}"

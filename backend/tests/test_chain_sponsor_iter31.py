@@ -96,7 +96,9 @@ class TestRegression:
         assert isinstance(data, (list, dict))
 
     def test_chains_nearby_coupon_food(self, s):
-        r = s.get(f"{BASE_URL}/api/coupons/chains-nearby", params={"category": "food"})
+        # The endpoint now defaults to limit=1 (one bonus coupon beside the
+        # winner) — ask for more so the seeded FORK20 chain coupon is visible.
+        r = s.get(f"{BASE_URL}/api/coupons/chains-nearby", params={"category": "food", "limit": 10})
         assert r.status_code == 200
         data = r.json()
         # Should include seeded FORK20 coupon

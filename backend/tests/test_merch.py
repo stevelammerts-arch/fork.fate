@@ -1,4 +1,5 @@
 """Backend tests for merch showcase notify + admin merch-interest."""
+from _helpers import mint_admin_token
 import os
 import uuid
 import pytest
@@ -33,6 +34,9 @@ def admin_session():
     s = requests.Session()
     r = s.post(f"{BASE_URL}/api/admin/login", json={"password": ADMIN_PASSWORD})
     assert r.status_code == 200, f"admin login failed: {r.status_code} {r.text}"
+    # The session cookie is Secure (not sent over plain http in local runs);
+    # Bearer auth is the supported API-client path.
+    s.headers["Authorization"] = f"Bearer {mint_admin_token()}"
     return s
 
 

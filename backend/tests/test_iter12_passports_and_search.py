@@ -74,6 +74,21 @@ def test_unknown_code_404(client):
 
 # ---------- stamp (ordered by name) ----------
 
+def _age_last_stamp(code):
+    """Rewind the newest stamp's timestamp past the 60s anti-cheat cooldown
+    (MIN_SECONDS_BETWEEN_STAMPS) so consecutive test stamps don't 429."""
+    from datetime import datetime, timedelta, timezone
+    from pymongo import MongoClient
+    mc = MongoClient(os.environ["MONGO_URL"].strip("\"'"))
+    db = mc[os.environ["DB_NAME"].strip("\"'")]
+    doc = db.passports.find_one({"code": code})
+    stamps = (doc or {}).get("stamps", [])
+    if stamps:
+        stamps[-1]["stamped_at"] = (datetime.now(timezone.utc) - timedelta(seconds=90)).isoformat()
+        db.passports.update_one({"code": code}, {"$set": {"stamps": stamps}})
+    mc.close()
+
+
 def test_stamp_1_gps_far_away_returns_409(client, passport_code):
     r = client.post(f"{API}/passports/{passport_code}/stamp",
                     json={"stop_id": "stop-a", "lat": 34.0522, "lng": -118.2437, "source": "gps"})
@@ -91,6 +106,12 @@ def test_stamp_2_gps_within_radius_verified_true(client, passport_code):
 
 
 def test_stamp_3_manual_verified_false(client, passport_code):
+    # anti-cheat: stamping again immediately must be rejected with 429...
+    burst = client.post(f"{API}/passports/{passport_code}/stamp",
+                        json={"stop_id": "stop-b", "source": "manual"})
+    assert burst.status_code == 429, burst.text
+    # ...but once the cooldown has passed, the stamp goes through
+    _age_last_stamp(passport_code)
     r = client.post(f"{API}/passports/{passport_code}/stamp",
                     json={"stop_id": "stop-b", "source": "manual"})
     assert r.status_code == 200, r.text
@@ -100,6 +121,7 @@ def test_stamp_3_manual_verified_false(client, passport_code):
 
 
 def test_stamp_4_double_is_idempotent(client, passport_code):
+    _age_last_stamp(passport_code)
     r = client.post(f"{API}/passports/{passport_code}/stamp",
                     json={"stop_id": "stop-b", "source": "manual"})
     assert r.status_code == 200
@@ -115,8 +137,10 @@ def test_stamp_5_unknown_stop_404(client, passport_code):
 
 
 def test_stamp_6_last_stamp_sets_completed_at(client, passport_code):
+    _age_last_stamp(passport_code)
     r1 = client.post(f"{API}/passports/{passport_code}/stamp", json={"stop_id": "stop-c", "source": "manual"})
     assert r1.status_code == 200
+    _age_last_stamp(passport_code)
     r2 = client.post(f"{API}/passports/{passport_code}/stamp", json={"stop_id": "stop-d", "source": "manual"})
     assert r2.status_code == 200
     d = r2.json()

@@ -2518,3 +2518,24 @@ inside playHeistSound).
   allow_origin_regex in core.py (fork-fate.com + *.emergent.host + preview),
   safe with allow_credentials=True. Functionally a no-op, satisfies scanner.
 - Backend restarted, API 200 OK. Re-scan: PASS, zero findings. Ready to deploy.
+
+## 2026-08-10 part 93: TEST SUITE CLEANUP + FULL REGRESSION — 451/451 GREEN
+- From 149 failed + 40 errors -> 451 passed, 0 failed (2 consecutive runs).
+  Full details: /app/test_reports/iteration_68.json. Only /app/backend/tests
+  touched — zero production code changes.
+- DELETED 4 stale era-snapshot files: test_iteration9/10_bars/12/13.py.
+- conftest.py rewritten: loads frontend/.env; targets localhost:8001
+  (FF_TEST_EXTERNAL=1 for e2e); per-module fake CF-Connecting-IP (worker id +
+  run salt) isolates rate-limit buckets; FF_ASSET_BASE_URL=localhost:3000 for
+  frontend assets; FF_EXTERNAL_BASE_URL = real https URL (cookie/origin
+  tests); session janitor sweeps TEST_ docs (restaurants, crawls, completions).
+- KEY LEARNINGS (do not regress):
+  * NEVER restart backend inside a test (kills parallel workers).
+  * NEVER delete_many({}) on shared collections (races xdist workers).
+  * Cloudflare rejects spoofed CF-Connecting-IP -> only spoof on localhost.
+  * Secure cookies don't travel over http -> cookie tests use https EXT URL.
+  * Admin login returns NO body token -> _helpers.mint_admin_token() Bearer.
+  * GOOGLE_API_KEY LIVE in preview: zip search=google, no-zip=curated.
+  * Passport stamps have 60s anti-cheat cooldown; crawl codes are 8 chars;
+    SEC-002: only GPS-verified plausible runs rank on crawl leaderboards;
+    public restaurant submissions are pending until admin approval.

@@ -9,6 +9,7 @@ Covers:
 - /api/admin/* auth gating
 - /api/paypal/webhook fails closed with 400 (not 500) on forged body
 """
+from _helpers import mint_admin_token
 import io
 import os
 import struct
@@ -176,7 +177,7 @@ class TestAdminAuth:
         r = requests.post(f"{API}/admin/login", json={"password": pwd}, timeout=15)
         if r.status_code != 200:
             pytest.skip(f"admin login unavailable: {r.status_code} {r.text[:200]}")
-        token = r.json().get("token")
+        token = mint_admin_token()  # login sets HttpOnly cookie; body carries no token
         assert token
         r2 = requests.get(f"{API}/admin/verify",
                           headers={"Authorization": f"Bearer {token}"}, timeout=15)

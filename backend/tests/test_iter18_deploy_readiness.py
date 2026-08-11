@@ -1,4 +1,5 @@
 """Iter-18 deploy-readiness smoke: covers review request items for fork-fate.com launch."""
+from _helpers import mint_admin_token
 import os, uuid, time
 import pytest
 import requests
@@ -113,6 +114,8 @@ def test_admin_sponsors_with_login():
     s.headers.update(UA)
     login = s.post(f"{BASE_URL}/api/admin/login", json={"password": ADMIN_PW})
     assert login.status_code == 200
+    # Secure cookie is not sent over plain http; use Bearer for the read.
+    s.headers["Authorization"] = f"Bearer {mint_admin_token()}"
     r = s.get(f"{BASE_URL}/api/admin/sponsors")
     assert r.status_code == 200, r.text
 
@@ -156,7 +159,7 @@ def test_passports_wall(sess):
 
 # --- Assetlinks TWA -------------------------------------------------
 def test_assetlinks_json(sess):
-    r = sess.get(f"{BASE_URL}/.well-known/assetlinks.json")
+    r = sess.get(f"{os.environ.get('FF_ASSET_BASE_URL', BASE_URL)}/.well-known/assetlinks.json")
     assert r.status_code == 200, r.text
     data = r.json()
     assert isinstance(data, list) and len(data) >= 1

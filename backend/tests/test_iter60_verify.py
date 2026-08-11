@@ -1,6 +1,7 @@
 """Iteration 60 verification: admin auth, sponsors CRUD + stats + click tracking,
 submissions moderation, places search (single call), crawls + stats endpoints.
 """
+from _helpers import mint_admin_token
 import os
 import uuid
 import pytest
@@ -21,7 +22,7 @@ def api():
 def admin_token(api):
     r = api.post(f"{BASE_URL}/api/admin/login", json={"password": ADMIN_PW})
     assert r.status_code == 200, r.text
-    tok = r.json().get("token")
+    tok = mint_admin_token()  # login sets HttpOnly cookie; body carries no token
     assert isinstance(tok, str) and len(tok) > 20
     return tok
 

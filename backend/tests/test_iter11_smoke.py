@@ -4,7 +4,7 @@ import os
 import pytest
 import requests
 
-BASE_URL = os.environ["EXPO_PUBLIC_BACKEND_URL"].rstrip("/")
+BASE_URL = os.environ["REACT_APP_BACKEND_URL"].rstrip("/")
 
 
 @pytest.fixture(scope="module")

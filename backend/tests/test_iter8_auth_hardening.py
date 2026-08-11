@@ -6,30 +6,42 @@ import pytest
 import requests
 
 BASE = "http://localhost:8001"
+# Cookie/CSRF tests need https (Secure cookies) + real ingress:
+EXT = os.environ.get("FF_EXTERNAL_BASE_URL", BASE).rstrip("/")
 PWD = os.environ["ADMIN_PASSWORD"]
 
 
-def _clear_lockout():
-    """Best-effort cleanup so subsequent runs are not locked out."""
+def _clear_lockout(*ips):
+    """Targeted cleanup so subsequent runs are not locked out. Deleting ALL
+    docs raced with parallel workers' in-flight lockout tests — only remove
+    the IPs this test actually used (default: this module's fake client IP)."""
     from pymongo import MongoClient
     mc = MongoClient(os.environ.get("MONGO_URL", "mongodb://localhost:27017"))
     dbn = os.environ.get("DB_NAME", "test_database")
-    mc[dbn].login_failures.delete_many({})
+    targets = [ip for ip in (ips or ()) if ip]
+    if not targets:
+        targets = [os.environ.get("FF_TEST_CLIENT_IP", ""), "127.0.0.1"]
+        targets = [t for t in targets if t]
+    mc[dbn].login_failures.delete_many({"_id": {"$in": targets}})
 
 
 @pytest.fixture(scope="module", autouse=True)
 def _reset():
-    _clear_lockout()
+    # Clear this module's default IP plus every hardcoded IP the lockout
+    # tests use, so a previous run inside the lockout window can't 429 us.
+    _HARDCODED = ("198.51.100.42", "198.51.100.43", "198.51.100.44",
+                  "198.51.100.50", "198.51.100.51",
+                  "192.0.2.100", "192.0.2.200", "9.9.9.9")
+    _clear_lockout(*_HARDCODED)
     yield
-    _clear_lockout()
+    _clear_lockout(*_HARDCODED)
 
 
 @pytest.fixture
 def admin_session():
     s = requests.Session()
     # Use a spoofed IP so we don't collide with other tests hitting real IP.
-    r = s.post(f"{BASE}/api/admin/login", json={"password": PWD},
-               headers={"CF-Connecting-IP": "203.0.113.7"})
+    r = s.post(f"{EXT}/api/admin/login", json={"password": PWD})
     assert r.status_code == 200, r.text
     assert "ff_admin" in s.cookies, "missing ff_admin cookie"
     assert "ff_csrf" in s.cookies, "missing ff_csrf cookie"
@@ -40,24 +52,24 @@ def admin_session():
 class TestCSRFMatrix:
     def test_a_safe_methods_no_csrf(self, admin_session):
         # GET should work without CSRF header
-        r = admin_session.get(f"{BASE}/api/admin/verify")
+        r = admin_session.get(f"{EXT}/api/admin/verify")
         assert r.status_code == 200
 
     def test_b_unsafe_no_header_blocked(self, admin_session):
-        r = admin_session.delete(f"{BASE}/api/admin/beta-testers",
+        r = admin_session.delete(f"{EXT}/api/admin/beta-testers",
                                  params={"email": "nobody@example.com"})
         assert r.status_code == 403
         assert "CSRF" in r.json().get("detail", "")
 
     def test_c_unsafe_wrong_header_blocked(self, admin_session):
-        r = admin_session.delete(f"{BASE}/api/admin/beta-testers",
+        r = admin_session.delete(f"{EXT}/api/admin/beta-testers",
                                  params={"email": "nobody@example.com"},
                                  headers={"X-CSRF-Token": "wrong-value"})
         assert r.status_code == 403
 
     def test_d_correct_header_passes(self, admin_session):
         csrf = admin_session.cookies.get("ff_csrf")
-        r = admin_session.delete(f"{BASE}/api/admin/beta-testers",
+        r = admin_session.delete(f"{EXT}/api/admin/beta-testers",
                                  params={"email": "nobody@example.com"},
                                  headers={"X-CSRF-Token": csrf})
         assert r.status_code == 200
@@ -121,8 +133,8 @@ class TestBearerPrecedence:
 # ============ LOGIN LOCKOUT (MongoDB-backed) ============
 class TestLockout:
     def test_lockout_after_8_failures(self):
-        _clear_lockout()
         ip = "198.51.100.42"
+        _clear_lockout(ip)
         # 8 wrong attempts should be allowed to reach password check (401)
         for i in range(8):
             r = requests.post(f"{BASE}/api/admin/login",
@@ -137,8 +149,8 @@ class TestLockout:
         assert "failed attempts" in r.json().get("detail", "").lower()
 
     def test_lockout_doc_shape_and_slice(self):
-        _clear_lockout()
         ip = "198.51.100.43"
+        _clear_lockout(ip)
         # 30 failures to test $slice caps at 16
         for i in range(30):
             requests.post(f"{BASE}/api/admin/login",
@@ -162,8 +174,8 @@ class TestLockout:
         assert idx["expire_at_1"].get("expireAfterSeconds") == 0
 
     def test_successful_login_clears_failures(self):
-        _clear_lockout()
         ip = "198.51.100.44"
+        _clear_lockout(ip)
         for _ in range(3):
             requests.post(f"{BASE}/api/admin/login",
                           json={"password": "wrong"},
@@ -183,8 +195,8 @@ class TestLockout:
 # ============ LOCKOUT TIMING SIDE-CHANNEL ============
 class TestLockoutTiming:
     def test_locked_branch_sleeps_at_least_400ms(self):
-        _clear_lockout()
         ip = "198.51.100.50"
+        _clear_lockout(ip)
         for _ in range(8):
             requests.post(f"{BASE}/api/admin/login",
                           json={"password": "wrong"},
@@ -198,8 +210,8 @@ class TestLockoutTiming:
         assert dt >= 0.4, f"locked delay too short: {dt:.3f}s"
 
     def test_concurrent_get_not_blocked_by_sleep(self):
-        _clear_lockout()
         ip = "198.51.100.51"
+        _clear_lockout(ip)
         for _ in range(8):
             requests.post(f"{BASE}/api/admin/login",
                           json={"password": "wrong"},
@@ -229,9 +241,9 @@ class TestLockoutTiming:
 # ============ IP HANDLING ============
 class TestIPHandling:
     def test_cf_connecting_ip_isolates_buckets(self):
-        _clear_lockout()
         ip_a = "192.0.2.100"
         ip_b = "192.0.2.200"
+        _clear_lockout(ip_a, ip_b)
         for _ in range(8):
             requests.post(f"{BASE}/api/admin/login",
                           json={"password": "wrong"},
@@ -255,8 +267,8 @@ class TestIPHandling:
     def test_xff_right_to_left_skip_infra(self):
         # Send XFF with public then private then loopback.
         # Expected chosen IP = 9.9.9.9 (rightmost non-infra).
-        _clear_lockout()
         ip = "9.9.9.9"
+        _clear_lockout(ip)
         for _ in range(8):
             requests.post(f"{BASE}/api/admin/login",
                           json={"password": "wrong"},

@@ -1,7 +1,7 @@
-"""Iteration 3 backend test: rate-limit bucket isolation fix.
+"""Rate-limit bucket isolation regression suite (restart-free rewrite).
 
-The in-memory limiter (_RL_BUCKETS) is now keyed on (route.path_format, ip)
-rather than IP alone. This suite verifies:
+The in-memory limiter (_RL_BUCKETS) is keyed on (route.path_format, ip).
+This suite verifies:
 
   1. Bursting one rate-limited endpoint does NOT consume the budget of a
      different endpoint (cross-route isolation, both directions).
@@ -10,23 +10,25 @@ rather than IP alone. This suite verifies:
   3. Path *template* keying: spraying requests across many concrete crawl
      codes (/api/crawls/{code}/checkin) all share ONE bucket, so the ceiling
      cannot be bypassed by varying the path param.
-  4. Memory-bound purge still iterates over the new tuple keys without error.
-  5. Regression: admin brute-force lockout (_LOGIN_FAILURES, still IP-keyed)
+  4. Memory-bound purge still iterates over the tuple keys without error.
+  5. Regression: admin brute-force lockout (_LOGIN_FAILURES, IP-keyed)
      still trips on 8 consecutive wrong passwords.
 
-All rate-limit assertions hit the backend DIRECTLY at http://localhost:8001
-so the preview ingress cannot rewrite the source IP mid-test. The suite
-restarts the backend at import time to guarantee empty buckets.
+ISOLATION WITHOUT RESTARTS: the original version restarted the backend
+before every test to guarantee empty buckets, which nuked every other test
+running in parallel (xdist) with 502/connection-refused. Both the limiter
+and the lockout map are keyed by client IP, and core.client_ip trusts
+CF-Connecting-IP from loopback peers — so each test simply uses a FRESH
+fake IP (TEST-NET-1 range) and gets brand-new, empty buckets for free.
 """
+import itertools
 import os
-import subprocess
-import time
 
 import pytest
 import requests
 from pymongo import MongoClient
 
-# Direct backend URL — bypass ingress so client IP is stable across requests.
+# Direct backend URL — bypass ingress so the spoofed client IP is honored.
 LOCAL = "http://localhost:8001"
 API = f"{LOCAL}/api"
 
@@ -35,40 +37,26 @@ ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
 MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017").strip("\"'")
 DB_NAME = os.environ.get("DB_NAME", "test_database").strip("\"'")
 
-
-def _restart_backend():
-    """Restart backend to reset in-memory rate-limit + lockout state."""
-    subprocess.run(["sudo", "supervisorctl", "restart", "backend"],
-                   capture_output=True, text=True, timeout=30)
-    # Wait until backend answers
-    for _ in range(30):
-        try:
-            r = requests.get(f"{API}/", timeout=2)
-            if r.status_code == 200:
-                return
-        except Exception:
-            pass
-        time.sleep(0.5)
-    raise RuntimeError("backend did not come back up")
+_ip_seq = itertools.count(1)
 
 
-@pytest.fixture(scope="module")
+def fresh_session() -> requests.Session:
+    """Session with a never-seen-before client IP => empty rate buckets."""
+    n = next(_ip_seq)
+    s = requests.Session()
+    s.headers["CF-Connecting-IP"] = f"203.0.{113 + n // 250}.{1 + n % 250}"
+    return s
+
+
+@pytest.fixture()
 def s():
-    return requests.Session()
+    return fresh_session()
 
 
 @pytest.fixture(scope="module")
-def mongo():
-    c = MongoClient(MONGO_URL)
-    yield c[DB_NAME]
-    c.close()
-
-
-@pytest.fixture(scope="module")
-def test_crawl_code(s):
+def test_crawl_code():
     """A real crawl used by the check-in tests."""
-    _restart_backend()
-    r = s.post(f"{API}/crawls", json={
+    r = fresh_session().post(f"{API}/crawls", json={
         "mode": "bars", "label": "TEST_iter3_rl",
         "stops": [
             {"id": "TR1", "name": "A", "cuisine": "Beer", "price": "$$"},
@@ -86,8 +74,7 @@ class TestCrossRouteIsolation:
     """Burn one rate-limited endpoint; a DIFFERENT endpoint must be unaffected."""
 
     def test_burn_fate_dealt_then_admin_login_ok(self, s):
-        _restart_backend()
-        # /api/stats/fate-dealt limit is 120/min -> 40 posts leaves headroom.
+        # /api/stats/fate-dealt limit is 120/min -> 45 posts leaves headroom.
         codes = []
         for _ in range(45):
             r = s.post(f"{API}/stats/fate-dealt", json={})
@@ -99,7 +86,6 @@ class TestCrossRouteIsolation:
         assert r.status_code == 200, f"cross-route bleed: /admin/login {r.status_code} {r.text}"
 
     def test_reverse_order_admin_first_then_fate_dealt(self, s):
-        _restart_backend()
         # 3 admin login OK (limit 10) then hammer fate-dealt.
         for _ in range(3):
             r = s.post(f"{API}/admin/login", json={"password": ADMIN_PASSWORD})
@@ -110,7 +96,6 @@ class TestCrossRouteIsolation:
             assert r.status_code == 200, r.text
 
     def test_burn_fate_dealt_then_reports_crawls_merch(self, s):
-        _restart_backend()
         # 100 fate-dealt (limit 120) — legal.
         for _ in range(100):
             s.post(f"{API}/stats/fate-dealt", json={})
@@ -141,8 +126,6 @@ class TestPerRouteEnforcement:
     """The fix must not have disabled the limiter."""
 
     def test_checkin_exceeds_60_gets_429_but_other_route_ok(self, s, test_crawl_code):
-        _restart_backend()
-        # Recreate the crawl (restart wiped nothing DB-wise, but codes persist).
         code = test_crawl_code
         codes = []
         for i in range(70):
@@ -166,7 +149,6 @@ class TestPathTemplateKeying:
     """Spraying across many concrete crawl codes must share one template bucket."""
 
     def test_many_distinct_codes_share_one_bucket(self, s):
-        _restart_backend()
         # 70 total requests spread across 35 distinct 8-char codes.
         # If keying used url.path (concrete), each code would get a fresh
         # 60-req allowance and NO 429 would fire. With path_format keying,
@@ -206,19 +188,15 @@ class TestMemoryBoundPurge:
         with empty deques and trigger the drop path."""
         import sys
         sys.path.insert(0, "/app/backend")
-        # Fresh import to avoid pollution
         import importlib
         import core as _core
         importlib.reload(_core)
-        # Directly poke the bucket dict with tuple keys, empty deques.
         from collections import deque
         for i in range(_core._RL_MAX_KEYS + 5):
             _core._RL_BUCKETS[(f"/api/x/{i}", "1.1.1.1")] = deque()
-        # Emulate the purge branch inline (same code path as rate_limit body).
         if len(_core._RL_BUCKETS) > _core._RL_MAX_KEYS:
             for k in [k for k, v in list(_core._RL_BUCKETS.items()) if not v]:
                 _core._RL_BUCKETS.pop(k, None)
-        # No exception raised -> purge handles tuple keys fine.
         assert True
 
 
@@ -226,14 +204,10 @@ class TestMemoryBoundPurge:
 # 5) Brute-force lockout regression (separate mechanism, still IP-keyed)
 # =========================================================================
 class TestBruteForceLockout:
-    """_LOGIN_FAILURES is intentionally still keyed by IP alone. Must still trip."""
+    """_LOGIN_FAILURES is intentionally keyed by IP alone. Must still trip.
+    Each test uses a fresh IP, so lockouts here can't leak anywhere else."""
 
-    def test_8_wrong_then_locked_then_correct_before_threshold_clears(self, s):
-        # Order matters — do this LAST because it deliberately locks the local
-        # IP for 5 minutes. Restart to guarantee a clean lockout counter.
-        _restart_backend()
-        # 7 wrong attempts (under the threshold of 8) then a correct one
-        # -> clears failures, returns 200.
+    def test_7_wrong_then_correct_before_threshold_clears(self, s):
         for _ in range(7):
             r = s.post(f"{API}/admin/login", json={"password": "wrong_pw"})
             assert r.status_code in (401, 403), f"expected 401 on wrong pw, got {r.status_code}"
@@ -242,7 +216,6 @@ class TestBruteForceLockout:
         assert r.status_code == 200, f"correct pw before threshold should clear: {r.status_code} {r.text}"
 
     def test_8_wrong_locks_out_with_429(self, s):
-        _restart_backend()
         got_lockout = False
         last_code = None
         for i in range(12):
@@ -258,14 +231,6 @@ class TestBruteForceLockout:
 # 6) Backend smoke (still green)
 # =========================================================================
 class TestSmoke:
-    """Iteration 3 backend smoke against the public URL. Note we restart before
-    this class so the lockout from the previous test doesn't affect anything
-    non-login-related (admin/login itself IS locked; we don't hit it here)."""
-
-    @pytest.fixture(scope="class", autouse=True)
-    def _reset(self):
-        _restart_backend()
-
     def test_root(self, s):
         assert s.get(f"{API}/").status_code == 200
 
@@ -310,16 +275,7 @@ class TestSmoke:
         assert s.get(f"{API}/crawls/leaderboard").status_code == 200
 
 
-# =========================================================================
-# 7) FF_BUILD unchanged (backend-only iteration)
-# =========================================================================
-class TestFrontendBuildUnchanged:
-    def test_ff_build_still_280(self):
-        html = open("/app/frontend/public/index.html").read()
-        assert 'FF_BUILD="2026.06-280"' in html, "iter3 is backend-only; FF_BUILD must not change"
-
-
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def _cleanup():
     yield
     try:
@@ -329,8 +285,5 @@ def _cleanup():
         db.crawl_completions.delete_many({"team_name": {"$regex": "^TEST_iter3"}})
         db.crawls.delete_many({"label": {"$regex": "^TEST_iter3"}})
         c.close()
-        # Final restart to reset any lockout state we left behind.
-        subprocess.run(["sudo", "supervisorctl", "restart", "backend"],
-                       capture_output=True, text=True, timeout=30)
     except Exception:
         pass

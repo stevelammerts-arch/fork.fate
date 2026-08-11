@@ -39,8 +39,9 @@ class TestCategoryCoercion:
         assert r.status_code == 200
         d = r.json()
         assert d["source"] == "curated"
-        # should be food (23), not drinks (8)
-        assert len(d["restaurants"]) == 23
+        # should be coerced to food: same result set as an explicit food search
+        food = client.post(f"{API}/places/search", json={"category": "food"}).json()
+        assert len(d["restaurants"]) == len(food["restaurants"]) > 0
 
 
 class TestPhotoProxy:

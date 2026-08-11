@@ -8,7 +8,9 @@ import os
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://lucky-bite-1.preview.emergentagent.com").rstrip("/")
+# Cookie-semantics module: Secure cookies only travel over https, so use
+# the real preview URL rather than the local plain-http port.
+BASE_URL = os.environ.get("FF_EXTERNAL_BASE_URL", os.environ.get("REACT_APP_BACKEND_URL", "")).rstrip("/")
 ADMIN_PW = os.environ.get("ADMIN_PASSWORD", "")
 if not ADMIN_PW:
     try:

@@ -60,7 +60,7 @@ class TestAudioAssets:
             "/shuffle-winter.wav",
             "/shuffle-fall.wav",
         ]:
-            r = requests.get(f"{BASE}{path}", timeout=20)
+            r = requests.get(f"{os.environ.get('FF_ASSET_BASE_URL', BASE)}{path}", timeout=20)
             assert r.status_code == 200, f"{path} => {r.status_code}"
             # sanity: not empty
             assert len(r.content) > 10_000, f"{path} too small: {len(r.content)}"

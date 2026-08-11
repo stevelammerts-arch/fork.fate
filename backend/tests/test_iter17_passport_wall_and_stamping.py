@@ -308,6 +308,6 @@ class TestAssets:
             "/card-riffle.wav",
             "/shuffle-dragon.wav",
         ]:
-            r = _get(f"{BASE_URL}{path}")
+            r = _get(f"{os.environ.get('FF_ASSET_BASE_URL', BASE_URL)}{path}")
             assert r.status_code == 200, f"{path} => {r.status_code}"
             assert len(r.content) > 5000, f"{path} suspiciously small: {len(r.content)}"

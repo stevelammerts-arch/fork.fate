@@ -1,4 +1,5 @@
 """Iteration 49: in-app feedback endpoints (public POST + admin list/delete)."""
+from _helpers import mint_admin_token
 import os
 import time
 import pytest
@@ -44,6 +45,8 @@ def admin_session():
     csrf = s.cookies.get("ff_csrf")
     if csrf:
         s.headers.update({"X-CSRF-Token": csrf})
+    # Secure cookie is not sent over plain http; use Bearer (CSRF-exempt).
+    s.headers["Authorization"] = f"Bearer {mint_admin_token()}"
     return s
 
 

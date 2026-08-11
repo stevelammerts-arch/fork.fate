@@ -1,0 +1,32 @@
+{
+  "iteration": 68,
+  "date": "2026-08-10",
+  "task": "Test suite cleanup + full regression pass (user-requested)",
+  "summary": {
+    "final_result": "451 passed, 0 failed, 0 errors (two consecutive green runs)",
+    "starting_state": "520 collected; 149 failed + 40 errors on first full run",
+    "files_deleted": [
+      "test_iteration9.py", "test_iteration10_bars.py",
+      "test_iteration12.py", "test_iteration13.py"
+    ],
+    "deletion_reason": "Era-snapshot suites pinned to obsolete data (33/51-restaurant DB, pre-moderation contracts) fully superseded by newer suites"
+  },
+  "root_causes_fixed": [
+    "Tests pointed at dead preview URLs from old sessions -> conftest now loads frontend/.env and targets http://localhost:8001 (FF_TEST_EXTERNAL=1 for e2e)",
+    "Two test files RESTARTED the backend mid-suite, killing parallel workers with 502/conn-refused -> rewritten restart-free (fresh fake client IPs give clean rate-limit buckets; seed idempotency tested via double seed_db() call)",
+    "One shared rate-limit bucket across 500 tests -> conftest gives each test module a unique CF-Connecting-IP (trusted from loopback), worker-id + run-salt folded in to avoid xdist/back-to-back collisions",
+    "Cloudflare rejects spoofed CF-Connecting-IP (error 1000) -> IP injection only applies to localhost URLs",
+    "Admin login no longer returns token in body (HttpOnly cookie) -> tests mint Bearer tokens via _helpers.mint_admin_token(); Secure cookies don't travel over plain http so cookie-semantics tests use the https preview URL",
+    "_clear_lockout() deleted ALL login_failures docs, racing parallel workers -> targeted per-IP deletes",
+    "Contract updates: crawl codes 5->8 chars; SEC-002 leaderboard (only GPS-verified runs rank, plausibility checks); moderation model (public restaurant POST -> pending, admin approves/deletes); sponsored flag forced False on public submissions; chains-nearby defaults limit=1",
+    "Stale pins relaxed to invariants: FF_BUILD version, restaurant counts (DB grew 276->704), Google budget cap 300->1000, sponsor price 29->19, seagull audio thresholds (file regenerated, user-approved)",
+    "60s passport stamp anti-cheat cooldown -> tests backdate previous stamp via Mongo and explicitly assert the 429",
+    "DB pollution: 22 TEST_ restaurants + 207 TEST_ crawl completions swept; session-scoped janitor added to conftest"
+  ],
+  "how_to_run": "cd /app/backend/tests && PYTHONDONTWRITEBYTECODE=1 python -m pytest -q  (xdist -n 2 loadscope via pytest.ini; ~85s)",
+  "notes_for_next_agent": [
+    "GOOGLE_API_KEY is LIVE from the pod: zip_code searches return source=google; curated path = search WITHOUT zip",
+    "conftest sets REACT_APP_BACKEND_URL=http://localhost:8001 and FF_ASSET_BASE_URL=http://localhost:3000 for tests; FF_EXTERNAL_BASE_URL holds the real https preview URL",
+    "Never restart the backend from inside a test; never delete_many({}) on shared collections"
+  ]
+}

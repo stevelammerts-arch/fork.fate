@@ -1,4 +1,5 @@
 """Final pre-deploy regression backend tests for Fork·Fate."""
+from _helpers import mint_admin_token
 import os
 import requests
 import pytest
@@ -11,7 +12,7 @@ ADMIN_PW = os.environ.get("ADMIN_PASSWORD", "")
 def admin_token():
     r = requests.post(f"{BASE}/api/admin/login", json={"password": ADMIN_PW}, timeout=15)
     assert r.status_code == 200, f"admin login failed: {r.status_code} {r.text}"
-    tok = r.json().get("token") or r.json().get("access_token")
+    tok = mint_admin_token()  # login sets HttpOnly cookie; body carries no token
     assert tok
     return tok
 

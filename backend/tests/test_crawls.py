@@ -16,14 +16,14 @@ def sample_stops():
     ]
 
 
-def test_create_crawl_returns_5_char_code(sample_stops):
+def test_create_crawl_returns_8_char_code(sample_stops):
     resp = requests.post(f"{API}/crawls", json={"mode": "bars", "stops": sample_stops})
     assert resp.status_code == 200, resp.text
     data = resp.json()
     assert "code" in data
     code = data["code"]
     assert isinstance(code, str)
-    assert len(code) == 5
+    assert len(code) == 8  # crawl codes widened to 8 chars
     # unambiguous alphabet - uppercase alphanum, no 0/1/I/O
     assert code.isalnum()
     assert code == code.upper()

@@ -30,7 +30,7 @@ class TestCrawlLabel:
         r = requests.post(f"{BASE_URL}/api/crawls", json=payload, timeout=15)
         assert r.status_code == 200, r.text
         data = r.json()
-        assert "code" in data and isinstance(data["code"], str) and len(data["code"]) == 5
+        assert "code" in data and isinstance(data["code"], str) and len(data["code"]) == 8
         code = data["code"]
 
         g = requests.get(f"{BASE_URL}/api/crawls/{code}", timeout=15)

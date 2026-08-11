@@ -1,4 +1,5 @@
 """Iteration 50 tests: geocode endpoint + crawl lat/lng persistence + regression."""
+from _helpers import mint_admin_token
 import os
 import pytest
 import requests
@@ -120,8 +121,8 @@ class TestRegression:
     def test_admin_login_and_sponsor_stats(self):
         login = requests.post(f"{API}/admin/login", json={"password": os.environ.get("ADMIN_PASSWORD", "")}, timeout=15)
         assert login.status_code == 200, login.text
-        tok = login.json().get("token") or login.json().get("access_token")
-        assert tok, login.json()
+        tok = mint_admin_token()  # login sets HttpOnly cookie; body carries no token
+        assert tok
         r = requests.get(
             f"{API}/admin/sponsors/stats",
             headers={"Authorization": f"Bearer {tok}"},
