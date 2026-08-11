@@ -28,7 +28,7 @@ export function RealmEntrySting({ theme }) {
     try {
       if (localStorage.getItem("ff_muted") !== "1") {
         a = new Audio(src);
-        a.volume = 0.18;
+        a.volume = 0.1; // gentle — an entry sting should never startle
         a.play().catch(() => window.addEventListener("pointerdown", retry, { once: true }));
       }
     } catch { /* audio unavailable */ }
