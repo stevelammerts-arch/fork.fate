@@ -70,6 +70,7 @@ export const HEISTS = [
   { key: "unicorn", name: "Unicorn Charge", realm: "Fairy Gully", accent: "#E6B23A", desc: "A white unicorn thunders across the banner at full gallop and punts the medallion clean off the screen with its golden horn — never breaking stride." },
   { key: "cardinal", name: "Featherweight", realm: "Winter", accent: "#D2413A", desc: "The little cardinal flutters down for a rest on top of the medallion — which teeters under the featherweight and tips right off its perch." },
   { key: "pursuit", name: "Hot Pursuit", realm: "Cyberscape", accent: "#4078FF", desc: "A police chase screams across the header under full siren, doubles back — and the fleeing car slams nose-first into the medallion, knocking it clean off the screen." },
+  { key: "tow", name: "Tow Job", realm: "Cyberscape", accent: "#E0A422", desc: "The rarest ending to the Hot Pursuit: a hover wrecker floats down, hooks the smoking wreck by the nose, and hauls it off into the skyline — beacon blinking all the way." },
 ];
 
 export function readHeistsSeen() {

@@ -427,6 +427,34 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
     schedule(25000, 35000);
     return () => { clearTimeout(t1); clearTimeout(t2); setChase(null); };
   }, [cfg.cars]);
+  // One-shot ambient entry bed for the Cyberscape realm (user-provided track):
+  // plays once at ambient volume upon entering the realm, fades out if the
+  // user leaves mid-track. Autoplay-blocked cold loads retry on first tap.
+  useEffect(() => {
+    if (theme !== "cyber") return;
+    let a = null;
+    const retry = () => { if (a) a.play().catch(() => {}); };
+    try {
+      if (localStorage.getItem("ff_muted") !== "1") {
+        a = new Audio("/cyber-ambient.mp3");
+        a.volume = 0.18;
+        a.play().catch(() => window.addEventListener("pointerdown", retry, { once: true }));
+      }
+    } catch { /* audio unavailable */ }
+    const muteWatch = setInterval(() => {
+      try { if (a && localStorage.getItem("ff_muted") === "1") { a.pause(); a = null; } } catch { /* ignore */ }
+    }, 400);
+    return () => {
+      clearInterval(muteWatch);
+      window.removeEventListener("pointerdown", retry);
+      if (!a) return;
+      const el = a; // quick fade so leaving the realm doesn't clip the track
+      const fade = setInterval(() => {
+        el.volume = Math.max(0, el.volume - 0.03);
+        if (el.volume <= 0) { clearInterval(fade); el.pause(); }
+      }, 60);
+    };
+  }, [theme]);
   const [anchorRef, coverBox] = useCoverAnchor(GULLY_NAT.w, GULLY_NAT.h);
   const [loungeRef, loungeBox] = useCoverAnchor(1264, 848);
   const setSceneRef = (el) => { anchorRef.current = el; loungeRef.current = el; };
@@ -529,7 +557,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       {cfg.skyline && <img src={cfg.skyline} alt="" className="absolute bottom-0 left-0 w-full object-cover opacity-70" style={{ maxHeight: "52vh" }} />}
       {cfg.rain && <div className="absolute inset-0 ff-rain" />}
       {cfg.cars && CYBER_CARS.map((c, i) => (
-        <div key={`car-${i}`} className={`absolute left-0 ${c.bus ? "z-[5]" : c.bus2 ? "z-[2]" : c.spinner ? "z-[4]" : "z-[3]"}`}
+        <div key={`car-${i}`} className={`absolute left-0 ${c.bus ? "z-[6]" : c.bus2 ? "z-[2]" : c.spinner ? "z-[5]" : "z-[3]"}`}
           style={{ top: mobile ? c.topM : c.top, willChange: "transform", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", animation: `${c.bus ? "ffFlyBus" : c.rev ? "ffFlyRev" : "ffFly"} ${c.dur}s linear ${c.delay}s infinite both` }}>
           {c.bus && (<>
             {/* broad soft under-glow, breathing slowly */}

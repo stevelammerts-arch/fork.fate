@@ -2638,3 +2638,26 @@ inside playHeistSound).
   of 48% (44vw-160px) when vw small; both Run/Rev 30% waypoints now pinned relative
   to the prey line (38vw-190px / 62vw+205px). Monotonic for all viewports.
 - STILL PENDING: IARC rating ID for manifest.json (user hasn't received cert).
+
+## 2026-08-11 part 99: Tow Job cameo + realm-entry ambient + depth fix (FF_BUILD 430)
+- TOW JOB (rare Hot Pursuit ending, 35% of strikes, forced via
+  CustomEvent('ff:pursuit-heist', {detail:{variant:'tow'}})): hover wrecker
+  sprite (/cyber-tow.png, Nano Banana via gen_tow_truck.py + key_police.py,
+  760x310, hazard-yellow, TOW on cab, boom hook at rear ~97%/25%) floats in
+  from offscreen right (ph6 @5700, 1.5s), boom hook lands on the wreck's nose
+  (ph7 @7300, cyan flare + wreck tilts rotate(-5deg)), hauls the smoking wreck
+  off left in verified lockstep (ph8 @7900, constant 149px offset), cop flees
+  ph9 @9700, logo back 10300, cleanup 11300. Registered as HEISTS key "tow"
+  ("Tow Job", amber #E0A422); witnesses tow (toast) + pursuit (silent).
+  BUG FIXED during test: prey px used ph===8 so wreck snapped back at ph9 —
+  now ph>=8. Verified prey stays offscreen through flee + logo restore.
+- REALM-ENTRY AMBIENT (user track alexzavesa-action-cyberpunk-intro):
+  /cyber-ambient.mp3 (26.9s, loudnorm I=-20, fades) plays ONCE at vol 0.18 upon
+  entering the Cyberscape realm (effect on theme==='cyber' in AmbianceScene);
+  autoplay-blocked cold loads retry on first pointerdown; live mute watcher
+  pauses mid-track; leaving the realm fades it out. User asked "just upon
+  entering the realm" (NOT a loop). Verified via HTMLMediaElement.play hook.
+  Dev StrictMode double-plays briefly (first instance fades out); prod is single.
+- DEPTH FIX (user: "bigger vehicles should be in front of the pursuit"):
+  CYBER_CARS z-order now size-based — bus(300) z-6, spinner SUV(96) z-5,
+  ambient pursuit z-4, small cars z-3, distant bus2 z-2.
