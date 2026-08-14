@@ -892,3 +892,15 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - LANDSCAPE: manifest.json orientation "portrait" -> "any". Verified served +
   landscape layout (844x390) renders the sm layout fine. NOTE: installed PWAs
   pick up manifest orientation on app update; some devices need reinstall.
+
+## 2026-02 (fork) — Golem white specks + landscape support resolved (FF_BUILD 499-503)
+- Goggles/mask hidden on mobile (were under right golem's feet on live phones).
+- manifest orientation -> "any"; landscape verified. Diagnosed user's phone:
+  rotation worked once auto-rotate/Chrome-tab confusion resolved.
+- WHITE SPECKS (user circled live screenshot): they were (a) semi-transparent
+  bright remnants and (b) light-TAN opaque artifacts (dodge min-channel
+  filters). Cleaned via scripts inline: ghost alpha<200&lum>140 -> erased;
+  lum/chroma graded pull to DARK(24,18,12); left golem floor-strip (y>86%)
+  darkened harder to kill tan haze under feet. ALL steam sprites treated
+  (golems, 3 pose frames, rack, alert, arm, valve, bench). All ?v=501-503.
+- FF_BUILD 503. User must REDEPLOY to push to fork-fate.com.

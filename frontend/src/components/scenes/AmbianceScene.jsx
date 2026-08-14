@@ -208,7 +208,7 @@ function useCoverAnchor(natW, natH) {
 
 export const AMBIANCE = {
   cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", spinner: "/cyber-spinner-suv.png", bus: "/cyber-bus.png", bus2: "/cyber-bus2.png", saucer: "/cyber-saucer-mech.png", saucerFront: "/cyber-saucer-mech-front.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
-  steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall-full.png", golemLeft: "/steam-golem-left.png?v=462", golemRight: "/steam-golem-right.png?v=462", steam: true, roofCables: true, floor: true, accent: "#D9A44E", sky: "#F1D9A6" },
+  steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall-full.png", golemLeft: "/steam-golem-left.png?v=503", golemRight: "/steam-golem-right.png?v=501", steam: true, roofCables: true, floor: true, accent: "#D9A44E", sky: "#F1D9A6" },
   tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", lounge: "/tiki-lounge-full.png", accent: "#F0A24E", sky: "#FBE3C0" },
   fantasy: { grad: "linear-gradient(180deg,#1A0E08 0%,#120A06 55%,#080503 100%)", hoard: "/fantasy-cave.jpg", accent: "#E6B23A", sky: "#F3D9A0" },
   fairy: { grad: "linear-gradient(180deg,#0B1F14 0%,#123024 50%,#081710 100%)", gully: "/fairy-gully.png", accent: "#5EE0A8", sky: "#CFF5DC" },
@@ -480,7 +480,7 @@ function useGolemWake(enabled) {
   const witnessRef = useHeistWitness("awakening");
   useEffect(() => {
     if (!enabled) return undefined;
-    ["/steam-golem-right-awake.png", "/steam-golem-right-step.png?v=490", "/steam-golem-right-lift.png?v=475"].forEach((s) => { const im = new Image(); im.src = s; });
+    ["/steam-golem-right-awake.png?v=501", "/steam-golem-right-step.png?v=501", "/steam-golem-right-lift.png?v=501"].forEach((s) => { const im = new Image(); im.src = s; });
     preloadHeistAudio(["/golem-wake-up.mp3", "/golem-step-forward.mp3", "/golem-thud.wav", "/golem-step-back.mp3", "/golem-power-down.mp3"]);
     let timers = [];
     let pending;
@@ -868,9 +868,9 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           {/* pose stack: sleeping / awake / knee lifted / foot planted forward */}
           <div className="absolute inset-0" style={{ transformOrigin: "50% 100%", animation: golemWake === 1 ? "ffGolemRumble 0.4s linear 3" : golemWake === 2 || golemWake === 4 ? "ffGolemStepLift 1.2s cubic-bezier(0.4,0,0.5,1) forwards" : golemWake === 3 || golemWake === 5 ? "ffGolemStepSettle 1.2s cubic-bezier(0.45,0,0.55,1)" : undefined }}>
             <img src={cfg.golemRight} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 0 || golemWake === 6 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} />
-            <img src="/steam-golem-right-awake.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 1 || golemWake === 5 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-awake" />
-            <img src="/steam-golem-right-lift.png?v=475" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 2 || golemWake === 4 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-lift" />
-            <img src="/steam-golem-right-step.png?v=490" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 3 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-step" />
+            <img src="/steam-golem-right-awake.png?v=501" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 1 || golemWake === 5 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-awake" />
+            <img src="/steam-golem-right-lift.png?v=501" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 2 || golemWake === 4 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-lift" />
+            <img src="/steam-golem-right-step.png?v=501" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 3 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-step" />
             {/* smoky green aura around the head while he's awake */}
             {golemWake >= 1 && golemWake <= 5 && (
               <div className="absolute" style={{ left: "22%", top: "1%", width: "26%", aspectRatio: "1" }} data-testid="golem-wake-aura">
@@ -949,20 +949,20 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       )}
       {/* WORKSHOP PROPS: valve pedestal (L), robot on assembly rack (M), alchemy bench (R) */}
       {cfg.golemLeft && [
-        { src: "/steam-valve-pedestal.png?v=491", ar: "433 / 735", cls: "left-[calc(50%-48vh)] h-[28vh]", tid: "steam-valve-pedestal",
+        { src: "/steam-valve-pedestal.png?v=501", ar: "433 / 735", cls: "left-[calc(50%-48vh)] h-[28vh]", tid: "steam-valve-pedestal",
           lamps: [
             // front-face fixtures (a vertical trio between the hatch covers and the seam)
             { x: 37.5, y: 43, c: "#FFB03A", d: 1.7, dl: 0.1 }, { x: 37.5, y: 53, c: "#7CE08A", d: 2.2, dl: 0.7 }, { x: 37.5, y: 63, c: "#FF5540", d: 1.5, dl: 1.3 },
             // the sprite's real bulb column on the right face
             { x: 70.9, y: 40, c: "#FFB03A", d: 2.4, dl: 0 }, { x: 70.9, y: 50.2, c: "#FF5540", d: 1.9, dl: 0.5 }, { x: 70.9, y: 59, c: "#FF8A3A", d: 2.1, dl: 1 }, { x: 70.9, y: 67.9, c: "#FF5540", d: 1.6, dl: 1.5 },
           ] },
-        { src: "/steam-robot-rack.png?v=494", ar: "558 / 742", cls: "left-1/2 -translate-x-1/2 h-[78vh]", tid: "steam-robot-rack",
+        { src: "/steam-robot-rack.png?v=501", ar: "558 / 742", cls: "left-1/2 -translate-x-1/2 h-[78vh]", tid: "steam-robot-rack",
           lamps: [{ x: 71.3, y: 29.4, c: "#FFB03A", d: 2.1, dl: 0.3 }, { x: 71.3, y: 33.1, c: "#FF7A30", d: 1.7, dl: 0.9 }],
           eye: { x: 31.5, y: 20 },
-          alert: "/steam-robot-rack-alert.png?v=494",
+          alert: "/steam-robot-rack-alert.png?v=501",
           alertEyes: [{ x: 33.3, y: 15.4 }, { x: 39.7, y: 15.4 }],
           sparks: { x: 65, y: 39 } },
-        { src: "/steam-alchemy-bench.png?v=491", ar: "966 / 765", cls: "left-[calc(50%+31vh)] h-[25.5vh]", tid: "steam-alchemy-bench",
+        { src: "/steam-alchemy-bench.png?v=501", ar: "966 / 765", cls: "left-[calc(50%+31vh)] h-[25.5vh]", tid: "steam-alchemy-bench",
           lamps: [{ x: 56.1, y: 38.2, c: "#FFB03A", d: 1.6, dl: 0 }, { x: 61.7, y: 39, c: "#FFB03A", d: 2.3, dl: 0.5 }, { x: 73.5, y: 41.6, c: "#FF5540", d: 1.9, dl: 1.1 }] },
       ].map((p) => (
         <div key={p.tid} className={`absolute bottom-[0.5vh] z-[3] hidden sm:block ${p.cls}`} style={{ aspectRatio: p.ar }} data-testid={p.tid}>
@@ -999,7 +999,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       {cfg.golemLeft && (
         <div className="absolute bottom-[0.6vh] left-[calc(50%+8vh)] z-[3] hidden sm:block" style={{ width: "22vh", aspectRatio: "832 / 558" }} data-testid="steam-arm-floor">
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.4vh", width: "86%", height: "1.8vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.6), rgba(0,0,0,0) 68%)" }} />
-          <img src="/steam-arm-unfinished.png?v=494" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ transform: "scaleX(-1)", filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.5)) brightness(0.92)" }} />
+          <img src="/steam-arm-unfinished.png?v=501" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ transform: "scaleX(-1)", filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.5)) brightness(0.92)" }} />
         </div>
       )}
       {cfg.roofCables && STEAM_CABLES.map((c, i) => (
