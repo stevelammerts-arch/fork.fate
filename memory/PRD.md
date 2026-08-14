@@ -2866,3 +2866,8 @@ inside playHeistSound).
 ## 2026-08-14 part 108: Awakening audio (FF_BUILD 470)
 - User's wake-up/forward-step/back-step clips wired to the golem awakening phases
   via the preloaded heist audio bank. Verified serving + sequence firing.
+
+## 2026-08-14 part 109: Multi-shot awakening walk (FF_BUILD 474)
+- Added AI-generated knee-lift frame; awakening now: awake -> leg lifts -> plants
+  forward leaning -> lifts back -> stands -> powers down, fully scored with the
+  user's 4 clips. Table moved further from him on mobile. Verified via screenshots.

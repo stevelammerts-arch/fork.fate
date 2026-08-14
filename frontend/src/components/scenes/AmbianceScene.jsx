@@ -417,10 +417,10 @@ function CyberNeonSign({ neon }) {
  * one heavy step forward with the right leg, steps back, powers down.
  * First 45-85s after load, then every 3-5.5 min (`ff:golem-wake` forces it). */
 function useGolemWake(enabled) {
-  const [ph, setPh] = useState(0); // 0 asleep, 1 awake (head up), 2 step fwd, 3 step back, 4 powering down
+  const [ph, setPh] = useState(0); // 0 asleep, 1 awake, 2 leg lifts, 3 foot plants fwd (leaning), 4 leg lifts back, 5 stands, 6 powering down
   useEffect(() => {
     if (!enabled) return undefined;
-    ["/steam-golem-right-awake.png", "/steam-golem-right-step.png"].forEach((s) => { const im = new Image(); im.src = s; });
+    ["/steam-golem-right-awake.png", "/steam-golem-right-step.png", "/steam-golem-right-lift.png"].forEach((s) => { const im = new Image(); im.src = s; });
     preloadHeistAudio(["/golem-wake-up.mp3", "/golem-step-forward.mp3", "/golem-step-back.mp3", "/golem-power-down.mp3"]);
     let timers = [];
     let pending;
@@ -429,19 +429,21 @@ function useGolemWake(enabled) {
       timers.forEach(clearTimeout); timers = [];
       setPh(1);                                                  // rumble + head raises, eyes ignite
       playHeistSound("/golem-wake-up.mp3", 0.5);
-      timers.push(setTimeout(() => {                             // heavy step forward (right leg)
-        setPh(2);
-        playHeistSound("/golem-step-forward.mp3", 0.55);
-      }, 2300));
-      timers.push(setTimeout(() => {                             // steps back
+      timers.push(setTimeout(() => setPh(2), 2300));             // right knee lifts, body leans in
+      timers.push(setTimeout(() => {                             // foot plants forward
         setPh(3);
+        playHeistSound("/golem-step-forward.mp3", 0.55);
+      }, 3400));
+      timers.push(setTimeout(() => setPh(4), 5600));             // leg lifts back off the floor
+      timers.push(setTimeout(() => {                             // rotates back to a stand
+        setPh(5);
         playHeistSound("/golem-step-back.mp3", 0.55);
-      }, 4800));
+      }, 6700));
       timers.push(setTimeout(() => {                             // head lowers, eyes die out
-        setPh(4);
+        setPh(6);
         playHeistSound("/golem-power-down.mp3", 0.5);
-      }, 7000));
-      timers.push(setTimeout(() => { setPh(0); schedule(180000, 150000); }, 8600));
+      }, 8300));
+      timers.push(setTimeout(() => { setPh(0); schedule(180000, 150000); }, 9900));
     };
     schedule(45000, 40000);
     const force = () => { clearTimeout(pending); run(); };
@@ -701,13 +703,14 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       {cfg.golemRight && (
         <div className="absolute bottom-0 right-[-5%] z-[3] block h-[72vh] sm:right-[-1%] sm:h-[78vh]" style={{ aspectRatio: "696 / 1180" }} data-testid="steam-golem-right">
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.6vh", width: "88%", height: "3.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.7), rgba(0,0,0,0) 68%)" }} />
-          {/* pose stack: sleeping / awake (head up, green eyes) / mid-step */}
-          <div className="absolute inset-0" style={{ transformOrigin: "50% 100%", animation: golemWake === 1 ? "ffGolemRumble 0.4s linear 3" : golemWake === 2 ? "ffGolemStepLift 1.5s cubic-bezier(0.4,0,0.5,1) forwards" : golemWake === 3 ? "ffGolemStepSettle 1.3s cubic-bezier(0.45,0,0.55,1)" : undefined }}>
-            <img src={cfg.golemRight} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 0 || golemWake === 4 ? 1 : 0, transition: "opacity 0.7s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} />
-            <img src="/steam-golem-right-awake.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 1 || golemWake === 3 ? 1 : 0, transition: "opacity 0.7s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-awake" />
-            <img src="/steam-golem-right-step.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 2 ? 1 : 0, transition: "opacity 0.7s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-step" />
+          {/* pose stack: sleeping / awake / knee lifted / foot planted forward */}
+          <div className="absolute inset-0" style={{ transformOrigin: "50% 100%", animation: golemWake === 1 ? "ffGolemRumble 0.4s linear 3" : golemWake === 2 || golemWake === 4 ? "ffGolemStepLift 1.2s cubic-bezier(0.4,0,0.5,1) forwards" : golemWake === 3 || golemWake === 5 ? "ffGolemStepSettle 1.2s cubic-bezier(0.45,0,0.55,1)" : undefined }}>
+            <img src={cfg.golemRight} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 0 || golemWake === 6 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} />
+            <img src="/steam-golem-right-awake.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 1 || golemWake === 5 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-awake" />
+            <img src="/steam-golem-right-lift.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 2 || golemWake === 4 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-lift" />
+            <img src="/steam-golem-right-step.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 3 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-step" />
             {/* smoky green aura around the head while he's awake */}
-            {golemWake >= 1 && golemWake <= 3 && (
+            {golemWake >= 1 && golemWake <= 5 && (
               <div className="absolute" style={{ left: "22%", top: "1%", width: "26%", aspectRatio: "1" }} data-testid="golem-wake-aura">
                 <span className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle, rgba(110,255,170,0.3), rgba(70,220,140,0.12) 50%, transparent 76%)", mixBlendMode: "screen", filter: "blur(4px)", animation: "ffFurnaceSmolder 2.4s ease-in-out infinite" }} />
               </div>
@@ -774,7 +777,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
         </div>
       )}
       {cfg.device && (
-        <div className="absolute bottom-0 left-[2%] z-[3] h-[40vh] sm:left-auto sm:right-[3%] sm:h-[46vh]" style={{ aspectRatio: "545 / 970", transform: "scaleX(-1)" }}>
+        <div className="absolute bottom-0 left-[-7%] z-[3] h-[40vh] sm:left-auto sm:right-[3%] sm:h-[46vh]" style={{ aspectRatio: "545 / 970", transform: "scaleX(-1)" }}>
           <img src={cfg.device} alt="" className="absolute inset-0 h-full w-full object-contain opacity-90" />
           <div className="absolute" style={{ left: "43.5%", width: "12.5%", top: "2%", height: "22%" }}>
             <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(120,210,255,0.22), rgba(120,210,255,0) 70%)", animation: "ffArcGlow 0.13s steps(2,end) infinite" }} />

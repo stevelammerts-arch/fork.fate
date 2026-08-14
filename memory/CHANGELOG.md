@@ -733,3 +733,13 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   -1.3% + rotate -0.7deg from bottom origin as the leg lifts, settles as foot
   plants) + ffGolemStepSettle (phase 3: push-off bob). The step SPRITE carries
   the visible leg motion. Verified via forced-wake screenshot (foot raised).
+
+## 2026-06 — Multi-shot step + table spacing (FF_BUILD 473-474)
+- NEW POSE steam-golem-right-lift.png (gen_golem_lift.py + same key/hole/normalize
+  pipeline): right knee high, foot OFF the ground, leaning forward.
+- Wake phases now 0 asleep / 1 awake / 2 knee lifts / 3 foot plants fwd (step
+  sprite) / 4 leg lifts back / 5 stands (awake) / 6 power down. Timers 2.3/3.4/
+  5.6/6.7/8.3/9.9s; sounds: wake@1, fwd-step@3 (plant), back-step@5, power-down@6.
+  Crossfades 0.5s; lift phases use ffGolemStepLift, settle on 3/5.
+- Mobile arc table moved left-[-7%] (was 2%) — "too close to him". Verified via
+  forced-wake screenshots (lift + planted frames, table spacing).
