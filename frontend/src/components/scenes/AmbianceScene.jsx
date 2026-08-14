@@ -208,7 +208,7 @@ function useCoverAnchor(natW, natH) {
 
 export const AMBIANCE = {
   cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", spinner: "/cyber-spinner-suv.png", bus: "/cyber-bus.png", bus2: "/cyber-bus2.png", saucer: "/cyber-saucer-mech.png", saucerFront: "/cyber-saucer-mech-front.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
-  steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall-full.png", console: "/steam-console.png", device: "/steam-arc-device.png", steam: true, roofCables: true, floor: true, accent: "#D9A44E", sky: "#F1D9A6" },
+  steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall-full.png", golemLeft: "/steam-golem-left.png", golemRight: "/steam-golem-right.png", device: "/steam-arc-device.png", steam: true, roofCables: true, floor: true, accent: "#D9A44E", sky: "#F1D9A6" },
   tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", lounge: "/tiki-lounge-full.png", accent: "#F0A24E", sky: "#FBE3C0" },
   fantasy: { grad: "linear-gradient(180deg,#1A0E08 0%,#120A06 55%,#080503 100%)", hoard: "/fantasy-cave.jpg", accent: "#E6B23A", sky: "#F3D9A0" },
   fairy: { grad: "linear-gradient(180deg,#0B1F14 0%,#123024 50%,#081710 100%)", gully: "/fairy-gully.png", accent: "#5EE0A8", sky: "#CFF5DC" },
@@ -626,15 +626,17 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
         <TikiTorchNightfall box={loungeBox} />
       </>)}
       {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
-      {cfg.console && (
-        <div className="absolute bottom-0 left-[-22%] z-[4] h-[52vh] sm:left-[-2%] sm:h-[74vh]" style={{ aspectRatio: "848 / 1264" }} data-testid="steam-console">
-          <img src={cfg.console} alt="" className="absolute inset-0 h-full w-full object-contain" />
-          {/* Brass goggles set down on the console's desk shelf — anchored to the
-              cabinet's own box so they stay in scale with it on any screen. */}
-          <div className="absolute" data-testid="steam-goggles-prop" style={{ left: "28%", top: "57.6%", width: "18%", transform: "rotate(-5deg)" }}>
-            <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-10%", width: "130%", height: "38%", background: "radial-gradient(ellipse, rgba(0,0,0,0.85), rgba(0,0,0,0) 66%)" }} />
-            <img src="/steam-goggles-shelf.png" alt="" className="relative w-full object-contain" style={{ filter: "drop-shadow(0 4px 5px rgba(0,0,0,0.9)) brightness(1.22) contrast(1.05)" }} />
-          </div>
+      {cfg.golemLeft && (
+        <div className="absolute bottom-0 left-[-10%] z-[4] h-[72vh] sm:left-[-3%] sm:h-[112vh]" style={{ aspectRatio: "684 / 1222" }} data-testid="steam-golem-left">
+          {/* soft ground shadow so the sleeping sentinel sits on the floor */}
+          <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.6vh", width: "88%", height: "3.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.7), rgba(0,0,0,0) 68%)" }} />
+          <img src={cfg.golemLeft} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} />
+        </div>
+      )}
+      {cfg.golemRight && (
+        <div className="absolute bottom-0 right-[-4%] z-[3] hidden h-[112vh] sm:block" style={{ aspectRatio: "696 / 1180" }} data-testid="steam-golem-right">
+          <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.6vh", width: "88%", height: "3.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.7), rgba(0,0,0,0) 68%)" }} />
+          <img src={cfg.golemRight} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} />
         </div>
       )}
       {cfg.device && (

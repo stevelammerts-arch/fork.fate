@@ -603,3 +603,38 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   wreck tilt, hook flare).
 - Verified via forced heist + DOM transform sampling: cruise x1710 -> overshoot
   x-58 -> reversing x123 (lamp ON) -> parked x306 -> hauling x-365. Screenshots OK.
+
+## 2026-06 — Steampunk sentinels: cabinet replaced by sleeping golems (FF_BUILD 450)
+- Generated 4 dormant clockwork automaton golem concepts via Gemini Nano Banana
+  (gen_golem_concepts.py; golem-concept-1..4.png kept in public for reference).
+  User picked: concept 3 (Furnace Golem) LEFT + concept 1 (Boiler-Chest Colossus)
+  RIGHT, as "silent sentinels"; only ONE (left) shows on mobile.
+- REMOVED the steam-console cabinet block + its brass-goggles shelf prop (goggles
+  can be re-homed later if user wants; steam-console.png kept in public).
+- NEW sprites steam-golem-left.png (684x1222) / steam-golem-right.png (696x1180):
+  white studio bg + floor shadow keyed out (edge flood tol 196-200, rim feather),
+  then enclosed light pockets around the feet cleared (bottom-20% component pass).
+- Scene: golemLeft bottom-0 left z-[4] h-46vh/66vh; golemRight bottom-0 right
+  z-[3] hidden sm:block h-64vh (renders BEHIND the arc-device table, which sits
+  in front like a workbench). Both get radial ground shadow + drop-shadow +
+  brightness(0.92) to sit in the dark scene. Dormant: no glow, no animation.
+- Verified desktop + mobile screenshots; mobile right golem display:none.
+
+## 2026-06 — Golem polish: white pockets gone, bronze grade, 10-ft scale (FF_BUILD 451)
+- User: "Lots of white on both" + "needs more bronze" + "make them larger like 10 feet".
+- WHITE FIX: strict bright-pocket pass (>232 low-chroma components >100px) caught the
+  enclosed bg pockets (armpits, crotch, neck, arm gaps) WITHOUT touching the legit
+  gray paint-scuff speckles on the armor; grown into 202+ fringe, rim half-alpha'd.
+  Also nuked all semi-transparent light haze (soft floor-shadow remnants, numpy pass).
+- BRONZE GRADE: luminance-mapped bronze duotone blend (K=0.34 toward 236/168/96),
+  plus red lift x1.06+6 and blue sink x0.86 — baked into both sprites; matches the
+  amber wall. (Backups: original gens still at golem-concept-1/3.png.)
+- SCALE: left h-54vh mobile / 84vh desktop (was 46/66), right 84vh desktop (was 64).
+- Verified desktop + mobile screenshots: no white, warm tones, towering sentinels.
+
+## 2026-06 — Golem sizing iterations (FF_BUILD 452-453)
+- User: "Double the size" -> 108vh mobile / 168vh desktop (FF_BUILD 452), then
+  "drop size by a third" -> FINAL: left 72vh mobile / 112vh desktop (left -10% /
+  -3%), right 112vh desktop (right -4%), mobile right still hidden.
+- At 112vh the heads crop slightly above the scene top — reads as colossal
+  sentinels standing just inside the hall. Verified desktop + mobile screenshots.

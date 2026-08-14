@@ -2817,3 +2817,20 @@ inside playHeistSound).
   then backs up with a synthesized service-vehicle backup alarm (tow-reverse-beep.wav)
   and a blinking white reverse lamp, hooks, and hauls the wreck off. Phases 6-10,
   16.2s total. Verified via forced-variant beat sampling + screenshots.
+
+## 2026-08-14 part 100: Steampunk golem sentinels (FF_BUILD 450)
+- Cabinet (steam-console) replaced with two sleeping clockwork automaton golems
+  (Nano Banana-generated, user picked concepts 3 left + 1 right). One golem on
+  mobile. Goggles prop removed with the cabinet (offer to re-home).
+- 4 concepts preserved at public/golem-concept-1..4.png; gen script at
+  /app/scripts/gen_golem_concepts.py.
+
+## 2026-08-14 part 101: Golem white cleanup + bronze grade + 10-ft scale (FF_BUILD 451)
+- Cleared enclosed white bg pockets on both golem sprites (armor scuffs preserved),
+  removed shadow haze, baked a bronze duotone grade to match the amber wall, and
+  scaled both to 84vh desktop (54vh mobile, left only). User reaction: "They look
+  like brothers." Verified via screenshots.
+
+## 2026-08-14 part 102: Golem final sizing (FF_BUILD 453)
+- Sized up to double then reduced by a third per user: final 112vh desktop both
+  sides, 72vh mobile (left only). Verified via screenshots.
