@@ -2876,3 +2876,9 @@ inside playHeistSound).
 - Awakening step now leads with the other (viewer-left) leg via regenerated
   frames; mute button moved from header to float above the scenery eye in all
   realms. Verified via DOM positions + screenshots.
+
+## 2026-08-14 part 111: Furnace Blast + crackle (FF_BUILD 477)
+- Left golem rare event: gears grind then a thick stream of fire/sparks/embers
+  spews from his furnace grate, scored with the user's 2 clips. Woodstove crackle
+  ambient loop fixed (hook wasn't called) and verified. Desktop-only (left golem
+  hidden on mobile).

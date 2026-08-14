@@ -413,6 +413,57 @@ function CyberNeonSign({ neon }) {
 }
 
 
+/** Soft woodstove crackle looping near the left golem's smoldering belly grate.
+ * Desktop-only (he's hidden on mobile); follows the global mute live. */
+function useFurnaceCrackle(enabled) {
+  useEffect(() => {
+    if (!enabled) return undefined;
+    if (!window.matchMedia("(min-width: 640px)").matches) return undefined;
+    const a = new Audio("/golem-furnace-crackle.mp3");
+    a.loop = true;
+    a.volume = 0.14;
+    a.preload = "auto";
+    const sync = () => {
+      const muted = localStorage.getItem("ff_muted") === "1";
+      if (muted) { if (!a.paused) a.pause(); }
+      else if (a.paused) a.play().catch(() => {});
+    };
+    sync();
+    const iv = setInterval(sync, 1500);
+    return () => { clearInterval(iv); a.pause(); a.src = ""; };
+  }, [enabled]);
+}
+
+/** Rare 'furnace blast' for the left golem: gears grind inside, then a thick
+ * stream of fire, sparks and embers spews from his belly grate.
+ * Desktop-only (he's hidden on mobile); `ff:furnace-blast` forces it. */
+function useFurnaceBlast(enabled) {
+  const [ph, setPh] = useState(0); // 0 idle, 1 gears grinding (glow surges), 2 fire spews
+  useEffect(() => {
+    if (!enabled) return undefined;
+    if (!window.matchMedia("(min-width: 640px)").matches) return undefined;
+    preloadHeistAudio(["/golem-gears.mp3", "/golem-fire-blast.mp3"]);
+    let timers = [];
+    let pending;
+    const schedule = (min, spread) => { pending = setTimeout(run, min + Math.random() * spread); };
+    const run = () => {
+      timers.forEach(clearTimeout); timers = [];
+      setPh(1);
+      playHeistSound("/golem-gears.mp3", 0.5);
+      timers.push(setTimeout(() => {
+        setPh(2);
+        playHeistSound("/golem-fire-blast.mp3", 0.55);
+      }, 2000));
+      timers.push(setTimeout(() => { setPh(0); schedule(200000, 160000); }, 5200));
+    };
+    schedule(70000, 60000);
+    const force = () => { clearTimeout(pending); run(); };
+    window.addEventListener("ff:furnace-blast", force);
+    return () => { clearTimeout(pending); timers.forEach(clearTimeout); window.removeEventListener("ff:furnace-blast", force); };
+  }, [enabled]);
+  return ph;
+}
+
 /** Rare 'awakening' for the right golem: head raises, eyes glow smoky green,
  * one heavy step forward with the right leg, steps back, powers down.
  * First 45-85s after load, then every 3-5.5 min (`ff:golem-wake` forces it). */
@@ -455,6 +506,8 @@ function useGolemWake(enabled) {
 
 export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
   const golemWake = useGolemWake(!!cfg.golemRight);
+  const blastPh = useFurnaceBlast(!!cfg.golemLeft);
+  useFurnaceCrackle(!!cfg.golemLeft);
   const [mobile, setMobile] = useState(false);
   const [abducting, setAbducting] = useState(false);
   const [chase, setChase] = useState(null); // null | { dir: 1 (L->R) | -1 (R->L) }
@@ -671,7 +724,38 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
         <div className="absolute bottom-0 left-[-10%] z-[4] hidden h-[72vh] sm:left-[-3%] sm:block sm:h-[78vh]" style={{ aspectRatio: "684 / 1222" }} data-testid="steam-golem-left">
           {/* soft ground shadow so the sleeping sentinel sits on the floor */}
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.6vh", width: "88%", height: "3.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.7), rgba(0,0,0,0) 68%)" }} />
-          <img src={cfg.golemLeft} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} />
+          <img src={cfg.golemLeft} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)", animation: blastPh >= 1 ? "ffGolemRumble 0.5s linear infinite" : undefined }} />
+          {/* FURNACE BLAST: glow surge while the gears grind, then fire spews */}
+          {blastPh >= 1 && (
+            <div className="absolute" style={{ left: "52%", top: "36%", width: "29%", height: "16.5%" }} data-testid="furnace-blast-surge">
+              <span className="absolute inset-0" style={{ borderRadius: "45%", background: "radial-gradient(ellipse at 50% 55%, rgba(255,175,60,0.75), rgba(255,110,25,0.4) 45%, rgba(200,60,10,0.15) 68%, transparent 85%)", mixBlendMode: "screen", filter: "blur(4px)", animation: "ffFurnaceSmolder 0.7s ease-in-out infinite" }} />
+            </div>
+          )}
+          {blastPh === 2 && (
+            <div className="absolute" style={{ left: "64%", top: "39.5%", width: "33%", height: "10%" }} data-testid="furnace-blast-jet">
+              {/* thick fire stream: red sheath, orange body, white-hot core */}
+              <span className="absolute" style={{ left: 0, top: "-24%", width: "100%", height: "148%", transformOrigin: "0% 50%", borderRadius: "40% 100% 100% 40% / 50% 50% 50% 50%", background: "linear-gradient(90deg, rgba(210,60,10,0.85), rgba(230,80,15,0.55) 55%, rgba(200,50,10,0) 96%)", filter: "blur(3px)", animation: "ffFurnaceJet 3.1s cubic-bezier(0.3,0,0.5,1) forwards" }} />
+              <span className="absolute" style={{ left: 0, top: "-6%", width: "88%", height: "112%", transformOrigin: "0% 50%", borderRadius: "40% 100% 100% 40% / 50% 50% 50% 50%", background: "linear-gradient(90deg, rgba(255,140,30,0.95), rgba(255,110,25,0.7) 55%, rgba(255,90,20,0) 95%)", filter: "blur(2px)", animation: "ffFurnaceJet 3.1s cubic-bezier(0.3,0,0.5,1) -0.06s forwards" }} />
+              <span className="absolute" style={{ left: 0, top: "18%", width: "66%", height: "64%", transformOrigin: "0% 50%", borderRadius: "40% 100% 100% 40% / 50% 50% 50% 50%", background: "linear-gradient(90deg, rgba(255,246,200,1), rgba(255,205,90,0.9) 55%, rgba(255,160,50,0) 94%)", filter: "blur(1px)", animation: "ffFurnaceJet 3.1s cubic-bezier(0.3,0,0.5,1) -0.12s forwards" }} />
+              {/* sparks whipping out of the stream */}
+              {[
+                { sx: "16vh", sy: "-5vh", d: 0.7, dl: 0.15, s: 0.8 }, { sx: "22vh", sy: "-2vh", d: 0.9, dl: 0.4, s: 1 },
+                { sx: "19vh", sy: "3vh", d: 0.8, dl: 0.7, s: 0.7 }, { sx: "25vh", sy: "6vh", d: 1.1, dl: 0.25, s: 0.9 },
+                { sx: "13vh", sy: "-7vh", d: 0.75, dl: 1.0, s: 0.6 }, { sx: "27vh", sy: "1vh", d: 1.0, dl: 1.3, s: 1 },
+                { sx: "18vh", sy: "8vh", d: 0.95, dl: 1.6, s: 0.8 }, { sx: "23vh", sy: "-4vh", d: 0.85, dl: 1.9, s: 0.7 },
+                { sx: "15vh", sy: "5vh", d: 0.9, dl: 2.2, s: 0.9 }, { sx: "21vh", sy: "-6vh", d: 0.8, dl: 2.45, s: 0.6 },
+              ].map((p, pi) => (
+                <span key={`spark-${pi}`} className="absolute rounded-full" style={{ left: "4%", top: "42%", width: `${0.8 * p.s}vh`, height: `${0.8 * p.s}vh`, background: "radial-gradient(circle, #FFF2C4, #FFB03A 70%)", boxShadow: "0 0 6px 2px rgba(255,160,50,0.8)", "--sx": p.sx, "--sy": p.sy, animation: `ffSparkFly ${p.d}s ease-out ${p.dl}s infinite` }} />
+              ))}
+              {/* slower glowing embers tumbling out */}
+              {[
+                { sx: "11vh", sy: "9vh", d: 1.9, dl: 0.3 }, { sx: "16vh", sy: "12vh", d: 2.3, dl: 0.9 },
+                { sx: "9vh", sy: "11vh", d: 2.1, dl: 1.5 }, { sx: "14vh", sy: "13vh", d: 2.4, dl: 2.0 },
+              ].map((p, pi) => (
+                <span key={`ember-${pi}`} className="absolute rounded-full" style={{ left: "5%", top: "50%", width: "1.1vh", height: "1.1vh", background: "radial-gradient(circle, #FF9A3C, #B34710 75%)", boxShadow: "0 0 5px 1px rgba(255,120,40,0.6)", "--sx": p.sx, "--sy": p.sy, animation: `ffSparkFly ${p.d}s ease-in ${p.dl}s infinite` }} />
+              ))}
+            </div>
+          )}
           {/* ember eyes: smolder like the furnace in his belly */}
           {[
             { cx: 75.5, cy: 16.5, s: 6.4 },

@@ -754,3 +754,15 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   scenery eye, same pill styling, present in all realms incl. scenery mode.
   Same data-testid sound-toggle-button. Verified stack (sound y680 / eye y736),
   header clean, ff_muted toggling, other-leg step visually.
+
+## 2026-06 — Furnace Blast event + crackle fix (FF_BUILD 476-477)
+- FIX: useFurnaceCrackle was defined but never called (lint caught it) — now
+  wired; woodstove loop (public/golem-furnace-crackle.mp3, vol 0.14, desktop-only,
+  live mute sync every 1.5s) verified requesting.
+- NEW EVENT useFurnaceBlast (left golem, desktop-only, ff:furnace-blast forces,
+  every ~3.5-6min after 70-130s first): ph1 gears grind (golem-gears.mp3, grate
+  glow surges 0.7s smolder + ffGolemRumble on the sprite, 2s) -> ph2 fire spews
+  (golem-fire-blast.mp3): 3-layer jet cone from the grate (red sheath/orange
+  body/white-hot core, ffFurnaceJet 3.1s roar-gutter-die) + 10 sparks + 4 embers
+  flying on per-particle --sx/--sy vectors (ffSparkFly). testids
+  furnace-blast-surge / furnace-blast-jet. Verified via forced event screenshot.
