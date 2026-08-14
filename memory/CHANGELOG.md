@@ -810,3 +810,9 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   bleeds in as an amber edge glow (golem-duet-flicker-mobile, sm:hidden inverse,
   two "eyes" + haze, same ffBroFlicker timing). Verified display:block at 390px
   while steam-golem-left is display:none.
+
+## 2026-02 (fork) — Flat-footed step frame (FF_BUILD 490)
+- User: step pose had toes pointing up. Regenerated steam-golem-right-step.png
+  via Gemini Nano (scripts/gen_golem_step_flat.py: 'forward foot COMPLETELY FLAT')
+  + process_golem_pose.py pipeline; erased a leftover white steam blob at the
+  chimneys (y<120 whitish clear). src ?v=490. Verified live at wake phase 3.
