@@ -883,3 +883,12 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - NOTE: the Medal lucide import was AGAIN silently dropped from a parallel edit
   batch (crashed /rituals with white screen, "Medal is not defined") — re-applied
   solo and verified. Avoid parallel search_replace on the same file.
+
+## 2026-02 (fork) — Live mobile fixes (FF_BUILD 499-500)
+- LIVE BUG (production report, reproduced in preview): goggles floor prop sat
+  under the right golem's feet on phones (golem spans nearly full width at
+  390px). Goggles + mask now hidden sm:block like the arm — their anchor
+  stations (rack/bench) are desktop-only anyway. Verified display:none at 390px.
+- LANDSCAPE: manifest.json orientation "portrait" -> "any". Verified served +
+  landscape layout (844x390) renders the sm layout fine. NOTE: installed PWAs
+  pick up manifest orientation on app update; some devices need reinstall.

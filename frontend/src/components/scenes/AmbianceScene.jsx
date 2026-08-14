@@ -1080,13 +1080,16 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           <div className="absolute inset-x-0 top-[46%] h-px" style={{ background: "rgba(0,0,0,0.5)" }} />
           <div className="absolute inset-x-0 top-0 h-[3px]" style={{ background: "linear-gradient(90deg, transparent, rgba(217,164,78,0.55) 20%, rgba(240,200,120,0.7) 50%, rgba(217,164,78,0.55) 80%, transparent)" }} />
           <div className="absolute inset-x-0 top-[3px] h-[10px]" style={{ background: "linear-gradient(180deg, rgba(217,164,78,0.22), transparent)" }} />
-          {/* Plague doctor mask abandoned on the floor in front of the alchemy desk (now right side) */}
-          <div className="absolute" data-testid="steam-mask-prop" style={{ left: "calc(50% + 38vh)", bottom: "0.9vh" }}>
+          {/* Plague doctor mask abandoned on the floor in front of the alchemy desk
+              (desktop-only: the desk itself is hidden at phone widths) */}
+          <div className="absolute hidden sm:block" data-testid="steam-mask-prop" style={{ left: "calc(50% + 38vh)", bottom: "0.9vh" }}>
             <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.5vh", width: "14vh", height: "2vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.55), rgba(0,0,0,0) 70%)" }} />
             <img src="/steam-mask-floor.png" alt="" className="relative object-contain" style={{ width: "12vh" }} />
           </div>
-          {/* Brass goggles set down on the ground in front of the half-built robot */}
-          <div className="absolute" data-testid="steam-goggles-prop" style={{ left: "48.5%", bottom: "0.8vh", transform: "rotate(-6deg)" }}>
+          {/* Brass goggles set down on the ground in front of the half-built robot
+              (desktop-only: on mobile the rack is hidden and the right golem's
+              feet occupy this spot — live bug: goggles showed under his feet) */}
+          <div className="absolute hidden sm:block" data-testid="steam-goggles-prop" style={{ left: "48.5%", bottom: "0.8vh", transform: "rotate(-6deg)" }}>
             <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.4vh", width: "9vh", height: "1.4vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.6), rgba(0,0,0,0) 70%)" }} />
             <img src="/steam-goggles-shelf.png" alt="" className="relative object-contain" style={{ width: "7.5vh", filter: "drop-shadow(0 3px 4px rgba(0,0,0,0.8)) brightness(1.18)" }} />
           </div>
