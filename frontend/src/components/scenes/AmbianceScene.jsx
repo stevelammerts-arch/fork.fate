@@ -747,12 +747,14 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
               ].map((p, pi) => (
                 <span key={`spark-${pi}`} className="absolute rounded-full" style={{ left: "4%", top: "42%", width: `${0.8 * p.s}vh`, height: `${0.8 * p.s}vh`, background: "radial-gradient(circle, #FFF2C4, #FFB03A 70%)", boxShadow: "0 0 6px 2px rgba(255,160,50,0.8)", "--sx": p.sx, "--sy": p.sy, animation: `ffSparkFly ${p.d}s ease-out ${p.dl}s infinite` }} />
               ))}
-              {/* slower glowing embers tumbling out */}
+              {/* fire bits that arc out, HIT THE FLOOR and bounce around */}
               {[
-                { sx: "11vh", sy: "9vh", d: 1.9, dl: 0.3 }, { sx: "16vh", sy: "12vh", d: 2.3, dl: 0.9 },
-                { sx: "9vh", sy: "11vh", d: 2.1, dl: 1.5 }, { sx: "14vh", sy: "13vh", d: 2.4, dl: 2.0 },
+                { bx: "7vh", d: 1.7, dl: 0.2, s: 1 }, { bx: "13vh", d: 2.0, dl: 0.5, s: 0.8 },
+                { bx: "19vh", d: 2.3, dl: 0.8, s: 1.1 }, { bx: "10vh", d: 1.9, dl: 1.2, s: 0.7 },
+                { bx: "24vh", d: 2.6, dl: 1.5, s: 0.9 }, { bx: "16vh", d: 2.2, dl: 1.9, s: 1 },
+                { bx: "21vh", d: 2.4, dl: 2.2, s: 0.75 },
               ].map((p, pi) => (
-                <span key={`ember-${pi}`} className="absolute rounded-full" style={{ left: "5%", top: "50%", width: "1.1vh", height: "1.1vh", background: "radial-gradient(circle, #FF9A3C, #B34710 75%)", boxShadow: "0 0 5px 1px rgba(255,120,40,0.6)", "--sx": p.sx, "--sy": p.sy, animation: `ffSparkFly ${p.d}s ease-in ${p.dl}s infinite` }} />
+                <span key={`bounce-${pi}`} className="absolute rounded-full" style={{ left: "5%", top: "48%", width: `${1.05 * p.s}vh`, height: `${1.05 * p.s}vh`, background: "radial-gradient(circle, #FFE9A8, #FF9A3C 55%, #B34710 90%)", boxShadow: "0 0 6px 2px rgba(255,140,45,0.7)", "--bx": p.bx, animation: `ffSparkBounce ${p.d}s linear ${p.dl}s infinite` }} data-testid="furnace-blast-bouncer" />
               ))}
             </div>
           )}

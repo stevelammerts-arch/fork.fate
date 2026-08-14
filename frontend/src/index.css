@@ -539,6 +539,22 @@ body {
   92%  { transform: scaleX(0.4) scaleY(0.5); opacity: .6; }
   100% { transform: scaleX(0.05) scaleY(0.3); opacity: 0; }
 }
+/* Fire bits: arc out of the jet, hit the floor (~43vh below the grate on the
+   78vh desktop golem), then bounce around with diminishing hops and die out */
+@keyframes ffSparkBounce{
+  0%   { transform: translate(0, 0) scale(1); opacity: 0; }
+  6%   { opacity: 1; }
+  16%  { transform: translate(calc(var(--bx) * 0.3), 2vh) scale(1); }
+  30%  { transform: translate(calc(var(--bx) * 0.5), 14vh) scale(.95); }
+  46%  { transform: translate(calc(var(--bx) * 0.7), 43vh) scale(.9); }
+  58%  { transform: translate(calc(var(--bx) * 0.8), 36vh) scale(.85); }
+  70%  { transform: translate(calc(var(--bx) * 0.88), 43vh) scale(.8); }
+  80%  { transform: translate(calc(var(--bx) * 0.93), 40vh) scale(.7); }
+  88%  { transform: translate(calc(var(--bx) * 0.97), 43vh) scale(.6); }
+  94%  { transform: translate(var(--bx), 42vh) scale(.5); opacity: .8; }
+  100% { transform: translate(var(--bx), 43vh) scale(.4); opacity: 0; }
+}
+
 /* Sparks + embers ride out along per-particle --sx/--sy vectors */
 @keyframes ffSparkFly{
   0%   { transform: translate(0,0) scale(1); opacity: 0; }
