@@ -420,7 +420,7 @@ function useGolemWake(enabled) {
   const [ph, setPh] = useState(0); // 0 asleep, 1 awake, 2 leg lifts, 3 foot plants fwd (leaning), 4 leg lifts back, 5 stands, 6 powering down
   useEffect(() => {
     if (!enabled) return undefined;
-    ["/steam-golem-right-awake.png", "/steam-golem-right-step.png", "/steam-golem-right-lift.png"].forEach((s) => { const im = new Image(); im.src = s; });
+    ["/steam-golem-right-awake.png", "/steam-golem-right-step.png?v=475", "/steam-golem-right-lift.png?v=475"].forEach((s) => { const im = new Image(); im.src = s; });
     preloadHeistAudio(["/golem-wake-up.mp3", "/golem-step-forward.mp3", "/golem-step-back.mp3", "/golem-power-down.mp3"]);
     let timers = [];
     let pending;
@@ -707,8 +707,8 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           <div className="absolute inset-0" style={{ transformOrigin: "50% 100%", animation: golemWake === 1 ? "ffGolemRumble 0.4s linear 3" : golemWake === 2 || golemWake === 4 ? "ffGolemStepLift 1.2s cubic-bezier(0.4,0,0.5,1) forwards" : golemWake === 3 || golemWake === 5 ? "ffGolemStepSettle 1.2s cubic-bezier(0.45,0,0.55,1)" : undefined }}>
             <img src={cfg.golemRight} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 0 || golemWake === 6 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} />
             <img src="/steam-golem-right-awake.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 1 || golemWake === 5 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-awake" />
-            <img src="/steam-golem-right-lift.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 2 || golemWake === 4 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-lift" />
-            <img src="/steam-golem-right-step.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 3 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-step" />
+            <img src="/steam-golem-right-lift.png?v=475" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 2 || golemWake === 4 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-lift" />
+            <img src="/steam-golem-right-step.png?v=475" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 3 ? 1 : 0, transition: "opacity 0.5s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-step" />
             {/* smoky green aura around the head while he's awake */}
             {golemWake >= 1 && golemWake <= 5 && (
               <div className="absolute" style={{ left: "22%", top: "1%", width: "26%", aspectRatio: "1" }} data-testid="golem-wake-aura">

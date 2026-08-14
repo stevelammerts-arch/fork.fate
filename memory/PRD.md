@@ -2871,3 +2871,8 @@ inside playHeistSound).
 - Added AI-generated knee-lift frame; awakening now: awake -> leg lifts -> plants
   forward leaning -> lifts back -> stands -> powers down, fully scored with the
   user's 4 clips. Table moved further from him on mobile. Verified via screenshots.
+
+## 2026-08-14 part 110: Leg swap + relocated mute (FF_BUILD 475)
+- Awakening step now leads with the other (viewer-left) leg via regenerated
+  frames; mute button moved from header to float above the scenery eye in all
+  realms. Verified via DOM positions + screenshots.

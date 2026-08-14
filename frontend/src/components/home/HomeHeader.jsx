@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Palette, Sparkles, ShoppingBag, Store, Volume2, VolumeX } from "lucide-react";
+import { Palette, Sparkles, ShoppingBag, Store } from "lucide-react";
 import { useLang } from "../../i18n/i18n";
 import NearbyHelp from "../NearbyHelp";
 import ReigningChampBadge from "../ReigningChampBadge";
@@ -70,7 +70,7 @@ function GearTicker() {
  */
 export function HomeHeader({
   light, ghost, theme, themeHint, dismissThemeHint, hintColor, onOpenThemePicker,
-  muted, toggleMuted, onGuided, zip, coords,
+  onGuided, zip, coords,
   favorites, removeFavorite, dealFromFavorites, groupMode,
   sponsorOpen, setSponsorOpen,
 }) {
@@ -171,15 +171,6 @@ export function HomeHeader({
             lng={coords?.lng ?? null}
           />
           <ReigningChampBadge light={light} />
-          <button
-            onClick={toggleMuted}
-            data-testid="sound-toggle-button"
-            title={muted ? "Sound off — click to enable the reveal sound" : "Sound on — click to mute"}
-            aria-label={muted ? "Enable sound" : "Mute sound"}
-            className={`inline-flex items-center justify-center rounded-full border bg-transparent p-2 transition-colors sm:p-2.5 ${ghost}`}
-          >
-            {muted ? <VolumeX className="h-4 w-4 text-[#8A8F95]" /> : <Volume2 className="h-4 w-4 text-[#E01E26]" />}
-          </button>
           <BecomeSponsorDialog
             variant="link"
             open={sponsorOpen}

@@ -743,3 +743,14 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   Crossfades 0.5s; lift phases use ffGolemStepLift, settle on 3/5.
 - Mobile arc table moved left-[-7%] (was 2%) — "too close to him". Verified via
   forced-wake screenshots (lift + planted frames, table spacing).
+
+## 2026-06 — Other-leg step frames + floating sound toggle (FF_BUILD 475)
+- STEP LEG SWAP (user: "other leg"): regenerated lift + step frames leading with
+  the viewer-LEFT leg (gen_golem_otherleg.py, explicit image-side language to
+  avoid mirror confusion). Shared pipeline extracted to
+  /app/scripts/process_golem_pose.py. Pose img srcs cache-busted ?v=475.
+- SOUND TOGGLE MOVED: removed speaker from HomeHeader (props/imports cleaned);
+  new fixed floating button bottom-[4.75rem] right-5 z-[75], directly ABOVE the
+  scenery eye, same pill styling, present in all realms incl. scenery mode.
+  Same data-testid sound-toggle-button. Verified stack (sound y680 / eye y736),
+  header clean, ff_muted toggling, other-leg step visually.
