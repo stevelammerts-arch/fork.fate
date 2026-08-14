@@ -99,7 +99,6 @@ export default function Home() {
   const [openNow, setOpenNow] = useState(false);
   const [radius, setRadius] = useState(50);
   const [results, setResults] = useState([]);
-  const [source, setSource] = useState(null);
   const [sortBy, setSortBy] = useState("default");
 
   const [loading, setLoading] = useState(false);
@@ -107,7 +106,6 @@ export default function Home() {
   const [result, setResult] = useState(null);
   const [groupMode, setGroupMode] = useState(false);
   const [sponsorOpen, setSponsorOpen] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
   const [groupPicks, setGroupPicks] = useState(null);
   const [crawlMode, setCrawlMode] = useState(false);
   const [passportMode, setPassportMode] = useState(false);
@@ -617,7 +615,6 @@ export default function Home() {
       }
       const data = { restaurants: merged, source: batches[0]?.source || "curated", weather: cats.length === 1 ? batches[0]?.weather : null };
       setResults(data.restaurants);
-      setSource(data.source);
       setWeather(data.weather || null);
       if (!data.restaurants.length) {
         toast.error("No spots match those filters — try loosening them");
@@ -831,7 +828,6 @@ export default function Home() {
         radius_miles: rad,
       });
       setResults(data.restaurants);
-      setSource(data.source);
       if (data.restaurants.length < 2) {
         toast.error("Need at least 2 nearby spots to build a crawl — try a wider radius or another type");
         return;
@@ -894,7 +890,6 @@ export default function Home() {
 
   const dealFromFavorites = () => {
     if (spinning || loading || !favorites.length) return;
-    setSource("favorites");
     setResults(favorites);
     setRerollsLeft(3);
     lastPickRef.current = null;

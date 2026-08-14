@@ -526,6 +526,18 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
   const blastPh = useFurnaceBlast(!!cfg.golemLeft);
   // any golem event running → the strapped rack robot powers up in response
   const workshopEvent = (golemWake >= 1 && golemWake <= 5) || blastPh >= 1;
+  // WORKSHOP TROPHY: seeing the rack robot power up (head straight, solid
+  // green lenses) counts as its own hidden Collection fate. Recorded 3s into
+  // the power-up so the viewer has actually seen it; desktop-only since the
+  // rack itself is hidden below sm.
+  const witnessWorkshop = useHeistWitness("workshop");
+  useEffect(() => {
+    if (!workshopEvent || !cfg.golemLeft) return undefined;
+    if (!window.matchMedia("(min-width: 640px)").matches) return undefined;
+    const t = setTimeout(() => witnessWorkshop.current(true), 3000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workshopEvent, cfg.golemLeft]);
   useFurnaceCrackle(!!cfg.golemLeft);
   const [mobile, setMobile] = useState(false);
   const [abducting, setAbducting] = useState(false);

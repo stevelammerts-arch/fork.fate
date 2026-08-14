@@ -74,6 +74,7 @@ export const HEISTS = [
   { key: "stash", name: "Winter Stash", realm: "Fall", accent: "#B5651D", desc: "The squirrel checks both ways and stuffs one acorn too many behind the medallion — which bursts clean off as its entire hidden cache tumbles to the ground." },
   { key: "awakening", name: "The Awakening", realm: "Steampunk", accent: "#7CE08A", desc: "The sleeping sentinel on the right stirs — head rising, eyes burning green — takes one thundering step forward, retreats, and powers back down to sleep." },
   { key: "furnace", name: "Furnace Blast", realm: "Steampunk", accent: "#FF7A2B", desc: "The left sentinel's inner gears grind, his belly grate surges white-hot — then a roaring stream of fire, sparks and embers spews across the workshop." },
+  { key: "workshop", name: "The Apprentice", realm: "Steampunk", accent: "#58D68D", desc: "While the sentinels perform, the half-built robot strapped to the assembly rack stirs — his head straightens and both lenses ignite solid green, watching." },
 ];
 
 export function readHeistsSeen() {

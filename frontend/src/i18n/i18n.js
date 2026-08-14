@@ -509,6 +509,8 @@ export const ES = {
   "The sleeping sentinel on the right stirs — head rising, eyes burning green — takes one thundering step forward, retreats, and powers back down to sleep.": "El centinela dormido de la derecha se agita: alza la cabeza, sus ojos arden en verde, da un paso atronador, retrocede y vuelve a apagarse.",
   "Furnace Blast": "Explosión del Horno",
   "The left sentinel's inner gears grind, his belly grate surges white-hot — then a roaring stream of fire, sparks and embers spews across the workshop.": "Los engranajes del centinela izquierdo rechinan, su rejilla ventral se enciende al rojo vivo… y una rugiente corriente de fuego, chispas y ascuas barre el taller.",
+  "The Apprentice": "El Aprendiz",
+  "While the sentinels perform, the half-built robot strapped to the assembly rack stirs — his head straightens and both lenses ignite solid green, watching.": "Mientras los centinelas actúan, el robot a medio construir atado al bastidor se agita: endereza la cabeza y ambas lentes se encienden en verde fijo, observando.",
   "Your stops": "Tus paradas",
   "Stops": "Paradas",
   "Numbered pins follow your route — green means conquered.": "Los pines numerados siguen tu ruta: el verde significa conquistado.",

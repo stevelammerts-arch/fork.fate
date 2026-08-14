@@ -855,3 +855,21 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   when __ffFateBusy or __ffHeistCooldownUntil holds, and reserve the cooldown
   (25s wake / 20s blast) so medallion heists can't scroll the page mid-show.
   Forced dev events (ff:golem-wake / ff:furnace-blast) bypass the guard.
+
+## 2026-02 (fork) — Workshop Trophy + code review fixes (FF_BUILD 496-497)
+- WORKSHOP TROPHY: new HEISTS entry 'workshop' ("The Apprentice", green, Wrench
+  icon, ES translations). Recorded 3s into any rack power-up (workshopEvent
+  effect in AmbianceScene, desktop-only). Shelf now 26. Verified E2E: record,
+  toast, trophy card, count 1/26.
+- CODE REVIEW fixes:
+  * Home.jsx had a stray duplicated closing tail (`</div> ); }`) after the
+    component end — latent from an earlier edit collision; removed (was an
+    eslint parse error).
+  * Dead state removed: source/setSource (3 sites) + addOpen/setAddOpen.
+  * Rituals.jsx: pursuit/tow/stash trophies showed a Lock even when unlocked —
+    mapped to Siren/Truck/Nut (verified present in lucide 0.516).
+  * Audited: no duplicate CSS keyframes (226 unique), golem sprite preloads
+    match rendered ?v= params, eslint 0 errors, deal flow re-smoke-tested.
+- LESSON: two parallel search_replace batches silently lost edits this session
+  (alert config keys, and the Home tail corruption). Prefer sequential edits on
+  the same file region.
