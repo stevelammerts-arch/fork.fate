@@ -639,7 +639,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           {/* black/gray coal smoke curling out of the stacks behind his head */}
           {[
             { left: "41%", top: "-3%", scale: 1 },
-            { left: "62%", top: "5%", scale: 0.85 },
+            { left: "64%", top: "2.5%", scale: 0.85 },
           ].map((s, si) => (
             <div key={`stack-${si}`} className="absolute" style={{ left: s.left, top: s.top }} data-testid="golem-stack-smoke">
               {[0, 1, 2, 3, 4].map((i) => (
