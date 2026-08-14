@@ -838,3 +838,20 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   launch up along --fx*0.55/--fy, crest, rain down) from the grate.
 - Awakening: stomp held 1s longer (ph4 5600->6600, ph5 7700, ph6 9300, end
   10900) and step-back sound moved to ph4 start (leg-return) per user.
+
+## 2026-02 (fork) — Black spot fix, burn-down, alert robot, heist traffic control (FF_BUILD 494-495)
+- WHITE/TAN SPOTS: rack restored from git (6ae036c) + arm re-keyed from raw;
+  near-white px now mapped to DARK (22,16,10) per user ("pixels should be
+  black"); arm's painted gray floor shadow cleared. rack/arm ?v=494.
+- FURNACE BURN-DOWN: new blastPh 3 (5200-7400ms) — surge fades 1.4s, rumble
+  stops, 9 resting embers (furnace-ember-rest) flicker + die on the floor line
+  (translate(bx, 43vh), ffEmberDie staggered). Witness records at 7400.
+- ALERT ROBOT: steam-robot-rack-alert.png (Gemini head-straight variant,
+  aligned to 558x742). During ANY golem event (workshopEvent = wake 1-5 or
+  blast >= 1) the rack robot cross-fades to head-straight and BOTH lenses hold
+  solid green (rack-alert-eye at 33.3/15.4 + 39.7/15.4); flutter hides.
+  NOTE: config keys alert/alertEyes were silently lost once — re-applied.
+- HEIST TRAFFIC CONTROL: golem wake/blast run() now bail+reschedule (25-45s)
+  when __ffFateBusy or __ffHeistCooldownUntil holds, and reserve the cooldown
+  (25s wake / 20s blast) so medallion heists can't scroll the page mid-show.
+  Forced dev events (ff:golem-wake / ff:furnace-blast) bypass the guard.

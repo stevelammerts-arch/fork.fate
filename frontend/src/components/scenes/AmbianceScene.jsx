@@ -438,7 +438,7 @@ function useFurnaceCrackle(enabled) {
  * stream of fire, sparks and embers spews from his belly grate.
  * Desktop-only (he's hidden on mobile); `ff:furnace-blast` forces it. */
 function useFurnaceBlast(enabled) {
-  const [ph, setPh] = useState(0); // 0 idle, 1 gears grinding (glow surges), 2 fire spews
+  const [ph, setPh] = useState(0); // 0 idle, 1 gears grinding (glow surges), 2 fire spews, 3 burning down (embers cool on the floor)
   const witnessRef = useHeistWitness("furnace");
   useEffect(() => {
     if (!enabled) return undefined;
@@ -447,7 +447,13 @@ function useFurnaceBlast(enabled) {
     let timers = [];
     let pending;
     const schedule = (min, spread) => { pending = setTimeout(run, min + Math.random() * spread); };
-    const run = () => {
+    const run = (forced = false) => {
+      // HEIST TRAFFIC CONTROL: never start while fate is shuffling/revealing or
+      // another heist holds the floor (medallion heists scroll the page to the
+      // logo — colliding with a golem show means the user misses both).
+      if (!forced && (window.__ffFateBusy || Date.now() < (window.__ffHeistCooldownUntil || 0))) { schedule(25000, 20000); return; }
+      // Reserve the stage: blast runs 7.4s + a breather before the next act.
+      window.__ffHeistCooldownUntil = Math.max(window.__ffHeistCooldownUntil || 0, Date.now() + 20000);
       timers.forEach(clearTimeout); timers = [];
       setPh(1);
       playHeistSound("/golem-gears.mp3", 0.5);
@@ -455,10 +461,11 @@ function useFurnaceBlast(enabled) {
         setPh(2);
         playHeistSound("/golem-fire-blast.mp3", 0.55);
       }, 2000));
-      timers.push(setTimeout(() => { setPh(0); witnessRef.current(true); schedule(200000, 160000); }, 5200));
+      timers.push(setTimeout(() => setPh(3), 5200));            // fire burns down; embers glow on the floor
+      timers.push(setTimeout(() => { setPh(0); witnessRef.current(true); schedule(200000, 160000); }, 7400));
     };
     schedule(70000, 60000);
-    const force = () => { clearTimeout(pending); run(); };
+    const force = () => { clearTimeout(pending); run(true); };
     window.addEventListener("ff:furnace-blast", force);
     return () => { clearTimeout(pending); timers.forEach(clearTimeout); window.removeEventListener("ff:furnace-blast", force); };
   }, [enabled]);
@@ -478,7 +485,12 @@ function useGolemWake(enabled) {
     let timers = [];
     let pending;
     const schedule = (min, spread) => { pending = setTimeout(run, min + Math.random() * spread); };
-    const run = () => {
+    const run = (forced = false) => {
+      // HEIST TRAFFIC CONTROL: defer if fate is busy or another heist has the
+      // floor, and reserve the stage for the full 10.9s show + a breather so
+      // medallion heists can't scroll the page away mid-awakening.
+      if (!forced && (window.__ffFateBusy || Date.now() < (window.__ffHeistCooldownUntil || 0))) { schedule(25000, 20000); return; }
+      window.__ffHeistCooldownUntil = Math.max(window.__ffHeistCooldownUntil || 0, Date.now() + 25000);
       timers.forEach(clearTimeout); timers = [];
       setPh(1);                                                  // rumble + head raises, eyes ignite
       playHeistSound("/golem-wake-up.mp3", 0.5);
@@ -502,7 +514,7 @@ function useGolemWake(enabled) {
       timers.push(setTimeout(() => { setPh(0); witnessRef.current(true); schedule(180000, 150000); }, 10900));
     };
     schedule(45000, 40000);
-    const force = () => { clearTimeout(pending); run(); };
+    const force = () => { clearTimeout(pending); run(true); };
     window.addEventListener("ff:golem-wake", force);
     return () => { clearTimeout(pending); timers.forEach(clearTimeout); window.removeEventListener("ff:golem-wake", force); };
   }, [enabled]);
@@ -512,6 +524,8 @@ function useGolemWake(enabled) {
 export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
   const golemWake = useGolemWake(!!cfg.golemRight);
   const blastPh = useFurnaceBlast(!!cfg.golemLeft);
+  // any golem event running → the strapped rack robot powers up in response
+  const workshopEvent = (golemWake >= 1 && golemWake <= 5) || blastPh >= 1;
   useFurnaceCrackle(!!cfg.golemLeft);
   const [mobile, setMobile] = useState(false);
   const [abducting, setAbducting] = useState(false);
@@ -729,10 +743,10 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
         <div className="absolute bottom-0 left-[-10%] z-[4] hidden h-[72vh] sm:left-[-3%] sm:block sm:h-[78vh]" style={{ aspectRatio: "684 / 1222" }} data-testid="steam-golem-left">
           {/* soft ground shadow so the sleeping sentinel sits on the floor */}
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.6vh", width: "88%", height: "3.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.7), rgba(0,0,0,0) 68%)" }} />
-          <img src={cfg.golemLeft} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)", animation: blastPh >= 1 ? "ffGolemRumble 0.5s linear infinite" : undefined }} />
+          <img src={cfg.golemLeft} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)", animation: blastPh >= 1 && blastPh < 3 ? "ffGolemRumble 0.5s linear infinite" : undefined }} />
           {/* FURNACE BLAST: glow surge while the gears grind, then fire spews */}
           {blastPh >= 1 && (
-            <div className="absolute" style={{ left: "52%", top: "36%", width: "29%", height: "16.5%" }} data-testid="furnace-blast-surge">
+            <div className="absolute" style={{ left: "52%", top: "36%", width: "29%", height: "16.5%", opacity: blastPh === 3 ? 0 : 1, transition: "opacity 1.4s ease-out" }} data-testid="furnace-blast-surge">
               <span className="absolute inset-0" style={{ borderRadius: "45%", background: "radial-gradient(ellipse at 50% 55%, rgba(255,175,60,0.75), rgba(255,110,25,0.4) 45%, rgba(200,60,10,0.15) 68%, transparent 85%)", mixBlendMode: "screen", filter: "blur(4px)", animation: "ffFurnaceSmolder 0.7s ease-in-out infinite" }} />
             </div>
           )}
@@ -775,6 +789,21 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
                 { fx: "14vh", fy: "-8vh", d: 1.45, dl: 2.55, s: 0.9 }, { fx: "10vh", fy: "-24vh", d: 2.1, dl: 0.95, s: 0.65 },
               ].map((p, pi) => (
                 <span key={`fw-${pi}`} className="absolute rounded-full" style={{ left: "4%", top: "42%", width: `${0.85 * p.s}vh`, height: `${0.85 * p.s}vh`, background: "radial-gradient(circle, #FFF4CC, #FFB44A 55%, #D2601A 90%)", boxShadow: "0 0 7px 2px rgba(255,165,55,0.85)", "--fx": p.fx, "--fy": p.fy, animation: `ffEmberFw ${p.d}s linear ${p.dl}s infinite` }} data-testid="furnace-blast-firework" />
+              ))}
+            </div>
+          )}
+          {/* BURN-DOWN: the landed fire bits keep glowing on the floor for a
+              beat, flickering as they cool, then wink out one by one */}
+          {blastPh === 3 && (
+            <div className="absolute" style={{ left: "64%", top: "39.5%", width: "33%", height: "10%" }} data-testid="furnace-blast-embers">
+              {[
+                { bx: "7vh", d: 1.5, dl: 0, s: 1 }, { bx: "13vh", d: 1.9, dl: 0.15, s: 0.8 },
+                { bx: "19vh", d: 2.2, dl: 0.05, s: 1.05 }, { bx: "10vh", d: 1.7, dl: 0.3, s: 0.7 },
+                { bx: "24vh", d: 2.4, dl: 0.1, s: 0.9 }, { bx: "16vh", d: 2.0, dl: 0.4, s: 0.95 },
+                { bx: "21vh", d: 1.8, dl: 0.25, s: 0.75 }, { bx: "28vh", d: 2.3, dl: 0.2, s: 0.85 },
+                { bx: "31vh", d: 1.6, dl: 0.5, s: 0.65 },
+              ].map((p, pi) => (
+                <span key={`emb-${pi}`} className="absolute rounded-full" style={{ left: "5%", top: "48%", width: `${0.95 * p.s}vh`, height: `${0.95 * p.s}vh`, transform: `translate(${p.bx}, 43vh)`, background: "radial-gradient(circle, #FFD98A, #FF8A32 55%, #8A3410 90%)", boxShadow: "0 0 6px 2px rgba(255,130,40,0.6)", animation: `ffEmberDie ${p.d}s ease-in ${p.dl}s forwards` }} data-testid="furnace-ember-rest" />
               ))}
             </div>
           )}
@@ -915,9 +944,11 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             // the sprite's real bulb column on the right face
             { x: 70.9, y: 40, c: "#FFB03A", d: 2.4, dl: 0 }, { x: 70.9, y: 50.2, c: "#FF5540", d: 1.9, dl: 0.5 }, { x: 70.9, y: 59, c: "#FF8A3A", d: 2.1, dl: 1 }, { x: 70.9, y: 67.9, c: "#FF5540", d: 1.6, dl: 1.5 },
           ] },
-        { src: "/steam-robot-rack.png?v=492", ar: "558 / 742", cls: "left-1/2 -translate-x-1/2 h-[78vh]", tid: "steam-robot-rack",
+        { src: "/steam-robot-rack.png?v=494", ar: "558 / 742", cls: "left-1/2 -translate-x-1/2 h-[78vh]", tid: "steam-robot-rack",
           lamps: [{ x: 71.3, y: 29.4, c: "#FFB03A", d: 2.1, dl: 0.3 }, { x: 71.3, y: 33.1, c: "#FF7A30", d: 1.7, dl: 0.9 }],
           eye: { x: 31.5, y: 20 },
+          alert: "/steam-robot-rack-alert.png?v=494",
+          alertEyes: [{ x: 33.3, y: 15.4 }, { x: 39.7, y: 15.4 }],
           sparks: { x: 65, y: 39 } },
         { src: "/steam-alchemy-bench.png?v=491", ar: "966 / 765", cls: "left-[calc(50%+31vh)] h-[25.5vh]", tid: "steam-alchemy-bench",
           lamps: [{ x: 56.1, y: 38.2, c: "#FFB03A", d: 1.6, dl: 0 }, { x: 61.7, y: 39, c: "#FFB03A", d: 2.3, dl: 0.5 }, { x: 73.5, y: 41.6, c: "#FF5540", d: 1.9, dl: 1.1 }] },
@@ -925,12 +956,21 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
         <div key={p.tid} className={`absolute bottom-[0.5vh] z-[3] hidden sm:block ${p.cls}`} style={{ aspectRatio: p.ar }} data-testid={p.tid}>
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.5vh", width: "90%", height: "2.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.65), rgba(0,0,0,0) 68%)" }} />
           <img src={p.src} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 5px 8px rgba(0,0,0,0.5)) brightness(0.94)" }} />
+          {/* WORKSHOP EVENTS: while a golem event plays, the strapped robot
+              powers up — head straightens (alert pose cross-fade) and both
+              eye lenses hold a solid green glow until the event ends */}
+          {p.alert && (
+            <img src={p.alert} alt="" className="absolute inset-0 h-full w-full object-contain" data-testid="rack-alert-pose" style={{ filter: "drop-shadow(0 5px 8px rgba(0,0,0,0.5)) brightness(0.94)", opacity: workshopEvent ? 1 : 0, transition: "opacity 0.7s ease" }} />
+          )}
           {p.lamps.map((L, li) => (
             <span key={`lamp-${li}`} className="absolute rounded-full" style={{ left: `${L.x}%`, top: `${L.y}%`, width: "5%", aspectRatio: "1", background: `radial-gradient(circle, ${L.c}, transparent 70%)`, mixBlendMode: "screen", filter: "blur(1px)", animation: `ffLampBlink ${L.d}s steps(2, jump-none) ${L.dl}s infinite` }} />
           ))}
-          {p.eye && (
+          {p.eye && !(p.alert && workshopEvent) && (
             <span className="absolute rounded-full" data-testid="rack-robot-eye" style={{ left: `${p.eye.x}%`, top: `${p.eye.y}%`, width: "4.5%", aspectRatio: "1", background: "radial-gradient(circle, rgba(140,255,180,0.95), rgba(80,220,140,0.4) 55%, transparent 75%)", mixBlendMode: "screen", filter: "blur(0.5px)", boxShadow: "0 0 8px 2px rgba(90,230,150,0.5)", animation: "ffEyeFlutter 6.5s linear infinite" }} />
           )}
+          {p.alertEyes && workshopEvent && p.alertEyes.map((e, ei) => (
+            <span key={`alert-eye-${ei}`} className="absolute rounded-full" data-testid="rack-alert-eye" style={{ left: `${e.x}%`, top: `${e.y}%`, width: "4.5%", aspectRatio: "1", background: "radial-gradient(circle, rgba(150,255,190,1), rgba(80,225,145,0.5) 55%, transparent 75%)", mixBlendMode: "screen", filter: "blur(0.5px)", boxShadow: "0 0 10px 3px rgba(90,235,155,0.65)" }} />
+          ))}
           {/* WELD SPARKS: intermittent bursts spit from the open shoulder socket
               where the robot's unfinished arm is missing */}
           {p.sparks && (
@@ -947,7 +987,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       {cfg.golemLeft && (
         <div className="absolute bottom-[0.6vh] left-[calc(50%+8vh)] z-[3] hidden sm:block" style={{ width: "22vh", aspectRatio: "832 / 558" }} data-testid="steam-arm-floor">
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.4vh", width: "86%", height: "1.8vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.6), rgba(0,0,0,0) 68%)" }} />
-          <img src="/steam-arm-unfinished.png?v=493" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ transform: "scaleX(-1)", filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.5)) brightness(0.92)" }} />
+          <img src="/steam-arm-unfinished.png?v=494" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ transform: "scaleX(-1)", filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.5)) brightness(0.92)" }} />
         </div>
       )}
       {cfg.roofCables && STEAM_CABLES.map((c, i) => (

@@ -2766,3 +2766,14 @@ body.ff-badge-open .ff-theme-scene * {
   45% { opacity: 1; transform: translate(calc(var(--fx) * 0.55), var(--fy)); }
   100% { opacity: 0; transform: translate(var(--fx), calc(var(--fy) * -0.45)); }
 }
+
+/* Cooling embers resting on the floor after the furnace blast: they flicker
+   irregularly as they cool, then die out (staggered via animation-delay). */
+@keyframes ffEmberDie {
+  0% { opacity: 0.95; }
+  20% { opacity: 0.5; }
+  35% { opacity: 0.85; }
+  55% { opacity: 0.35; }
+  70% { opacity: 0.65; }
+  100% { opacity: 0; }
+}
