@@ -2834,3 +2834,8 @@ inside playHeistSound).
 ## 2026-08-14 part 102: Golem final sizing (FF_BUILD 453)
 - Sized up to double then reduced by a third per user: final 112vh desktop both
   sides, 72vh mobile (left only). Verified via screenshots.
+
+## 2026-08-14 part 103: Golem furnace fire + stack smoke (FF_BUILD 454)
+- Added smoldering ember glow behind the left golem's belly grate and black/gray
+  coal smoke from his head stacks. Smoke visible on mobile only (desktop 112vh
+  crops the stacks above the viewport) — user informed, offered 92vh option.

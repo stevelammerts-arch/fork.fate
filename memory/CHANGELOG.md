@@ -638,3 +638,14 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   -3%), right 112vh desktop (right -4%), mobile right still hidden.
 - At 112vh the heads crop slightly above the scene top — reads as colossal
   sentinels standing just inside the hall. Verified desktop + mobile screenshots.
+
+## 2026-06 — Furnace fire + stack smoke on left golem (FF_BUILD 454)
+- SMOLDERING FURNACE behind the belly grate (sprite box 54-79% x, 37.5-51% y):
+  two screen-blended radial ember layers with irregular ffFurnaceSmolder breathing
+  (3.4s + 2.1s offset). data-testid golem-furnace-glow.
+- COAL SMOKE from the two stacks behind his head (40.5%/52% x, ~3% y): 4 staggered
+  dark-gray puffs per stack, ffGolemSmoke rise -14vh with drift + scale 2 fade.
+  data-testid golem-stack-smoke.
+- KNOWN LIMIT: at 112vh desktop the stacks sit ~69px above the viewport top, so
+  smoke is MOBILE-ONLY; user offered a ~92vh desktop option to reveal it. Verified
+  mobile anchor y=241 on-screen + zoom screenshot showing gray puffs.

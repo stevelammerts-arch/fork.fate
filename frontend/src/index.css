@@ -471,6 +471,24 @@ body {
   100%  { transform: translateX(calc(-24vw - 340px)) translateY(4px) scaleX(1); }
 }
 
+/* Smoldering furnace behind the golem's belly grate: irregular ember breathing */
+@keyframes ffFurnaceSmolder{
+  0%   { opacity: .5;  transform: scale(1); }
+  18%  { opacity: .85; transform: scale(1.05); }
+  34%  { opacity: .45; transform: scale(.97); }
+  55%  { opacity: .75; transform: scale(1.03); }
+  72%  { opacity: .55; transform: scale(.99); }
+  86%  { opacity: .9;  transform: scale(1.06); }
+  100% { opacity: .5;  transform: scale(1); }
+}
+/* Coal smoke curling up out of the sleeping golem's stacks */
+@keyframes ffGolemSmoke{
+  0%   { opacity: 0;   transform: translate(-50%, 0) scale(.5); }
+  12%  { opacity: .65; }
+  55%  { opacity: .38; transform: translate(calc(-50% + 1.4vh), -7vh) scale(1.3); }
+  100% { opacity: 0;   transform: translate(calc(-50% - 1vh), -14vh) scale(2); }
+}
+
 /* Bus hover thrusters: the engine's output visibly varies — each plume
    stretches/brightens from its pod (transform-origin top) in an irregular
    rhythm, while a broad haze breathes slowly underneath. */

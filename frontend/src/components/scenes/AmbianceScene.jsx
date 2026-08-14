@@ -631,6 +631,22 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           {/* soft ground shadow so the sleeping sentinel sits on the floor */}
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.6vh", width: "88%", height: "3.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.7), rgba(0,0,0,0) 68%)" }} />
           <img src={cfg.golemLeft} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} />
+          {/* smoldering furnace: embers breathing behind the belly grate */}
+          <div className="absolute" style={{ left: "54%", top: "37.5%", width: "25%", height: "13.5%" }} data-testid="golem-furnace-glow">
+            <div className="absolute inset-0" style={{ borderRadius: "42%", background: "radial-gradient(ellipse at 50% 55%, rgba(255,120,30,0.5), rgba(220,70,15,0.28) 48%, rgba(160,40,8,0.12) 70%, transparent 86%)", mixBlendMode: "screen", filter: "blur(3px)", animation: "ffFurnaceSmolder 3.4s ease-in-out infinite" }} />
+            <div className="absolute" style={{ left: "28%", top: "38%", width: "44%", height: "40%", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,195,85,0.45), rgba(255,120,30,0.18) 55%, transparent 78%)", mixBlendMode: "screen", filter: "blur(4px)", animation: "ffFurnaceSmolder 2.1s ease-in-out -0.8s infinite" }} />
+          </div>
+          {/* black/gray coal smoke curling out of the stacks behind his head */}
+          {[
+            { left: "40.5%", top: "3%", scale: 1 },
+            { left: "52%", top: "2%", scale: 0.78 },
+          ].map((s, si) => (
+            <div key={`stack-${si}`} className="absolute" style={{ left: s.left, top: s.top }} data-testid="golem-stack-smoke">
+              {[0, 1, 2, 3].map((i) => (
+                <span key={`puff-${i}`} className="absolute rounded-full" style={{ width: `${(3 + i * 0.5) * s.scale}vh`, height: `${(3 + i * 0.5) * s.scale}vh`, background: "radial-gradient(circle, rgba(80,80,86,0.5), rgba(46,46,52,0.32) 52%, transparent 76%)", filter: "blur(2px)", animation: `ffGolemSmoke ${4.8 + i * 0.7}s ease-out ${i * 1.2}s infinite` }} />
+              ))}
+            </div>
+          ))}
         </div>
       )}
       {cfg.golemRight && (
