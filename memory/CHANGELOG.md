@@ -873,3 +873,13 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - LESSON: two parallel search_replace batches silently lost edits this session
   (alert config keys, and the Home tail corruption). Prefer sequential edits on
   the same file region.
+
+## 2026-02 (fork) — Realm Seals (FF_BUILD 498)
+- Rituals page: new "Realm Seals" strip between the Heist Hunter crown and the
+  trophy shelf (data-testid realm-badges / realm-badge-<realm>). Groups HEISTS
+  by realm: completed realm -> golden Medal pill (spring pop-in, ffTrophyGlow);
+  incomplete -> dim pill with "Realm · got/total". ES: "Sellos de Reino".
+- Steampunk set = crank, spring, gears, awakening, furnace, workshop (6).
+- NOTE: the Medal lucide import was AGAIN silently dropped from a parallel edit
+  batch (crashed /rituals with white screen, "Medal is not defined") — re-applied
+  solo and verified. Avoid parallel search_replace on the same file.

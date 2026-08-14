@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem, Leaf, Flower2, Citrus, Coffee, Snowflake, Rocket, Grab, Bone, Stamp, ChevronRight, Volleyball, Shell, Waves, Bird, CarFront, Watch, Target, Crown, Feather, Rainbow, Utensils, Bot, Anvil, Wrench, Siren, Truck, Nut } from "lucide-react";
+import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem, Leaf, Flower2, Citrus, Coffee, Snowflake, Rocket, Grab, Bone, Stamp, ChevronRight, Volleyball, Shell, Waves, Bird, CarFront, Watch, Target, Crown, Feather, Rainbow, Utensils, Bot, Anvil, Wrench, Siren, Truck, Nut, Medal } from "lucide-react";
 import { RITUALS, readRitualsSeen, HEISTS, readHeistsSeen } from "../lib/rituals";
 import { readBingo } from "../lib/bingo";
 import { useLang } from "../i18n/i18n";
@@ -135,6 +135,42 @@ export default function Rituals() {
                     <span className="font-sans text-[11px] text-white/40">{t("Witness all")} {HEISTS.length} {t("to claim the Heist Hunter crown")} · {witnessed}/{HEISTS.length}</span>
                   </div>
                 )}
+              </div>
+            );
+          })()}
+          {/* REALM SEALS: witness a realm's entire set and its golden seal ignites */}
+          {(() => {
+            const realms = [...new Set(HEISTS.map((h) => h.realm))];
+            return (
+              <div className="mt-4" data-testid="realm-badges">
+                <p className="text-center font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-white/35">{t("Realm Seals")}</p>
+                <div className="mt-2 flex flex-wrap justify-center gap-2">
+                  {realms.map((realm) => {
+                    const set = HEISTS.filter((h) => h.realm === realm);
+                    const got = set.filter((h) => heistsSeen[h.key]?.count).length;
+                    const done = got === set.length;
+                    const tid = `realm-badge-${realm.toLowerCase().replace(/[^a-z]+/g, "-")}`;
+                    return done ? (
+                      <motion.div
+                        key={realm}
+                        initial={{ opacity: 0, scale: 0.5, y: -8 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ type: "spring", stiffness: 240, damping: 15 }}
+                        className="flex items-center gap-1.5 rounded-full border px-3 py-1.5"
+                        style={{ borderColor: "#E6B23A88", background: "radial-gradient(circle at 30% 30%, #E6B23A33, #E6B23A0d)", boxShadow: "0 0 14px #E6B23A55", animation: "ffTrophyGlow 2.4s ease-in-out infinite" }}
+                        data-testid={tid}
+                      >
+                        <Medal className="h-4 w-4 text-[#E6B23A]" style={{ filter: "drop-shadow(0 0 5px #E6B23A)" }} />
+                        <span className="font-sans text-[11px] font-bold text-[#E6B23A]">{t(realm)}</span>
+                      </motion.div>
+                    ) : (
+                      <div key={realm} className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5" data-testid={tid}>
+                        <Medal className="h-4 w-4 text-white/20" />
+                        <span className="font-sans text-[11px] text-white/40">{t(realm)} · {got}/{set.length}</span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             );
           })()}
