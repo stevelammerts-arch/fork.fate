@@ -2839,3 +2839,7 @@ inside playHeistSound).
 - Added smoldering ember glow behind the left golem's belly grate and black/gray
   coal smoke from his head stacks. Smoke visible on mobile only (desktop 112vh
   crops the stacks above the viewport) — user informed, offered 92vh option.
+
+## 2026-08-14 part 104: Stack smoke boost (FF_BUILD 455)
+- Re-anchored smoke to the user-marked stacks and strengthened it (5 puffs/stack,
+  higher opacity, two drift lanes). Verified via zoom screenshots.

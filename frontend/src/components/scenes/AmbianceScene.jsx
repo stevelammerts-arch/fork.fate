@@ -638,12 +638,12 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           </div>
           {/* black/gray coal smoke curling out of the stacks behind his head */}
           {[
-            { left: "40.5%", top: "3%", scale: 1 },
-            { left: "52%", top: "2%", scale: 0.78 },
+            { left: "41%", top: "-1.5%", scale: 1 },
+            { left: "58.5%", top: "5%", scale: 0.85 },
           ].map((s, si) => (
             <div key={`stack-${si}`} className="absolute" style={{ left: s.left, top: s.top }} data-testid="golem-stack-smoke">
-              {[0, 1, 2, 3].map((i) => (
-                <span key={`puff-${i}`} className="absolute rounded-full" style={{ width: `${(3 + i * 0.5) * s.scale}vh`, height: `${(3 + i * 0.5) * s.scale}vh`, background: "radial-gradient(circle, rgba(80,80,86,0.5), rgba(46,46,52,0.32) 52%, transparent 76%)", filter: "blur(2px)", animation: `ffGolemSmoke ${4.8 + i * 0.7}s ease-out ${i * 1.2}s infinite` }} />
+              {[0, 1, 2, 3, 4].map((i) => (
+                <span key={`puff-${i}`} className="absolute rounded-full" style={{ width: `${(4.4 + i * 0.6) * s.scale}vh`, height: `${(4.4 + i * 0.6) * s.scale}vh`, background: "radial-gradient(circle, rgba(98,98,106,0.85), rgba(58,58,66,0.6) 48%, rgba(36,36,42,0.3) 68%, transparent 80%)", filter: "blur(1.5px)", animation: `${i % 2 ? "ffGolemSmokeB" : "ffGolemSmoke"} ${4.4 + i * 0.6}s ease-out ${i * 0.9}s infinite` }} />
               ))}
             </div>
           ))}

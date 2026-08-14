@@ -649,3 +649,15 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - KNOWN LIMIT: at 112vh desktop the stacks sit ~69px above the viewport top, so
   smoke is MOBILE-ONLY; user offered a ~92vh desktop option to reveal it. Verified
   mobile anchor y=241 on-screen + zoom screenshot showing gray puffs.
+
+## 2026-06 — Stack smoke strengthened + re-anchored (FF_BUILD 455)
+- User marked the two real stacks (tall capped stack on the shoulder + short one
+  right behind the head): anchors moved to (41%, 1%) and (55.5%, 5%) of the box.
+- Stronger smoke: 5 puffs per stack (was 4), bigger (4.4vh base), core opacity
+  .85, darker richer gradient, blur 1.5px; rise extended to -16/-17vh; NEW
+  ffGolemSmokeB alternate drift lane (odd puffs) so the plume rolls organically.
+- Verified via two timed zoom screenshots on mobile: thick visible plume from both.
+
+## 2026-06 — Smoke anchor nudge (FF_BUILD 456)
+- Left stack smoke raised (top 1% -> -1.5%); right stack smoke moved right
+  (55.5% -> 58.5%). Verified via mobile zoom screenshot.
