@@ -421,14 +421,22 @@ function useGolemWake(enabled) {
   useEffect(() => {
     if (!enabled) return undefined;
     ["/steam-golem-right-awake.png", "/steam-golem-right-step.png"].forEach((s) => { const im = new Image(); im.src = s; });
+    preloadHeistAudio(["/golem-wake-up.mp3", "/golem-step-forward.mp3", "/golem-step-back.mp3"]);
     let timers = [];
     let pending;
     const schedule = (min, spread) => { pending = setTimeout(run, min + Math.random() * spread); };
     const run = () => {
       timers.forEach(clearTimeout); timers = [];
       setPh(1);                                                  // rumble + head raises, eyes ignite
-      timers.push(setTimeout(() => setPh(2), 2300));             // heavy step forward (right leg)
-      timers.push(setTimeout(() => setPh(3), 4800));             // steps back
+      playHeistSound("/golem-wake-up.mp3", 0.5);
+      timers.push(setTimeout(() => {                             // heavy step forward (right leg)
+        setPh(2);
+        playHeistSound("/golem-step-forward.mp3", 0.55);
+      }, 2300));
+      timers.push(setTimeout(() => {                             // steps back
+        setPh(3);
+        playHeistSound("/golem-step-back.mp3", 0.55);
+      }, 4800));
       timers.push(setTimeout(() => setPh(4), 7000));             // head lowers, eyes die out
       timers.push(setTimeout(() => { setPh(0); schedule(180000, 150000); }, 8600));
     };

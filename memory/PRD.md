@@ -2862,3 +2862,7 @@ inside playHeistSound).
   down) via AI-generated pose sprites; oil now 3 fanned viscous streams with wide
   hand stain and rippling puddle in a z-4 layer; mobile shows ONLY the right golem
   with the arc table moved left. All verified via forced-event screenshots.
+
+## 2026-08-14 part 108: Awakening audio (FF_BUILD 470)
+- User's wake-up/forward-step/back-step clips wired to the golem awakening phases
+  via the preloaded heist audio bank. Verified serving + sequence firing.

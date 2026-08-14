@@ -716,3 +716,9 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   bottom-anchored, white collar patches shadow-filled. Crossfade stack + container
   translateX(-3.5%) step + ffGolemRumble shudder + green head aura + steam bursts
   masking each pose swap. Verified all 4 beats via forced-event screenshots.
+
+## 2026-06 — User-provided awakening sounds wired (FF_BUILD 470)
+- User uploaded 3 clips -> public/golem-wake-up.mp3 (132KB), golem-step-forward.mp3,
+  golem-step-back.mp3. Played via warm preloadHeistAudio bank at phases 1/2/3 of
+  useGolemWake (vol 0.5/0.55/0.55), honoring ff_muted. Verified files serve 200 via
+  preview URL, wake fired visually, no console audio errors.
