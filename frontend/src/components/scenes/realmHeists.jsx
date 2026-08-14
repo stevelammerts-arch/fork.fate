@@ -886,11 +886,11 @@ export function HotPursuitHeist() {
   const witnessRef = useHeistWitness("pursuit");
   const witnessTow = useHeistWitness("tow");
   const [run, setRun] = useState(null);  // {cx, cy, w}
-  const [ph, setPh] = useState(0);       // 0 staged L, 1 first pass ->R, 2 restage R, 3 return+impact, 4 wreck falls, 5 unit flees | tow: 6 wrecker in, 7 hooked, 8 hauling, 9 unit flees
+  const [ph, setPh] = useState(0);       // 0 staged L, 1 first pass ->R, 2 restage R, 3 return+impact, 4 wreck falls, 5 unit flees | tow: 6 wrecker cruises across past cop+wreck, 7 backs up beeping, 8 hooked, 9 hauling, 10 unit flees
   const [variant, setVariant] = useState("fall"); // "fall" | rare "tow" cameo
   const [crash, setCrash] = useState(false);
   useEffect(() => {
-    preloadHeistAudio(["/police-siren.mp3", "/logo-crash.mp3"]);
+    preloadHeistAudio(["/police-siren.mp3", "/logo-crash.mp3", "/tow-reverse-beep.wav"]);
     ["/cyber-car.png", "/cyber-police.png", "/cyber-police-left.png", "/cyber-tow.png"].forEach((s) => { const im = new Image(); im.src = s; });
     const timers = [];
     let pending = null;
@@ -929,12 +929,16 @@ export function HotPursuitHeist() {
           }, doneMs));
         };
         if (v === "tow") {
-          timers.push(setTimeout(() => setPh(6), 5700));   // the wrecker floats in
-          timers.push(setTimeout(() => setPh(7), 7300));   // tow line hooks on
-          timers.push(setTimeout(() => setPh(8), 7900));   // hauls the smoking wreck away
-          timers.push(setTimeout(() => setPh(9), 9700));   // the unit peels off
-          timers.push(setTimeout(logoBack, 10300));
-          wrap(11300, () => { witnessTow.current(true); witnessRef.current(false); });
+          timers.push(setTimeout(() => setPh(6), 5700));   // wrecker cruises across the banner, past the cop + wreck
+          timers.push(setTimeout(() => {                   // backs up to the wreck, alarm beeping
+            setPh(7);
+            playHeistSound("/tow-reverse-beep.wav", 0.5);
+          }, 9400));
+          timers.push(setTimeout(() => setPh(8), 12200));  // tow line hooks on
+          timers.push(setTimeout(() => setPh(9), 12800));  // hauls the smoking wreck away
+          timers.push(setTimeout(() => setPh(10), 14600)); // the unit peels off
+          timers.push(setTimeout(logoBack, 15200));
+          wrap(16200, () => { witnessTow.current(true); witnessRef.current(false); });
         } else {
           timers.push(setTimeout(() => setPh(4), 5700));   // the wreck drops out of the sky
           timers.push(setTimeout(() => setPh(5), 6800));   // the unit peels off
@@ -978,17 +982,22 @@ export function HotPursuitHeist() {
   } else if (ph === 2) {
     px = vw + 90; py = y2p; cxx = vw + 90 + PW + 260; cyy = y2c; pTrans = cTrans = "none";
   } else {
-    px = ph >= 8 ? crashX + (towHaulX - towX) : crashX; py = y2p; cyy = y2c;
-    cxx = (ph === 5 || ph === 9) ? -(CW + 240) : crashX + PW * 0.95 + 6;
+    px = ph >= 9 ? crashX + (towHaulX - towX) : crashX; py = y2p; cyy = y2c;
+    cxx = (ph === 5 || ph === 10) ? -(CW + 240) : crashX + PW * 0.95 + 6;
     pTrans = ph === 3 ? "transform 1.18s cubic-bezier(0.4,0,0.9,1)"      // slams in at full speed
-      : ph === 8 ? "transform 1.7s cubic-bezier(0.55,0,0.8,0.7)" : "none"; // hauled off in lockstep with the wrecker
-    cTrans = (ph === 5 || ph === 9) ? "transform 0.9s cubic-bezier(0.55,0,0.85,0.6)" : "transform 1.9s cubic-bezier(0.45,0,0.25,1)"; // trails, then skids to a stop clear of the wreck
+      : ph === 9 ? "transform 1.7s cubic-bezier(0.55,0,0.8,0.7)" : "none"; // hauled off in lockstep with the wrecker
+    cTrans = (ph === 5 || ph === 10) ? "transform 0.9s cubic-bezier(0.55,0,0.85,0.6)" : "transform 1.9s cubic-bezier(0.45,0,0.25,1)"; // trails, then skids to a stop clear of the wreck
   }
-  // The wrecker: staged high offscreen right, floats down to the wreck, hauls it off.
+  // The wrecker: staged offscreen right on the wreck's hover line, cruises the
+  // whole banner past the cop + wreck, then backs up beeping until the boom
+  // hook sits over the wreck's nose, hooks on, and hauls it off.
   const towIn = ph >= 6;
-  const towTx = ph >= 8 ? towHaulX : towIn ? towX : vw + 180;
-  const towTy = towIn ? towY : towY - 80;
-  const towTrans = ph >= 8 ? "transform 1.7s cubic-bezier(0.55,0,0.8,0.7)" : towIn ? "transform 1.5s cubic-bezier(0.3,0,0.35,1)" : "none";
+  const towOverX = Math.max(towX - Math.min(vw * 0.24, 400), -TW * 0.35); // overshoot: clearly drove past the scene
+  const towTx = ph >= 9 ? towHaulX : ph >= 7 ? towX : towIn ? towOverX : vw + 180;
+  const towTy = towY;
+  const towTrans = ph >= 9 ? "transform 1.7s cubic-bezier(0.55,0,0.8,0.7)"   // hauls off
+    : ph >= 7 ? "transform 2.6s cubic-bezier(0.35,0,0.45,1)"                 // careful reverse
+      : towIn ? "transform 3.4s cubic-bezier(0.3,0,0.35,1)" : "none";         // unhurried cruise across
   const lights = faceLeft ? { red: "49.1%", blue: "43%" } : { red: "45.7%", blue: "51.9%" };
   return (
     <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="pursuit-heist">
@@ -1011,7 +1020,7 @@ export function HotPursuitHeist() {
       </>)}
       {/* the prey: flat out... then a hood ornament of the Fork·Fate header */}
       <div className="absolute left-0 top-0" style={{ transform: `translate(${px}px, ${py}px)`, transition: pTrans }} data-testid="pursuit-heist-prey">
-        <div className="relative" style={{ width: PW, animation: variant === "fall" && ph >= 4 ? "ffCarTumble 1.05s cubic-bezier(0.5,0,0.85,0.6) forwards" : undefined, transform: variant === "tow" && ph >= 7 ? "rotate(-5deg)" : undefined, transformOrigin: "80% 60%", transition: "transform 0.5s ease" }}>
+        <div className="relative" style={{ width: PW, animation: variant === "fall" && ph >= 4 ? "ffCarTumble 1.05s cubic-bezier(0.5,0,0.85,0.6) forwards" : undefined, transform: variant === "tow" && ph >= 8 ? "rotate(-5deg)" : undefined, transformOrigin: "80% 60%", transition: "transform 0.5s ease" }}>
           <img src="/cyber-car.png" alt="" className="block object-contain" style={{ width: PW, opacity: 0.95, transform: faceLeft ? "scaleX(-1)" : "none", animation: crash ? "ffCarSputter 0.5s linear infinite" : undefined, filter: "drop-shadow(0 0 10px rgba(34,224,224,0.55))" }} />
           {/* smoke coughing off the crumpled nose */}
           {crash && [0, 1, 2].map((i) => (
@@ -1031,15 +1040,19 @@ export function HotPursuitHeist() {
           <img src={faceLeft ? "/cyber-police-left.png" : "/cyber-police.png"} alt="" className="block w-full object-contain" style={{ opacity: 0.95, filter: "drop-shadow(0 0 8px rgba(120,150,255,0.45))" }} />
         </div>
       </div>
-      {/* the wrecker: rare tow cameo — floats in, hooks the smoking wreck, hauls it away */}
+      {/* the wrecker: rare tow cameo — cruises across, backs up beeping, hooks the smoking wreck, hauls it away */}
       {variant === "tow" && crash && (
         <div className="absolute left-0 top-0" style={{ transform: `translate(${towTx}px, ${towTy}px)`, transition: towTrans }} data-testid="pursuit-heist-tow">
           <div className="relative" style={{ width: TW }}>
             {/* amber work beacon blinking on the cab roof */}
             <span className="pointer-events-none absolute rounded-full" style={{ left: "41%", top: "-3%", width: "5.5%", aspectRatio: "1", background: "radial-gradient(circle, rgba(255,190,60,1) 30%, rgba(255,190,60,0) 70%)", boxShadow: "0 0 14px 7px rgba(255,170,40,0.85)", animation: "ffCopFlashA 0.8s steps(1,end) infinite" }} />
             <img src="/cyber-tow.png" alt="" className="block w-full object-contain" style={{ opacity: 0.97, filter: "drop-shadow(0 0 10px rgba(34,224,224,0.45))" }} />
+            {/* reverse lamp: white blink at the boom-side rear while backing up beeping */}
+            {ph === 7 && (
+              <span className="pointer-events-none absolute rounded-full" style={{ left: "92%", top: "42%", width: "5%", aspectRatio: "1", background: "radial-gradient(circle, rgba(255,255,255,1) 30%, rgba(255,255,255,0) 70%)", boxShadow: "0 0 14px 7px rgba(255,255,255,0.8)", animation: "ffCopFlashA 0.7s steps(1,end) infinite" }} data-testid="tow-reverse-lamp" />
+            )}
             {/* hook-on flare when the boom latches the wreck's nose */}
-            {ph >= 7 && ph < 8 && (
+            {ph >= 8 && ph < 9 && (
               <span className="pointer-events-none absolute rounded-full" style={{ left: "93%", top: "24%", width: "7%", aspectRatio: "1", background: "radial-gradient(circle, #FFFFFF, #22E0E0 55%, transparent 80%)", boxShadow: "0 0 14px rgba(34,224,224,0.95)", animation: "ffPoofSparkle 0.6s ease-out forwards" }} />
             )}
           </div>

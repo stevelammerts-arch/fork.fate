@@ -2805,3 +2805,15 @@ inside playHeistSound).
   flying L->R then returning R->L mirrored (ffFlyBoth/ffFlyBusBoth; direction
   flip held off-screen). Old one-way keyframes ffFly/ffFlyBus/ffFlyRev/
   ffFlyBusRev deleted. Verified via DOM transform sampling + screenshot.
+
+## 2026-08-14 part 98: Tow truck white-pocket fix (FF_BUILD 448)
+- User verified Tow Job cameo live and reported white pockets on cyber-tow.png.
+- Cleared enclosed white background regions in the boom area via PIL component
+  pass (thruster glows protected); fringe grown + rim feathered. Verified via
+  in-app forced tow heist screenshot. Original backed up in /app/scripts/.
+
+## 2026-08-14 part 99: Tow Job drive-past + reverse beeps (FF_BUILD 449)
+- Wrecker no longer swoops down: it cruises the banner past cop + wreck, overshoots,
+  then backs up with a synthesized service-vehicle backup alarm (tow-reverse-beep.wav)
+  and a blinking white reverse lamp, hooks, and hauls the wreck off. Phases 6-10,
+  16.2s total. Verified via forced-variant beat sampling + screenshots.

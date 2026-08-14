@@ -573,3 +573,33 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   flag renamed `alt` (cars2 sprite pick only).
 - Verified via DOM matrix sampling: 5 unique sprites, spinner+bus moving L->R
   facing right, car2+bus2 moving R->L facing left, flips never visible.
+
+## 2026-06 — Tow truck sprite cleanup (FF_BUILD 448) — verified in-situ (forced tow variant)
+- User saw the Tow Job cameo live: cyber-tow.png was "riddled with white pockets" —
+  enclosed white background regions (boom/piston triangle, hook strip, cab-back
+  gaps) that the original corner flood-fill couldn't reach.
+- Fixed via targeted component removal (one-off PIL pass): white components >50px
+  fully above y=240 cleared, grown into the light-gray anti-alias fringe (tol 208),
+  then boundary rim half-alpha'd. Thruster glow whites (y>=245) explicitly protected.
+- Backup of original at /app/scripts/cyber_tow_backup.png. Remaining whites are
+  only 1-2px specular slivers (windshield glint, cable shine) — intentional art.
+- Verified with composite render + live forced heist (ff:pursuit-heist detail
+  variant:'tow'): boom gaps show realm background, no pockets.
+
+## 2026-06 — Tow Job re-choreographed: drive-past + beeping reverse (FF_BUILD 449) — self-tested (beat sampling)
+- User request: instead of swooping down, the wrecker now CRUISES the whole banner
+  (unhurried 3.4s, staged offscreen right on the wreck's hover line), flies past
+  the cop AND the smoking wreck, overshoots left (towOverX = towX - min(24vw,400px),
+  clamped to keep it mostly on-screen), then BACKS UP beeping (2.6s careful reverse)
+  until the boom hook sits over the wreck's nose, hooks on, and hauls it off left.
+- NEW SOUND public/tow-reverse-beep.wav: synthesized 1.1kHz piezo backup alarm
+  (fund + odd harmonics, 4 beeps 0.34s on/0.36s off, 2.54s) — preloaded via
+  preloadHeistAudio, played at vol 0.5 when the reverse starts.
+- NEW visual: white reverse lamp blinking at the boom-side rear during the backup
+  (data-testid tow-reverse-lamp, ffCopFlashA 0.7s steps).
+- Tow phases renumbered: 6 cruise-across, 7 reverse+beeps, 8 hooked, 9 hauling,
+  10 unit flees. Timeline: 5700/9400/12200/12800/14600, logoBack 15200, wrap 16200
+  (heist total 16.2s, was 11.3s). All ph conditionals updated (prey haul, cop flee,
+  wreck tilt, hook flare).
+- Verified via forced heist + DOM transform sampling: cruise x1710 -> overshoot
+  x-58 -> reversing x123 (lamp ON) -> parked x306 -> hauling x-365. Screenshots OK.
