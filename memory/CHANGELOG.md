@@ -726,3 +726,10 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 ## 2026-06 — Power-down sound (FF_BUILD 471)
 - User's power down.mp3 -> public/golem-power-down.mp3, played at wake phase 4
   (head lowers, eyes die out) vol 0.5, preloaded in the warm bank. Verified 200.
+
+## 2026-06 — Step motion rework (FF_BUILD 472)
+- User: no whole-body slide; leg should lift/move/fall back. Removed the
+  translateX(-3.5%) container slide. New: ffGolemStepLift (phase 2: body rises
+  -1.3% + rotate -0.7deg from bottom origin as the leg lifts, settles as foot
+  plants) + ffGolemStepSettle (phase 3: push-off bob). The step SPRITE carries
+  the visible leg motion. Verified via forced-wake screenshot (foot raised).
