@@ -208,7 +208,7 @@ function useCoverAnchor(natW, natH) {
 
 export const AMBIANCE = {
   cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", spinner: "/cyber-spinner-suv.png", bus: "/cyber-bus.png", bus2: "/cyber-bus2.png", saucer: "/cyber-saucer-mech.png", saucerFront: "/cyber-saucer-mech-front.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
-  steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall-full.png", golemLeft: "/steam-golem-left.png", golemRight: "/steam-golem-right.png", device: "/steam-arc-device.png", steam: true, roofCables: true, floor: true, accent: "#D9A44E", sky: "#F1D9A6" },
+  steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall-full.png", golemLeft: "/steam-golem-left.png?v=462", golemRight: "/steam-golem-right.png?v=462", device: "/steam-arc-device.png", steam: true, roofCables: true, floor: true, accent: "#D9A44E", sky: "#F1D9A6" },
   tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", lounge: "/tiki-lounge-full.png", accent: "#F0A24E", sky: "#FBE3C0" },
   fantasy: { grad: "linear-gradient(180deg,#1A0E08 0%,#120A06 55%,#080503 100%)", hoard: "/fantasy-cave.jpg", accent: "#E6B23A", sky: "#F3D9A0" },
   fairy: { grad: "linear-gradient(180deg,#0B1F14 0%,#123024 50%,#081710 100%)", gully: "/fairy-gully.png", accent: "#5EE0A8", sky: "#CFF5DC" },
@@ -413,7 +413,35 @@ function CyberNeonSign({ neon }) {
 }
 
 
+/** Rare 'awakening' for the right golem: head raises, eyes glow smoky green,
+ * one heavy step forward with the right leg, steps back, powers down.
+ * First 45-85s after load, then every 3-5.5 min (`ff:golem-wake` forces it). */
+function useGolemWake(enabled) {
+  const [ph, setPh] = useState(0); // 0 asleep, 1 awake (head up), 2 step fwd, 3 step back, 4 powering down
+  useEffect(() => {
+    if (!enabled) return undefined;
+    ["/steam-golem-right-awake.png", "/steam-golem-right-step.png"].forEach((s) => { const im = new Image(); im.src = s; });
+    let timers = [];
+    let pending;
+    const schedule = (min, spread) => { pending = setTimeout(run, min + Math.random() * spread); };
+    const run = () => {
+      timers.forEach(clearTimeout); timers = [];
+      setPh(1);                                                  // rumble + head raises, eyes ignite
+      timers.push(setTimeout(() => setPh(2), 2300));             // heavy step forward (right leg)
+      timers.push(setTimeout(() => setPh(3), 4800));             // steps back
+      timers.push(setTimeout(() => setPh(4), 7000));             // head lowers, eyes die out
+      timers.push(setTimeout(() => { setPh(0); schedule(180000, 150000); }, 8600));
+    };
+    schedule(45000, 40000);
+    const force = () => { clearTimeout(pending); run(); };
+    window.addEventListener("ff:golem-wake", force);
+    return () => { clearTimeout(pending); timers.forEach(clearTimeout); window.removeEventListener("ff:golem-wake", force); };
+  }, [enabled]);
+  return ph;
+}
+
 export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
+  const golemWake = useGolemWake(!!cfg.golemRight);
   const [mobile, setMobile] = useState(false);
   const [abducting, setAbducting] = useState(false);
   const [chase, setChase] = useState(null); // null | { dir: 1 (L->R) | -1 (R->L) }
@@ -627,7 +655,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       </>)}
       {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
       {cfg.golemLeft && (
-        <div className="absolute bottom-0 left-[-10%] z-[4] h-[72vh] sm:left-[-3%] sm:h-[78vh]" style={{ aspectRatio: "684 / 1222" }} data-testid="steam-golem-left">
+        <div className="absolute bottom-0 left-[-10%] z-[4] hidden h-[72vh] sm:left-[-3%] sm:block sm:h-[78vh]" style={{ aspectRatio: "684 / 1222" }} data-testid="steam-golem-left">
           {/* soft ground shadow so the sleeping sentinel sits on the floor */}
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.6vh", width: "88%", height: "3.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.7), rgba(0,0,0,0) 68%)" }} />
           <img src={cfg.golemLeft} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} />
@@ -660,13 +688,31 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
         </div>
       )}
       {cfg.golemRight && (
-        <div className="absolute bottom-0 right-[-3%] z-[3] hidden h-[78vh] sm:block" style={{ aspectRatio: "696 / 1180" }} data-testid="steam-golem-right">
+        <div className="absolute bottom-0 right-[-5%] z-[3] block h-[72vh] sm:right-[-1%] sm:h-[78vh]" style={{ aspectRatio: "696 / 1180" }} data-testid="steam-golem-right">
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.6vh", width: "88%", height: "3.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.7), rgba(0,0,0,0) 68%)" }} />
-          <img src={cfg.golemRight} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} />
-          {/* white steam wisps venting from his three back stacks */}
+          {/* pose stack: sleeping / awake (head up, green eyes) / mid-step */}
+          <div className="absolute inset-0" style={{ transform: golemWake === 2 ? "translateX(-3.5%) translateY(-0.4%)" : "none", transition: "transform 1.15s cubic-bezier(0.45,0,0.55,1)", animation: golemWake === 1 ? "ffGolemRumble 0.4s linear 3" : golemWake === 2 ? "ffGolemRumble 0.5s linear 2" : undefined }}>
+            <img src={cfg.golemRight} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 0 || golemWake === 4 ? 1 : 0, transition: "opacity 0.7s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} />
+            <img src="/steam-golem-right-awake.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 1 || golemWake === 3 ? 1 : 0, transition: "opacity 0.7s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-awake" />
+            <img src="/steam-golem-right-step.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ opacity: golemWake === 2 ? 1 : 0, transition: "opacity 0.7s ease", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} data-testid="golem-wake-step" />
+            {/* smoky green aura around the head while he's awake */}
+            {golemWake >= 1 && golemWake <= 3 && (
+              <div className="absolute" style={{ left: "22%", top: "1%", width: "26%", aspectRatio: "1" }} data-testid="golem-wake-aura">
+                <span className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle, rgba(110,255,170,0.3), rgba(70,220,140,0.12) 50%, transparent 76%)", mixBlendMode: "screen", filter: "blur(4px)", animation: "ffFurnaceSmolder 2.4s ease-in-out infinite" }} />
+              </div>
+            )}
+            {/* steam bursts vent at every pose change to mask the swap */}
+            {golemWake >= 1 && (
+              <div key={`burst-${golemWake}`} className="absolute" style={{ left: "40%", top: "14%" }} data-testid="golem-wake-burst">
+                {[0, 1, 2].map((i) => (
+                  <span key={`b-${i}`} className="absolute rounded-full" style={{ left: `${(i - 1) * 26}px`, width: `${5 + i}vh`, height: `${5 + i}vh`, background: "radial-gradient(circle, rgba(250,248,240,0.8), rgba(230,227,218,0.4) 52%, transparent 76%)", filter: "blur(2px)", animation: `ffGolemSmoke ${1.3 + i * 0.25}s ease-out forwards` }} />
+                ))}
+              </div>
+            )}
+          </div>
           {[
-            { left: "35%", top: "0.5%", scale: 0.9 },
-            { left: "60%", top: "0.5%", scale: 1 },
+            { left: "52%", top: "2%", scale: 0.9 },
+            { left: "61%", top: "0.5%", scale: 1 },
             { left: "68.5%", top: "2.5%", scale: 0.75 },
           ].map((s, si) => (
             <div key={`vent-${si}`} className="absolute" style={{ left: s.left, top: s.top }} data-testid="golem-stack-steam">
@@ -677,8 +723,47 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           ))}
         </div>
       )}
+      {/* oil leak layer: mirrors the right golem's box but sits ABOVE the arc
+          device (z-4) so the streams + puddle are never hidden behind the table */}
+      {cfg.golemRight && (
+        <div className="absolute bottom-0 right-[-5%] z-[4] block h-[72vh] sm:right-[-1%] sm:h-[78vh]" style={{ aspectRatio: "696 / 1180" }} data-testid="steam-golem-right-oil">
+          {/* oil leak: two glossy runs smeared across the cuff and hand... */}
+          <div className="absolute" style={{ left: "82.2%", top: "60.5%", width: "5.4%", height: "16.5%" }} data-testid="golem-oil-streak">
+            <div className="absolute" style={{ left: "6%", top: "0", width: "42%", height: "100%", borderRadius: "45%", background: "linear-gradient(180deg, rgba(18,14,10,0) 0%, rgba(22,17,11,0.5) 16%, rgba(14,11,7,0.72) 55%, rgba(8,6,4,0.85) 100%)", filter: "blur(0.6px)" }} />
+            <div className="absolute" style={{ left: "58%", top: "6%", width: "36%", height: "88%", borderRadius: "45%", background: "linear-gradient(180deg, rgba(18,14,10,0) 0%, rgba(20,16,10,0.45) 22%, rgba(12,9,6,0.7) 60%, rgba(8,6,4,0.8) 100%)", filter: "blur(0.7px)" }} />
+            <div className="absolute" style={{ left: "16%", top: "10%", width: "13%", height: "78%", borderRadius: "45%", background: "linear-gradient(180deg, rgba(150,138,105,0.4), rgba(70,62,45,0.12))", filter: "blur(1px)", animation: "ffOilGlisten 3.2s ease-in-out infinite" }} />
+            <div className="absolute" style={{ left: "66%", top: "16%", width: "11%", height: "70%", borderRadius: "45%", background: "linear-gradient(180deg, rgba(150,138,105,0.35), rgba(70,62,45,0.1))", filter: "blur(1px)", animation: "ffOilGlisten 4.1s ease-in-out -1.4s infinite" }} />
+          </div>
+          {/* ...viscous streams fanned across the hand, each on its own rhythm... */}
+          {[
+            { left: "80%", top: "68%", h: "28.2%", w: "2%", dur: 4.6, delay: 1.6 },
+            { left: "84.2%", top: "76.8%", h: "19.6%", w: "2.3%", dur: 3.6, delay: 0 },
+            { left: "88.3%", top: "65%", h: "31.2%", w: "2%", dur: 5.2, delay: 3.1 },
+          ].map((L, li) => (
+            <div key={`oil-lane-${li}`} className="absolute" style={{ left: L.left, top: L.top, width: L.w, height: L.h }} data-testid="golem-oil-lane">
+              <span className="absolute" style={{ left: "16%", width: "62%", borderRadius: "46% / 10%", background: "linear-gradient(90deg, rgba(12,9,6,0.96) 0%, rgba(150,138,105,0.55) 34%, rgba(60,50,34,0.9) 55%, rgba(6,5,3,0.98) 100%)", boxShadow: "0 0 3px rgba(0,0,0,0.85)", filter: "blur(0.3px)", animation: `ffOilStream ${L.dur}s cubic-bezier(0.45,0,0.75,0.55) ${L.delay}s infinite` }} data-testid="golem-oil-drip" />
+            </div>
+          ))}
+          {/* ...into a slick puddle that RIPPLES where each stream lands */}
+          <div className="absolute" style={{ left: "77%", top: "95.9%", width: "14.5%", height: "1.9%" }} data-testid="golem-oil-puddle">
+            <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(10,8,5,0.95) 0%, rgba(14,11,7,0.85) 55%, rgba(16,12,8,0) 80%)", animation: "ffOilGlisten 4.4s ease-in-out infinite, ffPuddleWobble 3.6s ease-in-out infinite" }} />
+            <div className="absolute rounded-full" style={{ left: "30%", top: "22%", width: "34%", height: "34%", background: "radial-gradient(ellipse, rgba(170,158,120,0.4), rgba(90,80,58,0) 70%)", filter: "blur(1px)", animation: "ffOilGlisten 3.6s ease-in-out -1.2s infinite" }} />
+            {/* ripple rings under each stream, timed to that stream's landing */}
+            {[
+              { x: "28%", dur: 4.6, delay: 1.6 },
+              { x: "57%", dur: 3.6, delay: 0 },
+              { x: "85%", dur: 5.2, delay: 3.1 },
+            ].map((R, ri) => (
+              <React.Fragment key={`ring-${ri}`}>
+                <span className="absolute rounded-full border" data-testid="golem-oil-ripple" style={{ left: R.x, top: "8%", width: "30%", height: "74%", borderColor: "rgba(150,138,105,0.55)", animation: `ffOilRing ${R.dur}s linear ${R.delay}s infinite` }} />
+                <span className="absolute rounded-full border" style={{ left: R.x, top: "20%", width: "20%", height: "52%", borderColor: "rgba(170,158,120,0.4)", animation: `ffOilRing ${R.dur}s linear ${R.delay + 0.25}s infinite` }} />
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      )}
       {cfg.device && (
-        <div className="absolute bottom-0 right-[-5%] z-[3] h-[40vh] sm:right-[3%] sm:h-[46vh]" style={{ aspectRatio: "545 / 970", transform: "scaleX(-1)" }}>
+        <div className="absolute bottom-0 left-[2%] z-[3] h-[40vh] sm:left-auto sm:right-[3%] sm:h-[46vh]" style={{ aspectRatio: "545 / 970", transform: "scaleX(-1)" }}>
           <img src={cfg.device} alt="" className="absolute inset-0 h-full w-full object-contain opacity-90" />
           <div className="absolute" style={{ left: "43.5%", width: "12.5%", top: "2%", height: "22%" }}>
             <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(120,210,255,0.22), rgba(120,210,255,0) 70%)", animation: "ffArcGlow 0.13s steps(2,end) infinite" }} />

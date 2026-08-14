@@ -2848,3 +2848,17 @@ inside playHeistSound).
 - White steam on right golem's 3 stacks; left golem ember eyes glowing like his
   furnace; pale feet pixels painted sooty black; desktop golems final at 78vh so
   stacks/plumes clear the header. All verified via zoom screenshots.
+
+## 2026-08-14 part 106: Right golem oil leak + bleed fix + mobile parity (FF_BUILD 463)
+- Oil drips from his left cuff down the hand to a glistening floor puddle with
+  splash ring (3.6s cycle). Armpit "white bleed" was ambient steam behind the
+  transparent cutouts + stale HTTP image cache: holes filled with opaque shadow,
+  sprite URLs versioned (?v=462). Right golem now shows on MOBILE at 72vh (same
+  as left, per user), steam vent that sat on his head re-anchored to the real
+  stack (52%, 2%). All verified via zoom screenshots.
+
+## 2026-08-14 part 107: Golem awakening + oil streams final (FF_BUILD 469)
+- Right golem rare awakening (head up, smoky green eyes, one step fwd/back, power
+  down) via AI-generated pose sprites; oil now 3 fanned viscous streams with wide
+  hand stain and rippling puddle in a z-4 layer; mobile shows ONLY the right golem
+  with the arc table moved left. All verified via forced-event screenshots.

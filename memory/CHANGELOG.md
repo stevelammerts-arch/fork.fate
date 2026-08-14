@@ -680,3 +680,39 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   golems (mobile stays 72vh, left only). Stacks + plumes now clear the header.
 - Verified via zoomed desktop screenshots (eyes aligned + glowing, furnace grate
   lit, right golem full view with stacks).
+
+## 2026-06 — Right golem: oil leak, armpit bleed fix, mobile visibility (FF_BUILD 461-463)
+- WHITE BLEED ROOT CAUSE: sprites were fully clean (0 pale px) — the "white bits"
+  between arms/bodies were ambient steam puffs BEHIND the golems showing through
+  the transparent armpit cutouts, plus stale HTTP-cached sprites. Fixes:
+  (1) sprite URLs now versioned (?v=462) since FF_BUILD cache-bust doesn't clear
+  HTTP image cache; (2) enclosed transparent holes filled with opaque shadow
+  (13,10,7) via border-flood inversion — 8.5k px left, 14.7k px right.
+- OIL LEAK (right golem, his left arm = sprite right): dark glossy streak from
+  cuff (84%, 60.5%) down the hand; droplet lane (84.6%, 76.8%, h 19.6%) with bead
+  that swells, free-falls (top 0->96% of lane), lands; glistening puddle at
+  (79.5%, 95.9%) with splash ring synced to landing. Keyframes ffOilDrip/
+  ffOilGlisten/ffOilRing (3.6s cycle). testids golem-oil-streak/-lane/-drip/-puddle.
+- RIGHT GOLEM NOW ON MOBILE (user couldn't verify him): 72vh right-[-5%]
+  (same size as left per user), desktop unchanged 78vh right-[-3%].
+- STEAM FIX: left vent anchor (35%,0.5%) sat on the head — moved to the real
+  bottle stack (52%, 2%). Verified via mobile zoom screenshot.
+
+## 2026-06 — Right golem awakening + oil streams + mobile recomposition (FF_BUILD 464-469)
+- OIL: drips became viscous STREAMS (ffOilStream: strand stretches from source,
+  sags, detaches, falls; 3 lanes fanned at 80/84.2/88.3%), wider 2-run oily stain
+  on the hand, puddle widened (77%, 14.5%) with RIPPLE rings per stream landing
+  (ffOilRing retimed 72-96%, ffPuddleWobble surface shiver). Oil lives in its own
+  z-[4] layer (steam-golem-right-oil) mirroring the golem box so the arc table
+  never hides it; golem desktop right-[-1%] so his left hand is on-screen.
+- MOBILE: too cluttered with both -> LEFT golem hidden on mobile (sm:block), RIGHT
+  golem is the mobile one (72vh right-[-5%]); arc device table moved to left[2%]
+  on mobile (sm:left-auto sm:right-[3%]). Verified clean composition.
+- AWAKENING (rare ambient, ff:golem-wake forces): useGolemWake hook, phases
+  0 asleep/1 awake/2 step fwd/3 back/4 power down (2.3/4.8/7.0/8.6s), first 45-85s
+  then every 3-5.5min. Pose sprites generated via Nano Banana image-edit from the
+  base sprite (gen_golem_wake.py): steam-golem-right-awake.png (head up, smoky
+  green eyes) + -step.png (right leg forward), keyed/normalized to 696x1180
+  bottom-anchored, white collar patches shadow-filled. Crossfade stack + container
+  translateX(-3.5%) step + ffGolemRumble shudder + green head aura + steam bursts
+  masking each pose swap. Verified all 4 beats via forced-event screenshots.

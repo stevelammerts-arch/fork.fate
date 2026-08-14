@@ -471,6 +471,47 @@ body {
   100%  { transform: translateX(calc(-24vw - 340px)) translateY(4px) scaleX(1); }
 }
 
+/* Oily streams on the right golem: a viscous strand stretches down from the
+   source (height grows, anchored top), sags, detaches and falls into the
+   puddle. top/height animate in % of each lane so all lanes stay in sync. */
+@keyframes ffOilStream{
+  0%   { top: 0;   height: 5%;  opacity: 0; }
+  8%   { opacity: .95; }
+  36%  { top: 0;   height: 52%; opacity: .95; }
+  54%  { top: 26%; height: 62%; opacity: .95; }
+  78%  { top: 90%; height: 26%; opacity: .95; }
+  88%  { top: 97%; height: 6%;  opacity: .85; }
+  100% { top: 97%; height: 5%;  opacity: 0; }
+}
+/* wet-shine breathing on the streak + puddle highlight */
+@keyframes ffOilGlisten{
+  0%,100% { opacity: .55; }
+  50%     { opacity: 1; }
+}
+/* splash ripple on the puddle, timed to each stream's landing (78-96%) */
+@keyframes ffOilRing{
+  0%,72% { opacity: 0;  transform: translateX(-50%) scale(.25); }
+  78%    { opacity: .65; }
+  96%    { opacity: 0;  transform: translateX(-50%) scale(1.9); }
+  100%   { opacity: 0;  transform: translateX(-50%) scale(1.9); }
+}
+/* the puddle surface shivers as streams land */
+@keyframes ffPuddleWobble{
+  0%,100% { transform: scale(1,1); }
+  76%     { transform: scale(1,1); }
+  82%     { transform: scale(1.05,1.18); }
+  90%     { transform: scale(0.98,0.94); }
+}
+
+/* heavy servos straining: tiny positional shudder while the golem wakes */
+@keyframes ffGolemRumble{
+  0%,100% { margin-left: 0; }
+  20% { margin-left: -3px; }
+  45% { margin-left: 2px; }
+  70% { margin-left: -2px; }
+  85% { margin-left: 1px; }
+}
+
 /* Smoldering furnace behind the golem's belly grate: irregular ember breathing */
 @keyframes ffFurnaceSmolder{
   0%   { opacity: .5;  transform: scale(1); }
