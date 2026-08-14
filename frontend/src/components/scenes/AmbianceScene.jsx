@@ -793,6 +793,16 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           ))}
         </div>
       )}
+      {/* GOLEM DUET (mobile): at phone widths the left brother lives off-screen,
+          so his answering eye-flicker bleeds in as an amber glow from the edge —
+          two stacked "eyes" pulsing with the same irregular flicker. */}
+      {cfg.golemLeft && golemWake >= 1 && golemWake <= 5 && (
+        <div className="absolute left-0 z-[4] sm:hidden" data-testid="golem-duet-flicker-mobile" style={{ top: "26vh", height: "34vh", width: "22vw", pointerEvents: "none" }}>
+          <span className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 0% 50%, rgba(255,185,75,0.5), rgba(255,140,40,0.2) 45%, transparent 72%)", mixBlendMode: "screen", filter: "blur(6px)", opacity: 0, animation: "ffBroFlicker 1.9s linear 1.1s 3" }} />
+          <span className="absolute rounded-full" style={{ left: "-4vw", top: "30%", width: "9vw", aspectRatio: "1", background: "radial-gradient(circle, rgba(255,225,140,0.9), rgba(255,165,60,0.45) 55%, transparent 78%)", mixBlendMode: "screen", filter: "blur(2px)", opacity: 0, animation: "ffBroFlicker 1.9s linear 1.22s 3" }} />
+          <span className="absolute rounded-full" style={{ left: "-4.5vw", top: "52%", width: "8vw", aspectRatio: "1", background: "radial-gradient(circle, rgba(255,225,140,0.85), rgba(255,165,60,0.4) 55%, transparent 78%)", mixBlendMode: "screen", filter: "blur(2px)", opacity: 0, animation: "ffBroFlicker 1.9s linear 1.1s 3" }} />
+        </div>
+      )}
       {cfg.golemRight && (
         <div className="absolute bottom-0 right-[-5%] z-[3] block h-[72vh] sm:right-[-1%] sm:h-[78vh]" style={{ aspectRatio: "696 / 1180" }} data-testid="steam-golem-right">
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.6vh", width: "88%", height: "3.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.7), rgba(0,0,0,0) 68%)" }} />
@@ -873,11 +883,11 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       {cfg.golemLeft && [
         { src: "/steam-valve-pedestal.png?v=491", ar: "433 / 735", cls: "left-[calc(50%-48vh)] h-[28vh]", tid: "steam-valve-pedestal",
           lamps: [{ x: 50, y: 54, c: "#FF5540", d: 1.8, dl: 0.2 }, { x: 50, y: 61, c: "#FFB03A", d: 2.4, dl: 0.8 }, { x: 50, y: 68, c: "#7CE08A", d: 2.0, dl: 1.4 }] },
-        { src: "/steam-robot-rack.png?v=490", ar: "558 / 742", cls: "left-1/2 -translate-x-1/2 h-[78vh]", tid: "steam-robot-rack",
-          lamps: [{ x: 75, y: 60, c: "#FFB03A", d: 2.1, dl: 0.3 }, { x: 77, y: 66, c: "#FF5540", d: 1.7, dl: 0.9 }],
-          eye: { x: 30.5, y: 16.5 } },
+        { src: "/steam-robot-rack.png?v=492", ar: "558 / 742", cls: "left-1/2 -translate-x-1/2 h-[78vh]", tid: "steam-robot-rack",
+          lamps: [{ x: 71.3, y: 29.4, c: "#FFB03A", d: 2.1, dl: 0.3 }, { x: 71.3, y: 33.1, c: "#FF7A30", d: 1.7, dl: 0.9 }],
+          eye: { x: 31.5, y: 20 } },
         { src: "/steam-alchemy-bench.png?v=491", ar: "966 / 765", cls: "left-[calc(50%+31vh)] h-[25.5vh]", tid: "steam-alchemy-bench",
-          lamps: [{ x: 36, y: 57, c: "#FFB03A", d: 1.6, dl: 0 }, { x: 48, y: 59, c: "#FF5540", d: 2.3, dl: 0.5 }, { x: 60, y: 60, c: "#FFB03A", d: 1.9, dl: 1.1 }] },
+          lamps: [{ x: 56.1, y: 38.2, c: "#FFB03A", d: 1.6, dl: 0 }, { x: 61.7, y: 39, c: "#FFB03A", d: 2.3, dl: 0.5 }, { x: 73.5, y: 41.6, c: "#FF5540", d: 1.9, dl: 1.1 }] },
       ].map((p) => (
         <div key={p.tid} className={`absolute bottom-[0.5vh] z-[3] hidden sm:block ${p.cls}`} style={{ aspectRatio: p.ar }} data-testid={p.tid}>
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.5vh", width: "90%", height: "2.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.65), rgba(0,0,0,0) 68%)" }} />

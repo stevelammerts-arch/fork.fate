@@ -799,3 +799,14 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   resolveCoords, computeFateOfDay). New hook: hooks/useShareTarget.js.
 - Tested: testing agent iteration_70.json ~95% pass, 0 issues; fate-of-day-card
   false alarm self-verified working (Ci Siamo card renders after Deal).
+
+## 2026-02 (fork) — Rack lamp/eye fixes + mobile duet glow (FF_BUILD 488-489)
+- Rack robot fixes (user): blink lamps moved off the tool tray onto the real
+  panel bulbs (71.3/29.4 + 71.3/33.1); bench blinkers moved onto its actual 4
+  indicator bulbs (56.1/38.2, 61.7/39, 73.5/41.6); green eye now ON the left
+  lens (x31.5,y20); white dots killed via scripts/fix_rack_whites.py (isolated
+  alpha specks erased + near-white glints warmed to bronze). Rack src ?v=492.
+- MOBILE DUET: left golem is hidden <640px, so his awakening response now
+  bleeds in as an amber edge glow (golem-duet-flicker-mobile, sm:hidden inverse,
+  two "eyes" + haze, same ffBroFlicker timing). Verified display:block at 390px
+  while steam-golem-left is display:none.
