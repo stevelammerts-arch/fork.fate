@@ -816,3 +816,25 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   via Gemini Nano (scripts/gen_golem_step_flat.py: 'forward foot COMPLETELY FLAT')
   + process_golem_pose.py pipeline; erased a leftover white steam blob at the
   chimneys (y<120 whitish clear). src ?v=490. Verified live at wake phase 3.
+
+## 2026-02 (fork) — Floor Thud (FF_BUILD 491)
+- Synthesized /golem-thud.wav (scripts/gen_golem_thud.py: 85->42Hz pitch-drop
+  body + 34Hz sub + noise click + inharmonic clank ring, 1.1s).
+- useGolemWake: thud plays at 3950ms (foot-contact mid-settle), preloaded;
+  step sprite preload URL fixed to ?v=490 (was stale ?v=475).
+- Dust kick: golem-thud-dust — 6 puffs burst sideways from the forward foot
+  (left 30% / top 94.5% of right-golem box), ffThudDust keyframes, delayed
+  0.55s into phase 3. Verified: opacities ramp+fade, audio decodable.
+
+## 2026-02 (fork) — Pump lights, arm sparks, floor arm, fireworks, stomp pause (FF_BUILD 492-493)
+- Valve/pump: 3 blink fixtures added on the FRONT face (x37.5, y43/53/63) and the
+  4 blinkers realigned onto the real bulb column (x70.9, y40/50.2/59/67.9).
+- Rack robot: weld sparks (rack-arm-sparks, ffWeldFlash + ffArmSpark 4.2s burst
+  cycle) spit from the open shoulder socket (65%,39%) where his arm is missing.
+- His unfinished arm generated (scripts/gen_rack_arm.py, Gemini Nano) -> keyed,
+  white glints warmed + specks erased; lies on floor RIGHT of the rack
+  (left calc(50%+8vh), 22vh wide, scaleX(-1)) as steam-arm-floor ?v=493.
+- Furnace blast beefed up: bouncers 7->12 + 14 NEW firework embers (ffEmberFw:
+  launch up along --fx*0.55/--fy, crest, rain down) from the grate.
+- Awakening: stomp held 1s longer (ph4 5600->6600, ph5 7700, ph6 9300, end
+  10900) and step-back sound moved to ph4 start (leg-return) per user.

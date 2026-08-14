@@ -473,8 +473,8 @@ function useGolemWake(enabled) {
   const witnessRef = useHeistWitness("awakening");
   useEffect(() => {
     if (!enabled) return undefined;
-    ["/steam-golem-right-awake.png", "/steam-golem-right-step.png?v=475", "/steam-golem-right-lift.png?v=475"].forEach((s) => { const im = new Image(); im.src = s; });
-    preloadHeistAudio(["/golem-wake-up.mp3", "/golem-step-forward.mp3", "/golem-step-back.mp3", "/golem-power-down.mp3"]);
+    ["/steam-golem-right-awake.png", "/steam-golem-right-step.png?v=490", "/steam-golem-right-lift.png?v=475"].forEach((s) => { const im = new Image(); im.src = s; });
+    preloadHeistAudio(["/golem-wake-up.mp3", "/golem-step-forward.mp3", "/golem-thud.wav", "/golem-step-back.mp3", "/golem-power-down.mp3"]);
     let timers = [];
     let pending;
     const schedule = (min, spread) => { pending = setTimeout(run, min + Math.random() * spread); };
@@ -487,16 +487,19 @@ function useGolemWake(enabled) {
         setPh(3);
         playHeistSound("/golem-step-forward.mp3", 0.55);
       }, 3400));
-      timers.push(setTimeout(() => setPh(4), 5600));             // leg lifts back off the floor
-      timers.push(setTimeout(() => {                             // rotates back to a stand
-        setPh(5);
+      timers.push(setTimeout(() => {                             // FLOOR THUD: flat foot hits the ground mid-settle
+        playHeistSound("/golem-thud.wav", 0.65);
+      }, 3950));
+      timers.push(setTimeout(() => {                             // (holds the stomp for a beat, then) leg lifts back off the floor
+        setPh(4);
         playHeistSound("/golem-step-back.mp3", 0.55);
-      }, 6700));
+      }, 6600));
+      timers.push(setTimeout(() => setPh(5), 7700));             // rotates back to a stand
       timers.push(setTimeout(() => {                             // head lowers, eyes die out
         setPh(6);
         playHeistSound("/golem-power-down.mp3", 0.5);
-      }, 8300));
-      timers.push(setTimeout(() => { setPh(0); witnessRef.current(true); schedule(180000, 150000); }, 9900));
+      }, 9300));
+      timers.push(setTimeout(() => { setPh(0); witnessRef.current(true); schedule(180000, 150000); }, 10900));
     };
     schedule(45000, 40000);
     const force = () => { clearTimeout(pending); run(); };
@@ -754,9 +757,24 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
                 { bx: "7vh", d: 1.7, dl: 0.2, s: 1 }, { bx: "13vh", d: 2.0, dl: 0.5, s: 0.8 },
                 { bx: "19vh", d: 2.3, dl: 0.8, s: 1.1 }, { bx: "10vh", d: 1.9, dl: 1.2, s: 0.7 },
                 { bx: "24vh", d: 2.6, dl: 1.5, s: 0.9 }, { bx: "16vh", d: 2.2, dl: 1.9, s: 1 },
-                { bx: "21vh", d: 2.4, dl: 2.2, s: 0.75 },
+                { bx: "21vh", d: 2.4, dl: 2.2, s: 0.75 }, { bx: "28vh", d: 2.7, dl: 0.35, s: 0.85 },
+                { bx: "11vh", d: 1.8, dl: 1.7, s: 0.95 }, { bx: "26vh", d: 2.5, dl: 2.5, s: 0.7 },
+                { bx: "15vh", d: 2.1, dl: 2.8, s: 1.05 }, { bx: "31vh", d: 2.9, dl: 1.05, s: 0.8 },
               ].map((p, pi) => (
                 <span key={`bounce-${pi}`} className="absolute rounded-full" style={{ left: "5%", top: "48%", width: `${1.05 * p.s}vh`, height: `${1.05 * p.s}vh`, background: "radial-gradient(circle, #FFE9A8, #FF9A3C 55%, #B34710 90%)", boxShadow: "0 0 6px 2px rgba(255,140,45,0.7)", "--bx": p.bx, animation: `ffSparkBounce ${p.d}s linear ${p.dl}s infinite` }} data-testid="furnace-blast-bouncer" />
+              ))}
+              {/* FIREWORK EMBERS: fountain of embers launching up + out of the
+                  grate, arcing over like a roman candle before raining down */}
+              {[
+                { fx: "9vh", fy: "-13vh", d: 1.5, dl: 0.1, s: 1 }, { fx: "15vh", fy: "-16vh", d: 1.7, dl: 0.35, s: 0.8 },
+                { fx: "4vh", fy: "-18vh", d: 1.6, dl: 0.6, s: 0.9 }, { fx: "21vh", fy: "-11vh", d: 1.8, dl: 0.85, s: 1.1 },
+                { fx: "-4vh", fy: "-14vh", d: 1.55, dl: 1.1, s: 0.7 }, { fx: "12vh", fy: "-20vh", d: 1.9, dl: 1.35, s: 1 },
+                { fx: "25vh", fy: "-9vh", d: 1.7, dl: 1.6, s: 0.85 }, { fx: "-7vh", fy: "-10vh", d: 1.5, dl: 1.85, s: 0.75 },
+                { fx: "18vh", fy: "-15vh", d: 1.8, dl: 2.1, s: 0.95 }, { fx: "6vh", fy: "-21vh", d: 2.0, dl: 2.35, s: 0.8 },
+                { fx: "28vh", fy: "-13vh", d: 1.9, dl: 0.5, s: 0.7 }, { fx: "-2vh", fy: "-17vh", d: 1.65, dl: 1.5, s: 1.05 },
+                { fx: "14vh", fy: "-8vh", d: 1.45, dl: 2.55, s: 0.9 }, { fx: "10vh", fy: "-24vh", d: 2.1, dl: 0.95, s: 0.65 },
+              ].map((p, pi) => (
+                <span key={`fw-${pi}`} className="absolute rounded-full" style={{ left: "4%", top: "42%", width: `${0.85 * p.s}vh`, height: `${0.85 * p.s}vh`, background: "radial-gradient(circle, #FFF4CC, #FFB44A 55%, #D2601A 90%)", boxShadow: "0 0 7px 2px rgba(255,165,55,0.85)", "--fx": p.fx, "--fy": p.fy, animation: `ffEmberFw ${p.d}s linear ${p.dl}s infinite` }} data-testid="furnace-blast-firework" />
               ))}
             </div>
           )}
@@ -826,6 +844,15 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
                 ))}
               </div>
             )}
+            {/* FLOOR THUD dust kick: puffs burst out low from the forward foot
+                as it slams flat onto the floor (delayed to the contact moment) */}
+            {golemWake === 3 && (
+              <div key="thud-dust" className="absolute" style={{ left: "30%", top: "94.5%" }} data-testid="golem-thud-dust">
+                {[0, 1, 2, 3, 4, 5].map((i) => (
+                  <span key={`d-${i}`} className="absolute rounded-full" style={{ width: `${2.4 + (i % 3) * 0.9}vh`, height: `${2 + (i % 3) * 0.7}vh`, background: "radial-gradient(circle, rgba(188,168,138,0.5), rgba(142,124,98,0.28) 55%, transparent 78%)", filter: "blur(2px)", opacity: 0, "--dx": `${(i - 2.5) * 3.4}vh`, animation: `ffThudDust ${0.85 + i * 0.11}s ease-out ${0.55 + (i % 3) * 0.06}s forwards` }} />
+                ))}
+              </div>
+            )}
           </div>
           {[
             { left: "52%", top: "2%", scale: 0.9 },
@@ -882,10 +909,16 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       {/* WORKSHOP PROPS: valve pedestal (L), robot on assembly rack (M), alchemy bench (R) */}
       {cfg.golemLeft && [
         { src: "/steam-valve-pedestal.png?v=491", ar: "433 / 735", cls: "left-[calc(50%-48vh)] h-[28vh]", tid: "steam-valve-pedestal",
-          lamps: [{ x: 50, y: 54, c: "#FF5540", d: 1.8, dl: 0.2 }, { x: 50, y: 61, c: "#FFB03A", d: 2.4, dl: 0.8 }, { x: 50, y: 68, c: "#7CE08A", d: 2.0, dl: 1.4 }] },
+          lamps: [
+            // front-face fixtures (a vertical trio between the hatch covers and the seam)
+            { x: 37.5, y: 43, c: "#FFB03A", d: 1.7, dl: 0.1 }, { x: 37.5, y: 53, c: "#7CE08A", d: 2.2, dl: 0.7 }, { x: 37.5, y: 63, c: "#FF5540", d: 1.5, dl: 1.3 },
+            // the sprite's real bulb column on the right face
+            { x: 70.9, y: 40, c: "#FFB03A", d: 2.4, dl: 0 }, { x: 70.9, y: 50.2, c: "#FF5540", d: 1.9, dl: 0.5 }, { x: 70.9, y: 59, c: "#FF8A3A", d: 2.1, dl: 1 }, { x: 70.9, y: 67.9, c: "#FF5540", d: 1.6, dl: 1.5 },
+          ] },
         { src: "/steam-robot-rack.png?v=492", ar: "558 / 742", cls: "left-1/2 -translate-x-1/2 h-[78vh]", tid: "steam-robot-rack",
           lamps: [{ x: 71.3, y: 29.4, c: "#FFB03A", d: 2.1, dl: 0.3 }, { x: 71.3, y: 33.1, c: "#FF7A30", d: 1.7, dl: 0.9 }],
-          eye: { x: 31.5, y: 20 } },
+          eye: { x: 31.5, y: 20 },
+          sparks: { x: 65, y: 39 } },
         { src: "/steam-alchemy-bench.png?v=491", ar: "966 / 765", cls: "left-[calc(50%+31vh)] h-[25.5vh]", tid: "steam-alchemy-bench",
           lamps: [{ x: 56.1, y: 38.2, c: "#FFB03A", d: 1.6, dl: 0 }, { x: 61.7, y: 39, c: "#FFB03A", d: 2.3, dl: 0.5 }, { x: 73.5, y: 41.6, c: "#FF5540", d: 1.9, dl: 1.1 }] },
       ].map((p) => (
@@ -898,8 +931,25 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           {p.eye && (
             <span className="absolute rounded-full" data-testid="rack-robot-eye" style={{ left: `${p.eye.x}%`, top: `${p.eye.y}%`, width: "4.5%", aspectRatio: "1", background: "radial-gradient(circle, rgba(140,255,180,0.95), rgba(80,220,140,0.4) 55%, transparent 75%)", mixBlendMode: "screen", filter: "blur(0.5px)", boxShadow: "0 0 8px 2px rgba(90,230,150,0.5)", animation: "ffEyeFlutter 6.5s linear infinite" }} />
           )}
+          {/* WELD SPARKS: intermittent bursts spit from the open shoulder socket
+              where the robot's unfinished arm is missing */}
+          {p.sparks && (
+            <div className="absolute" data-testid="rack-arm-sparks" style={{ left: `${p.sparks.x}%`, top: `${p.sparks.y}%` }}>
+              <span className="absolute rounded-full" style={{ left: "-1.6vh", top: "-1.6vh", width: "3.2vh", height: "3.2vh", background: "radial-gradient(circle, rgba(255,240,200,0.95), rgba(255,170,70,0.5) 45%, transparent 75%)", mixBlendMode: "screen", filter: "blur(1px)", opacity: 0, animation: "ffWeldFlash 4.2s linear infinite" }} />
+              {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+                <span key={`spk-${i}`} className="absolute" style={{ width: "0.55vh", height: "0.55vh", borderRadius: "9999px", background: i % 2 ? "#FFD98A" : "#FF9A3A", boxShadow: "0 0 5px 1px rgba(255,180,80,0.85)", opacity: 0, "--sx": `${[3.2, 5.4, 1.6, -2.2, 4.4, -1.2, 2.6][i]}vh`, "--sy": `${[5.5, 8.2, 9.4, 6.8, 4, 8.8, 7.6][i]}vh`, animation: `ffArmSpark 4.2s linear ${i * 0.055}s infinite` }} />
+              ))}
+            </div>
+          )}
         </div>
       ))}
+      {/* his unfinished arm, dropped on the floor in front of the assembly rack */}
+      {cfg.golemLeft && (
+        <div className="absolute bottom-[0.6vh] left-[calc(50%+8vh)] z-[3] hidden sm:block" style={{ width: "22vh", aspectRatio: "832 / 558" }} data-testid="steam-arm-floor">
+          <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.4vh", width: "86%", height: "1.8vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.6), rgba(0,0,0,0) 68%)" }} />
+          <img src="/steam-arm-unfinished.png?v=493" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ transform: "scaleX(-1)", filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.5)) brightness(0.92)" }} />
+        </div>
+      )}
       {cfg.roofCables && STEAM_CABLES.map((c, i) => (
         <div key={`cable-${i}`} className="absolute top-0 z-[3]" style={{ left: c.left, width: c.w, height: `${c.h}vh`, transformOrigin: "top center", animation: `ffCableSway ${c.dur}s ease-in-out ${c.delay}s infinite`, "--sw": `${c.sway}deg` }}>
           <div className="h-full w-full rounded-b-full" style={{ background: "linear-gradient(90deg,#0E0A06 0%,#3A2818 42%,#6B4A2A 50%,#3A2818 58%,#0E0A06 100%)", boxShadow: "0 1px 3px rgba(0,0,0,0.6)" }} />

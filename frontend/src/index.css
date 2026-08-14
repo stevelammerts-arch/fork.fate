@@ -2731,3 +2731,38 @@ body.ff-badge-open .ff-theme-scene * {
   70% { opacity: 0.95; }
   85% { opacity: 0.3; }
 }
+
+/* FLOOR THUD dust: kicked out sideways along the floor when the golem's
+   forward foot slams down flat, rising slightly as it disperses. */
+@keyframes ffThudDust {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.35); }
+  16% { opacity: 0.85; }
+  100% { opacity: 0; transform: translate(var(--dx), -2.6vh) scale(1.3); }
+}
+
+/* WELD SPARKS from the rack robot's open shoulder socket: everything hides
+   most of the cycle, then a short burst — flash flickers at the socket while
+   spark motes shoot out and fall along (--sx, --sy). */
+@keyframes ffWeldFlash {
+  0%, 76% { opacity: 0; }
+  78% { opacity: 1; }
+  81% { opacity: 0.25; }
+  84% { opacity: 0.9; }
+  88% { opacity: 0.15; }
+  91%, 100% { opacity: 0; }
+}
+@keyframes ffArmSpark {
+  0%, 77% { opacity: 0; transform: translate(0, 0); }
+  78% { opacity: 1; }
+  96% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(var(--sx), var(--sy)); }
+}
+
+/* FIREWORK EMBERS from the furnace grate: launch up along (--fx*0.55, --fy),
+   crest, then rain down past the start line before winking out. */
+@keyframes ffEmberFw {
+  0% { opacity: 0; transform: translate(0, 0); }
+  8% { opacity: 1; }
+  45% { opacity: 1; transform: translate(calc(var(--fx) * 0.55), var(--fy)); }
+  100% { opacity: 0; transform: translate(var(--fx), calc(var(--fy) * -0.45)); }
+}
