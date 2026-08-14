@@ -439,6 +439,7 @@ function useFurnaceCrackle(enabled) {
  * Desktop-only (he's hidden on mobile); `ff:furnace-blast` forces it. */
 function useFurnaceBlast(enabled) {
   const [ph, setPh] = useState(0); // 0 idle, 1 gears grinding (glow surges), 2 fire spews
+  const witnessRef = useHeistWitness("furnace");
   useEffect(() => {
     if (!enabled) return undefined;
     if (!window.matchMedia("(min-width: 640px)").matches) return undefined;
@@ -454,7 +455,7 @@ function useFurnaceBlast(enabled) {
         setPh(2);
         playHeistSound("/golem-fire-blast.mp3", 0.55);
       }, 2000));
-      timers.push(setTimeout(() => { setPh(0); schedule(200000, 160000); }, 5200));
+      timers.push(setTimeout(() => { setPh(0); witnessRef.current(true); schedule(200000, 160000); }, 5200));
     };
     schedule(70000, 60000);
     const force = () => { clearTimeout(pending); run(); };
@@ -469,6 +470,7 @@ function useFurnaceBlast(enabled) {
  * First 45-85s after load, then every 3-5.5 min (`ff:golem-wake` forces it). */
 function useGolemWake(enabled) {
   const [ph, setPh] = useState(0); // 0 asleep, 1 awake, 2 leg lifts, 3 foot plants fwd (leaning), 4 leg lifts back, 5 stands, 6 powering down
+  const witnessRef = useHeistWitness("awakening");
   useEffect(() => {
     if (!enabled) return undefined;
     ["/steam-golem-right-awake.png", "/steam-golem-right-step.png?v=475", "/steam-golem-right-lift.png?v=475"].forEach((s) => { const im = new Image(); im.src = s; });
@@ -494,7 +496,7 @@ function useGolemWake(enabled) {
         setPh(6);
         playHeistSound("/golem-power-down.mp3", 0.5);
       }, 8300));
-      timers.push(setTimeout(() => { setPh(0); schedule(180000, 150000); }, 9900));
+      timers.push(setTimeout(() => { setPh(0); witnessRef.current(true); schedule(180000, 150000); }, 9900));
     };
     schedule(45000, 40000);
     const force = () => { clearTimeout(pending); run(); };
@@ -758,7 +760,9 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
               ))}
             </div>
           )}
-          {/* ember eyes: smolder like the furnace in his belly */}
+          {/* ember eyes: smolder like the furnace in his belly. GOLEM DUET —
+              when his brother awakens across the room, these eyes flicker
+              awake in response, then settle back to their smolder. */}
           {[
             { cx: 75.5, cy: 16.5, s: 6.4 },
             { cx: 82, cy: 18, s: 5.8 },
@@ -766,6 +770,9 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             <div key={`eye-${ei}`} className="absolute" data-testid="golem-eye-glow" style={{ left: `${e.cx - e.s / 2}%`, top: `${e.cy - e.s * 0.28}%`, width: `${e.s}%`, aspectRatio: "1" }}>
               <span className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle, rgba(255,170,60,0.8) 0%, rgba(255,110,25,0.42) 40%, rgba(200,60,10,0.14) 65%, transparent 80%)", mixBlendMode: "screen", filter: "blur(1px)", animation: "ffFurnaceSmolder 3.1s ease-in-out infinite" }} />
               <span className="absolute rounded-full" style={{ left: "32%", top: "32%", width: "36%", height: "36%", background: "radial-gradient(circle, rgba(255,232,150,0.95), rgba(255,160,60,0.5) 60%, transparent 80%)", mixBlendMode: "screen", animation: "ffFurnaceSmolder 2.2s ease-in-out -1.1s infinite" }} />
+              {golemWake >= 1 && golemWake <= 5 && (
+                <span className="absolute inset-[-35%] rounded-full" data-testid="golem-duet-flicker" style={{ background: "radial-gradient(circle, rgba(255,236,170,0.95), rgba(255,175,60,0.55) 42%, rgba(255,120,30,0.2) 65%, transparent 80%)", mixBlendMode: "screen", filter: "blur(1px)", opacity: 0, animation: `ffBroFlicker 1.9s linear ${1.1 + ei * 0.12}s 3` }} />
+              )}
             </div>
           ))}
           {/* smoldering furnace: embers breathing behind the belly grate */}
@@ -864,12 +871,12 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       )}
       {/* WORKSHOP PROPS: valve pedestal (L), robot on assembly rack (M), alchemy bench (R) */}
       {cfg.golemLeft && [
-        { src: "/steam-valve-pedestal.png?v=491", ar: "433 / 735", cls: "left-[calc(50%-32vh)] h-[28vh]", tid: "steam-valve-pedestal",
+        { src: "/steam-valve-pedestal.png?v=491", ar: "433 / 735", cls: "left-[calc(50%-48vh)] h-[28vh]", tid: "steam-valve-pedestal",
           lamps: [{ x: 50, y: 54, c: "#FF5540", d: 1.8, dl: 0.2 }, { x: 50, y: 61, c: "#FFB03A", d: 2.4, dl: 0.8 }, { x: 50, y: 68, c: "#7CE08A", d: 2.0, dl: 1.4 }] },
-        { src: "/steam-robot-rack.png?v=490", ar: "558 / 742", cls: "left-1/2 -translate-x-1/2 h-[27vh]", tid: "steam-robot-rack",
+        { src: "/steam-robot-rack.png?v=490", ar: "558 / 742", cls: "left-1/2 -translate-x-1/2 h-[78vh]", tid: "steam-robot-rack",
           lamps: [{ x: 75, y: 60, c: "#FFB03A", d: 2.1, dl: 0.3 }, { x: 77, y: 66, c: "#FF5540", d: 1.7, dl: 0.9 }],
           eye: { x: 30.5, y: 16.5 } },
-        { src: "/steam-alchemy-bench.png?v=491", ar: "966 / 765", cls: "left-[calc(50%+15vh)] h-[25.5vh]", tid: "steam-alchemy-bench",
+        { src: "/steam-alchemy-bench.png?v=491", ar: "966 / 765", cls: "left-[calc(50%+31vh)] h-[25.5vh]", tid: "steam-alchemy-bench",
           lamps: [{ x: 36, y: 57, c: "#FFB03A", d: 1.6, dl: 0 }, { x: 48, y: 59, c: "#FF5540", d: 2.3, dl: 0.5 }, { x: 60, y: 60, c: "#FFB03A", d: 1.9, dl: 1.1 }] },
       ].map((p) => (
         <div key={p.tid} className={`absolute bottom-[0.5vh] z-[3] hidden sm:block ${p.cls}`} style={{ aspectRatio: p.ar }} data-testid={p.tid}>
@@ -962,7 +969,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           <div className="absolute inset-x-0 top-0 h-[3px]" style={{ background: "linear-gradient(90deg, transparent, rgba(217,164,78,0.55) 20%, rgba(240,200,120,0.7) 50%, rgba(217,164,78,0.55) 80%, transparent)" }} />
           <div className="absolute inset-x-0 top-[3px] h-[10px]" style={{ background: "linear-gradient(180deg, rgba(217,164,78,0.22), transparent)" }} />
           {/* Plague doctor mask abandoned on the floor in front of the alchemy desk (now right side) */}
-          <div className="absolute" data-testid="steam-mask-prop" style={{ left: "calc(50% + 24vh)", bottom: "0.9vh" }}>
+          <div className="absolute" data-testid="steam-mask-prop" style={{ left: "calc(50% + 38vh)", bottom: "0.9vh" }}>
             <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.5vh", width: "14vh", height: "2vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.55), rgba(0,0,0,0) 70%)" }} />
             <img src="/steam-mask-floor.png" alt="" className="relative object-contain" style={{ width: "12vh" }} />
           </div>

@@ -2717,3 +2717,17 @@ body.ff-badge-open .ff-theme-scene * {
   0%, 100% { transform: scaleY(0.45) rotate(8deg); }
   50%      { transform: scaleY(0.6) rotate(-8deg); }
 }
+
+/* GOLEM DUET: the left brother's ember eyes flicker awake in response to the
+   right golem's awakening — irregular surges like a lamp catching current. */
+@keyframes ffBroFlicker {
+  0%, 100% { opacity: 0; }
+  6% { opacity: 1; }
+  12% { opacity: 0.1; }
+  18% { opacity: 0.9; }
+  28% { opacity: 0.15; }
+  40% { opacity: 1; }
+  55% { opacity: 0.7; }
+  70% { opacity: 0.95; }
+  85% { opacity: 0.3; }
+}

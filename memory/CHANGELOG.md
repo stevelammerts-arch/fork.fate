@@ -783,3 +783,19 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   on disk but unreferenced.
 - Mask prop follows the bench (left calc(50%+24vh)); goggles stay in front of robot.
   Verified via scenery-mode screenshots + bounding boxes at 1920x800. FF_BUILD 484.
+
+## 2026-02 (fork) — Robot brother-sized + Collectible Fates + Golem Duet + Home refactor (FF_BUILD 485-487)
+- Middle rack robot resized to match his two golem brothers (h-78vh, centered);
+  valve/bench spread to left-[calc(50%-48vh)] / left-[calc(50%+31vh)], mask follows.
+- COLLECTIBLE FATES: 2 new HEISTS in lib/rituals.js — 'awakening' (recorded by
+  useGolemWake at 9.9s) + 'furnace' (useFurnaceBlast at 5.2s) via useHeistWitness.
+  Icons Bot/Anvil in Rituals.jsx; ES translations added. Shelf now 25 trophies.
+- GOLEM DUET: while right golem awakens (golemWake 1-5), left golem's ember eyes
+  flicker (golem-duet-flicker spans, ffBroFlicker keyframes in index.css, 3x1.9s).
+- HOME REFACTOR: Home.jsx 1564 -> 1157 lines. Extracted to components/home/:
+  HeroCopy, LocationRadiusPanel, ModeTabsGrid+CuisineSection, DealRow,
+  MoreWaysToPlay, StatsRibbon, FloatingToggles, RealmLayers, NearbyResults.
+  New libs: lib/sound.js (SHUFFLE_LOOPS, playSound), lib/geo.js (haversineMi,
+  resolveCoords, computeFateOfDay). New hook: hooks/useShareTarget.js.
+- Tested: testing agent iteration_70.json ~95% pass, 0 issues; fate-of-day-card
+  false alarm self-verified working (Ci Siamo card renders after Deal).

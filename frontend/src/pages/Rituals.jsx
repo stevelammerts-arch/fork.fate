@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem, Leaf, Flower2, Citrus, Coffee, Snowflake, Rocket, Grab, Bone, Stamp, ChevronRight, Volleyball, Shell, Waves, Bird, CarFront, Watch, Target, Crown, Feather, Rainbow, Utensils } from "lucide-react";
+import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem, Leaf, Flower2, Citrus, Coffee, Snowflake, Rocket, Grab, Bone, Stamp, ChevronRight, Volleyball, Shell, Waves, Bird, CarFront, Watch, Target, Crown, Feather, Rainbow, Utensils, Bot, Anvil } from "lucide-react";
 import { RITUALS, readRitualsSeen, HEISTS, readHeistsSeen } from "../lib/rituals";
 import { readBingo } from "../lib/bingo";
 import { useLang } from "../i18n/i18n";
@@ -18,6 +18,7 @@ const HEIST_ICONS = {
   ball: Volleyball, crab: Shell, surf: Waves, spear: Target, spring: Watch,
   gears: Cog, snatch: Ghost, snowman: Snowflake, owl: Bird, petals: Flower2, wreck: CarFront,
   coffee: Coffee, plate: Utensils, unicorn: Rainbow, cardinal: Feather,
+  awakening: Bot, furnace: Anvil,
 };
 
 export default function Rituals() {

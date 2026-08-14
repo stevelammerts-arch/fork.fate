@@ -1,16 +1,15 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Dices, Search, ShoppingBag, Fuel, Coffee, IceCream, Clock, LocateFixed, ArrowDownWideNarrow, Flame, Users, Beer, Trophy, UtensilsCrossed, ChevronDown, Mountain, Tent, Stamp, Globe2, Sparkles, Crown, BookOpen, Eye, EyeOff, Volume2, VolumeX } from "lucide-react";
-import Filters from "../components/Filters";
-import { RestaurantCard } from "../components/RestaurantCard";
+import { ShoppingBag, Fuel, Coffee, IceCream, Clock, Beer, UtensilsCrossed, Mountain, Tent } from "lucide-react";
 import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
 import SponsorMarquee from "../components/SponsorMarquee";
 import SocialShare from "../components/SocialShare";
 import { useFavorites } from "../hooks/useFavorites";
 import { useShake, requestMotionPermission } from "../hooks/useShake";
+import { useShareTarget } from "../hooks/useShareTarget";
 import GuidedFlow from "../components/GuidedFlow";
 import ThemeWelcomeDialog from "../components/ThemeWelcomeDialog";
 import { HomeHeader } from "../components/home/HomeHeader";
@@ -21,15 +20,21 @@ import RevealStage from "../components/home/RevealStage";
 import { PassportPicker } from "../components/home/PassportPicker";
 import { GhostEscort, SteamRise } from "../components/home/ThemeFlourish";
 import { GroupPicker } from "../components/home/GroupPicker";
+import { HeroCopy } from "../components/home/HeroCopy";
+import { LocationRadiusPanel } from "../components/home/LocationRadiusPanel";
+import { ModeTabsGrid, CuisineSection } from "../components/home/ModeTabsGrid";
+import { DealRow } from "../components/home/DealRow";
+import { MoreWaysToPlay } from "../components/home/MoreWaysToPlay";
+import { StatsRibbon } from "../components/home/StatsRibbon";
+import { FloatingToggles } from "../components/home/FloatingToggles";
+import { RealmLayers } from "../components/home/RealmLayers";
+import { NearbyResults } from "../components/home/NearbyResults";
 import { haptic } from "../lib/pwa";
 import confetti from "canvas-confetti";
 import {
-  readStreak, bumpStreak, streakMilestone, cardImage,
-  HERO_INITIAL, HERO_ANIMATE, HERO_TRANSITION, SPIN_TAP,
+  readStreak, bumpStreak, streakMilestone,
   FOOD_CUISINES, FOOD_GROUPS, DRINK_CUISINES, DESSERT_CUISINES, BAR_CUISINES, BAR_GROUPS, SHOP_CUISINES, FUEL_CUISINES, FUEL_GROUPS, EXPLORE_CUISINES, EXPLORE_GROUPS, STAY_CUISINES, CRAWL_TYPES, crawlLabelForType, orderCrawlRoute,
 } from "./homeConstants";
-import { Input } from "../components/ui/input";
-import { Slider } from "../components/ui/slider";
 import { useTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
 import { trackEvent } from "../lib/analytics";
@@ -38,36 +43,15 @@ import BlackoutRitual from "../components/BlackoutRitual";
 import { recordFate } from "../lib/journal";
 import { markCuisine } from "../lib/bingo";
 import { readPassports } from "../lib/passports";
-import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene, ReaperHeist, GhostSnatchHeist, ReaperPlateHeist, CoffeeSpillHeist, CompanionPatrol } from "../components/ThemeScenes";
-import { RealmEntrySting } from "../components/scenes/RealmEntrySting";
-import { ReaperScene } from "../components/ReaperScene";
-import { CafeDustMotes, CafeCounterCup } from "../components/CafeDustMotes";
+import { SEASONS, AMBIANCE } from "../components/ThemeScenes";
 import { ShuffleOverlay } from "../components/home/ShuffleOverlay";
 import { RevealFlash } from "../components/home/RevealFlash";
 import { CrawlSetupPanel } from "../components/home/CrawlSetupPanel";
 import { shouldRareFate, rarePoolFor } from "../lib/rareFate";
+import { SHUFFLE_LOOPS, playSound } from "../lib/sound";
+import { haversineMi, resolveCoords, computeFateOfDay } from "../lib/geo";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-
-// Themed ambience that plays during the shuffle: [src, volume, loop].
-// All beds are synthesized band-limited noise (see scripts/gen_theme_beds.py) —
-// earlier versions held pure tones or near-Nyquist junk that phone speakers
-// reproduced as a buzz or zap.
-// Volumes are loudness-matched (RMS x volume) so every bed sits clearly BELOW
-// its realm's reveal stinger: cyber/fall/winter files are hot, so they get
-// lower gains (audited 2026-02: bed effRMS <= ~0.75x reveal effRMS).
-const SHUFFLE_LOOPS = {
-  light: ["/shuffle-cafe.wav?v=2", 0.75, true],
-  tiki: ["/reveal-drums-groove.wav", 1.0, false],
-  cyber: ["/shuffle-cyber.mp3?v=2", 0.5, true],
-  summer: ["/shuffle-seagulls.wav", 0.7, true],
-  steam: ["/shuffle-jacobs.wav", 0.85, true],
-  spring: ["/shuffle-spring.wav", 0.8, true],
-  winter: ["/shuffle-winter.wav", 0.65, true],
-  fall: ["/shuffle-fall.wav", 0.55, true],
-  fantasy: ["/shuffle-dragon.mp3", 0.85, true],
-  fairy: ["/shuffle-fairy.wav", 0.8, true],
-};
 
 
 export default function Home() {
@@ -187,32 +171,8 @@ export default function Home() {
   const startCards = () => {};
   useEffect(() => () => { if (grooveRef.current) { try { grooveRef.current.pause(); } catch (e) { /* ignore */ } grooveRef.current = null; } }, []);
   const { favorites, isFavorite, toggleFavorite, removeFavorite } = useFavorites();
-  // PWA share target: a friend shares a restaurant link/name INTO Fork·Fate
-  // (manifest share_target) — we tuck it into Favorites and say so.
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const sTitle = params.get("share_title") || "";
-      const sText = params.get("share_text") || "";
-      const sUrl = params.get("share_url") || "";
-      if (!sTitle && !sText && !sUrl) return;
-      // Best-guess name: the title, else the text minus any URL inside it.
-      const urlInText = (sText.match(/https?:\/\/\S+/) || [])[0] || "";
-      const name = (sTitle || sText.replace(urlInText, "").trim() || "Shared spot").slice(0, 80);
-      const link = sUrl || urlInText;
-      const shared = { id: `shared-${Date.now()}`, name, cuisine: t("Shared with you"), address: "", category: "food", google_url: link, image: "" };
-      if (!isFavorite(shared)) toggleFavorite(shared);
-      // Defer past first paint — sonner's Toaster subscribes after this
-      // mount-time effect runs, and toasts fired before that are dropped.
-      setTimeout(() => toast.success(`${t("Saved to Favorites:")} ${name}`, { duration: 6000 }), 600);
-      trackEvent("share_target_in", {});
-      // Clean the params so refreshes don't re-save it.
-      ["share_title", "share_text", "share_url"].forEach((k) => params.delete(k));
-      const qs = params.toString();
-      window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
-    } catch (e) { /* malformed share — ignore */ }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // PWA share target: a friend shares a restaurant INTO Fork·Fate — saved to Favorites.
+  useShareTarget({ t, isFavorite, toggleFavorite });
   const [showGuided, setShowGuided] = useState(true);
 
   // SCENERY MODE: fades every card/pill/word below the header so the realm
@@ -259,16 +219,6 @@ export default function Home() {
 
   const finishGuided = () => {
     setShowGuided(false);
-  };
-
-  const playSound = (src, volume = 0.9) => {
-    try {
-      if (localStorage.getItem("ff_muted") === "1") return null;
-      const a = new Audio(src);
-      a.volume = volume;
-      a.play().catch(() => {});
-      return a;
-    } catch (e) { return null; /* audio unavailable — non-critical */ }
   };
 
   const sealFate = ({ mode: m, zip: z, coords: c, radius: r, cuisines }) => {
@@ -787,24 +737,6 @@ export default function Home() {
     );
   };
 
-  const haversineMi = (a, b) => {
-    if (!a || !b) return 0;
-    const R = 3958.8, toRad = (d) => (d * Math.PI) / 180;
-    const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
-    const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
-  };
-
-  const resolveCoords = async (coordsVal, zipVal) => {
-    if (coordsVal?.lat != null) return coordsVal;
-    const z = (zipVal || "").trim();
-    if (/^\d{5}$/.test(z)) {
-      const { data } = await axios.get(`${API}/geocode`, { params: { zip: z } });
-      return { lat: data.lat, lng: data.lng };
-    }
-    return null;
-  };
-
   // Crawl-only shuffle: same deck animation, then opens the crawl route window.
   // Lands on `winner` (the first stop of the ordered crawl) so the reveal card matches stop #1.
   const runCrawlShuffle = (pool, winner, onDone) => {
@@ -970,18 +902,7 @@ export default function Home() {
   };
 
   // Fate of the Day: one destined spot everyone in the same area sees today.
-  // Deterministic: seeded by date + area (zip or rounded coords) over the
-  // id-sorted pool, so it stays stable all day without any backend.
-  const fateOfDay = useMemo(() => {
-    if (!results.length) return null;
-    const day = new Date().toISOString().slice(0, 10);
-    const area = zip || (coords ? `${coords.lat.toFixed(2)},${coords.lng.toFixed(2)}` : "");
-    const seed = `${day}|${area}`;
-    let h = 0;
-    for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-    const sorted = [...results].sort((a, b) => String(a.id).localeCompare(String(b.id)));
-    return sorted[h % sorted.length];
-  }, [results, zip, coords]);
+  const fateOfDay = useMemo(() => computeFateOfDay(results, zip, coords), [results, zip, coords]);
 
   const sortedResults = useMemo(() => {
     return [...results].sort((a, b) => {
@@ -1009,35 +930,10 @@ export default function Home() {
       </AnimatePresence>
       <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={crawlEndpoints.origin || coords} destination={crawlEndpoints.destination} crawlLabel={crawlLabelForType(crawlType)} initialStops={crawlStops} />
 
-      {/* Light-mode: faded bright café / restaurant interior background */}
-      {theme === "light" && (
-        <div
-          className="pointer-events-none fixed inset-0 z-0 select-none bg-cover bg-center"
-          data-testid="cafe-bg-light"
-          style={{ backgroundImage: "url('/cafe-bg-light.png')", opacity: 0.28 }}
-        />
-      )}
-      {/* Coffee Shop ambience: dust motes drifting in warm café light */}
-      {theme === "light" && <CafeDustMotes />}
-      {/* ...and a steaming cup of coffee resting in the scene */}
-      {theme === "light" && <CafeCounterCup />}
-      {/* Seasonal themes: tree + decor + falling sprites */}
-      {seasonCfg && <SeasonScene theme={theme} cfg={seasonCfg} heistEpoch={heistEpoch} />}
-      {/* One-shot realm-entry music stings (user-provided tracks) */}
-      <RealmEntrySting theme={theme} />
-      {/* Ambiance themes: cyberpunk / steampunk / tiki lounge */}
-      {ambCfg && <AmbianceScene theme={theme} cfg={ambCfg} heistEpoch={heistEpoch} />}
-      {/* Dark-mode: decorative reaper background with load animation */}
-      {theme === "dark" && <ReaperScene />}
-      {theme === "dark" && <ReaperHeist key={`rh-${heistEpoch}`} />}
-      {theme === "dark" && <GhostSnatchHeist key={`gh-${heistEpoch}`} />}
-      {theme === "dark" && <ReaperPlateHeist key={`ph-${heistEpoch}`} />}
-      {/* Café: the runaway coffee cup that melts the medallion like sugar */}
-      {theme === "light" && <CoffeeSpillHeist key={`ch-${heistEpoch}`} />}
+      {/* Realm scenery stack: café / seasonal / ambiance / reaper + page heists */}
+      <RealmLayers theme={theme} seasonCfg={seasonCfg} ambCfg={ambCfg} heistEpoch={heistEpoch} />
       {/* BINGO blackout: all 25 squares stamped — golden full-screen ritual */}
       <BlackoutRitual open={blackout} onClose={() => setBlackout(false)} />
-      {/* the little reaper follower: drifts around the page trailing black smoke */}
-      {theme === "dark" && <CompanionPatrol s1="/reaper-fly-1.png" s2="/reaper-fly-2.png" glow="rgba(140,110,200,0.45)" dustCol={["#8E7BB8", "#2A2038"]} testid="reaper-companion" flap="ffReaperFrame 2.6s ease-in-out infinite" flapBase="ffReaperFrameInv 2.6s ease-in-out infinite" bob="ffPixieBob 3.6s ease-in-out infinite" />}
       {/* Header */}
       <HomeHeader
         light={light}
@@ -1058,34 +954,8 @@ export default function Home() {
         setSponsorOpen={setSponsorOpen}
       />
 
-      {/* SOUND toggle: floats just above the scenery eye, present in every realm */}
-      <button
-        onClick={toggleMuted}
-        data-testid="sound-toggle-button"
-        title={muted ? "Sound off — click to enable sound" : "Sound on — click to mute"}
-        aria-label={muted ? "Enable sound" : "Mute sound"}
-        className={`fixed bottom-[4.75rem] right-5 z-[75] grid h-11 w-11 place-items-center rounded-full border backdrop-blur-sm transition-all duration-300 ${scenery
-          ? "border-white/30 bg-black/30 text-white/80 opacity-60 hover:opacity-100"
-          : light
-          ? "border-[#E2E4E7] bg-white/85 text-[#6B7075] shadow-sm hover:text-[#0E0E0E]"
-          : "border-white/15 bg-black/40 text-white/60 hover:text-white"}`}
-      >
-        {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-      </button>
-
-      {/* SCENERY MODE eye: floats above everything; the wrapper below fades */}
-      <button
-        onClick={toggleScenery}
-        data-testid="scenery-toggle"
-        aria-label={scenery ? "Bring the interface back" : "Hide the interface to enjoy the scenery"}
-        className={`fixed bottom-5 right-5 z-[75] grid h-11 w-11 place-items-center rounded-full border backdrop-blur-sm transition-all duration-300 ${scenery
-          ? "border-white/30 bg-black/30 text-white/80 opacity-60 hover:opacity-100"
-          : light
-          ? "border-[#E2E4E7] bg-white/85 text-[#6B7075] shadow-sm hover:text-[#0E0E0E]"
-          : "border-white/15 bg-black/40 text-white/60 hover:text-white"}`}
-      >
-        {scenery ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-      </button>
+      {/* Floating sound + scenery-eye toggles (every realm) */}
+      <FloatingToggles muted={muted} toggleMuted={toggleMuted} scenery={scenery} toggleScenery={toggleScenery} light={light} />
 
       <div className={`ff-scenery-fade ${scenery ? "ff-scenery-hide" : ""}`} data-testid="scenery-wrap">
       <div className="relative z-40">
@@ -1105,151 +975,39 @@ export default function Home() {
 
       {/* Hero / Roulette */}
       <section className="relative z-10 mx-auto max-w-6xl px-6 pt-12 pb-8 md:px-12 md:pt-16">
-        <motion.div
-          initial={HERO_INITIAL}
-          animate={HERO_ANIMATE}
-          transition={HERO_TRANSITION}
-          className="max-w-2xl"
-        >
-          <p className="font-sans text-sm font-extrabold tracking-[0.25em] uppercase text-[#E01E26]" style={theme === "fairy" ? { color: "#FFD36B", textShadow: "0 1px 10px rgba(4,20,12,0.75)" } : undefined}>
-            {allMode ? t("Can't decide on anything?") : mode === "food" ? t("Can't decide where to eat?") : mode === "drinks" ? t("Can't decide what to sip?") : mode === "bars" ? t("Can't decide where to drink?") : mode === "desserts" ? t("Craving something sweet?") : mode === "shops" ? t("Feeling like a treasure hunt?") : mode === "explore" ? t("Can't decide what to do?") : mode === "stay" ? t("Need somewhere to stay?") : t("Need to fill up or get moving?")}
-          </p>
-          <h1 className="mt-3 font-serif text-4xl font-medium leading-none tracking-tighter text-[#0E0E0E] sm:text-5xl lg:text-6xl" style={ambCfg ? { color: ambCfg.sky, textShadow: theme === "cyber" ? "0 0 12px rgba(199,125,255,0.6)" : undefined } : undefined}>
-            {mode === "food" ? t("Let fate pick tonight's table.") : mode === "drinks" ? t("Let fate pick your next sip.") : mode === "bars" ? t("Let fate pick tonight's bar.") : mode === "desserts" ? t("Let fate pick your sweet treat.") : mode === "shops" ? t("Let fate pick your next find.") : mode === "explore" ? t("Let fate pick your next adventure.") : mode === "stay" ? t("Let fate pick tonight's basecamp.") : t("Let fate pick your pit stop.")}
-          </h1>
-          <p className="mt-4 font-sans text-base font-semibold leading-relaxed text-[#0E0E0E]" style={ambCfg ? { color: ambCfg.sky, opacity: 0.92 } : undefined}>
-            {mode === "food"
-              ? t("Set the mood with a few filters and hit Deal. We'll shuffle great local restaurants — up to 50 miles out — and land on your next meal.")
-              : mode === "drinks"
-              ? t("Coffee, boba tea or a smoothie? Set your filters and hit Deal — we'll shuffle nearby drink spots and pick one for you.")
-              : mode === "bars"
-              ? t("Beer, whiskey, margaritas or a Tiki bar? Set your filters and hit Deal — we'll shuffle nearby bars and pick tonight's spot.")
-              : mode === "desserts"
-              ? t("Ice cream, bakery, candy or froyo? Set your filters and hit Deal — we'll shuffle nearby dessert spots and pick your treat.")
-              : mode === "shops"
-              ? t("Antiques, thrift, vintage or a hobby shop? Set your filters and hit Deal — we'll shuffle nearby shops and pick your next find.")
-              : mode === "explore"
-              ? t("A state park, a hiking trail, a waterfall — or mini golf if it's raining? Set your filters and hit Deal, and we'll shuffle what's out there and pick your next adventure.")
-              : mode === "stay"
-              ? t("A campground, an RV site, a cabin or a cosy inn? Set your filters and hit Deal — we'll shuffle nearby places to stay and pick tonight's basecamp.")
-              : t("Gas, a charger, a scooter or the next bus? Set your filters and hit Deal — we'll shuffle nearby stops and pick your pit stop.")}
-          </p>
-        </motion.div>
+        <HeroCopy mode={mode} allMode={allMode} ambCfg={ambCfg} theme={theme} />
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
           {/* left: search + filters + spin */}
           <div className="min-w-0 space-y-7">
             {/* ZIP + radius live inside the Passport/Group setup panels for those modes. */}
-            <div className={`space-y-2 ${passportMode || groupMode ? "hidden" : ""}`}>
-              <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]" style={labelColor ? { color: labelColor } : undefined}>
-                {t("Your ZIP code")} <span className="text-[#B8BCC2]">{t("(optional)")}</span>
-              </p>
-              <div className="flex items-center gap-2">
-                <div className="flex flex-1 items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-1.5 focus-within:border-[#E01E26]">
-                  <Search className="h-5 w-5 shrink-0 text-[#6B7075]" />
-                  <Input
-                    data-testid="zip-input"
-                    value={zip}
-                    onChange={(e) => { const v = e.target.value.replace(/[^\d]/g, "").slice(0, 5); setZip(v); setCoords(null); if (v.length === 5) e.target.blur(); }}
-                    onKeyDown={(e) => e.key === "Enter" && spin()}
-                    placeholder="e.g. 10001"
-                    inputMode="numeric"
-                    className="border-0 bg-transparent px-1 text-lg font-semibold text-[#0E0E0E] shadow-none focus-visible:ring-0"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={useMyLocation}
-                  disabled={geoLoading || loading || spinning}
-                  data-testid="use-my-location-button"
-                  className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-70 ${(coords || geoLoading) ? "bg-[#E01E26] text-white hover:bg-[#B3141A]" : "border border-[#E2E4E7] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
-                >
-                  <LocateFixed className={`h-4 w-4 ${geoLoading ? "animate-pulse" : ""}`} />
-                  {geoLoading ? t("Locating…") : coords ? t("Using your location") : t("Use my location")}
-                </button>
-              </div>
-
-              <div className="rounded-2xl border border-[#E2E4E7] bg-white px-4 py-3" data-testid="radius-control">
-                <div className="mb-2 flex items-center justify-between">
-                  <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]">{t("Search radius")}</p>
-                  <span data-testid="radius-value" className="font-serif text-lg font-semibold text-[#E01E26]">
-                    {radius} <span className="text-sm text-[#6B7075]">mi</span>
-                  </span>
-                </div>
-                <Slider
-                  data-testid="radius-slider"
-                  value={[radius]}
-                  min={0}
-                  max={radiusMax}
-                  step={1}
-                  onValueChange={(v) => setRadius(v[0])}
-                  aria-label="Search radius in miles"
-                />
-                <div className="mt-1.5 flex justify-between font-sans text-[10px] font-bold uppercase tracking-wider text-[#B8BCC2]">
-                  <span>0 mi</span>
-                  <span>{radiusMax} mi</span>
-                </div>
-              </div>
-            </div>
+            <LocationRadiusPanel
+              hidden={passportMode || groupMode}
+              zip={zip} setZip={setZip} setCoords={setCoords} coords={coords}
+              onEnter={spin} useMyLocation={useMyLocation} geoLoading={geoLoading}
+              loading={loading} spinning={spinning}
+              radius={radius} setRadius={setRadius} radiusMax={radiusMax}
+              labelColor={labelColor}
+            />
 
             {/* All 8 tabs stay visible inside one box (4x2 grid). The old horizontal
                 scroller hid Explore/Stay off-screen at phone widths. */}
-            <div className={`grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-[#EDEEF0] p-1 ${passportMode || groupMode ? "hidden" : ""}`} data-testid="mode-toggle">
-              {MODE_TABS.map(({ key, label, Icon }) => (
-                <button
-                  key={key}
-                  data-testid={`mode-${key}`}
-                  onClick={() => { if (mode === key && !allMode) { setAllMode(true); setResult(null); setGroupPicks(null); } else { setAllMode(false); switchMode(key); } }}
-                  className={`flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold leading-none transition-colors ${mode === key && !allMode ? "bg-[#0E0E0E] text-white" : "text-[#3A3F45] hover:text-[#0E0E0E]"}`}
-                >
-                  <Icon className="h-4 w-4" />
-                  {label}
-                </button>
-              ))}
-            </div>
+            <ModeTabsGrid
+              hidden={passportMode || groupMode}
+              tabs={MODE_TABS} mode={mode} allMode={allMode}
+              onTab={(key) => { if (mode === key && !allMode) { setAllMode(true); setResult(null); setGroupPicks(null); } else { setAllMode(false); switchMode(key); } }}
+            />
 
             {/* In Passport/Group setup the chips live inside that panel, so the main
                 list is hidden — no scrolling up and back down again. */}
-            <div className={`mt-4 ${passportMode || groupMode ? "hidden" : ""}`}>
-              {allMode ? (
-                <div className="rounded-2xl border border-[#0E0E0E]/15 bg-[#0E0E0E] px-4 py-3" data-testid="any-mode-banner">
-                  <p className="font-sans text-xs font-bold uppercase tracking-wider text-[#F0A24E]">{t("Anything goes")}</p>
-                  <p className="mt-0.5 font-sans text-sm text-white">
-                    {t("No category — dealing from Food, Drinks, Bars & Desserts. Tap a tab to narrow it.")}
-                  </p>
-                </div>
-              ) : (
-              <>
-              <button
-                type="button"
-                data-testid="filters-toggle"
-                onClick={() => setFiltersOpen((o) => !o)}
-                className="flex w-full items-center justify-between gap-3 rounded-2xl border border-[#E2E4E7] bg-white px-4 py-3 text-left transition-colors hover:bg-[#F7F8F9]"
-              >
-                <span className="min-w-0">
-                  <span className="block font-sans text-xs font-bold uppercase tracking-wider text-[#6B7075]">
-                    {cuisineLabel}
-                  </span>
-                  <span className="mt-0.5 block truncate font-sans text-sm font-semibold text-[#0E0E0E]">
-                    {selectedCuisines.length ? selectedCuisines.join(", ") : t("Any type — tap to choose")}
-                  </span>
-                </span>
-                <ChevronDown className={`h-5 w-5 shrink-0 text-[#6B7075] transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
-              </button>
-
-              {filtersOpen && (
-            <Filters
-              cuisines={cuisineList}
-              cuisineGroups={activeCuisineGroups}
-              cuisineLabel={cuisineLabel}
-              selectedCuisines={selectedCuisines}
-              toggleCuisine={(c) => { toggle(setSelectedCuisines, selectedCuisines, c); setFiltersOpen(false); }}
+            <CuisineSection
+              hidden={passportMode || groupMode}
+              allMode={allMode} cuisineLabel={cuisineLabel} selectedCuisines={selectedCuisines}
+              filtersOpen={filtersOpen} setFiltersOpen={setFiltersOpen}
+              cuisineList={cuisineList} cuisineGroups={activeCuisineGroups}
+              onToggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
               labelColor={labelColor}
             />
-              )}
-              </>
-              )}
-            </div>
 
             <button
               type="button"
@@ -1265,124 +1023,19 @@ export default function Home() {
             </button>
 
             {!crawlMode && !passportMode && !groupMode && (
-              <div className="flex flex-wrap items-center gap-4">
-                <motion.button
-                  data-testid="spin-roulette-button"
-                  onClick={spin}
-                  disabled={spinning || loading}
-                  whileHover={{ scale: spinning || loading ? 1 : 1.03 }}
-                  whileTap={SPIN_TAP}
-                  className="inline-flex items-center gap-3 rounded-full border-2 border-[#0E0E0E] bg-[#E01E26] px-10 py-5 font-sans text-lg font-bold text-white shadow-lg shadow-[#E01E26]/25 transition-colors hover:bg-[#B3141A] disabled:opacity-70"
-                >
-                  <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
-                  {loading ? t("Finding spots…") : spinning ? t("Shuffling…") : passportMode ? t("Deal My Passport") : groupMode ? (light ? t("Pick 3 Spots") : t("Deal 3 Fates!")) : (light ? t("Shuffle the Deck") : t("Deal Your Fate!"))}
-                </motion.button>
-                {results.length > 0 && (
-                  <span className="font-sans text-sm text-[#6B7075]">
-                    {results.length} {results.length !== 1 ? t("spots nearby") : t("spot nearby")}
-                  </span>
-                )}
-                {weather && (
-                  <span
-                    data-testid="weather-chip"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-[#CFE0F5] bg-[#EEF5FE] px-3 py-1.5 font-sans text-xs font-bold text-[#245C97]"
-                  >
-                    {{ indoor: "🌧️", water: "🔥", snow: "❄️", outdoor: "☀️" }[weather.bias]}
-                    {t(weather.label)} {weather.temp_f}° ·{" "}
-                    {{ indoor: t("indoor picks"), water: t("water picks"), snow: t("snow picks"), outdoor: t("outdoor picks") }[weather.bias]}
-                  </span>
-                )}
-              </div>
+              <DealRow
+                spin={spin} spinning={spinning} loading={loading}
+                passportMode={passportMode} groupMode={groupMode} light={light}
+                resultsCount={results.length} weather={weather}
+              />
             )}
 
-            <div className="mt-2 rounded-3xl border border-[#E2E4E7] bg-white/95 p-4 shadow-sm backdrop-blur-sm" data-testid="modes-card">
-            <p className="mb-3 font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#E01E26]">{t("More ways to play")}</p>
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                data-testid="group-mode-toggle"
-                onClick={() => { setGroupMode((v) => { const n = !v; if (n) { setCrawlMode(false); setPassportMode(false); } return n; }); setResult(null); setGroupPicks(null); }}
-                className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${groupMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#0E0E0E] bg-white text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
-              >
-                <Users className="h-4 w-4" />
-                {t("Group mode")}
-                <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${groupMode ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
-                  <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${groupMode ? "translate-x-3" : ""}`} />
-                </span>
-              </button>
-
-              <button
-                type="button"
-                data-testid="crawl-mode-toggle"
-                onClick={() => { setCrawlMode((v) => { const n = !v; if (n) { setGroupMode(false); setPassportMode(false); } return n; }); if (!crawlMode) applyCrawlType(CRAWL_TYPES[0]); setResult(null); setGroupPicks(null); }}
-                className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${crawlMode ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-[#E01E26] bg-white text-[#E01E26] hover:bg-[#FCECEC]"}`}
-              >
-                <Beer className="h-4 w-4" />
-                {t("Pub Crawls & more")}
-                <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${crawlMode ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
-                  <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${crawlMode ? "translate-x-3" : ""}`} />
-                </span>
-              </button>
-
-              <button
-                type="button"
-                data-testid="passport-mode-toggle"
-                onClick={() => { setPassportMode((v) => { const n = !v; if (n) { setGroupMode(false); setCrawlMode(false); setAllMode(false); if (!PASSPORT_CATEGORIES.includes(mode)) switchMode("explore"); } return n; }); setMyPassports(readPassports()); setResult(null); setGroupPicks(null); }}
-                className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${passportMode ? "border-[#2E7D32] bg-[#2E7D32] text-white" : "border-[#2E7D32] bg-white text-[#2E7D32] hover:bg-[#E8F3E9]"}`}
-              >
-                <Stamp className="h-4 w-4" />
-                {t("Fate Passport")}
-                <span className={`ml-1 h-4 w-7 rounded-full p-0.5 transition-colors ${passportMode ? "bg-white/40" : "bg-[#D5D8DC]"}`}>
-                  <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${passportMode ? "translate-x-3" : ""}`} />
-                </span>
-              </button>
-
-              {/* Champions + Passport Wall stay paired on one line */}
-              <div className="flex items-center gap-2">
-                <Link
-                  to="/leaderboard"
-                  data-testid="crawl-champions-link"
-                  className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-[#F0A24E] bg-white px-4 py-2.5 text-sm font-bold text-[#B26A12] transition-colors hover:bg-[#FBF3E7]"
-                >
-                  <Trophy className="h-4 w-4" /> {t("Champions")}
-                </Link>
-
-                <Link
-                  to="/wall"
-                  data-testid="passport-wall-link"
-                  className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-[#2E7D32] bg-white px-4 py-2.5 text-sm font-bold text-[#2E7D32] transition-colors hover:bg-[#E8F3E9]"
-                >
-                  <Globe2 className="h-4 w-4" /> {t("Passport Wall")}
-                </Link>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Link
-                  to="/rituals"
-                  data-testid="fates-witnessed-link"
-                  className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-[#7A4DB2] bg-white px-4 py-2.5 text-sm font-bold text-[#5E3596] transition-colors hover:bg-[#F3EDFA]"
-                >
-                  <Sparkles className="h-4 w-4" /> {t("Fates Witnessed")}
-                </Link>
-
-                <Link
-                  to="/journal"
-                  data-testid="fate-journal-link"
-                  className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-[#B3141A] bg-white px-4 py-2.5 text-sm font-bold text-[#B3141A] transition-colors hover:bg-[#FCF4F4]"
-                >
-                  <BookOpen className="h-4 w-4" /> {t("Fate Journal")}
-                </Link>
-              </div>
-
-              <Link
-                to="/bingo"
-                data-testid="cuisine-bingo-link"
-                className="inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-[#B98A22] bg-white px-4 py-2.5 text-sm font-bold text-[#8F6A18] transition-colors hover:bg-[#FDF6E7]"
-              >
-                <Stamp className="h-4 w-4" /> {t("Cuisine Bingo")}
-              </Link>
-            </div>
-            </div>
+            <MoreWaysToPlay
+              groupMode={groupMode} crawlMode={crawlMode} passportMode={passportMode}
+              onToggleGroup={() => { setGroupMode((v) => { const n = !v; if (n) { setCrawlMode(false); setPassportMode(false); } return n; }); setResult(null); setGroupPicks(null); }}
+              onToggleCrawl={() => { setCrawlMode((v) => { const n = !v; if (n) { setGroupMode(false); setPassportMode(false); } return n; }); if (!crawlMode) applyCrawlType(CRAWL_TYPES[0]); setResult(null); setGroupPicks(null); }}
+              onTogglePassport={() => { setPassportMode((v) => { const n = !v; if (n) { setGroupMode(false); setCrawlMode(false); setAllMode(false); if (!PASSPORT_CATEGORIES.includes(mode)) switchMode("explore"); } return n; }); setMyPassports(readPassports()); setResult(null); setGroupPicks(null); }}
+            />
 
             {passportMode && (
               <PassportPicker
@@ -1449,23 +1102,7 @@ export default function Home() {
               />
             )}
 
-            {fatesDealt !== null && (
-              <div className="mt-4 inline-flex items-center gap-2 font-sans text-sm" data-testid="fates-dealt-counter" style={{ color: light ? "#6B7075" : (ambCfg ? ambCfg.sky : "rgba(255,255,255,0.72)") }}>
-                <Dices className="h-4 w-4" style={{ color: ambCfg ? ambCfg.accent : "#E01E26" }} />
-                <span><span className="font-bold" style={{ color: light ? "#0E0E0E" : (ambCfg ? ambCfg.sky : "#FFFFFF") }}>{fatesDealt.toLocaleString()}</span> {t("fates dealt")}</span>
-                {crawlsCompleted !== null && crawlsCompleted > 0 && (
-                  <span className="ml-3 inline-flex items-center gap-1.5" data-testid="crawls-completed-counter">
-                    <Trophy className="h-4 w-4" style={{ color: ambCfg ? ambCfg.accent : "#E01E26" }} />
-                    <span><span className="font-bold" style={{ color: light ? "#0E0E0E" : (ambCfg ? ambCfg.sky : "#FFFFFF") }}>{crawlsCompleted.toLocaleString()}</span> {t("crawls survived")}</span>
-                  </span>
-                )}
-                {streak >= 2 && (
-                  <span className="ml-3 inline-flex items-center gap-1.5 rounded-full bg-[#FCF4F4] px-3 py-1 text-[#E01E26]" data-testid="streak-badge">
-                    <Flame className="h-4 w-4" /><span className="font-bold">{streak} {t("day streak")}</span>
-                  </span>
-                )}
-              </div>
-            )}
+            <StatsRibbon fatesDealt={fatesDealt} crawlsCompleted={crawlsCompleted} streak={streak} light={light} ambCfg={ambCfg} />
           </div>
 
           {/* right: reveal stage */}
@@ -1503,55 +1140,12 @@ export default function Home() {
 
       {/* Nearby results */}
       {results.length > 0 && (
-        <section className="relative z-10 mx-auto max-w-6xl px-6 pb-24 pt-8 md:px-12">
-          {fateOfDay && !spinning && (
-            <div className="mb-8 flex items-center gap-4 rounded-2xl border-2 border-[#E6B23A] bg-gradient-to-r from-[#FDF6E7] to-white p-4" data-testid="fate-of-day-card">
-              {cardImage(fateOfDay) && (
-                <img src={cardImage(fateOfDay)} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover" />
-              )}
-              <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1.5 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-[#B98A22]">
-                  <Crown className="h-3.5 w-3.5" /> {t("Fate of the Day")}
-                </p>
-                <p className="truncate font-serif text-lg font-bold text-[#0E0E0E]">{fateOfDay.name}</p>
-                <p className="truncate font-sans text-xs text-[#6B7075]">
-                  {[fateOfDay.cuisine, fateOfDay.price, fateOfDay.distance != null ? `${fateOfDay.distance} ${t("mi away")}` : null].filter(Boolean).join(" · ")}
-                </p>
-              </div>
-              <button
-                onClick={() => { landFate(fateOfDay); window.scrollTo({ top: 0, behavior: "smooth" }); trackEvent("fate_of_day_deal", { theme }); }}
-                data-testid="fate-of-day-deal"
-                className="shrink-0 rounded-full bg-[#B98A22] px-4 py-2 font-sans text-xs font-bold text-white transition-colors hover:bg-[#8F6A18]"
-              >
-                {t("Deal me this")}
-              </button>
-            </div>
-          )}
-          <div className="flex items-end justify-between border-b border-[#E2E4E7] pb-4">
-            <h2 className="font-serif text-2xl font-medium tracking-tight text-[#0E0E0E] sm:text-3xl">
-              {t("Nearby spots")}
-            </h2>
-            <label className="flex items-center gap-2 font-sans text-xs font-bold text-[#6B7075]">
-              <ArrowDownWideNarrow className="h-4 w-4" />
-              <select
-                data-testid="sort-select"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="rounded-full border border-[#E2E4E7] bg-white px-3 py-1.5 font-bold text-[#0E0E0E] focus:outline-none"
-              >
-                <option value="default">{t("Featured")}</option>
-                <option value="distance">{t("Closest")}</option>
-                <option value="rating">{t("Top rated")}</option>
-                <option value="price">{t("Cheapest")}</option>
-              </select>
-            </label>
-          </div>
-          <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3" data-testid="restaurant-grid">
-            {sortedResults.slice(0, 6).map((r) => (
-              <RestaurantCard key={r.id} r={r} mode={mode} onReport={reportClosed} isFavorite={isFavorite(r)} onToggleFavorite={toggleFavorite} />
-            ))}
-          </div>
-        </section>
+        <NearbyResults
+          fateOfDay={fateOfDay} spinning={spinning}
+          onDealFateOfDay={(f) => { landFate(f); window.scrollTo({ top: 0, behavior: "smooth" }); trackEvent("fate_of_day_deal", { theme }); }}
+          sortBy={sortBy} setSortBy={setSortBy} sortedResults={sortedResults}
+          mode={mode} onReport={reportClosed} isFavorite={isFavorite} onToggleFavorite={toggleFavorite}
+        />
       )}
 
       <HomeInfoSections light={light} onSponsor={() => setSponsorOpen(true)} />

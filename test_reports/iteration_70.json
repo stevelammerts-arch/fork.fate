@@ -1,0 +1,26 @@
+{
+  "summary": "Frontend regression test after Home.jsx refactor + 2 new Realm Heist trophies (awakening/furnace). All 21 required Home testids render, no console errors. Deal flow with ZIP 10001 shuffles then reveals restaurant-grid with 6 cards + sort-select working. Mode switching (food->drinks->bars) works and double-tap-active shows any-mode-banner. Group mode toggle shows/hides group-picker. Steampunk collectibles: ff:golem-wake dispatch produces 2 golem-duet-flicker spans on the left golem's eyes during ~10s awakening on right golem (green head glow visible), then localStorage.ff_heists_seen gains 'awakening' + a 'Heist witnessed!' toast appears. ff:furnace-blast then records 'furnace' after ~5s. /rituals page shows trophy-awakening + trophy-furnace unlocked, trophy-count '2 / 25', heist-card-awakening 'The Awakening / STEAMPUNK' and heist-card-furnace 'Furnace Blast / STEAMPUNK' with full descriptions. /journal, /bingo, /leaderboard, /shop all HTTP 200 and render content. No crashes, no console errors detected during any flow.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Home (steampunk)", "issues": ["fate-of-day-card was not present in the DOM after Deal reveal on desktop steampunk viewport — likely gated by conditions (time-of-day / feature flag / result count). Not verified as broken but flagged since the spec listed it as expected."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Investigate whether fate-of-day-card should always appear after a successful Deal on ZIP 10001 (curated data) — during this run only restaurant-grid + sort-select + 6 cards appeared; fate-of-day-card / fate-of-day-deal were not found. May be intentional gating (already shown today?) but confirm."
+  ],
+  "critical_code_review_comments": [
+    "AmbianceScene.jsx is 1025 lines — approaching the 700-line soft ceiling. Consider splitting golem/scene-specific sub-blocks (useGolemWake, useFurnaceBlast, golem render tree) into separate modules for maintainability now that heist wiring lives here.",
+    "Home.jsx still 1157 lines post-refactor — good progress from 1564; further extract doSearch/runShuffle into a useShuffle hook to drop under 700."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "~95%"},
+  "seed_data_creation": "Used localStorage seeding only: ff_theme_chosen=1, ff_theme_hint_seen=1, ff_theme=dark|steam, ff_muted=1, and ff_heists_seen={awakening,furnace} for rituals verification.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Intro wizard still appears even when ff_theme_chosen/ff_theme_hint_seen are set — must click 'Skip intro' text button after reload. Golem events are desktop-only (>=640px). golem-duet-flicker uses data-testid (not class); querying '[data-testid=\"golem-duet-flicker\"]' returns 2 spans throughout the ~10s awakening. Awakening records at ~9.9s, furnace at ~5.2s. All Home testids present and integration-clean post-refactor.",
+  "rca of the issue": "n/a — no blocking issue found. Only open question is intended visibility of fate-of-day-card."
+}

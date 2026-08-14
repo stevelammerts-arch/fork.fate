@@ -72,6 +72,8 @@ export const HEISTS = [
   { key: "pursuit", name: "Hot Pursuit", realm: "Cyberscape", accent: "#4078FF", desc: "A police chase screams across the header under full siren, doubles back — and the fleeing car slams nose-first into the medallion, knocking it clean off the screen." },
   { key: "tow", name: "Tow Job", realm: "Cyberscape", accent: "#E0A422", desc: "The rarest ending to the Hot Pursuit: a hover wrecker floats down, hooks the smoking wreck by the nose, and hauls it off into the skyline — beacon blinking all the way." },
   { key: "stash", name: "Winter Stash", realm: "Fall", accent: "#B5651D", desc: "The squirrel checks both ways and stuffs one acorn too many behind the medallion — which bursts clean off as its entire hidden cache tumbles to the ground." },
+  { key: "awakening", name: "The Awakening", realm: "Steampunk", accent: "#7CE08A", desc: "The sleeping sentinel on the right stirs — head rising, eyes burning green — takes one thundering step forward, retreats, and powers back down to sleep." },
+  { key: "furnace", name: "Furnace Blast", realm: "Steampunk", accent: "#FF7A2B", desc: "The left sentinel's inner gears grind, his belly grate surges white-hot — then a roaring stream of fire, sparks and embers spews across the workshop." },
 ];
 
 export function readHeistsSeen() {

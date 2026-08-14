@@ -62,9 +62,14 @@
 
 ## Phase 4 (previously "Deferred") — DEFERRED
 - Auto-activate sponsors on PayPal payment: requires PayPal REST API Client ID + Secret (currently manual PayPal.Me/QR). ASK USER for keys to build.
-- Home.jsx refactor: still ~1,806 lines (grew this session with crisis-hotlines block). Dedicated low-risk pass, test after.
+- Home.jsx refactor: DONE 2026-02 fork (1564 -> 1157 lines; extracted components/home/* + lib/sound.js + lib/geo.js + hooks/useShareTarget.js; regression-tested iter70). Optional further pass: extract doSearch/runShuffle into a useShuffle hook.
 - Sponsor social card auto-email on subscription activation (route exists; just needs the mailer hook).
 - Sponsor-status page download buttons for the 3 social card formats.
 
 ## Update 2026-06
 - PayPal self-serve sponsor subscriptions: CODE-COMPLETE (frontend verified iter31). Pending user setup: add PAYPAL_SECRET + PAYPAL_WEBHOOK_ID to backend/.env, create PayPal webhook. Then full E2E test. Live requires PayPal Business account (currently sandbox-only).
+
+## Update 2026-02 (fork)
+- Collectible Fates: DONE — golem awakening + furnace blast unlock 'The Awakening' and 'Furnace Blast' trophies on /rituals (25 total).
+- Golem Duet: DONE — left golem's ember eyes flicker while the right brother awakens.
+- Remaining backlog: Seasonal events (limited-time realm takeovers w/ exclusive rituals); IARC rating ID for manifest (user hasn't received it yet); optional useShuffle hook extraction.
