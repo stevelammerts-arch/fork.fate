@@ -528,6 +528,26 @@ body {
   100% { transform: translateY(0); }
 }
 
+/* Workshop lamps flick between dim and lit */
+@keyframes ffLampBlink{
+  0%,100% { opacity: .2; }
+  50%     { opacity: 1; }
+}
+/* The half-built robot's one working eye flutters on and off */
+@keyframes ffEyeFlutter{
+  0%   { opacity: 0; }
+  6%   { opacity: .9; }
+  10%  { opacity: .1; }
+  15%  { opacity: .8; }
+  22%  { opacity: 0; }
+  46%  { opacity: 0; }
+  51%  { opacity: .7; }
+  55%  { opacity: .15; }
+  62%  { opacity: .9; }
+  70%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+
 /* Furnace blast jet: roars out of the grate, gutters, dies back */
 @keyframes ffFurnaceJet{
   0%   { transform: scaleX(0.05) scaleY(0.35); opacity: 0; }

@@ -208,7 +208,7 @@ function useCoverAnchor(natW, natH) {
 
 export const AMBIANCE = {
   cyber: { grad: "linear-gradient(180deg,#070A16 0%,#0C1030 46%,#160A28 100%)", skyline: "/cyber-skyline.png", neon: "/cyber-neon-logo.png", cars: "/cyber-car.png", cars2: "/cyber-car2.png", spinner: "/cyber-spinner-suv.png", bus: "/cyber-bus.png", bus2: "/cyber-bus2.png", saucer: "/cyber-saucer-mech.png", saucerFront: "/cyber-saucer-mech-front.png", rain: true, accent: "#22E0E0", sky: "#C77DFF" },
-  steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall-full.png", golemLeft: "/steam-golem-left.png?v=462", golemRight: "/steam-golem-right.png?v=462", device: "/steam-arc-device.png", steam: true, roofCables: true, floor: true, accent: "#D9A44E", sky: "#F1D9A6" },
+  steam: { grad: "linear-gradient(180deg,#17100A 0%,#241708 55%,#130C06 100%)", wall: "/steam-wall-full.png", golemLeft: "/steam-golem-left.png?v=462", golemRight: "/steam-golem-right.png?v=462", steam: true, roofCables: true, floor: true, accent: "#D9A44E", sky: "#F1D9A6" },
   tiki:  { grad: "linear-gradient(180deg,#2A140A 0%,#3A1C0E 46%,#180D07 100%)", lounge: "/tiki-lounge-full.png", accent: "#F0A24E", sky: "#FBE3C0" },
   fantasy: { grad: "linear-gradient(180deg,#1A0E08 0%,#120A06 55%,#080503 100%)", hoard: "/fantasy-cave.jpg", accent: "#E6B23A", sky: "#F3D9A0" },
   fairy: { grad: "linear-gradient(180deg,#0B1F14 0%,#123024 50%,#081710 100%)", gully: "/fairy-gully.png", accent: "#5EE0A8", sky: "#CFF5DC" },
@@ -862,19 +862,27 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           </div>
         </div>
       )}
-      {cfg.device && (
-        <div className="absolute bottom-0 left-[-7%] z-[3] h-[40vh] sm:left-auto sm:right-[3%] sm:h-[46vh]" style={{ aspectRatio: "545 / 970", transform: "scaleX(-1)" }}>
-          <img src={cfg.device} alt="" className="absolute inset-0 h-full w-full object-contain opacity-90" />
-          <div className="absolute" style={{ left: "43.5%", width: "12.5%", top: "2%", height: "22%" }}>
-            <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(120,210,255,0.22), rgba(120,210,255,0) 70%)", animation: "ffArcGlow 0.13s steps(2,end) infinite" }} />
-            <div className="absolute inset-x-0 top-0" style={{ height: "24%", animation: "ffArcClimb 1.7s ease-in-out infinite" }}>
-              <svg viewBox="0 0 40 12" preserveAspectRatio="none" className="h-full w-full" style={{ overflow: "visible" }}>
-                <polyline points="0,6 6,2 13,9 20,3 27,10 34,4 40,7" fill="none" stroke="#CBF3FF" strokeWidth="1" strokeLinejoin="round" strokeLinecap="round" style={{ filter: "drop-shadow(0 0 2px #4CC8FF) drop-shadow(0 0 5px #7A5CFF)", animation: "ffArcFlicker 0.1s steps(2,end) infinite" }} />
-              </svg>
-            </div>
-          </div>
+      {/* WORKSHOP PROPS: valve pedestal (L), robot on assembly rack (M), alchemy bench (R) */}
+      {cfg.golemLeft && [
+        { src: "/steam-valve-pedestal.png?v=491", ar: "433 / 735", cls: "left-[calc(50%-32vh)] h-[28vh]", tid: "steam-valve-pedestal",
+          lamps: [{ x: 50, y: 54, c: "#FF5540", d: 1.8, dl: 0.2 }, { x: 50, y: 61, c: "#FFB03A", d: 2.4, dl: 0.8 }, { x: 50, y: 68, c: "#7CE08A", d: 2.0, dl: 1.4 }] },
+        { src: "/steam-robot-rack.png?v=490", ar: "558 / 742", cls: "left-1/2 -translate-x-1/2 h-[27vh]", tid: "steam-robot-rack",
+          lamps: [{ x: 75, y: 60, c: "#FFB03A", d: 2.1, dl: 0.3 }, { x: 77, y: 66, c: "#FF5540", d: 1.7, dl: 0.9 }],
+          eye: { x: 30.5, y: 16.5 } },
+        { src: "/steam-alchemy-bench.png?v=491", ar: "966 / 765", cls: "left-[calc(50%+15vh)] h-[25.5vh]", tid: "steam-alchemy-bench",
+          lamps: [{ x: 36, y: 57, c: "#FFB03A", d: 1.6, dl: 0 }, { x: 48, y: 59, c: "#FF5540", d: 2.3, dl: 0.5 }, { x: 60, y: 60, c: "#FFB03A", d: 1.9, dl: 1.1 }] },
+      ].map((p) => (
+        <div key={p.tid} className={`absolute bottom-[0.5vh] z-[3] hidden sm:block ${p.cls}`} style={{ aspectRatio: p.ar }} data-testid={p.tid}>
+          <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.5vh", width: "90%", height: "2.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.65), rgba(0,0,0,0) 68%)" }} />
+          <img src={p.src} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 5px 8px rgba(0,0,0,0.5)) brightness(0.94)" }} />
+          {p.lamps.map((L, li) => (
+            <span key={`lamp-${li}`} className="absolute rounded-full" style={{ left: `${L.x}%`, top: `${L.y}%`, width: "5%", aspectRatio: "1", background: `radial-gradient(circle, ${L.c}, transparent 70%)`, mixBlendMode: "screen", filter: "blur(1px)", animation: `ffLampBlink ${L.d}s steps(2, jump-none) ${L.dl}s infinite` }} />
+          ))}
+          {p.eye && (
+            <span className="absolute rounded-full" data-testid="rack-robot-eye" style={{ left: `${p.eye.x}%`, top: `${p.eye.y}%`, width: "4.5%", aspectRatio: "1", background: "radial-gradient(circle, rgba(140,255,180,0.95), rgba(80,220,140,0.4) 55%, transparent 75%)", mixBlendMode: "screen", filter: "blur(0.5px)", boxShadow: "0 0 8px 2px rgba(90,230,150,0.5)", animation: "ffEyeFlutter 6.5s linear infinite" }} />
+          )}
         </div>
-      )}
+      ))}
       {cfg.roofCables && STEAM_CABLES.map((c, i) => (
         <div key={`cable-${i}`} className="absolute top-0 z-[3]" style={{ left: c.left, width: c.w, height: `${c.h}vh`, transformOrigin: "top center", animation: `ffCableSway ${c.dur}s ease-in-out ${c.delay}s infinite`, "--sw": `${c.sway}deg` }}>
           <div className="h-full w-full rounded-b-full" style={{ background: "linear-gradient(90deg,#0E0A06 0%,#3A2818 42%,#6B4A2A 50%,#3A2818 58%,#0E0A06 100%)", boxShadow: "0 1px 3px rgba(0,0,0,0.6)" }} />
@@ -953,10 +961,15 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           <div className="absolute inset-x-0 top-[46%] h-px" style={{ background: "rgba(0,0,0,0.5)" }} />
           <div className="absolute inset-x-0 top-0 h-[3px]" style={{ background: "linear-gradient(90deg, transparent, rgba(217,164,78,0.55) 20%, rgba(240,200,120,0.7) 50%, rgba(217,164,78,0.55) 80%, transparent)" }} />
           <div className="absolute inset-x-0 top-[3px] h-[10px]" style={{ background: "linear-gradient(180deg, rgba(217,164,78,0.22), transparent)" }} />
-          {/* Plague doctor mask abandoned on the dusty floor, soft ground shadow */}
-          <div className="absolute" data-testid="steam-mask-prop" style={{ left: "52%", bottom: "1.4vh" }}>
+          {/* Plague doctor mask abandoned on the floor in front of the alchemy desk (now right side) */}
+          <div className="absolute" data-testid="steam-mask-prop" style={{ left: "calc(50% + 24vh)", bottom: "0.9vh" }}>
             <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.5vh", width: "14vh", height: "2vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.55), rgba(0,0,0,0) 70%)" }} />
-            <img src="/steam-mask-floor.png" alt="" className="relative object-contain" style={{ width: "13vh" }} />
+            <img src="/steam-mask-floor.png" alt="" className="relative object-contain" style={{ width: "12vh" }} />
+          </div>
+          {/* Brass goggles set down on the ground in front of the half-built robot */}
+          <div className="absolute" data-testid="steam-goggles-prop" style={{ left: "48.5%", bottom: "0.8vh", transform: "rotate(-6deg)" }}>
+            <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.4vh", width: "9vh", height: "1.4vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.6), rgba(0,0,0,0) 70%)" }} />
+            <img src="/steam-goggles-shelf.png" alt="" className="relative object-contain" style={{ width: "7.5vh", filter: "drop-shadow(0 3px 4px rgba(0,0,0,0.8)) brightness(1.18)" }} />
           </div>
         </div>
       )}

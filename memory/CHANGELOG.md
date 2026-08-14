@@ -766,3 +766,20 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   body/white-hot core, ffFurnaceJet 3.1s roar-gutter-die) + 10 sparks + 4 embers
   flying on per-particle --sx/--sy vectors (ffSparkFly). testids
   furnace-blast-surge / furnace-blast-jet. Verified via forced event screenshot.
+
+## 2026-02 (fork) — Workstation final layout, shrink + room grade (FF_BUILD 483-484)
+- SWAP DONE (user msg): valve pedestal now LEFT of robot rack, alchemy bench RIGHT.
+  Sprites verified already white-free (prev fork's cleanup landed); "white" user saw
+  was stale PWA cache — all prop srcs cache-busted (?v=490/491).
+- Rack robot's fluttering green eye glow re-aligned onto the actual eye
+  (x 47->30.5%, y 16->16.5% — old coords floated beside the head).
+- SHRINK (user: "1/3 smaller"): valve 42->28vh @ left-[calc(50%-32vh)]; bench
+  38->25.5vh @ left-[calc(50%+15vh)]; robot rack "size of other 2" -> 27vh.
+- ROOM GRADE: scripts/grade_workstations.py — luminance duotone (shadow 26,18,11 ->
+  highlight 214,168,106) blended 42% + 0.96 darken over valve+bench PNGs; warm
+  bronze now matches wall (room avg 55,40,26).
+- REMOVED: jacob's ladder arc table — `device:` key deleted from steam cfg and the
+  whole cfg.device render block (arc SVG/glow) deleted. /steam-arc-device.png kept
+  on disk but unreferenced.
+- Mask prop follows the bench (left calc(50%+24vh)); goggles stay in front of robot.
+  Verified via scenery-mode screenshots + bounding boxes at 1920x800. FF_BUILD 484.
