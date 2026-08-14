@@ -421,7 +421,7 @@ function useGolemWake(enabled) {
   useEffect(() => {
     if (!enabled) return undefined;
     ["/steam-golem-right-awake.png", "/steam-golem-right-step.png"].forEach((s) => { const im = new Image(); im.src = s; });
-    preloadHeistAudio(["/golem-wake-up.mp3", "/golem-step-forward.mp3", "/golem-step-back.mp3"]);
+    preloadHeistAudio(["/golem-wake-up.mp3", "/golem-step-forward.mp3", "/golem-step-back.mp3", "/golem-power-down.mp3"]);
     let timers = [];
     let pending;
     const schedule = (min, spread) => { pending = setTimeout(run, min + Math.random() * spread); };
@@ -437,7 +437,10 @@ function useGolemWake(enabled) {
         setPh(3);
         playHeistSound("/golem-step-back.mp3", 0.55);
       }, 4800));
-      timers.push(setTimeout(() => setPh(4), 7000));             // head lowers, eyes die out
+      timers.push(setTimeout(() => {                             // head lowers, eyes die out
+        setPh(4);
+        playHeistSound("/golem-power-down.mp3", 0.5);
+      }, 7000));
       timers.push(setTimeout(() => { setPh(0); schedule(180000, 150000); }, 8600));
     };
     schedule(45000, 40000);

@@ -722,3 +722,7 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   golem-step-back.mp3. Played via warm preloadHeistAudio bank at phases 1/2/3 of
   useGolemWake (vol 0.5/0.55/0.55), honoring ff_muted. Verified files serve 200 via
   preview URL, wake fired visually, no console audio errors.
+
+## 2026-06 — Power-down sound (FF_BUILD 471)
+- User's power down.mp3 -> public/golem-power-down.mp3, played at wake phase 4
+  (head lowers, eyes die out) vol 0.5, preloaded in the warm bank. Verified 200.
