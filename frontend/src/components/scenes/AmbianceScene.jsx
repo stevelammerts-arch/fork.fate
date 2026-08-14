@@ -627,10 +627,20 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       </>)}
       {cfg.gears && <img src={cfg.gears} alt="" className="absolute bottom-[9vh] right-[9%] z-[2] w-[26vw] max-w-[190px] object-contain opacity-55" style={{ animation: "ffSpin 22s linear infinite" }} />}
       {cfg.golemLeft && (
-        <div className="absolute bottom-0 left-[-10%] z-[4] h-[72vh] sm:left-[-3%] sm:h-[112vh]" style={{ aspectRatio: "684 / 1222" }} data-testid="steam-golem-left">
+        <div className="absolute bottom-0 left-[-10%] z-[4] h-[72vh] sm:left-[-3%] sm:h-[78vh]" style={{ aspectRatio: "684 / 1222" }} data-testid="steam-golem-left">
           {/* soft ground shadow so the sleeping sentinel sits on the floor */}
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.6vh", width: "88%", height: "3.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.7), rgba(0,0,0,0) 68%)" }} />
           <img src={cfg.golemLeft} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} />
+          {/* ember eyes: smolder like the furnace in his belly */}
+          {[
+            { cx: 75.5, cy: 16.5, s: 6.4 },
+            { cx: 82, cy: 18, s: 5.8 },
+          ].map((e, ei) => (
+            <div key={`eye-${ei}`} className="absolute" data-testid="golem-eye-glow" style={{ left: `${e.cx - e.s / 2}%`, top: `${e.cy - e.s * 0.28}%`, width: `${e.s}%`, aspectRatio: "1" }}>
+              <span className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle, rgba(255,170,60,0.8) 0%, rgba(255,110,25,0.42) 40%, rgba(200,60,10,0.14) 65%, transparent 80%)", mixBlendMode: "screen", filter: "blur(1px)", animation: "ffFurnaceSmolder 3.1s ease-in-out infinite" }} />
+              <span className="absolute rounded-full" style={{ left: "32%", top: "32%", width: "36%", height: "36%", background: "radial-gradient(circle, rgba(255,232,150,0.95), rgba(255,160,60,0.5) 60%, transparent 80%)", mixBlendMode: "screen", animation: "ffFurnaceSmolder 2.2s ease-in-out -1.1s infinite" }} />
+            </div>
+          ))}
           {/* smoldering furnace: embers breathing behind the belly grate */}
           <div className="absolute" style={{ left: "54%", top: "37.5%", width: "25%", height: "13.5%" }} data-testid="golem-furnace-glow">
             <div className="absolute inset-0" style={{ borderRadius: "42%", background: "radial-gradient(ellipse at 50% 55%, rgba(255,120,30,0.5), rgba(220,70,15,0.28) 48%, rgba(160,40,8,0.12) 70%, transparent 86%)", mixBlendMode: "screen", filter: "blur(3px)", animation: "ffFurnaceSmolder 3.4s ease-in-out infinite" }} />
@@ -639,7 +649,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           {/* black/gray coal smoke curling out of the stacks behind his head */}
           {[
             { left: "41%", top: "-3%", scale: 1 },
-            { left: "64%", top: "2.5%", scale: 0.85 },
+            { left: "64%", top: "0.5%", scale: 0.85 },
           ].map((s, si) => (
             <div key={`stack-${si}`} className="absolute" style={{ left: s.left, top: s.top }} data-testid="golem-stack-smoke">
               {[0, 1, 2, 3, 4].map((i) => (
@@ -650,9 +660,21 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
         </div>
       )}
       {cfg.golemRight && (
-        <div className="absolute bottom-0 right-[-4%] z-[3] hidden h-[112vh] sm:block" style={{ aspectRatio: "696 / 1180" }} data-testid="steam-golem-right">
+        <div className="absolute bottom-0 right-[-3%] z-[3] hidden h-[78vh] sm:block" style={{ aspectRatio: "696 / 1180" }} data-testid="steam-golem-right">
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.6vh", width: "88%", height: "3.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.7), rgba(0,0,0,0) 68%)" }} />
           <img src={cfg.golemRight} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.55)) brightness(0.92)" }} />
+          {/* white steam wisps venting from his three back stacks */}
+          {[
+            { left: "35%", top: "0.5%", scale: 0.9 },
+            { left: "60%", top: "0.5%", scale: 1 },
+            { left: "68.5%", top: "2.5%", scale: 0.75 },
+          ].map((s, si) => (
+            <div key={`vent-${si}`} className="absolute" style={{ left: s.left, top: s.top }} data-testid="golem-stack-steam">
+              {[0, 1, 2, 3].map((i) => (
+                <span key={`wisp-${i}`} className="absolute rounded-full" style={{ width: `${(3.6 + i * 0.55) * s.scale}vh`, height: `${(3.6 + i * 0.55) * s.scale}vh`, background: "radial-gradient(circle, rgba(252,250,244,0.75), rgba(236,233,226,0.42) 50%, rgba(220,217,210,0.18) 68%, transparent 80%)", filter: "blur(2px)", animation: `${i % 2 ? "ffGolemSmokeB" : "ffGolemSmoke"} ${4.2 + i * 0.65}s ease-out ${i * 1.05 + si * 0.4}s infinite` }} />
+              ))}
+            </div>
+          ))}
         </div>
       )}
       {cfg.device && (

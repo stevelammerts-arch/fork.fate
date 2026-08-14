@@ -661,3 +661,22 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 ## 2026-06 — Smoke anchor nudge (FF_BUILD 456)
 - Left stack smoke raised (top 1% -> -1.5%); right stack smoke moved right
   (55.5% -> 58.5%). Verified via mobile zoom screenshot.
+
+## 2026-06 — Golem polish round: steam, feet, ember eyes (FF_BUILD 457-460)
+- RIGHT GOLEM WHITE STEAM: 3 vents at his back stacks (35%/0.5%, 60%/0.5%,
+  68.5%/2.5% of box), 4 white wisps each reusing ffGolemSmoke/B lanes.
+  data-testid golem-stack-steam.
+- LEFT SMOKE ANCHORS (user-tuned over several rounds): (41%, -3%) and (64%, 0.5%)
+  — the second aligned to the user-marked stack mouth at (64%, 4.5%).
+- FEET CLEANUP (user: "paint those pixels black"): after several removal attempts
+  (edge flood, ground-side kill, luminance rolloff — mauve-cast attempt REVERTED
+  via git checkout bb4c0bc), final approach paints all pale low-chroma px
+  (lum>100, chroma<58) in the bottom 16% sooty near-black (26,20,15). Verified
+  0 matching px after save on both sprites.
+- EMBER EYES (left golem): two screen-blended amber glows on the eye lenses at
+  (75.5%, 16.5%) and (82%, 18%) with bright cores, flickering via ffFurnaceSmolder
+  like the belly fire. data-testid golem-eye-glow.
+- DESKTOP SIZE: 84vh still hid plumes behind the 145px header -> FINAL 78vh both
+  golems (mobile stays 72vh, left only). Stacks + plumes now clear the header.
+- Verified via zoomed desktop screenshots (eyes aligned + glowing, furnace grate
+  lit, right golem full view with stacks).

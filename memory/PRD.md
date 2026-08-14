@@ -2843,3 +2843,8 @@ inside playHeistSound).
 ## 2026-08-14 part 104: Stack smoke boost (FF_BUILD 455)
 - Re-anchored smoke to the user-marked stacks and strengthened it (5 puffs/stack,
   higher opacity, two drift lanes). Verified via zoom screenshots.
+
+## 2026-08-14 part 105: Golem steam/eyes/feet final (FF_BUILD 460)
+- White steam on right golem's 3 stacks; left golem ember eyes glowing like his
+  furnace; pale feet pixels painted sooty black; desktop golems final at 78vh so
+  stacks/plumes clear the header. All verified via zoom screenshots.
