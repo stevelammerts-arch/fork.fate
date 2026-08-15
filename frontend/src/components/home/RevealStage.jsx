@@ -10,6 +10,7 @@ import { FateActionsDropdown } from "../FateActionsDropdown";
 import { CouponReveal } from "./CouponReveal";
 import { ChainCouponStrip } from "./ChainCouponStrip";
 import { ReactionBar } from "./ReactionBar";
+import { useVisibilityRescue } from "../../hooks/useVisibilityRescue";
 import { ScratchCover, ThemeCardFrame } from "./ScratchCover";
 import { FairyWand } from "./FairyWand";
 import { HackTerminal } from "./HackTerminal";
@@ -40,6 +41,9 @@ import { trackEvent } from "../../lib/analytics";
 export default function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, theme, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite, onDare, dareAvailable, locked, rerollsLeft = 0, onSwipeReroll, surprise = null, onSurpriseDone, onDuel }) {
   const { t } = useLang();
   const [confirmingDare, setConfirmingDare] = useState(false);
+  // Rescue: if the phone froze animation frames (live Dragon's Hoard bug),
+  // force the reveal card visible shortly after each new card mounts.
+  const revealRescueRef = useVisibilityRescue(700, result ? result.id : null);
   // Themed flourish: one-shot burst over the card while the reveal sound
   // plays (steam, snow, petals, leaves, fireflies, sparkles, fire wall) —
   // re-fires per revealed place, and after a rare ritual unveils.
@@ -138,6 +142,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
     <AnimatePresence mode="wait">
       <motion.div
         key={`res-${card.id}`}
+        ref={revealRescueRef}
         initial={{ opacity: 0, scale: 0.96, rotate: -2 }}
         animate={{ opacity: 1, scale: 1, rotate: 0 }}
         exit={{ opacity: 0, scale: 0.98 }}

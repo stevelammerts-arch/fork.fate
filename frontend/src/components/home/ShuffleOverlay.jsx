@@ -1,14 +1,18 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ShufflingDeck } from "../ShufflingDeck";
+import { useVisibilityRescue } from "../../hooks/useVisibilityRescue";
 
 /** Full-screen shuffle pop-up: dark-mode drifting mist + the riffling deck.
  * Extracted verbatim from Home.jsx (2026-02 split). */
 export function ShuffleOverlay({ open, light, flash, flashHit, cards, theme, season, seasonItems, seasonAccent }) {
+  // Rescue: if the phone froze animation frames, force the overlay visible.
+  const rescueRef = useVisibilityRescue(700);
   return (
     <AnimatePresence>
       {open && (
         <motion.div
           key="shuffle-popup"
+          ref={rescueRef}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

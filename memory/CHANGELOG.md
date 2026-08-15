@@ -904,3 +904,28 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   darkened harder to kill tan haze under feet. ALL steam sprites treated
   (golems, 3 pose frames, rack, alert, arm, valve, bench). All ?v=501-503.
 - FF_BUILD 503. User must REDEPLOY to push to fork-fate.com.
+
+## 2026-02 (fork) — Invisible shuffle/reveal watchdog (FF_BUILD 504)
+- LIVE BUG (Dragon's Hoard, installed app, happened once): sound played and the
+  result eventually appeared but the shuffle + reveal visuals never showed.
+  Diagnosis: framer-motion entrances start at inline opacity 0 and rely on
+  rAF; Samsung power management can throttle rAF in WebAPKs -> animation
+  freezes at opacity 0 while audio/timeouts run on. Could not repro in preview
+  (both verified visible at 390px).
+- FIX: hooks/useVisibilityRescue.js — 1.5s after mount (re-armed per card id),
+  if computed opacity < 0.5 the element is forced visible (opacity 1,
+  transform none). Wired into ShuffleOverlay's root motion.div and
+  RevealStage's card motion.div (hook placed above early returns to satisfy
+  rules-of-hooks). No-op in normal operation — e2e verified.
+
+## 2026-02 (fork) — Invisible shuffle/reveal: hardened watchdog (FF_BUILD 504-505)
+- 2nd live report (friend, Winter realm, intermittent) confirmed systemic:
+  heavy realm scenes starve rAF on phones -> framer entrances freeze at
+  opacity 0 while audio/timers continue (CSS animations unaffected).
+- hooks/useVisibilityRescue.js: polls (first 700ms, then every 900ms, 8x),
+  stops once seen visible (protects exit fades), forces opacity/transform
+  with setProperty(..., "important") because framer re-applies its frozen
+  plain inline value on every re-render (name-cycle re-renders every ~100ms).
+- Wired: ShuffleOverlay root (data-testid shuffle-popup) + RevealStage card
+  (re-armed per result.id). Adversarial test passed: interval writing
+  opacity 0 every 120ms could not keep it hidden; normal flow untouched.
