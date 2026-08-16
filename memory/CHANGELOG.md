@@ -1298,3 +1298,17 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - MoreWaysToPlay card: solid gold gradient -> frosted translucent
   (bg-[#FBEED3]/55 + backdrop-blur-md), matching the solo window's glass
   treatment while keeping the gold border/glow identity.
+
+## 2026-02 (fork) — Heartbeat rework: event-driven accelerating drumroll (FF_BUILD 544)
+- New shared hook /app/frontend/src/hooks/useHeartbeat.js: starts at 840ms
+  cycle, tightens 10% per beat to 430ms floor; single shared Audio, ramping
+  playbackRate (max 2.06), vol .3, mute-watched, pointerdown autoplay retry;
+  haptics per beat ([24,~p*.27,16] slow / [15,110,12] fast).
+- DealRow: idle pulse REMOVED (pulse prop deleted from Home). Heartbeat now
+  runs only while spinning||loading — starts on shuffle press, accelerates,
+  cuts at reveal.
+- RevealStage: first tap on a covered rare fate card (onPointerDownCapture on
+  the card wrapper) starts the same accelerating heartbeat + ffHeartbeat
+  animation on the card, stopping when the ritual unveils (cardTapped reset
+  when isCovered clears).
+- Verified acceleration live: 0.68s -> 0.61s -> 0.50s -> 0.43s during shuffle.

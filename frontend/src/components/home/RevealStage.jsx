@@ -37,6 +37,7 @@ import { useLang } from "../../i18n/i18n";
 import { RESULT_SPRING, DETAIL_INITIAL, DETAIL_ANIMATE, DETAIL_TRANSITION, reaperLineFor, fairyLineFor, lightLineFor, supportsDelivery, cardImage } from "../../pages/homeConstants";
 import { buildFateCard } from "../../pages/homeFateCard";
 import { trackEvent } from "../../lib/analytics";
+import { useHeartbeat } from "../../hooks/useHeartbeat";
 
 export default function RevealStage({ spinning, flash, deck, result, groupPicks, mode, light, theme, onReset, onReSpin, onReport, onPick, isFavorite, onToggleFavorite, onDare, dareAvailable, locked, rerollsLeft = 0, onSwipeReroll, surprise = null, onSurpriseDone, onDuel }) {
   const { t } = useLang();
@@ -50,6 +51,12 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   // (Hooks live above the early returns to keep hook order stable.)
   const RARE_COVERS = ["scratch", "8ball", "wheel", "wand", "hack", "code", "crank", "shaker", "volcano", "tarot", "coffin", "seance", "ouija", "eye", "chest", "leaves", "bloom", "melon", "globe", "latte"];
   const isCovered = RARE_COVERS.includes(surprise);
+  // HEARTBEAT DRUMROLL: the first tap on a covered fate card starts the
+  // accelerating heartbeat (sound + slight haptics), racing until the
+  // ritual unveils the pick.
+  const [cardTapped, setCardTapped] = useState(false);
+  useEffect(() => { if (!isCovered) setCardTapped(false); }, [isCovered]);
+  const hbPeriod = useHeartbeat(isCovered && cardTapped);
   const resultId = result ? result.id : null;
   const [steaming, setSteaming] = useState(false);
   useEffect(() => {
@@ -150,7 +157,11 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
         className="relative rounded-2xl"
         data-testid="spin-result-card"
       >
-        <div className="overflow-hidden rounded-2xl">
+        <div
+          className="overflow-hidden rounded-2xl"
+          onPointerDownCapture={() => { if (covered) setCardTapped(true); }}
+          style={{ animation: covered && cardTapped ? `ffHeartbeat ${hbPeriod}ms ease-in-out infinite` : "none" }}
+        >
         <motion.div
           className={`relative overflow-hidden rounded-2xl transition-[height] duration-300 ${covered ? "h-[26rem]" : "h-64"}`}
           data-testid="reveal-photo-header"
