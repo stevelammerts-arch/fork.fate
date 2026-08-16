@@ -1119,8 +1119,8 @@ body {
    (alternate reverses each pass), a steps() flip so the sprite faces its
    travel direction, and a rapid little gallop bounce */
 @keyframes ffRatRun{
-  0%{ transform: translateX(13vw); }
-  100%{ transform: translateX(82vw); }
+  0%{ transform: translateX(3vw); }
+  100%{ transform: translateX(88vw); }
 }
 @keyframes ffRatFace{
   0%,49.99%{ transform: scaleX(1); }

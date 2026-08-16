@@ -1003,6 +1003,14 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           <img src="/steam-arm-left.png?v=508" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.5)) brightness(0.92)" }} />
         </div>
       )}
+      {/* Plague doctor mask abandoned on the floor NEXT TO THE PUMP (top-level
+          z-3 so the rack's frame post can't draw over it; desktop-only) */}
+      {cfg.golemLeft && (
+        <div className="absolute z-[3] hidden sm:block" data-testid="steam-mask-prop" style={{ left: "calc(50% - 56vh)", bottom: "0.9vh" }}>
+          <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.5vh", width: "14vh", height: "2vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.55), rgba(0,0,0,0) 70%)" }} />
+          <img src="/steam-mask-floor.png" alt="" className="relative object-contain" style={{ width: "12vh" }} />
+        </div>
+      )}
       {cfg.roofCables && STEAM_CABLES.map((c, i) => (
         <div key={`cable-${i}`} className="absolute top-0 z-[3]" style={{ left: c.left, width: c.w, height: `${c.h}vh`, transformOrigin: "top center", animation: `ffCableSway ${c.dur}s ease-in-out ${c.delay}s infinite`, "--sw": `${c.sway}deg` }}>
           <div className="h-full w-full rounded-b-full" style={{ background: "linear-gradient(90deg,#0E0A06 0%,#3A2818 42%,#6B4A2A 50%,#3A2818 58%,#0E0A06 100%)", boxShadow: "0 1px 3px rgba(0,0,0,0.6)" }} />
@@ -1099,24 +1107,19 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             <rect x="836" y="78" width="15" height="14" rx="2.5" fill="#3E2A12" stroke="#8A6432" strokeWidth="1.2" opacity="0.95" />
           </svg>
           {/* WORKSHOP RATS: two of them scurry along the wall/floor corner,
-              back and forth between the two outside golems without stopping
-              (desktop-only, like the rest of the workshop set-dressing) */}
+              back and forth at constant speed — their turnarounds happen
+              hidden BEHIND the left/right golems (rats are z-2, golems z-3/4).
+              Desktop-only, like the rest of the workshop set-dressing. */}
           {[
-            { h: 2.5, dur: 8.5, delay: 0, bottom: 12.1, op: 0.95, tid: "steam-rat-1" },
-            { h: 1.9, dur: 11.5, delay: -4.6, bottom: 12.7, op: 0.85, tid: "steam-rat-2" },
+            { h: 3.4, dur: 8.5, delay: 0, bottom: 12.0, tid: "steam-rat-1" },
+            { h: 2.7, dur: 11.5, delay: -4.6, bottom: 12.7, tid: "steam-rat-2" },
           ].map((rt) => (
             <div key={rt.tid} className="absolute left-0 hidden sm:block" data-testid={rt.tid} style={{ bottom: `${rt.bottom}vh`, animation: `ffRatRun ${rt.dur}s linear ${rt.delay}s infinite alternate` }}>
               <div style={{ animation: `ffRatFace ${rt.dur * 2}s steps(1,end) ${rt.delay}s infinite` }}>
-                <img src="/steam-rat.png" alt="" className="object-contain" style={{ height: `${rt.h}vh`, opacity: rt.op, filter: "brightness(0.85) drop-shadow(0 2px 2px rgba(0,0,0,0.6))", animation: "ffRatScurry 0.22s linear infinite" }} />
+                <img src="/steam-rat.png" alt="" className="object-contain" style={{ height: `${rt.h}vh`, filter: "brightness(1.08) contrast(1.06) drop-shadow(0 2px 2px rgba(0,0,0,0.55))", animation: "ffRatScurry 0.22s linear infinite" }} />
               </div>
             </div>
           ))}
-          {/* Plague doctor mask abandoned on the floor in front of the alchemy desk
-              (desktop-only: the desk itself is hidden at phone widths) */}
-          <div className="absolute hidden sm:block" data-testid="steam-mask-prop" style={{ left: "calc(50% + 47vh)", bottom: "0.9vh" }}>
-            <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.5vh", width: "14vh", height: "2vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.55), rgba(0,0,0,0) 70%)" }} />
-            <img src="/steam-mask-floor.png" alt="" className="relative object-contain" style={{ width: "12vh" }} />
-          </div>
           {/* Brass goggles set down on the ground in front of the half-built robot
               (desktop-only: on mobile the rack is hidden and the right golem's
               feet occupy this spot — live bug: goggles showed under his feet) */}

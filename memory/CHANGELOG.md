@@ -967,3 +967,13 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Spring heist: black-hole socket (radial void + inset shadows + brass rim)
   rendered at the medallion spot while the watch face dangles on its spring
   (component only renders when stage is set, so timing needs no extra gating).
+
+## 2026-02 (fork) — Rat/mask polish (FF_BUILD 510)
+- Rats bigger + brighter (3.4/2.7vh, brightness 1.08 contrast 1.06, no dim);
+  ffRatRun now 3vw->88vw so turnarounds happen hidden behind the outer golems
+  (rats z-2 inside floor, golems z-3/4).
+- Mask moved NEXT TO THE PUMP: left calc(50% - 56vh), relocated OUT of the
+  floor div to top level z-3 (floor's z-2 stacking context let the rack post
+  draw over it).
+- User asked if pump lights were removed — untouched; ffLampBlink dims to
+  opacity 0.2 half-cycle so stills can catch them "off". Verified lit.
