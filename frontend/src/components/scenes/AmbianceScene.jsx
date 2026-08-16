@@ -1406,7 +1406,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
     )}
     {cfg.saucer && <SaucerAbduction key={`sa-${heistEpoch}`} saucer={cfg.saucer} onActive={setAbducting} />}
     {cfg.cars && <HotPursuitHeist key={`hp-${heistEpoch}`} />}
-    {cfg.gully && <CompanionPatrol s1="/fairy-pixie-1.png" s2="/fairy-pixie-2.png" glow="rgba(94,224,168,0.7)" heistKind="poof" testid="fairy-pixie" />}
+    {cfg.gully && <CompanionPatrol s1="/fairy-pixie-1.png?v=527" s2="/fairy-pixie-2.png?v=527" glow="rgba(255,244,214,0.45)" heistKind="poof" testid="fairy-pixie" />}
     {cfg.gully && <UnicornChargeHeist />}
     {theme === "fantasy" && <CompanionPatrol s1="/dragon-tiny-1.png" s2="/dragon-tiny-2.png" glow="rgba(255,140,50,0.7)" dustCol={["#FFE9B0", "#FF8C3A"]} heistKind="breath" testid="tiny-dragon" flap="ffDragonFlap 3.4s linear infinite" flapBase="ffDragonFlapInv 3.4s linear infinite" />}
     {theme === "fantasy" && <DragonHeist key={`dh-${heistEpoch}`} />}

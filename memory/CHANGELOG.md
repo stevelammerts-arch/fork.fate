@@ -1123,3 +1123,9 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   .ff-bg-fit contain rule, .ff-bg-blurfill imgs/rules, and the contain
   branch in useCoverAnchor (pure cover again). ff-lsp-* prop spread kept.
 - Verified 844x390: painting fills edge to edge.
+
+## 2026-02 (fork) — Pixie green halo removed (FF_BUILD 527)
+- Two causes: (1) baked dark-teal outline in fairy-pixie-1/2.png — stripped
+  ~3.5k px each (teal hue band within 6px of alpha edge or semi-transparent);
+  (2) CSS glow prop was green rgba(94,224,168,.7) -> warm white
+  rgba(255,244,214,.45). Sprites at ?v=527.
