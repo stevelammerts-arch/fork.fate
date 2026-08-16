@@ -122,7 +122,9 @@ export default function Home() {
   const [myPassports, setMyPassports] = useState(() => readPassports());
   // The chip list is long; collapse it once fate has spoken so the reveal card
   // isn't buried under filters.
-  const [filtersOpen, setFiltersOpen] = useState(true);
+  // Every dropdown starts CLOSED on a fresh visit — the cuisine list only
+  // opens when the user taps it.
+  const [filtersOpen, setFiltersOpen] = useState(false);
   // "Double or Nothing": one reroll, but the new pick is final.
   const [locked, setLocked] = useState(false);
   // Rare-fate scratch surprise ("scratch" | null) + swipe-to-reroll budget.
@@ -947,6 +949,27 @@ export default function Home() {
   // The Group / Crawl / Passport window. Rides at the TOP of the setup column
   // until a guided fate is sealed; after that it settles below the deal row.
   const soloFlow = !passportMode && !groupMode && !crawlMode;
+  // STEP AUTO-ADVANCE: as each numbered solo step completes, the page drifts
+  // gently down to the next one (ZIP/location -> 2, category -> 3, first
+  // cuisine or open-now -> 4).
+  const scrollToStep = (n) => {
+    setTimeout(() => {
+      const el = document.querySelector(`[data-testid="solo-step-${n}"]`);
+      if (!el) return;
+      const top = el.getBoundingClientRect().top + window.scrollY - 88;
+      window.scrollTo({ top, behavior: "smooth" });
+    }, 300);
+  };
+  const soloSetZip = (z) => {
+    const had = (zip || "").trim().length >= 5;
+    setZip(z);
+    if (!had && (z || "").trim().length >= 5) scrollToStep(2);
+  };
+  const soloSetCoords = (c) => {
+    const had = !!coords;
+    setCoords(c);
+    if (!had && c) scrollToStep(2);
+  };
   const modesCard = (
     <MoreWaysToPlay
       groupMode={groupMode} crawlMode={crawlMode} passportMode={passportMode}
@@ -1048,7 +1071,7 @@ export default function Home() {
             {soloFlow && <StepLabel n={1}>{t("Where are you?")}</StepLabel>}
             <LocationRadiusPanel
               hidden={passportMode || groupMode}
-              zip={zip} setZip={setZip} setCoords={setCoords} coords={coords}
+              zip={zip} setZip={soloSetZip} setCoords={soloSetCoords} coords={coords}
               onEnter={spin} useMyLocation={useMyLocation} geoLoading={geoLoading}
               loading={loading} spinning={spinning}
               radius={radius} setRadius={setRadius} radiusMax={radiusMax}
@@ -1063,7 +1086,7 @@ export default function Home() {
             <ModeTabsGrid
               hidden={passportMode || groupMode}
               tabs={MODE_TABS} mode={mode} allMode={allMode}
-              onTab={(key) => { if (mode === key && !allMode) { setAllMode(true); setResult(null); setGroupPicks(null); } else { setAllMode(false); switchMode(key); } }}
+              onTab={(key) => { if (mode === key && !allMode) { setAllMode(true); setResult(null); setGroupPicks(null); } else { setAllMode(false); switchMode(key); } scrollToStep(3); }}
             />
             </div>
 
@@ -1076,14 +1099,14 @@ export default function Home() {
               allMode={allMode} cuisineLabel={cuisineLabel} selectedCuisines={selectedCuisines}
               filtersOpen={filtersOpen} setFiltersOpen={setFiltersOpen}
               cuisineList={cuisineList} cuisineGroups={activeCuisineGroups}
-              onToggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
+              onToggleCuisine={(c) => { if (selectedCuisines.length === 0) scrollToStep(4); toggle(setSelectedCuisines, selectedCuisines, c); }}
               labelColor={labelColor}
             />
 
             <button
               type="button"
               data-testid="open-now-toggle"
-              onClick={() => setOpenNow((v) => !v)}
+              onClick={() => { if (!openNow) scrollToStep(4); setOpenNow((v) => !v); }}
               className={`mt-4 inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${openNow ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-transparent bg-[#EDEEF0] text-[#6B7075] hover:bg-[#E2E4E7]"}`}
             >
               <Clock className="h-4 w-4" />

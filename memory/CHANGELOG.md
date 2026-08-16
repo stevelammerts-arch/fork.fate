@@ -1255,3 +1255,12 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   solo mode (soloFlow = !group && !passport && !crawl); step pair-divs hide
   in group/passport so no stray gaps; crawl mode keeps panels visible w/o
   the window chrome.
+
+## 2026-02 (fork) — Step auto-advance + closed dropdowns (FF_BUILD 538)
+- Solo flow auto-advance: scrollToStep(n) smooth-scrolls (target -88px) 300ms
+  after a step completes. Triggers: ZIP reaches 5 chars or coords set
+  (soloSetZip/soloSetCoords wrappers) -> step 2; any category tab -> step 3;
+  first cuisine pick or enabling Open Now -> step 4.
+- All dropdowns start CLOSED on fresh visits: filtersOpen default true->false
+  (cuisine/drink-type list). Trophy Room accordion already defaulted closed.
+- Verified: tab click scrolled 188px, step 3 landed at exactly 88px viewport top.
