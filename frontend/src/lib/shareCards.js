@@ -252,6 +252,86 @@ export async function buildDuelShareImage(duel) {
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
 
+/** Trophy shelf brag card: rituals, heists, and every earned realm seal. */
+export async function buildCollectionShareImage(stats) {
+  const S = 1080;
+  const canvas = document.createElement("canvas");
+  canvas.width = S; canvas.height = S;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = BG; ctx.fillRect(0, 0, S, S);
+  ctx.fillStyle = RED; ctx.fillRect(0, 0, S, 10);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = GOLD_LIGHT;
+  ctx.font = "700 60px Georgia, serif";
+  ctx.fillText("MY FATE COLLECTION", S / 2, 118);
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  ctx.font = "700 26px Arial, sans-serif";
+  ctx.fillText("RARE FATES WITNESSED AT THE TABLE", S / 2, 166);
+
+  const rows = [
+    [`${stats.rituals}/${stats.ritualsTotal}`, "RARE RITUALS SURVIVED"],
+    [`${stats.heists}/${stats.heistsTotal}`, "HEISTS WITNESSED"],
+    [`${stats.seals}/${stats.sealsTotal}`, "REALM SEALS EARNED"],
+  ];
+  const top = 268, rowH = 148;
+  rows.forEach(([val, label], i) => {
+    const y = top + i * rowH;
+    roundRect(ctx, 90, y - 82, S - 180, 118, 20);
+    ctx.fillStyle = "rgba(255,255,255,0.045)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(230,178,58,0.25)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.textAlign = "left";
+    ctx.fillStyle = RED;
+    ctx.font = "700 70px Georgia, serif";
+    ctx.fillText(val, 130, y + 6);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "rgba(255,255,255,0.75)";
+    ctx.font = "700 30px Arial, sans-serif";
+    ctx.fillText(label, S - 130, y);
+    ctx.textAlign = "center";
+  });
+
+  // the seal shelf: earned seals gleam gold, the rest wait in shadow
+  ctx.fillStyle = "rgba(255,255,255,0.45)";
+  ctx.font = "700 24px Arial, sans-serif";
+  ctx.fillText("REALM SEALS", S / 2, 742);
+  const names = stats.sealNames;
+  const perRow = Math.min(names.length, 6);
+  const gap = (S - 160) / perRow;
+  names.forEach((sn, i) => {
+    const row = Math.floor(i / perRow), col = i % perRow;
+    const x = 80 + gap * col + gap / 2;
+    const y = 800 + row * 104;
+    ctx.beginPath();
+    ctx.arc(x, y, 30, 0, Math.PI * 2);
+    ctx.fillStyle = sn.earned ? GOLD : "rgba(255,255,255,0.07)";
+    ctx.fill();
+    ctx.strokeStyle = sn.earned ? GOLD_LIGHT : "rgba(255,255,255,0.15)";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    if (sn.earned) {
+      ctx.fillStyle = "#241804";
+      ctx.font = "700 30px Georgia, serif";
+      ctx.fillText("★", x, y + 11);
+    }
+    ctx.fillStyle = sn.earned ? GOLD_LIGHT : "rgba(255,255,255,0.35)";
+    ctx.font = "600 17px Arial, sans-serif";
+    ctx.fillText(sn.name.length > 12 ? `${sn.name.slice(0, 11)}…` : sn.name, x, y + 62);
+  });
+
+  ctx.fillStyle = "rgba(255,255,255,0.5)";
+  ctx.font = "italic 600 30px Georgia, serif";
+  ctx.fillText("Fate favors the watchful.", S / 2, S - 92);
+  ctx.fillStyle = GOLD;
+  ctx.font = "700 24px Georgia, serif";
+  ctx.fillText("fork-fate.com", S / 2, S - 40);
+
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+}
+
 /** Native share when possible, silent download otherwise.
  * Returns "shared" | "downloaded" | null (user cancelled). */
 export async function shareImage(blob, filename, text) {

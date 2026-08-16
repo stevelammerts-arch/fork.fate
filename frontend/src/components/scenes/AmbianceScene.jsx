@@ -1,8 +1,10 @@
 // Ambiance realm scenery (cyberscape / steampunk / tiki / fantasy / fairy):
 // background art, ambient sprites, neon sign, gecko, torches — plus each
 // realm's companions and heists.
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { toast } from "sonner";
 import { useHeistWitness, preloadHeistAudio, playHeistSound } from "./heistLib";
+import { activeSeason, recordSeasonalSeen } from "../../lib/seasons";
 import { CompanionPatrol } from "./companion";
 import { SaucerAbduction, DragonHeist, TikiSpearHeist, SteamSpringHeist, SteamGearsHeist, UnicornChargeHeist, HotPursuitHeist } from "./realmHeists";
 
@@ -194,7 +196,10 @@ function useCoverAnchor(natW, natH) {
     if (!el) return;
     const update = () => {
       const { width: cw, height: ch } = el.getBoundingClientRect();
-      const scale = Math.max(cw / natW, ch / natH);
+      // short-landscape phones switch the art to object-contain (see
+      // .ff-bg-fit) so the whole painting is visible — mirror that here
+      const contain = window.matchMedia("(orientation: landscape) and (max-height: 520px)").matches;
+      const scale = contain ? Math.min(cw / natW, ch / natH) : Math.max(cw / natW, ch / natH);
       const dw = natW * scale, dh = natH * scale;
       setBox({ offX: (cw - dw) / 2, offY: (ch - dh) / 2, dw, dh });
     };
@@ -602,11 +607,49 @@ function useTrapSnap(enabled) {
   return ph;
 }
 
+/** SEASONAL DRIFT: while a limited-time season is live, its exclusive effect
+ * (drifting hearts / passing souls / aurora ribbon) sweeps the realm every
+ * few minutes. First sighting records the seasonal fate — witnessable ONLY
+ * inside the season's window. `ff:season-drift` forces it. */
+function useSeasonalDrift() {
+  const [on, setOn] = useState(false);
+  const season = useMemo(() => activeSeason(), []);
+  useEffect(() => {
+    if (!season) return undefined;
+    let timers = [];
+    let pending;
+    const schedule = (min, spread) => { pending = setTimeout(run, min + Math.random() * spread); };
+    const run = () => {
+      timers.forEach(clearTimeout); timers = [];
+      setOn(true);
+      timers.push(setTimeout(() => {
+        const first = recordSeasonalSeen(season.fateKey);
+        if (first) {
+          toast(t2("Seasonal fate witnessed!"), {
+            description: `${season.fateName} — ${season.name}`,
+            duration: 8000,
+            style: { background: "#17101B", border: `1px solid ${season.accent}`, color: season.accent },
+          });
+        }
+      }, 5000));
+      timers.push(setTimeout(() => { setOn(false); schedule(160000, 120000); }, 11000));
+    };
+    schedule(35000, 45000);
+    const force = () => { clearTimeout(pending); run(); };
+    window.addEventListener("ff:season-drift", force);
+    return () => { clearTimeout(pending); timers.forEach(clearTimeout); window.removeEventListener("ff:season-drift", force); };
+  }, [season]);
+  return { season, seasonOn: on };
+}
+// tiny helper: the drift toast fires outside any component's i18n context
+const t2 = (s) => s;
+
 export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
   const golemWake = useGolemWake(!!cfg.golemRight);
   const blastPh = useFurnaceBlast(!!cfg.golemLeft);
   const armPh = useArmDrop(!!cfg.golemLeft);
   const trapPh = useTrapSnap(!!cfg.golemLeft);
+  const { season, seasonOn } = useSeasonalDrift();
   // any golem event running → the strapped rack robot powers up in response
   const workshopEvent = (golemWake >= 1 && golemWake <= 5) || blastPh >= 1;
   // WORKSHOP TROPHY: seeing the rack robot power up (head straight, solid
@@ -655,10 +698,11 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
     <div ref={setSceneRef} className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`ambiance-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
       {cfg.hoard && (<>
-        <img src={cfg.hoard} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-90" style={{ objectPosition: "center center" }} data-testid="fantasy-hoard-bg" />
+        <img src={cfg.hoard} alt="" aria-hidden="true" className="ff-bg-blurfill absolute inset-0 z-[1] h-full w-full object-cover" style={{ objectPosition: "center center" }} />
+        <img src={cfg.hoard} alt="" className="ff-bg-fit absolute inset-0 z-[1] h-full w-full object-cover opacity-90" style={{ objectPosition: "center center" }} data-testid="fantasy-hoard-bg" />
         <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(180deg, rgba(10,7,5,0.55) 0%, rgba(10,7,5,0.12) 34%, rgba(10,7,5,0.28) 70%, rgba(8,5,3,0.72) 100%)" }} />
         <div className="absolute inset-0 z-[1]" style={{ background: "radial-gradient(ellipse at 50% 80%, rgba(230,160,60,0.30), rgba(224,86,30,0.10) 44%, transparent 72%)", mixBlendMode: "screen", animation: "ffCaveFlicker 3.4s ease-in-out infinite" }} data-testid="fantasy-firelight" />
-        <img src="/fantasy-eyes.png" alt="" className="pointer-events-none absolute inset-0 z-[2] h-full w-full object-cover" style={{ objectPosition: "center center", mixBlendMode: "screen", animation: "ffEyeGlow 2.4s ease-in-out infinite" }} data-testid="fantasy-eyes" />
+        <img src="/fantasy-eyes.png" alt="" className="ff-bg-fit pointer-events-none absolute inset-0 z-[2] h-full w-full object-cover" style={{ objectPosition: "center center", mixBlendMode: "screen", animation: "ffEyeGlow 2.4s ease-in-out infinite" }} data-testid="fantasy-eyes" />
         {/* Living nostril steam: pinned to the artwork through the same
             1264x848 object-cover mapping the lounge anchor measures. */}
         {loungeBox && DRAGON_STEAM.map((s, i) => {
@@ -691,7 +735,8 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
         ))}
       </>)}
       {cfg.gully && (<>
-        <img src={cfg.gully} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-95" style={{ objectPosition: "center center" }} data-testid="fairy-gully-bg" />
+        <img src={cfg.gully} alt="" aria-hidden="true" className="ff-bg-blurfill absolute inset-0 z-[1] h-full w-full object-cover" style={{ objectPosition: "center center" }} />
+        <img src={cfg.gully} alt="" className="ff-bg-fit absolute inset-0 z-[1] h-full w-full object-cover opacity-95" style={{ objectPosition: "center center" }} data-testid="fairy-gully-bg" />
         <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(180deg, rgba(6,18,12,0.5) 0%, rgba(6,18,12,0.1) 32%, rgba(6,18,12,0.22) 68%, rgba(4,12,8,0.68) 100%)" }} />
         {/* Will-o'-wisps: glowing teal orbs drifting up through the gully */}
         {FAIRY_WISPS.map((w, i) => (
@@ -724,7 +769,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
         ].map((f) => (
           <img
             key={`wings-${f.name}`}
-            src={`/fairy-wings-${f.name}.png`}
+            src={`/fairy-wings-${f.name}.png?v=520`}
             alt=""
             data-testid={`fairy-wings-${f.name}`}
             className="pointer-events-none absolute z-[2]"
@@ -734,6 +779,29 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
               width: ((896 - 450) / GULLY_NAT.w) * coverBox.dw,
               opacity: 0,
               animation: `${f.anim} 1s ease-in-out infinite`,
+            }}
+          />
+        ))}
+        {/* The UNICORN lives: two more AI-edited patches — head lowered to
+            graze (bob) and muzzle swung toward the viewer (shake) — crossfade
+            over the base painting on slow offset cycles so it feels random.
+            Patch rect in image px: (250,380)-(460,600). */}
+        {coverBox && [
+          { name: "bob", anim: "ffUniBob 17s ease-in-out infinite" },
+          { name: "shake", anim: "ffUniShake 23s linear 5s infinite" },
+        ].map((u) => (
+          <img
+            key={`uni-${u.name}`}
+            src={`/fairy-uni-${u.name}.png`}
+            alt=""
+            data-testid={`fairy-uni-${u.name}`}
+            className="pointer-events-none absolute z-[2]"
+            style={{
+              left: coverBox.offX + (250 / GULLY_NAT.w) * coverBox.dw,
+              top: coverBox.offY + (380 / GULLY_NAT.h) * coverBox.dh,
+              width: (210 / GULLY_NAT.w) * coverBox.dw,
+              opacity: 0,
+              animation: u.anim,
             }}
           />
         ))}
@@ -779,7 +847,8 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       {cfg.neon && <CyberNeonSign neon={cfg.neon} />}
       {cfg.wall && <img src={cfg.wall} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-60" style={{ objectPosition: "center top" }} />}
       {cfg.lounge && (<>
-        <img src={cfg.lounge} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-90" style={{ objectPosition: "center center" }} data-testid="tiki-lounge-bg" />
+        <img src={cfg.lounge} alt="" aria-hidden="true" className="ff-bg-blurfill absolute inset-0 z-[1] h-full w-full object-cover" style={{ objectPosition: "center center" }} />
+        <img src={cfg.lounge} alt="" className="ff-bg-fit absolute inset-0 z-[1] h-full w-full object-cover opacity-90" style={{ objectPosition: "center center" }} data-testid="tiki-lounge-bg" />
         <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(180deg, rgba(20,10,4,0.55) 0%, rgba(20,10,4,0.15) 30%, rgba(20,10,4,0.25) 70%, rgba(20,10,4,0.7) 100%)" }} />
         {/* String-light glows on the SAME 1264x848 canvas + identical object-cover,
             so they always align with the painted bulbs. 3 interleaved groups flicker
@@ -794,7 +863,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             src={s.src}
             alt=""
             data-testid={`tiki-string-lights-${i}`}
-            className="pointer-events-none absolute inset-0 z-[2] h-full w-full object-cover mix-blend-screen"
+            className="pointer-events-none absolute inset-0 z-[2] h-full w-full object-cover mix-blend-screen ff-bg-fit"
             style={{ objectPosition: "center center", animation: `ffTikiTwinkle ${s.d}s ease-in-out ${s.dl}s infinite` }}
           />
         ))}
@@ -806,7 +875,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             src={src}
             alt=""
             data-testid={`tiki-drink-flame-${i}`}
-            className="pointer-events-none absolute inset-0 z-[2] h-full w-full object-cover mix-blend-screen"
+            className="pointer-events-none absolute inset-0 z-[2] h-full w-full object-cover mix-blend-screen ff-bg-fit"
             style={{ objectPosition: "center center", animation: `ffTikiFlame 1.2s ease-in-out ${(-0.4 * i).toFixed(1)}s infinite` }}
           />
         ))}
@@ -1032,7 +1101,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       )}
       {/* WORKSHOP PROPS: valve pedestal (L), robot on assembly rack (M), alchemy bench (R) */}
       {cfg.golemLeft && [
-        { src: "/steam-valve-pedestal.png?v=501", ar: "433 / 735", cls: "left-[calc(50%-70vh)] bottom-[3vh] h-[25vh]", tid: "steam-valve-pedestal",
+        { src: "/steam-valve-pedestal.png?v=501", ar: "433 / 735", cls: "ff-lsp-pump left-[calc(50%-70vh)] bottom-[3vh] h-[25vh]", tid: "steam-valve-pedestal",
           lamps: [
             // front-face fixtures: mounted ON the two oval hatch housings
             { x: 27.5, y: 43.9, c: "#FFB03A", d: 1.7, dl: 0.1 }, { x: 27.5, y: 59.9, c: "#7CE08A", d: 2.2, dl: 0.7 },
@@ -1157,7 +1226,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       {/* Plague doctor mask abandoned on the floor NEXT TO THE PUMP (top-level
           z-3 so the rack's frame post can't draw over it; desktop-only) */}
       {cfg.golemLeft && (
-        <div className="absolute z-[3] hidden sm:block" data-testid="steam-mask-prop" style={{ left: "calc(50% - 56vh)", bottom: "0.9vh" }}>
+        <div className="ff-lsp-mask absolute z-[3] hidden sm:block" data-testid="steam-mask-prop" style={{ left: "calc(50% - 56vh)", bottom: "0.9vh" }}>
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.5vh", width: "14vh", height: "2vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.55), rgba(0,0,0,0) 70%)" }} />
           <img src="/steam-mask-floor.png" alt="" className="relative object-contain" style={{ width: "12vh" }} />
         </div>
@@ -1265,7 +1334,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           {/* MOUSETRAP set against the wall base — the rats scurry right past
               it. Cheese is a separate overlay so the thief can STEAL it;
               the base is the sprung/empty trap art. */}
-          <div className="absolute hidden sm:block" data-testid="steam-mousetrap" style={{ left: "calc(50% + 36vh)", bottom: "12.8vh", width: "7.5vh", aspectRatio: "1245 / 505" }}>
+          <div className="ff-lsp-trap absolute hidden sm:block" data-testid="steam-mousetrap" style={{ left: "calc(50% + 36vh)", bottom: "12.8vh", width: "7.5vh", aspectRatio: "1245 / 505" }}>
             <img src="/steam-mousetrap-empty.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.55)) brightness(1.08)", animation: trapPh === 3 ? "ffTrapJolt 0.4s ease-out" : undefined }} />
             {trapPh < 3 && (
               <img src="/steam-cheese.png" alt="" className="absolute" data-testid="trap-cheese" style={{ left: "68%", top: "13.5%", width: "12.8%", filter: "brightness(1.08)" }} />
@@ -1274,7 +1343,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           {/* THE CHEESE THIEF: creeps in from the right, nibbles, SNAP —
               flees left with the cheese by a whisker */}
           {trapPh >= 1 && trapPh <= 3 && (
-            <div className="absolute hidden sm:block" data-testid="cheese-thief" style={{
+            <div className="ff-lsp-thief absolute hidden sm:block" data-testid="cheese-thief" style={{
               left: "calc(50% + 42.5vh)", bottom: "12.6vh",
               animation: trapPh === 1 ? "ffThiefIn 2.3s cubic-bezier(0.2,0.7,0.4,1) forwards" : trapPh === 3 ? "ffThiefFlee 1.15s cubic-bezier(0.5,0,0.8,0.4) forwards" : "none",
             }}>
@@ -1303,7 +1372,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           {/* Brass goggles set down on the ground in front of the half-built robot
               (desktop-only: on mobile the rack is hidden and the right golem's
               feet occupy this spot — live bug: goggles showed under his feet) */}
-          <div className="absolute hidden sm:block" data-testid="steam-goggles-prop" style={{ left: "calc(50% + 40vh)", bottom: "0.8vh", transform: "rotate(-6deg)" }}>
+          <div className="ff-lsp-goggles absolute hidden sm:block" data-testid="steam-goggles-prop" style={{ left: "calc(50% + 40vh)", bottom: "0.8vh", transform: "rotate(-6deg)" }}>
             <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.4vh", width: "9vh", height: "1.4vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.6), rgba(0,0,0,0) 70%)" }} />
             <img src="/steam-goggles-shelf.png" alt="" className="relative object-contain" style={{ width: "7.5vh", filter: "drop-shadow(0 3px 4px rgba(0,0,0,0.8)) brightness(1.18)" }} />
           </div>
@@ -1347,6 +1416,31 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
     {cfg.lounge && <TikiSpearHeist key={`th-${heistEpoch}`} />}
     {theme === "steam" && <SteamSpringHeist key={`ssh-${heistEpoch}`} />}
     {theme === "steam" && <SteamGearsHeist key={`sgh-${heistEpoch}`} />}
+    {/* SEASONAL DRIFT overlay: the live season's exclusive effect */}
+    {seasonOn && season && (
+      <div className="pointer-events-none fixed inset-0 z-[45] select-none overflow-hidden" data-testid="seasonal-drift">
+        {season.effect === "hearts" && [0, 1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={`sh-${i}`} className="absolute left-0" style={{ top: `${8 + (i * 11) % 55}%`, animation: `ffSeasonDrift ${7 + (i % 3) * 1.7}s linear ${i * 0.75}s forwards`, opacity: 0 }}>
+            <svg width={22 + (i % 3) * 10} height={22 + (i % 3) * 10} viewBox="0 0 32 32" style={{ filter: `drop-shadow(0 0 6px ${season.accent})`, animation: `ffSeasonBob ${2 + (i % 3) * 0.5}s ease-in-out infinite` }}>
+              <path d="M16 29 C4 20 1 12 5 7 C9 2 15 4 16 9 C17 4 23 2 27 7 C31 12 28 20 16 29 Z" fill={season.accent} opacity="0.85" />
+            </svg>
+          </div>
+        ))}
+        {season.effect === "fireflies" && [0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <div key={`sf-${i}`} className="absolute left-0" style={{ top: `${8 + (i * 9) % 60}%`, animation: `ffSeasonDrift ${8 + (i % 4) * 1.8}s linear ${i * 0.6}s forwards`, opacity: 0 }}>
+            <div style={{ width: `${0.7 + (i % 3) * 0.25}vh`, height: `${0.7 + (i % 3) * 0.25}vh`, borderRadius: "9999px", background: season.accent, boxShadow: `0 0 8px 3px ${season.accent}AA`, animation: `ffSeasonBob ${1.8 + (i % 3) * 0.5}s ease-in-out infinite, ffLampBlink ${1.1 + (i % 4) * 0.4}s ease-in-out infinite` }} />
+          </div>
+        ))}
+        {season.effect === "wisps" && [0, 1, 2, 3, 4].map((i) => (
+          <div key={`sw-${i}`} className="absolute left-0" style={{ top: `${10 + (i * 13) % 48}%`, animation: `ffSeasonDrift ${9 + (i % 3) * 2}s linear ${i * 1.1}s forwards`, opacity: 0 }}>
+            <div style={{ width: `${5 + (i % 3) * 2}vh`, height: `${2.4 + (i % 3)}vh`, borderRadius: "9999px", background: "radial-gradient(ellipse, rgba(230,225,255,0.75), rgba(185,165,227,0.25) 60%, transparent 80%)", filter: "blur(4px)", animation: `ffSeasonBob ${2.6 + (i % 2)}s ease-in-out infinite` }} />
+          </div>
+        ))}
+        {season.effect === "aurora" && (
+          <div className="absolute inset-x-0" style={{ top: "6%", height: "22%", background: "linear-gradient(100deg, transparent 0%, rgba(80,230,180,0.28) 22%, rgba(120,180,255,0.34) 48%, rgba(190,130,255,0.26) 74%, transparent 100%)", filter: "blur(14px)", animation: "ffSeasonAurora 11s ease-in-out forwards" }} />
+        )}
+      </div>
+    )}
   </>);
 }
 

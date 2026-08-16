@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useLang } from "../../i18n/i18n";
-import { HEISTS, recordHeistSeen } from "../../lib/rituals";
+import { HEISTS, recordHeistSeen, readHeistsSeen } from "../../lib/rituals";
 
 /** Every heist strikes the header logo. If the user has scrolled it out of
  * view (mobile, mid-list), smoothly pull the page back to the top first so
@@ -61,6 +61,21 @@ export function useHeistWitness(key) {
       action: { label: t("Collection"), onClick: () => navigate("/rituals") },
       duration: 6000,
     });
+    // SEAL TOAST: if that was the realm's FINAL fate, the golden seal ignites
+    if (heist) {
+      const seenAll = readHeistsSeen();
+      const set = HEISTS.filter((h) => h.realm === heist.realm);
+      if (set.length > 1 && set.every((h) => seenAll[h.key]?.count)) {
+        setTimeout(() => {
+          toast(t("Realm Seal earned!"), {
+            description: `${t(heist.realm)} — ${t("every fate witnessed")}`,
+            action: { label: t("Collection"), onClick: () => navigate("/rituals") },
+            duration: 9000,
+            style: { background: "linear-gradient(135deg, #2A1F0A 0%, #4A3510 100%)", border: "1px solid #E6B23A", color: "#F3D9A0" },
+          });
+        }, 1600);
+      }
+    }
     return first;
   };
   return ref;

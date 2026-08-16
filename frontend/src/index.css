@@ -1149,8 +1149,55 @@ body {
   55%{ opacity: 1; }
   100%{ transform: rotate(-16deg) translateY(7vh); opacity: 0; }
 }
-/* Trap Snap: the cheese thief's approach, nibble, jolt and escape */
-@keyframes ffThiefIn{
+/* blurred side-fill only exists on short landscape screens */
+.ff-bg-blurfill{ display: none; }
+/* Unicorn life: slow graze dip + occasional double glance (muzzle shake) */
+@keyframes ffUniBob{
+  0%,18%{ opacity: 0; }
+  26%,44%{ opacity: 1; }
+  52%,100%{ opacity: 0; }
+}
+@keyframes ffUniShake{
+  0%,60%{ opacity: 0; }
+  60.6%,62.2%{ opacity: 1; }
+  62.8%,64.4%{ opacity: 0; }
+  65%,66.6%{ opacity: 1; }
+  67.2%,68.8%{ opacity: 0; }
+  69.4%,71%{ opacity: 1; }
+  71.6%,100%{ opacity: 0; }
+}
+/* Seasonal drift: cross-screen sweep + gentle bob + aurora breathe */
+@keyframes ffSeasonDrift{
+  0%{ transform: translateX(-8vw); opacity: 0; }
+  8%{ opacity: 1; }
+  90%{ opacity: 1; }
+  100%{ transform: translateX(108vw); opacity: 0; }
+}
+@keyframes ffSeasonBob{
+  0%,100%{ transform: translateY(0); }
+  50%{ transform: translateY(-1.6vh); }
+}
+@keyframes ffSeasonAurora{
+  0%{ opacity: 0; transform: translateY(-2vh); }
+  20%{ opacity: 1; }
+  80%{ opacity: 1; transform: translateY(1vh); }
+  100%{ opacity: 0; transform: translateY(2.5vh); }
+}
+/* LANDSCAPE SPREAD: on short landscape screens (phones held sideways) the
+   vh-based offsets shrink and the workshop huddles center — push the outer
+   props back toward the golems */
+@media (orientation: landscape) and (max-height: 520px) {
+  /* phones held sideways: show the WHOLE painting instead of cropping,
+     with a blurred copy of the art filling the sides (letterbox fill) */
+  .ff-bg-fit{ object-fit: contain !important; }
+  .ff-bg-blurfill{ display: block !important; filter: blur(22px) brightness(0.5) saturate(1.1); transform: scale(1.1); }
+  .ff-lsp-pump{ left: calc(50% - 80vh) !important; }
+  .ff-lsp-mask{ left: calc(50% - 64vh) !important; }
+  .ff-lsp-goggles{ left: calc(50% + 48vh) !important; }
+  .ff-lsp-trap{ left: calc(50% + 44vh) !important; }
+  .ff-lsp-thief{ left: calc(50% + 50.5vh) !important; }
+}
+/* Trap Snap: the cheese thief's approach, nibble, jolt and escape */@keyframes ffThiefIn{
   0%{ transform: translateX(26vw); }
   100%{ transform: translateX(0); }
 }

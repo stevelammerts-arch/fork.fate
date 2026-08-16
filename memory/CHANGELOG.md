@@ -1076,3 +1076,31 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Hook useTrapSnap ph 0-4, force event `ff:trap-snap`, first run 70-120s,
   sprung/empty 2.5-4min then re-baited. Verified all 4 stages via
   screenshots (baited/nibble/snap-flee/empty).
+
+## 2026-02 (fork) — Publish batch (FF_BUILD 520-523)
+- SEAL TOAST: heistLib witness toast now checks realm completion -> golden
+  "Realm Seal earned!" toast 1.6s after the final fate's toast.
+- TROPHY SHARING: buildCollectionShareImage in shareCards.js (1080px card:
+  rituals/heists/seals counts + golden seal shelf) + share button on
+  /rituals (share-collection-btn). Exercised headless: no page errors.
+- SEASONAL EVENTS: lib/seasons.js (SEASONS windows MM-DD, activeSeason,
+  ff_seasonal_seen storage). 4 seasons: Sweethearts (Feb, hearts), Firefly
+  Nights (Aug, fireflies), Haunting (Oct, wisps), Longest Night (Dec,
+  aurora). useSeasonalDrift in AmbianceScene sweeps the effect every 3-5min,
+  first sighting records + toasts. Collection page has Seasonal section w/
+  Live-now badge. NOTE: POD CLOCK IS 2026-08-16 (August!) so Firefly Nights
+  is live in preview; user's real Feb device shows Sweethearts.
+- LANDSCAPE: .ff-bg-fit -> object-contain on short-landscape + .ff-bg-blurfill
+  blurred cover copy fills sides (letterbox fill); useCoverAnchor mirrors the
+  contain formula so wing/unicorn patches stay pinned. ff-lsp-* classes
+  spread pump/mask/goggles/trap outward in landscape.
+- TROPHY ROOM: 5 Home pills collapsed into one accordion button
+  (trophy-room-btn, grid-rows transition) in MoreWaysToPlay.jsx; FAQ entry
+  "What's in the Trophy Room?" added to HomeInfoSections.jsx.
+- UNICORN LIFE: gen_unicorn_life.py image-edits two patches of fairy-gully
+  (rect 250,380-460,600): head-lowered graze (ffUniBob 17s) + muzzle-turned
+  fast fly-shake (ffUniShake 23s linear: 3 rapid flips over ~2.5s at 60-71%).
+  Feathered 44px + gain-matched like the wings.
+- FAIRY SQUARE GLOW FIX: wing patches gain-matched per channel to base art
+  + feather widened (56px, right 20px) — rectangular seam gone.
+- Photo proxy recompression fix + full pytest green (see earlier entry).

@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem, Leaf, Flower2, Citrus, Coffee, Snowflake, Rocket, Grab, Bone, Stamp, ChevronRight, Volleyball, Shell, Waves, Bird, CarFront, Watch, Target, Crown, Feather, Rainbow, Utensils, Bot, Anvil, Wrench, Siren, Truck, Nut, Medal } from "lucide-react";
+import { toast } from "sonner";
+import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem, Leaf, Flower2, Citrus, Coffee, Snowflake, Rocket, Grab, Bone, Stamp, ChevronRight, Volleyball, Shell, Waves, Bird, CarFront, Watch, Target, Crown, Feather, Rainbow, Utensils, Bot, Anvil, Wrench, Siren, Truck, Nut, Medal, Share2, CalendarClock, Heart } from "lucide-react";
 import { RITUALS, readRitualsSeen, HEISTS, readHeistsSeen } from "../lib/rituals";
+import { SEASONS, activeSeason, readSeasonalSeen } from "../lib/seasons";
+import { buildCollectionShareImage, shareImage } from "../lib/shareCards";
 import { readBingo } from "../lib/bingo";
 import { useLang } from "../i18n/i18n";
 
@@ -28,6 +31,24 @@ export default function Rituals() {
   const heistsSeen = readHeistsSeen();
   const bingo = readBingo();
   const unlocked = RITUALS.filter((r) => seen[r.key]?.count).length;
+  const seasonalSeen = readSeasonalSeen();
+  const liveSeason = activeSeason();
+
+  const handleShare = async () => {
+    const realms = [...new Set(HEISTS.map((h) => h.realm))];
+    const sealNames = realms.map((realm) => ({
+      name: realm,
+      earned: HEISTS.filter((h) => h.realm === realm).every((h) => heistsSeen[h.key]?.count),
+    }));
+    const blob = await buildCollectionShareImage({
+      rituals: unlocked, ritualsTotal: RITUALS.length,
+      heists: HEISTS.filter((h) => heistsSeen[h.key]?.count).length, heistsTotal: HEISTS.length,
+      seals: sealNames.filter((s) => s.earned).length, sealsTotal: sealNames.length,
+      sealNames,
+    });
+    const res = await shareImage(blob, "forkfate-collection.png", t("My Fork·Fate collection — how many fates have you witnessed?"));
+    if (res === "downloaded") toast(t("Card saved — share it anywhere."));
+  };
 
   return (
     <div className="min-h-screen bg-[#0E0E0E] px-4 pb-16 pt-6 text-white" data-testid="rituals-page">
@@ -38,6 +59,15 @@ export default function Rituals() {
 
         <h1 className="mt-4 font-serif text-4xl font-bold" data-testid="rituals-title">{t("Fates Witnessed")}</h1>
         <p className="mt-1 font-sans text-sm text-white/60">{t("Rare rituals your table has survived. Roughly one deal in ten turns rare.")}</p>
+
+        {/* share the whole shelf */}
+        <button
+          onClick={handleShare}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-[#E6B23A]/40 bg-[#E6B23A]/10 py-3 font-sans text-sm font-bold text-[#E6B23A] transition-colors hover:bg-[#E6B23A]/20"
+          data-testid="share-collection-btn"
+        >
+          <Share2 className="h-4 w-4" /> {t("Share my collection")}
+        </button>
 
         {/* progress */}
         <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4" data-testid="rituals-progress">
@@ -209,6 +239,45 @@ export default function Rituals() {
             </div>
           ))}
         </div>
+        {/* SEASONAL EVENTS: limited-time fates only witnessable in their window */}
+        <h2 className="mt-8 font-serif text-2xl font-bold" data-testid="seasons-title">{t("Seasonal Events")}</h2>
+        <p className="mt-1 font-sans text-sm text-white/60">{t("Limited-time takeovers. Their fates can only be witnessed while the season is live — then they vanish for a year.")}</p>
+        <div className="mt-4 space-y-3" data-testid="seasons-list">
+          {SEASONS.map((s) => {
+            const got = Boolean(seasonalSeen[s.fateKey]?.count);
+            const live = liveSeason?.id === s.id;
+            return (
+              <div
+                key={s.id}
+                className={`relative overflow-hidden rounded-2xl border p-4 ${got ? "bg-white/5" : "border-white/10 bg-white/[0.02]"}`}
+                style={got || live ? { borderColor: `${s.accent}66` } : undefined}
+                data-testid={`season-card-${s.id}`}
+              >
+                {(got || live) && (
+                  <div className="pointer-events-none absolute inset-0 opacity-15" style={{ background: `radial-gradient(circle at 15% 0%, ${s.accent} 0%, transparent 55%)` }} />
+                )}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: got || live ? `${s.accent}22` : "rgba(255,255,255,0.05)" }}>
+                      {got ? <Heart className="h-5 w-5" style={{ color: s.accent }} /> : live ? <CalendarClock className="h-5 w-5" style={{ color: s.accent }} /> : <Lock className="h-4 w-4 text-white/30" />}
+                    </span>
+                    <div>
+                      <p className="font-serif text-base font-bold" style={{ color: got || live ? s.accent : "rgba(255,255,255,0.75)" }}>{t(s.fateName)}</p>
+                      <p className="font-sans text-[11px] text-white/45">{t(s.name)}</p>
+                    </div>
+                  </div>
+                  {live && (
+                    <span className="rounded-full px-2 py-0.5 font-sans text-[10px] font-bold uppercase tracking-wider" style={{ background: `${s.accent}22`, color: s.accent, animation: "ffTrophyGlow 2.2s ease-in-out infinite" }} data-testid={`season-live-${s.id}`}>
+                      {t("Live now")}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-2 font-sans text-xs leading-relaxed text-white/55">{t(s.desc)}</p>
+              </div>
+            );
+          })}
+        </div>
+
         <div className="mt-4 grid grid-cols-2 gap-3" data-testid="heists-grid">
           {HEISTS.map((h, idx) => {
             const info = heistsSeen[h.key];
