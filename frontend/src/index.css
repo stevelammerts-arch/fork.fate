@@ -611,6 +611,19 @@ body {
   6%   { opacity: 1; }
   100% { transform: translateY(110vh); opacity: 1; }
 }
+/* ...falling to a landing spot (--land), a little hop on touchdown, settle */
+@keyframes ffCoinFallLand{
+  0%   { transform: translateY(-10vh); opacity: 0; }
+  5%   { opacity: 1; }
+  74%  { transform: translateY(var(--land, 88vh)); }
+  84%  { transform: translateY(calc(var(--land, 88vh) - 2.4vh)); }
+  92%, 100% { transform: translateY(var(--land, 88vh)); opacity: 1; }
+}
+/* whole takeover layer melts away at the end of its window */
+@keyframes ffTakeoverFade{
+  0%, 90% { opacity: 1; }
+  100%    { opacity: 0; }
+}
 /* the coin tumbles edge-over-face as it falls (scaleX sells the flip) */
 @keyframes ffCoinFlip{
   0%   { transform: rotate(var(--cr, 0deg)) scaleX(1); }
@@ -637,6 +650,30 @@ body {
 @keyframes ffChaseSweep{
   0%   { transform: translateX(-45vw); }
   100% { transform: translateX(145vw); }
+}
+
+/* SPLAT! — a passing gull scores a direct hit on the banner glass */
+@keyframes ffPoopGullSweep{
+  0%   { transform: translateX(-16vw); }
+  100% { transform: translateX(114vw); }
+}
+@keyframes ffSplatPop{
+  0%   { transform: scale(0.15) rotate(-8deg); opacity: 0; }
+  55%  { transform: scale(1.18) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+/* the wiper: two full squeaky passes over the mess */
+@keyframes ffWiperSweep{
+  0%   { transform: rotate(-64deg); }
+  38%  { transform: rotate(56deg); }
+  52%  { transform: rotate(56deg); }
+  90%, 100% { transform: rotate(-64deg); }
+}
+/* the splat clears under the first pass, smears, and is gone */
+@keyframes ffSplatWipe{
+  0%, 22% { opacity: 1; filter: none; }
+  45%     { opacity: 0.3; filter: blur(2px); }
+  70%, 100% { opacity: 0; filter: blur(3px); }
 }
 
 /* The step: body weight LIFTS as the right leg raises, then settles as the

@@ -646,25 +646,29 @@ const t2 = (s) => s;
 
 /** REALM TAKEOVER: every few minutes a realm-flavored ambience briefly takes
  * over the screen for `durMs` (fairy fireflies, hoard coins, steam peek-in,
- * cyber chase). Pure ambience (not a collectable fate). `eventName` forces one. */
-function useAmbientTakeover(enabled, eventName, durMs, sound, vol) {
+ * cyber chase). Each is a hidden Collection fate — witnessed a few seconds
+ * into the show. `eventName` forces one. */
+function useAmbientTakeover(enabled, eventName, durMs, fateKey, sound, vol) {
   const [on, setOn] = useState(false);
+  const witnessRef = useHeistWitness(fateKey);
   useEffect(() => {
     if (!enabled) return undefined;
     let offTimer;
+    let seenTimer;
     let pending;
     const schedule = (min, spread) => { pending = setTimeout(run, min + Math.random() * spread); };
     const run = () => {
-      clearTimeout(offTimer);
+      clearTimeout(offTimer); clearTimeout(seenTimer);
       setOn(true);
       if (sound) playHeistSound(sound, vol || 0.35);
+      seenTimer = setTimeout(() => witnessRef.current(true), Math.min(durMs - 1000, 6000));
       offTimer = setTimeout(() => { setOn(false); schedule(100000, 120000); }, durMs);
     };
     schedule(40000, 50000);
     const force = () => { clearTimeout(pending); run(); };
     window.addEventListener(eventName, force);
-    return () => { clearTimeout(pending); clearTimeout(offTimer); window.removeEventListener(eventName, force); };
-  }, [enabled]); // eventName/durMs/sound are fixed per call site
+    return () => { clearTimeout(pending); clearTimeout(offTimer); clearTimeout(seenTimer); window.removeEventListener(eventName, force); };
+  }, [enabled]); // eventName/durMs/sound are fixed per call site; witnessRef is a stable ref
   return on;
 }
 
@@ -674,10 +678,10 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
   const armPh = useArmDrop(!!cfg.golemLeft);
   const trapPh = useTrapSnap(!!cfg.golemLeft);
   const { season, seasonOn } = useSeasonalDrift();
-  const firefliesOn = useAmbientTakeover(!!cfg.gully, "ff:fireflies", 21000);
-  const coinsOn = useAmbientTakeover(theme === "fantasy", "ff:coins", 18000);
-  const peekinOn = useAmbientTakeover(theme === "steam", "ff:peekin", 15500);
-  const chaseOn = useAmbientTakeover(theme === "cyber", "ff:chase", 8000, "/police-siren.mp3", 0.3);
+  const firefliesOn = useAmbientTakeover(!!cfg.gully, "ff:fireflies", 21000, "fireflies");
+  const coinsOn = useAmbientTakeover(theme === "fantasy", "ff:coins", 18000, "coinrain");
+  const peekinOn = useAmbientTakeover(theme === "steam", "ff:peekin", 15500, "watcher");
+  const chaseOn = useAmbientTakeover(theme === "cyber", "ff:chase", 8000, "chase", "/police-siren.mp3", 0.3);
   // any golem event running → the strapped rack robot powers up in response
   const workshopEvent = (golemWake >= 1 && golemWake <= 5) || blastPh >= 1;
   // WORKSHOP TROPHY: seeing the rack robot power up (head straight, solid
@@ -1456,14 +1460,21 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
         ))}
       </div>
     )}
-    {/* DRAGON HOARD takeover: gold coins spilling down from the top banner */}
+    {/* DRAGON HOARD takeover: gold coins spill down from the top banner,
+        pile up on the floor for a beat, then fade into the treasure below */}
     {coinsOn && (
-      <div className="pointer-events-none fixed inset-0 z-[45] select-none overflow-hidden" data-testid="hoard-coins">
-        {Array.from({ length: 16 }, (_, i) => (
-          <div key={`hc-${i}`} className="absolute" style={{ left: `${(i * 61) % 94 + 2}%`, top: 0, animation: `ffCoinFall ${2.1 + (i % 4) * 0.45}s cubic-bezier(0.4,0,0.85,0.6) ${(i * 0.83) % 13}s both` }}>
-            <img src="/fantasy-coin.png" alt="" className="object-contain" style={{ width: `${2.6 + (i % 3) * 1.1}vh`, "--cr": `${(i * 47) % 360}deg`, filter: "drop-shadow(0 0 6px rgba(230,178,58,0.55))", animation: `ffCoinFlip ${0.55 + (i % 3) * 0.2}s linear infinite` }} />
-          </div>
-        ))}
+      <div className="pointer-events-none fixed inset-0 z-[45] select-none overflow-hidden" style={{ animation: "ffTakeoverFade 18s linear forwards" }} data-testid="hoard-coins">
+        {Array.from({ length: 16 }, (_, i) => {
+          const fallDur = 2.1 + (i % 4) * 0.45;
+          const flipDur = 0.55 + (i % 3) * 0.2;
+          // the flip stops right around touchdown (74% of the fall)
+          const flips = Math.max(1, Math.round((fallDur * 0.74) / flipDur));
+          return (
+            <div key={`hc-${i}`} className="absolute" style={{ left: `${(i * 61) % 94 + 2}%`, top: 0, "--land": `${85 + ((i * 7) % 4) * 2.6}vh`, animation: `ffCoinFallLand ${fallDur}s cubic-bezier(0.4,0,0.85,0.6) ${(i * 0.83) % 12}s both` }}>
+              <img src="/fantasy-coin.png" alt="" className="object-contain" style={{ width: `${2.6 + (i % 3) * 1.1}vh`, transform: `rotate(${(i * 47) % 360}deg)`, "--cr": `${(i * 47) % 360}deg`, filter: "drop-shadow(0 0 6px rgba(230,178,58,0.55))", animation: `ffCoinFlip ${flipDur}s linear ${flips}` }} />
+            </div>
+          );
+        })}
       </div>
     )}
     {/* STEAMPUNK takeover: the green-eyed head leans in from the screen edge,

@@ -1199,3 +1199,20 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Ambient summer gulls: ffWingGlideA/B keyframes = 3 quick beats then a long
   wings-up COAST (frame 1 held 50-100% of each b.cycle), synced with ffGullBob
   climb/sink rhythm. Getaway heist gull keeps constant ffWingA/B flapping.
+
+## 2026-02 (fork) — Season alerts, takeover trophies, splat gag, coin pile-up (FF_BUILD 534)
+- SEASON OPENING ALERT (Home.jsx): one-time toast per season per year
+  (ff_season_announced = "<id>-<year>"), fires 6s after load with the season's
+  name, window dates and desc in its accent color.
+- TAKEOVER TROPHIES: useAmbientTakeover now takes a fateKey and witnesses via
+  useHeistWitness ~6s into the show. New rituals.js fates: fireflies ("The
+  Firefly Drift", Fairy Gully), coinrain ("The Coin Spill", Dragon's Hoard),
+  watcher ("The Watcher", Steampunk), chase ("Code 3", Cyberscape).
+- SPLAT! gag (SummerPoopHeist in seasonHeists.jsx, fate key splat, Summer):
+  a gull sweeps the top (ffPoopGullSweep 3.6s, flap frames) -> white splat
+  blob-cluster pops onto the banner glass @1.5s (ffSplatPop) -> wiper blade
+  pivots two passes @4.1s (ffWiperSweep 1.9s) while the splat wipes/smears
+  away (ffSplatWipe). Forced by ff:poop-heist; first 3-5 min, repeat 5-9 min.
+- COIN PILE-UP: hoard coins now land at --land (85-93vh) with a touchdown hop
+  (ffCoinFallLand), flip animation iteration-count sized to stop at landing,
+  whole layer fades at window end (ffTakeoverFade 18s).

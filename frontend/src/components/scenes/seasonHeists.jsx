@@ -220,6 +220,79 @@ export function SummerGullHeist() {
   );
 }
 
+/** Summer heist #4 — SPLAT!: a gull cruises across the top of the screen and
+ * scores a direct hit on the banner glass — SPLAT — then a windshield wiper
+ * squeaks out of nowhere and wipes it clean. Rare: first strike 3-5 min
+ * after load, then every 5-9 min (`ff:poop-heist` forces it). */
+export function SummerPoopHeist() {
+  const witnessRef = useHeistWitness("splat");
+  const [run, setRun] = useState(null); // {x, y} splat spot (% of viewport)
+  const [ph, setPh] = useState(0);      // 1 gull crosses, 2 splat!, 3 wiper
+  useEffect(() => {
+    const timers = [];
+    let pending = null;
+    let running = false;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(start, ms); };
+    const start = () => {
+      if (running) return;
+      running = true;
+      setRun({ x: 34 + Math.random() * 32, y: 9 + Math.random() * 7 });
+      setPh(1);                                          // incoming, high and casual
+      timers.push(setTimeout(() => setPh(2), 1500));     // ...SPLAT
+      timers.push(setTimeout(() => setPh(3), 4100));     // the wiper arrives
+      timers.push(setTimeout(() => {
+        setPh(0); setRun(null); running = false;
+        witnessRef.current(true);
+        schedule(300000 + Math.random() * 240000);       // again in 5-9 min
+      }, 6300));
+    };
+    schedule(180000 + Math.random() * 120000);
+    const force = () => start();
+    window.addEventListener("ff:poop-heist", force);
+    return () => { clearTimeout(pending); timers.forEach(clearTimeout); window.removeEventListener("ff:poop-heist", force); };
+  }, []); // witnessRef is a stable ref
+  if (!run || !ph) return null;
+  const { x, y } = run;
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="poop-heist">
+      {/* the culprit: one gull cruising the very top, L->R */}
+      {ph <= 2 && (
+        <div className="absolute left-0" style={{ top: "2.5%", animation: "ffPoopGullSweep 3.6s linear forwards" }} data-testid="poop-heist-gull">
+          <div className="relative" style={{ width: "min(9vw, 110px)", aspectRatio: "305 / 243", transform: "scaleX(-1)" }}>
+            <img src="/summer-gull-fly-1.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ animation: "ffWingA 0.42s steps(1,end) infinite" }} />
+            <img src="/summer-gull-fly-2.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ animation: "ffWingB 0.42s steps(1,end) infinite" }} />
+          </div>
+        </div>
+      )}
+      {/* the mess, stuck to the glass */}
+      {ph >= 2 && (
+        <div className="absolute" style={{ left: `${x}%`, top: `${y}%`, animation: ph === 3 ? "ffSplatWipe 1.9s linear forwards" : "ffSplatPop 0.28s cubic-bezier(0.34,1.56,0.64,1) both" }} data-testid="poop-heist-splat">
+          <div className="relative" style={{ width: 52, height: 44 }}>
+            {[[16, 8, 26, 20, 0], [2, 16, 20, 16, -15], [30, 18, 19, 15, 20], [12, 22, 24, 15, 8], [36, 6, 13, 11, 0]].map(([l, t, w2, h2, r], i) => (
+              <span key={`sp-${i}`} className="absolute" style={{ left: l, top: t, width: w2, height: h2, borderRadius: "58% 42% 55% 45% / 52% 55% 45% 48%", transform: `rotate(${r}deg)`, background: "radial-gradient(ellipse at 42% 36%, #FDFCF7 0%, #F1EEE2 55%, #DCD8C8 100%)", boxShadow: "inset 0 -1px 2px rgba(120,115,95,0.35), 0 1px 2px rgba(0,0,0,0.18)" }} />
+            ))}
+            {/* the slow drips */}
+            <span className="absolute" style={{ left: 22, top: 32, width: 5, height: 15, borderRadius: "45% 55% 50% 50% / 30% 30% 70% 70%", background: "linear-gradient(180deg, #F1EEE2, #E6E2D2)" }} />
+            <span className="absolute" style={{ left: 34, top: 30, width: 4, height: 10, borderRadius: "45% 55% 50% 50% / 30% 30% 70% 70%", background: "linear-gradient(180deg, #F1EEE2, #E6E2D2)" }} />
+          </div>
+        </div>
+      )}
+      {/* the wiper: sweeps up over the mess, squeaks back, gone */}
+      {ph === 3 && (
+        <div className="absolute" style={{ left: `calc(${x}% + 26px)`, top: `calc(${y}% + 88px)` }} data-testid="poop-heist-wiper">
+          <div style={{ width: 7, height: 92, marginLeft: -3.5, marginTop: -92, transformOrigin: "50% 100%", animation: "ffWiperSweep 1.9s ease-in-out forwards" }}>
+            {/* rubber blade + arm */}
+            <span className="absolute inset-x-0 top-0" style={{ height: 58, borderRadius: 4, background: "linear-gradient(90deg, #2A2A2E, #4A4A52 50%, #232327)", boxShadow: "0 1px 3px rgba(0,0,0,0.4)" }} />
+            <span className="absolute" style={{ left: 2, top: 54, width: 3, height: 38, background: "linear-gradient(90deg, #55555E, #33333A)", borderRadius: 2 }} />
+          </div>
+          {/* pivot nut */}
+          <span className="absolute rounded-full" style={{ left: -5, top: -5, width: 10, height: 10, background: "radial-gradient(circle at 35% 35%, #6A6A74, #2E2E34)", boxShadow: "0 1px 2px rgba(0,0,0,0.4)" }} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** Summer heist #2: a little red crab scuttles in from the RIGHT side of the
  * banner at medallion height, hoists the medallion overhead, and hauls it
  * away sideways off the LEFT edge — then it bounces back home. First strike

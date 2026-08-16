@@ -38,6 +38,7 @@ import {
 import { useTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
 import { trackEvent } from "../lib/analytics";
+import { activeSeason } from "../lib/seasons";
 import { recordRitualSeen, readRitualsSeen, RITUALS } from "../lib/rituals";
 import BlackoutRitual from "../components/BlackoutRitual";
 import { recordFate } from "../lib/journal";
@@ -300,6 +301,26 @@ export default function Home() {
   // park or campground 80 miles away is a reasonable weekend answer, a taco place
   // 80 miles away is not. Default stays 50 for every tab.
   const radiusMax = mode === "explore" || mode === "stay" ? 150 : 100;
+
+  // SEASON OPENING ALERT: the first visit while a limited-time season is live
+  // gets a one-time announcement (per season, per year) so nobody misses one.
+  useEffect(() => {
+    const s = activeSeason();
+    if (!s) return undefined;
+    const mark = `${s.id}-${new Date().getFullYear()}`;
+    try {
+      if (localStorage.getItem("ff_season_announced") === mark) return undefined;
+    } catch (e) { return undefined; }
+    const tm = setTimeout(() => {
+      try { localStorage.setItem("ff_season_announced", mark); } catch (e) { /* ignore */ }
+      toast(t("A seasonal event is live!"), {
+        description: `${s.name} (${s.start.replace("-", "/")} – ${s.end.replace("-", "/")}) — ${s.desc}`,
+        duration: 12000,
+        style: { background: "#17101B", border: `1px solid ${s.accent}`, color: s.accent },
+      });
+    }, 6000);
+    return () => clearTimeout(tm);
+  }, []); // once per load; t is stable enough for a fire-and-forget toast
 
   // Every 10 deal taps (persisted per device) fate arrives as a RARE ritual
   // instead of the usual shuffle reveal.
