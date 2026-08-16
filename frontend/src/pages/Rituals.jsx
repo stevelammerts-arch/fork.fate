@@ -1,11 +1,13 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem, Leaf, Flower2, Citrus, Coffee, Snowflake, Rocket, Grab, Bone, Stamp, ChevronRight, Volleyball, Shell, Waves, Bird, CarFront, Watch, Target, Crown, Feather, Rainbow, Utensils, Bot, Anvil, Wrench, Siren, Truck, Nut, Medal, Share2, CalendarClock, Heart } from "lucide-react";
-import { RITUALS, readRitualsSeen, HEISTS, readHeistsSeen } from "../lib/rituals";
+import { RITUALS, readRitualsSeen, HEISTS, readHeistsSeen, RARITY, rarityOf } from "../lib/rituals";
 import { SEASONS, activeSeason, readSeasonalSeen } from "../lib/seasons";
 import { buildCollectionShareImage, shareImage } from "../lib/shareCards";
 import { readBingo } from "../lib/bingo";
+import { readDealDays, readStreak } from "./homeConstants";
 import { useLang } from "../i18n/i18n";
 
 const ICONS = {
@@ -25,6 +27,66 @@ const HEIST_ICONS = {
   awakening: Bot, furnace: Anvil, workshop: Wrench,
 };
 
+/** Small colored pill naming how hard a fate is to witness. */
+const RarityTag = ({ k, kind, t }) => {
+  const r = RARITY[rarityOf(k, kind)];
+  return (
+    <span className="whitespace-nowrap rounded-full px-1.5 py-0.5 font-sans text-[9px] font-bold uppercase tracking-wider" style={{ background: `${r.color}1f`, color: r.color }} data-testid={`rarity-${k}`}>
+      {t(r.label)}
+    </span>
+  );
+};
+
+/** The current month as a mini calendar — every day a deal landed burns. */
+const StreakCalendar = ({ t }) => {
+  const days = readDealDays();
+  const streak = readStreak();
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  const startDow = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const iso = (d) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  return (
+    <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4" data-testid="streak-calendar">
+      <div className="flex items-baseline justify-between">
+        <span className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-white/50">{t("Deal days")} · {now.toLocaleString(undefined, { month: "long" })}</span>
+        {streak >= 2 && (
+          <span className="inline-flex items-center gap-1 font-sans text-xs font-bold text-[#FF6B3D]" data-testid="streak-calendar-count">
+            <Flame className="h-3.5 w-3.5" /> {streak} {t("day streak")}
+          </span>
+        )}
+      </div>
+      <div className="mt-3 grid grid-cols-7 gap-1.5">
+        {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
+          <span key={`dow-${i}`} className="text-center font-sans text-[9px] font-bold uppercase text-white/30">{d}</span>
+        ))}
+        {Array.from({ length: startDow }, (_, i) => <span key={`pad-${i}`} />)}
+        {Array.from({ length: daysInMonth }, (_, i) => {
+          const d = i + 1;
+          const dealt = days.has(iso(d));
+          const today = d === now.getDate();
+          return (
+            <span
+              key={`day-${d}`}
+              className="flex h-7 items-center justify-center rounded-lg font-sans text-[11px] font-bold"
+              style={{
+                background: dealt ? "linear-gradient(180deg, #FF6B3D33, #E01E2622)" : "rgba(255,255,255,0.04)",
+                color: dealt ? "#FF9A6B" : "rgba(255,255,255,0.35)",
+                boxShadow: dealt ? "inset 0 0 0 1px #FF6B3D55" : today ? "inset 0 0 0 1px rgba(255,255,255,0.3)" : "none",
+              }}
+              data-testid={dealt ? `deal-day-${d}` : undefined}
+            >
+              {dealt ? <Flame className="h-3.5 w-3.5" /> : d}
+            </span>
+          );
+        })}
+      </div>
+      <p className="mt-2 font-sans text-[11px] text-white/40">{t("Deal once a day to keep the flames marching. One missed day per run is forgiven.")}</p>
+    </div>
+  );
+};
+
 export default function Rituals() {
   const { t } = useLang();
   const seen = readRitualsSeen();
@@ -33,6 +95,15 @@ export default function Rituals() {
   const unlocked = RITUALS.filter((r) => seen[r.key]?.count).length;
   const seasonalSeen = readSeasonalSeen();
   const liveSeason = activeSeason();
+  // collection filters: witnessed status + home realm
+  const [statusF, setStatusF] = useState("all");   // all | found | missing
+  const [realmF, setRealmF] = useState("all");     // all | <realm name>
+  const realmList = [...new Set([...RITUALS.map((r) => r.realm), ...HEISTS.map((h) => h.realm)])];
+  const matches = (realm, got) =>
+    (realmF === "all" || realm === realmF) &&
+    (statusF === "all" || (statusF === "found") === got);
+  const ritualsShown = RITUALS.filter((r) => matches(r.realm, Boolean(seen[r.key]?.count)));
+  const heistsShown = HEISTS.filter((h) => matches(h.realm, Boolean(heistsSeen[h.key]?.count)));
 
   const handleShare = async () => {
     const realms = [...new Set(HEISTS.map((h) => h.realm))];
@@ -85,9 +156,53 @@ export default function Rituals() {
           </div>
         </div>
 
+        {/* the streak calendar: every deal day burns */}
+        <StreakCalendar t={t} />
+
+        {/* filters: hunt by status or by home realm */}
+        <div className="mt-5" data-testid="collection-filters">
+          <div className="flex gap-1.5">
+            {[["all", "All"], ["found", "Found"], ["missing", "Missing"]].map(([v, label]) => (
+              <button
+                key={v}
+                onClick={() => setStatusF(v)}
+                className="rounded-full border px-3.5 py-1.5 font-sans text-xs font-bold transition-colors"
+                style={statusF === v ? { borderColor: "#E6B23A", background: "#E6B23A1f", color: "#E6B23A" } : { borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.5)" }}
+                data-testid={`filter-status-${v}`}
+              >
+                {t(label)}
+              </button>
+            ))}
+          </div>
+          <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+            <button
+              onClick={() => setRealmF("all")}
+              className="whitespace-nowrap rounded-full border px-3 py-1 font-sans text-[11px] font-bold transition-colors"
+              style={realmF === "all" ? { borderColor: "#E6B23A", background: "#E6B23A1f", color: "#E6B23A" } : { borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.5)" }}
+              data-testid="filter-realm-all"
+            >
+              {t("Every realm")}
+            </button>
+            {realmList.map((realm) => (
+              <button
+                key={realm}
+                onClick={() => setRealmF(realm === realmF ? "all" : realm)}
+                className="whitespace-nowrap rounded-full border px-3 py-1 font-sans text-[11px] font-bold transition-colors"
+                style={realmF === realm ? { borderColor: "#E6B23A", background: "#E6B23A1f", color: "#E6B23A" } : { borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.5)" }}
+                data-testid={`filter-realm-${realm.toLowerCase().replace(/[^a-z]+/g, "-")}`}
+              >
+                {t(realm)}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* collection */}
+        {ritualsShown.length === 0 && (
+          <p className="mt-5 rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-center font-sans text-xs text-white/40" data-testid="rituals-empty">{t("No rituals match this filter.")}</p>
+        )}
         <div className="mt-5 grid grid-cols-2 gap-3">
-          {RITUALS.map((r, idx) => {
+          {ritualsShown.map((r, idx) => {
             const info = seen[r.key];
             const got = Boolean(info?.count);
             const Icon = ICONS[r.key] || Layers;
@@ -108,11 +223,14 @@ export default function Rituals() {
                   <span className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: got ? `${r.accent}22` : "rgba(255,255,255,0.05)" }}>
                     {got ? <Icon className="h-5 w-5" style={{ color: r.accent }} /> : <Lock className="h-4 w-4 text-white/30" />}
                   </span>
-                  {got && (
-                    <span className="rounded-full px-2 py-0.5 font-sans text-[10px] font-bold" style={{ background: `${r.accent}22`, color: r.accent }} data-testid={`ritual-count-${r.key}`}>
-                      ×{info.count}
-                    </span>
-                  )}
+                  <div className="flex flex-col items-end gap-1">
+                    <RarityTag k={r.key} kind="ritual" t={t} />
+                    {got && (
+                      <span className="rounded-full px-2 py-0.5 font-sans text-[10px] font-bold" style={{ background: `${r.accent}22`, color: r.accent }} data-testid={`ritual-count-${r.key}`}>
+                        ×{info.count}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className={`mt-2.5 font-serif text-base font-bold leading-tight ${got ? "text-white" : "text-white/35"}`} data-testid={`ritual-name-${r.key}`}>
                   {got ? t(r.name) : "? ? ?"}
@@ -271,6 +389,7 @@ export default function Rituals() {
                       {t("Live now")}
                     </span>
                   )}
+                  {!live && <RarityTag k={s.fateKey} kind="season" t={t} />}
                 </div>
                 <p className="mt-2 font-sans text-xs leading-relaxed text-white/55">{t(s.desc)}</p>
               </div>
@@ -278,8 +397,11 @@ export default function Rituals() {
           })}
         </div>
 
+        {heistsShown.length === 0 && (
+          <p className="mt-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-center font-sans text-xs text-white/40" data-testid="heists-empty">{t("No heists match this filter.")}</p>
+        )}
         <div className="mt-4 grid grid-cols-2 gap-3" data-testid="heists-grid">
-          {HEISTS.map((h, idx) => {
+          {heistsShown.map((h, idx) => {
             const info = heistsSeen[h.key];
             const got = Boolean(info?.count);
             const Icon = HEIST_ICONS[h.key] || Lock;
@@ -300,11 +422,14 @@ export default function Rituals() {
                   <span className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: got ? `${h.accent}22` : "rgba(255,255,255,0.05)" }}>
                     {got ? <Icon className="h-5 w-5" style={{ color: h.accent }} /> : <Lock className="h-4 w-4 text-white/30" />}
                   </span>
-                  {got && (
-                    <span className="rounded-full px-2 py-0.5 font-sans text-[10px] font-bold" style={{ background: `${h.accent}22`, color: h.accent }} data-testid={`heist-count-${h.key}`}>
-                      ×{info.count}
-                    </span>
-                  )}
+                  <div className="flex flex-col items-end gap-1">
+                    <RarityTag k={h.key} kind="heist" t={t} />
+                    {got && (
+                      <span className="rounded-full px-2 py-0.5 font-sans text-[10px] font-bold" style={{ background: `${h.accent}22`, color: h.accent }} data-testid={`heist-count-${h.key}`}>
+                        ×{info.count}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className={`mt-2.5 font-serif text-base font-bold leading-tight ${got ? "text-white" : "text-white/35"}`} data-testid={`heist-name-${h.key}`}>
                   {got ? t(h.name) : "? ? ?"}

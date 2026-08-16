@@ -40,6 +40,17 @@ export function orderCrawlRoute(items, origin, destination) {
 const STREAK_KEY = "ff_streak";
 const midnight = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
 
+// Every day a deal lands gets logged (local YYYY-MM-DD) so the Collection
+// page can draw the streak calendar. Kept to the last 120 days.
+const DEAL_DAYS_KEY = "ff_deal_days";
+const isoDay = (d) => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`; };
+export function readDealDays() {
+  try {
+    const a = JSON.parse(localStorage.getItem(DEAL_DAYS_KEY) || "[]");
+    return new Set(Array.isArray(a) ? a : []);
+  } catch { return new Set(); }
+}
+
 export function readStreak() {
   try {
     const raw = JSON.parse(localStorage.getItem(STREAK_KEY) || "null");
@@ -82,6 +93,11 @@ export function bumpStreak() {
       else if (days === 2 && !raw.graceUsed) { count = raw.count + 1; graceUsed = true; saved = true; }
     }
     localStorage.setItem(STREAK_KEY, JSON.stringify({ date: new Date().toISOString(), count, graceUsed }));
+    try {
+      const days = readDealDays();
+      days.add(isoDay(new Date()));
+      localStorage.setItem(DEAL_DAYS_KEY, JSON.stringify([...days].sort().slice(-120)));
+    } catch { /* calendar log is best-effort */ }
     return { count, saved };
   } catch { return { count: 1, saved: false }; }
 }

@@ -107,3 +107,17 @@ export function recordHeistSeen(key) {
     return false;
   }
 }
+
+// RARITY: how hard a fate is to witness. Interactive rituals turn up roughly
+// one deal in ten (Uncommon); realm heists strike on their own clock (Rare);
+// hidden variants and conditional shows are Epic; seasonal fates only exist
+// inside their yearly window (Legendary).
+export const RARITY = {
+  uncommon: { label: "Uncommon", color: "#7CD992" },
+  rare: { label: "Rare", color: "#6FB7FF" },
+  epic: { label: "Epic", color: "#C77DFF" },
+  legendary: { label: "Legendary", color: "#E6B23A" },
+};
+const EPIC_KEYS = new Set(["blackout", "tow", "cheesethief", "peek", "splat", "awakening", "furnace", "workshop", "armdrop"]);
+export const rarityOf = (key, kind) =>
+  EPIC_KEYS.has(key) ? "epic" : kind === "season" ? "legendary" : kind === "ritual" ? "uncommon" : "rare";

@@ -1216,3 +1216,31 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - COIN PILE-UP: hoard coins now land at --land (85-93vh) with a touchdown hop
   (ffCoinFallLand), flip animation iteration-count sized to stop at landing,
   whole layer fades at window end (ffTakeoverFade 18s).
+
+## 2026-02 (fork) — Wiper squeak, collection filters, rarity tags, streak calendar (FF_BUILD 535)
+- WIPER SOUND: user clip cut to 2.0s (/wiper-squeak.mp3, ffmpeg ss 0.4 t 2.0,
+  fades) and played at ph3 of SummerPoopHeist (vol 0.55) + preloaded.
+- COLLECTION FILTERS (Rituals.jsx): statusF (all/found/missing) + realmF chips
+  (unique realms across RITUALS+HEISTS); both grids filter via matches();
+  empty-state notes (rituals-empty / heists-empty testids).
+- RARITY TAGS: rituals.js exports RARITY {uncommon/rare/epic/legendary} +
+  rarityOf(key, kind); EPIC_KEYS = blackout, tow, cheesethief, peek, splat,
+  awakening, furnace, workshop, armdrop. RarityTag pill on ritual cards
+  (uncommon), heist cards (rare/epic), season cards (legendary, hidden while
+  "Live now" shows).
+- STREAK CALENDAR: bumpStreak() now logs local YYYY-MM-DD into ff_deal_days
+  (last 120, sorted); readDealDays() exported from homeConstants.
+  StreakCalendar card on Collection under progress: current month grid,
+  flame cells for deal days, today outlined, streak count shown at >=2.
+- NOTE: pod/browser clock reads Aug 16 2026 -> "Endless Summer" is the live
+  season in preview tests (explains earlier season toasts). Not a bug.
+
+## 2026-02 (fork) — Group/Pub window: top placement + gold standout (FF_BUILD 536)
+- MoreWaysToPlay card restyled: gold gradient (#FFF9EC->#FBEED3), 2px
+  #E6B23A/70 border, gold glow shadow, header text #8F6A18 — stands out from
+  the white setup cards.
+- Home.jsx: new guidedSealed state (set in sealFate). modesCard extracted to
+  a const; renders at the TOP of the left setup column while !guidedSealed
+  (i.e., when the guided intro was skipped/clicked off), and settles back
+  below the DealRow once a guided fate is sealed. Verified via DOM-order
+  check + screenshot after skipping intro.

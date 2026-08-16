@@ -220,7 +220,14 @@ export default function Home() {
     setShowGuided(false);
   };
 
+  // Tracks whether a fate was sealed through the guided ritual this visit.
+  // Until one is, the Group/Crawl/Passport window rides at the TOP of the
+  // setup column (skip the intro and it's the first thing you see; the
+  // shuffle controls wait right below it).
+  const [guidedSealed, setGuidedSealed] = useState(false);
+
   const sealFate = ({ mode: m, zip: z, coords: c, radius: r, cuisines }) => {
+    setGuidedSealed(true);
     setMode(m);
     setZip(z || "");
     setCoords(c || null);
@@ -929,6 +936,17 @@ export default function Home() {
     });
   }, [results, sortBy]);
 
+  // The Group / Crawl / Passport window. Rides at the TOP of the setup column
+  // until a guided fate is sealed; after that it settles below the deal row.
+  const modesCard = (
+    <MoreWaysToPlay
+      groupMode={groupMode} crawlMode={crawlMode} passportMode={passportMode}
+      onToggleGroup={() => { setGroupMode((v) => { const n = !v; if (n) { setCrawlMode(false); setPassportMode(false); } return n; }); setResult(null); setGroupPicks(null); }}
+      onToggleCrawl={() => { setCrawlMode((v) => { const n = !v; if (n) { setGroupMode(false); setPassportMode(false); } return n; }); if (!crawlMode) applyCrawlType(CRAWL_TYPES[0]); setResult(null); setGroupPicks(null); }}
+      onTogglePassport={() => { setPassportMode((v) => { const n = !v; if (n) { setGroupMode(false); setCrawlMode(false); setAllMode(false); if (!PASSPORT_CATEGORIES.includes(mode)) switchMode("explore"); } return n; }); setMyPassports(readPassports()); setResult(null); setGroupPicks(null); }}
+    />
+  );
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-white" data-ff-scope="app">
       {showThemeWelcome && <ThemeWelcomeDialog onDone={sealThemeChoice} />}
@@ -996,6 +1014,10 @@ export default function Home() {
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
           {/* left: search + filters + spin */}
           <div className="min-w-0 space-y-7">
+            {/* Until a guided fate is sealed, Group/Crawl/Passport leads the
+                column — skip the intro and it's the first thing you see.
+                Reshuffling waits just below. */}
+            {!guidedSealed && modesCard}
             {/* ZIP + radius live inside the Passport/Group setup panels for those modes. */}
             <LocationRadiusPanel
               hidden={passportMode || groupMode}
@@ -1046,12 +1068,8 @@ export default function Home() {
               />
             )}
 
-            <MoreWaysToPlay
-              groupMode={groupMode} crawlMode={crawlMode} passportMode={passportMode}
-              onToggleGroup={() => { setGroupMode((v) => { const n = !v; if (n) { setCrawlMode(false); setPassportMode(false); } return n; }); setResult(null); setGroupPicks(null); }}
-              onToggleCrawl={() => { setCrawlMode((v) => { const n = !v; if (n) { setGroupMode(false); setPassportMode(false); } return n; }); if (!crawlMode) applyCrawlType(CRAWL_TYPES[0]); setResult(null); setGroupPicks(null); }}
-              onTogglePassport={() => { setPassportMode((v) => { const n = !v; if (n) { setGroupMode(false); setCrawlMode(false); setAllMode(false); if (!PASSPORT_CATEGORIES.includes(mode)) switchMode("explore"); } return n; }); setMyPassports(readPassports()); setResult(null); setGroupPicks(null); }}
-            />
+            {/* after a guided fate is dealt the window settles back down here */}
+            {guidedSealed && modesCard}
 
             {passportMode && (
               <PassportPicker

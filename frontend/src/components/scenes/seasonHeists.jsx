@@ -226,6 +226,7 @@ export function SummerGullHeist() {
  * after load, then every 5-9 min (`ff:poop-heist` forces it). */
 export function SummerPoopHeist() {
   const witnessRef = useHeistWitness("splat");
+  useEffect(() => { preloadHeistAudio(["/wiper-squeak.mp3"]); }, []);
   const [run, setRun] = useState(null); // {x, y} splat spot (% of viewport)
   const [ph, setPh] = useState(0);      // 1 gull crosses, 2 splat!, 3 wiper
   useEffect(() => {
@@ -239,7 +240,10 @@ export function SummerPoopHeist() {
       setRun({ x: 34 + Math.random() * 32, y: 9 + Math.random() * 7 });
       setPh(1);                                          // incoming, high and casual
       timers.push(setTimeout(() => setPh(2), 1500));     // ...SPLAT
-      timers.push(setTimeout(() => setPh(3), 4100));     // the wiper arrives
+      timers.push(setTimeout(() => {                     // the wiper arrives, squeaking
+        setPh(3);
+        playHeistSound("/wiper-squeak.mp3", 0.55);
+      }, 4100));
       timers.push(setTimeout(() => {
         setPh(0); setRun(null); running = false;
         witnessRef.current(true);
