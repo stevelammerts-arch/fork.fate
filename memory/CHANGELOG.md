@@ -1031,3 +1031,15 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   finally a HUE-ROTATE pass (285-358deg sat>0.12 -> hue 22deg rust) to
   remove the raspberry-pink cast (48752 px). Sprites at ?v=517/516.
 - ffArmShudder + ffArmDetach keyframes added to index.css.
+
+## 2026-02 (fork) — Spark showers + zap + mousetrap (FF_BUILD 518)
+- Break-away: LARGE one-shot spark shower (14 sparks + flash core, keyframe
+  ffSparkShower) erupts at the socket at ph2 + quick zap audio /arm-zap.mp3
+  (user asset soundzee-glitchy zap, ffmpeg-trimmed to 1.2s with fade).
+- Ground impact: second large shower from the arm's torn socket at ph3
+  (replaced the old looping mini-burst).
+- Mousetrap: /steam-mousetrap.png (Nano Banana gen, magenta-keyed) at the
+  wall base, left calc(50%+36vh) bottom 12.8vh w 7.5vh — NOTE: first spot
+  (50%+26vh) was hidden BEHIND the alchemy bench (bench z-3 > floor z-2).
+  Rendered before the rats in the floor div so they scurry in front.
+- Verified: trap+rat close-up, socket flash and ground flash captured live.

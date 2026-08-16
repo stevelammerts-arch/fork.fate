@@ -534,7 +534,7 @@ function useArmDrop(enabled) {
   useEffect(() => {
     if (!enabled) return undefined;
     if (!window.matchMedia("(min-width: 640px)").matches) return undefined;
-    preloadHeistAudio(["/golem-thud.wav"]);
+    preloadHeistAudio(["/golem-thud.wav", "/arm-zap.mp3"]);
     let timers = [];
     let pending;
     const schedule = (min, spread) => { pending = setTimeout(run, min + Math.random() * spread); };
@@ -544,7 +544,10 @@ function useArmDrop(enabled) {
       window.__ffHeistCooldownUntil = Math.max(window.__ffHeistCooldownUntil || 0, Date.now() + 15000);
       timers.forEach(clearTimeout); timers = [];
       setPh(1);                                                  // the weld starts failing — sparks spit at the socket
-      timers.push(setTimeout(() => setPh(2), 1600));             // it tears loose and falls
+      timers.push(setTimeout(() => {                             // it tears loose — ZAP + spark shower
+        setPh(2);
+        playHeistSound("/arm-zap.mp3", 0.5);
+      }, 1600));
       timers.push(setTimeout(() => {                             // SLAM: floor thump, dust kick, spark burst
         setPh(3);
         playHeistSound("/golem-thud.wav", 0.65);
@@ -1058,6 +1061,16 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           <img src="/steam-arm-mounted.png?v=517" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 4px 7px rgba(0,0,0,0.55)) brightness(0.92)" }} />
         </div>
       )}
+      {/* BREAK-AWAY SPARK SHOWER: erupts from the shoulder socket the instant
+          the weld gives and the arm tears loose (one-shot, with the zap) */}
+      {cfg.golemLeft && armPh === 2 && (
+        <div className="absolute z-[4] hidden sm:block" data-testid="arm-break-shower" style={{ left: "calc(50% - 13.2vh)", bottom: "48vh" }}>
+          <span className="absolute rounded-full" style={{ left: "-3vh", top: "-3vh", width: "6vh", height: "6vh", background: "radial-gradient(circle, rgba(255,248,220,1), rgba(255,180,80,0.6) 40%, transparent 72%)", mixBlendMode: "screen", filter: "blur(1.5px)", animation: "ffSparkShower 0.55s ease-out forwards", "--sx": "0vh", "--sy": "0vh" }} />
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((i) => (
+            <span key={`bs-${i}`} className="absolute" style={{ width: `${0.55 + (i % 3) * 0.15}vh`, height: `${0.55 + (i % 3) * 0.15}vh`, borderRadius: "9999px", background: i % 2 ? "#FFE9A8" : "#FF9A3A", boxShadow: "0 0 6px 2px rgba(255,190,90,0.95)", "--sx": `${[-6, -3, 2, 6, -8, 4, 8, -5, 1, -2, 7, -7, 3, 5][i]}vh`, "--sy": `${[-7, -9, -8, -5, -2, -10, -3, 3, 6, 8, 2, 5, -6, 7][i]}vh`, animation: `ffSparkShower ${0.55 + (i % 4) * 0.12}s ease-out ${(i % 3) * 0.04}s forwards` }} />
+          ))}
+        </div>
+      )}
       {/* THE ARM DROP — FALLING/FLOOR: the torn arm tumbles in from the
           socket and lands where it rests. Box sits at the REST spot; the
           pre-fall pose is a translate+rotate about the torn shoulder. */}
@@ -1086,9 +1099,9 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
                 lands, then the slow just-ripped-loose loop while it rests */}
             {armPh === 3 && (
               <div className="absolute" data-testid="floor-arm-sparks-burst" style={{ left: "9%", top: "32%" }}>
-                <span className="absolute rounded-full" style={{ left: "-1.6vh", top: "-1.6vh", width: "3.2vh", height: "3.2vh", background: "radial-gradient(circle, rgba(255,240,200,1), rgba(255,170,70,0.55) 45%, transparent 75%)", mixBlendMode: "screen", filter: "blur(1px)", opacity: 0, animation: "ffWeldFlash 0.7s linear infinite" }} />
-                {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-                  <span key={`ab-${i}`} className="absolute" style={{ width: "0.55vh", height: "0.55vh", borderRadius: "9999px", background: i % 2 ? "#FFD98A" : "#FF9A3A", boxShadow: "0 0 5px 1px rgba(255,180,80,0.9)", opacity: 0, "--sx": `${[-3, -1.4, 1, -3.8, 2.2, -0.8, 2.8][i]}vh`, "--sy": `${[-4.2, -6, -5, -3, -3.6, -6.6, -2.6][i]}vh`, animation: `ffArmSpark 0.7s linear ${i * 0.07}s infinite` }} />
+                <span className="absolute rounded-full" style={{ left: "-2.6vh", top: "-2.6vh", width: "5.2vh", height: "5.2vh", background: "radial-gradient(circle, rgba(255,246,215,1), rgba(255,175,75,0.6) 42%, transparent 74%)", mixBlendMode: "screen", filter: "blur(1.5px)", animation: "ffSparkShower 0.6s ease-out forwards", "--sx": "0vh", "--sy": "0vh" }} />
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => (
+                  <span key={`ab-${i}`} className="absolute" style={{ width: `${0.55 + (i % 3) * 0.12}vh`, height: `${0.55 + (i % 3) * 0.12}vh`, borderRadius: "9999px", background: i % 2 ? "#FFD98A" : "#FF9A3A", boxShadow: "0 0 6px 2px rgba(255,185,85,0.95)", "--sx": `${[-5, -2.5, 1.5, -6.5, 3, -1, 4.5, -4, 2, 6, -3.5, 5][i]}vh`, "--sy": `${[-6, -8.5, -7, -4, -5.5, -9.5, -3.5, -2, -7.5, -5, -3, -8][i]}vh`, animation: `ffSparkShower ${0.55 + (i % 4) * 0.13}s ease-out ${(i % 3) * 0.05}s forwards` }} />
                 ))}
               </div>
             )}
@@ -1211,6 +1224,11 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             <rect x="500" y="88" width="18" height="15" rx="3" fill="#171411" stroke="#3A362E" strokeWidth="1.2" opacity="0.95" />
             <rect x="828" y="98" width="15" height="14" rx="2.5" fill="#141210" stroke="#3A362E" strokeWidth="1.2" opacity="0.95" />
           </svg>
+          {/* MOUSETRAP with cheese, set against the wall base — the rats
+              scurry right past it (rendered before them so they run in front) */}
+          <div className="absolute hidden sm:block" data-testid="steam-mousetrap" style={{ left: "calc(50% + 36vh)", bottom: "12.8vh", width: "7.5vh", aspectRatio: "1245 / 505" }}>
+            <img src="/steam-mousetrap.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.55)) brightness(1.08)" }} />
+          </div>
           {/* WORKSHOP RATS: two of them scurry along the wall/floor corner,
               back and forth at constant speed — their turnarounds happen
               hidden BEHIND the left/right golems (rats are z-2, golems z-3/4).
