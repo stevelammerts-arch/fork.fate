@@ -417,6 +417,22 @@ async def places_photo(name: str):
         content = r.content
         ctype = r.headers.get("content-type", "image/jpeg")
 
+    # OVERSIZED PHOTOS: anything above the cache ceiling would never be
+    # cached — every view would re-bill the Google budget and ship huge
+    # originals to phones. Recompress to JPEG so it fits the cache.
+    if len(content) > _PHOTO_CACHE_MAX_BYTES:
+        try:
+            from io import BytesIO
+            from PIL import Image as PILImage
+            im = PILImage.open(BytesIO(content)).convert("RGB")
+            buf = BytesIO()
+            im.save(buf, "JPEG", quality=72, optimize=True)
+            if buf.tell() < len(content):
+                content = buf.getvalue()
+                ctype = "image/jpeg"
+        except Exception:  # corrupt/unsupported image — serve the original
+            logger.warning("photo recompression failed for %s", name)
+
     if len(content) <= _PHOTO_CACHE_MAX_BYTES:
         if len(_PHOTO_CACHE) >= _PHOTO_CACHE_MAX:
             for k in [k for k, v in list(_PHOTO_CACHE.items()) if now - v[0] >= _PHOTO_TTL]:

@@ -1043,3 +1043,20 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   (50%+26vh) was hidden BEHIND the alchemy bench (bench z-3 > floor z-2).
   Rendered before the rats in the floor div so they scurry in front.
 - Verified: trap+rat close-up, socket flash and ground flash captured live.
+
+## 2026-02 (fork) — Code-review audit + photo cache fix
+- Audited automated review findings; most were false positives:
+  - `is`-vs-`==` in tests: ZERO string-identity comparisons exist (grep
+    proved it); flagged `is None` usages are correct Python.
+  - seed_data.py random: intentionally deterministic (SHA-256-seeded RNG for
+    reproducible fake data, commented as non-cryptographic).
+  - Hook deps: intentional mount-once heist schedulers (adding deps would
+    restart multi-minute timers every render). axios/API are module consts.
+  - localStorage: only game state (themes, heists seen, journal) — no
+    tokens/secrets (grep verified 0 matches).
+  - Index keys: static particle arrays that never reorder — valid.
+  - Complexity/component splits: real but deferred to refactor backlog.
+- REAL FIX (found via full pytest run): routes/places.py photo proxy —
+  photos > 400KB cache ceiling were NEVER cached, so every view re-billed
+  the Google budget and shipped 620KB originals to phones. Now recompressed
+  server-side (PIL JPEG q72) to fit the cache. 451/451 tests pass.
