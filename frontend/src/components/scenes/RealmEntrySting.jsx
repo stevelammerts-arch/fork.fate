@@ -19,30 +19,63 @@ const STINGS = {
   light: "/cafe-ambient.mp3",
 };
 
+// Quiet looping bed that lives UNDER the realm. `afterSting: true` waits for
+// the entry track to finish (the loop takes over as the song fades);
+// otherwise it runs the whole visit.
+const AMBIENT_LOOPS = {
+  summer: { src: "/summer-waves-loop.mp3", vol: 0.16, afterSting: false }, // waves + gulls
+  fantasy: { src: "/fantasy-mine-loop.mp3", vol: 0.15, afterSting: true }, // creaking mine shaft
+};
+
 export function RealmEntrySting({ theme }) {
   useEffect(() => {
     const src = STINGS[theme];
-    if (!src) return;
+    const loopCfg = AMBIENT_LOOPS[theme];
+    if (!src && !loopCfg) return;
     let a = null;
-    const retry = () => { if (a) a.play().catch(() => {}); };
+    let loop = null;
+    // afterSting loops stay "pending" until the song has played through
+    let loopReady = !loopCfg || !loopCfg.afterSting;
+    const muted = () => { try { return localStorage.getItem("ff_muted") === "1"; } catch { return true; } };
+    const playLoop = () => {
+      if (!loopCfg || !loopReady || muted()) return;
+      if (!loop) { loop = new Audio(loopCfg.src); loop.loop = true; loop.volume = loopCfg.vol; }
+      if (loop.paused) loop.play().catch(() => {});
+    };
+    const retry = () => { if (a) a.play().catch(() => {}); playLoop(); };
     try {
-      if (localStorage.getItem("ff_muted") !== "1") {
+      if (!muted() && src) {
         a = new Audio(src);
         a.volume = 0.1; // gentle — an entry sting should never startle
+        a.addEventListener("ended", () => { loopReady = true; playLoop(); });
         a.play().catch(() => window.addEventListener("pointerdown", retry, { once: true }));
+      } else {
+        loopReady = true; // no song to wait for
       }
+      playLoop();
     } catch { /* audio unavailable */ }
-    const muteWatch = setInterval(() => {
-      try { if (a && localStorage.getItem("ff_muted") === "1") { a.pause(); a = null; } } catch { /* ignore */ }
+    const watch = setInterval(() => {
+      try {
+        if (muted()) {
+          if (a) { a.pause(); a = null; loopReady = true; }
+          if (loop && !loop.paused) loop.pause();
+        } else {
+          playLoop(); // resumes (or starts) the bed after an unmute
+        }
+      } catch { /* ignore */ }
     }, 400);
     return () => {
-      clearInterval(muteWatch);
+      clearInterval(watch);
       window.removeEventListener("pointerdown", retry);
-      if (!a) return;
-      const el = a; // quick fade so leaving the realm doesn't clip the track
-      const fade = setInterval(() => {
-        el.volume = Math.max(0, el.volume - 0.03);
-        if (el.volume <= 0) { clearInterval(fade); el.pause(); }
+      const els = [a, loop].filter(Boolean);
+      if (!els.length) return;
+      const fade = setInterval(() => { // quick fade so leaving doesn't clip
+        let alive = false;
+        els.forEach((el) => {
+          el.volume = Math.max(0, el.volume - 0.03);
+          if (el.volume <= 0) el.pause(); else alive = true;
+        });
+        if (!alive) clearInterval(fade);
       }, 60);
     };
   }, [theme]);

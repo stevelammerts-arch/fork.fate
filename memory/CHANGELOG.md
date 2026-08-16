@@ -1164,3 +1164,38 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   done @6550 (normal path unchanged). Force w/ detail:
   `new CustomEvent('ff:peek-heist', {detail:{scare:true}})` (false forces normal).
 - rituals.js peek desc extended with the catch-you-watching line.
+
+## 2026-02 (fork) — Summer gulls, ambient loops, realm takeovers (FF_BUILD 530-532)
+- SUMMER GULL HEIST "Mine! Mine! Mine!" (key: gulls, rituals.js): 5 photoreal
+  gull heads (/summer-gull-head.png, nano-banana magenta-keyed) pop out one at
+  a time FROM BEHIND the medallion rim — necks planted on the logo (anchor
+  r=0.46w, rotate a+90, origin bottom-center, headW 0.4w) — while 6.5s of
+  user's mine.mp3 (/gull-mine.mp3) plays; then a photoreal gull flaps off with
+  the logo (2 frames /summer-gull-fly-1|2.png, beak-aligned 305x243 canvas,
+  ffWingA/B 0.42s steps toggle, flies up-LEFT since art faces left).
+  SummerGullHeist in seasonHeists.jsx, forced by ff:gull-heist.
+- AMBIENT FLYING BIRDS (SeasonScene summer): now use the 2 photoreal flap
+  frames, flipped scaleX(-1) to face their L->R cruise (user caught them
+  flying backwards in build 531 -> fixed in 532).
+- AMBIENT LOOPS (RealmEntrySting.jsx AMBIENT_LOOPS): summer waves+gulls loop
+  (/summer-waves-loop.mp3, vol .16, plays whole visit) and dragon-hoard mine
+  shaft (/fantasy-mine-loop.mp3, vol .15, afterSting:true — starts when the
+  entry song ends; mute watcher pauses/resumes both).
+- BALL HEIST: ~50% of strikes now rebound BACK off the side they came from
+  (run.back, exitRight logic + matching spin direction).
+- AUGUST SEASON swapped: fireflies -> "Endless Summer" beach balls bouncing
+  around the screen (id beachballs, fateKey beachball, effect beachballs:
+  6 balls, nested Fade/X/Y/spin keyframes ffSeasonBallFade/X/Y).
+  activeSeason() honors localStorage ff_season_test=<id> for testing.
+- REALM TAKEOVERS (useAmbientTakeover in AmbianceScene, z-45, first 40-90s,
+  gap 100-220s): fairy fireflies (ff:fireflies, 21s), dragon-hoard gold coins
+  falling from the top banner (ff:coins, 18s, /fantasy-coin.png,
+  ffCoinFall/ffCoinFlip), steampunk green-eyed head peeking in from screen
+  edges (ff:peekin, 15.5s, left @0.3s + right @8.2s, ffPeekInL/R), cyber
+  police chase sweep (ff:chase, 8s, ffChaseSweep + siren @0.3).
+- Sprites via /app/scripts/gen_gull_real.py; fly frames beak-aligned via numpy.
+
+## 2026-02 (fork) — Gulls coast (FF_BUILD 533)
+- Ambient summer gulls: ffWingGlideA/B keyframes = 3 quick beats then a long
+  wings-up COAST (frame 1 held 50-100% of each b.cycle), synced with ffGullBob
+  climb/sink rhythm. Getaway heist gull keeps constant ffWingA/B flapping.

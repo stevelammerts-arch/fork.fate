@@ -536,6 +536,109 @@ body {
   100% { opacity: 1;   transform: scale(1.12); }
 }
 
+/* MINE! MINE! MINE! — gull heads spring out from BEHIND the medallion rim,
+   each rotated along its own spoke (--gr) so its neck stays planted on the
+   logo; they travel back along --gx/--gy when they retreat */
+@keyframes ffGullPeek{
+  0%   { transform: translate(var(--gx), var(--gy)) rotate(var(--gr)) scale(0.1); opacity: 0; }
+  60%  { transform: translate(0, 0) rotate(var(--gr)) scale(1.12); opacity: 1; }
+  80%  { transform: translate(0, 0) rotate(var(--gr)) scale(0.95); }
+  100% { transform: translate(0, 0) rotate(var(--gr)) scale(1); opacity: 1; }
+}
+@keyframes ffGullRetreat{
+  0%   { transform: translate(0, 0) rotate(var(--gr)) scale(1); opacity: 1; }
+  100% { transform: translate(var(--gx), var(--gy)) rotate(var(--gr)) scale(0.1); opacity: 0; }
+}
+/* the quizzical head-cock while they stare you down */
+@keyframes ffGullTilt{
+  0%, 100% { transform: rotate(calc(var(--tl, 8deg) * -1)); }
+  45%, 55% { transform: rotate(var(--tl, 8deg)); }
+}
+/* two-frame photoreal wingbeat: frame A up / frame B down */
+@keyframes ffWingA{ 0%, 49.9% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes ffWingB{ 0%, 49.9% { opacity: 0; } 50%, 100% { opacity: 1; } }
+/* ...and the cruising version: three quick beats, then wings held HIGH in a
+   long coast (frame A = wings up) before the next burst of flapping */
+@keyframes ffWingGlideA{
+  0%, 8.3%     { opacity: 1; }
+  8.4%, 16.6%  { opacity: 0; }
+  16.7%, 25%   { opacity: 1; }
+  25.1%, 33.3% { opacity: 0; }
+  33.4%, 41.6% { opacity: 1; }
+  41.7%, 49.9% { opacity: 0; }
+  50%, 100%    { opacity: 1; }
+}
+@keyframes ffWingGlideB{
+  0%, 8.3%     { opacity: 0; }
+  8.4%, 16.6%  { opacity: 1; }
+  16.7%, 25%   { opacity: 0; }
+  25.1%, 33.3% { opacity: 1; }
+  33.4%, 41.6% { opacity: 0; }
+  41.7%, 49.9% { opacity: 1; }
+  50%, 100%    { opacity: 0; }
+}
+/* the getaway gull hauls the medallion off toward the top-left (sprite faces left) */
+@keyframes ffGullCarryOff{
+  0%   { transform: translate(0, 10px) scale(0.55); opacity: 0; }
+  14%  { transform: translate(-6vw, -2vh) scale(1); opacity: 1; }
+  100% { transform: translate(-82vw, -58vh) scale(0.8); opacity: 1; }
+}
+@keyframes ffGullCarryBob{
+  0%, 100% { transform: rotate(-3deg) translateY(0); }
+  50%      { transform: rotate(4deg) translateY(-6px); }
+}
+
+/* ENDLESS SUMMER takeover: beach balls bouncing around the whole screen.
+   Layered: fade shell -> X glide (alternate) -> Y bounce (alternate) -> spin */
+@keyframes ffSeasonBallFade{
+  0%   { opacity: 0; }
+  7%   { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes ffSeasonBallX{
+  0%   { transform: translateX(-8vw); }
+  100% { transform: translateX(96vw); }
+}
+@keyframes ffSeasonBallY{
+  0%   { transform: translateY(4vh); }
+  100% { transform: translateY(76vh); }
+}
+
+/* DRAGON HOARD takeover: gold coins spilling down from the top banner */
+@keyframes ffCoinFall{
+  0%   { transform: translateY(-10vh); opacity: 0; }
+  6%   { opacity: 1; }
+  100% { transform: translateY(110vh); opacity: 1; }
+}
+/* the coin tumbles edge-over-face as it falls (scaleX sells the flip) */
+@keyframes ffCoinFlip{
+  0%   { transform: rotate(var(--cr, 0deg)) scaleX(1); }
+  25%  { transform: rotate(var(--cr, 0deg)) scaleX(0.12); }
+  50%  { transform: rotate(var(--cr, 0deg)) scaleX(1); }
+  75%  { transform: rotate(var(--cr, 0deg)) scaleX(0.12); }
+  100% { transform: rotate(var(--cr, 0deg)) scaleX(1); }
+}
+
+/* STEAMPUNK takeover: the green-eyed head leans in from a screen edge,
+   holds there watching you work, then slips back out */
+@keyframes ffPeekInL{
+  0%        { transform: translateX(-102%); }
+  16%, 82%  { transform: translateX(-14%); }
+  100%      { transform: translateX(-102%); }
+}
+@keyframes ffPeekInR{
+  0%        { transform: translateX(102%); }
+  16%, 82%  { transform: translateX(14%); }
+  100%      { transform: translateX(102%); }
+}
+
+/* CYBERSCAPE takeover: the chase tears across the whole skyline */
+@keyframes ffChaseSweep{
+  0%   { transform: translateX(-45vw); }
+  100% { transform: translateX(145vw); }
+}
+
 /* The step: body weight LIFTS as the right leg raises, then settles as the
    foot plants forward — no sliding, the pose sprite carries the leg motion. */
 @keyframes ffGolemStepLift{

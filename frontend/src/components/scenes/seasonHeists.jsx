@@ -32,6 +32,8 @@ export function SummerBallHeist() {
           // Keep it unpredictable: ~40% of strikes punt in from the RIGHT
           // edge instead, and the launch height varies a little every time.
           side: Math.random() < 0.4 ? "right" : "left",
+          // ...and half the time it rebounds BACK the way it came
+          back: Math.random() < 0.5,
           dip: 260 + Math.random() * 160,
         });
         timers.push(setTimeout(() => setPhase(1), 30));   // incoming!
@@ -67,13 +69,15 @@ export function SummerBallHeist() {
     };
   }, []); // witnessRef is a stable ref
   if (!run) return null;
-  const { cx, cy, w, side, dip } = run;
+  const { cx, cy, w, side, back, dip } = run;
   const ballW = w * 1.42; // ball art has padding — this renders it medallion-sized
-  // punted up from low off a random edge, exits bouncing away down the far side
+  // punted up from low off a random edge; exits bouncing away down the far
+  // side — or rebounds back off the side it came from
   const fromLeft = side !== "right";
+  const exitRight = back ? !fromLeft : fromLeft;
   const sx = fromLeft ? -ballW - 40 : window.innerWidth + ballW + 40;
   const sy = cy + Math.min(dip, window.innerHeight * 0.42);
-  const exitX = fromLeft ? cx + window.innerWidth * 0.35 : cx - window.innerWidth * 0.35;
+  const exitX = exitRight ? cx + window.innerWidth * 0.35 : cx - window.innerWidth * 0.35;
   const x = phase === 0 ? sx : phase === 3 ? exitX : cx;
   const y = phase === 0 ? sy : phase === 3 ? window.innerHeight + ballW : cy;
   const trans = phase === 1 ? "transform 0.87s cubic-bezier(0.3,0,0.68,1)" : phase === 3 ? "transform 0.85s cubic-bezier(0.5,0.05,0.85,0.5)" : "none";
@@ -93,10 +97,125 @@ export function SummerBallHeist() {
           style={{
             width: ballW, height: ballW,
             filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.3))",
-            animation: phase === 2 ? "ffBallSettle 0.6s ease-out" : phase === 1 || phase === 3 ? `ffBallHeistSpin 0.7s linear infinite${fromLeft ? "" : " reverse"}` : undefined,
+            animation: phase === 2 ? "ffBallSettle 0.6s ease-out" : phase === 3 ? `ffBallHeistSpin 0.7s linear infinite${exitRight ? "" : " reverse"}` : phase === 1 ? `ffBallHeistSpin 0.7s linear infinite${fromLeft ? "" : " reverse"}` : undefined,
           }}
         />
       </div>
+    </div>
+  );
+}
+
+/** Summer heist #3 — MINE! MINE! MINE!: five curious seagull heads pop out
+ * one at a time around the medallion's rim (squawking their "mine!" claim),
+ * then duck away as a gull swoops off with the whole medallion in its feet.
+ * First strike ~2-3 min after load (staggered clear of the ball + crab),
+ * then every 3-6 min (`ff:gull-heist` forces it, used for testing). */
+export function SummerGullHeist() {
+  const witnessRef = useHeistWitness("gulls");
+  useEffect(() => { preloadHeistAudio(["/gull-mine.mp3"]); }, []);
+  const [run, setRun] = useState(null);     // {cx, cy, w}
+  const [heads, setHeads] = useState(0);    // how many heads are out (0-5)
+  const [stage, setStage] = useState(null); // "heads" | "retract" | "fly"
+  useEffect(() => {
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force) => {
+      if (running) return;
+      running = true;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        setStage("heads");
+        playHeistSound("/gull-mine.mp3", 0.6);              // "mine! mine! mine!"
+        [0, 1, 2, 3, 4].forEach((i) => {                    // heads pop out one at a time
+          timers.push(setTimeout(() => setHeads(i + 1), 60 + i * 920));
+        });
+        timers.push(setTimeout(() => setStage("retract"), 5150)); // heads duck away...
+        timers.push(setTimeout(() => {                       // ...and a gull makes off with the medallion
+          setStage("fly");
+          med.style.visibility = "hidden"; startleTitle();
+        }, 5550));
+        timers.push(setTimeout(() => {
+          med.style.visibility = "";
+          med.style.animation = "none";
+          void med.offsetWidth; // the medallion bounces back home
+          med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+        }, 7400));
+        timers.push(setTimeout(() => {
+          setRun(null); setStage(null); setHeads(0); running = false;
+          witnessRef.current(true);
+          schedule(180000 + Math.random() * 180000); // again in 3-6 min
+        }, 8200));
+      });
+    };
+    schedule(130000 + Math.random() * 50000);
+    const force = () => start(true);
+    window.addEventListener("ff:gull-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:gull-heist", force);
+      // Never leave the logo hidden if we unmount mid-heist (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run || !stage) return null;
+  const { cx, cy, w } = run;
+  // five heads ringing the medallion — each neck is planted ON the logo rim
+  // and the head radiates outward (rotated along its spoke), so they read as
+  // popping out from BEHIND the medallion
+  const SPOTS = [
+    { a: -90, tilt: -8 },   // straight up
+    { a: -30, tilt: 10 },   // upper right
+    { a: -150, tilt: -10 }, // upper left
+    { a: 15, tilt: 8 },     // right side
+    { a: 165, tilt: -9 },   // left side
+  ];
+  const headW = w * 0.4;              // small — the medallion stays the star
+  const headH = headW * (236 / 240);  // art is 240x236
+  const gullW = w * 2.3;
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="gull-heist">
+      {/* the rim gang: quizzical heads popping out one at a time */}
+      {stage !== "fly" && SPOTS.map((s, i) => {
+        if (i >= heads) return null;
+        const rad = (s.a * Math.PI) / 180;
+        // neck base sits just inside the rim; the head grows outward from it
+        const nx = cx + Math.cos(rad) * w * 0.46;
+        const ny = cy + Math.sin(rad) * w * 0.46;
+        return (
+          <div key={`gh-${i}`} className="absolute" data-testid={`gull-head-${i}`} style={{
+            left: nx - headW / 2, top: ny - headH, width: headW,
+            transformOrigin: "50% 100%",
+            "--gx": `${-Math.cos(rad) * w * 0.34}px`, "--gy": `${-Math.sin(rad) * w * 0.34}px`, "--gr": `${s.a + 90}deg`,
+            animation: stage === "retract" ? "ffGullRetreat 0.35s ease-in forwards" : "ffGullPeek 0.55s cubic-bezier(0.34,1.56,0.64,1) forwards",
+          }}>
+            <img src="/summer-gull-head.png" alt="" className="w-full object-contain" style={{ filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.3))", animation: `ffGullTilt ${1.3 + (i % 3) * 0.35}s ease-in-out ${i * 0.2}s infinite`, transformOrigin: "50% 85%", "--tl": `${s.tilt}deg` }} />
+          </div>
+        );
+      })}
+      {/* the getaway: a gull flaps off with the medallion in its feet */}
+      {stage === "fly" && (
+        <div className="absolute" data-testid="gull-heist-getaway" style={{
+          left: cx, top: cy,
+          animation: "ffGullCarryOff 1.9s cubic-bezier(0.5,0.05,0.75,0.45) forwards",
+        }}>
+          <div style={{ animation: "ffGullCarryBob 0.7s ease-in-out infinite" }}>
+            <div className="relative" style={{ width: gullW, aspectRatio: "305 / 243", marginLeft: -gullW * 0.5, marginTop: -gullW * 0.72 }}>
+              <img src="/summer-gull-fly-1.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.25))", animation: "ffWingA 0.42s steps(1,end) infinite" }} />
+              <img src="/summer-gull-fly-2.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.25))", animation: "ffWingB 0.42s steps(1,end) infinite" }} />
+            </div>
+            <div className="absolute overflow-hidden bg-[#F5F0E6] ring-1 ring-[#E4E4E7]" style={{ left: -w / 2, top: -w * 0.22, width: w, height: w, borderRadius: "9999px" }}>
+              <img src="/logo-mark-light.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -644,12 +644,40 @@ function useSeasonalDrift() {
 // tiny helper: the drift toast fires outside any component's i18n context
 const t2 = (s) => s;
 
+/** REALM TAKEOVER: every few minutes a realm-flavored ambience briefly takes
+ * over the screen for `durMs` (fairy fireflies, hoard coins, steam peek-in,
+ * cyber chase). Pure ambience (not a collectable fate). `eventName` forces one. */
+function useAmbientTakeover(enabled, eventName, durMs, sound, vol) {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    if (!enabled) return undefined;
+    let offTimer;
+    let pending;
+    const schedule = (min, spread) => { pending = setTimeout(run, min + Math.random() * spread); };
+    const run = () => {
+      clearTimeout(offTimer);
+      setOn(true);
+      if (sound) playHeistSound(sound, vol || 0.35);
+      offTimer = setTimeout(() => { setOn(false); schedule(100000, 120000); }, durMs);
+    };
+    schedule(40000, 50000);
+    const force = () => { clearTimeout(pending); run(); };
+    window.addEventListener(eventName, force);
+    return () => { clearTimeout(pending); clearTimeout(offTimer); window.removeEventListener(eventName, force); };
+  }, [enabled]); // eventName/durMs/sound are fixed per call site
+  return on;
+}
+
 export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
   const golemWake = useGolemWake(!!cfg.golemRight);
   const blastPh = useFurnaceBlast(!!cfg.golemLeft);
   const armPh = useArmDrop(!!cfg.golemLeft);
   const trapPh = useTrapSnap(!!cfg.golemLeft);
   const { season, seasonOn } = useSeasonalDrift();
+  const firefliesOn = useAmbientTakeover(!!cfg.gully, "ff:fireflies", 21000);
+  const coinsOn = useAmbientTakeover(theme === "fantasy", "ff:coins", 18000);
+  const peekinOn = useAmbientTakeover(theme === "steam", "ff:peekin", 15500);
+  const chaseOn = useAmbientTakeover(theme === "cyber", "ff:chase", 8000, "/police-siren.mp3", 0.3);
   // any golem event running → the strapped rack robot powers up in response
   const workshopEvent = (golemWake >= 1 && golemWake <= 5) || blastPh >= 1;
   // WORKSHOP TROPHY: seeing the rack robot power up (head straight, solid
@@ -1418,6 +1446,55 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
     {theme === "steam" && <SteamSpringHeist key={`ssh-${heistEpoch}`} />}
     {theme === "steam" && <SteamGearsHeist key={`sgh-${heistEpoch}`} />}
     {theme === "steam" && <SteamPeekHeist key={`sph-${heistEpoch}`} />}
+    {/* FAIRY GULLY FIREFLIES: an occasional wild swarm drifting through */}
+    {firefliesOn && (
+      <div className="pointer-events-none fixed inset-0 z-[45] select-none overflow-hidden" data-testid="fairy-fireflies">
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <div key={`ff-${i}`} className="absolute left-0" style={{ top: `${8 + (i * 9) % 60}%`, animation: `ffSeasonDrift ${8 + (i % 4) * 1.8}s linear ${i * 0.9}s forwards`, opacity: 0 }}>
+            <div style={{ width: `${0.7 + (i % 3) * 0.25}vh`, height: `${0.7 + (i % 3) * 0.25}vh`, borderRadius: "9999px", background: "#FFD166", boxShadow: "0 0 8px 3px #FFD166AA", animation: `ffSeasonBob ${1.8 + (i % 3) * 0.5}s ease-in-out infinite, ffLampBlink ${1.1 + (i % 4) * 0.4}s ease-in-out infinite` }} />
+          </div>
+        ))}
+      </div>
+    )}
+    {/* DRAGON HOARD takeover: gold coins spilling down from the top banner */}
+    {coinsOn && (
+      <div className="pointer-events-none fixed inset-0 z-[45] select-none overflow-hidden" data-testid="hoard-coins">
+        {Array.from({ length: 16 }, (_, i) => (
+          <div key={`hc-${i}`} className="absolute" style={{ left: `${(i * 61) % 94 + 2}%`, top: 0, animation: `ffCoinFall ${2.1 + (i % 4) * 0.45}s cubic-bezier(0.4,0,0.85,0.6) ${(i * 0.83) % 13}s both` }}>
+            <img src="/fantasy-coin.png" alt="" className="object-contain" style={{ width: `${2.6 + (i % 3) * 1.1}vh`, "--cr": `${(i * 47) % 360}deg`, filter: "drop-shadow(0 0 6px rgba(230,178,58,0.55))", animation: `ffCoinFlip ${0.55 + (i % 3) * 0.2}s linear infinite` }} />
+          </div>
+        ))}
+      </div>
+    )}
+    {/* STEAMPUNK takeover: the green-eyed head leans in from the screen edge,
+        watching what you're up to — first the left side, then the right */}
+    {peekinOn && (
+      <div className="pointer-events-none fixed inset-0 z-[45] select-none overflow-hidden" data-testid="steam-peekin">
+        <div className="absolute left-0" style={{ top: "32%", width: "min(13vh, 110px)", animation: "ffPeekInL 6.8s ease-in-out 0.3s both" }}>
+          <img src="/steam-peek-head.png" alt="" className="w-full object-contain" style={{ transform: "rotate(90deg)", filter: "brightness(0.9) drop-shadow(0 0 8px rgba(124,224,138,0.4))" }} />
+        </div>
+        <div className="absolute right-0" style={{ top: "56%", width: "min(13vh, 110px)", animation: "ffPeekInR 6.8s ease-in-out 8.2s both" }}>
+          <img src="/steam-peek-head.png" alt="" className="w-full object-contain" style={{ transform: "rotate(-90deg)", filter: "brightness(0.9) drop-shadow(0 0 8px rgba(124,224,138,0.4))" }} />
+        </div>
+      </div>
+    )}
+    {/* CYBERSCAPE takeover: a police chase tears across the skyline */}
+    {chaseOn && (
+      <div className="pointer-events-none fixed inset-0 z-[45] select-none overflow-hidden" data-testid="cyber-chase">
+        <div className="absolute left-0" style={{ top: "58%", animation: "ffChaseSweep 6.5s cubic-bezier(0.3,0,0.7,1) forwards" }}>
+          {/* the runner, flat out */}
+          <img src="/cyber-car.png" alt="" className="object-contain" style={{ width: "min(16vh, 130px)", opacity: 0.95, filter: "drop-shadow(0 0 10px rgba(34,224,224,0.55))" }} />
+          {/* the law, right on its bumper, lights blazing */}
+          <div className="absolute" style={{ left: "-118%", top: "6%", width: "min(15vh, 122px)" }}>
+            <span className="pointer-events-none absolute -inset-3" style={{ background: "radial-gradient(ellipse at 42% 30%, rgba(255,45,85,0.45), transparent 68%)", filter: "blur(7px)", animation: "ffCopFlashA 0.55s steps(1,end) infinite" }} />
+            <span className="pointer-events-none absolute -inset-3" style={{ background: "radial-gradient(ellipse at 58% 30%, rgba(64,120,255,0.5), transparent 68%)", filter: "blur(7px)", animation: "ffCopFlashB 0.55s steps(1,end) infinite" }} />
+            <span className="pointer-events-none absolute rounded-full" style={{ left: "45.7%", top: "-4%", width: "7%", aspectRatio: "1", background: "radial-gradient(circle, rgba(255,45,85,1) 30%, rgba(255,45,85,0) 70%)", boxShadow: "0 0 14px 7px rgba(255,45,85,0.9)", animation: "ffCopFlashA 0.55s steps(1,end) infinite" }} />
+            <span className="pointer-events-none absolute rounded-full" style={{ left: "51.9%", top: "-3%", width: "7%", aspectRatio: "1", background: "radial-gradient(circle, rgba(64,120,255,1) 30%, rgba(64,120,255,0) 70%)", boxShadow: "0 0 14px 7px rgba(64,120,255,0.9)", animation: "ffCopFlashB 0.55s steps(1,end) infinite" }} />
+            <img src="/cyber-police.png" alt="" className="block w-full object-contain" style={{ opacity: 0.95, filter: "drop-shadow(0 0 8px rgba(120,150,255,0.45))" }} />
+          </div>
+        </div>
+      </div>
+    )}
     {/* SEASONAL DRIFT overlay: the live season's exclusive effect */}
     {seasonOn && season && (
       <div className="pointer-events-none fixed inset-0 z-[45] select-none overflow-hidden" data-testid="seasonal-drift">
@@ -1428,9 +1505,13 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             </svg>
           </div>
         ))}
-        {season.effect === "fireflies" && [0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-          <div key={`sf-${i}`} className="absolute left-0" style={{ top: `${8 + (i * 9) % 60}%`, animation: `ffSeasonDrift ${8 + (i % 4) * 1.8}s linear ${i * 0.6}s forwards`, opacity: 0 }}>
-            <div style={{ width: `${0.7 + (i % 3) * 0.25}vh`, height: `${0.7 + (i % 3) * 0.25}vh`, borderRadius: "9999px", background: season.accent, boxShadow: `0 0 8px 3px ${season.accent}AA`, animation: `ffSeasonBob ${1.8 + (i % 3) * 0.5}s ease-in-out infinite, ffLampBlink ${1.1 + (i % 4) * 0.4}s ease-in-out infinite` }} />
+        {season.effect === "beachballs" && [0, 1, 2, 3, 4, 5].map((i) => (
+          <div key={`sb-${i}`} className="absolute inset-0" style={{ animation: "ffSeasonBallFade 11s linear forwards" }}>
+            <div className="absolute inset-0" style={{ animation: `ffSeasonBallX ${4.6 + (i % 4) * 1.3}s ease-in-out ${-i * 1.7}s infinite alternate${i % 2 ? " reverse" : ""}` }}>
+              <div style={{ animation: `ffSeasonBallY ${1.5 + (i % 3) * 0.45}s cubic-bezier(0.45,0,0.75,0.6) ${-i * 0.6}s infinite alternate` }}>
+                <img src="/summer-ball.png" alt="" className="object-contain" style={{ width: `${7 + (i % 3) * 2.5}vh`, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))", animation: `ffBallHeistSpin ${0.9 + (i % 3) * 0.4}s linear infinite${i % 2 ? " reverse" : ""}` }} />
+              </div>
+            </div>
           </div>
         ))}
         {season.effect === "wisps" && [0, 1, 2, 3, 4].map((i) => (

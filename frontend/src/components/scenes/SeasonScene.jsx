@@ -1,7 +1,7 @@
 // Seasonal realm scenery (fall / winter / spring / summer): background art,
 // falling sprites, gust snow, chimney smoke — plus that season's heists.
 import { useEffect, useState } from "react";
-import { SummerBallHeist, SummerCrabHeist, SnowmanHeist, CardinalTipHeist, OwlHeist, SpringPetalHeist, WinterStashHeist } from "./seasonHeists";
+import { SummerBallHeist, SummerCrabHeist, SummerGullHeist, SnowmanHeist, CardinalTipHeist, OwlHeist, SpringPetalHeist, WinterStashHeist } from "./seasonHeists";
 
 // Golden-hour sun path: individual shimmering glints down the water instead
 // of a solid streak — narrow near the horizon, wider and fainter near shore.
@@ -300,13 +300,20 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
         <div key={`bird-${i}`} className="absolute left-0 z-[2]" style={{ top: b.top, animation: `ffGullCruise ${b.dur}s linear ${b.delay}s infinite`, willChange: "transform", backfaceVisibility: "hidden" }}>
           {/* rises on the wingbeats, sinks into the glide, banking gently */}
           <div style={{ animation: `ffGullBob ${b.cycle}s ease-in-out ${b.flapDelay}s infinite` }}>
-            <img src={cfg.birds} alt="" className="ff-gull block opacity-90 drop-shadow-sm" style={{ width: b.size, animationDuration: `${b.cycle}s`, animationDelay: `${b.flapDelay}s` }} />
+            {/* two photoreal frames toggling = a real wingbeat: three quick
+                beats, then a long wings-up COAST (synced to the bob cycle).
+                Art faces LEFT; the cruise flies L->R, so flip to face travel */}
+            <div className="relative opacity-90 drop-shadow-sm" style={{ width: b.size, aspectRatio: "305 / 243", transform: "scaleX(-1)" }}>
+              <img src="/summer-gull-fly-1.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ animation: `ffWingGlideA ${b.cycle}s steps(1,end) ${b.flapDelay}s infinite` }} />
+              <img src="/summer-gull-fly-2.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ animation: `ffWingGlideB ${b.cycle}s steps(1,end) ${b.flapDelay}s infinite` }} />
+            </div>
           </div>
         </div>
       ))}
     </div>
     {theme === "summer" && <SummerBallHeist key={`bh-${heistEpoch}`} />}
     {theme === "summer" && <SummerCrabHeist key={`crh-${heistEpoch}`} />}
+    {theme === "summer" && <SummerGullHeist key={`gh-${heistEpoch}`} />}
     {theme === "winter" && <SnowmanHeist key={`sh-${heistEpoch}`} />}
     {theme === "winter" && <CardinalTipHeist key={`cth-${heistEpoch}`} />}
     {theme === "fall" && <OwlHeist key={`oh-${heistEpoch}`} />}
