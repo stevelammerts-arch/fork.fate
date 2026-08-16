@@ -73,3 +73,8 @@
 - Collectible Fates: DONE — golem awakening + furnace blast unlock 'The Awakening' and 'Furnace Blast' trophies on /rituals (25 total).
 - Golem Duet: DONE — left golem's ember eyes flicker while the right brother awakens.
 - Remaining backlog: Seasonal events (limited-time realm takeovers w/ exclusive rituals); IARC rating ID for manifest (user hasn't received it yet); optional useShuffle hook extraction.
+
+## Post-publish backlog (updated 2026-02, pre-publish fork)
+- P2: Seasonal push notification when a new season opens
+- P2: Component cleanup pass (Home.jsx ~1100 lines, AmbianceScene.jsx now ~1450)
+- P3: More seasons (Spring Bloom, New Year) + seasonal Collection share card row

@@ -1166,6 +1166,31 @@ body {
   69.4%,71%{ opacity: 1; }
   71.6%,100%{ opacity: 0; }
 }
+/* the opposite swing: opaque exactly in the left-swing gaps */
+@keyframes ffUniShakeR{
+  0%,62.2%{ opacity: 0; }
+  62.8%,64.4%{ opacity: 1; }
+  65%,66.6%{ opacity: 0; }
+  67.2%,68.8%{ opacity: 1; }
+  69.4%,100%{ opacity: 0; }
+}
+/* occasional DOUBLE-SPEED shake on a separate 41s cycle (~0.2s per swing) */
+@keyframes ffUniShakeFast{
+  0%,70%{ opacity: 0; }
+  70.3%,70.8%{ opacity: 1; }
+  71.1%,71.6%{ opacity: 0; }
+  71.9%,72.4%{ opacity: 1; }
+  72.7%,73.2%{ opacity: 0; }
+  73.5%,74%{ opacity: 1; }
+  74.3%,100%{ opacity: 0; }
+}
+@keyframes ffUniShakeFastR{
+  0%,70.8%{ opacity: 0; }
+  71.1%,71.6%{ opacity: 1; }
+  71.9%,72.4%{ opacity: 0; }
+  72.7%,73.2%{ opacity: 1; }
+  73.5%,100%{ opacity: 0; }
+}
 /* Seasonal drift: cross-screen sweep + gentle bob + aurora breathe */
 @keyframes ffSeasonDrift{
   0%{ transform: translateX(-8vw); opacity: 0; }

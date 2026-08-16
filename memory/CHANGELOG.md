@@ -1104,3 +1104,16 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - FAIRY SQUARE GLOW FIX: wing patches gain-matched per channel to base art
   + feather widened (56px, right 20px) — rectangular seam gone.
 - Photo proxy recompression fix + full pytest green (see earlier entry).
+
+## 2026-02 (fork) — Unicorn fly-shake completed (FF_BUILD 524)
+- Third patch fairy-uni-shake-r.png (muzzle swung to ITS RIGHT, away from
+  viewer) generated via same image-edit pipeline.
+- ffUniShakeR keyframes fill the exact gaps of ffUniShake (62.8-64.4,
+  67.2-68.8 of the 23s cycle) -> full sequence: L R L R L center, ~0.4s
+  per swing = shaking off a fly. Verified right patch hits opacity 1 live.
+
+## 2026-02 (fork) — Double-speed shake variant (FF_BUILD 525)
+- ffUniShakeFast/-FastR on a separate 41s cycle (12s delay): ~0.2s per swing
+  (half the normal 0.37s) in a 1.6s burst at 70-74% — non-harmonic with the
+  23s cycle so fast shakes feel random. 5 unicorn patches total mounted
+  (keys: bob, shake, shake-r, shake-fast, shake-fast-r).

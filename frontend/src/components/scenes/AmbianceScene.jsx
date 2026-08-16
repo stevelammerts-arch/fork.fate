@@ -787,14 +787,18 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             over the base painting on slow offset cycles so it feels random.
             Patch rect in image px: (250,380)-(460,600). */}
         {coverBox && [
-          { name: "bob", anim: "ffUniBob 17s ease-in-out infinite" },
-          { name: "shake", anim: "ffUniShake 23s linear 5s infinite" },
+          { k: "bob", name: "bob", anim: "ffUniBob 17s ease-in-out infinite" },
+          { k: "shake", name: "shake", anim: "ffUniShake 23s linear 5s infinite" },
+          { k: "shake-r", name: "shake-r", anim: "ffUniShakeR 23s linear 5s infinite" },
+          /* every so often the shake comes back at DOUBLE SPEED (own cycle) */
+          { k: "shake-fast", name: "shake", anim: "ffUniShakeFast 41s linear 12s infinite" },
+          { k: "shake-fast-r", name: "shake-r", anim: "ffUniShakeFastR 41s linear 12s infinite" },
         ].map((u) => (
           <img
-            key={`uni-${u.name}`}
+            key={`uni-${u.k}`}
             src={`/fairy-uni-${u.name}.png`}
             alt=""
-            data-testid={`fairy-uni-${u.name}`}
+            data-testid={`fairy-uni-${u.k}`}
             className="pointer-events-none absolute z-[2]"
             style={{
               left: coverBox.offX + (250 / GULLY_NAT.w) * coverBox.dw,

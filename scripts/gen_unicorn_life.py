@@ -18,8 +18,7 @@ ART = "/app/frontend/public/fairy-gully.png"
 RECT = (250, 380, 460, 600)  # unicorn patch in art px (210x220)
 
 EDITS = [
-    ("bob", "The unicorn has LOWERED ITS HEAD: neck dipped down, muzzle noticeably closer to the ground, as if sniffing the flowers. "),
-    ("shake", "The unicorn has TURNED ITS MUZZLE slightly toward the viewer, head swung a little sideways mid head-shake. "),
+    ("shake-r", "The unicorn has TURNED ITS MUZZLE slightly AWAY from the viewer, head swung a little to ITS RIGHT side mid head-shake, showing a touch more of the left side of its face and mane. "),
 ]
 
 PROMPT_BASE = (
