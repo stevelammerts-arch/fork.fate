@@ -39,6 +39,14 @@ import { useTheme } from "../hooks/useTheme";
 import { useLang } from "../i18n/i18n";
 import { trackEvent } from "../lib/analytics";
 import { activeSeason } from "../lib/seasons";
+
+// Numbered badge heading one step of the solo "A Table for One" flow.
+const StepLabel = ({ n, children }) => (
+  <div className="mb-2.5 flex items-center gap-2" data-testid={`solo-step-${n}`}>
+    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#E01E26] font-sans text-xs font-bold text-white shadow-sm">{n}</span>
+    <span className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#6B7075]">{children}</span>
+  </div>
+);
 import { recordRitualSeen, readRitualsSeen, RITUALS } from "../lib/rituals";
 import BlackoutRitual from "../components/BlackoutRitual";
 import { recordFate } from "../lib/journal";
@@ -938,6 +946,7 @@ export default function Home() {
 
   // The Group / Crawl / Passport window. Rides at the TOP of the setup column
   // until a guided fate is sealed; after that it settles below the deal row.
+  const soloFlow = !passportMode && !groupMode && !crawlMode;
   const modesCard = (
     <MoreWaysToPlay
       groupMode={groupMode} crawlMode={crawlMode} passportMode={passportMode}
@@ -1019,6 +1028,24 @@ export default function Home() {
                 Reshuffling waits just below. */}
             {!guidedSealed && modesCard}
             {/* ZIP + radius live inside the Passport/Group setup panels for those modes. */}
+            {/* A TABLE FOR ONE: the solo-fate flow lives inside one translucent
+                window, numbered step by step. Hidden while Group / Crawl /
+                Passport setups take over. */}
+            <div className={soloFlow ? "rounded-3xl border border-white/60 bg-white/55 p-4 shadow-sm backdrop-blur-md sm:p-5" : "contents"} data-testid={soloFlow ? "solo-fate-window" : undefined}>
+              {soloFlow && (
+                <div className="mb-5 flex items-center gap-2.5" data-testid="solo-fate-title">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E01E26]/10">
+                    <UtensilsCrossed className="h-5 w-5 text-[#E01E26]" />
+                  </span>
+                  <div>
+                    <p className="font-serif text-xl font-bold text-[#0E0E0E]">{t("A Table for One")}</p>
+                    <p className="font-sans text-xs text-[#6B7075]">{t("Your single fate — four quick steps.")}</p>
+                  </div>
+                </div>
+              )}
+              <div className={soloFlow ? "space-y-6" : "contents"}>
+            <div className={passportMode || groupMode ? "hidden" : ""}>
+            {soloFlow && <StepLabel n={1}>{t("Where are you?")}</StepLabel>}
             <LocationRadiusPanel
               hidden={passportMode || groupMode}
               zip={zip} setZip={setZip} setCoords={setCoords} coords={coords}
@@ -1027,17 +1054,23 @@ export default function Home() {
               radius={radius} setRadius={setRadius} radiusMax={radiusMax}
               labelColor={labelColor}
             />
+            </div>
 
             {/* All 8 tabs stay visible inside one box (4x2 grid). The old horizontal
                 scroller hid Explore/Stay off-screen at phone widths. */}
+            <div className={passportMode || groupMode ? "hidden" : ""}>
+            {soloFlow && <StepLabel n={2}>{t("What calls to you?")}</StepLabel>}
             <ModeTabsGrid
               hidden={passportMode || groupMode}
               tabs={MODE_TABS} mode={mode} allMode={allMode}
               onTab={(key) => { if (mode === key && !allMode) { setAllMode(true); setResult(null); setGroupPicks(null); } else { setAllMode(false); switchMode(key); } }}
             />
+            </div>
 
             {/* In Passport/Group setup the chips live inside that panel, so the main
                 list is hidden — no scrolling up and back down again. */}
+            <div className={passportMode || groupMode ? "hidden" : ""}>
+            {soloFlow && <StepLabel n={3}>{t("Narrow it (optional)")}</StepLabel>}
             <CuisineSection
               hidden={passportMode || groupMode}
               allMode={allMode} cuisineLabel={cuisineLabel} selectedCuisines={selectedCuisines}
@@ -1051,7 +1084,7 @@ export default function Home() {
               type="button"
               data-testid="open-now-toggle"
               onClick={() => setOpenNow((v) => !v)}
-              className={`inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${openNow ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-transparent bg-[#EDEEF0] text-[#6B7075] hover:bg-[#E2E4E7]"}`}
+              className={`mt-4 inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2.5 text-sm font-bold transition-colors ${openNow ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-transparent bg-[#EDEEF0] text-[#6B7075] hover:bg-[#E2E4E7]"}`}
             >
               <Clock className="h-4 w-4" />
               {t("Open now only")}
@@ -1059,14 +1092,20 @@ export default function Home() {
                 <span className={`block h-3 w-3 rounded-full bg-white transition-transform ${openNow ? "translate-x-3" : ""}`} />
               </span>
             </button>
+            </div>
 
             {!crawlMode && !passportMode && !groupMode && (
-              <DealRow
-                spin={spin} spinning={spinning} loading={loading}
-                passportMode={passportMode} groupMode={groupMode} light={light}
-                resultsCount={results.length} weather={weather}
-              />
+              <div>
+                {soloFlow && <StepLabel n={4}>{t("Let fate deal")}</StepLabel>}
+                <DealRow
+                  spin={spin} spinning={spinning} loading={loading}
+                  passportMode={passportMode} groupMode={groupMode} light={light}
+                  resultsCount={results.length} weather={weather}
+                />
+              </div>
             )}
+              </div>
+            </div>
 
             {/* after a guided fate is dealt the window settles back down here */}
             {guidedSealed && modesCard}

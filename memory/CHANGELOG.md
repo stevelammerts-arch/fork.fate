@@ -1244,3 +1244,14 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   (i.e., when the guided intro was skipped/clicked off), and settles back
   below the DealRow once a guided fate is sealed. Verified via DOM-order
   check + screenshot after skipping intro.
+
+## 2026-02 (fork) — "A Table for One" solo window (FF_BUILD 537)
+- Home solo-fate flow (location -> category tabs -> cuisine/open-now -> deal
+  row) wrapped in a translucent card (bg-white/55, backdrop-blur, testid
+  solo-fate-window) titled "A Table for One" with sub "Your single fate —
+  four quick steps." + UtensilsCrossed icon.
+- Numbered StepLabel badges (red circle 1-4): Where are you? / What calls to
+  you? / Narrow it (optional) / Let fate deal. Steps + window render only in
+  solo mode (soloFlow = !group && !passport && !crawl); step pair-divs hide
+  in group/passport so no stray gaps; crawl mode keeps panels visible w/o
+  the window chrome.
