@@ -1269,3 +1269,12 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - RevealStage respin-button: added w-full justify-center + border-2 (brand
   red) so it exactly matches the Double or Nothing button below it.
   Measured live: both 151x32.
+
+## 2026-02 (fork) — Deal button heartbeat + haptics (FF_BUILD 540)
+- /heartbeat-loop.mp3: first 4 clean lub-dub cycles of user's clip (3.53s,
+  cycle 882ms ~68bpm). DealRow gets `pulse` prop (Home: soloFlow && !result &&
+  zip>=5 || coords). While beating: wrapper span animates ffHeartbeat 882ms
+  (thump @0%, echo @32%) so framer hover/tap transforms stay intact; audio
+  loops at vol 0.22 (mute-watched, pointerdown retry); navigator.vibrate
+  ([26,240,18]) every 882ms on supporting devices. Stops on spin/result/mode
+  change/unmount.

@@ -1124,6 +1124,7 @@ export default function Home() {
                   spin={spin} spinning={spinning} loading={loading}
                   passportMode={passportMode} groupMode={groupMode} light={light}
                   resultsCount={results.length} weather={weather}
+                  pulse={soloFlow && !result && ((zip || "").trim().length >= 5 || !!coords)}
                 />
               </div>
             )}

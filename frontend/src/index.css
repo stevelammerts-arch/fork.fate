@@ -605,6 +605,16 @@ body {
   100% { transform: translateY(76vh); }
 }
 
+/* the Deal button's lub-dub once every solo step is set (882ms ~ 68 bpm):
+   big thump at 0, softer echo thump at ~34%, calm through the back half */
+@keyframes ffHeartbeat{
+  0%   { transform: scale(1); }
+  8%   { transform: scale(1.05); }
+  20%  { transform: scale(1); }
+  32%  { transform: scale(1.032); }
+  46%, 100% { transform: scale(1); }
+}
+
 /* DRAGON HOARD takeover: gold coins spilling down from the top banner */
 @keyframes ffCoinFall{
   0%   { transform: translateY(-10vh); opacity: 0; }
