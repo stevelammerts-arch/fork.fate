@@ -230,14 +230,7 @@ export default function Home() {
     setShowGuided(false);
   };
 
-  // Tracks whether a fate was sealed through the guided ritual this visit.
-  // Until one is, the Group/Crawl/Passport window rides at the TOP of the
-  // setup column (skip the intro and it's the first thing you see; the
-  // shuffle controls wait right below it).
-  const [guidedSealed, setGuidedSealed] = useState(false);
-
   const sealFate = ({ mode: m, zip: z, coords: c, radius: r, cuisines }) => {
-    setGuidedSealed(true);
     setMode(m);
     setZip(z || "");
     setCoords(c || null);
@@ -946,8 +939,8 @@ export default function Home() {
     });
   }, [results, sortBy]);
 
-  // The Group / Crawl / Passport window. Rides at the TOP of the setup column
-  // until a guided fate is sealed; after that it settles below the deal row.
+  // The Group / Crawl / Passport window — its standard home is the TOP of
+  // the setup column, every accordion closed until tapped.
   const soloFlow = !passportMode && !groupMode && !crawlMode;
   // STEP AUTO-ADVANCE: as each numbered solo step completes, the page drifts
   // gently down to the next one (ZIP/location -> 2, category -> 3, first
@@ -1046,10 +1039,8 @@ export default function Home() {
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
           {/* left: search + filters + spin */}
           <div className="min-w-0 space-y-7">
-            {/* Until a guided fate is sealed, Group/Crawl/Passport leads the
-                column — skip the intro and it's the first thing you see.
-                Reshuffling waits just below. */}
-            {!guidedSealed && modesCard}
+            {/* Group/Crawl/Passport leads the column — its standard place. */}
+            {modesCard}
             {/* ZIP + radius live inside the Passport/Group setup panels for those modes. */}
             {/* A TABLE FOR ONE: the solo-fate flow lives inside one translucent
                 window, numbered step by step. Hidden while Group / Crawl /
@@ -1124,15 +1115,14 @@ export default function Home() {
                   spin={spin} spinning={spinning} loading={loading}
                   passportMode={passportMode} groupMode={groupMode} light={light}
                   resultsCount={results.length} weather={weather}
-                  pulse={soloFlow && !result && ((zip || "").trim().length >= 5 || !!coords)}
+                  pulse={soloFlow && !result}
                 />
               </div>
             )}
               </div>
             </div>
 
-            {/* after a guided fate is dealt the window settles back down here */}
-            {guidedSealed && modesCard}
+            {/* MODE PANELS below the solo window */}
 
             {passportMode && (
               <PassportPicker

@@ -1284,3 +1284,12 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   during spinning (460ms cycle, audio playbackRate 1.917, vol .32, haptics
   [16,120,12] @460ms). Wrapper testids deal-heartbeat-beat/-race. Verified:
   0.882s calm -> 0.46s racing during shuffle.
+
+## 2026-02 (fork) — Heartbeat always-on + modes card standard top spot (FF_BUILD 542)
+- Heartbeat pulse no longer waits for ZIP/coords: pulse = soloFlow && !result
+  (ZIP resets each visit, so users never saw it). Beats on load; audio still
+  needs first tap (autoplay policy) + mute-aware; haptics Android-only
+  (iOS Safari has no vibration API).
+- "More ways to play" card now ALWAYS renders at the top of the setup column
+  (guidedSealed state and conditional placement removed entirely).
+- Confirmed all accordions default closed (trophyOpen false, filtersOpen false).
