@@ -33,7 +33,7 @@ export const SaveProgress = () => {
     }
   };
   return (
-    <div className="mt-4 rounded-xl border border-[#E2E4E7] bg-white px-4 py-3" data-testid="save-progress">
+    <div className="mt-4 rounded-xl border border-[#E2E4E7] bg-white/70 px-4 py-3 backdrop-blur-sm" data-testid="save-progress">
       <p className="font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#6B7075]">{t("Save progress")}</p>
       <p className="mt-1 font-sans text-xs text-[#6B7075]">{t("Trophies live on this device. Back them up before clearing browser data or switching phones.")}</p>
       <div className="mt-2.5 flex flex-wrap gap-2">

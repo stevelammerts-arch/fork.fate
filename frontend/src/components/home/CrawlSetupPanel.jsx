@@ -16,7 +16,7 @@ export function CrawlSetupPanel({ crawlType, onPickType, light, setup }) {
     radius, setRadius, radiusMax, spinning, loading, onDeal,
   } = setup;
   return (
-    <div className="mt-2 w-full basis-full rounded-2xl border border-[#E01E26]/30 bg-[#FDF6F6] p-4" data-testid="crawl-type-picker">
+    <div className="mt-2 w-full basis-full rounded-2xl border border-[#E01E26]/30 bg-[#FDF6F6]/60 p-4 backdrop-blur-md" data-testid="crawl-type-picker">
       <ol className="mb-4 space-y-1.5">
         {[
           t("Pick the kind of crawl you want."),
@@ -92,7 +92,7 @@ export function CrawlSetupPanel({ crawlType, onPickType, light, setup }) {
         )}
       </div>
 
-      <div className="mt-4 rounded-xl border border-[#E2E4E7] bg-white px-4 py-3" data-testid="crawl-radius-control">
+      <div className="mt-4 rounded-xl border border-[#E2E4E7] bg-white/70 px-4 py-3 backdrop-blur-sm" data-testid="crawl-radius-control">
         <div className="mb-2 flex items-center justify-between">
           <p className="font-sans text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Search radius")}</p>
           <span data-testid="crawl-radius-value" className="font-serif text-lg font-semibold text-[#E01E26]">

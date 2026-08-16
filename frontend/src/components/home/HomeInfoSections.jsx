@@ -18,7 +18,7 @@ export function HomeInfoSections({ light, onSponsor }) {
       {/* How it works + FAQ (SEO + first-time visitor context) */}
       <section className="relative z-10 mx-auto max-w-6xl px-6 pb-24 pt-4 md:px-12" data-testid="how-it-works-section">
         <div className="border-t border-[#E2E4E7] pt-14">
-          <div className="rounded-3xl border border-[#E2E4E7] bg-white/95 p-8 shadow-sm backdrop-blur-sm md:p-10">
+          <div className="rounded-3xl border border-[#E2E4E7] bg-white/60 p-8 shadow-sm backdrop-blur-md md:p-10">
             <p className="font-sans text-xs font-bold uppercase tracking-[0.25em] text-[#E01E26]">{t("How it works")}</p>
             <h2 className="mt-2 font-serif text-3xl font-medium tracking-tight text-[#0E0E0E] sm:text-4xl">
               {t("Let fate settle the \"where should we eat?\" debate.")}
@@ -29,7 +29,7 @@ export function HomeInfoSections({ light, onSponsor }) {
           </div>
 
           <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
-            <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6" data-testid="step-1">
+            <div className="rounded-3xl border border-[#E2E4E7] bg-white/60 p-6 backdrop-blur-sm" data-testid="step-1">
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0E0E0E]">
                 <Search className="h-5 w-5 text-white" />
               </div>
@@ -38,7 +38,7 @@ export function HomeInfoSections({ light, onSponsor }) {
                 {t("Choose Food, Drinks, Bars, Desserts, Shops, Fuel & Go, Explore or Stay — then narrow it down with type chips and toggles like \"Open now\" to match the mood.")}
               </p>
             </div>
-            <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6" data-testid="step-2">
+            <div className="rounded-3xl border border-[#E2E4E7] bg-white/60 p-6 backdrop-blur-sm" data-testid="step-2">
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0E0E0E]">
                 <MapPin className="h-5 w-5 text-white" />
               </div>
@@ -47,7 +47,7 @@ export function HomeInfoSections({ light, onSponsor }) {
                 {t("Enter a ZIP code or tap \"Use my location\" and Fork·Fate pulls real, nearby places using live Google data — up to 100 miles out, or 150 for Explore and Stay, since a state park is worth the drive.")}
               </p>
             </div>
-            <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6" data-testid="step-3">
+            <div className="rounded-3xl border border-[#E2E4E7] bg-white/60 p-6 backdrop-blur-sm" data-testid="step-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E01E26]">
                 <Dices className="h-5 w-5 text-white" />
               </div>
@@ -58,7 +58,7 @@ export function HomeInfoSections({ light, onSponsor }) {
             </div>
           </div>
 
-          <div className="mt-16 rounded-3xl border border-[#E2E4E7] bg-white/95 p-6 shadow-sm backdrop-blur-sm md:p-8">
+          <div className="mt-16 rounded-3xl border border-[#E2E4E7] bg-white/60 p-6 shadow-sm backdrop-blur-md md:p-8">
           <button
             onClick={() => setFaqOpen((o) => !o)}
             data-testid="faq-toggle"
@@ -110,7 +110,7 @@ export function HomeInfoSections({ light, onSponsor }) {
       >
         <div className="mx-auto max-w-6xl px-6 py-14 md:px-12">
           <div
-            className={`relative overflow-hidden rounded-3xl border p-8 md:p-12 ${light ? "border-[#E2E4E7] bg-white/95 backdrop-blur-sm" : "border-[#E01E26]/40 bg-[#141414]"}`}
+            className={`relative overflow-hidden rounded-3xl border p-8 md:p-12 ${light ? "border-[#E2E4E7] bg-white/60 backdrop-blur-md" : "border-[#E01E26]/40 bg-[#141414]"}`}
           >
             <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#E01E26]/20 blur-3xl" />
             <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
@@ -145,7 +145,7 @@ export function HomeInfoSections({ light, onSponsor }) {
 
           {/* Chain / franchise coupon tier — its own card below the local one */}
           <div
-            className={`relative mt-6 overflow-hidden rounded-3xl border p-8 md:p-12 ${light ? "border-[#E6B23A]/50 bg-[#FFFDF6]" : "border-[#E6B23A]/40 bg-[#171310]"}`}
+            className={`relative mt-6 overflow-hidden rounded-3xl border p-8 md:p-12 ${light ? "border-[#E6B23A]/50 bg-[#FFFDF6]/60 backdrop-blur-sm" : "border-[#E6B23A]/40 bg-[#171310]"}`}
             data-testid="chain-business-band"
           >
             <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#E6B23A]/20 blur-3xl" />

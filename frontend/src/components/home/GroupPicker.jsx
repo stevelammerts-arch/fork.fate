@@ -11,7 +11,7 @@ export function GroupPicker({
 }) {
   const { t } = useLang();
   return (
-    <div className="mt-2 w-full basis-full rounded-2xl border border-[#E01E26]/30 bg-[#FDF6F6] p-4" data-testid="group-picker">
+    <div className="mt-2 w-full basis-full rounded-2xl border border-[#E01E26]/30 bg-[#FDF6F6]/60 p-4 backdrop-blur-md" data-testid="group-picker">
       <p className="font-serif text-xl font-bold text-[#0E0E0E]">{t("Group Mode")}</p>
       <StepList
         testId="group-steps"
@@ -23,7 +23,7 @@ export function GroupPicker({
         ]}
       />
       <p className="mb-1.5 mt-4 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Pick a category")}</p>
-      <div className="grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-white p-1" data-testid="group-category-picker">
+      <div className="grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-white/70 p-1 backdrop-blur-sm" data-testid="group-category-picker">
         {modeTabs.map(({ key, label, Icon }) => (
           <button
             key={key}

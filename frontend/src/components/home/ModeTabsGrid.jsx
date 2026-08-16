@@ -4,7 +4,7 @@ import Filters from "../Filters";
 import { useLang } from "../../i18n/i18n";
 
 export const ModeTabsGrid = ({ hidden, tabs, mode, allMode, onTab }) => (
-  <div className={`grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-[#EDEEF0] p-1 ${hidden ? "hidden" : ""}`} data-testid="mode-toggle">
+  <div className={`grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-[#EDEEF0]/60 p-1 backdrop-blur-sm ${hidden ? "hidden" : ""}`} data-testid="mode-toggle">
     {tabs.map(({ key, label, Icon }) => (
       <button
         key={key}
@@ -36,7 +36,7 @@ export const CuisineSection = ({ hidden, allMode, cuisineLabel, selectedCuisines
             type="button"
             data-testid="filters-toggle"
             onClick={() => setFiltersOpen((o) => !o)}
-            className="flex w-full items-center justify-between gap-3 rounded-2xl border border-[#E2E4E7] bg-white px-4 py-3 text-left transition-colors hover:bg-[#F7F8F9]"
+            className="flex w-full items-center justify-between gap-3 rounded-2xl border border-[#E2E4E7] bg-white/70 px-4 py-3 text-left backdrop-blur-sm transition-colors hover:bg-[#F7F8F9]"
           >
             <span className="min-w-0">
               <span className="block font-sans text-xs font-bold uppercase tracking-wider text-[#6B7075]">

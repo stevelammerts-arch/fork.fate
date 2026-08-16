@@ -13,7 +13,7 @@ export function PassportPicker({
 }) {
   const { t } = useLang();
   return (
-    <div className="mt-2 w-full basis-full rounded-2xl border border-[#2E7D32]/30 bg-[#F1F8F2] p-4" data-testid="passport-picker">
+    <div className="mt-2 w-full basis-full rounded-2xl border border-[#2E7D32]/30 bg-[#F1F8F2]/60 p-4 backdrop-blur-md" data-testid="passport-picker">
       <p className="font-serif text-xl font-bold text-[#0E0E0E]">{t("Fate Passport")}</p>
       <p className="mt-1 font-sans text-sm text-[#3A3F45]">
         {t("A crawl is one day — a passport is collected over time. Fate deals your stops, you stamp each one as you get there, and a finished passport earns a stamped award you can share.")}
@@ -28,7 +28,7 @@ export function PassportPicker({
         ]}
       />
       <p className="mb-1.5 mt-4 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Pick a category")}</p>
-      <div className="grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-white p-1" data-testid="passport-category-picker">
+      <div className="grid grid-cols-4 gap-1 rounded-2xl border border-[#E2E4E7] bg-white/70 p-1 backdrop-blur-sm" data-testid="passport-category-picker">
         {modeTabs.filter((m) => passportCategories.includes(m.key)).map(({ key, label, Icon }) => (
           <button
             key={key}

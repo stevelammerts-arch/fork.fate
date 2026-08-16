@@ -12,7 +12,7 @@ export const LocationRadiusPanel = ({ hidden, zip, setZip, setCoords, coords, on
         {t("Your ZIP code")} <span className="text-[#B8BCC2]">{t("(optional)")}</span>
       </p>
       <div className="flex items-center gap-2">
-        <div className="flex flex-1 items-center gap-2 rounded-full border border-[#E2E4E7] bg-white px-4 py-1.5 focus-within:border-[#E01E26]">
+        <div className="flex flex-1 items-center gap-2 rounded-full border border-[#E2E4E7] bg-white/80 px-4 py-1.5 backdrop-blur-sm focus-within:border-[#E01E26]">
           <Search className="h-5 w-5 shrink-0 text-[#6B7075]" />
           <Input
             data-testid="zip-input"
@@ -36,7 +36,7 @@ export const LocationRadiusPanel = ({ hidden, zip, setZip, setCoords, coords, on
         </button>
       </div>
 
-      <div className="rounded-2xl border border-[#E2E4E7] bg-white px-4 py-3" data-testid="radius-control">
+      <div className="rounded-2xl border border-[#E2E4E7] bg-white/70 px-4 py-3 backdrop-blur-sm" data-testid="radius-control">
         <div className="mb-2 flex items-center justify-between">
           <p className="font-sans text-xs font-bold tracking-[0.2em] uppercase text-[#0E0E0E]">{t("Search radius")}</p>
           <span data-testid="radius-value" className="font-serif text-lg font-semibold text-[#E01E26]">

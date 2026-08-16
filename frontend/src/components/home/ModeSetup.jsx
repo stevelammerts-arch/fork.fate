@@ -16,7 +16,7 @@ import { useLang } from "../../i18n/i18n";
 export function StepList({ steps, accent = "#E01E26", testId = "mode-steps" }) {
   if (!steps?.length) return null;
   return (
-    <ol className="mt-3 space-y-1.5 rounded-2xl border border-black/5 bg-white p-4" data-testid={testId}>
+    <ol className="mt-3 space-y-1.5 rounded-2xl border border-black/5 bg-white/70 p-4 backdrop-blur-sm" data-testid={testId}>
       {steps.map((s, i) => (
         <li key={i} className="flex gap-2.5 font-sans text-sm text-[#3A3F45]">
           <span
@@ -58,7 +58,7 @@ export default function ModeSetup({
   const { t } = useLang();
 
   return (
-    <div className="mt-4 rounded-2xl border border-black/5 bg-white p-4" data-testid={testId}>
+    <div className="mt-4 rounded-2xl border border-black/5 bg-white/70 p-4 backdrop-blur-sm" data-testid={testId}>
       {steps.length > 0 && (
         <ol className="mb-4 space-y-1.5">
           {steps.map((s, i) => (
