@@ -962,7 +962,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           alert: "/steam-robot-rack-alert.png?v=501",
           alertEyes: [{ x: 33.3, y: 15.4 }, { x: 39.7, y: 15.4 }],
           sparks: { x: 65, y: 39 } },
-        { src: "/steam-alchemy-bench.png?v=501", ar: "966 / 765", cls: "left-[calc(50%+9vh)] bottom-[3vh] h-[22.5vh]", tid: "steam-alchemy-bench",
+        { src: "/steam-alchemy-bench.png?v=501", ar: "966 / 765", cls: "left-[calc(50%+3vh)] bottom-[3vh] h-[22.5vh]", tid: "steam-alchemy-bench",
           lamps: [{ x: 56.1, y: 38.2, c: "#FFB03A", d: 1.6, dl: 0 }, { x: 61.7, y: 39, c: "#FFB03A", d: 2.3, dl: 0.5 }, { x: 73.5, y: 41.6, c: "#FF5540", d: 1.9, dl: 1.1 }] },
       ].map((p) => (
         <div key={p.tid} className={`absolute z-[3] hidden sm:block ${p.cls}`} style={{ aspectRatio: p.ar }} data-testid={p.tid}>
@@ -1081,6 +1081,36 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           <div className="absolute inset-x-0 top-[46%] h-px" style={{ background: "rgba(0,0,0,0.5)" }} />
           <div className="absolute inset-x-0 top-0 h-[3px]" style={{ background: "linear-gradient(90deg, transparent, rgba(217,164,78,0.55) 20%, rgba(240,200,120,0.7) 50%, rgba(217,164,78,0.55) 80%, transparent)" }} />
           <div className="absolute inset-x-0 top-[3px] h-[10px]" style={{ background: "linear-gradient(180deg, rgba(217,164,78,0.22), transparent)" }} />
+          {/* POWER CABLES snaking along the bare floor between the machines */}
+          <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1000 140" preserveAspectRatio="none" data-testid="steam-floor-cables">
+            {/* upper cable: runs from the left golem's side toward the bench */}
+            <path d="M -20 40 C 160 52, 330 28, 520 44 C 700 59, 850 34, 1020 48" fill="none" stroke="#050302" strokeWidth="7" opacity="0.95" />
+            <path d="M -20 38.5 C 160 50.5, 330 26.5, 520 42.5 C 700 57.5, 850 32.5, 1020 46.5" fill="none" stroke="#8A6432" strokeWidth="2" opacity="0.85" />
+            {/* lower, thicker cable drooping across the foreground */}
+            <path d="M -20 92 C 150 78, 320 100, 530 86 C 730 73, 880 98, 1020 84" fill="none" stroke="#060402" strokeWidth="9" opacity="0.95" />
+            <path d="M -20 90 C 150 76, 320 98, 530 84 C 730 71, 880 96, 1020 82" fill="none" stroke="#96703A" strokeWidth="2.2" opacity="0.8" />
+            {/* a thin loose wire crossing between them */}
+            <path d="M 240 34 C 300 66, 360 88, 470 90" fill="none" stroke="#0B0805" strokeWidth="3.5" opacity="0.9" />
+            <path d="M 240 33 C 300 65, 360 87, 470 89" fill="none" stroke="#6B4A2A" strokeWidth="1.2" opacity="0.7" />
+            {/* brass couplings clamped onto the runs */}
+            <rect x="342" y="30" width="16" height="13" rx="2.5" fill="#3E2A12" stroke="#8A6432" strokeWidth="1.2" opacity="0.95" />
+            <rect x="654" y="46" width="15" height="13" rx="2.5" fill="#3E2A12" stroke="#8A6432" strokeWidth="1.2" opacity="0.95" />
+            <rect x="497" y="80" width="18" height="15" rx="3" fill="#422D14" stroke="#8A6432" strokeWidth="1.2" opacity="0.95" />
+            <rect x="836" y="78" width="15" height="14" rx="2.5" fill="#3E2A12" stroke="#8A6432" strokeWidth="1.2" opacity="0.95" />
+          </svg>
+          {/* WORKSHOP RATS: two of them scurry along the wall/floor corner,
+              back and forth between the two outside golems without stopping
+              (desktop-only, like the rest of the workshop set-dressing) */}
+          {[
+            { h: 2.5, dur: 8.5, delay: 0, bottom: 12.1, op: 0.95, tid: "steam-rat-1" },
+            { h: 1.9, dur: 11.5, delay: -4.6, bottom: 12.7, op: 0.85, tid: "steam-rat-2" },
+          ].map((rt) => (
+            <div key={rt.tid} className="absolute left-0 hidden sm:block" data-testid={rt.tid} style={{ bottom: `${rt.bottom}vh`, animation: `ffRatRun ${rt.dur}s linear ${rt.delay}s infinite alternate` }}>
+              <div style={{ animation: `ffRatFace ${rt.dur * 2}s steps(1,end) ${rt.delay}s infinite` }}>
+                <img src="/steam-rat.png" alt="" className="object-contain" style={{ height: `${rt.h}vh`, opacity: rt.op, filter: "brightness(0.85) drop-shadow(0 2px 2px rgba(0,0,0,0.6))", animation: "ffRatScurry 0.22s linear infinite" }} />
+              </div>
+            </div>
+          ))}
           {/* Plague doctor mask abandoned on the floor in front of the alchemy desk
               (desktop-only: the desk itself is hidden at phone widths) */}
           <div className="absolute hidden sm:block" data-testid="steam-mask-prop" style={{ left: "calc(50% + 47vh)", bottom: "0.9vh" }}>

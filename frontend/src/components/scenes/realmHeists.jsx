@@ -391,6 +391,8 @@ export function SteamSpringHeist() {
   const springH = Math.round(w * 1.15);
   return (
     <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="spring-heist">
+      {/* the BLACK HOLE left in the socket the medallion sprang out of */}
+      <div className="absolute" data-testid="spring-heist-socket" style={{ left: cx - w / 2, top: cy - w / 2, width: w, height: w, borderRadius: "9999px", background: "radial-gradient(circle at 42% 36%, #171009 0%, #0A0603 45%, #000 78%)", boxShadow: "inset 0 5px 12px rgba(0,0,0,0.95), inset 0 -2px 5px rgba(0,0,0,0.85), inset 3px 0 8px rgba(0,0,0,0.7), 0 0 0 2px rgba(122,86,40,0.5)" }} />
       {/* assembly hinged at the socket: coiled spring + the popped watch face */}
       <div className="absolute" style={{ left: cx, top: cy, transformOrigin: "50% 0", animation: stage === "sprung" ? "ffSpringPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both, ffSpringWobble 2.6s ease-in-out 0.5s both" : "none" }}>
         {/* the brass coil */}

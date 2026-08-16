@@ -951,3 +951,19 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   [data-testid=scenery-toggle] to bare the scene.
 - User observation (open): phone-landscape packs props toward center — vh
   offsets shrink at 390px height. Offered min(vh,vw) spread; awaiting reply.
+
+## 2026-02 (fork) — Workshop set-dressing wave (FF_BUILD 509)
+- Alchemy bench moved closer to the rack robot: left 50%+9vh -> 50%+3vh.
+- Floor cables: hand-drawn SVG inside the steam-floor strip (viewBox 1000x140,
+  preserveAspectRatio none) — 2 sagging runs + a crossing wire, each dark base
+  stroke + brass highlight stroke, 4 brass coupling rects. First pass was
+  invisible against the dark floor; highlights brightened to #8A6432/#96703A.
+- Workshop rats: generated /steam-rat.png (gen_steam_rat.py, corner-sampled
+  magenta key). Two rats scurry along the wall/floor corner (bottom 12.1/12.7vh
+  inside the floor strip) between the outer golems, never stopping:
+  ffRatRun 13vw->82vw linear alternate + ffRatFace steps(1) flip at 2x duration
+  (keeps sprite facing travel direction) + ffRatScurry 0.22s gallop bob.
+  Desktop-only (hidden sm:block), z under the props.
+- Spring heist: black-hole socket (radial void + inset shadows + brass rim)
+  rendered at the medallion spot while the watch face dangles on its spring
+  (component only renders when stage is set, so timing needs no extra gating).
