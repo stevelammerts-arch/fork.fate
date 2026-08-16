@@ -1322,3 +1322,12 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   "Restore" reveals a paste textarea -> importProgress -> reload. Testids:
   save-progress-backup/-toggle-restore/-code/-restore.
 - Verified live round-trip: export -> remove ff_heists_seen -> import -> trophy back.
+
+## 2026-02 (fork) — Frosted boxes everywhere + stronger haptics (FF_BUILD 546-547)
+- All card-level white boxes frosted translucent (bg-white/60-70 or tinted /60
+  + backdrop-blur): crawl/group/passport pickers, reveal card, radius control,
+  ZIP pill, mode tabs grid, cuisine trigger, ModeSetup lists, SaveProgress
+  card, HomeInfoSections cards. Dropdown overlays (TypePicker) kept solid.
+- Haptic pulses strengthened for phone motors (Galaxy etc.): slow beat
+  [50,~p*.25,35], racing [40,85,30] (was 15-25ms, imperceptible on many
+  devices). User confirmed prod has heartbeat build; awaiting redeploy of 547.
