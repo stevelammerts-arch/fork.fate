@@ -1117,3 +1117,9 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   (half the normal 0.37s) in a 1.6s burst at 70-74% — non-harmonic with the
   23s cycle so fast shakes feel random. 5 unicorn patches total mounted
   (keys: bob, shake, shake-r, shake-fast, shake-fast-r).
+
+## 2026-02 (fork) — Landscape reverted to full-bleed (FF_BUILD 526)
+- User saw the contain+blurfill landscape and chose FILL instead: removed
+  .ff-bg-fit contain rule, .ff-bg-blurfill imgs/rules, and the contain
+  branch in useCoverAnchor (pure cover again). ff-lsp-* prop spread kept.
+- Verified 844x390: painting fills edge to edge.

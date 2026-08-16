@@ -196,10 +196,7 @@ function useCoverAnchor(natW, natH) {
     if (!el) return;
     const update = () => {
       const { width: cw, height: ch } = el.getBoundingClientRect();
-      // short-landscape phones switch the art to object-contain (see
-      // .ff-bg-fit) so the whole painting is visible — mirror that here
-      const contain = window.matchMedia("(orientation: landscape) and (max-height: 520px)").matches;
-      const scale = contain ? Math.min(cw / natW, ch / natH) : Math.max(cw / natW, ch / natH);
+      const scale = Math.max(cw / natW, ch / natH);
       const dw = natW * scale, dh = natH * scale;
       setBox({ offX: (cw - dw) / 2, offY: (ch - dh) / 2, dw, dh });
     };
@@ -698,11 +695,10 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
     <div ref={setSceneRef} className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`ambiance-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
       {cfg.hoard && (<>
-        <img src={cfg.hoard} alt="" aria-hidden="true" className="ff-bg-blurfill absolute inset-0 z-[1] h-full w-full object-cover" style={{ objectPosition: "center center" }} />
-        <img src={cfg.hoard} alt="" className="ff-bg-fit absolute inset-0 z-[1] h-full w-full object-cover opacity-90" style={{ objectPosition: "center center" }} data-testid="fantasy-hoard-bg" />
+        <img src={cfg.hoard} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-90" style={{ objectPosition: "center center" }} data-testid="fantasy-hoard-bg" />
         <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(180deg, rgba(10,7,5,0.55) 0%, rgba(10,7,5,0.12) 34%, rgba(10,7,5,0.28) 70%, rgba(8,5,3,0.72) 100%)" }} />
         <div className="absolute inset-0 z-[1]" style={{ background: "radial-gradient(ellipse at 50% 80%, rgba(230,160,60,0.30), rgba(224,86,30,0.10) 44%, transparent 72%)", mixBlendMode: "screen", animation: "ffCaveFlicker 3.4s ease-in-out infinite" }} data-testid="fantasy-firelight" />
-        <img src="/fantasy-eyes.png" alt="" className="ff-bg-fit pointer-events-none absolute inset-0 z-[2] h-full w-full object-cover" style={{ objectPosition: "center center", mixBlendMode: "screen", animation: "ffEyeGlow 2.4s ease-in-out infinite" }} data-testid="fantasy-eyes" />
+        <img src="/fantasy-eyes.png" alt="" className="pointer-events-none absolute inset-0 z-[2] h-full w-full object-cover" style={{ objectPosition: "center center", mixBlendMode: "screen", animation: "ffEyeGlow 2.4s ease-in-out infinite" }} data-testid="fantasy-eyes" />
         {/* Living nostril steam: pinned to the artwork through the same
             1264x848 object-cover mapping the lounge anchor measures. */}
         {loungeBox && DRAGON_STEAM.map((s, i) => {
@@ -735,8 +731,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
         ))}
       </>)}
       {cfg.gully && (<>
-        <img src={cfg.gully} alt="" aria-hidden="true" className="ff-bg-blurfill absolute inset-0 z-[1] h-full w-full object-cover" style={{ objectPosition: "center center" }} />
-        <img src={cfg.gully} alt="" className="ff-bg-fit absolute inset-0 z-[1] h-full w-full object-cover opacity-95" style={{ objectPosition: "center center" }} data-testid="fairy-gully-bg" />
+        <img src={cfg.gully} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-95" style={{ objectPosition: "center center" }} data-testid="fairy-gully-bg" />
         <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(180deg, rgba(6,18,12,0.5) 0%, rgba(6,18,12,0.1) 32%, rgba(6,18,12,0.22) 68%, rgba(4,12,8,0.68) 100%)" }} />
         {/* Will-o'-wisps: glowing teal orbs drifting up through the gully */}
         {FAIRY_WISPS.map((w, i) => (
@@ -851,8 +846,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       {cfg.neon && <CyberNeonSign neon={cfg.neon} />}
       {cfg.wall && <img src={cfg.wall} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-60" style={{ objectPosition: "center top" }} />}
       {cfg.lounge && (<>
-        <img src={cfg.lounge} alt="" aria-hidden="true" className="ff-bg-blurfill absolute inset-0 z-[1] h-full w-full object-cover" style={{ objectPosition: "center center" }} />
-        <img src={cfg.lounge} alt="" className="ff-bg-fit absolute inset-0 z-[1] h-full w-full object-cover opacity-90" style={{ objectPosition: "center center" }} data-testid="tiki-lounge-bg" />
+        <img src={cfg.lounge} alt="" className="absolute inset-0 z-[1] h-full w-full object-cover opacity-90" style={{ objectPosition: "center center" }} data-testid="tiki-lounge-bg" />
         <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(180deg, rgba(20,10,4,0.55) 0%, rgba(20,10,4,0.15) 30%, rgba(20,10,4,0.25) 70%, rgba(20,10,4,0.7) 100%)" }} />
         {/* String-light glows on the SAME 1264x848 canvas + identical object-cover,
             so they always align with the painted bulbs. 3 interleaved groups flicker
@@ -867,7 +861,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             src={s.src}
             alt=""
             data-testid={`tiki-string-lights-${i}`}
-            className="pointer-events-none absolute inset-0 z-[2] h-full w-full object-cover mix-blend-screen ff-bg-fit"
+            className="pointer-events-none absolute inset-0 z-[2] h-full w-full object-cover mix-blend-screen"
             style={{ objectPosition: "center center", animation: `ffTikiTwinkle ${s.d}s ease-in-out ${s.dl}s infinite` }}
           />
         ))}
@@ -879,7 +873,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             src={src}
             alt=""
             data-testid={`tiki-drink-flame-${i}`}
-            className="pointer-events-none absolute inset-0 z-[2] h-full w-full object-cover mix-blend-screen ff-bg-fit"
+            className="pointer-events-none absolute inset-0 z-[2] h-full w-full object-cover mix-blend-screen"
             style={{ objectPosition: "center center", animation: `ffTikiFlame 1.2s ease-in-out ${(-0.4 * i).toFixed(1)}s infinite` }}
           />
         ))}
