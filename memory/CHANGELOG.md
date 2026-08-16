@@ -929,3 +929,25 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Wired: ShuffleOverlay root (data-testid shuffle-popup) + RevealStage card
   (re-armed per result.id). Adversarial test passed: interval writing
   opacity 0 every 120ms could not keep it hidden; normal flow untouched.
+
+## 2026-02 (fork) — Floor arm rebuilt as true LEFT arm + heist overlap fix (FF_BUILD 506-508)
+- User: floor arm's "white" was a tray-like read + wrong handedness (no thumb
+  visible). Regenerated via scripts/gen_steam_arm_left.py (Nano Banana,
+  magenta-key pipeline; bg came back muted magenta ~(173,64,121) so keying
+  flood-fills from the sampled corner color, not pure #FF00FF).
+- CHIRALITY: palm-down + fingers viewer-left + near-side thumb = RIGHT hand
+  (user caught this). Horizontal mirror swaps chirality -> final sprite
+  /steam-arm-left.png (1241x418): fingers point RIGHT, thumb toward viewer,
+  torn shoulder left = true LEFT arm (robot's open socket is his left).
+- Weathered to match golems (Color .82/.72, Brightness .86/.78, +16% rust
+  blend (92,62,34)); stats now lum 42 / sat .50 / 0% bright vs rack 45/.48.
+- AmbianceScene.jsx: arm box now 23vh wide, aspect 1241/418, no CSS flip.
+- heistLib.jsx summonToLogo: 6s provisional __ffHeistCooldownUntil hold
+  before the smooth-scroll (was: golem awakening could start during the
+  ~2.75s scroll window -> overlapped the medallion heist; user report).
+- Screenshot tool NOTE: script must be TOP-LEVEL statements (no async def
+  wrapper) or it silently no-ops. Realm chooser: click
+  [data-testid=theme-welcome-option-steam], then "Skip intro", then
+  [data-testid=scenery-toggle] to bare the scene.
+- User observation (open): phone-landscape packs props toward center — vh
+  offsets shrink at 390px height. Offered min(vh,vw) spread; awaiting reply.

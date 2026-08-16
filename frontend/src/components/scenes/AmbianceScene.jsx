@@ -949,23 +949,23 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       )}
       {/* WORKSHOP PROPS: valve pedestal (L), robot on assembly rack (M), alchemy bench (R) */}
       {cfg.golemLeft && [
-        { src: "/steam-valve-pedestal.png?v=501", ar: "433 / 735", cls: "left-[calc(50%-48vh)] h-[28vh]", tid: "steam-valve-pedestal",
+        { src: "/steam-valve-pedestal.png?v=501", ar: "433 / 735", cls: "left-[calc(50%-70vh)] bottom-[3vh] h-[25vh]", tid: "steam-valve-pedestal",
           lamps: [
-            // front-face fixtures (a vertical trio between the hatch covers and the seam)
-            { x: 37.5, y: 43, c: "#FFB03A", d: 1.7, dl: 0.1 }, { x: 37.5, y: 53, c: "#7CE08A", d: 2.2, dl: 0.7 }, { x: 37.5, y: 63, c: "#FF5540", d: 1.5, dl: 1.3 },
+            // front-face fixtures: mounted ON the two oval hatch housings
+            { x: 27.5, y: 43.9, c: "#FFB03A", d: 1.7, dl: 0.1 }, { x: 27.5, y: 59.9, c: "#7CE08A", d: 2.2, dl: 0.7 },
             // the sprite's real bulb column on the right face
             { x: 70.9, y: 40, c: "#FFB03A", d: 2.4, dl: 0 }, { x: 70.9, y: 50.2, c: "#FF5540", d: 1.9, dl: 0.5 }, { x: 70.9, y: 59, c: "#FF8A3A", d: 2.1, dl: 1 }, { x: 70.9, y: 67.9, c: "#FF5540", d: 1.6, dl: 1.5 },
           ] },
-        { src: "/steam-robot-rack.png?v=501", ar: "558 / 742", cls: "left-1/2 -translate-x-1/2 h-[78vh]", tid: "steam-robot-rack",
+        { src: "/steam-robot-rack.png?v=501", ar: "558 / 742", cls: "left-[calc(50%-22vh)] -translate-x-1/2 bottom-[0.5vh] h-[78vh]", tid: "steam-robot-rack",
           lamps: [{ x: 71.3, y: 29.4, c: "#FFB03A", d: 2.1, dl: 0.3 }, { x: 71.3, y: 33.1, c: "#FF7A30", d: 1.7, dl: 0.9 }],
-          eye: { x: 31.5, y: 20 },
+          eye: { x: 30.7, y: 20.8 },
           alert: "/steam-robot-rack-alert.png?v=501",
           alertEyes: [{ x: 33.3, y: 15.4 }, { x: 39.7, y: 15.4 }],
           sparks: { x: 65, y: 39 } },
-        { src: "/steam-alchemy-bench.png?v=501", ar: "966 / 765", cls: "left-[calc(50%+31vh)] h-[25.5vh]", tid: "steam-alchemy-bench",
+        { src: "/steam-alchemy-bench.png?v=501", ar: "966 / 765", cls: "left-[calc(50%+9vh)] bottom-[3vh] h-[22.5vh]", tid: "steam-alchemy-bench",
           lamps: [{ x: 56.1, y: 38.2, c: "#FFB03A", d: 1.6, dl: 0 }, { x: 61.7, y: 39, c: "#FFB03A", d: 2.3, dl: 0.5 }, { x: 73.5, y: 41.6, c: "#FF5540", d: 1.9, dl: 1.1 }] },
       ].map((p) => (
-        <div key={p.tid} className={`absolute bottom-[0.5vh] z-[3] hidden sm:block ${p.cls}`} style={{ aspectRatio: p.ar }} data-testid={p.tid}>
+        <div key={p.tid} className={`absolute z-[3] hidden sm:block ${p.cls}`} style={{ aspectRatio: p.ar }} data-testid={p.tid}>
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.5vh", width: "90%", height: "2.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.65), rgba(0,0,0,0) 68%)" }} />
           <img src={p.src} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 5px 8px rgba(0,0,0,0.5)) brightness(0.94)" }} />
           {/* WORKSHOP EVENTS: while a golem event plays, the strapped robot
@@ -997,9 +997,10 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       ))}
       {/* his unfinished arm, dropped on the floor in front of the assembly rack */}
       {cfg.golemLeft && (
-        <div className="absolute bottom-[0.6vh] left-[calc(50%+8vh)] z-[3] hidden sm:block" style={{ width: "22vh", aspectRatio: "832 / 558" }} data-testid="steam-arm-floor">
+        <div className="absolute bottom-[0.6vh] left-[calc(50%-33vh)] z-[3] hidden sm:block" style={{ width: "23vh", aspectRatio: "1241 / 418" }} data-testid="steam-arm-floor">
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.4vh", width: "86%", height: "1.8vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.6), rgba(0,0,0,0) 68%)" }} />
-          <img src="/steam-arm-unfinished.png?v=501" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ transform: "scaleX(-1)", filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.5)) brightness(0.92)" }} />
+          {/* his LEFT arm — palm down, thumb toward the viewer (fingers point right) */}
+          <img src="/steam-arm-left.png?v=508" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.5)) brightness(0.92)" }} />
         </div>
       )}
       {cfg.roofCables && STEAM_CABLES.map((c, i) => (
@@ -1082,14 +1083,14 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           <div className="absolute inset-x-0 top-[3px] h-[10px]" style={{ background: "linear-gradient(180deg, rgba(217,164,78,0.22), transparent)" }} />
           {/* Plague doctor mask abandoned on the floor in front of the alchemy desk
               (desktop-only: the desk itself is hidden at phone widths) */}
-          <div className="absolute hidden sm:block" data-testid="steam-mask-prop" style={{ left: "calc(50% + 38vh)", bottom: "0.9vh" }}>
+          <div className="absolute hidden sm:block" data-testid="steam-mask-prop" style={{ left: "calc(50% + 47vh)", bottom: "0.9vh" }}>
             <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.5vh", width: "14vh", height: "2vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.55), rgba(0,0,0,0) 70%)" }} />
             <img src="/steam-mask-floor.png" alt="" className="relative object-contain" style={{ width: "12vh" }} />
           </div>
           {/* Brass goggles set down on the ground in front of the half-built robot
               (desktop-only: on mobile the rack is hidden and the right golem's
               feet occupy this spot — live bug: goggles showed under his feet) */}
-          <div className="absolute hidden sm:block" data-testid="steam-goggles-prop" style={{ left: "48.5%", bottom: "0.8vh", transform: "rotate(-6deg)" }}>
+          <div className="absolute hidden sm:block" data-testid="steam-goggles-prop" style={{ left: "calc(50% + 40vh)", bottom: "0.8vh", transform: "rotate(-6deg)" }}>
             <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.4vh", width: "9vh", height: "1.4vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.6), rgba(0,0,0,0) 70%)" }} />
             <img src="/steam-goggles-shelf.png" alt="" className="relative object-contain" style={{ width: "7.5vh", filter: "drop-shadow(0 3px 4px rgba(0,0,0,0.8)) brightness(1.18)" }} />
           </div>

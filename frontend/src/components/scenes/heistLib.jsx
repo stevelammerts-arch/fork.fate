@@ -25,6 +25,11 @@ export function summonToLogo(done) {
   if (!r || !r.width) { done(null); return () => {}; }
   const reserve = () => { window.__ffHeistCooldownUntil = Date.now() + 90000 + Math.random() * 30000; };
   if (r.top >= 0 && r.bottom <= window.innerHeight) { reserve(); done(med); return () => {}; }
+  // HOLD THE STAGE while we scroll up (~2.75s max): without this a golem
+  // show (awakening step / furnace blast) could start mid-scroll and end up
+  // overlapping the medallion heist. A short provisional hold keeps them
+  // parked; it expires on its own if we bail below.
+  window.__ffHeistCooldownUntil = Math.max(window.__ffHeistCooldownUntil || 0, Date.now() + 6000);
   window.scrollTo({ top: 0, behavior: "smooth" });
   const t0 = Date.now();
   let settle;
