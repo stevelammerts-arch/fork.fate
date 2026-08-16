@@ -1264,3 +1264,8 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - All dropdowns start CLOSED on fresh visits: filtersOpen default true->false
   (cuisine/drink-type list). Trophy Room accordion already defaulted closed.
 - Verified: tab click scrolled 188px, step 3 landed at exactly 88px viewport top.
+
+## 2026-02 (fork) — Shuffle again button size match (FF_BUILD 539)
+- RevealStage respin-button: added w-full justify-center + border-2 (brand
+  red) so it exactly matches the Double or Nothing button below it.
+  Measured live: both 151x32.

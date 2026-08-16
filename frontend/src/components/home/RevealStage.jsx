@@ -310,7 +310,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
                   <button
                     onClick={onReSpin}
                     data-testid="respin-button"
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[#E01E26] px-3 py-1.5 font-sans text-xs font-bold text-white transition-colors hover:bg-[#B3141A]"
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border-2 border-[#E01E26] bg-[#E01E26] px-3 py-1.5 font-sans text-xs font-bold text-white transition-colors hover:border-[#B3141A] hover:bg-[#B3141A]"
                   >
                     <Dices className="h-3.5 w-3.5" /> {t("Shuffle again")}
                   </button>
