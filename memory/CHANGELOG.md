@@ -1312,3 +1312,13 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   animation on the card, stopping when the ritual unveils (cardTapped reset
   when isCovered clears).
 - Verified acceleration live: 0.68s -> 0.61s -> 0.50s -> 0.43s during shuffle.
+
+## 2026-02 (fork) — Save Progress backup/restore in crawl tab (FF_BUILD 545)
+- /app/frontend/src/lib/backup.js: exportProgress() bundles ALL ff_* localStorage
+  keys (skips dev keys ff_season_test/ff_rare_force) into base64 JSON
+  {v:1, app:"forkfate", ts, data}; importProgress(code) validates + writes back.
+- SaveProgress.jsx card mounted at the bottom of CrawlSetupPanel: "Save my
+  progress" copies the code to clipboard AND downloads forkfate-progress.txt;
+  "Restore" reveals a paste textarea -> importProgress -> reload. Testids:
+  save-progress-backup/-toggle-restore/-code/-restore.
+- Verified live round-trip: export -> remove ff_heists_seen -> import -> trophy back.
