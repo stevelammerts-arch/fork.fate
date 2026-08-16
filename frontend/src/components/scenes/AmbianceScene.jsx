@@ -521,9 +521,51 @@ function useGolemWake(enabled) {
   return ph;
 }
 
+/** THE ARM DROP: the apprentice's left arm starts freshly MOUNTED on his open
+ * shoulder socket — until the weld gives out: sparks spit in warning, the arm
+ * tears loose, falls, and slams the floor with a thump + dust kick. The
+ * mechanics quietly bolt it back on a few minutes later so the show repeats.
+ * Phases: 0 attached, 1 weld failing (spark warning), 2 falling, 3 landed
+ * (thump + dust + burst), 4 resting on the floor, 5 re-mount fade.
+ * First drop 50-90s after load (`ff:arm-drop` forces it, used for testing). */
+function useArmDrop(enabled) {
+  const [ph, setPh] = useState(0);
+  const witnessRef = useHeistWitness("armdrop");
+  useEffect(() => {
+    if (!enabled) return undefined;
+    if (!window.matchMedia("(min-width: 640px)").matches) return undefined;
+    preloadHeistAudio(["/golem-thud.wav"]);
+    let timers = [];
+    let pending;
+    const schedule = (min, spread) => { pending = setTimeout(run, min + Math.random() * spread); };
+    const run = (forced = false) => {
+      // HEIST TRAFFIC CONTROL: same courtesy as the golem shows
+      if (!forced && (window.__ffFateBusy || Date.now() < (window.__ffHeistCooldownUntil || 0))) { schedule(25000, 20000); return; }
+      window.__ffHeistCooldownUntil = Math.max(window.__ffHeistCooldownUntil || 0, Date.now() + 15000);
+      timers.forEach(clearTimeout); timers = [];
+      setPh(1);                                                  // the weld starts failing — sparks spit at the socket
+      timers.push(setTimeout(() => setPh(2), 1600));             // it tears loose and falls
+      timers.push(setTimeout(() => {                             // SLAM: floor thump, dust kick, spark burst
+        setPh(3);
+        playHeistSound("/golem-thud.wav", 0.65);
+      }, 2450));
+      timers.push(setTimeout(() => { setPh(4); witnessRef.current(true); }, 3400));
+      const rest = 160000 + Math.random() * 80000;               // lies there 2.5-4 min
+      timers.push(setTimeout(() => setPh(5), 3400 + rest));      // fades off the floor...
+      timers.push(setTimeout(() => { setPh(0); schedule(60000, 60000); }, 4300 + rest)); // ...re-mounted on the socket
+    };
+    schedule(50000, 40000);
+    const force = () => { clearTimeout(pending); run(true); };
+    window.addEventListener("ff:arm-drop", force);
+    return () => { clearTimeout(pending); timers.forEach(clearTimeout); window.removeEventListener("ff:arm-drop", force); };
+  }, [enabled]);
+  return ph;
+}
+
 export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
   const golemWake = useGolemWake(!!cfg.golemRight);
   const blastPh = useFurnaceBlast(!!cfg.golemLeft);
+  const armPh = useArmDrop(!!cfg.golemLeft);
   // any golem event running → the strapped rack robot powers up in response
   const workshopEvent = (golemWake >= 1 && golemWake <= 5) || blastPh >= 1;
   // WORKSHOP TROPHY: seeing the rack robot power up (head straight, solid
@@ -983,9 +1025,9 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           {p.alertEyes && workshopEvent && p.alertEyes.map((e, ei) => (
             <span key={`alert-eye-${ei}`} className="absolute rounded-full" data-testid="rack-alert-eye" style={{ left: `${e.x}%`, top: `${e.y}%`, width: "4.5%", aspectRatio: "1", background: "radial-gradient(circle, rgba(150,255,190,1), rgba(80,225,145,0.5) 55%, transparent 75%)", mixBlendMode: "screen", filter: "blur(0.5px)", boxShadow: "0 0 10px 3px rgba(90,235,155,0.65)" }} />
           ))}
-          {/* WELD SPARKS: intermittent bursts spit from the open shoulder socket
-              where the robot's unfinished arm is missing */}
-          {p.sparks && (
+          {/* WELD SPARKS from the open shoulder socket — hidden while the arm
+              is MOUNTED (ph 0/1); ph 1 instead shows the weld FAILING burst */}
+          {p.sparks && armPh >= 2 && (
             <div className="absolute" data-testid="rack-arm-sparks" style={{ left: `${p.sparks.x}%`, top: `${p.sparks.y}%` }}>
               <span className="absolute rounded-full" style={{ left: "-1.6vh", top: "-1.6vh", width: "3.2vh", height: "3.2vh", background: "radial-gradient(circle, rgba(255,240,200,0.95), rgba(255,170,70,0.5) 45%, transparent 75%)", mixBlendMode: "screen", filter: "blur(1px)", opacity: 0, animation: "ffWeldFlash 4.2s linear infinite" }} />
               {[0, 1, 2, 3, 4, 5, 6].map((i) => (
@@ -993,14 +1035,60 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
               ))}
             </div>
           )}
+          {p.sparks && armPh === 1 && (
+            <div className="absolute" data-testid="rack-arm-sparks-failing" style={{ left: `${p.sparks.x}%`, top: `${p.sparks.y}%` }}>
+              <span className="absolute rounded-full" style={{ left: "-1.8vh", top: "-1.8vh", width: "3.6vh", height: "3.6vh", background: "radial-gradient(circle, rgba(255,244,210,1), rgba(255,170,70,0.6) 45%, transparent 75%)", mixBlendMode: "screen", filter: "blur(1px)", opacity: 0, animation: "ffWeldFlash 0.55s linear infinite" }} />
+              {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+                <span key={`fspk-${i}`} className="absolute" style={{ width: "0.6vh", height: "0.6vh", borderRadius: "9999px", background: i % 2 ? "#FFE9A8" : "#FF9A3A", boxShadow: "0 0 6px 2px rgba(255,190,90,0.95)", opacity: 0, "--sx": `${[3.6, 5.8, 1.2, -2.8, 4.8, -1.6, 2.2][i]}vh`, "--sy": `${[4.5, 7.2, 8.4, 5.8, 3.4, 7.8, 6.6][i]}vh`, animation: `ffArmSpark 0.55s linear ${i * 0.055}s infinite` }} />
+              ))}
+            </div>
+          )}
         </div>
       ))}
-      {/* his unfinished arm, dropped on the floor in front of the assembly rack */}
+      {/* THE ARM DROP: his left arm starts mounted on the socket, tears loose
+          in a spark burst, slams the floor (thump + dust), rests a few
+          minutes, then gets quietly re-mounted. Box sits at the REST spot;
+          the attached pose is a translate+rotate about the torn shoulder. */}
       {cfg.golemLeft && (
-        <div className="absolute bottom-[0.6vh] left-[calc(50%-33vh)] z-[3] hidden sm:block" style={{ width: "23vh", aspectRatio: "1241 / 418" }} data-testid="steam-arm-floor">
-          <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.4vh", width: "86%", height: "1.8vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.6), rgba(0,0,0,0) 68%)" }} />
-          {/* his LEFT arm — palm down, thumb toward the viewer (fingers point right) */}
-          <img src="/steam-arm-left.png?v=508" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.5)) brightness(0.92)" }} />
+        <div className="absolute bottom-[0.6vh] left-[calc(50%-36.5vh)] z-[3] hidden sm:block" style={{ width: "29vh", aspectRatio: "1288 / 589" }} data-testid="steam-arm-floor">
+          {/* ground shadow appears once the arm is down */}
+          <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.4vh", width: "86%", height: "2vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.6), rgba(0,0,0,0) 68%)", opacity: armPh >= 3 && armPh < 5 ? 1 : 0, transition: "opacity 0.45s ease" }} />
+          {/* LANDING DUST: kicks out low when the arm slams down */}
+          {armPh === 3 && (
+            <div className="absolute" style={{ left: "38%", bottom: "0.2vh" }} data-testid="arm-drop-dust">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <span key={`ad-${i}`} className="absolute rounded-full" style={{ width: `${2.2 + (i % 3) * 0.9}vh`, height: `${1.9 + (i % 3) * 0.7}vh`, background: "radial-gradient(circle, rgba(188,168,138,0.5), rgba(142,124,98,0.28) 55%, transparent 78%)", filter: "blur(2px)", opacity: 0, "--dx": `${(i - 2) * 4.2}vh`, animation: `ffThudDust ${0.8 + i * 0.1}s ease-out ${(i % 3) * 0.05}s forwards` }} />
+              ))}
+            </div>
+          )}
+          <div className="absolute inset-0" data-testid="arm-drop-body" style={{
+            transformOrigin: "12% 45%",
+            transform: armPh <= 1 ? "translate(19.8vh, -40.2vh) rotate(78deg)" : "translate(0, 0) rotate(0deg)",
+            transition: armPh === 2 ? "transform 0.85s cubic-bezier(0.5, 0, 0.9, 0.6)" : armPh === 5 ? "opacity 0.8s ease" : armPh === 0 ? "opacity 0.6s ease" : "none",
+            opacity: armPh === 5 ? 0 : 1,
+            animation: armPh === 3 ? "ffArmSettle 0.55s cubic-bezier(0.3,1.4,0.5,1)" : undefined,
+          }}>
+            {/* his LEFT arm — palm down, thumb toward the viewer (fingers point right) */}
+            <img src="/steam-arm-left.png?v=514" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.5)) brightness(0.92)" }} />
+            {/* BUST-OFF SPARKS at the torn shoulder end: a hot burst right as it
+                lands, then the slow just-ripped-loose loop while it rests */}
+            {armPh === 3 && (
+              <div className="absolute" data-testid="floor-arm-sparks-burst" style={{ left: "9%", top: "32%" }}>
+                <span className="absolute rounded-full" style={{ left: "-1.6vh", top: "-1.6vh", width: "3.2vh", height: "3.2vh", background: "radial-gradient(circle, rgba(255,240,200,1), rgba(255,170,70,0.55) 45%, transparent 75%)", mixBlendMode: "screen", filter: "blur(1px)", opacity: 0, animation: "ffWeldFlash 0.7s linear infinite" }} />
+                {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+                  <span key={`ab-${i}`} className="absolute" style={{ width: "0.55vh", height: "0.55vh", borderRadius: "9999px", background: i % 2 ? "#FFD98A" : "#FF9A3A", boxShadow: "0 0 5px 1px rgba(255,180,80,0.9)", opacity: 0, "--sx": `${[-3, -1.4, 1, -3.8, 2.2, -0.8, 2.8][i]}vh`, "--sy": `${[-4.2, -6, -5, -3, -3.6, -6.6, -2.6][i]}vh`, animation: `ffArmSpark 0.7s linear ${i * 0.07}s infinite` }} />
+                ))}
+              </div>
+            )}
+            {armPh >= 4 && (
+              <div className="absolute" data-testid="floor-arm-sparks" style={{ left: "9%", top: "32%" }}>
+                <span className="absolute rounded-full" style={{ left: "-1.4vh", top: "-1.4vh", width: "2.8vh", height: "2.8vh", background: "radial-gradient(circle, rgba(255,240,200,0.95), rgba(255,170,70,0.5) 45%, transparent 75%)", mixBlendMode: "screen", filter: "blur(1px)", opacity: 0, animation: "ffWeldFlash 4.2s linear 2.1s infinite" }} />
+                {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+                  <span key={`aspk-${i}`} className="absolute" style={{ width: "0.5vh", height: "0.5vh", borderRadius: "9999px", background: i % 2 ? "#FFD98A" : "#FF9A3A", boxShadow: "0 0 5px 1px rgba(255,180,80,0.85)", opacity: 0, "--sx": `${[-2.6, -1.2, 0.8, -3.4, 1.8, -0.6, 2.4][i]}vh`, "--sy": `${[-3.8, -5.4, -4.6, -2.6, -3.2, -6, -2.2][i]}vh`, animation: `ffArmSpark 4.2s linear ${2.1 + i * 0.055}s infinite` }} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
       {/* Plague doctor mask abandoned on the floor NEXT TO THE PUMP (top-level
@@ -1089,22 +1177,27 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           <div className="absolute inset-x-0 top-[46%] h-px" style={{ background: "rgba(0,0,0,0.5)" }} />
           <div className="absolute inset-x-0 top-0 h-[3px]" style={{ background: "linear-gradient(90deg, transparent, rgba(217,164,78,0.55) 20%, rgba(240,200,120,0.7) 50%, rgba(217,164,78,0.55) 80%, transparent)" }} />
           <div className="absolute inset-x-0 top-[3px] h-[10px]" style={{ background: "linear-gradient(180deg, rgba(217,164,78,0.22), transparent)" }} />
-          {/* POWER CABLES snaking along the bare floor between the machines */}
+          {/* POWER CABLES: black rubber runs weaving all over the bare floor,
+              crossing and overlapping each other between the machines */}
           <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1000 140" preserveAspectRatio="none" data-testid="steam-floor-cables">
-            {/* upper cable: runs from the left golem's side toward the bench */}
-            <path d="M -20 40 C 160 52, 330 28, 520 44 C 700 59, 850 34, 1020 48" fill="none" stroke="#050302" strokeWidth="7" opacity="0.95" />
-            <path d="M -20 38.5 C 160 50.5, 330 26.5, 520 42.5 C 700 57.5, 850 32.5, 1020 46.5" fill="none" stroke="#8A6432" strokeWidth="2" opacity="0.85" />
-            {/* lower, thicker cable drooping across the foreground */}
-            <path d="M -20 92 C 150 78, 320 100, 530 86 C 730 73, 880 98, 1020 84" fill="none" stroke="#060402" strokeWidth="9" opacity="0.95" />
-            <path d="M -20 90 C 150 76, 320 98, 530 84 C 730 71, 880 96, 1020 82" fill="none" stroke="#96703A" strokeWidth="2.2" opacity="0.8" />
-            {/* a thin loose wire crossing between them */}
-            <path d="M 240 34 C 300 66, 360 88, 470 90" fill="none" stroke="#0B0805" strokeWidth="3.5" opacity="0.9" />
-            <path d="M 240 33 C 300 65, 360 87, 470 89" fill="none" stroke="#6B4A2A" strokeWidth="1.2" opacity="0.7" />
-            {/* brass couplings clamped onto the runs */}
-            <rect x="342" y="30" width="16" height="13" rx="2.5" fill="#3E2A12" stroke="#8A6432" strokeWidth="1.2" opacity="0.95" />
-            <rect x="654" y="46" width="15" height="13" rx="2.5" fill="#3E2A12" stroke="#8A6432" strokeWidth="1.2" opacity="0.95" />
-            <rect x="497" y="80" width="18" height="15" rx="3" fill="#422D14" stroke="#8A6432" strokeWidth="1.2" opacity="0.95" />
-            <rect x="836" y="78" width="15" height="14" rx="2.5" fill="#3E2A12" stroke="#8A6432" strokeWidth="1.2" opacity="0.95" />
+            {/* long run snaking wall-to-wall */}
+            <path d="M -20 30 C 120 72, 260 14, 400 56 C 540 96, 680 24, 820 52 C 900 66, 960 38, 1020 52" fill="none" stroke="#020202" strokeWidth="7" opacity="0.95" />
+            <path d="M -20 28.5 C 120 70.5, 260 12.5, 400 54.5 C 540 94.5, 680 22.5, 820 50.5 C 900 64.5, 960 36.5, 1020 50.5" fill="none" stroke="#333029" strokeWidth="1.4" opacity="0.55" />
+            {/* second run weaving the other way — crosses the first twice */}
+            <path d="M -20 78 C 140 38, 300 108, 460 68 C 620 30, 760 102, 1020 62" fill="none" stroke="#040404" strokeWidth="8" opacity="0.95" />
+            <path d="M -20 76 C 140 36, 300 106, 460 66 C 620 28, 760 100, 1020 60" fill="none" stroke="#3A362E" strokeWidth="1.6" opacity="0.5" />
+            {/* foreground run drooping low, overlapping both */}
+            <path d="M -20 112 C 180 84, 340 124, 520 94 C 700 66, 850 118, 1020 96" fill="none" stroke="#030303" strokeWidth="9" opacity="0.95" />
+            <path d="M -20 110 C 180 82, 340 122, 520 92 C 700 64, 850 116, 1020 94" fill="none" stroke="#37332B" strokeWidth="1.8" opacity="0.5" />
+            {/* a loose length doubling back on itself mid-floor */}
+            <path d="M 190 122 C 320 58, 430 132, 560 78 C 650 42, 710 112, 830 102" fill="none" stroke="#050505" strokeWidth="6" opacity="0.92" />
+            {/* thin stray wire cutting diagonally across everything */}
+            <path d="M -20 52 C 220 94, 520 26, 1020 112" fill="none" stroke="#060606" strokeWidth="3.5" opacity="0.9" />
+            {/* dark iron couplings clamped where runs pass */}
+            <rect x="352" y="48" width="16" height="13" rx="2.5" fill="#141210" stroke="#3A362E" strokeWidth="1.2" opacity="0.95" />
+            <rect x="640" y="34" width="15" height="13" rx="2.5" fill="#141210" stroke="#3A362E" strokeWidth="1.2" opacity="0.95" />
+            <rect x="500" y="88" width="18" height="15" rx="3" fill="#171411" stroke="#3A362E" strokeWidth="1.2" opacity="0.95" />
+            <rect x="828" y="98" width="15" height="14" rx="2.5" fill="#141210" stroke="#3A362E" strokeWidth="1.2" opacity="0.95" />
           </svg>
           {/* WORKSHOP RATS: two of them scurry along the wall/floor corner,
               back and forth at constant speed — their turnarounds happen
@@ -1114,7 +1207,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             { h: 3.4, dur: 8.5, delay: 0, bottom: 12.0, tid: "steam-rat-1" },
             { h: 2.7, dur: 11.5, delay: -4.6, bottom: 12.7, tid: "steam-rat-2" },
           ].map((rt) => (
-            <div key={rt.tid} className="absolute left-0 hidden sm:block" data-testid={rt.tid} style={{ bottom: `${rt.bottom}vh`, animation: `ffRatRun ${rt.dur}s linear ${rt.delay}s infinite alternate` }}>
+            <div key={rt.tid} className="absolute left-0 hidden landscape:block" data-testid={rt.tid} style={{ bottom: `${rt.bottom}vh`, animation: `ffRatRun ${rt.dur}s linear ${rt.delay}s infinite alternate` }}>
               <div style={{ animation: `ffRatFace ${rt.dur * 2}s steps(1,end) ${rt.delay}s infinite` }}>
                 <img src="/steam-rat.png" alt="" className="object-contain" style={{ height: `${rt.h}vh`, filter: "brightness(1.08) contrast(1.06) drop-shadow(0 2px 2px rgba(0,0,0,0.55))", animation: "ffRatScurry 0.22s linear infinite" }} />
               </div>

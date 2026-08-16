@@ -977,3 +977,38 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   draw over it).
 - User asked if pump lights were removed — untouched; ffLampBlink dims to
   opacity 0.2 half-cycle so stills can catch them "off". Verified lit.
+
+## 2026-02 (fork) — Black weaving cables + THE ARM DROP heist (FF_BUILD 511-513)
+- Cables redrawn: 5 black rubber runs weaving/overlapping across the floor
+  (incl. one doubling back + a diagonal stray), dark-iron couplings.
+- NEW HIDDEN FATE "armdrop" (The Arm Drop) added to HEISTS in lib/rituals.js:
+  arm starts MOUNTED on the rack robot's socket, weld fails (0.55s spark
+  burst at socket), tears loose + falls (0.85s accelerate transition),
+  slams floor with /golem-thud.wav + ffThudDust kick + fast bust-end burst,
+  rests 2.5-4min (slow spark loop), fades + re-mounts, repeats. Hook
+  useArmDrop in AmbianceScene (ph 0-5); force event `ff:arm-drop`; traffic
+  control via __ffHeistCooldownUntil; desktop-only (min-width 640).
+- GEOMETRY: arm box at REST spot (bottom 0.6vh, left 50%-37.5vh, w 31vh);
+  attached pose = translate(21.5vh,-41.2vh) rotate(78deg) about origin
+  9%/40% (the torn shoulder) which pins it on the socket (65%,39% of rack
+  box). Formula: dx = socket_x - (rest_left + 0.09*w); dy = 48.08vh -
+  (0.6 + h*0.6). Arm upsized 23vh->31vh after user compared to intact arm.
+- Socket weld sparks now GATED: hidden while arm mounted (ph 0/1), intense
+  0.55s failing burst at ph1, normal loop at ph>=2.
+- Rats: now `hidden landscape:block` (portrait phones never show them;
+  Tailwind 3.4 has orientation variants).
+- Phase machine verified via live computed-style probe (attached 0-1.6s,
+  fall 1.6-2.45s, landed burst, resting loop) + witness toast fired.
+- NOTE: screenshot captures have 1-2s latency per shot — probe computed
+  styles instead of relying on timed screenshots for animation QA.
+
+## 2026-02 (fork) — Arm restyled to match the robot (FF_BUILD 514)
+- gen_steam_arm_match.py: IMAGE-TO-IMAGE via Nano Banana — passed
+  steam-robot-rack.png as ImageContent reference, asked for "his other arm"
+  in the exact same style. Result matches plating/rust/verdigris perfectly.
+- Pipeline: corner-sampled magenta key -> mirror flip (hand-left+thumb =
+  right arm; flip = LEFT arm) -> mild grade -> opaque-magenta despill pass
+  (b>g+25 && r>g+25 -> b=g*0.75; 1236 px fixed on wire strands).
+- New dims 1288x589 (aspect 2.187): box 29vh wide left calc(50%-36.5vh),
+  origin 12%/45%, attached transform translate(19.8vh,-40.2vh) rotate(78deg).
+- Verified attached + fallen in-scene; ?v=514.

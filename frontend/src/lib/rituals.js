@@ -75,6 +75,7 @@ export const HEISTS = [
   { key: "awakening", name: "The Awakening", realm: "Steampunk", accent: "#7CE08A", desc: "The sleeping sentinel on the right stirs — head rising, eyes burning green — takes one thundering step forward, retreats, and powers back down to sleep." },
   { key: "furnace", name: "Furnace Blast", realm: "Steampunk", accent: "#FF7A2B", desc: "The left sentinel's inner gears grind, his belly grate surges white-hot — then a roaring stream of fire, sparks and embers spews across the workshop." },
   { key: "workshop", name: "The Apprentice", realm: "Steampunk", accent: "#58D68D", desc: "While the sentinels perform, the half-built robot strapped to the assembly rack stirs — his head straightens and both lenses ignite solid green, watching." },
+  { key: "armdrop", name: "The Arm Drop", realm: "Steampunk", accent: "#E0A422", desc: "The apprentice's freshly-mounted arm hangs from its shoulder socket — until the weld gives out in a burst of sparks and it tears loose, slamming the floor with a thump. The mechanics quietly bolt it back on later." },
 ];
 
 export function readHeistsSeen() {

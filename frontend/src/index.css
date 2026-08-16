@@ -1130,6 +1130,12 @@ body {
   0%,100%{ transform: translateY(0); }
   50%{ transform: translateY(-0.22vh); }
 }
+/* The Arm Drop: little bounce as the fallen arm settles on the floor */
+@keyframes ffArmSettle{
+  0%{ transform: translate(0, -1.4vh) rotate(-2deg); }
+  55%{ transform: translate(0, 0.15vh) rotate(0.5deg); }
+  100%{ transform: translate(0, 0) rotate(0deg); }
+}
 /* Santa's sleigh climbing diagonally up across the winter sky (angle matches the
    nose-up sleigh), then looping */
 @keyframes ffSantaFly{
