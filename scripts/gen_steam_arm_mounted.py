@@ -1,6 +1,6 @@
-"""Regenerate the floor arm to MATCH the rack robot's own arm style, by
-passing the robot sprite as an image reference to Nano Banana. Output is
-mirrored in post so it reads as his LEFT arm (thumb toward viewer)."""
+"""Generate the arm in its MOUNTED pose: intact, vertical, hanging at rest —
+clean shoulder pauldron at top (no torn gears facing forward), matching the
+rack robot's own arm style via image reference."""
 import asyncio
 import base64
 import os
@@ -13,25 +13,24 @@ from PIL import Image, ImageEnhance, ImageFilter
 load_dotenv("/app/backend/.env")
 
 PROMPT = (
-    "Look at the attached steampunk robot game sprite. Paint HIS OTHER ARM as "
-    "a separate detached prop, in EXACTLY the same art style, colours and "
-    "construction as the arm he already has: the same chunky segmented "
-    "riveted plating, the same dark aged bronze with rust and grime, the "
-    "same verdigris green patina straps, the same rounded shoulder pauldron "
-    "and thick cylindrical forearm and blocky segmented fingers. CRITICAL: "
-    "IDENTICAL PROPORTIONS to his existing arm — the forearm gauntlet just "
-    "as THICK, WIDE and bulky, the same massive industrial heft, never "
-    "slimmer or more elegant. "
-    "The detached arm lies flat on the ground, seen exactly from the side at "
-    "ground level, lying horizontally: the HAND is on the LEFT of the frame "
-    "resting palm-down with fingers slightly curled and the THUMB clearly "
-    "visible on the near side facing the viewer; the SHOULDER END is on the "
-    "RIGHT of the frame, torn open with exposed gears, springs and loose "
-    "dangling copper wires spilling out where it ripped off the robot. "
-    "The arm is shown COMPLETELY ALONE, centered, filling most of the frame, "
-    "WIDE LANDSCAPE composition, on a PERFECTLY FLAT SOLID PURE MAGENTA "
-    "background (#FF00FF) with no gradient, no tray, no table, no floor "
-    "surface, no shadow cast on the background, no text, no watermark, "
+    "Look at the attached steampunk robot game sprite. Paint HIS OTHER ARM "
+    "as a separate standalone sprite in EXACTLY the same art style, colours "
+    "and construction as the arm he already has: same chunky segmented "
+    "riveted plating, same dark aged bronze with rust and grime, same "
+    "verdigris green patina straps, same rounded shoulder pauldron, thick "
+    "cylindrical forearm and blocky segmented fingers. CRITICAL: the new arm "
+    "must have IDENTICAL PROPORTIONS to his existing arm — the forearm "
+    "gauntlet just as THICK, WIDE and bulky, the same massive industrial "
+    "heft, never slimmer or more elegant. "
+    "This time paint the arm INTACT and WHOLE, in the exact hanging-at-rest "
+    "pose it would have while MOUNTED on his shoulder: perfectly VERTICAL, "
+    "seen straight from the front, the rounded shoulder pauldron CLEAN and "
+    "COMPLETE at the TOP (no torn parts, no exposed gears, no loose wires "
+    "anywhere), upper arm and forearm hanging straight down, relaxed "
+    "half-curled fingers at the BOTTOM. TALL PORTRAIT composition, the arm "
+    "shown COMPLETELY ALONE, centered, filling most of the frame height, on "
+    "a PERFECTLY FLAT SOLID PURE MAGENTA background (#FF00FF) with no "
+    "gradient, no shadow on the background, no floor, no text, no watermark, "
     "no border."
 )
 
@@ -67,17 +66,13 @@ def key_and_grade(src, out):
                 continue
             if is_bg((r, g, b), 60):
                 px[x, y] = (r, g, b, 0)
-            elif al < 255 and r > g + 45 and b > g + 30:
-                m = (r + g + b) // 3
-                px[x, y] = (m, m, m, al)
+            elif b > g + 25 and r > g + 25:
+                px[x, y] = (r, g, max(0, int(g * 0.75)), al)  # magenta despill
             elif r > 225 and g > 225 and b > 225:
                 px[x, y] = (40, 32, 22, al)
     bbox = im.getbbox()
     if bbox:
         im = im.crop(bbox)
-    # MIRROR: hand-left + near thumb = right arm; the flip makes it his LEFT
-    im = im.transpose(Image.FLIP_LEFT_RIGHT)
-    # gentle sink into the room light (style already matches the robot)
     alpha = im.split()[3]
     rgb = im.convert("RGB")
     rgb = ImageEnhance.Color(rgb).enhance(0.92)
@@ -85,7 +80,7 @@ def key_and_grade(src, out):
     im = rgb.convert("RGBA")
     im.putalpha(alpha)
     im.save(out)
-    print(f"keyed+flipped -> {out} ({im.size})")
+    print(f"keyed -> {out} ({im.size})")
 
 
 async def main():
@@ -96,7 +91,7 @@ async def main():
     with open("/app/frontend/public/steam-robot-rack.png", "rb") as f:
         robot_b64 = base64.b64encode(f.read()).decode()
     chat = (
-        LlmChat(api_key=api_key, session_id="steam-arm-match", system_message="You are an expert steampunk prop illustrator producing game asset art.")
+        LlmChat(api_key=api_key, session_id="steam-arm-mounted", system_message="You are an expert steampunk prop illustrator producing game asset art.")
         .with_model("gemini", "gemini-3.1-flash-image-preview")
         .with_params(modalities=["image", "text"])
     )
@@ -106,11 +101,11 @@ async def main():
         print(f"no image returned ({(text or '')[:120]})", file=sys.stderr)
         sys.exit(1)
     data = base64.b64decode(images[0]["data"])
-    raw = "/app/scripts/steam-arm-match-raw.png"
+    raw = "/app/scripts/steam-arm-mounted-raw.png"
     with open(raw, "wb") as f:
         f.write(data)
     print(f"saved -> {raw} ({len(data)//1024}KB)")
-    key_and_grade(raw, "/app/frontend/public/steam-arm-left.png")
+    key_and_grade(raw, "/app/frontend/public/steam-arm-mounted.png")
 
 
 if __name__ == "__main__":

@@ -1012,3 +1012,22 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - New dims 1288x589 (aspect 2.187): box 29vh wide left calc(50%-36.5vh),
   origin 12%/45%, attached transform translate(19.8vh,-40.2vh) rotate(78deg).
 - Verified attached + fallen in-scene; ?v=514.
+
+## 2026-02 (fork) — Exact-mirror mounted arm + smooth two-frame fall (FF_BUILD 515-517)
+- MOUNTED sprite is now the robot's OWN right arm cropped from
+  steam-robot-rack.png (region x64-152, y264-564, piecewise right boundary
+  136/139/149 to exclude torso, fragments erased, top cut soft-faded 12px)
+  then mirror-flipped -> perfect 1:1 left arm, thumb inward, NO pauldron
+  (user: robot's own shoulder plate covers the join). 86x299 px.
+- Mounted box: left calc(50%-17.7vh), bottom 17.5vh, w 9.1vh, z-3 (z-2
+  hid it behind the rack frame post's opaque pixels — learned the hard way).
+- Fall is now a TWO-FRAME hand-off: mounted arm shudders (ffArmShudder)
+  during weld-fail ph1, detaches at ph2 (ffArmDetach 0.4s: tilt -16deg,
+  drop 7vh, fade) while the torn floor arm fades in mid-tumble
+  (pre-fall pose translate(19.8vh,-41.1vh) rotate(60deg), opacity 0->1
+  0.25s) and falls 0.85s to rest. Much smoother than single-sprite swing.
+- Floor arm regenerated thicker (user: gauntlet too thin) 1287x513; then
+  magenta shadow blob killed (min(r,b)>g+45), red fringe knocked back, and
+  finally a HUE-ROTATE pass (285-358deg sat>0.12 -> hue 22deg rust) to
+  remove the raspberry-pink cast (48752 px). Sprites at ?v=517/516.
+- ffArmShudder + ffArmDetach keyframes added to index.css.

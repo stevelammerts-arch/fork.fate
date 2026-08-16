@@ -1136,6 +1136,19 @@ body {
   55%{ transform: translate(0, 0.15vh) rotate(0.5deg); }
   100%{ transform: translate(0, 0) rotate(0deg); }
 }
+/* mounted arm shuddering while the shoulder weld fails */
+@keyframes ffArmShudder{
+  0%,100%{ transform: rotate(0deg); }
+  25%{ transform: rotate(-1.3deg) translateY(0.15vh); }
+  60%{ transform: rotate(1.1deg); }
+}
+/* the detach beat: tilts off the socket, drops and fades as the falling
+   frame takes over */
+@keyframes ffArmDetach{
+  0%{ transform: rotate(0deg) translateY(0); opacity: 1; }
+  55%{ opacity: 1; }
+  100%{ transform: rotate(-16deg) translateY(7vh); opacity: 0; }
+}
 /* Santa's sleigh climbing diagonally up across the winter sky (angle matches the
    nose-up sleigh), then looping */
 @keyframes ffSantaFly{

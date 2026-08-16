@@ -1045,12 +1045,24 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           )}
         </div>
       ))}
-      {/* THE ARM DROP: his left arm starts mounted on the socket, tears loose
-          in a spark burst, slams the floor (thump + dust), rests a few
-          minutes, then gets quietly re-mounted. Box sits at the REST spot;
-          the attached pose is a translate+rotate about the torn shoulder. */}
+      {/* THE ARM DROP — MOUNTED POSE: the intact arm hangs on the socket
+          (clean pauldron, no torn parts). Shudders while the weld fails,
+          then detaches: quick tilt + drop + fade as the falling frame takes
+          over below for a smooth two-frame hand-off. */}
+      {cfg.golemLeft && armPh <= 2 && (
+        <div className="absolute z-[3] hidden sm:block" data-testid="steam-arm-mounted" style={{
+          left: "calc(50% - 17.7vh)", bottom: "17.5vh", width: "9.1vh", aspectRatio: "86 / 299",
+          transformOrigin: "50% 6%",
+          animation: armPh === 1 ? "ffArmShudder 0.28s linear infinite" : armPh === 2 ? "ffArmDetach 0.4s ease-in forwards" : undefined,
+        }}>
+          <img src="/steam-arm-mounted.png?v=517" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 4px 7px rgba(0,0,0,0.55)) brightness(0.92)" }} />
+        </div>
+      )}
+      {/* THE ARM DROP — FALLING/FLOOR: the torn arm tumbles in from the
+          socket and lands where it rests. Box sits at the REST spot; the
+          pre-fall pose is a translate+rotate about the torn shoulder. */}
       {cfg.golemLeft && (
-        <div className="absolute bottom-[0.6vh] left-[calc(50%-36.5vh)] z-[3] hidden sm:block" style={{ width: "29vh", aspectRatio: "1288 / 589" }} data-testid="steam-arm-floor">
+        <div className="absolute bottom-[0.6vh] left-[calc(50%-36.5vh)] z-[3] hidden sm:block" style={{ width: "29vh", aspectRatio: "1287 / 513" }} data-testid="steam-arm-floor">
           {/* ground shadow appears once the arm is down */}
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.4vh", width: "86%", height: "2vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.6), rgba(0,0,0,0) 68%)", opacity: armPh >= 3 && armPh < 5 ? 1 : 0, transition: "opacity 0.45s ease" }} />
           {/* LANDING DUST: kicks out low when the arm slams down */}
@@ -1063,13 +1075,13 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           )}
           <div className="absolute inset-0" data-testid="arm-drop-body" style={{
             transformOrigin: "12% 45%",
-            transform: armPh <= 1 ? "translate(19.8vh, -40.2vh) rotate(78deg)" : "translate(0, 0) rotate(0deg)",
-            transition: armPh === 2 ? "transform 0.85s cubic-bezier(0.5, 0, 0.9, 0.6)" : armPh === 5 ? "opacity 0.8s ease" : armPh === 0 ? "opacity 0.6s ease" : "none",
-            opacity: armPh === 5 ? 0 : 1,
+            transform: armPh <= 1 ? "translate(19.8vh, -41.1vh) rotate(60deg)" : "translate(0, 0) rotate(0deg)",
+            transition: armPh === 2 ? "transform 0.85s cubic-bezier(0.5, 0, 0.9, 0.6), opacity 0.25s ease" : armPh === 5 ? "opacity 0.8s ease" : armPh === 0 ? "none" : "none",
+            opacity: armPh <= 1 || armPh === 5 ? 0 : 1,
             animation: armPh === 3 ? "ffArmSettle 0.55s cubic-bezier(0.3,1.4,0.5,1)" : undefined,
           }}>
             {/* his LEFT arm — palm down, thumb toward the viewer (fingers point right) */}
-            <img src="/steam-arm-left.png?v=514" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.5)) brightness(0.92)" }} />
+            <img src="/steam-arm-left.png?v=517" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 3px 5px rgba(0,0,0,0.5)) brightness(0.92)" }} />
             {/* BUST-OFF SPARKS at the torn shoulder end: a hot burst right as it
                 lands, then the slow just-ripped-loose loop while it rests */}
             {armPh === 3 && (
