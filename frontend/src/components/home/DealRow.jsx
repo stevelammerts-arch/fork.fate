@@ -7,21 +7,27 @@ import { Dices } from "lucide-react";
 import { SPIN_TAP } from "../../pages/homeConstants";
 import { useLang } from "../../i18n/i18n";
 
-const BEAT_MS = 882; // one lub-dub cycle in /heartbeat-loop.mp3 (~68 bpm)
+const BEAT_MS = 882;  // one lub-dub cycle in /heartbeat-loop.mp3 (~68 bpm)
+const RACE_MS = 460;  // the drumroll pace while the deck shuffles (~130 bpm)
 
 export const DealRow = ({ spin, spinning, loading, passportMode, groupMode, light, resultsCount, weather, pulse }) => {
   const { t } = useLang();
   const audioRef = useRef(null);
-  const beating = pulse && !spinning && !loading;
+  // "beat": calm lub-dub while everything's set and fate waits.
+  // "race": the DRUMROLL — the same heart sprinting while the deck shuffles.
+  const mode = spinning ? "race" : pulse && !loading ? "beat" : null;
+  const period = mode === "race" ? RACE_MS : BEAT_MS;
   useEffect(() => {
-    if (!beating) return undefined;
+    if (!mode) return undefined;
+    const race = mode === "race";
     const muted = () => { try { return localStorage.getItem("ff_muted") === "1"; } catch { return true; } };
     if (!audioRef.current) {
       audioRef.current = new Audio("/heartbeat-loop.mp3");
       audioRef.current.loop = true;
-      audioRef.current.volume = 0.22;
     }
     const a = audioRef.current;
+    a.playbackRate = race ? BEAT_MS / RACE_MS : 1;
+    a.volume = race ? 0.32 : 0.22;
     const tryPlay = () => { if (!muted() && a.paused) a.play().catch(() => {}); };
     tryPlay();
     window.addEventListener("pointerdown", tryPlay);
@@ -29,19 +35,19 @@ export const DealRow = ({ spin, spinning, loading, passportMode, groupMode, ligh
     const watch = setInterval(() => { if (muted()) { if (!a.paused) a.pause(); } else tryPlay(); }, 500);
     // slight haptic lub-dub on devices that support it
     const buzz = setInterval(() => {
-      try { if (navigator.vibrate) navigator.vibrate([26, 240, 18]); } catch { /* no haptics */ }
-    }, BEAT_MS);
+      try { if (navigator.vibrate) navigator.vibrate(race ? [16, 120, 12] : [26, 240, 18]); } catch { /* no haptics */ }
+    }, race ? RACE_MS : BEAT_MS);
     return () => {
       clearInterval(watch); clearInterval(buzz);
       window.removeEventListener("pointerdown", tryPlay);
       a.pause();
     };
-  }, [beating]);
+  }, [mode]);
   return (
     <div className="flex flex-wrap items-center gap-4">
       {/* the heartbeat lives on a wrapper so framer's hover/tap transforms
           on the button itself stay untouched */}
-      <span className="inline-block" style={{ animation: beating ? `ffHeartbeat ${BEAT_MS}ms ease-in-out infinite` : "none" }} data-testid={beating ? "deal-heartbeat" : undefined}>
+      <span className="inline-block" style={{ animation: mode ? `ffHeartbeat ${period}ms ease-in-out infinite` : "none" }} data-testid={mode ? `deal-heartbeat-${mode}` : undefined}>
         <motion.button
           data-testid="spin-roulette-button"
           onClick={spin}

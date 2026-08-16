@@ -1278,3 +1278,9 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   loops at vol 0.22 (mute-watched, pointerdown retry); navigator.vibrate
   ([26,240,18]) every 882ms on supporting devices. Stops on spin/result/mode
   change/unmount.
+
+## 2026-02 (fork) — Reveal drumroll (FF_BUILD 541)
+- DealRow heartbeat now has two modes: "beat" (882ms, vol .22) and "race"
+  during spinning (460ms cycle, audio playbackRate 1.917, vol .32, haptics
+  [16,120,12] @460ms). Wrapper testids deal-heartbeat-beat/-race. Verified:
+  0.882s calm -> 0.46s racing during shuffle.
