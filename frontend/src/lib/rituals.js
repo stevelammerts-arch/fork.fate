@@ -76,6 +76,7 @@ export const HEISTS = [
   { key: "furnace", name: "Furnace Blast", realm: "Steampunk", accent: "#FF7A2B", desc: "The left sentinel's inner gears grind, his belly grate surges white-hot — then a roaring stream of fire, sparks and embers spews across the workshop." },
   { key: "workshop", name: "The Apprentice", realm: "Steampunk", accent: "#58D68D", desc: "While the sentinels perform, the half-built robot strapped to the assembly rack stirs — his head straightens and both lenses ignite solid green, watching." },
   { key: "armdrop", name: "The Arm Drop", realm: "Steampunk", accent: "#E0A422", desc: "The apprentice's freshly-mounted arm hangs from its shoulder socket — until the weld gives out in a burst of sparks and it tears loose, slamming the floor with a thump. The mechanics quietly bolt it back on later." },
+  { key: "cheesethief", name: "The Cheese Thief", realm: "Steampunk", accent: "#F5C84C", desc: "A third rat creeps from the shadows to the baited trap and snatches the swiss right off the trigger — SNAP! — bolting with its prize by a whisker. The trap sits sprung and empty until someone re-baits it." },
 ];
 
 export function readHeistsSeen() {

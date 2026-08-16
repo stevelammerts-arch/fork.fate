@@ -1149,6 +1149,25 @@ body {
   55%{ opacity: 1; }
   100%{ transform: rotate(-16deg) translateY(7vh); opacity: 0; }
 }
+/* Trap Snap: the cheese thief's approach, nibble, jolt and escape */
+@keyframes ffThiefIn{
+  0%{ transform: translateX(26vw); }
+  100%{ transform: translateX(0); }
+}
+@keyframes ffThiefFlee{
+  0%{ transform: translateX(0); }
+  100%{ transform: translateX(-46vw); }
+}
+@keyframes ffThiefNibble{
+  0%,100%{ transform: translateY(0) rotate(0deg); }
+  50%{ transform: translateY(-0.3vh) rotate(-4deg); }
+}
+@keyframes ffTrapJolt{
+  0%{ transform: rotate(0deg); }
+  30%{ transform: rotate(-7deg) translateY(-0.6vh); }
+  60%{ transform: rotate(3deg); }
+  100%{ transform: rotate(0deg); }
+}
 /* one-shot spark shower (break-away + ground impact) */
 @keyframes ffSparkShower{
   0%{ opacity: 1; transform: translate(0, 0) scale(1); }

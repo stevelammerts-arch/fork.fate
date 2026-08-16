@@ -1060,3 +1060,19 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   photos > 400KB cache ceiling were NEVER cached, so every view re-billed
   the Google budget and shipped 620KB originals to phones. Now recompressed
   server-side (PIL JPEG q72) to fit the cache. 451/451 tests pass.
+
+## 2026-02 (fork) — TRAP SNAP hidden fate (FF_BUILD 519)
+- NEW HIDDEN FATE "cheesethief" (The Cheese Thief) in lib/rituals.js.
+- Asset prep via PIL: cheese flood-extracted from steam-mousetrap.png
+  (seed-grown hue 22-70deg mask, brightest-blob + dilation) ->
+  steam-cheese.png (159x90, rel pos left 68% top 13.5% w 12.8%);
+  steam-mousetrap-empty.png = 4-direction-average fill + local blur
+  (leftover chunk above the wire needed a second targeted pass).
+- Trap block now: empty-trap base + cheese OVERLAY (hidden ph>=3, jolts
+  via ffTrapJolt at snap) + thief rat (base at calc(50%+42.5vh), faces
+  left via scaleX(-1) wrapper; ffThiefIn 26vw->0 2.3s, ffThiefNibble,
+  ffThiefFlee 0->-46vw 1.15s with cheese img in tow). Snap sound:
+  /stash-pop.mp3 0.6.
+- Hook useTrapSnap ph 0-4, force event `ff:trap-snap`, first run 70-120s,
+  sprung/empty 2.5-4min then re-baited. Verified all 4 stages via
+  screenshots (baited/nibble/snap-flee/empty).

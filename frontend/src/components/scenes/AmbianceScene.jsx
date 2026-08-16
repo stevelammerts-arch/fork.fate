@@ -565,10 +565,48 @@ function useArmDrop(enabled) {
   return ph;
 }
 
+/** TRAP SNAP: a third rat — the CHEESE THIEF — creeps along the corner from
+ * the right, stops at the mousetrap, nibbles at the trigger... SNAP! It
+ * barely escapes with the cheese in tow. The trap sits sprung and empty a
+ * few minutes until the mechanics re-bait it. Phases: 0 baited, 1 sneaking
+ * in, 2 nibbling, 3 SNAP + escape, 4 sprung/empty. `ff:trap-snap` forces. */
+function useTrapSnap(enabled) {
+  const [ph, setPh] = useState(0);
+  const witnessRef = useHeistWitness("cheesethief");
+  useEffect(() => {
+    if (!enabled) return undefined;
+    if (!window.matchMedia("(min-width: 640px)").matches) return undefined;
+    preloadHeistAudio(["/stash-pop.mp3"]);
+    let timers = [];
+    let pending;
+    const schedule = (min, spread) => { pending = setTimeout(run, min + Math.random() * spread); };
+    const run = (forced = false) => {
+      // a corner-of-the-eye show: only defers to an active fate reveal
+      if (!forced && window.__ffFateBusy) { schedule(20000, 15000); return; }
+      timers.forEach(clearTimeout); timers = [];
+      setPh(1);                                       // thief sneaks in from the right
+      timers.push(setTimeout(() => setPh(2), 2300));  // nibbles at the trigger...
+      timers.push(setTimeout(() => {                  // SNAP! barely escapes, cheese in tow
+        setPh(3);
+        playHeistSound("/stash-pop.mp3", 0.6);
+      }, 3700));
+      timers.push(setTimeout(() => { setPh(4); witnessRef.current(true); }, 4900));
+      const rest = 150000 + Math.random() * 90000;    // sprung + empty for 2.5-4 min
+      timers.push(setTimeout(() => { setPh(0); schedule(60000, 90000); }, 4900 + rest)); // re-baited
+    };
+    schedule(70000, 50000);
+    const force = () => { clearTimeout(pending); run(true); };
+    window.addEventListener("ff:trap-snap", force);
+    return () => { clearTimeout(pending); timers.forEach(clearTimeout); window.removeEventListener("ff:trap-snap", force); };
+  }, [enabled]);
+  return ph;
+}
+
 export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
   const golemWake = useGolemWake(!!cfg.golemRight);
   const blastPh = useFurnaceBlast(!!cfg.golemLeft);
   const armPh = useArmDrop(!!cfg.golemLeft);
+  const trapPh = useTrapSnap(!!cfg.golemLeft);
   // any golem event running → the strapped rack robot powers up in response
   const workshopEvent = (golemWake >= 1 && golemWake <= 5) || blastPh >= 1;
   // WORKSHOP TROPHY: seeing the rack robot power up (head straight, solid
@@ -1224,11 +1262,30 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             <rect x="500" y="88" width="18" height="15" rx="3" fill="#171411" stroke="#3A362E" strokeWidth="1.2" opacity="0.95" />
             <rect x="828" y="98" width="15" height="14" rx="2.5" fill="#141210" stroke="#3A362E" strokeWidth="1.2" opacity="0.95" />
           </svg>
-          {/* MOUSETRAP with cheese, set against the wall base — the rats
-              scurry right past it (rendered before them so they run in front) */}
+          {/* MOUSETRAP set against the wall base — the rats scurry right past
+              it. Cheese is a separate overlay so the thief can STEAL it;
+              the base is the sprung/empty trap art. */}
           <div className="absolute hidden sm:block" data-testid="steam-mousetrap" style={{ left: "calc(50% + 36vh)", bottom: "12.8vh", width: "7.5vh", aspectRatio: "1245 / 505" }}>
-            <img src="/steam-mousetrap.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.55)) brightness(1.08)" }} />
+            <img src="/steam-mousetrap-empty.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.55)) brightness(1.08)", animation: trapPh === 3 ? "ffTrapJolt 0.4s ease-out" : undefined }} />
+            {trapPh < 3 && (
+              <img src="/steam-cheese.png" alt="" className="absolute" data-testid="trap-cheese" style={{ left: "68%", top: "13.5%", width: "12.8%", filter: "brightness(1.08)" }} />
+            )}
           </div>
+          {/* THE CHEESE THIEF: creeps in from the right, nibbles, SNAP —
+              flees left with the cheese by a whisker */}
+          {trapPh >= 1 && trapPh <= 3 && (
+            <div className="absolute hidden sm:block" data-testid="cheese-thief" style={{
+              left: "calc(50% + 42.5vh)", bottom: "12.6vh",
+              animation: trapPh === 1 ? "ffThiefIn 2.3s cubic-bezier(0.2,0.7,0.4,1) forwards" : trapPh === 3 ? "ffThiefFlee 1.15s cubic-bezier(0.5,0,0.8,0.4) forwards" : "none",
+            }}>
+              <div style={{ transform: "scaleX(-1)" }}>
+                <img src="/steam-rat.png" alt="" className="object-contain" style={{ height: "3vh", filter: "brightness(1.05) contrast(1.05) drop-shadow(0 2px 2px rgba(0,0,0,0.55))", animation: trapPh === 2 ? "ffThiefNibble 0.5s ease-in-out infinite" : "ffRatScurry 0.2s linear infinite" }} />
+              </div>
+              {trapPh === 3 && (
+                <img src="/steam-cheese.png" alt="" className="absolute" style={{ left: "-1.3vh", top: "0.5vh", width: "2.2vh" }} />
+              )}
+            </div>
+          )}
           {/* WORKSHOP RATS: two of them scurry along the wall/floor corner,
               back and forth at constant speed — their turnarounds happen
               hidden BEHIND the left/right golems (rats are z-2, golems z-3/4).
