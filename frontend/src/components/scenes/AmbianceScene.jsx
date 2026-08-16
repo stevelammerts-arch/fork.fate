@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useHeistWitness, preloadHeistAudio, playHeistSound } from "./heistLib";
 import { activeSeason, recordSeasonalSeen } from "../../lib/seasons";
 import { CompanionPatrol } from "./companion";
-import { SaucerAbduction, DragonHeist, TikiSpearHeist, SteamSpringHeist, SteamGearsHeist, UnicornChargeHeist, HotPursuitHeist } from "./realmHeists";
+import { SaucerAbduction, DragonHeist, TikiSpearHeist, SteamSpringHeist, SteamGearsHeist, SteamPeekHeist, UnicornChargeHeist, HotPursuitHeist } from "./realmHeists";
 
 // Fantasy "Dragon's Hoard": glittering gold sparkles across the treasure pile
 // + slow water droplets falling from the cave ceiling with a ripple on landing.
@@ -454,8 +454,8 @@ function useFurnaceBlast(enabled) {
       // another heist holds the floor (medallion heists scroll the page to the
       // logo — colliding with a golem show means the user misses both).
       if (!forced && (window.__ffFateBusy || Date.now() < (window.__ffHeistCooldownUntil || 0))) { schedule(25000, 20000); return; }
-      // Reserve the stage: blast runs 7.4s + a breather before the next act.
-      window.__ffHeistCooldownUntil = Math.max(window.__ffHeistCooldownUntil || 0, Date.now() + 20000);
+      // Reserve the stage: blast runs 9.8s + a breather before the next act.
+      window.__ffHeistCooldownUntil = Math.max(window.__ffHeistCooldownUntil || 0, Date.now() + 24000);
       timers.forEach(clearTimeout); timers = [];
       setPh(1);
       playHeistSound("/golem-gears.mp3", 0.5);
@@ -463,10 +463,13 @@ function useFurnaceBlast(enabled) {
         setPh(2);
         playHeistSound("/golem-fire-blast.mp3", 0.55);
       }, 2000));
-      timers.push(setTimeout(() => setPh(3), 5200));            // fire burns down; embers glow on the floor
-      timers.push(setTimeout(() => { setPh(0); witnessRef.current(true); schedule(200000, 160000); }, 7400));
+      // the roar keeps feeding while the fire holds (clip is only 2.4s)
+      timers.push(setTimeout(() => playHeistSound("/golem-fire-blast.mp3", 0.5), 4200));
+      timers.push(setTimeout(() => playHeistSound("/golem-fire-blast.mp3", 0.45), 6350));
+      timers.push(setTimeout(() => setPh(3), 7600));            // fire burns down; embers glow on the floor
+      timers.push(setTimeout(() => { setPh(0); witnessRef.current(true); schedule(140000, 120000); }, 9800));
     };
-    schedule(70000, 60000);
+    schedule(35000, 30000);
     const force = () => { clearTimeout(pending); run(true); };
     window.addEventListener("ff:furnace-blast", force);
     return () => { clearTimeout(pending); timers.forEach(clearTimeout); window.removeEventListener("ff:furnace-blast", force); };
@@ -483,7 +486,7 @@ function useGolemWake(enabled) {
   useEffect(() => {
     if (!enabled) return undefined;
     ["/steam-golem-right-awake.png?v=501", "/steam-golem-right-step.png?v=501", "/steam-golem-right-lift.png?v=501"].forEach((s) => { const im = new Image(); im.src = s; });
-    preloadHeistAudio(["/golem-wake-up.mp3", "/golem-step-forward.mp3", "/golem-thud.wav", "/golem-step-back.mp3", "/golem-power-down.mp3"]);
+    preloadHeistAudio(["/golem-wake-up.mp3?v=530", "/golem-step-forward.mp3", "/golem-thud.wav", "/golem-step-back.mp3?v=530", "/golem-power-down.mp3?v=530"]);
     let timers = [];
     let pending;
     const schedule = (min, spread) => { pending = setTimeout(run, min + Math.random() * spread); };
@@ -495,23 +498,23 @@ function useGolemWake(enabled) {
       window.__ffHeistCooldownUntil = Math.max(window.__ffHeistCooldownUntil || 0, Date.now() + 25000);
       timers.forEach(clearTimeout); timers = [];
       setPh(1);                                                  // rumble + head raises, eyes ignite
-      playHeistSound("/golem-wake-up.mp3", 0.5);
-      timers.push(setTimeout(() => setPh(2), 2300));             // right knee lifts, body leans in
-      timers.push(setTimeout(() => {                             // foot plants forward
-        setPh(3);
+      playHeistSound("/golem-wake-up.mp3?v=530", 0.5);
+      timers.push(setTimeout(() => {                             // right knee lifts, body leans in —
+        setPh(2);                                                // servo whine starts WITH the leg motion
         playHeistSound("/golem-step-forward.mp3", 0.55);
-      }, 3400));
+      }, 2300));
+      timers.push(setTimeout(() => setPh(3), 3400));             // foot plants forward
       timers.push(setTimeout(() => {                             // FLOOR THUD: flat foot hits the ground mid-settle
         playHeistSound("/golem-thud.wav", 0.65);
       }, 3950));
       timers.push(setTimeout(() => {                             // (holds the stomp for a beat, then) leg lifts back off the floor
         setPh(4);
-        playHeistSound("/golem-step-back.mp3", 0.55);
+        playHeistSound("/golem-step-back.mp3?v=530", 0.55);
       }, 6600));
       timers.push(setTimeout(() => setPh(5), 7700));             // rotates back to a stand
       timers.push(setTimeout(() => {                             // head lowers, eyes die out
         setPh(6);
-        playHeistSound("/golem-power-down.mp3", 0.5);
+        playHeistSound("/golem-power-down.mp3?v=530", 0.5);
       }, 9300));
       timers.push(setTimeout(() => { setPh(0); witnessRef.current(true); schedule(180000, 150000); }, 10900));
     };
@@ -557,9 +560,9 @@ function useArmDrop(enabled) {
       timers.push(setTimeout(() => { setPh(4); witnessRef.current(true); }, 3400));
       const rest = 160000 + Math.random() * 80000;               // lies there 2.5-4 min
       timers.push(setTimeout(() => setPh(5), 3400 + rest));      // fades off the floor...
-      timers.push(setTimeout(() => { setPh(0); schedule(60000, 60000); }, 4300 + rest)); // ...re-mounted on the socket
+      timers.push(setTimeout(() => { setPh(0); schedule(45000, 45000); }, 4300 + rest)); // ...re-mounted on the socket
     };
-    schedule(50000, 40000);
+    schedule(30000, 25000);
     const force = () => { clearTimeout(pending); run(true); };
     window.addEventListener("ff:arm-drop", force);
     return () => { clearTimeout(pending); timers.forEach(clearTimeout); window.removeEventListener("ff:arm-drop", force); };
@@ -915,9 +918,9 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           {blastPh === 2 && (
             <div className="absolute" style={{ left: "64%", top: "39.5%", width: "33%", height: "10%" }} data-testid="furnace-blast-jet">
               {/* thick fire stream: red sheath, orange body, white-hot core */}
-              <span className="absolute" style={{ left: 0, top: "-24%", width: "100%", height: "148%", transformOrigin: "0% 50%", borderRadius: "40% 100% 100% 40% / 50% 50% 50% 50%", background: "linear-gradient(90deg, rgba(210,60,10,0.85), rgba(230,80,15,0.55) 55%, rgba(200,50,10,0) 96%)", filter: "blur(3px)", animation: "ffFurnaceJet 3.1s cubic-bezier(0.3,0,0.5,1) forwards" }} />
-              <span className="absolute" style={{ left: 0, top: "-6%", width: "88%", height: "112%", transformOrigin: "0% 50%", borderRadius: "40% 100% 100% 40% / 50% 50% 50% 50%", background: "linear-gradient(90deg, rgba(255,140,30,0.95), rgba(255,110,25,0.7) 55%, rgba(255,90,20,0) 95%)", filter: "blur(2px)", animation: "ffFurnaceJet 3.1s cubic-bezier(0.3,0,0.5,1) -0.06s forwards" }} />
-              <span className="absolute" style={{ left: 0, top: "18%", width: "66%", height: "64%", transformOrigin: "0% 50%", borderRadius: "40% 100% 100% 40% / 50% 50% 50% 50%", background: "linear-gradient(90deg, rgba(255,246,200,1), rgba(255,205,90,0.9) 55%, rgba(255,160,50,0) 94%)", filter: "blur(1px)", animation: "ffFurnaceJet 3.1s cubic-bezier(0.3,0,0.5,1) -0.12s forwards" }} />
+              <span className="absolute" style={{ left: 0, top: "-24%", width: "100%", height: "148%", transformOrigin: "0% 50%", borderRadius: "40% 100% 100% 40% / 50% 50% 50% 50%", background: "linear-gradient(90deg, rgba(210,60,10,0.85), rgba(230,80,15,0.55) 55%, rgba(200,50,10,0) 96%)", filter: "blur(3px)", animation: "ffFurnaceJet 5.6s cubic-bezier(0.3,0,0.5,1) forwards" }} />
+              <span className="absolute" style={{ left: 0, top: "-6%", width: "88%", height: "112%", transformOrigin: "0% 50%", borderRadius: "40% 100% 100% 40% / 50% 50% 50% 50%", background: "linear-gradient(90deg, rgba(255,140,30,0.95), rgba(255,110,25,0.7) 55%, rgba(255,90,20,0) 95%)", filter: "blur(2px)", animation: "ffFurnaceJet 5.6s cubic-bezier(0.3,0,0.5,1) -0.06s forwards" }} />
+              <span className="absolute" style={{ left: 0, top: "18%", width: "66%", height: "64%", transformOrigin: "0% 50%", borderRadius: "40% 100% 100% 40% / 50% 50% 50% 50%", background: "linear-gradient(90deg, rgba(255,246,200,1), rgba(255,205,90,0.9) 55%, rgba(255,160,50,0) 94%)", filter: "blur(1px)", animation: "ffFurnaceJet 5.6s cubic-bezier(0.3,0,0.5,1) -0.12s forwards" }} />
               {/* sparks whipping out of the stream */}
               {[
                 { sx: "16vh", sy: "-5vh", d: 0.7, dl: 0.15, s: 0.8 }, { sx: "22vh", sy: "-2vh", d: 0.9, dl: 0.4, s: 1 },
@@ -1106,13 +1109,13 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             // the sprite's real bulb column on the right face
             { x: 70.9, y: 40, c: "#FFB03A", d: 2.4, dl: 0 }, { x: 70.9, y: 50.2, c: "#FF5540", d: 1.9, dl: 0.5 }, { x: 70.9, y: 59, c: "#FF8A3A", d: 2.1, dl: 1 }, { x: 70.9, y: 67.9, c: "#FF5540", d: 1.6, dl: 1.5 },
           ] },
-        { src: "/steam-robot-rack.png?v=501", ar: "558 / 742", cls: "left-[calc(50%-22vh)] -translate-x-1/2 bottom-[0.5vh] h-[78vh]", tid: "steam-robot-rack",
+        { src: "/steam-robot-rack.png?v=501", ar: "558 / 742", cls: "ff-lsp-rack left-[calc(50%-22vh)] -translate-x-1/2 bottom-[0.5vh] h-[78vh]", tid: "steam-robot-rack",
           lamps: [{ x: 71.3, y: 29.4, c: "#FFB03A", d: 2.1, dl: 0.3 }, { x: 71.3, y: 33.1, c: "#FF7A30", d: 1.7, dl: 0.9 }],
           eye: { x: 30.7, y: 20.8 },
           alert: "/steam-robot-rack-alert.png?v=501",
           alertEyes: [{ x: 33.3, y: 15.4 }, { x: 39.7, y: 15.4 }],
           sparks: { x: 65, y: 39 } },
-        { src: "/steam-alchemy-bench.png?v=501", ar: "966 / 765", cls: "left-[calc(50%+3vh)] bottom-[3vh] h-[22.5vh]", tid: "steam-alchemy-bench",
+        { src: "/steam-alchemy-bench.png?v=501", ar: "966 / 765", cls: "ff-lsp-bench left-[calc(50%+3vh)] bottom-[3vh] h-[22.5vh]", tid: "steam-alchemy-bench",
           lamps: [{ x: 56.1, y: 38.2, c: "#FFB03A", d: 1.6, dl: 0 }, { x: 61.7, y: 39, c: "#FFB03A", d: 2.3, dl: 0.5 }, { x: 73.5, y: 41.6, c: "#FF5540", d: 1.9, dl: 1.1 }] },
       ].map((p) => (
         <div key={p.tid} className={`absolute z-[3] hidden sm:block ${p.cls}`} style={{ aspectRatio: p.ar }} data-testid={p.tid}>
@@ -1158,7 +1161,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           then detaches: quick tilt + drop + fade as the falling frame takes
           over below for a smooth two-frame hand-off. */}
       {cfg.golemLeft && armPh <= 2 && (
-        <div className="absolute z-[3] hidden sm:block" data-testid="steam-arm-mounted" style={{
+        <div className="ff-lsp-arm-mounted absolute z-[3] hidden sm:block" data-testid="steam-arm-mounted" style={{
           left: "calc(50% - 17.7vh)", bottom: "17.5vh", width: "9.1vh", aspectRatio: "86 / 299",
           transformOrigin: "50% 6%",
           animation: armPh === 1 ? "ffArmShudder 0.28s linear infinite" : armPh === 2 ? "ffArmDetach 0.4s ease-in forwards" : undefined,
@@ -1169,7 +1172,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       {/* BREAK-AWAY SPARK SHOWER: erupts from the shoulder socket the instant
           the weld gives and the arm tears loose (one-shot, with the zap) */}
       {cfg.golemLeft && armPh === 2 && (
-        <div className="absolute z-[4] hidden sm:block" data-testid="arm-break-shower" style={{ left: "calc(50% - 13.2vh)", bottom: "48vh" }}>
+        <div className="ff-lsp-arm-shower absolute z-[4] hidden sm:block" data-testid="arm-break-shower" style={{ left: "calc(50% - 13.2vh)", bottom: "48vh" }}>
           <span className="absolute rounded-full" style={{ left: "-3vh", top: "-3vh", width: "6vh", height: "6vh", background: "radial-gradient(circle, rgba(255,248,220,1), rgba(255,180,80,0.6) 40%, transparent 72%)", mixBlendMode: "screen", filter: "blur(1.5px)", animation: "ffSparkShower 0.55s ease-out forwards", "--sx": "0vh", "--sy": "0vh" }} />
           {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((i) => (
             <span key={`bs-${i}`} className="absolute" style={{ width: `${0.55 + (i % 3) * 0.15}vh`, height: `${0.55 + (i % 3) * 0.15}vh`, borderRadius: "9999px", background: i % 2 ? "#FFE9A8" : "#FF9A3A", boxShadow: "0 0 6px 2px rgba(255,190,90,0.95)", "--sx": `${[-6, -3, 2, 6, -8, 4, 8, -5, 1, -2, 7, -7, 3, 5][i]}vh`, "--sy": `${[-7, -9, -8, -5, -2, -10, -3, 3, 6, 8, 2, 5, -6, 7][i]}vh`, animation: `ffSparkShower ${0.55 + (i % 4) * 0.12}s ease-out ${(i % 3) * 0.04}s forwards` }} />
@@ -1180,7 +1183,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           socket and lands where it rests. Box sits at the REST spot; the
           pre-fall pose is a translate+rotate about the torn shoulder. */}
       {cfg.golemLeft && (
-        <div className="absolute bottom-[0.6vh] left-[calc(50%-36.5vh)] z-[3] hidden sm:block" style={{ width: "29vh", aspectRatio: "1287 / 513" }} data-testid="steam-arm-floor">
+        <div className="ff-lsp-arm-floor absolute bottom-[0.6vh] left-[calc(50%-36.5vh)] z-[3] hidden sm:block" style={{ width: "29vh", aspectRatio: "1287 / 513" }} data-testid="steam-arm-floor">
           {/* ground shadow appears once the arm is down */}
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.4vh", width: "86%", height: "2vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.6), rgba(0,0,0,0) 68%)", opacity: armPh >= 3 && armPh < 5 ? 1 : 0, transition: "opacity 0.45s ease" }} />
           {/* LANDING DUST: kicks out low when the arm slams down */}
@@ -1414,6 +1417,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
     {cfg.lounge && <TikiSpearHeist key={`th-${heistEpoch}`} />}
     {theme === "steam" && <SteamSpringHeist key={`ssh-${heistEpoch}`} />}
     {theme === "steam" && <SteamGearsHeist key={`sgh-${heistEpoch}`} />}
+    {theme === "steam" && <SteamPeekHeist key={`sph-${heistEpoch}`} />}
     {/* SEASONAL DRIFT overlay: the live season's exclusive effect */}
     {seasonOn && season && (
       <div className="pointer-events-none fixed inset-0 z-[45] select-none overflow-hidden" data-testid="seasonal-drift">

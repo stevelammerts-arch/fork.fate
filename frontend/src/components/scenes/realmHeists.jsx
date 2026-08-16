@@ -408,7 +408,144 @@ export function SteamSpringHeist() {
   );
 }
 
-/** A chunky solid brass gear (8 teeth) that spins forever (or jams). */
+/** Steampunk heist #3 — PEEK-A-BOO: the medallion rattles and POPS clean off
+ * its socket... and out of the black hole it leaves behind, the right
+ * sentinel's head slowly rises — glances left, glances right — then sinks
+ * back into the darkness. A fresh face pops back on after. First strike
+ * ~2.5-4 min after load (staggered clear of the spring + gears heists),
+ * then every 3-6 min (`ff:peek-heist` forces it, used for testing). */
+export function SteamPeekHeist() {
+  const witnessRef = useHeistWitness("peek");
+  useEffect(() => { preloadHeistAudio(["/stash-pop.mp3", "/golem-gears.mp3", "/arm-zap.mp3", "/steam-boing.mp3"]); }, []);
+  const [run, setRun] = useState(null);     // {cx, cy, w}
+  const [stage, setStage] = useState(null); // "pop" | "rise" | "look" | "lock" | "duck" | "sink" | "hole"
+  useEffect(() => {
+    const timers = [];
+    let pending = null;
+    let running = false;
+    let cancelSummon = null;
+    const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
+    const start = (force, forceScare) => {
+      if (running) return;
+      running = true;
+      // JUMP-SCARE variant (~1 in 3): mid-glance he SNAPS to center, locks
+      // eyes with the viewer — lenses flaring — then ducks away in a blink.
+      const scare = forceScare !== undefined ? !!forceScare : Math.random() < 0.35;
+      cancelSummon = summonToLogo((med) => {
+        const r = med && med.getBoundingClientRect();
+        if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        timers.push(setTimeout(() => {                    // the socket rattles...
+          med.style.animation = "none";
+          void med.offsetWidth;
+          med.style.animation = "ffMedRattle 0.75s linear";
+        }, 30));
+        timers.push(setTimeout(() => {                    // POP! clean off the socket
+          med.style.visibility = "hidden"; startleTitle();
+          setStage("pop");
+          playHeistSound("/stash-pop.mp3", 0.6);
+        }, 850));
+        timers.push(setTimeout(() => {                    // ...something stirs in the hole
+          setStage("rise");
+          playHeistSound("/golem-gears.mp3", 0.35);
+        }, 1500));
+        timers.push(setTimeout(() => setStage("look"), 2600)); // glances left... then right
+        const finish = (holeAt, returnAt, doneAt) => {
+          timers.push(setTimeout(() => setStage("hole"), holeAt)); // empty socket beat
+          timers.push(setTimeout(() => {
+            setStage(null); setRun(null);
+            med.style.visibility = "";
+            med.style.animation = "none";
+            void med.offsetWidth; // a fresh face pops back on
+            med.style.animation = "ffLogoReturn 0.55s cubic-bezier(0.34,1.56,0.64,1)";
+          }, returnAt));
+          timers.push(setTimeout(() => {
+            running = false;
+            witnessRef.current(true);
+            schedule(180000 + Math.random() * 180000); // again in 3-6 min
+          }, doneAt));
+        };
+        if (scare) {
+          timers.push(setTimeout(() => {                  // SNAP — he's looking AT YOU
+            setStage("lock");
+            playHeistSound("/arm-zap.mp3", 0.3);
+          }, 3550));
+          timers.push(setTimeout(() => {                  // ...and DUCKS in a blink
+            setStage("duck");
+            playHeistSound("/steam-boing.mp3", 0.45);
+          }, 4800));
+          finish(5150, 5850, 6550);
+        } else {
+          timers.push(setTimeout(() => {                  // ...and sinks back into the dark
+            setStage("sink");
+            playHeistSound("/golem-gears.mp3", 0.25);
+          }, 5100));
+          finish(6100, 6800, 7500);
+        }
+      });
+    };
+    schedule(150000 + Math.random() * 90000);
+    const force = (e) => start(true, e && e.detail ? e.detail.scare : undefined);
+    window.addEventListener("ff:peek-heist", force);
+    return () => {
+      clearTimeout(pending); timers.forEach(clearTimeout);
+      if (cancelSummon) cancelSummon();
+      window.removeEventListener("ff:peek-heist", force);
+      // Never leave the logo hidden if we unmount mid-heist (theme switch).
+      const img = document.querySelector('img[alt="Fork·Fate logo"]');
+      if (img && img.parentElement) img.parentElement.style.visibility = "";
+    };
+  }, []); // witnessRef is a stable ref
+  if (!run || !stage) return null;
+  const { cx, cy, w } = run;
+  const up = stage === "rise" || stage === "look" || stage === "lock";
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="peek-heist">
+      {/* the medallion POPPING off + brass sparkle burst (one-shot at "pop") */}
+      {stage === "pop" && (<>
+        <div className="absolute overflow-hidden bg-black ring-1 ring-white/25" style={{ left: cx - w / 2, top: cy - w / 2, width: w, height: w, borderRadius: "9999px", animation: "ffLogoPop 0.4s ease-in forwards" }} data-testid="peek-heist-logo-pop">
+          <img src="/logo-mark.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+        </div>
+        <div className="absolute" style={{ left: cx, top: cy }} data-testid="peek-heist-burst">
+          {Array.from({ length: 10 }, (_, i) => {
+            const a = (i / 10) * Math.PI * 2;
+            const d = w * (0.6 + (i % 3) * 0.22);
+            return (
+              <span key={`pk-${i}`} className="absolute rounded-full" style={{ width: 4 + (i % 3) * 3, height: 4 + (i % 3) * 3, "--dx": `${Math.cos(a) * d}px`, "--dy": `${Math.sin(a) * d}px`, background: i % 2 ? "radial-gradient(circle, #F1D9A6, #D9A44E 60%, transparent 82%)" : "radial-gradient(circle, #FFFFFF, #B98A44 60%, transparent 82%)", boxShadow: "0 0 6px rgba(217,164,78,0.9)", animation: "ffPoofSparkle 0.9s ease-out forwards" }} />
+            );
+          })}
+        </div>
+      </>)}
+      {/* the BLACK HOLE left in the socket — the head peeks out of THIS */}
+      <div className="absolute overflow-hidden" data-testid="peek-heist-socket" style={{ left: cx - w / 2, top: cy - w / 2, width: w, height: w, borderRadius: "9999px", background: "radial-gradient(circle at 42% 36%, #171009 0%, #0A0603 45%, #000 78%)", boxShadow: "inset 0 5px 12px rgba(0,0,0,0.95), inset 0 -2px 5px rgba(0,0,0,0.85), inset 3px 0 8px rgba(0,0,0,0.7), 0 0 0 2px rgba(122,86,40,0.5)" }}>
+        {/* the right sentinel's head: rises from the darkness, then the
+            look animation swivels it left and right */}
+        <div className="absolute" data-testid="peek-heist-head" style={{
+          left: "14%", top: "6%", width: "72%",
+          transform: up ? "translateY(0)" : "translateY(150%)",
+          transition: stage === "rise" ? "transform 1s cubic-bezier(0.3,0,0.4,1)"
+            : stage === "sink" ? "transform 0.9s cubic-bezier(0.55,0,0.85,0.6)"
+            : stage === "duck" ? "transform 0.25s cubic-bezier(0.6,0,1,0.6)" : "none",
+        }}>
+          <div className="relative" style={{ animation: stage === "look" ? "ffPeekLook 2.4s ease-in-out forwards" : stage === "lock" ? "ffPeekLock 1.25s cubic-bezier(0.2,1.2,0.4,1) forwards" : "none" }}>
+            <img src="/steam-peek-head.png" alt="" className="w-full object-contain" style={{ filter: stage === "lock" ? "brightness(1) drop-shadow(0 0 10px rgba(124,224,138,0.5))" : "brightness(0.85) drop-shadow(0 0 6px rgba(124,224,138,0.25))", transition: "filter 0.2s ease" }} />
+            {/* JUMP-SCARE: both lenses FLARE while he's staring you down */}
+            {stage === "lock" && (
+              <div data-testid="peek-scare-eyes">
+                <span className="absolute rounded-full" style={{ left: "25%", top: "56.5%", width: "18%", aspectRatio: "1", background: "radial-gradient(circle, rgba(210,255,220,1), rgba(110,240,150,0.65) 52%, transparent 78%)", mixBlendMode: "screen", filter: "blur(1px)", animation: "ffPeekEyeFlare 1.25s ease-out forwards" }} />
+                <span className="absolute rounded-full" style={{ left: "62.5%", top: "56.5%", width: "18%", aspectRatio: "1", background: "radial-gradient(circle, rgba(210,255,220,1), rgba(110,240,150,0.65) 52%, transparent 78%)", mixBlendMode: "screen", filter: "blur(1px)", animation: "ffPeekEyeFlare 1.25s ease-out 0.05s forwards" }} />
+              </div>
+            )}
+          </div>
+        </div>
+        {/* faint green eye-glow wash breathing while he's up (surges on lock) */}
+        <div className="absolute inset-0 rounded-full" style={{ background: stage === "lock" ? "radial-gradient(circle at 50% 58%, rgba(124,224,138,0.32), transparent 66%)" : "radial-gradient(circle at 50% 62%, rgba(124,224,138,0.16), transparent 62%)", mixBlendMode: "screen", opacity: up ? 1 : 0, transition: "opacity 0.8s ease, background 0.25s ease" }} />
+      </div>
+    </div>
+  );
+}
+
+
 function BrassGear({ size, color = "#B98A44", dur = 4, rev = false, anim, style = {} }) {
   return (
     <div className="absolute" style={{ width: size, height: size, animation: anim !== undefined ? anim : `ffSpin ${dur}s linear infinite ${rev ? "reverse" : ""}`, ...style }}>

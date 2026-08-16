@@ -1129,3 +1129,38 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   ~3.5k px each (teal hue band within 6px of alpha edge or semi-transparent);
   (2) CSS glow prop was green rgba(94,224,168,.7) -> warm white
   rgba(255,244,214,.45). Sprites at ?v=527.
+
+## 2026-02 (fork) — Steampunk batch: Peek-a-Boo heist, landscape spread v2, sound sync, longer fire (FF_BUILD 528)
+- NEW HEIST "Peek-a-Boo" (key: peek, 6th Steampunk fate in rituals.js): medallion
+  rattles + POPS off (stash-pop.mp3 + sparkle burst) -> black-hole socket ->
+  right sentinel's head (/steam-peek-head.png, cropped from awake sprite via PIL,
+  bottom faded to shadow) rises inside the overflow-hidden hole, ffPeekLook 2.4s
+  glances left/right, sinks back, logo returns. SteamPeekHeist in realmHeists.jsx,
+  forced by `ff:peek-heist`. First strike 2.5-4 min, repeat 3-6 min.
+- LANDSCAPE SPREAD v2 (index.css @media landscape+max-h520): pump clamped
+  max(52vh, 50%-56vh) so it can never sit under fire golem's foot; middle
+  cluster shifted ~10vh right: ff-lsp-rack 50%-12vh, ff-lsp-bench 50%+13vh,
+  ff-lsp-arm-mounted 50%-7.7vh, ff-lsp-arm-shower 50%-3.2vh, ff-lsp-arm-floor
+  50%-26.5vh, mask 50%-42vh. New classes added to the JSX boxes.
+  Verified at 1000x471 (user's Android) and 844x390.
+- SOUND SYNC (right golem wake): step-forward sound now fires WITH the leg
+  lift (ph2 @2300) not the plant; leading silences trimmed via ffmpeg from
+  golem-step-back.mp3 (2.09->1.87s) + golem-wake-up.mp3 (4.15->3.91s);
+  golem-power-down.mp3 internal pauses removed (7.56->4.22s continuous).
+  URLs cache-busted with ?v=530 in preload+play. Originals in /app/scripts/bak-*.mp3.
+- FURNACE FIRE LONGER: blast fire phase 3.2s -> 5.6s (ph3 @7600, end @9800),
+  ffFurnaceJet 3.1s -> 5.6s on all 3 jet layers, fire-blast roar re-fed at
+  +4200/+6350 (clip only 2.4s), cooldown reserve 24s.
+- EVENTS SOONER: furnace first 70-130s -> 35-65s, repeat 200-360s -> 140-260s;
+  arm drop first 50-90s -> 30-55s, re-mount reschedule 60-120s -> 45-90s.
+
+## 2026-02 (fork) — Peek Jump-Scare variant (FF_BUILD 529)
+- ~1 in 3 peeks (Math.random()<0.35) the head SNAPS from mid-ffPeekLook to
+  center (stage "lock"): ffPeekLock leans in (scale 1.14-1.17), both lenses
+  flare via ffPeekEyeFlare spans (left 25%/62.5%, top 56.5%, w 18%), head
+  filter brightens + green wash surges; arm-zap.mp3 @0.3 on lock. Then stage
+  "duck": translateY(150%) in 0.25s cubic-bezier(0.6,0,1,0.6) + steam-boing
+  @0.45. Scare timeline: lock @3550, duck @4800, hole @5150, return @5850,
+  done @6550 (normal path unchanged). Force w/ detail:
+  `new CustomEvent('ff:peek-heist', {detail:{scare:true}})` (false forces normal).
+- rituals.js peek desc extended with the catch-you-watching line.

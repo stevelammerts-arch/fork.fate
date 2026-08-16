@@ -512,6 +512,30 @@ body {
   85% { margin-left: 1px; }
 }
 
+/* PEEK-A-BOO: the sentinel's head, up out of the socket hole, glances
+   left... holds... glances right... holds... and returns to center. */
+@keyframes ffPeekLook{
+  0%, 10%  { transform: translateX(0) rotate(0deg); }
+  24%, 40% { transform: translateX(-9%) rotate(-7deg); }
+  50%, 54% { transform: translateX(0) rotate(0deg); }
+  66%, 84% { transform: translateX(9%) rotate(7deg); }
+  100%     { transform: translateX(0) rotate(0deg); }
+}
+/* JUMP-SCARE lock-on: snaps square to the viewer and LEANS IN, holding the
+   stare (the snap from the mid-look pose is the startle) */
+@keyframes ffPeekLock{
+  0%   { transform: translateX(0) rotate(0deg) scale(1); }
+  20%  { transform: translateX(0) rotate(0deg) scale(1.17) translateY(3.5%); }
+  100% { transform: translateX(0) rotate(0deg) scale(1.14) translateY(3%); }
+}
+/* ...both eye lenses flare white-green while he stares */
+@keyframes ffPeekEyeFlare{
+  0%   { opacity: 0;   transform: scale(.35); }
+  22%  { opacity: 1;   transform: scale(1.3); }
+  50%  { opacity: .8;  transform: scale(1); }
+  100% { opacity: 1;   transform: scale(1.12); }
+}
+
 /* The step: body weight LIFTS as the right leg raises, then settles as the
    foot plants forward — no sliding, the pose sprite carries the leg motion. */
 @keyframes ffGolemStepLift{
@@ -1210,8 +1234,16 @@ body {
    vh-based offsets shrink and the workshop huddles center — push the outer
    props back toward the golems */
 @media (orientation: landscape) and (max-height: 520px) {
-  .ff-lsp-pump{ left: calc(50% - 80vh) !important; }
-  .ff-lsp-mask{ left: calc(50% - 64vh) !important; }
+  /* pump: clamped so it can never sit under the fire golem's forward foot */
+  .ff-lsp-pump{ left: max(52vh, calc(50% - 56vh)) !important; }
+  .ff-lsp-mask{ left: calc(50% - 42vh) !important; }
+  /* middle cluster (rack robot + bench + his arm pieces) rides ~10vh right
+     of its desktop anchor so the workshop reads centered, not left-heavy */
+  .ff-lsp-rack{ left: calc(50% - 12vh) !important; }
+  .ff-lsp-bench{ left: calc(50% + 13vh) !important; }
+  .ff-lsp-arm-mounted{ left: calc(50% - 7.7vh) !important; }
+  .ff-lsp-arm-shower{ left: calc(50% - 3.2vh) !important; }
+  .ff-lsp-arm-floor{ left: calc(50% - 26.5vh) !important; }
   .ff-lsp-goggles{ left: calc(50% + 48vh) !important; }
   .ff-lsp-trap{ left: calc(50% + 44vh) !important; }
   .ff-lsp-thief{ left: calc(50% + 50.5vh) !important; }
