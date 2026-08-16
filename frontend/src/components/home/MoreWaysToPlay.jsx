@@ -22,7 +22,7 @@ export const MoreWaysToPlay = ({ groupMode, crawlMode, passportMode, onToggleGro
     { to: "/bingo", tid: "cuisine-bingo-link", icon: Stamp, label: "Cuisine Bingo", border: "#B98A22", color: "#8F6A18", hover: "hover:bg-[#FDF6E7]" },
   ];
   return (
-    <div className="mt-2 rounded-3xl border-2 border-[#E6B23A]/70 bg-gradient-to-br from-[#FFF9EC] to-[#FBEED3] p-4 shadow-[0_2px_14px_rgba(230,178,58,0.28)] backdrop-blur-sm" data-testid="modes-card">
+    <div className="mt-2 rounded-3xl border-2 border-[#E6B23A]/70 bg-[#FBEED3]/55 p-4 shadow-[0_2px_14px_rgba(230,178,58,0.28)] backdrop-blur-md" data-testid="modes-card">
       <p className="mb-3 font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#8F6A18]">{t("More ways to play")}</p>
       <div className="flex flex-wrap items-center gap-3">
         <button

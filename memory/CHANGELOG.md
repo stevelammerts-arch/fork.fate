@@ -1293,3 +1293,8 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - "More ways to play" card now ALWAYS renders at the top of the setup column
   (guidedSealed state and conditional placement removed entirely).
 - Confirmed all accordions default closed (trophyOpen false, filtersOpen false).
+
+## 2026-02 (fork) — Top box frosted to match (FF_BUILD 543)
+- MoreWaysToPlay card: solid gold gradient -> frosted translucent
+  (bg-[#FBEED3]/55 + backdrop-blur-md), matching the solo window's glass
+  treatment while keeping the gold border/glow identity.
