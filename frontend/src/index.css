@@ -979,6 +979,45 @@ body {
   75%  { transform: translate(-2.5vw, -2vh) rotate(5deg); }
   100% { transform: translate(0, 6vh) rotate(-6deg); }
 }
+/* Rare crossing bats: one sweeps the sky left-to-right, another right-to-left.
+   Each crosses in the first ~18% of its cycle, then stays hidden — long gaps
+   keep the fly-bys feeling like a surprise. Anchored at the container's left
+   edge; all movement is viewport-unit translate. */
+.ff-bat-cross {
+  position: absolute;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+@keyframes ffBatCrossL {
+  0%   { transform: translate(-12vw, 0); opacity: 0; }
+  1%   { opacity: 0.55; }
+  6%   { transform: translate(24vw, -4vh); }
+  12%  { transform: translate(62vw, 3vh); }
+  16%  { opacity: 0.55; }
+  18%  { transform: translate(114vw, -2vh); opacity: 0; }
+  100% { transform: translate(114vw, -2vh); opacity: 0; }
+}
+@keyframes ffBatCrossR {
+  0%   { transform: translate(110vw, 0); opacity: 0; }
+  1%   { opacity: 0.5; }
+  6%   { transform: translate(72vw, 3vh); }
+  12%  { transform: translate(30vw, -4vh); }
+  15%  { opacity: 0.5; }
+  17%  { transform: translate(-16vw, 1vh); opacity: 0; }
+  100% { transform: translate(-16vw, 1vh); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ff-bat-cross { animation: none !important; opacity: 0; }
+}
+/* Mobile landscape: the Reaper stands life-size — taller than the gravestones.
+   vh shrinks in landscape so the tailwind 85vh reads tiny; pump him up and
+   pull the cemetery down so he towers over the graves. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .ff-reaper-img { height: 96vh !important; }
+  .ff-reaper-wrap { top: 54% !important; }
+  .ff-cemetery { height: 54vh !important; }
+  .ff-moon { width: 96px; height: 96px; top: 8%; }
+}
 /* Occasional thin lightning tendrils flickering behind the reaper */
 .ff-lightning {
   position: absolute;

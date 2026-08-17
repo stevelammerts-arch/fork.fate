@@ -43,12 +43,20 @@ export function ReaperScene() {
           </div>
         </motion.div>
         <div className="ff-haze" />
+        {/* periodic lightning: two tendrils + a faint sky flash, long dark gaps */}
+        <div className="ff-sky-flash" />
+        <svg className="ff-lightning" viewBox="0 0 100 300" style={{ left: "20%", animationDuration: "13s" }} aria-hidden="true">
+          <path d="M52 0 L44 66 L58 92 L40 164 L54 190 L38 258 L46 300 M40 164 L26 210" />
+        </svg>
+        <svg className="ff-lightning" viewBox="0 0 100 300" style={{ left: "66%", animationDuration: "17s", animationDelay: "-7s" }} aria-hidden="true">
+          <path d="M48 0 L56 58 L42 88 L58 150 L44 178 L60 244 L50 300 M58 150 L74 196" />
+        </svg>
         <img
           src="/reaper-cemetery.png"
           alt=""
           aria-hidden="true"
           data-testid="reaper-cemetery"
-          className="absolute bottom-0 left-0 h-[64vh] w-full object-cover object-bottom opacity-[0.78]"
+          className="ff-cemetery absolute bottom-0 left-0 z-[2] h-[64vh] w-full object-cover object-bottom opacity-[0.78]"
           style={{
             maskImage: "linear-gradient(to top, #000 42%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0) 100%)",
             WebkitMaskImage: "linear-gradient(to top, #000 42%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0) 100%)",
@@ -62,8 +70,17 @@ export function ReaperScene() {
             <img src="/reaper-bat.png" alt="" className="ff-bat" style={{ width: b.size, animationDuration: `${b.flap}s` }} />
           </div>
         ))}
+        {/* crossing bats: one sweeps left-to-right, one right-to-left, rarely */}
+        <div className="ff-bat-cross" data-testid="bat-cross-lr" style={{ top: "18%", animation: "ffBatCrossL 34s linear 5s infinite" }}>
+          <img src="/reaper-bat.png" alt="" className="ff-bat" style={{ width: 34, animationDuration: "0.3s" }} />
+        </div>
+        <div className="ff-bat-cross" data-testid="bat-cross-rl" style={{ top: "33%", animation: "ffBatCrossR 43s linear 19s infinite" }}>
+          <span className="block" style={{ transform: "scaleX(-1)" }}>
+            <img src="/reaper-bat.png" alt="" className="ff-bat" style={{ width: 28, animationDuration: "0.34s" }} />
+          </span>
+        </div>
       </div>
-      <div className="pointer-events-none fixed left-1/2 top-[72%] md:top-[56%] z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>
+      <div className="ff-reaper-wrap pointer-events-none fixed left-1/2 top-[72%] md:top-[56%] z-0 -translate-x-1/2 -translate-y-1/2 select-none" style={{ perspective: "1200px" }}>
         <motion.div
           style={{ rotateX: rotX, rotateY: rotY, x: shiftX, y: shiftY, transformStyle: "preserve-3d" }}
         >
@@ -78,7 +95,7 @@ export function ReaperScene() {
           alt=""
           aria-hidden="true"
           data-testid="reaper-bg"
-          className="h-[70vh] max-w-none md:h-[85vh]"
+          className="ff-reaper-img h-[70vh] max-w-none md:h-[85vh]"
           style={{ filter: "drop-shadow(24px 34px 30px rgba(0,0,0,0.45))" }}
           initial={{ opacity: 0, y: 50, scale: 1.06 }}
           animate={{ opacity: 0.55, y: 0, scale: 1 }}

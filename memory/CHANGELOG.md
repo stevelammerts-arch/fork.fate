@@ -1347,3 +1347,16 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   (ff_backup_nudged != 1). "Save now" action scrolls to the SaveProgress card
   and pulses .ff-nudge-glow (gold ring x4). SaveProgress backup()/restore()
   now set ff_progress_saved=1. Verified end-to-end.
+
+## 2026-02 (fork) — Reaper landscape fixes verified + completed (FF_BUILD 551)
+- Previous session left ReaperScene.jsx referencing .ff-bat-cross /
+  ffBatCrossL / ffBatCrossR that never existed in index.css — added them:
+  rare crossing bats (L->R at 34s cycle, R->L at 43s, each crossing in the
+  first ~18% then hidden; reduced-motion safe).
+- Added mobile-landscape media query (orientation: landscape, max-height
+  520px): Reaper 96vh (life-size, taller than gravestones), wrap top 54%,
+  cemetery pulled down to 54vh, moon shrunk to 96px / top 8%.
+- Moon z-order verified correct (cemetery z-[2] paints above moon z-auto).
+- Lightning already present (ffBolt 13s/17s) — verified rendering.
+- Screenshot-verified in 844x390 landscape: reaper 376px vs graves 211px,
+  lightning + both crossing bat animations active. FF_BUILD bumped to 551.
