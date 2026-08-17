@@ -159,7 +159,12 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
       >
         <div
           className="overflow-hidden rounded-2xl"
-          onPointerDownCapture={() => { if (covered) setCardTapped(true); }}
+          onPointerDownCapture={() => {
+            if (covered) {
+              try { if (navigator.vibrate) navigator.vibrate(90); } catch { /* no haptics */ }
+              setCardTapped(true);
+            }
+          }}
           style={{ animation: covered && cardTapped ? `ffHeartbeat ${hbPeriod}ms ease-in-out infinite` : "none" }}
         >
         <motion.div

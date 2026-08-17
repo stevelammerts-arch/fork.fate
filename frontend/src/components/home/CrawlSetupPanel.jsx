@@ -3,7 +3,6 @@ import { Dices, LocateFixed } from "lucide-react";
 import { Slider } from "../ui/slider";
 import { useLang } from "../../i18n/i18n";
 import { CRAWL_TYPES, SPIN_TAP } from "../../pages/homeConstants";
-import { SaveProgress } from "./SaveProgress";
 
 /** Crawl setup: crawl-type picker, start / optional end point, radius, and
  * the Deal-a-Crawl button. Extracted verbatim from Home.jsx (2026-02 split),
@@ -117,8 +116,6 @@ export function CrawlSetupPanel({ crawlType, onPickType, light, setup }) {
         <Dices className={`h-6 w-6 ${spinning || loading ? "animate-spin" : ""}`} />
         {loading ? t("Finding spots…") : spinning ? t("Shuffling…") : (light ? t("Plan a Crawl") : t("Deal a Crawl!"))}
       </motion.button>
-      {/* back up trophies / witnessed fates so nothing is lost to a cache clear */}
-      <SaveProgress />
     </div>
   );
 }

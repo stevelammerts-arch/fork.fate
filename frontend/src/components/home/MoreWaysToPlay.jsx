@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Users, Beer, Stamp, Trophy, Globe2, Sparkles, BookOpen, Medal, ChevronDown } from "lucide-react";
+import { SaveProgress } from "./SaveProgress";
 import { useLang } from "../../i18n/i18n";
 
 const Knob = ({ on }) => (
@@ -89,6 +90,11 @@ export const MoreWaysToPlay = ({ groupMode, crawlMode, passportMode, onToggleGro
               ))}
             </div>
           </div>
+        </div>
+
+        {/* back up trophies / witnessed fates so nothing is lost to a cache clear */}
+        <div className="w-full">
+          <SaveProgress />
         </div>
       </div>
     </div>

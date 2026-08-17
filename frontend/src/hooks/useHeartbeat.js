@@ -27,8 +27,8 @@ export function useHeartbeat(active) {
     const watch = setInterval(() => { if (muted()) { if (!a.paused) a.pause(); } else tryPlay(); }, 500);
     let t;
     const beat = () => {
-      // pulses sized so phone motors (e.g. Galaxy) render them clearly
-      try { if (navigator.vibrate) navigator.vibrate(p > 620 ? [50, Math.round(p * 0.25), 35] : [40, 85, 30]); } catch { /* no haptics */ }
+      // strong lub-dub — short pulses are imperceptible on many phone motors
+      try { if (navigator.vibrate) navigator.vibrate(p > 620 ? [85, Math.round(p * 0.22), 60] : [70, 70, 55]); } catch { /* no haptics */ }
       p = Math.max(FLOOR_MS, p * 0.9);        // every beat lands a little sooner
       setPeriod(p);
       a.playbackRate = Math.min(2.06, LOOP_CYCLE_MS / p);

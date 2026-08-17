@@ -19,7 +19,12 @@ export const DealRow = ({ spin, spinning, loading, passportMode, groupMode, ligh
       <span className="inline-block" style={{ animation: racing ? `ffHeartbeat ${period}ms ease-in-out infinite` : "none" }} data-testid={racing ? "deal-heartbeat-race" : undefined}>
         <motion.button
           data-testid="spin-roulette-button"
-          onClick={spin}
+          onClick={() => {
+            // fire one strong buzz INSIDE the tap itself — Android always
+            // honors vibration from a direct touch handler
+            try { if (navigator.vibrate) navigator.vibrate(90); } catch { /* no haptics */ }
+            spin();
+          }}
           disabled={spinning || loading}
           whileHover={{ scale: spinning || loading ? 1 : 1.03 }}
           whileTap={SPIN_TAP}

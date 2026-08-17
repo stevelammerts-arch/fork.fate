@@ -1331,3 +1331,12 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Haptic pulses strengthened for phone motors (Galaxy etc.): slow beat
   [50,~p*.25,35], racing [40,85,30] (was 15-25ms, imperceptible on many
   devices). User confirmed prod has heartbeat build; awaiting redeploy of 547.
+
+## 2026-02 (fork) — Save Progress moved + unmistakable haptics (FF_BUILD 548-549)
+- SaveProgress card moved from CrawlSetupPanel to MoreWaysToPlay, full-width
+  directly under the Trophy Room pill/accordion (user request).
+- Haptics strengthened again: beat patterns now [85, p*.22, 60] slow /
+  [70,70,55] racing; PLUS a guaranteed 90ms buzz fired directly inside the
+  shuffle button onClick and the covered-card onPointerDownCapture (direct
+  touch handlers — Android always honors these). If THAT buzz isn't felt,
+  it's a device/settings issue (Touch interaction off, or iOS).
