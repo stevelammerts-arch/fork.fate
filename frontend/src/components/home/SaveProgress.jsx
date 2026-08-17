@@ -13,6 +13,7 @@ export const SaveProgress = () => {
   const [code, setCode] = useState("");
   const backup = async () => {
     const out = exportProgress();
+    try { localStorage.setItem("ff_progress_saved", "1"); } catch { /* ignore */ }
     try { await navigator.clipboard.writeText(out); } catch { /* clipboard blocked */ }
     try {
       const link = document.createElement("a");
@@ -26,6 +27,7 @@ export const SaveProgress = () => {
   const restore = () => {
     try {
       const n = importProgress(code);
+      try { localStorage.setItem("ff_progress_saved", "1"); } catch { /* ignore */ }
       toast.success(`${t("Progress restored!")} (${n})`);
       setTimeout(() => window.location.reload(), 900);
     } catch {

@@ -332,6 +332,35 @@ export default function Home() {
     return () => clearTimeout(tm);
   }, []); // once per load; t is stable enough for a fire-and-forget toast
 
+  // SAVE-PROGRESS NUDGE: once a player has earned several trophies and never
+  // backed up, gently point them at the Save Progress card — one time only.
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("ff_progress_saved") === "1") return undefined;
+      if (localStorage.getItem("ff_backup_nudged") === "1") return undefined;
+      const n = (k) => Object.keys(JSON.parse(localStorage.getItem(k) || "{}")).length;
+      if (n("ff_rituals_seen") + n("ff_heists_seen") < 5) return undefined;
+    } catch (e) { return undefined; }
+    const tm = setTimeout(() => {
+      try { localStorage.setItem("ff_backup_nudged", "1"); } catch (e) { /* ignore */ }
+      toast(t("Your trophy shelf is growing!"), {
+        description: t("Trophies live only on this device — save your progress once so a cache clear can't take them."),
+        duration: 14000,
+        action: {
+          label: t("Save now"),
+          onClick: () => {
+            const el = document.querySelector('[data-testid="save-progress"]');
+            if (!el) return;
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+            el.classList.add("ff-nudge-glow");
+            setTimeout(() => el.classList.remove("ff-nudge-glow"), 3400);
+          },
+        },
+      });
+    }, 12000);
+    return () => clearTimeout(tm);
+  }, []); // once per load; t stable enough for a fire-and-forget toast
+
   // Every 10 deal taps (persisted per device) fate arrives as a RARE ritual
   // instead of the usual shuffle reveal.
   // Bump the daily streak and throw confetti + a toast the first time a

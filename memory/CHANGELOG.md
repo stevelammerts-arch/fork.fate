@@ -1340,3 +1340,10 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   shuffle button onClick and the covered-card onPointerDownCapture (direct
   touch handlers — Android always honors these). If THAT buzz isn't felt,
   it's a device/settings issue (Touch interaction off, or iOS).
+
+## 2026-02 (fork) — Restore reminder nudge (FF_BUILD 550)
+- Home: one-time toast 12s after load when rituals+heists witnessed >= 5,
+  never backed up (ff_progress_saved != 1) and never nudged
+  (ff_backup_nudged != 1). "Save now" action scrolls to the SaveProgress card
+  and pulses .ff-nudge-glow (gold ring x4). SaveProgress backup()/restore()
+  now set ff_progress_saved=1. Verified end-to-end.
