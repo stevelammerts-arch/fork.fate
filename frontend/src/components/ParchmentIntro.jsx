@@ -40,7 +40,7 @@ export default function ParchmentIntro({ onDone }) {
           style={{ transformOrigin: "0% 50%", transformStyle: "preserve-3d" }}
           className="relative w-full max-w-md"
         >
-          <img src="/guide-parchment.png" alt="" className="w-full select-none drop-shadow-[0_18px_44px_rgba(0,0,0,0.6)]" draggable="false" />
+          <img src="/guide-parchment-v2.png" alt="" className="w-full select-none drop-shadow-[0_18px_44px_rgba(0,0,0,0.6)]" draggable="false" />
           <div className="absolute inset-0 flex flex-col px-[15%] pb-[9%] pt-[20%]">
             <h2 className="text-center font-serif text-2xl font-bold sm:text-3xl" style={{ color: INK }}>
               {t("How Fork·Fate works")}
@@ -79,7 +79,7 @@ export default function ParchmentIntro({ onDone }) {
             >
               {t("Enter the realms")}
             </button>
-            <p className="mt-1.5 text-center font-serif text-[10px] italic sm:text-xs" style={{ color: `${INK}99` }}>
+            <p className="mx-auto mt-1.5 w-fit rounded-md bg-[#F0E4C8]/80 px-2 py-0.5 text-center font-serif text-[10px] font-semibold italic sm:text-xs" style={{ color: INK }}>
               {t("Reopen anytime from \"How to play\" in the footer.")}
             </p>
           </div>

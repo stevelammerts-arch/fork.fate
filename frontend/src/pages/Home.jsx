@@ -70,7 +70,8 @@ export default function Home() {
   const navigate = useNavigate();
   const { t } = useLang();
   const ambCfg = AMBIANCE[theme] || null;
-  const light = !(theme === "dark" || ambCfg);
+  // Fall is a seasonal theme but reads DARK since the moonlit-forest makeover.
+  const light = !(theme === "dark" || theme === "fall" || ambCfg);
   const seasonCfg = SEASONS[theme] || null;
   const season = seasonCfg ? theme : null;
   const auraAccent = ambCfg ? ambCfg.accent : (seasonCfg ? seasonCfg.hint : "#E01E26");

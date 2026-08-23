@@ -1,0 +1,27 @@
+{
+  "summary": "Frontend-only Playwright testing at 390x844 of the new FATE POINTS rewards system and PARCHMENT INTRO field guide on the public preview URL. Ran 3 scripted flows: (1) fresh-device parchment gating + checkbox seal + reload behavior, (2) daily-login points claim + realm chooser + Fate Points pill/dialog with insufficient balance, (3) seeded-balance (600 pts) two-tap redemption, coupon minting/persistence, plus regressions (Skip intro, Trophy Room accordion, SaveProgress backup, footer How to play). All 30+ assertions passed; no console errors, no broken flows.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Parchment intro (ParchmentIntro.jsx)", "issues": ["Bottom hint line 'Reopen anytime from \"How to play\" in the footer.' renders over the parchment's decorative art (teacup/dice/leaves) at the very bottom edge and is nearly illegible at 390px (italic 10px, low contrast over illustrations). Consider more bottom padding or moving the hint above the CTA."]},
+      {"screen": "Rewards coupon view", "issues": ["Minor: 'Valid through … · one use per visit' uses text-white/50 at 12px on near-black — borderline contrast; consider white/70."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": ["Optional polish only: improve legibility of the parchment footer hint line; slightly raise contrast of coupon validity text. No functional fixes required."],
+  "critical_code_review_comments": [
+    "points.js readPoints() coerces any non-positive/NaN value to 0 — a corrupted ff_points silently resets the balance; acceptable but worth documenting.",
+    "claimDaily/streak state is device-local with no clock-tamper guard (device date change can farm daily points). Acceptable for demo currency.",
+    "RewardsDialog two-tap confirm never auto-resets — the 'Confirm?' state stays armed until another tap or dialog close; consider reverting after ~4s to avoid accidental double-tap redemption."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (frontend-only request)", "frontend": "100%"},
+  "seed_data_creation": "localStorage seeds only: ff_guide_seen=1, ff_theme_chosen=1, ff_points=600, ff_points_day=today (device-local; no server data touched).",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "none required (device-local features)",
+  "context_for_next_testing_agent": "Verified: parchment shows before realm chooser on fresh device; unchecked close leaves ff_guide_seen unset and it reappears on reload; checked close sets ff_guide_seen=1 and suppresses it; footer how-to-play reopens it and its close does NOT reopen the realm chooser. Daily claim awards exactly +10 at ~4s with toast, gated by ff_points_day (no second toast same day). RewardsDialog portals to document.body and covers full viewport (0,0,390,844); all 4 demo sponsors listed; redeem buttons disabled at 10 pts. With 600 pts seeded: neon-noodle first tap -> 'Confirm?', second tap deducts 250 (balance 350 in dialog + pill + localStorage), coupon view shows FF-XXXX-XXXX code (e.g. FF-93D3-8VZ5), copy button, 7-day validity, and the coupon persists in rewards-coupon-list after close/reopen. Regressions pass: theme-welcome-option-light enters app, Skip intro, trophy-room-btn accordion links, save-progress-backup toast 'Progress saved!'. Heist/ritual awards were NOT live-tested (random timers) per instructions.",
+  "rca_of_the_issue": "N/A — no functional defects found."
+}

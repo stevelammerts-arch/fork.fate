@@ -1360,3 +1360,47 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Lightning already present (ffBolt 13s/17s) — verified rendering.
 - Screenshot-verified in 844x390 landscape: reaper 376px vs graves 211px,
   lightning + both crossing bat animations active. FF_BUILD bumped to 551.
+
+## 2026-02 (fork) — Fate Points + Parchment Guide + Promo Video (FF_BUILD 552-554)
+- FATE POINTS (lib/points.js): device-local rewards. +10 daily login
+  (+5/day streak bonus capped +50), +15 per ritual reveal, +25 per heist
+  sighting. Pill in MoreWaysToPlay under Trophy Room; RewardsDialog
+  (portal to body) with 4 DEMO sponsors, two-tap redeem (auto-disarm 4s),
+  FF-XXXX-XXXX cashier coupons valid 7 days, My Coupons list. Auto-included
+  in Save Progress backups (ff_ prefix). Tested 100% (iteration_71.json).
+- PARCHMENT INTRO (ParchmentIntro.jsx): first-run field guide on AI-generated
+  parchment (guide-parchment.png), ink #241305, "Don't show this again"
+  checkbox (unchecked = reshows), paper-flip sound (paper-flip.mp3,
+  synthesized), first close ALWAYS opens realm chooser, reopen via footer
+  "How to play" (ff:open-guide event). Points line reads "Coming soon".
+- PROMO VIDEO: /app/frontend/public/promo/forkfate-promo.mp4 (1080x1920,
+  66s) — Sora 2 intro + real app footage (record_promo.py) + end card,
+  captions with dark backing boxes, reaper-ambient music bed. Assembly:
+  /app/scripts/assemble_promo.sh.
+- PENDING (user key balance empty): regenerate Sora intro (reaper picks ONE
+  card + chuckles), Sora outro (warm restaurant), parchment beer-mug doodle
+  swap (edit_parchment.py ready). Rerun gen_promo_clips.py + edit_parchment.py
+  + assemble_promo.sh after user recharges Universal Key.
+
+## 2026-02 (fork) — Dark Fall Forest makeover + promo v2 (FF_BUILD 555)
+- FALL REALM is now a DARK realm (Home.jsx light flag excludes fall):
+  moonlit forest backgrounds (fall-forest-dark.png portrait /
+  fall-forest-dark-wide.png landscape v2 with genuinely DISTANT treeline),
+  orientation-swapped via .ff-forest-p/.ff-forest-l CSS. Depth: blur+darken
+  filters. Hero text warm tan w/ deep shadows (HeroCopy fall branch),
+  hint #FF9E4A.
+- Lurking eyes: small (3-5px) glowing pairs in dark pockets, per-orientation
+  placements (FOREST_EYES_P/L), ffEyesLurk (long hidden gaps) + ffEyesBlink.
+- Scarecrow: bigger (62svh portrait left-[-8%], 100vh sm), 3-frame WAVE
+  (base/mid/up swap, ffScareBaseHide/ffScareMid/ffScareWave 52s cycle);
+  frames white-keyed + de-haloed (MinFilter erosion). Front tree 60svh /
+  150vh sm (sm:max-w-none uncaps width on desktop only). Jack-o-lantern
+  tree decorRight z-[3] IN FRONT (decorRightZ cfg added). Old owl + moon
+  overlays removed.
+- Parchment now uses guide-parchment-v2.png (beer mug replaces duplicate
+  cutlery); hint line on solid parchment-tone chip; coupon validity text
+  contrast up; RewardsDialog confirm auto-disarms after 4s.
+- Promo video v2 (70s): NEW Sora intro (reaper picks ONE card + chuckles),
+  NEW Sora outro (warm restaurant, sponsor captions), captions on dark
+  boxes, no white flash (two-pass webm->mp4 trims), end card "Let fate
+  decide". /promo/forkfate-promo.mp4

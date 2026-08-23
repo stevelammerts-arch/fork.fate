@@ -64,9 +64,10 @@ const CHIMNEY_SMOKE = Array.from({ length: 5 }).map((_, i) => ({
 
 export const SEASONS = {
   fall: {
-    grad: "linear-gradient(180deg,#FBF3E8 0%,#F5E6D0 55%,#EFDCC0 100%)",
-    tree: "/fall-tree.png", treeOpacity: 0.72, ground: "/fall-ground.png", groundH: "h-[34vh]", groundOpacity: 0.9, decorRight: "/fall-jackolanterns.png", decorRightGlow: true, decorRightOpacity: 0.72, scarecrow: "/fall-scarecrow.png", groundPumpkins: true, owl: "/fall-owl.png", moon: true, squirrel: "/fall-squirrel.png",
-    items: ["/leaf-red.png", "/leaf-orange.png", "/leaf-yellow.png", "/leaf-brown.png"], falling: true, hint: "#C0451B",
+    grad: "linear-gradient(180deg,#120E16 0%,#1B1319 45%,#221812 100%)",
+    darkForest: true,
+    tree: "/fall-tree.png", treeOpacity: 0.9, treeH: "h-[60svh] sm:h-[150vh] z-[2] object-bottom sm:max-w-none", ground: "/fall-ground.png", groundH: "h-[34vh]", groundOpacity: 0.9, decorRight: "/fall-jackolanterns.png", decorRightGlow: true, decorRightOpacity: 0.85, decorRightZ: "z-[3]", scarecrow: "/fall-scarecrow.png", groundPumpkins: true, squirrel: "/fall-squirrel.png",
+    items: ["/leaf-red.png", "/leaf-orange.png", "/leaf-yellow.png", "/leaf-brown.png"], falling: true, hint: "#FF9E4A",
   },
   winter: {
     grad: "linear-gradient(180deg,#EAF3FA 0%,#DCEAF5 55%,#CFE0EE 100%)",
@@ -96,6 +97,37 @@ const GUST_SNOW = Array.from({ length: 70 }).map((_, i) => ({
   op: 0.4 + (i % 5) * 0.13,
   dip: 6 + (i % 7) * 4, // how far it sinks (vh) while crossing
 }));
+
+// DARK FALL FOREST: glowing eye pairs lurking in the woods' black pockets.
+// Each pair fades in for a stretch, blinks a few times, and vanishes again
+// (ffEyesLurk / ffEyesBlink). Separate placements per orientation so the
+// eyes always sit inside the dark patches of the matching artwork.
+const FOREST_EYES_P = [
+  { left: "31%", top: "58%", size: 5, col: "#FFC24B", lurk: 21, ld: 0, blink: 3.4 },
+  { left: "46%", top: "54%", size: 4, col: "#9BE07C", lurk: 27, ld: -9, blink: 4.1 },
+  { left: "62%", top: "60%", size: 4.5, col: "#FF9040", lurk: 24, ld: -17, blink: 3.0 },
+  { left: "24%", top: "67%", size: 3.5, col: "#E86A4A", lurk: 31, ld: -5, blink: 4.6 },
+  { left: "55%", top: "68%", size: 4, col: "#FFD34D", lurk: 26, ld: -21, blink: 3.7 },
+];
+const FOREST_EYES_L = [
+  { left: "16%", top: "55%", size: 4, col: "#FFC24B", lurk: 21, ld: 0, blink: 3.4 },
+  { left: "33%", top: "56%", size: 3.5, col: "#9BE07C", lurk: 27, ld: -9, blink: 4.1 },
+  { left: "50%", top: "57%", size: 4, col: "#FF9040", lurk: 24, ld: -17, blink: 3.0 },
+  { left: "65%", top: "55%", size: 3.5, col: "#E86A4A", lurk: 31, ld: -5, blink: 4.6 },
+  { left: "88%", top: "53%", size: 3.5, col: "#FFD34D", lurk: 26, ld: -21, blink: 3.7 },
+  { left: "42%", top: "58%", size: 3, col: "#9BE07C", lurk: 29, ld: -13, blink: 4.3 },
+];
+
+const ForestEyes = ({ eyes, cls }) => (
+  <div className={`absolute inset-0 ${cls}`} data-testid="fall-forest-eyes">
+    {eyes.map((e, i) => (
+      <span key={`eyes-${i}`} className="ff-forest-eyes" style={{ left: e.left, top: e.top, gap: e.size * 0.8, "--lurk": `${e.lurk}s`, "--lurkd": `${e.ld}s` }}>
+        <span className="ff-forest-eye" style={{ width: e.size, height: e.size * 1.15, "--eyecol": e.col, "--blink": `${e.blink}s` }} />
+        <span className="ff-forest-eye" style={{ width: e.size, height: e.size * 1.15, "--eyecol": e.col, "--blink": `${e.blink}s`, animationDelay: "0.05s" }} />
+      </span>
+    ))}
+  </div>
+);
 
 export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
   // Per-visit variety: the sailboat joins its voyage at a random point (so it
@@ -127,6 +159,13 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
   return (<>
     <div className="ff-theme-scene pointer-events-none fixed inset-0 z-0 select-none overflow-hidden" data-testid={`season-scene-${theme}`}>
       <div className="absolute inset-0" style={{ background: cfg.grad }} />
+      {cfg.darkForest && (<>
+        {/* moonlit woods: portrait art in portrait, panorama in landscape */}
+        <img src="/fall-forest-dark.png" alt="" className="ff-forest-p absolute inset-0 h-full w-full object-cover object-bottom" data-testid="fall-forest-portrait" />
+        <img src="/fall-forest-dark-wide.png" alt="" className="ff-forest-l absolute inset-0 h-full w-full object-cover object-bottom" data-testid="fall-forest-landscape" />
+        <ForestEyes eyes={FOREST_EYES_P} cls="ff-forest-p" />
+        <ForestEyes eyes={FOREST_EYES_L} cls="ff-forest-l" />
+      </>)}
       {cfg.ground && <img src={cfg.ground} alt="" className={`pointer-events-none absolute bottom-0 left-0 z-0 w-full select-none object-cover object-bottom opacity-[0.6] ${cfg.groundH || "h-[46vh]"}`} style={{ maskImage: "linear-gradient(to top, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)", WebkitMaskImage: "linear-gradient(to top, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)", ...(cfg.groundOpacity ? { opacity: cfg.groundOpacity } : {}) }} data-testid="spring-ground" />}
       {cfg.ocean && (<>
         <svg width="0" height="0" className="absolute" aria-hidden="true">
@@ -172,7 +211,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
           <img src={cfg.santa} alt="" className="w-28 opacity-70 drop-shadow-[0_3px_10px_rgba(120,150,180,0.3)] sm:w-40" style={{ animation: "ffSantaBob 2.6s ease-in-out infinite", filter: "blur(0.5px)" }} />
         </div>
       )}
-      <img src={cfg.tree} alt="" className={`absolute bottom-0 ${cfg.treeSide === "left" ? "left-0" : "right-0"} w-auto max-w-[96vw] object-contain opacity-[0.32] ${cfg.treeH ? cfg.treeH : (cfg.treeBig ? "h-[70svh] sm:h-[106vh] z-[2]" : "h-[46svh] sm:h-[86vh]")} ${cfg.treeZ || ""}`} style={{ maxWidth: cfg.treeBig ? "88vw" : undefined, transform: cfg.treeFlip ? "scaleX(-1)" : undefined, ...(cfg.treeOpacity ? { opacity: cfg.treeOpacity } : {}) }} />
+      <img src={cfg.tree} alt="" className={`absolute bottom-0 ${cfg.treeSide === "left" ? "left-0" : "right-0"} w-auto max-w-[96vw] object-contain opacity-[0.32] ${cfg.treeH ? cfg.treeH : (cfg.treeBig ? "h-[70svh] sm:h-[106vh] z-[2]" : "h-[46svh] sm:h-[86vh]")} ${cfg.treeZ || ""}`} style={{ maxWidth: cfg.treeMaxW || (cfg.treeBig ? "88vw" : undefined), transform: cfg.treeFlip ? "scaleX(-1)" : undefined, ...(cfg.treeOpacity ? { opacity: cfg.treeOpacity } : {}) }} />
       {cfg.cardinal && (
         <div className="absolute z-[3] w-7 left-[33%] top-[53.8%] sm:w-11 sm:left-[12.2%] sm:top-[13%]" style={{ animation: "ffCardinalVisitB 52s linear infinite", opacity: 0 }} data-testid="winter-cardinal-tree">
           <div style={{ transform: "scaleX(-1)" }}>
@@ -200,7 +239,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
           )}
         </div>
       ) : (
-        <img src={cfg.decorRight} alt="" className={`absolute bottom-0 ${cfg.decorRightPos || "right-[3%]"} object-contain opacity-[0.32] ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={{ ...(cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : {}), ...(cfg.decorRightOpacity ? { opacity: cfg.decorRightOpacity } : {}) }} />
+        <img src={cfg.decorRight} alt="" className={`absolute bottom-0 ${cfg.decorRightPos || "right-[3%]"} object-contain opacity-[0.32] ${cfg.decorRightZ || ""} ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={{ ...(cfg.decorRightGlow ? { animation: "ffGlow 3.6s ease-in-out infinite" } : {}), ...(cfg.decorRightOpacity ? { opacity: cfg.decorRightOpacity } : {}) }} />
       ))}
       {cfg.decorLeft && <img src={cfg.decorLeft} alt="" className={`absolute bottom-0 left-0 object-contain opacity-[0.32] sm:left-[2%] ${cfg.decorLeftZ || ""} ${cfg.decorLeftW ? cfg.decorLeftW : (cfg.decorLeftBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-42vw] max-w-sm sm:w-[26vw]")}`} style={cfg.decorLeftOpacity ? { opacity: cfg.decorLeftOpacity } : undefined} />}
       {cfg.rabbits && (<>
@@ -224,8 +263,11 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
         </div>
       </>)}
       {cfg.scarecrow && (
-        <div className="absolute bottom-0 left-[1%] z-[2] h-[34vh] sm:left-[3%] sm:h-[46vh]" style={{ aspectRatio: "766 / 1585" }} data-testid="fall-scarecrow">
-          <img src={cfg.scarecrow} alt="" className="h-full w-full object-contain opacity-[0.72]" />
+        <div className="absolute bottom-0 left-[-8%] z-[2] h-[62svh] sm:left-[3%] sm:h-[100vh]" style={{ aspectRatio: "766 / 1585" }} data-testid="fall-scarecrow">
+          <img src={cfg.scarecrow} alt="" className="h-full w-full object-contain opacity-[0.85]" style={{ animation: "ffScareBaseHide 52s linear infinite" }} />
+          {/* 3-frame wave: arm lifts halfway, waves fully, settles back down */}
+          <img src="/fall-scarecrow-mid.png" alt="" className="absolute inset-0 h-full w-full object-contain opacity-0" style={{ animation: "ffScareMid 52s linear infinite" }} data-testid="fall-scarecrow-mid" />
+          <img src="/fall-scarecrow-wave.png" alt="" className="absolute inset-0 h-full w-full object-contain opacity-0" style={{ animation: "ffScareWave 52s linear infinite" }} data-testid="fall-scarecrow-wave" />
           {/* raven visits the scarecrow's crossbar tip now and then */}
           <div className="absolute w-[26%]" style={{ left: "1%", top: "7.5%", animation: "ffRavenVisit 44s linear infinite", opacity: 0 }} data-testid="fall-raven">
             <img src="/reaper-raven-fly.png" alt="" className="w-full" style={{ animation: "ffRavenFlyShow 44s linear infinite, ffCardinalFlap 0.26s ease-in-out infinite alternate", transformOrigin: "50% 60%" }} />

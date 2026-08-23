@@ -16,13 +16,16 @@ load_dotenv("/app/backend/.env")
 CLIPS = {
     "/app/scripts/promo_intro.mp4": (
         "Cinematic moody shot inside a candlelit gothic dining hall at night. "
-        "A hooded grim reaper figure sits at the head of a long wooden dinner "
-        "table and dramatically deals three large ornate tarot cards face down "
-        "onto the table. The middle card flips over by itself and bursts into "
-        "warm golden light, transforming into a steaming gourmet plate of "
-        "food. Candle flames flicker, dust motes drift in the light beams. "
-        "Dark cinematic color grade with deep reds and golds, slow dramatic "
-        "camera push-in, film grain. No text, no words, no captions."
+        "A hooded grim reaper sits at the head of a long wooden dinner table "
+        "with three large ornate tarot cards lying face down in front of him. "
+        "His skeletal hand hovers over the cards, then he decisively picks up "
+        "ONE card and holds it up as it glows with warm golden light. He "
+        "tilts his head and his shoulders shake in a low sinister chuckle, "
+        "jaw subtly moving, eye sockets glinting with amusement. Soft low "
+        "evil chuckle audible. Candle flames flicker, dust motes drift in "
+        "the light beams. Dark cinematic color grade with deep reds and "
+        "golds, slow camera push-in, film grain. No text, no words, no "
+        "captions."
     ),
     "/app/scripts/promo_outro.mp4": (
         "Cinematic warm evening shot of a charming small-town restaurant "

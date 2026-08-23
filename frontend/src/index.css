@@ -1018,6 +1018,77 @@ body {
   .ff-cemetery { height: 54vh !important; }
   .ff-moon { width: 96px; height: 96px; top: 8%; }
 }
+/* Scarecrow wave: THREE-frame sequence (base -> mid-raise -> full wave),
+   frames swap hard (only one visible at a time) so arms never ghost.
+   One wave burst around the 41s mark of a 52s cycle:
+   mid [78-79.2] up [79.2-81.2] mid [81.2-82.4] up [82.4-84.4]
+   mid [84.4-85.6] up [85.6-87.6] mid [87.6-88.8] then back to base. */
+@keyframes ffScareBaseHide {
+  0%, 77.9% { opacity: 0.85; }
+  78%, 88.7% { opacity: 0; }
+  88.8%, 100% { opacity: 0.85; }
+}
+@keyframes ffScareMid {
+  0%, 77.9% { opacity: 0; }
+  78%, 79.1% { opacity: 0.85; }
+  79.2%, 81.1% { opacity: 0; }
+  81.2%, 82.3% { opacity: 0.85; }
+  82.4%, 84.3% { opacity: 0; }
+  84.4%, 85.5% { opacity: 0.85; }
+  85.6%, 87.5% { opacity: 0; }
+  87.6%, 88.7% { opacity: 0.85; }
+  88.8%, 100% { opacity: 0; }
+}
+@keyframes ffScareWave {
+  0%, 79.1% { opacity: 0; }
+  79.2%, 81.1% { opacity: 0.85; }
+  81.2%, 82.3% { opacity: 0; }
+  82.4%, 84.3% { opacity: 0.85; }
+  84.4%, 85.5% { opacity: 0; }
+  85.6%, 87.5% { opacity: 0.85; }
+  87.6%, 100% { opacity: 0; }
+}
+/* DARK FALL FOREST: orientation-matched artwork + lurking eye pairs.
+   Blur + darken push the woods into the far distance (atmospheric depth);
+   the slight scale-up hides the blur's soft edges. */
+.ff-forest-p { display: block; filter: blur(2.5px) brightness(0.78) saturate(0.85); transform: scale(1.03); }
+.ff-forest-l { display: none; filter: blur(1.4px) brightness(0.85); transform: scale(1.02); }
+@media (orientation: landscape) {
+  .ff-forest-p { display: none; }
+  .ff-forest-l { display: block; }
+}
+.ff-forest-eyes {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  will-change: opacity;
+  animation: ffEyesLurk var(--lurk, 22s) linear var(--lurkd, 0s) infinite;
+}
+.ff-forest-eye {
+  display: block;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 38%, rgba(255,255,255,0.85), var(--eyecol) 45%, rgba(0,0,0,0) 78%);
+  box-shadow: 0 0 7px 2px var(--eyecol);
+  will-change: transform;
+  animation: ffEyesBlink var(--blink, 3.6s) ease-in-out infinite;
+}
+/* eyes surface from the dark, linger, then slip away — long hidden gaps */
+@keyframes ffEyesLurk {
+  0%   { opacity: 0; }
+  5%   { opacity: 0.9; }
+  36%  { opacity: 0.9; }
+  41%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+@keyframes ffEyesBlink {
+  0%, 88%, 100% { transform: scaleY(1); }
+  92%, 95%      { transform: scaleY(0.06); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ff-forest-eyes { animation: none; opacity: 0.5; }
+  .ff-forest-eye { animation: none; }
+}
 /* Occasional thin lightning tendrils flickering behind the reaper */
 .ff-lightning {
   position: absolute;

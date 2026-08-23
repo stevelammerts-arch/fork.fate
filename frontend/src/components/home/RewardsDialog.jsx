@@ -24,7 +24,7 @@ const CouponView = ({ coupon, onBack, t }) => (
       <p className="mt-4 select-all font-mono text-3xl font-bold tracking-widest" style={{ color: coupon.accent }} data-testid="rewards-coupon-code">
         {coupon.code}
       </p>
-      <p className="mt-3 font-sans text-xs text-white/50">{t("Valid through")} {fmtDate(coupon.expires)} · {t("one use per visit")}</p>
+      <p className="mt-3 font-sans text-xs text-white/70">{t("Valid through")} {fmtDate(coupon.expires)} · {t("one use per visit")}</p>
       <button type="button" data-testid="rewards-coupon-copy"
         onClick={async () => {
           try { await navigator.clipboard.writeText(coupon.code); toast.success(`${coupon.code} ${t("copied")}`); }
@@ -43,6 +43,13 @@ export default function RewardsDialog({ open, onClose }) {
   const [coupons, setCoupons] = useState(readCoupons);
   const [viewing, setViewing] = useState(null); // coupon being shown full-screen
   const [confirmId, setConfirmId] = useState(null); // two-tap redeem guard
+  // Auto-disarm the "Confirm?" state so a stale armed button can't cause an
+  // accidental redemption later.
+  useEffect(() => {
+    if (!confirmId) return undefined;
+    const tm = setTimeout(() => setConfirmId(null), 4000);
+    return () => clearTimeout(tm);
+  }, [confirmId]);
 
   useEffect(() => {
     const sync = () => { setBalance(readPoints()); setCoupons(readCoupons()); };
