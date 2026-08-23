@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useLang } from "../../i18n/i18n";
 import { HEISTS, recordHeistSeen, readHeistsSeen } from "../../lib/rituals";
+import { awardPoints, EARN } from "../../lib/points";
 
 /** Every heist strikes the header logo. If the user has scrolled it out of
  * view (mobile, mid-list), smoothly pull the page back to the top first so
@@ -54,10 +55,11 @@ export function useHeistWitness(key) {
   const ref = useRef(null);
   ref.current = (announce) => {
     const first = recordHeistSeen(key);
+    awardPoints(EARN.heist, `Heist: ${key}`);
     if (!first || !announce) return first;
     const heist = HEISTS.find((h) => h.key === key);
     toast(t("Heist witnessed!"), {
-      description: heist ? t(heist.name) : undefined,
+      description: `${heist ? t(heist.name) : ""} · +${EARN.heist} pts`,
       action: { label: t("Collection"), onClick: () => navigate("/rituals") },
       duration: 6000,
     });

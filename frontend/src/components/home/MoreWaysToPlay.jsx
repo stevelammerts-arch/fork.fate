@@ -1,9 +1,11 @@
 // "More ways to play": Group / Crawl / Passport toggles + the Trophy Room
 // accordion that gathers all the collection links in one place.
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Users, Beer, Stamp, Trophy, Globe2, Sparkles, BookOpen, Medal, ChevronDown } from "lucide-react";
+import { Users, Beer, Stamp, Trophy, Globe2, Sparkles, BookOpen, Medal, ChevronDown, Coins } from "lucide-react";
 import { SaveProgress } from "./SaveProgress";
+import RewardsDialog from "./RewardsDialog";
+import { readPoints } from "../../lib/points";
 import { useLang } from "../../i18n/i18n";
 
 const Knob = ({ on }) => (
@@ -15,6 +17,13 @@ const Knob = ({ on }) => (
 export const MoreWaysToPlay = ({ groupMode, crawlMode, passportMode, onToggleGroup, onToggleCrawl, onTogglePassport }) => {
   const { t } = useLang();
   const [trophyOpen, setTrophyOpen] = useState(false);
+  const [rewardsOpen, setRewardsOpen] = useState(false);
+  const [points, setPoints] = useState(readPoints);
+  useEffect(() => {
+    const sync = () => setPoints(readPoints());
+    window.addEventListener("ff:points", sync);
+    return () => window.removeEventListener("ff:points", sync);
+  }, []);
   const rooms = [
     { to: "/leaderboard", tid: "crawl-champions-link", icon: Trophy, label: "Champions", border: "#F0A24E", color: "#B26A12", hover: "hover:bg-[#FBF3E7]" },
     { to: "/wall", tid: "passport-wall-link", icon: Globe2, label: "Passport Wall", border: "#2E7D32", color: "#2E7D32", hover: "hover:bg-[#E8F3E9]" },
@@ -92,11 +101,25 @@ export const MoreWaysToPlay = ({ groupMode, crawlMode, passportMode, onToggleGro
           </div>
         </div>
 
+        {/* FATE POINTS: rewards balance + sponsor redemption vault */}
+        <button
+          type="button"
+          data-testid="fate-points-btn"
+          onClick={() => setRewardsOpen(true)}
+          className="inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border-2 border-[#E6B23A] bg-[#101013] px-4 py-2.5 text-sm font-bold text-[#E6B23A] transition-colors hover:bg-[#1E1B12]"
+        >
+          <Coins className="h-4 w-4" /> {t("Fate Points")}
+          <span className="rounded-full bg-[#E6B23A] px-2 py-0.5 text-xs font-bold text-[#101013]" data-testid="fate-points-balance">
+            {points.toLocaleString()}
+          </span>
+        </button>
+
         {/* back up trophies / witnessed fates so nothing is lost to a cache clear */}
         <div className="w-full">
           <SaveProgress />
         </div>
       </div>
+      <RewardsDialog open={rewardsOpen} onClose={() => setRewardsOpen(false)} />
     </div>
   );
 };

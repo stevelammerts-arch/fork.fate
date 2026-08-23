@@ -12,6 +12,7 @@ import { useShake, requestMotionPermission } from "../hooks/useShake";
 import { useShareTarget } from "../hooks/useShareTarget";
 import GuidedFlow from "../components/GuidedFlow";
 import ThemeWelcomeDialog from "../components/ThemeWelcomeDialog";
+import ParchmentIntro from "../components/ParchmentIntro";
 import { HomeHeader } from "../components/home/HomeHeader";
 import { HomeInfoSections } from "../components/home/HomeInfoSections";
 import { HomeFooter } from "../components/home/HomeFooter";
@@ -48,6 +49,7 @@ const StepLabel = ({ n, children }) => (
   </div>
 );
 import { recordRitualSeen, readRitualsSeen, RITUALS } from "../lib/rituals";
+import { claimDaily, awardPoints, EARN } from "../lib/points";
 import BlackoutRitual from "../components/BlackoutRitual";
 import { recordFate } from "../lib/journal";
 import { markCuisine } from "../lib/bingo";
@@ -99,6 +101,26 @@ export default function Home() {
     trackEvent("theme_welcome_done", { theme });
     dismissThemeHint();
   };
+  // PARCHMENT FIELD GUIDE: shown once before the realm chooser on a brand-new
+  // device; reopenable via the footer's "How to play" (ff:open-guide event).
+  const [showGuide, setShowGuide] = useState(() => {
+    try { return localStorage.getItem("ff_guide_seen") !== "1"; } catch (e) { return false; }
+  });
+  // The FIRST parchment close always leads into the realm chooser — even on
+  // devices that sealed a realm before the guide existed. Footer reopens don't.
+  const guideFirstRun = useRef(showGuide);
+  const guideDone = () => {
+    setShowGuide(false);
+    if (guideFirstRun.current) {
+      guideFirstRun.current = false;
+      setShowThemeWelcome(true);
+    }
+  };
+  useEffect(() => {
+    const open = () => setShowGuide(true);
+    window.addEventListener("ff:open-guide", open);
+    return () => window.removeEventListener("ff:open-guide", open);
+  }, []);
   const [mode, setMode] = useState("food");
   const [zip, setZip] = useState("");
   const [destination, setDestination] = useState("");
@@ -361,6 +383,21 @@ export default function Home() {
     return () => clearTimeout(tm);
   }, []); // once per load; t stable enough for a fire-and-forget toast
 
+  // DAILY FATE POINTS: first visit of each day earns points (+streak bonus).
+  useEffect(() => {
+    const tm = setTimeout(() => {
+      const res = claimDaily();
+      if (!res) return;
+      toast.success(`+${res.awarded} ${t("Fate Points")}`, {
+        description: res.streak > 1
+          ? `${res.streak}-${t("day streak! Balance:")} ${res.total}`
+          : t("Come back tomorrow for a streak bonus."),
+        duration: 6000,
+      });
+    }, 4000);
+    return () => clearTimeout(tm);
+  }, []); // once per load; t stable enough for a fire-and-forget toast
+
   // Every 10 deal taps (persisted per device) fate arrives as a RARE ritual
   // instead of the usual shuffle reveal.
   // Bump the daily streak and throw confetti + a toast the first time a
@@ -431,6 +468,7 @@ export default function Home() {
     if (b?.blackout) {
       // BLACKOUT: all 25 squares stamped — the rarest feat in the collection.
       recordRitualSeen("blackout");
+      awardPoints(EARN.ritual, "Rare fate: Blackout");
       setBlackout(true);
       try {
         confetti({ particleCount: 160, spread: 100, startVelocity: 48, origin: { x: 0.5, y: 0.6 }, colors: ["#E6B23A", "#F5D98B", "#FFFFFF"] });
@@ -461,10 +499,11 @@ export default function Home() {
     if (surpriseReveal) {
       const firstTime = !readRitualsSeen()[surpriseReveal]?.count;
       recordRitualSeen(surpriseReveal);
+      awardPoints(EARN.ritual, `Rare fate: ${surpriseReveal}`);
       if (firstTime) {
         const ritual = RITUALS.find((r) => r.key === surpriseReveal);
         toast(t("New fate witnessed!"), {
-          description: ritual ? t(ritual.name) : undefined,
+          description: `${ritual ? t(ritual.name) : ""} · +${EARN.ritual} pts`,
           action: { label: t("Collection"), onClick: () => navigate("/rituals") },
           duration: 6000,
         });
@@ -1003,7 +1042,8 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-white" data-ff-scope="app">
-      {showThemeWelcome && <ThemeWelcomeDialog onDone={sealThemeChoice} />}
+      {showGuide && <ParchmentIntro onDone={guideDone} />}
+      {!showGuide && showThemeWelcome && <ThemeWelcomeDialog onDone={sealThemeChoice} />}
       <AnimatePresence>
         {showGuided && (
           <GuidedFlow

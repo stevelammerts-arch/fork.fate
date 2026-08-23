@@ -54,6 +54,14 @@ export function HomeFooter({ light }) {
             </a>
           </div>
           <FeedbackDialog light={light} />
+          <button
+            type="button"
+            data-testid="how-to-play-link"
+            onClick={() => window.dispatchEvent(new Event("ff:open-guide"))}
+            className={`font-sans text-[11px] font-semibold underline-offset-4 transition-colors hover:underline ${light ? "text-[#6E6355] hover:text-[#2A2118]" : "text-[#8A8F95] hover:text-white"}`}
+          >
+            {t("How to play")}
+          </button>
           <CheckUpdatesButton />
           <a
             href="/admin"
