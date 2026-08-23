@@ -15,18 +15,17 @@ load_dotenv("/app/backend/.env")
 
 CLIPS = {
     "/app/scripts/promo_outro.mp4": (
-        "Cinematic warm evening shot of a charming small-town restaurant "
-        "street at dusk, string lights overhead, warm glowing windows with "
-        "friends laughing at candlelit tables inside. By the open front "
-        "door stands a hooded grim reaper with a detailed skeletal face, "
-        "acting as a friendly maitre d' — he holds the door open with one "
-        "skeletal hand and makes a welcoming sweeping gesture toward the "
-        "warm light inside with the other, giving a slight courteous bow, "
-        "as if inviting the viewer in for dinner. Warm golden light spills "
-        "onto the sidewalk around him. Camera slowly dollies toward the "
-        "doorway. Gentle bokeh, inviting and prosperous atmosphere, warm "
-        "cinematic color grade, film grain. No text, no words, no captions, "
-        "no signage with readable letters."
+        "Cinematic moody shot inside a candlelit gothic dining hall at "
+        "night, same scene continuing: a hooded grim reaper with a detailed "
+        "skeletal face sits at the head of a long wooden dinner table. The "
+        "reaper SLOWLY FADES AWAY, dissolving into thin wisps of dark smoke "
+        "until he has completely vanished from the chair. Just as he "
+        "disappears, a gourmet plate of steaming food DROPS onto the wooden "
+        "table from above and lands with a loud metallic CLANG, rattling "
+        "briefly before settling, steam rising from the food. The clang of "
+        "the plate is clearly audible. Candle flames flicker, dust motes "
+        "drift in the light beams. Dark cinematic color grade with deep "
+        "reds and golds, static camera. No text, no words, no captions."
     ),
 }
 

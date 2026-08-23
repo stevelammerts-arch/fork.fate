@@ -1410,3 +1410,14 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   (z-[60], pointer-events-none, data-testid falling-foreground) so they
   drift over all cards/windows. Spring petals unchanged (petalFeather
   branch stays in-scene). Click-through verified.
+
+## 2026-02 (fork) — Promo video v3 polish (80s)
+- Captions: red #E8232B, 74px (auto-size arg), floating sine bob, black boxes.
+- Seasonal toast suppressed in recordings (ff_season_announced=beachballs-year).
+- Realm chooser HOLD 4.6s so all 11 realms visible under "11 immersive worlds".
+- Fate Points captions re-timed to match visible screens (dialog vs coupon).
+- App footage slowed 15% via setpts in pre-pass (audio + Sora clips unchanged).
+- End card: big gold floating "Let fate decide" + fork-fate.com.
+- New Sora intro: hand hovers, card flips itself, better skull, chuckle.
+- PENDING: Reaper maitre-d' outro (gen_promo_clips.py ready) — blocked on
+  user Universal Key balance (failed insufficient_balance twice).
