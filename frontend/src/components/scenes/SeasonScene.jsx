@@ -327,14 +327,6 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
           </span>
         </span>
       ))}
-      {cfg.falling && !cfg.petalFeather && FALLING_SPRITES.map((l, i) => {
-        const src = cfg.items[i % cfg.items.length];
-        const s = src.includes("petal") ? l.size * 0.58 : l.size; // lone petals fall smaller than whole blossoms
-        return (
-          <img key={`leaf-${l.left}-${l.dur}-${i}`} src={src} alt="" className="absolute top-0 opacity-80"
-            style={{ left: l.left, width: s, height: s, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }} />
-        );
-      })}
       {cfg.gustSnow && GUST_SNOW.map((f, i) => (
         <span key={`gust-${i}`} className="ff-gust-snow" style={{ top: f.top, width: f.size, height: f.size, "--op": f.op, "--dip": `${f.dip}vh`, animationDuration: `${f.dur}s`, animationDelay: `${f.delay}s` }} />
       ))}
@@ -353,6 +345,20 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
         </div>
       ))}
     </div>
+    {/* falling leaves ride ABOVE the whole page (own fixed layer over cards
+        and windows) so the season is always in your face — taps pass through */}
+    {cfg.falling && !cfg.petalFeather && (
+      <div className="pointer-events-none fixed inset-0 z-[60] select-none overflow-hidden" data-testid="falling-foreground">
+        {FALLING_SPRITES.map((l, i) => {
+          const src = cfg.items[i % cfg.items.length];
+          const s = src.includes("petal") ? l.size * 0.58 : l.size; // lone petals fall smaller than whole blossoms
+          return (
+            <img key={`leaf-${l.left}-${l.dur}-${i}`} src={src} alt="" className="absolute top-0 opacity-80"
+              style={{ left: l.left, width: s, height: s, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }} />
+          );
+        })}
+      </div>
+    )}
     {theme === "summer" && <SummerBallHeist key={`bh-${heistEpoch}`} />}
     {theme === "summer" && <SummerCrabHeist key={`crh-${heistEpoch}`} />}
     {theme === "summer" && <SummerGullHeist key={`gh-${heistEpoch}`} />}

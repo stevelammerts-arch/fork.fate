@@ -1404,3 +1404,9 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   NEW Sora outro (warm restaurant, sponsor captions), captions on dark
   boxes, no white flash (two-pass webm->mp4 trims), end card "Let fate
   decide". /promo/forkfate-promo.mp4
+
+## 2026-02 (fork) — Foreground falling leaves (FF_BUILD 556)
+- Fall leaves moved OUT of the z-0 scene into their own fixed layer
+  (z-[60], pointer-events-none, data-testid falling-foreground) so they
+  drift over all cards/windows. Spring petals unchanged (petalFeather
+  branch stays in-scene). Click-through verified.
