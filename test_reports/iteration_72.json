@@ -1,0 +1,42 @@
+{
+  "summary": "Frontend-only verification of the new /sponsors Sponsor Kit page (Fork·Fate). Verified page render, hero + badge + CTA, fates counter wired to GET /api/stats/fates (returned 4,720), both 16:9 video players and their src paths, all three blob download buttons (9:16 sizzle 6.76MB, 16:9 sizzle 6.19MB, landscape promo 21.16MB) via Playwright expect_download, 3 benefit cards, both pricing cards ($19/mo + First month FREE + $190/yr; $99/mo + $990/yr), tier preselection in BecomeSponsorDialog from kit-join-local / kit-join-chain / kit-cta-hero, kit-chain-learn-more regression to /sponsor/chains, and the new Home footer sponsor-kit-link navigation. Also curl-verified all four /promo/*.mp4 assets return 206/video/mp4. Tested on desktop 1920x1080 and mobile 390x844. Zero console/page errors on both /sponsors and /. Backend skipped per request.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Home (/) footer — test-harness observation only",
+        "issues": [
+          "On first load the GuidedFlow modal (data-testid=guided-flow, fixed inset-0 z-[100]) auto-opens and the footer beneath it stays scrollable/visible, so footer links including sponsor-kit-link are visible but pointer-intercepted until guided-skip is clicked. Expected product behaviour, but worth noting: consider body scroll-lock while the guided overlay is open so users don't see/attempt to tap unreachable footer links."
+        ]
+      },
+      {
+        "screen": "/sponsors mobile 390px — sponsor dialog",
+        "issues": [
+          "Mid-open animation frame shows the dialog panel highly translucent with the pricing cards behind it bleeding through and text overlapping (screenshot kit_mobile_dialog.jpg). Settles correctly and is fully functional (aria-pressed=true verified); cosmetic transition artifact only, low priority."
+        ]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/test_reports/browser_iter72/kit_top.jpg",
+    "/app/test_reports/browser_iter72/dialog_chain.jpg",
+    "/app/test_reports/browser_iter72/kit_mobile.jpg"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "SponsorKit.jsx saveVideo(): fetch() result is not status-checked — a 404/500 would still produce a blob and 'download' a text/HTML error file named .mp4. Suggest `if (!res.ok) throw new Error(res.status)` before res.blob() so the catch fallback (window.open) actually fires. Not reproducible today since all assets return 200.",
+    "SponsorKit.jsx: /api/stats/fates failure is silently swallowed (.catch(() => {})), so kit-fates-counter simply disappears with no fallback text. Acceptable for a decorative stat, but no error state exists.",
+    "Unused asset: /app/frontend/public/promo/forkfate-promo.mp4 (21.9MB) is no longer referenced by SponsorKit (superseded by forkfate-promo-landscape.mp4) — consider deleting to cut bundle/deploy weight.",
+    "Videos use preload=\"metadata\" (good) but no poster image, so both players show a blank black box until metadata lands — a poster frame would improve the prospect-facing first impression."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "not tested (skipped per request)", "frontend": "100% (31/31 checks passed)" },
+  "seed_data_creation": "None. No sponsor was created; sponsor-subscribe-button was never clicked, so no PayPal checkout was initiated.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "None required — /sponsors, /sponsor/chains and / are public routes.",
+  "context_for_next_testing_agent": "Sponsor Kit page at /sponsors is fully working as of iteration 72 — all 3 blob downloads fire real download events (allow 60-120s timeouts; landscape promo is 21MB). To reach Home content, preseed localStorage ff_guide_seen=1, ff_theme_chosen=1, ff_theme='dark', ff_theme_hint_seen=1, reload, then dismiss parchment-close if present AND click guided-skip — the GuidedFlow overlay intercepts footer clicks otherwise. Do NOT click sponsor-subscribe-button (redirects to live PayPal).",
+  "rca_of_the_issue": "Original user bug ('can't download the 3 videos') is resolved: plain <a download> links on mp4s were being treated as media navigation by the browser/PWA; the new blob-fetch + object-URL anchor in SponsorKit.saveVideo() now produces genuine download events, confirmed with Playwright expect_download for all three files with byte sizes matching the on-disk assets exactly (6761627, 6195128, 21161352)."
+}

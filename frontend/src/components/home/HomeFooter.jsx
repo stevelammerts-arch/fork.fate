@@ -52,6 +52,14 @@ export function HomeFooter({ light }) {
             >
               Privacy Policy
             </a>
+            <span className={light ? "text-[#C8B79A]" : "text-[#3A3A3A]"}>·</span>
+            <a
+              href="/sponsors"
+              data-testid="sponsor-kit-link"
+              className={`font-sans text-[11px] font-semibold underline-offset-4 transition-colors hover:underline ${light ? "text-[#6E6355] hover:text-[#2A2118]" : "text-[#8A8F95] hover:text-white"}`}
+            >
+              Sponsor Kit
+            </a>
           </div>
           <FeedbackDialog light={light} />
           <button

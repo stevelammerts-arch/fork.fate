@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Admin from "./pages/Admin";
 import SponsorStatus from "./pages/SponsorStatus";
 import SponsorChains from "./pages/SponsorChains";
+import SponsorKit from "./pages/SponsorKit";
 import RarePreview from "./pages/RarePreview";
 import Rituals from "./pages/Rituals";
 import Journal from "./pages/Journal";
@@ -53,6 +54,7 @@ function App() {
           <Route path="/sponsor/success" element={<SponsorStatus />} />
           <Route path="/sponsor/cancelled" element={<SponsorStatus cancelled />} />
           <Route path="/sponsor/chains" element={<SponsorChains />} />
+          <Route path="/sponsors" element={<SponsorKit />} />
           <Route path="/dev/rare" element={<RarePreview />} />
           <Route path="/terms" element={<LegalPage type="terms" />} />
           <Route path="/privacy" element={<LegalPage type="privacy" />} />

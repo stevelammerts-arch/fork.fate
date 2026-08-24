@@ -1502,3 +1502,18 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Note: sizzle build cuts from /tmp/promo_work + /tmp/promo_lwork; re-run the
   two assemble scripts first if /tmp was wiped.
 - FF_BUILD bumped to 2026.06-559.
+
+## 2026-02 (fork) — Sponsor Kit page (/sponsors)
+- New prospect-facing page pages/SponsorKit.jsx, route /sponsors in App.js.
+  Dark reaper aesthetic matching SponsorChains. Hero + fates counter,
+  video section (landscape promo + 16:9 sizzle players with poster frames,
+  blob-fetch Download buttons for all 3 videos incl. 9:16 sizzle),
+  3 benefit cards, tier pricing (Local $19/mo first month free / $190 yr;
+  Franchise $99/mo / $990 yr), join buttons open BecomeSponsorDialog with
+  tier preselected (key remount). Footer "Sponsor Kit" link in HomeFooter.
+- Bug fix: "can't download the 3 videos" — plain <a download> was treated
+  as media navigation; replaced with blob fetch + object-URL anchor
+  (status-checked, window.open fallback). Verified via Playwright
+  expect_download, byte-exact for all 3 files (iteration_72, 31/31 pass).
+- Posters generated: promo/poster-promo-landscape.jpg, poster-sizzle-16x9.jpg.
+- FF_BUILD bumped to 2026.06-561.
