@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { X, Coins, CalendarCheck, Sparkles, Drama, Ticket, Copy, ChevronLeft } from "lucide-react";
+import { X, Coins, CalendarCheck, Sparkles, Drama, MapPin, Ticket, Copy, ChevronLeft } from "lucide-react";
 import { EARN, SPONSOR_OFFERS, readPoints, readCoupons, redeemOffer } from "../../lib/points";
 import { useLang } from "../../i18n/i18n";
 
@@ -73,6 +73,7 @@ export default function RewardsDialog({ open, onClose }) {
     { icon: CalendarCheck, label: t("Daily login"), pts: `+${EARN.daily}`, note: t("streak bonus up to") + ` +${EARN.streakCap}` },
     { icon: Sparkles, label: t("Rare fate revealed"), pts: `+${EARN.ritual}`, note: t("any ritual reveal") },
     { icon: Drama, label: t("Heist witnessed"), pts: `+${EARN.heist}`, note: t("catch a realm heist live") },
+    { icon: MapPin, label: t("Fated check-in"), pts: `+${EARN.checkin}`, note: t("arrive at your fated spot") },
   ];
 
   return createPortal(
@@ -106,7 +107,7 @@ export default function RewardsDialog({ open, onClose }) {
                 </div>
               </div>
 
-              <div className="mt-5 grid grid-cols-3 gap-2">
+              <div className="mt-5 grid grid-cols-2 gap-2">
                 {earnRows.map((e) => (
                   <div key={e.label} className="rounded-2xl border border-white/10 bg-white/5 p-3 text-center">
                     <e.icon className="mx-auto h-4 w-4 text-white/60" />

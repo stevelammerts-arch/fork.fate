@@ -8,7 +8,7 @@ const COUPONS = "ff_points_coupons";
 const DAY = "ff_points_day"; // last daily claim, local YYYY-MM-DD
 const STREAK = "ff_points_streak"; // consecutive-day login count
 
-export const EARN = { daily: 10, streakBonus: 5, streakCap: 50, ritual: 15, heist: 25 };
+export const EARN = { daily: 10, streakBonus: 5, streakCap: 50, ritual: 15, heist: 25, checkin: 50 };
 
 // Launch catalog: DEMO sponsors — swapped for real partners later.
 export const SPONSOR_OFFERS = [
@@ -83,6 +83,21 @@ export function readCoupons() {
   return list
     .map((c) => ({ ...c, expired: new Date(c.expires).getTime() < now }))
     .sort((a, b) => (a.expired === b.expired ? new Date(b.at) - new Date(a.at) : a.expired ? 1 : -1));
+}
+
+/** GPS-verified restaurant check-in: once per place per day. Returns the new
+ * total, or null when already claimed today. */
+export function claimCheckin(placeKey, name) {
+  const today = localDay(new Date());
+  const map = readJson("ff_checkins", {});
+  if (map[placeKey] === today) return null;
+  map[placeKey] = today;
+  try { localStorage.setItem("ff_checkins", JSON.stringify(map)); } catch (e) { return null; }
+  return awardPoints(EARN.checkin, `Checked in: ${name}`);
+}
+
+export function checkedInToday(placeKey) {
+  return readJson("ff_checkins", {})[placeKey] === localDay(new Date());
 }
 
 const CODE_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // no ambiguous 0/O/1/I/L

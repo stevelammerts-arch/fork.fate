@@ -1437,3 +1437,41 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   reaper dissolves via xfade, plate cutout (diff mask) falls with bounce +
   user's clang sample (plate-clang.mp3). build_outro.sh + gen_outro_frames.py.
 - End card: all-red sequential lines + All rights reserved.
+
+## 2026-02 (fork) — Check-ins + outro v3 + video captions (FF_BUILD 557)
+- FATED CHECK-IN: CheckInButton on reveal card (RevealStage) — GPS-verified
+  within 150m (haversine), +50 pts, once per place per day (ff_checkins,
+  claimCheckin/checkedInToday in points.js). maximumAge:0 (cache bug fixed).
+  E2E verified: far-away toast (707m), award 0->50, repeat blocked. Hidden
+  when card lacks lat/lng (sponsored E2E Test Diner). RewardsDialog earn
+  grid now 2x2 with check-in row.
+- OUTRO v3: reaper-only dissolve (outro_f1b), plate stays hovering, falls
+  with bounce + single clang (atrim first hit) + reaper chuckle from intro
+  audio. Plate cut EXACTLY via magenta-matte re-render (plate_matte.png)
+  keyed in PIL — no background halo.
+- Video: arrow overlay on sponsor scratch-off (promo_arrow.png, blinking),
+  heists caption split to 2 bigger lines, "each with its own vibe" added
+  below "11 immersive worlds" (incl. flashes).
+
+## 2026-02 (fork) — Outro v5 final + check-in verified (FF_BUILD 557)
+- Outro (9.5s, build_outro.sh): eye-flash red glows (eye_glow.png at 447/565,
+  y~545), reaper-only dissolve w/ chuckle (from intro audio), plate drop w/
+  ONE clang (atrim 0:1.2 of user's plate-clang.mp3), 1.6s rest on table,
+  flip-up (normal/flipped cutout swap) into logo-crest at (360,300) matching
+  end card position, scene fades to black under logo.
+- Plate matte EXACT via magenta re-render (plate_matte.png) keyed in PIL.
+- Chair-pop fixed: outro_f2_v2/outro_f3_v2 re-derived FROM outro_f1b so all
+  post-reaper frames share one background (consistent throne).
+- Video v5: "each with its own vibe" under 11-worlds captions, 2-line heist
+  caption, arrow on scratch-off, all-red sequential end card.
+- CHECK-IN verified E2E: far-away toast, 0->50 award at location, repeat
+  blocked. maximumAge:0 fix. FF_BUILD 557 ready to deploy.
+
+## 2026-02 (fork) — Outro v7 FINAL (simplified per user)
+- Outro: F1 (eyes flash once, small 70px glows, fade WITH dissolve) ->
+  xfade to F1b (plate STAYS PUT, no drop/flip/swap — removed all plate
+  animation after artifacts) -> logo-crest fades in mid-scene (360w, y=780)
+  -> scene fades to black under logo. Chuckle audio; intro hall ambience
+  (intro_amb.m4a) runs through outro + end card; music bed fades ~19.5s
+  before end. End card logo moved to y=780 (continuity), text stack below.
+- Clang sample no longer used (no drop). Final video 94.4s.

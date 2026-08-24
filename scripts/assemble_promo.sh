@@ -41,22 +41,26 @@ pre "$(ls $R/9_sponsor/*.webm)" $W/pre9.mp4
 ffmpeg -y -v error -ss 4.0 -t 9.8 -i $W/pre1.mp4 $sil -vf "\
 $(txt "Your field guide awaits..." 0.2 2.5 300 64),\
 $(txt "Choose your realm" 4.8 7.4),\
-$(txt "11 immersive worlds" 7.6 9.7)" $enc $W/s1.mp4
+$(txt "11 immersive worlds" 7.6 9.7),\
+$(txt "each with its own vibe" 7.6 9.7 415 52)" $enc $W/s1.mp4
 
 # 2b) Quick clean realm flashes (scenery only, no page words; winter cut —
 #     the white realm added nothing)
-ffmpeg -y -v error -ss 4.5 -t 1.4 -i $W/pre6.mp4 $sil -vf "$(txt "11 immersive worlds" 0 1.4)" $enc $W/s1b.mp4
-ffmpeg -y -v error -ss 4.5 -t 1.4 -i $W/pre7.mp4 $sil -vf "$(txt "11 immersive worlds" 0 1.4)" $enc $W/s1c.mp4
+ffmpeg -y -v error -ss 4.5 -t 1.4 -i $W/pre6.mp4 $sil -vf "$(txt "11 immersive worlds" 0 1.4),$(txt "each with its own vibe" 0 1.4 415 52)" $enc $W/s1b.mp4
+ffmpeg -y -v error -ss 4.5 -t 1.4 -i $W/pre7.mp4 $sil -vf "$(txt "11 immersive worlds" 0 1.4),$(txt "each with its own vibe" 0 1.4 415 52)" $enc $W/s1c.mp4
 
 # 3) Guided walkthrough -> shuffle -> reveal (arrowed taps, each step explained)
-ffmpeg -y -v error -ss 3.6 -t 29 -i $W/pre2.mp4 $sil -vf "\
-$(txt "Step 1 · What calls to you?" 0.2 3.4 300 60),\
+#    + a flashing arrow pointing at the sponsor scratch-off during its caption
+ffmpeg -y -v error -ss 3.6 -t 29 -i $W/pre2.mp4 $sil -i /app/scripts/promo_arrow.png -filter_complex "\
+[0:v]$(txt "Step 1 · What calls to you?" 0.2 3.4 300 60),\
 $(txt "Step 2 · Where are you?" 4.6 8.4 300 60),\
 $(txt "Step 3 · Pick the vibe — or let fate" 8.8 10.8 300 54),\
 $(txt "Step 4 · Seal the ritual" 11.6 15.8 300 60),\
 $(txt "Fate shuffles real local spots" 16.6 19.6 300 62),\
 $(txt "Your table is written" 23.0 26.0),\
-$(txt "Sponsor deals ride along" 26.4 28.8)" $enc $W/s2.mp4
+$(txt "Sponsor deals ride along" 26.4 28.8)[t];\
+[t][2:v]overlay=x=483:y=1035:enable='between(t,26.4,28.8)*lt(mod(t,0.7),0.45)'[v]" \
+ -map "[v]" -map 1:a -shortest -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p -c:a aac -ar 44100 $W/s2.mp4
 
 # 4) Fate Points -> coupon (opens ON the dialog — no light home screens first)
 ffmpeg -y -v error -ss 5.9 -t 9.1 -i $W/pre3.mp4 $sil -vf "\
@@ -65,7 +69,8 @@ $(txt "at participating sponsors" 6.6 9.0 300 58)" $enc $W/s3.mp4
 
 # 5) Realm beauty shots: dragon then cyber
 ffmpeg -y -v error -ss 3.5 -t 5.8 -i $W/pre4.mp4 $sil -vf "\
-$(txt "Rare heists, fates, and events can be witnessed" 0.5 5.3 300 42)" $enc $W/s4.mp4
+$(txt "Rare heists, fates, and events" 0.5 5.3 300 64),\
+$(txt "can be witnessed" 0.5 5.3 415 64)" $enc $W/s4.mp4
 ffmpeg -y -v error -ss 3.5 -t 5.8 -i $W/pre5.mp4 $sil -vf "\
 $(txt "A new world every visit." 0.5 5.3)" $enc $W/s5.mp4
 
@@ -80,23 +85,25 @@ ffmpeg -y -v error -i /app/scripts/promo_outro.mp4 -vf "scale=1080:1920:flags=la
 
 # 7) End card 7s: ALL RED lines appearing in sequence top to bottom
 RED=0xE8232B
-ffmpeg -y -v error -f lavfi -i "color=c=0x0E0E0E:s=1080x1920:d=7:r=30" -i /app/frontend/public/logo-crest.png $sil \
- -filter_complex "[1:v]scale=360:-1[logo];[0:v][logo]overlay=(W-w)/2:300[v0];[v0]\
-drawtext=fontfile=$SERIF:text='Fork·Fate':fontcolor=$RED:fontsize=88:x=(w-text_w)/2:y=740:enable='gte(t,0.4)',\
-drawtext=fontfile=$SERIF:text='Let fate decide':fontcolor=$RED:fontsize=100:x=(w-text_w)/2:y=950+12*sin(2*PI*t/2.4):enable='gte(t,1.4)',\
-drawtext=fontfile=$SANS:text='fork-fate.com':fontcolor=$RED:fontsize=72:x=(w-text_w)/2:y=1210:enable='gte(t,2.4)',\
-drawtext=fontfile=$SANS:text='Sponsors welcome':fontcolor=$RED:fontsize=52:x=(w-text_w)/2:y=1400:enable='gte(t,3.4)',\
-drawtext=fontfile=$SANS:text='© 2026 Fork·Fate · All rights reserved':fontcolor=$RED:fontsize=38:x=(w-text_w)/2:y=1580:enable='gte(t,4.4)'[v]" \
- -map "[v]" -map 2:a -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p -c:a aac -ar 44100 -t 7 $W/s6.mp4
+ffmpeg -y -v error -f lavfi -i "color=c=0x0E0E0E:s=1080x1920:d=7:r=30" -i /app/frontend/public/logo-crest.png -stream_loop 1 -i /app/scripts/intro_amb.m4a \
+ -filter_complex "[1:v]scale=360:-1[logo];[0:v][logo]overlay=(W-w)/2:780[v0];[v0]\
+drawtext=fontfile=$SERIF:text='Fork·Fate':fontcolor=$RED:fontsize=88:x=(w-text_w)/2:y=1200:enable='gte(t,0.4)',\
+drawtext=fontfile=$SERIF:text='Let fate decide':fontcolor=$RED:fontsize=100:x=(w-text_w)/2:y=1330+12*sin(2*PI*t/2.4):enable='gte(t,1.4)',\
+drawtext=fontfile=$SANS:text='fork-fate.com':fontcolor=$RED:fontsize=72:x=(w-text_w)/2:y=1500:enable='gte(t,2.4)',\
+drawtext=fontfile=$SANS:text='Sponsors welcome':fontcolor=$RED:fontsize=52:x=(w-text_w)/2:y=1640:enable='gte(t,3.4)',\
+drawtext=fontfile=$SANS:text='© 2026 Fork·Fate · All rights reserved':fontcolor=$RED:fontsize=38:x=(w-text_w)/2:y=1760:enable='gte(t,4.4)'[v];\
+[2:a]volume=0.5,afade=t=out:st=4.4:d=2.5,atrim=0:7[aa]" \
+ -map "[v]" -map "[aa]" -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p -c:a aac -ar 44100 -t 7 $W/s6.mp4
 
 # Concat
 for i in 0 1 1b 1c 2 3 4 5 5b 6b 6; do echo "file '$W/s$i.mp4'"; done > $W/list.txt
 ffmpeg -y -v error -f concat -safe 0 -i $W/list.txt -c copy $W/concat.mp4
 
-# Music bed from 8s on (loop 26s ambient), duck under, fade out at tail
+# Music bed from 8s, fading OUT before the outro so the intro's hall
+# ambience carries the outro + end card alone
 DUR=$(ffprobe -v quiet -show_entries format=duration -of csv=p=0 $W/concat.mp4)
-FADE=$(python3 -c "print(float('$DUR')-4)")
+FADE=$(python3 -c "print(float('$DUR')-19.5)")
 ffmpeg -y -v error -i $W/concat.mp4 -stream_loop 3 -i /app/frontend/public/reaper-ambient.mp3 \
- -filter_complex "[1:a]adelay=7800|7800,volume=0.6,afade=t=in:st=7.8:d=1.5,afade=t=out:st=$FADE:d=4[m];[0:a][m]amix=inputs=2:duration=first:dropout_transition=0[a]" \
+ -filter_complex "[1:a]adelay=7800|7800,volume=0.6,afade=t=in:st=7.8:d=1.5,afade=t=out:st=$FADE:d=3[m];[0:a][m]amix=inputs=2:duration=first:dropout_transition=0[a]" \
  -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 128k /app/frontend/public/promo/forkfate-promo.mp4
 echo "FINAL:"; ffprobe -v quiet -show_entries format=duration,size -of csv=p=0 /app/frontend/public/promo/forkfate-promo.mp4

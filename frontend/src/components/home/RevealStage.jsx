@@ -8,6 +8,7 @@ import BecomeSponsorDialog from "../BecomeSponsorDialog";
 import { OrderDropdown } from "../OrderDropdown";
 import { FateActionsDropdown } from "../FateActionsDropdown";
 import { CouponReveal } from "./CouponReveal";
+import { CheckInButton } from "./CheckInButton";
 import { ChainCouponStrip } from "./ChainCouponStrip";
 import { ReactionBar } from "./ReactionBar";
 import { useVisibilityRescue } from "../../hooks/useVisibilityRescue";
@@ -395,6 +396,8 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
                 {t("You took the dare — this one's final. Hit Clear to start a whole new deal.")}
               </p>
             )}
+            {/* GPS check-in at the fated spot: +50 Fate Points once per day */}
+            <CheckInButton card={card} />
             {(() => {
               const MERCH = {
                 fantasy: { key: "dragon-scene", accent: "#E6B23A", label: "Dragon's Hoard" },
