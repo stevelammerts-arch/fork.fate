@@ -142,7 +142,7 @@ class TestSponsorshipRequest:
         r = requests.post(f"{API}/sponsorship-requests", json=payload, timeout=15)
         assert r.status_code == 200, r.text
         body = r.json()
-        assert body.get("ok") is True
+        assert body.get("ok") == True
         assert body.get("id")
 
 

@@ -9,6 +9,9 @@ import { readStreak } from "./homeConstants";
 import { buildJournalShareImage, shareImage } from "../lib/shareCards";
 import { useLang } from "../i18n/i18n";
 
+const metaLine = (x, t) =>
+  [x.cuisine, x.price, x.distance != null ? `${x.distance} ${t("mi away")}` : null].filter(Boolean).join(" · ");
+
 const REALM_NAMES = {
   light: "Café", dark: "Reaper", fall: "Fall", winter: "Winter", spring: "Spring",
   summer: "Summer", cyber: "Cyberscape", steam: "Steampunk", tiki: "Tiki Lounge",
@@ -154,9 +157,7 @@ export default function Journal() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-serif text-base font-bold leading-tight">{e.name}</p>
-                  <p className="truncate font-sans text-xs text-white/45">
-                    {[e.cuisine, e.price, e.distance != null ? `${e.distance} ${t("mi away")}` : null].filter(Boolean).join(" · ")}
-                  </p>
+                  <p className="truncate font-sans text-xs text-white/45">{metaLine(e, t)}</p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
                   <span className="rounded-full bg-white/10 px-2 py-0.5 font-sans text-[10px] font-bold text-white/60">

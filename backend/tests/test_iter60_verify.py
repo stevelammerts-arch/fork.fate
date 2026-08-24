@@ -66,7 +66,7 @@ class TestAdminAuth:
 
     def test_verify_ok(self, auth):
         r = requests.get(f"{BASE_URL}/api/admin/verify", headers=auth)
-        assert r.status_code == 200 and r.json().get("ok") is True
+        assert r.status_code == 200 and r.json().get("ok") == True
 
 
 # --------- Sponsor stats ---------
@@ -98,7 +98,7 @@ class TestSponsorCRUD:
         assert r.status_code == 200
         sp = r.json()
         sid = sp["id"]
-        assert sp["active"] is True and sp["impressions"] == 0 and sp["clicks"] == 0
+        assert sp["active"] == True and sp["impressions"] == 0 and sp["clicks"] == 0
 
         # list contains
         r = requests.get(f"{BASE_URL}/api/admin/sponsors", headers=auth)
@@ -107,7 +107,7 @@ class TestSponsorCRUD:
         # toggle active
         r = requests.patch(f"{BASE_URL}/api/admin/sponsors/{sid}",
                            json={"active": False}, headers=auth)
-        assert r.status_code == 200 and r.json()["active"] is False
+        assert r.status_code == 200 and r.json()["active"] == False
 
         # delete
         r = requests.delete(f"{BASE_URL}/api/admin/sponsors/{sid}", headers=auth)
@@ -198,7 +198,7 @@ class TestPlacesSearchSingleCall:
             restos = data["restaurants"]
             assert len(restos) > 0
             first = restos[0]
-            assert first["sponsored"] is True
+            assert first["sponsored"] == True
             assert first["name"] == sp["name"]
 
             # impression count incremented for our sponsor

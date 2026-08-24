@@ -150,7 +150,7 @@ class TestSeedQuality:
         for name in ["Olive & Ember", "Harborline", "Ember & Oak BBQ"]:
             doc = DB.restaurants.find_one({"name": name})
             assert doc is not None, f"{name} missing"
-            assert doc.get("sponsored") is True, f"{name} not sponsored anymore"
+            assert doc.get("sponsored") == True, f"{name} not sponsored anymore"
 
 
 # --- Filter correctness ---
@@ -197,7 +197,7 @@ class TestFilters:
         # open_now is set at seed time (idx % 4 != 0) — verify via Mongo docs
         docs = list(DB.restaurants.find({"open_now": True}, {"_id": 0, "open_now": 1}).limit(10))
         assert len(docs) > 0
-        assert all(d["open_now"] is True for d in docs)
+        assert all(d["open_now"] == True for d in docs)
 
 
 # --- Regression on other API endpoints ---

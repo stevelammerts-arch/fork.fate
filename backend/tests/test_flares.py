@@ -29,7 +29,7 @@ def test_pop_flare_ok(code):
     })
     assert r.status_code == 200, r.text
     data = r.json()
-    assert data["ok"] is True
+    assert data["ok"] == True
     assert data["expires_in_minutes"] == 3
 
 

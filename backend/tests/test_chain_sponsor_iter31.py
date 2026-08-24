@@ -20,16 +20,16 @@ class TestSubscriptionStatus:
         r = s.get(f"{BASE_URL}/api/sponsors/subscription-status", params={"subscription_id": SUB_ID})
         assert r.status_code == 200
         data = r.json()
-        assert data["found"] is True
+        assert data["found"] == True
         assert data["name"] == "Burrito Bandito"
         assert data["sponsor_id"] == SPONSOR_ID
-        assert data["active"] is True
+        assert data["active"] == True
 
     def test_status_unknown(self, s):
         r = s.get(f"{BASE_URL}/api/sponsors/subscription-status", params={"subscription_id": "UNKNOWN-XYZ"})
         assert r.status_code == 200
         data = r.json()
-        assert data["found"] is False
+        assert data["found"] == False
         assert "sponsor_id" not in data or data.get("sponsor_id") in (None, "")
 
 

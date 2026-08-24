@@ -33,7 +33,7 @@ def test_pageview_counts_then_dedupes():
     second = requests.post(f"{API}/stats/pageview", timeout=15).json()
     # Same IP within the 6h window: at most the first call counts.
     assert "counted" in first and "counted" in second
-    assert second["counted"] is False
+    assert second["counted"] == False
 
 
 def test_geo_stats_requires_admin():

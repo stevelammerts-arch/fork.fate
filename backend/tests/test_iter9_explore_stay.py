@@ -121,7 +121,7 @@ class TestSeedData:
             assert d.get("image"), f"no image: {d['name']}"
             assert d.get("description"), f"no description: {d['name']}"
             assert d.get("address"), f"no address: {d['name']}"
-            assert d.get("sponsored") is False
+            assert d.get("sponsored") == False
 
     def test_stay_venues_have_image_address_desc(self, db):
         docs = list(db.restaurants.find({"category": "stay"}).limit(20))

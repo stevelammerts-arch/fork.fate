@@ -4,6 +4,9 @@ import { RestaurantCard } from "../RestaurantCard";
 import { cardImage } from "../../pages/homeConstants";
 import { useLang } from "../../i18n/i18n";
 
+const metaLine = (x, t) =>
+  [x.cuisine, x.price, x.distance != null ? `${x.distance} ${t("mi away")}` : null].filter(Boolean).join(" · ");
+
 export const NearbyResults = ({ fateOfDay, spinning, onDealFateOfDay, sortBy, setSortBy, sortedResults, mode, onReport, isFavorite, onToggleFavorite }) => {
   const { t } = useLang();
   return (
@@ -18,9 +21,7 @@ export const NearbyResults = ({ fateOfDay, spinning, onDealFateOfDay, sortBy, se
               <Crown className="h-3.5 w-3.5" /> {t("Fate of the Day")}
             </p>
             <p className="truncate font-serif text-lg font-bold text-[#0E0E0E]">{fateOfDay.name}</p>
-            <p className="truncate font-sans text-xs text-[#6B7075]">
-              {[fateOfDay.cuisine, fateOfDay.price, fateOfDay.distance != null ? `${fateOfDay.distance} ${t("mi away")}` : null].filter(Boolean).join(" · ")}
-            </p>
+            <p className="truncate font-sans text-xs text-[#6B7075]">{metaLine(fateOfDay, t)}</p>
           </div>
           <button
             onClick={() => onDealFateOfDay(fateOfDay)}

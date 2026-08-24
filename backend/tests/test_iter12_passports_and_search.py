@@ -102,7 +102,7 @@ def test_stamp_2_gps_within_radius_verified_true(client, passport_code):
     assert r.status_code == 200, r.text
     d = r.json()
     assert d["stamped"] == 1
-    assert d["just_stamped"]["verified"] is True
+    assert d["just_stamped"]["verified"] == True
 
 
 def test_stamp_3_manual_verified_false(client, passport_code):
@@ -117,7 +117,7 @@ def test_stamp_3_manual_verified_false(client, passport_code):
     assert r.status_code == 200, r.text
     d = r.json()
     assert d["stamped"] == 2
-    assert d["just_stamped"]["verified"] is False
+    assert d["just_stamped"]["verified"] == False
 
 
 def test_stamp_4_double_is_idempotent(client, passport_code):
@@ -126,7 +126,7 @@ def test_stamp_4_double_is_idempotent(client, passport_code):
                     json={"stop_id": "stop-b", "source": "manual"})
     assert r.status_code == 200
     d = r.json()
-    assert d.get("already_stamped") is True
+    assert d.get("already_stamped") == True
     assert d["stamped"] == 2  # NOT incremented
 
 

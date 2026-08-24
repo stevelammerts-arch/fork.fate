@@ -62,7 +62,7 @@ class TestPassportCRUD:
         assert d["total"] == 3
         assert d["stamped"] == 0
         assert d["verified"] == 0
-        assert d["fully_verified"] is False
+        assert d["fully_verified"] == False
         assert d["published_at"] is None
         _delete(f"{API}/passports/{code}")
 
@@ -97,9 +97,9 @@ class TestStamping:
         r = _post(f"{API}/passports/{code}/stamp", json={"stop_id": "stop-a", "source": "manual"})
         assert r.status_code == 200, r.text
         d = r.json()
-        assert d["just_stamped"]["verified"] is False
+        assert d["just_stamped"]["verified"] == False
         assert d["verified"] == 0
-        assert d["fully_verified"] is False
+        assert d["fully_verified"] == False
         _delete(f"{API}/passports/{code}")
 
     def test_gps_within_radius_verified_true(self):
@@ -108,7 +108,7 @@ class TestStamping:
                   json={"stop_id": "stop-a", "lat": 40.7485, "lng": -73.9858, "source": "gps"})
         assert r.status_code == 200, r.text
         d = r.json()
-        assert d["just_stamped"]["verified"] is True
+        assert d["just_stamped"]["verified"] == True
         assert d["verified"] == 1
         _delete(f"{API}/passports/{code}")
 
@@ -126,7 +126,7 @@ class TestStamping:
                   json={"stop_id": "stop-a", "lat": 40.7485, "lng": -73.9858, "accuracy": 500, "source": "gps"})
         assert r.status_code == 200, r.text
         d = r.json()
-        assert d["just_stamped"]["verified"] is False
+        assert d["just_stamped"]["verified"] == False
         assert d.get("note"), "expected a note explaining fuzzy GPS"
         assert "self-reported" in d["note"].lower() or "fuzzy" in d["note"].lower()
         _delete(f"{API}/passports/{code}")
@@ -177,7 +177,7 @@ class TestHolder:
         assert r.status_code == 200, r.text
         d = r.json()
         assert d["holder_name"] == "TEST Alex"
-        assert d["has_holder_photo"] is True
+        assert d["has_holder_photo"] == True
         # image endpoint returns bytes with image content-type
         img = _get(f"{API}/passports/{code}/holder-photo")
         assert img.status_code == 200

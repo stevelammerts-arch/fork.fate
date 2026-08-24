@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 export function MerchInterest({ data }) {
   const { signups = [], count = 0, by_design = {} } = data || {};
-  const emails = signups.map((s) => s.email).join(", ");
+  const emails = useMemo(() => signups.map((s) => s.email).join(", "), [signups]);
+  const designCounts = useMemo(
+    () => Object.entries(by_design).sort((a, b) => b[1] - a[1]),
+    [by_design]
+  );
   return (
     <section className="md:col-span-2" data-testid="merch-interest-section">
       <div className="flex items-center gap-3">
@@ -20,7 +24,7 @@ export function MerchInterest({ data }) {
       </div>
       {Object.keys(by_design).length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5" data-testid="merch-by-design">
-          {Object.entries(by_design).sort((a, b) => b[1] - a[1]).map(([d, c]) => (
+          {designCounts.map(([d, c]) => (
             <span key={d} className="rounded-full border border-[#E2E4E7] bg-white px-2.5 py-1 text-xs text-[#3A3F45]">{d} · <b>{c}</b></span>
           ))}
         </div>

@@ -47,7 +47,7 @@ def test_merch_notify_public_valid(unique_email):
     )
     assert r.status_code == 200, r.text
     data = r.json()
-    assert data["ok"] is True
+    assert data["ok"] == True
     assert isinstance(data["count"], int)
     assert data["count"] >= 1
 

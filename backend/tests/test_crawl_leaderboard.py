@@ -73,8 +73,8 @@ class TestCompletePayload:
         r = requests.post(f"{BASE}/crawls/complete", json=payload, timeout=15)
         assert r.status_code == 200
         body = r.json()
-        assert body["ok"] is True
-        assert body["verified"] is True
+        assert body["ok"] == True
+        assert body["verified"] == True
         assert isinstance(body.get("rank_stops"), int)
         # verify persisted -> Anonymous Crew present in board
         board = requests.get(f"{BASE}/crawls/leaderboard", params={"code": crawl_code}, timeout=15).json()

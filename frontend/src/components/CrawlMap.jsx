@@ -95,6 +95,9 @@ export default function CrawlMap({ stops = [], origin = null, destination = null
     return all.length ? L.latLngBounds(all).pad(0.25) : null;
   }, [pts, origin, destination]);
 
+  const crewPins = useMemo(() => crew.filter((c) => c.lat != null && c.lng != null), [crew]);
+  const flarePins = useMemo(() => flares.filter((f) => f.lat != null && f.lng != null), [flares]);
+
   if (pts.length < 1 || !bounds) return null;
 
   return (
@@ -134,12 +137,12 @@ export default function CrawlMap({ stops = [], origin = null, destination = null
             <Popup>You are here</Popup>
           </Marker>
         )}
-        {crew.filter((c) => c.lat != null && c.lng != null).map((c) => (
+        {crewPins.map((c) => (
           <Marker key={c.member_id} position={[Number(c.lat), Number(c.lng)]} icon={crewIcon(c.name || "Crew")}>
             <Popup>{c.name || "Crew"}</Popup>
           </Marker>
         ))}
-        {flares.filter((f) => f.lat != null && f.lng != null).map((f) => (
+        {flarePins.map((f) => (
           <Marker key={`flare-${f.member_id}`} position={[Number(f.lat), Number(f.lng)]} icon={flareIcon(f.name || "Crew")} zIndexOffset={1000}>
             <Popup>{(f.name || "Crew") + " popped a flare here!"}</Popup>
           </Marker>

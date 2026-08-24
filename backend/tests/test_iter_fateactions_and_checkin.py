@@ -126,7 +126,7 @@ class TestCrawls:
             "verified": True,
         })
         assert r.status_code == 200
-        assert r.json().get("ok") is True
+        assert r.json().get("ok") == True
 
     def test_leaderboard(self, s):
         r = s.get(f"{API}/crawls/leaderboard")
@@ -143,7 +143,7 @@ class TestCheckin:
         r = s.post(f"{API}/crawls/{code}/checkin", json=body)
         assert r.status_code == 200, r.text
         j = r.json()
-        assert j["ok"] is True
+        assert j["ok"] == True
         assert j["expires_in_hours"] == 36
 
         # verify persistence (both created_at ISO string AND expire_at BSON datetime)

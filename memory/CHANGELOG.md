@@ -1543,3 +1543,15 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   icons, iPhone zip, and all 4 promo/sizzle videos. Verified byte-exact zip
   download (6,719,552 B) via headless Chrome expect_download.
 - FF_BUILD bumped to 2026.06-563.
+
+## 2026-02 (fork) — Code review triage (450/450 tests green)
+- Applied: all `is True/False` literal comparisons in backend tests -> `==`
+  (16 files); useMemo for crew/flare pins in CrawlMap and design counts in
+  MerchInterest; metaLine module helpers in NearbyResults + Journal; removed
+  stale test_no_checkinbutton_import (contradicted the shipped GPS check-in).
+- Declined with rationale (documented risk): hook-dependency additions
+  (intentional — adding them re-triggers heist/season effects), splitting
+  Home.jsx/AmbianceScene.jsx (deferred by design), localStorage "security"
+  (all preference/progress data, offline PWA needs it), index-as-key in
+  static sprite arrays (never reorder), mass ternary/type-hint churn.
+- FF_BUILD bumped to 2026.06-564.

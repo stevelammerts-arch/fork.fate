@@ -98,7 +98,7 @@ def test_admin_login_ok(sess):
     r = sess.post(f"{BASE_URL}/api/admin/login", json={"password": ADMIN_PW})
     assert r.status_code == 200, r.text
     body = r.json()
-    assert body.get("ok") is True
+    assert body.get("ok") == True
 
 
 def test_admin_sponsors_requires_auth():
