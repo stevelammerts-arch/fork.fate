@@ -1517,3 +1517,18 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   expect_download, byte-exact for all 3 files (iteration_72, 31/31 pass).
 - Posters generated: promo/poster-promo-landscape.jpg, poster-sizzle-16x9.jpg.
 - FF_BUILD bumped to 2026.06-561.
+
+## 2026-02 (fork) — Sizzle timing fix + Play Store screenshots
+- Sizzle reels v2 (22.6s): rebuilt from CLEAN pre-pass footage (no burned
+  captions); each caption now spans its entire cut. Fixed cuts that started
+  before their moment (pre-shuffle home, guided-overlay flash on sponsor cut,
+  points dialog not yet open). Frame-verified per-format offsets in
+  build_sizzle.sh: portrait shuffle 20.9 / reveal 28.0 / sponsor 4.6 /
+  points 7.0; landscape 21.2 / 27.8 / 4.8 / 7.0.
+- Play Store asset refresh: gen_play_screenshots.py (system Chrome, 540x960
+  @2x) + compose_play_screenshots.py (brand bg, red serif caption, rounded
+  inset w/ red glow). 8 captioned 1080x1920 shots in
+  /app/frontend/public/store-assets/play-shot-*.png + zip
+  forkfate-play-screenshots-1080x1920.zip. IARC rating received; listing in
+  open testing on Google Play.
+- FF_BUILD bumped to 2026.06-562.
