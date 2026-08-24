@@ -1532,3 +1532,14 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   forkfate-play-screenshots-1080x1920.zip. IARC rating received; listing in
   open testing on Google Play.
 - FF_BUILD bumped to 2026.06-562.
+
+## 2026-02 (fork) — Press Kit page + SW download fix
+- Root cause of failing zip link: service worker intercepted ALL fetches
+  (respondWith passthrough) — Chrome fails SW-piped downloads in installed
+  PWAs. service-worker.js now returns early for .zip/.mp4 URLs
+  (SW_VERSION 2026.06-163).
+- New /press page (pages/PressKit.jsx, route in App.js): blob-fetch Download
+  buttons for all store/press assets — Play screenshots zip, feature graphic,
+  icons, iPhone zip, and all 4 promo/sizzle videos. Verified byte-exact zip
+  download (6,719,552 B) via headless Chrome expect_download.
+- FF_BUILD bumped to 2026.06-563.
