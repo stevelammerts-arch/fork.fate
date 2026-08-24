@@ -1485,3 +1485,20 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Sponsor captions mention franchises: "Own a local spot or franchise?" and
   end card line now "Local + franchise sponsors welcome".
 - FF_BUILD bumped to 2026.06-558. User approved as final request.
+
+## 2026-02 (fork) — Landscape sponsor promo + sizzle reels
+- New 16:9 sponsor-deck promo (99.0s): forkfate-promo-landscape.mp4.
+  True desktop recordings (1280x720 -> 1920x1080) via record_promo_landscape.py
+  (new promo_rec_l/ segments incl. extended sponsor-dialog scroll over tiers/
+  pricing and an in-page arrow at the coupon scratch-off). Portrait Sora
+  intro/outro reused with blurred pillarbox sides. Sponsor-forward captions:
+  pinned shuffles, coupon on reveals, points redeemed at your register,
+  "Two taps to join — first month free". Assembled by
+  assemble_promo_landscape.sh (lower-third captions, 1080p end card).
+- Sizzle reels (22.8s each) via build_sizzle.sh, fast cuts from finished
+  segments: forkfate-sizzle-9x16.mp4 (social) + forkfate-sizzle-16x9.mp4
+  (deck). Hook -> realm flashes -> shuffle -> reveal -> sponsor -> points ->
+  end card, reaper-ambient bed with fade.
+- Note: sizzle build cuts from /tmp/promo_work + /tmp/promo_lwork; re-run the
+  two assemble scripts first if /tmp was wiped.
+- FF_BUILD bumped to 2026.06-559.
