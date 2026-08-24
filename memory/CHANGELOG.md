@@ -1475,3 +1475,13 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   (intro_amb.m4a) runs through outro + end card; music bed fades ~19.5s
   before end. End card logo moved to y=780 (continuity), text stack below.
 - Clang sample no longer used (no drop). Final video 94.4s.
+
+## 2026-02 (fork) — Promo video final cut (88.6s)
+- Removed the cyber "A new world every visit" segment (s5 dropped from concat).
+- Outro v8: reaper dissolves -> the SAME plate cutout (outro_plate_hover.png,
+  located at x=95,y=963 via template match) falls 230px onto the table with
+  gravity ease + 26px bounce, clang at t=4.75; crest fades in slow (st=5.8,
+  d=1.0) mid-scene; fade to black st=8.6. Clang sample back in the mix.
+- Sponsor captions mention franchises: "Own a local spot or franchise?" and
+  end card line now "Local + franchise sponsors welcome".
+- FF_BUILD bumped to 2026.06-558. User approved as final request.

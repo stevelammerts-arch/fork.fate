@@ -67,16 +67,16 @@ ffmpeg -y -v error -ss 5.9 -t 9.1 -i $W/pre3.mp4 $sil -vf "\
 $(txt "Earn points to redeem later" 0.2 3.4 300 58),\
 $(txt "at participating sponsors" 6.6 9.0 300 58)" $enc $W/s3.mp4
 
-# 5) Realm beauty shots: dragon then cyber
+# 5) Realm beauty shot: dragon (cyber "new world every visit" segment removed)
 ffmpeg -y -v error -ss 3.5 -t 5.8 -i $W/pre4.mp4 $sil -vf "\
 $(txt "Rare heists, fates, and events" 0.5 5.3 300 64),\
-$(txt "can be witnessed" 0.5 5.3 415 64)" $enc $W/s4.mp4
-ffmpeg -y -v error -ss 3.5 -t 5.8 -i $W/pre5.mp4 $sil -vf "\
-$(txt "A new world every visit." 0.5 5.3)" $enc $W/s5.mp4
+$(txt "can be witnessed" 0.5 5.3 415 64),\
+$(txt "and accrue redeemable points" 0.5 5.3 545 52),\
+$(txt "every daily visit" 0.5 5.3 645 52)" $enc $W/s4.mp4
 
 # 5b) Sponsor pitch: header link -> Become a Sponsor dialog with tiers
 ffmpeg -y -v error -ss 3.2 -t 7.5 -i $W/pre9.mp4 $sil -vf "\
-$(txt "Own a local spot?" 0.4 3.0),\
+$(txt "Own a local spot or franchise?" 0.4 3.0 300 56),\
 $(txt "Sponsor the app in two taps" 3.4 7.2 300 58)" $enc $W/s5b.mp4
 
 # 6.5) Sora outro (reaper dissolves, plate drops with a clang — clean, no captions)
@@ -90,13 +90,15 @@ ffmpeg -y -v error -f lavfi -i "color=c=0x0E0E0E:s=1080x1920:d=7:r=30" -i /app/f
 drawtext=fontfile=$SERIF:text='Fork·Fate':fontcolor=$RED:fontsize=88:x=(w-text_w)/2:y=1200:enable='gte(t,0.4)',\
 drawtext=fontfile=$SERIF:text='Let fate decide':fontcolor=$RED:fontsize=100:x=(w-text_w)/2:y=1330+12*sin(2*PI*t/2.4):enable='gte(t,1.4)',\
 drawtext=fontfile=$SANS:text='fork-fate.com':fontcolor=$RED:fontsize=72:x=(w-text_w)/2:y=1500:enable='gte(t,2.4)',\
-drawtext=fontfile=$SANS:text='Sponsors welcome':fontcolor=$RED:fontsize=52:x=(w-text_w)/2:y=1640:enable='gte(t,3.4)',\
+drawtext=fontfile=$SANS:text='Local + franchise sponsors welcome':fontcolor=$RED:fontsize=44:x=(w-text_w)/2:y=1640:enable='gte(t,3.4)',\
 drawtext=fontfile=$SANS:text='© 2026 Fork·Fate · All rights reserved':fontcolor=$RED:fontsize=38:x=(w-text_w)/2:y=1760:enable='gte(t,4.4)'[v];\
 [2:a]volume=0.5,afade=t=out:st=4.4:d=2.5,atrim=0:7[aa]" \
  -map "[v]" -map "[aa]" -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p -c:a aac -ar 44100 -t 7 $W/s6.mp4
 
 # Concat
-for i in 0 1 1b 1c 2 3 4 5 5b 6b 6; do echo "file '$W/s$i.mp4'"; done > $W/list.txt
+# Order: reveal (s2, ends on sponsor line) -> how-to-sponsor (s5b) ->
+# witness-rares (s4 with points line) -> points -> outro -> end card
+for i in 0 1 1b 1c 2 5b 4 3 6b 6; do echo "file '$W/s$i.mp4'"; done > $W/list.txt
 ffmpeg -y -v error -f concat -safe 0 -i $W/list.txt -c copy $W/concat.mp4
 
 # Music bed from 8s, fading OUT before the outro so the intro's hall
