@@ -1421,3 +1421,19 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - New Sora intro: hand hovers, card flips itself, better skull, chuckle.
 - PENDING: Reaper maitre-d' outro (gen_promo_clips.py ready) — blocked on
   user Universal Key balance (failed insufficient_balance twice).
+
+## 2026-02 (fork) — Promo video v4 (93s) — final polish round
+- Guided walkthrough: flashing red arrow (injected SVG) points at every tap
+  target (point_at helper in record_promo.py); step pacing rebalanced;
+  captions frame-verified against 1s strips.
+- Sponsor feature: header sponsor button unhidden for the shot, arrow +
+  Become a Sponsor dialog with tiers (5.5s).
+- Cut: stray guided Step-1 after realm list, winter (white) realm flash,
+  light home screens before points dialog (s3 opens on the dialog).
+- User caption wording: "Rare heists, fates, and events can be witnessed",
+  "Earn points to redeem later". Default caption 66px (mobile-safe).
+- CUSTOM OUTRO (Sora blocked on balance): built from AI-edited stills of the
+  intro's last frame (outro_f2 empty hall / outro_f3 plate landed) —
+  reaper dissolves via xfade, plate cutout (diff mask) falls with bounce +
+  user's clang sample (plate-clang.mp3). build_outro.sh + gen_outro_frames.py.
+- End card: all-red sequential lines + All rights reserved.

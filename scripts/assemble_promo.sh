@@ -50,13 +50,13 @@ ffmpeg -y -v error -ss 4.5 -t 1.4 -i $W/pre7.mp4 $sil -vf "$(txt "11 immersive w
 
 # 3) Guided walkthrough -> shuffle -> reveal (arrowed taps, each step explained)
 ffmpeg -y -v error -ss 3.6 -t 29 -i $W/pre2.mp4 $sil -vf "\
-$(txt "Step 1 · What calls to you?" 0.2 2.6 300 60),\
-$(txt "Step 2 · Where are you?" 2.9 7.0 300 60),\
-$(txt "Step 3 · Pick the vibe — or let fate" 7.4 10.0 300 54),\
-$(txt "Step 4 · Seal the ritual" 10.5 13.2 300 60),\
-$(txt "Fate shuffles real local spots" 14.0 18.0 300 62),\
-$(txt "Your table is written" 22.3 25.0),\
-$(txt "Sponsor deals ride along" 25.4 28.4)" $enc $W/s2.mp4
+$(txt "Step 1 · What calls to you?" 0.2 3.4 300 60),\
+$(txt "Step 2 · Where are you?" 4.6 8.4 300 60),\
+$(txt "Step 3 · Pick the vibe — or let fate" 8.8 10.8 300 54),\
+$(txt "Step 4 · Seal the ritual" 11.6 15.8 300 60),\
+$(txt "Fate shuffles real local spots" 16.6 19.6 300 62),\
+$(txt "Your table is written" 23.0 26.0),\
+$(txt "Sponsor deals ride along" 26.4 28.8)" $enc $W/s2.mp4
 
 # 4) Fate Points -> coupon (opens ON the dialog — no light home screens first)
 ffmpeg -y -v error -ss 5.9 -t 9.1 -i $W/pre3.mp4 $sil -vf "\
@@ -90,7 +90,7 @@ drawtext=fontfile=$SANS:text='© 2026 Fork·Fate · All rights reserved':fontcol
  -map "[v]" -map 2:a -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p -c:a aac -ar 44100 -t 7 $W/s6.mp4
 
 # Concat
-for i in 0 1 1b 1c 2 3 4 5 5b 6; do echo "file '$W/s$i.mp4'"; done > $W/list.txt
+for i in 0 1 1b 1c 2 3 4 5 5b 6b 6; do echo "file '$W/s$i.mp4'"; done > $W/list.txt
 ffmpeg -y -v error -f concat -safe 0 -i $W/list.txt -c copy $W/concat.mp4
 
 # Music bed from 8s on (loop 26s ambient), duck under, fade out at tail
