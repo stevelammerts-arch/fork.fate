@@ -2,6 +2,7 @@
 // falling sprites, gust snow, chimney smoke — plus that season's heists.
 import { useEffect, useState } from "react";
 import { SummerBallHeist, SummerCrabHeist, SummerGullHeist, SummerPoopHeist, SnowmanHeist, CardinalTipHeist, OwlHeist, SpringPetalHeist, WinterStashHeist } from "./seasonHeists";
+import { Fireflies } from "./Fireflies";
 
 // Golden-hour sun path: individual shimmering glints down the water instead
 // of a solid streak — narrow near the horizon, wider and fainter near shore.
@@ -372,6 +373,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
     {theme === "winter" && <SnowmanHeist key={`sh-${heistEpoch}`} />}
     {theme === "winter" && <CardinalTipHeist key={`cth-${heistEpoch}`} />}
     {theme === "fall" && <OwlHeist key={`oh-${heistEpoch}`} />}
+    {theme === "fall" && <Fireflies />}
     {theme === "fall" && <WinterStashHeist key={`wsh-${heistEpoch}`} />}
     {theme === "spring" && <SpringPetalHeist key={`sph-${heistEpoch}`} />}
   </>);

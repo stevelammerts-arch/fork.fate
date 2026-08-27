@@ -3203,3 +3203,15 @@ body.ff-badge-open .ff-theme-scene * {
   70% { opacity: 0.65; }
   100% { opacity: 0; }
 }
+
+/* Firefly wander (layered X/Y wrappers make organic Lissajous drift) + glow flicker */
+@keyframes ffFlyX { from { transform: translateX(-6vmin); } to { transform: translateX(7vmin); } }
+@keyframes ffFlyY { from { transform: translateY(-4vmin); } to { transform: translateY(5vmin); } }
+@keyframes ffFireflyFlicker {
+  0%, 100% { opacity: 0.15; }
+  12% { opacity: 0.9; }
+  22% { opacity: 0.4; }
+  34% { opacity: 1; }
+  58% { opacity: 0.2; }
+  74% { opacity: 0.75; }
+}

@@ -1581,3 +1581,22 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   mid-fall on mount (same trick the spring petals already used). Verified
   0/12 stuck at t=2.5s and t=8s. Also applies to winter snow (shared config).
 - FF_BUILD bumped to 2026.06-567.
+
+## 2026-02 (fork) — Fall forest night sounds
+- RealmEntrySting.jsx: new CRITTERS layer — randomized faint one-shots per
+  realm. Fall forest: /owl-hoot.mp3 (vol .13, every 16-38s) + new
+  /leaf-rustle.mp3 (vol .17, every 9-24s; cut from the user-uploaded
+  freesound rustling clip, 4.5s w/ fades). Self-rescheduling timers, silent
+  while ff_muted, live-mute pauses mid-hoot, cleanup on realm exit.
+- Verified via Audio-constructor spy: rustle fired in window, 0 plays while
+  muted. FF_BUILD bumped to 2026.06-568.
+
+## 2026-02 (fork) — Firefly flickers (dark fall forest)
+- New scenes/Fireflies.jsx mounted for theme=fall in SeasonScene: 7 glowing
+  motes on layered CSS X/Y drift wrappers (Lissajous wander) + organic
+  flicker keyframes (ffFlyX/ffFlyY/ffFireflyFlicker in index.css).
+  Fixed z-[55] layer, pointer-events only on the flies (44px hit pads).
+- Tap any firefly: haptic tick + whole swarm darts outward on random
+  vectors (0.9s, dims to .35), then drifts home over 3.2s and resumes.
+- Verified headless: 7 render, 7/7 scatter >60px on tap, 7/7 home within
+  window; visual check over the dark forest. FF_BUILD -> 2026.06-569.

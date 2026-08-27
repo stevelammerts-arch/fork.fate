@@ -27,11 +27,22 @@ const AMBIENT_LOOPS = {
   fantasy: { src: "/fantasy-mine-loop.mp3", vol: 0.15, afterSting: true }, // creaking mine shaft
 };
 
+// Random faint one-shots layered over a realm — the dark fall forest gets
+// night critters: an owl hooting somewhere far off and leaves rustling in
+// the undergrowth. Each fires on its own randomized clock (min..max ms).
+const CRITTERS = {
+  fall: [
+    { src: "/owl-hoot.mp3", vol: 0.13, min: 16000, max: 38000 },
+    { src: "/leaf-rustle.mp3", vol: 0.17, min: 9000, max: 24000 },
+  ],
+};
+
 export function RealmEntrySting({ theme }) {
   useEffect(() => {
     const src = STINGS[theme];
     const loopCfg = AMBIENT_LOOPS[theme];
-    if (!src && !loopCfg) return;
+    const critters = CRITTERS[theme];
+    if (!src && !loopCfg && !critters) return;
     let a = null;
     let loop = null;
     // afterSting loops stay "pending" until the song has played through
@@ -54,11 +65,28 @@ export function RealmEntrySting({ theme }) {
       }
       playLoop();
     } catch { /* audio unavailable */ }
+    // night critters: self-rescheduling faint one-shots, silent while muted
+    const critterTimers = [];
+    const critterEls = [];
+    (critters || []).forEach((c, i) => {
+      const el = new Audio(c.src);
+      el.volume = c.vol;
+      critterEls.push(el);
+      const schedule = () => {
+        const wait = c.min + Math.random() * (c.max - c.min);
+        critterTimers[i] = setTimeout(() => {
+          if (!muted()) { el.currentTime = 0; el.play().catch(() => {}); }
+          schedule();
+        }, wait);
+      };
+      schedule();
+    });
     const watch = setInterval(() => {
       try {
         if (muted()) {
           if (a) { a.pause(); a = null; loopReady = true; }
           if (loop && !loop.paused) loop.pause();
+          critterEls.forEach((el) => { if (!el.paused) el.pause(); });
         } else {
           playLoop(); // resumes (or starts) the bed after an unmute
         }
@@ -66,6 +94,8 @@ export function RealmEntrySting({ theme }) {
     }, 400);
     return () => {
       clearInterval(watch);
+      critterTimers.forEach(clearTimeout);
+      critterEls.forEach((el) => { try { el.pause(); } catch { /* ignore */ } });
       window.removeEventListener("pointerdown", retry);
       const els = [a, loop].filter(Boolean);
       if (!els.length) return;
