@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin:0; box-sizing:border-box; font-family: Georgia, 'DejaVu Serif', serif; }
+  body { background:#ECE7DC; padding:28px; width:920px; }
+  h2 { font-size:15px; letter-spacing:.12em; text-transform:uppercase; color:#6E6355; margin:26px 0 10px; font-family: Arial; }
+  .stage { border-radius:18px; overflow:hidden; box-shadow:0 4px 18px rgba(0,0,0,.12); }
+  .content { background:#FBF7EF; padding:18px 20px; color:#3F3F46; font-family:Arial; font-size:13px; }
+  .dark .content { background:#17130E; color:#B8BCC2; }
+  .bar { display:flex; align-items:flex-end; gap:4px; padding:10px 12px 0; }
+  .tab { display:inline-flex; align-items:center; gap:7px; font-family:Arial; font-weight:bold; font-size:13.5px; cursor:pointer; }
+  .badge { background:#E01E26; color:#fff; border-radius:99px; font-size:10px; padding:1px 6px; font-family:Arial; }
+
+  /* A: Classic browser */
+  .a { background:#E3D9C6; }
+  .a .tab { padding:10px 18px 11px; border-radius:12px 12px 0 0; color:#7A6E5C; background:#D8CDB6; border:1px solid #C9BC A2; border-bottom:none; margin-bottom:0; }
+  .a .tab.on { background:#FBF7EF; color:#B3141A; box-shadow:0 -3px 8px rgba(0,0,0,.06); position:relative; }
+  .a.dark { background:#0E0B08; } .a.dark .tab { background:#241D14; color:#8A8F95; border-color:#000; }
+  .a.dark .tab.on { background:#17130E; color:#FF6B70; }
+
+  /* B: Slanted folder */
+  .b { background:#E3D9C6; } .b .bar { gap:0; }
+  .b .tab { padding:10px 26px 11px; color:#7A6E5C; background:#D8CDB6; clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 100%, 0 100%); margin-right:-8px; }
+  .b .tab.on { background:#B3141A; color:#fff; z-index:2; }
+  .b.dark { background:#0E0B08; } .b.dark .tab { background:#241D14; color:#8A8F95; }
+  .b.dark .tab.on { background:#B3141A; color:#fff; }
+
+  /* C: Minimal underline */
+  .c { background:#FBF7EF; } .c .bar { gap:20px; padding:12px 20px 0; border-bottom:2px solid #E4DECF; }
+  .c .tab { padding:6px 2px 10px; color:#8A8074; border-bottom:3px solid transparent; margin-bottom:-2px; }
+  .c .tab.on { color:#B3141A; border-bottom-color:#E01E26; }
+  .c.dark { background:#17130E; } .c.dark .bar { border-color:#2A2118; }
+  .c.dark .tab { color:#8A8F95; } .c.dark .tab.on { color:#FF6B70; border-bottom-color:#E01E26; }
+
+  /* D: Parchment field-journal folder tabs */
+  .d { background:#CDBF9F url('') ; padding-top:2px; }
+  .d .bar { gap:6px; padding:12px 14px 0; }
+  .d .tab { padding:9px 18px 12px; border-radius:14px 14px 0 0; background:#BFAF8C; color:#6E5C3A; border:1.5px solid #A6935F; border-bottom:none; font-family:Georgia; font-style:italic; }
+  .d .tab.on { background:#FBF7EF; color:#B3141A; border-color:#E6B23A; font-style:normal; box-shadow: inset 0 3px 0 #E6B23A; }
+  .d.dark { background:#0E0B08; } .d.dark .tab { background:#1C160E; color:#8A8F95; border-color:#3A2E1A; }
+  .d.dark .tab.on { background:#17130E; color:#E6B23A; border-color:#E6B23A; box-shadow: inset 0 3px 0 #E6B23A; }
+</style>
+</head>
+<body>
+
+<h2>A — Classic browser tabs (Chrome-style, cream)</h2>
+<div class="stage a"><div class="bar">
+  <div class="tab on">🎲 Solo Fate</div><div class="tab">👥 Group Fates</div><div class="tab">🍺 Crawls</div><div class="tab">📖 Passports <span class="badge">2</span></div>
+</div><div class="content">Active tab connects seamlessly to the page below — the classic browser feel.</div></div>
+<div class="stage a dark" style="margin-top:10px"><div class="bar">
+  <div class="tab">🎲 Solo Fate</div><div class="tab on">🍺 Crawls</div><div class="tab">👥 Group Fates</div><div class="tab">📖 Passports <span class="badge">2</span></div>
+</div><div class="content">Dark realm variant.</div></div>
+
+<h2>B — Slanted folder tabs (retro, bold red active)</h2>
+<div class="stage b"><div class="bar">
+  <div class="tab on">🎲 Solo Fate</div><div class="tab">👥 Group Fates</div><div class="tab">🍺 Crawls</div><div class="tab">📖 Passports</div>
+</div><div class="content">Overlapping slanted tabs — punchy, the active one goes full Fork·Fate red.</div></div>
+<div class="stage b dark" style="margin-top:10px"><div class="bar">
+  <div class="tab">🎲 Solo Fate</div><div class="tab">👥 Group Fates</div><div class="tab on">🍺 Crawls</div><div class="tab">📖 Passports</div>
+</div><div class="content">Dark realm variant.</div></div>
+
+<h2>C — Minimal underline tabs (modern, quietest)</h2>
+<div class="stage c"><div class="bar">
+  <div class="tab on">🎲 Solo Fate</div><div class="tab">👥 Group Fates</div><div class="tab">🍺 Crawls</div><div class="tab">📖 Passports <span class="badge">2</span></div>
+</div><div class="content">Flat labels with a red underline for the active view — least visual weight.</div></div>
+<div class="stage c dark" style="margin-top:10px"><div class="bar">
+  <div class="tab">🎲 Solo Fate</div><div class="tab on">👥 Group Fates</div><div class="tab">🍺 Crawls</div><div class="tab">📖 Passports</div>
+</div><div class="content">Dark realm variant.</div></div>
+
+<h2>D — Parchment field-journal tabs (on-theme, gold trim)</h2>
+<div class="stage d"><div class="bar">
+  <div class="tab on">🎲 Solo Fate</div><div class="tab">👥 Group Fates</div><div class="tab">🍺 Crawls</div><div class="tab">📖 Passports</div>
+</div><div class="content">Weathered folder tabs like the field guide — gold top-stripe marks the open chapter.</div></div>
+<div class="stage d dark" style="margin-top:10px"><div class="bar">
+  <div class="tab">🎲 Solo Fate</div><div class="tab">👥 Group Fates</div><div class="tab">🍺 Crawls</div><div class="tab on">📖 Passports</div>
+</div><div class="content">Dark realm variant.</div></div>
+
+</body>
+</html>
