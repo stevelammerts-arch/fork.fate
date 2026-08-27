@@ -28,7 +28,7 @@ const mapsUrl = (s) =>
 /** Fresh-deal passport reveal: the same light "opaque window" as the crawl
  * reveal, right over the home page — stops, stamping (GPS or manual) and a
  * map tab. Selfies, the ID page and the award live on the full /p/CODE page. */
-export default function PassportDialog({ open, code, onClose }) {
+export default function PassportDialog({ open, code, initial = null, onClose }) {
   const { t } = useLang();
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState("");
@@ -36,13 +36,15 @@ export default function PassportDialog({ open, code, onClose }) {
 
   useEffect(() => {
     if (!open || !code) return;
-    setData(null);
     setView("stops");
+    // Freshly dealt passports arrive with their data in hand — no loading beat.
+    if (initial && initial.code === code) { setData(initial); return; }
+    setData(null);
     axios
       .get(`${API}/passports/${code}`)
       .then(({ data: d }) => setData(d))
       .catch(() => { toast.error(t("Couldn't open that passport")); onClose(); });
-    // onClose/t are stable enough for this fetch-on-open effect
+    // onClose/t/initial are stable enough for this fetch-on-open effect
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, code]);
 

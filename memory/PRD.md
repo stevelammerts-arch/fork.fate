@@ -2913,3 +2913,9 @@ inside playHeistSound).
 ## 2026-02 fork part 116: Crawls tab redundancy fix (FF_BUILD 580)
 - Solo ZIP/radius/category/cuisine/open-now sections now hidden in crawl mode
   (hide conditions switched to !soloFlow). Verified via screenshots.
+
+## 2026-02 fork part 117: Shuffle rituals + Fall audio fix (FF_BUILD 581)
+- Passport deal + crawl "New crawl" now run the full card shuffle before their
+  reveal windows; passport dialog opens pre-loaded (initial prop). Voice cue
+  suppressed in all realms with their own shuffle bed. Verified via automation
+  in Fall realm (winner continuity to stop 1 in both flows).

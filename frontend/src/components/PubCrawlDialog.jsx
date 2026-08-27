@@ -32,7 +32,7 @@ const dirUrl = (from, to) =>
 // Opens a "crawl" window: nearby spots ordered into a followable route. Can be
 // shared with the group via a short link, and progress can be checked off (manual
 // or auto via GPS) as the crew conquers each stop.
-export default function PubCrawlDialog({ open, onClose, results, mode, origin, destination, shared = false, crawlLabel = "", initialStops = null, code = null }) {
+export default function PubCrawlDialog({ open, onClose, results, mode, origin, destination, shared = false, crawlLabel = "", initialStops = null, code = null, onReshuffle = null }) {
   const { t } = useLang();
   const maxStops = Math.min(6, results.length);
   const [route, setRoute] = useState([]);
@@ -543,7 +543,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
 
           <div className="mt-3 flex shrink-0 items-center gap-2">
             {!shared && (
-              <button onClick={reshuffle} data-testid="crawl-reshuffle-button"
+              <button onClick={() => (onReshuffle ? onReshuffle() : reshuffle())} data-testid="crawl-reshuffle-button"
                 className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-[#E2E4E7] bg-white px-3 py-2 text-xs font-bold text-[#0E0E0E] hover:bg-[#EDEEF0] sm:px-5 sm:py-3 sm:text-sm">
                 <Shuffle className="h-4 w-4" /> {t("New crawl")}
               </button>

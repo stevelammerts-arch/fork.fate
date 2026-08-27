@@ -1688,3 +1688,8 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 
 ## 2026-02 (fork) — Crawls tab redundancy fix (FF_BUILD 580)
 - Solo setup sections (LocationRadiusPanel, ModeTabsGrid, CuisineSection + open-now) were still visible in crawl mode; hide conditions used `passportMode || groupMode` only. Now all use `!soloFlow` so any mode tab hides them. Verified crawls shows only its own panel; solo intact.
+
+## 2026-02 (fork) — Shuffle rituals for passports + crawl re-deals, Fall audio fix (FF_BUILD 581)
+- Passport deals now run runCrawlShuffle (deck overlay, ticker, winner = stop 1) before the reveal window opens; the fresh passport data is passed as `initial` to PassportDialog so there is no blank loading beat.
+- PubCrawlDialog "New crawl" accepts onReshuffle from Home: hides dialog, runs the shuffle, reopens with the new ordered route. doSearch's crawl branch also got the shuffle.
+- runShuffle voice cue now skips any theme with a SHUFFLE_LOOPS bed (was a hardcoded list missing fall/winter/spring/summer — the "behold your fate" voice talked over the Fall bed, reported on production group mode).

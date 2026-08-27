@@ -564,8 +564,10 @@ export default function Home() {
     // rituals bring their own sounds (cymbal swell, wheel tick), so the spoken
     // voice cue must not talk over them.
     const rareFate = !groupMode && shouldRareFate();
-    // Dark mode plays a spoken voice cue before the deck shuffles; themed shuffles stay clean.
-    if (!light && !rareFate && theme !== "cyber" && theme !== "tiki" && theme !== "steam" && theme !== "fantasy" && theme !== "fairy") playSound("/reveal-voice-v5.mp3", 1.0);
+    // Dark mode plays a spoken voice cue before the deck shuffles; realms with
+    // their own shuffle bed (fall leaves, winter wind, tiki drums…) stay clean
+    // so the voice never talks over them.
+    if (!light && !rareFate && !SHUFFLE_LOOPS[theme]) playSound("/reveal-voice-v5.mp3", 1.0);
     // Reroll-if-closed: gently prefer open spots, but only when enough are open
     // to keep variety. Also avoid repeating the previous pick back-to-back.
     const openPool = pool.filter((p) => p.open_now);
@@ -734,21 +736,25 @@ export default function Home() {
         setResult(null);
         setGroupPicks(null);
         const picked = [...data.restaurants].sort(() => Math.random() - 0.5).slice(0, size);
+        const stopsPayload = picked.map((r) => ({
+          id: r.id, name: r.name, cuisine: r.cuisine, price: r.price, rating: r.rating,
+          distance: r.distance, lat: r.lat, lng: r.lng, open_now: r.open_now, google_url: r.google_url,
+        }));
         try {
-          const { data: p } = await axios.post(`${API}/passports`, {
-            mode: categoryArg,
-            label: "",
-            stops: picked.map((r) => ({
-              id: r.id, name: r.name, cuisine: r.cuisine, price: r.price, rating: r.rating,
-              distance: r.distance, lat: r.lat, lng: r.lng, open_now: r.open_now, google_url: r.google_url,
-            })),
-          });
+          const { data: p } = await axios.post(`${API}/passports`, { mode: categoryArg, label: "", stops: stopsPayload });
           trackEvent("passport_created", { category: categoryArg, stops: size });
-          // Reveal in the same light window as crawls — the /p/CODE page stays
-          // for revisits, selfies, the ID page and the award.
           rememberPassport({ code: p.code, label: "", mode: categoryArg, total: size });
           setMyPassports(readPassports());
-          setPassportReveal(p.code);
+          // Shuffle ritual first, then the reveal window opens with the fresh
+          // passport already in hand (no blank "Opening…" beat). /p/CODE stays
+          // for revisits, selfies, the ID page and the award.
+          const initial = {
+            code: p.code, mode: categoryArg, label: "", stops: stopsPayload,
+            stamps: [], stamped: 0, verified: 0, fully_verified: false,
+            total: size, completed_at: null, created_at: null,
+            holder_name: "", has_holder_photo: false, published_at: null,
+          };
+          runCrawlShuffle(data.restaurants, picked[0], () => setPassportReveal({ code: p.code, initial }));
         } catch (err) {
           toast.error(err.response?.data?.detail || "Couldn't create that passport");
         }
@@ -764,8 +770,9 @@ export default function Home() {
         setGroupPicks(null);
         const maxStops = Math.min(6, data.restaurants.length);
         const picked = [...data.restaurants].sort(() => Math.random() - 0.5).slice(0, maxStops);
-        setCrawlStops(orderCrawlRoute(picked, coords, null));
-        setShowCrawl(true);
+        const ordered = orderCrawlRoute(picked, coords, null);
+        setCrawlStops(ordered);
+        runCrawlShuffle(data.restaurants, ordered[0], () => setShowCrawl(true));
         axios.post(`${API}/stats/fate-dealt`).then(({ data: d }) => setFatesDealt(d.count)).catch(() => {});
         setStreak(dealStreak());
         trackEvent("deal_result", { category: categoryArg, theme, mode: "crawl" });
@@ -956,6 +963,20 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // "New crawl" from inside the reveal window: hide it, run the full card
+  // shuffle, then reopen with the freshly ordered route.
+  const reshuffleCrawl = () => {
+    if (spinning || loading || results.length < 2) return;
+    setShowCrawl(false);
+    const maxStops = Math.min(6, results.length);
+    const picked = [...results].sort(() => Math.random() - 0.5).slice(0, maxStops);
+    const ordered = orderCrawlRoute(picked, crawlEndpoints.origin || coords, crawlEndpoints.destination || null);
+    runCrawlShuffle(results, ordered[0], () => {
+      setCrawlStops(ordered);
+      setShowCrawl(true);
+    });
   };
 
   const reportClosed = async (r) => {
@@ -1167,8 +1188,8 @@ export default function Home() {
           <ModeGuide mode={modeGuide} theme={theme} onDone={closeModeGuide} renderPanel={guidePanels[modeGuide]} />
         )}
       </AnimatePresence>
-      <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={crawlEndpoints.origin || coords} destination={crawlEndpoints.destination} crawlLabel={crawlLabelForType(crawlType)} initialStops={crawlStops} />
-      <PassportDialog open={!!passportReveal} code={passportReveal} onClose={() => setPassportReveal(null)} />
+      <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={crawlEndpoints.origin || coords} destination={crawlEndpoints.destination} crawlLabel={crawlLabelForType(crawlType)} initialStops={crawlStops} onReshuffle={reshuffleCrawl} />
+      <PassportDialog open={!!passportReveal} code={passportReveal?.code} initial={passportReveal?.initial} onClose={() => setPassportReveal(null)} />
 
       {/* Realm scenery stack: café / seasonal / ambiance / reaper + page heists */}
       <RealmLayers theme={theme} seasonCfg={seasonCfg} ambCfg={ambCfg} heistEpoch={heistEpoch} />
