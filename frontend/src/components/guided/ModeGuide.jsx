@@ -1,36 +1,40 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Users, MapPin, Dices, Beer, Route, Map, Stamp, Compass, Trophy } from "lucide-react";
+import { ArrowLeft, ArrowRight, Users, MapPin, Dices, Beer, Route, Map, Stamp, Compass, Trophy, UtensilsCrossed, ListOrdered } from "lucide-react";
 import { useLang } from "../../i18n/i18n";
 import { pageVariants, buildGuidedTheme } from "./theme";
 
-// First visit to a mode tab: a mini flip book (same chrome as the solo
-// guided ritual — page turns, progress bar, parchment surface) walking
-// through that window's Step 1/2/3, then landing on its setup panel.
+// First visit to a mode tab: a 4-page flip book with the same chrome as the
+// solo guided ritual (page turns, progress bar, parchment surface). Every
+// page pairs the step's explanation with its LIVE controls — pick a
+// category, set the location, size the run, then deal — exactly like solo.
 const PAGES = {
   group: [
-    { icon: Users, title: "Gather your crew", body: "Add everyone at the table — each hungry soul gets their own fate dealt." },
-    { icon: MapPin, title: "Set the table", body: "Drop a ZIP or use your location, and choose how far fate may wander." },
-    { icon: Dices, title: "Deal the fates", body: "Every member draws a card. Compare pulls, crown a winner, and go eat." },
+    { icon: Users, slice: "category", title: "Pick your category", body: "Food for meals, Stay for camping, Explore for parks — choose what the table craves." },
+    { icon: UtensilsCrossed, slice: "types", title: "Narrow the types", body: "Tap any types to focus fate — or leave them all open for pure chance." },
+    { icon: MapPin, slice: "where", title: "Set the table", body: "Drop a ZIP or use your location, and choose how far fate may wander." },
+    { icon: Dices, slice: "deal", title: "Deal the fates", body: "Three spots are dealt at once — compare pulls, crown a winner, and go eat." },
   ],
   crawls: [
-    { icon: Beer, title: "Pick your crawl", body: "Bar crawl, taco run, dessert quest and more — choose tonight's ritual." },
-    { icon: Route, title: "Chart the route", body: "Set your start, an optional end point, and how far the night may roam." },
-    { icon: Map, title: "Deal the crawl", body: "Fate orders the stops into a walkable route with a live map for your crew." },
+    { icon: Beer, slice: "type", title: "Pick your crawl", body: "Bar crawl, taco run, dessert quest and more — choose tonight's ritual." },
+    { icon: MapPin, slice: "start", title: "Chart the start", body: "Set where the night begins and how far it may roam." },
+    { icon: Route, slice: "end", title: "Aim the night", body: "Optional: add an end point and the crawl will drift toward it, stop by stop." },
+    { icon: Map, slice: "deal", title: "Deal the crawl", body: "Fate orders the stops into a walkable route with a live map for your crew." },
   ],
   passports: [
-    { icon: Stamp, title: "Choose your quest", body: "Pick a cuisine or category to conquer over the coming weeks." },
-    { icon: Compass, title: "Set your hunting grounds", body: "Tell fate where to hunt — your area and how far you'll travel." },
-    { icon: Trophy, title: "Stamp your way", body: "Each visit earns a stamp. Fill the passport and claim your trophy." },
+    { icon: Stamp, slice: "quest", title: "Choose your quest", body: "Pick a category and types to conquer over the coming weeks." },
+    { icon: ListOrdered, slice: "size", title: "Size your journey", body: "Choose how many stops your passport will hold." },
+    { icon: Compass, slice: "where", title: "Set your hunting grounds", body: "Tell fate where to hunt — your area, a destination, and how far you'll travel." },
+    { icon: Trophy, slice: "deal", title: "Stamp your way", body: "Deal it, then stamp each visit. Fill the passport and claim your trophy." },
   ],
 };
 
-export default function ModeGuide({ mode, theme, onDone, children }) {
+export default function ModeGuide({ mode, theme, onDone, renderPanel }) {
   const { t } = useLang();
   const gt = buildGuidedTheme(theme);
   const pages = PAGES[mode] || [];
   const [step, setStep] = useState(0);
-  const total = pages.length + (children ? 1 : 0); // final page hosts the live setup panel
+  const total = pages.length;
 
   const playTurn = (vol = 0.5) => {
     try {
@@ -40,16 +44,16 @@ export default function ModeGuide({ mode, theme, onDone, children }) {
       a.play().catch(() => {});
     } catch (e) { /* non-critical */ }
   };
-  const next = () => { playTurn(); step < total - 1 ? setStep(step + 1) : onDone(); };
+  const next = () => { playTurn(); setStep((s) => Math.min(s + 1, total - 1)); };
   const back = () => { playTurn(0.35); setStep((s) => Math.max(s - 1, 0)); };
 
-  const onPanelPage = children && step === total - 1;
-  const { icon: Icon, title, body } = onPanelPage ? pages[pages.length - 1] : pages[step];
+  const { icon: Icon, title, body, slice } = pages[step];
+  const lastPage = step === total - 1;
   // when the player fires the panel's own deal/spin CTA, glide the book away
   const autoClose = (e) => {
     const btn = e.target.closest("button");
     const tid = (btn && btn.getAttribute("data-testid")) || "";
-    if (/deal|spin|cta/i.test(tid) || (btn && /deal|pick 3|shuffling|passport/i.test(btn.innerText || ""))) {
+    if (/deal|spin|cta/i.test(tid) || (btn && /deal|pick 3|shuffling|passport|crawl!/i.test(btn.innerText || ""))) {
       setTimeout(onDone, 500);
     }
   };
@@ -91,39 +95,41 @@ export default function ModeGuide({ mode, theme, onDone, children }) {
               exit="exit"
               transition={{ duration: 0.45, ease: "easeInOut" }}
               style={{ transformOrigin: "left center" }}
-              className={`relative overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-3xl ${onPanelPage ? "max-h-[74vh] overflow-y-auto p-4" : "p-7"} ${gt.surface}`}
+              className={`relative max-h-[78vh] overflow-y-auto overflow-x-hidden rounded-2xl border p-6 shadow-2xl backdrop-blur-3xl ${gt.surface}`}
             >
-              {onPanelPage ? (
-                <div onClickCapture={autoClose}>
-                  <p className="mb-2 font-sans text-[11px] font-bold uppercase tracking-[0.28em]" style={{ color: gt.accent }}>
-                    {t("Your turn")}
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl" style={{ backgroundColor: `${gt.accent}1a` }}>
+                  <Icon className="h-5 w-5" style={{ color: gt.accent }} />
+                </span>
+                <div>
+                  <p className="font-sans text-[11px] font-bold uppercase tracking-[0.28em]" style={{ color: gt.accent }}>
+                    {t("Step")} {step + 1}
                   </p>
-                  {children}
-                  <button type="button" onClick={onDone} data-testid="mode-guide-done"
-                    className={`mt-4 w-full rounded-full border px-6 py-2.5 font-sans text-xs font-bold transition-colors hover:border-[var(--ff-accent)] ${gt.skipIdle}`}>
-                    {t("Close guide")}
-                  </button>
+                  <h3 className={`font-serif text-xl leading-tight ${gt.titleColor}`}>{t(title)}</h3>
                 </div>
-              ) : (
-              <>
-              <p className="font-sans text-[11px] font-bold uppercase tracking-[0.28em]" style={{ color: gt.accent }}>
-                {t("Step")} {step + 1}
-              </p>
-              <span className="mt-4 flex h-12 w-12 items-center justify-center rounded-2xl" style={{ backgroundColor: `${gt.accent}1a` }}>
-                <Icon className="h-6 w-6" style={{ color: gt.accent }} />
-              </span>
-              <h3 className={`mt-4 font-serif text-2xl ${gt.titleColor}`}>{t(title)}</h3>
+              </div>
               <p className={`mt-2 font-sans text-sm leading-relaxed ${gt.subColor}`}>{t(body)}</p>
-              <button
-                type="button"
-                onClick={next}
-                data-testid={step === total - 1 ? "mode-guide-done" : "mode-guide-next"}
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 font-sans text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
-                style={{ backgroundColor: gt.accent }}
-              >
-                {step === total - 1 ? t("Begin") : t("Next")} <ArrowRight className="h-4 w-4" />
-              </button>
-              </>
+
+              {/* the LIVE controls for this step */}
+              <div className="mt-4" data-testid={`mode-guide-panel-${slice}`} onClickCapture={lastPage ? autoClose : undefined}>
+                {renderPanel(slice)}
+              </div>
+
+              {lastPage ? (
+                <button type="button" onClick={onDone} data-testid="mode-guide-done"
+                  className={`mt-4 w-full rounded-full border px-6 py-2.5 font-sans text-xs font-bold transition-colors hover:border-[var(--ff-accent)] ${gt.skipIdle}`}>
+                  {t("Close guide")}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={next}
+                  data-testid="mode-guide-next"
+                  className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 font-sans text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
+                  style={{ backgroundColor: gt.accent }}
+                >
+                  {t("Next")} <ArrowRight className="h-4 w-4" />
+                </button>
               )}
             </motion.div>
           </AnimatePresence>

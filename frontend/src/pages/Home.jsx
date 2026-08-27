@@ -1070,9 +1070,11 @@ export default function Home() {
     <MoreWaysToPlay />
   );
 
-  // Mode panels (used in the column AND hosted live inside ModeGuide's final page)
-  const passportPanel = (
+  // Mode panels (used in the column AND, slice by slice, inside ModeGuide's
+  // functional flip-book pages — call with no args for the full panel)
+  const passportPanel = (slice) => (
     <PassportPicker
+      slice={slice}
       modeTabs={MODE_TABS}
       passportCategories={PASSPORT_CATEGORIES}
       mode={mode}
@@ -1097,8 +1099,9 @@ export default function Home() {
       }}
     />
   );
-  const groupPanel = (
+  const groupPanel = (slice) => (
     <GroupPicker
+      slice={slice}
       modeTabs={MODE_TABS}
       mode={mode}
       onPickCategory={(key) => { setAllMode(false); switchMode(key); }}
@@ -1118,8 +1121,9 @@ export default function Home() {
       }}
     />
   );
-  const crawlPanel = (
+  const crawlPanel = (slice) => (
     <CrawlSetupPanel
+      slice={slice}
       crawlType={crawlType}
       onPickType={applyCrawlType}
       light={light}
@@ -1153,9 +1157,7 @@ export default function Home() {
       </AnimatePresence>
       <AnimatePresence>
         {modeGuide && (
-          <ModeGuide mode={modeGuide} theme={theme} onDone={closeModeGuide}>
-            {guidePanels[modeGuide]}
-          </ModeGuide>
+          <ModeGuide mode={modeGuide} theme={theme} onDone={closeModeGuide} renderPanel={guidePanels[modeGuide]} />
         )}
       </AnimatePresence>
       <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={crawlEndpoints.origin || coords} destination={crawlEndpoints.destination} crawlLabel={crawlLabelForType(crawlType)} initialStops={crawlStops} />
@@ -1294,11 +1296,11 @@ export default function Home() {
 
             {/* MODE PANELS below the solo window */}
 
-            {passportMode && passportPanel}
+            {passportMode && passportPanel()}
 
-            {groupMode && groupPanel}
+            {groupMode && groupPanel()}
 
-            {crawlMode && crawlPanel}
+            {crawlMode && crawlPanel()}
 
             {/* Stash (points + backups) sits BELOW every guided tour */}
             {modesCard}

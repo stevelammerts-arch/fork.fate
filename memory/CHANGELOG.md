@@ -1664,3 +1664,10 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Tab titles: Solo Fates / Groups / Crawls / Passports.
 - Verified headless: crawl panel inside book, auto-guide suppressed when
   pre-seen, Guided button per-tab behavior. FF_BUILD -> 2026.06-575.
+
+## 2026-02 (fork) — Functional 4-page mode guides
+- ModeGuide rebuilt: each tab (Groups, Crawls, Passports) now has a 4-page flip-book identical in behavior to Solo — every page pairs the step explanation with that step's LIVE controls.
+- GroupPicker / CrawlSetupPanel / PassportPicker gained a `slice` prop rendering one functional piece (category/types/where/deal, type/start/end/deal, quest/size/where/deal). Full panel unchanged when no slice.
+- Removed now-unused StepList from ModeSetup and the numbered step lists from Group/Passport panels (guide covers onboarding).
+- First tab open still auto-launches the guide (ff_modeguide_* localStorage); header Guided button re-triggers it.
+- FF_BUILD bumped to 2026.06-576.

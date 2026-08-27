@@ -1,6 +1,7 @@
 // Trophies pill for the header: compact Medal pill opening the Trophy Room
 // menu (collections, bingo, champions, wall, journal).
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { Medal, ChevronDown, Trophy, Globe2, Sparkles, BookOpen, LayoutGrid } from "lucide-react";
 import { useLang } from "../../i18n/i18n";
@@ -16,14 +17,29 @@ const MENU = [
 export const TrophiesPill = ({ light, ghost }) => {
   const { t } = useLang();
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState(null);
   const wrapRef = useRef(null);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     if (!open) return;
-    const close = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+    const close = (e) => {
+      if (wrapRef.current && wrapRef.current.contains(e.target)) return;
+      if (menuRef.current && menuRef.current.contains(e.target)) return;
+      setOpen(false);
+    };
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
   }, [open]);
+
+  const toggle = () => {
+    if (!open && wrapRef.current) {
+      const r = wrapRef.current.getBoundingClientRect();
+      // clamp so the 192px menu stays on-screen
+      setPos({ top: r.bottom + 8, left: Math.min(Math.max(r.left, 8), window.innerWidth - 200) });
+    }
+    setOpen((v) => !v);
+  };
 
   return (
     <div className="relative" ref={wrapRef}>
@@ -31,16 +47,18 @@ export const TrophiesPill = ({ light, ghost }) => {
         type="button"
         data-testid="header-trophies-pill"
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggle}
         className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-sans text-xs font-bold transition-colors sm:text-sm ${ghost}`}
       >
         <Medal className="h-4 w-4 text-[#E6B23A]" /> {t("Trophies")}
         <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && (
+      {open && pos && createPortal(
         <div
+          ref={menuRef}
           data-testid="home-trophies-menu"
-          className={`absolute left-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-2xl border-2 shadow-xl sm:left-auto sm:right-0 ${light ? "border-[#E4E4E7] bg-white" : "border-white/20 bg-[#141414]"}`}
+          style={{ position: "fixed", top: pos.top, left: pos.left }}
+          className={`z-[45] w-48 overflow-hidden rounded-2xl border-2 shadow-xl ${light ? "border-[#E4E4E7] bg-white" : "border-white/20 bg-[#141414]"}`}
         >
           {MENU.map(({ to, tid, icon: Icon, label }) => (
             <Link

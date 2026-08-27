@@ -2882,3 +2882,12 @@ inside playHeistSound).
   spews from his furnace grate, scored with the user's 2 clips. Woodstove crackle
   ambient loop fixed (hook wasn't called) and verified. Desktop-only (left golem
   hidden on mobile).
+
+## 2026-02 fork part 112: Functional 4-page mode guides (FF_BUILD 576)
+- Each tab (Groups/Crawls/Passports) now works exactly like Solo: first open
+  auto-launches a 4-page flip-book where EVERY page pairs the step explanation
+  with that step's LIVE controls (category grid, type picker, ZIP/radius,
+  size pills, deal CTA). Panels gained a `slice` prop; ModeGuide rebuilt to
+  render explanation header + renderPanel(slice) per page. StepList removed
+  (unused). Verified all 3 modes x 4 pages via mobile screenshots incl. live
+  selections carrying through and localStorage gating.

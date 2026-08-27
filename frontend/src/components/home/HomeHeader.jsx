@@ -79,7 +79,7 @@ export function HomeHeader({
 }) {
   const { t } = useLang();
   return (
-    <header className={`sticky top-0 z-50 border-b ${light ? "border-[#E4E4E7] bg-white/85 backdrop-blur-xl shadow-sm" : "border-[#E2E4E7] bg-[#0E0E0E]"}`}>
+    <header className={`sticky top-0 z-30 border-b ${light ? "border-[#E4E4E7] bg-white/85 backdrop-blur-xl shadow-sm" : "border-[#E2E4E7] bg-[#0E0E0E]"}`}>
       <HomeTabs light={light} active={activeTab} onSelect={onSelectTab} />
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:gap-3 md:px-12 md:py-6">
         <div className="flex items-center gap-2 md:gap-3">
