@@ -539,7 +539,14 @@ export function OwlHeist() {
       cancelSummon = summonToLogo((med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
-        setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
+        const medImg = med.querySelector("img");
+        const medCs = getComputedStyle(med);
+        setRun({
+          cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width,
+          src: (medImg && medImg.getAttribute("src")) || "/logo-mark.png",
+          bg: medCs.backgroundColor,
+          imgFilter: medImg ? getComputedStyle(medImg).filter : "none",
+        });
         const cry = (src, vol) => playHeistSound(src, vol);
         timers.push(setTimeout(() => {                     // dives DOWN out of the sky, hooting
           setPhase(1);
@@ -580,7 +587,7 @@ export function OwlHeist() {
     };
   }, []); // witnessRef is a stable ref
   if (!run) return null;
-  const { cx, cy, w } = run;
+  const { cx, cy, w, src, bg, imgFilter } = run;
   const vw = window.innerWidth, vh = window.innerHeight;
   const owlW = w * 3.5, owlH = owlW * (340 / 329);
   const gx = 0.17, gy = 0.87; // open-talon pocket in the sprite box
@@ -598,8 +605,8 @@ export function OwlHeist() {
         <div className="relative" style={{ width: owlW, height: owlH, filter: "drop-shadow(0 6px 14px rgba(40,25,10,0.45))" }}>
           {/* the snatched medallion riding in his talons */}
           {phase >= 3 && (
-            <div className="absolute overflow-hidden bg-[#F5F0E6] ring-1 ring-[#E4E4E7]" style={{ left: owlW * gx - w / 2, top: owlH * gy - w / 2, width: w, height: w, borderRadius: "9999px" }} data-testid="owl-heist-logo">
-              <img src="/logo-mark-light.png" alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px" }} />
+            <div className="absolute overflow-hidden ring-1 ring-black/30" style={{ left: owlW * gx - w / 2, top: owlH * gy - w / 2, width: w, height: w, borderRadius: "9999px", backgroundColor: bg }} data-testid="owl-heist-logo">
+              <img src={src} alt="" className="h-full w-full scale-110 object-contain" style={{ borderRadius: "9999px", filter: imgFilter }} />
             </div>
           )}
           <img src="/owl-fly-1.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ animation: "ffOwlGlide 1.3s ease-in-out infinite", rotate: phase === 1 ? "16deg" : phase === 2 ? "-11deg" : phase === 4 ? "7deg" : "0deg", transition: "rotate 0.7s ease-in-out" }} />

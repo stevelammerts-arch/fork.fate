@@ -32,8 +32,8 @@ const AMBIENT_LOOPS = {
 // the undergrowth. Each fires on its own randomized clock (min..max ms).
 const CRITTERS = {
   fall: [
-    { src: "/owl-hoot.mp3", vol: 0.13, min: 16000, max: 38000 },
-    { src: "/leaf-rustle.mp3", vol: 0.17, min: 9000, max: 24000 },
+    { src: "/owl-hoot.mp3", vol: 0.05, min: 75000, max: 180000 },
+    { src: "/leaf-rustle.mp3", vol: 0.06, min: 50000, max: 130000 },
   ],
 };
 

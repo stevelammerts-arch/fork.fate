@@ -1600,3 +1600,19 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   vectors (0.9s, dims to .35), then drifts home over 3.2s and resumes.
 - Verified headless: 7 render, 7/7 scatter >60px on tap, 7/7 home within
   window; visual check over the dark forest. FF_BUILD -> 2026.06-569.
+
+## 2026-02 (fork) — Fall fixes: owl logo, sound levels, pole "seam"
+- Owl heist white logo: OwlHeist hardcoded /logo-mark-light.png on a cream
+  disc. Now captures the snatched medallion's real img src + computed
+  background + filter at grab time — carries the red mark in fall/dark,
+  neon in cyber, etc. Verified: carries logo-mark.png in fall.
+- Night critters toned down: owl vol .13->.05 every 75-180s (was 16-38s),
+  rustle .17->.06 every 50-130s; leaf-rustle.mp3 re-rendered with lowpass
+  2400Hz + 0.55 gain + longer fades so it sits in the distance.
+- Scarecrow pole rectangle: Chrome renders child backdrop-filter INSIDE
+  opacity-0 ancestors — in scenery mode (.ff-scenery-hide) the invisible
+  glass cards still blurred/washed the scene behind them (hard-edged
+  rectangle across the pole). Fixed by adding visibility:hidden after the
+  0.6s fade (transition: visibility 0s linear 0.6s). Verified computed
+  visibility=hidden and clean scene.
+- FF_BUILD bumped to 2026.06-570.
