@@ -1555,3 +1555,19 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   (all preference/progress data, offline PWA needs it), index-as-key in
   static sprite arrays (never reorder), mass ternary/type-hint churn.
 - FF_BUILD bumped to 2026.06-564.
+
+## 2026-02 (fork) — Home quick-tabs strip
+- New HomeTabs.jsx rendered above HomeHeader on Home: three tabs — Crawls,
+  Passports (badge = saved passport count), Trophies (badge = rituals+heists
+  seen, dropdown menu: Fates Witnessed /rituals, Cuisine Bingo /bingo,
+  Champions /leaderboard, Passport Wall /wall, Fate Journal /journal).
+  Crawls/Passports jump straight into that mode (extracted toggleCrawl /
+  togglePassport / toggleGroup in Home.jsx, shared with MoreWaysToPlay);
+  re-tap while active re-scrolls to the picker. Bingo folded into Trophies
+  per user (mobile fit). ES translations added.
+- BUG found & fixed while testing: sonner toasts (top-center) sat on the tab
+  strip and swallowed taps for their 4s lifetime -> Toaster moved to
+  bottom-center (offset 20) in App.js.
+- Verified: tab switching light+dark, dark-realm hit-testing above the
+  reaper sprite, trophies menu nav mid-toast, spin flow regression.
+- FF_BUILD bumped to 2026.06-566.

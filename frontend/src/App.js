@@ -62,7 +62,8 @@ function App() {
           <Route path="/privacy" element={<LegalPage type="privacy" />} />
         </Routes>
       </BrowserRouter>
-      <Toaster position="top-center" richColors />
+      {/* bottom placement keeps toasts clear of the home quick-tabs strip */}
+      <Toaster position="bottom-center" richColors offset={20} mobileOffset={20} />
       <InstallHelper />
       </LangProvider>
     </div>

@@ -14,6 +14,7 @@ import GuidedFlow from "../components/GuidedFlow";
 import ThemeWelcomeDialog from "../components/ThemeWelcomeDialog";
 import ParchmentIntro from "../components/ParchmentIntro";
 import { HomeHeader } from "../components/home/HomeHeader";
+import { HomeTabs } from "../components/home/HomeTabs";
 import { HomeInfoSections } from "../components/home/HomeInfoSections";
 import { HomeFooter } from "../components/home/HomeFooter";
 import PubCrawlDialog from "../components/PubCrawlDialog";
@@ -1032,12 +1033,23 @@ export default function Home() {
     setCoords(c);
     if (!had && c) scrollToStep(2);
   };
+  const toggleGroup = () => { setGroupMode((v) => { const n = !v; if (n) { setCrawlMode(false); setPassportMode(false); } return n; }); setResult(null); setGroupPicks(null); };
+  const toggleCrawl = () => { setCrawlMode((v) => { const n = !v; if (n) { setGroupMode(false); setPassportMode(false); } return n; }); if (!crawlMode) applyCrawlType(CRAWL_TYPES[0]); setResult(null); setGroupPicks(null); };
+  const togglePassport = () => { setPassportMode((v) => { const n = !v; if (n) { setGroupMode(false); setCrawlMode(false); setAllMode(false); if (!PASSPORT_CATEGORIES.includes(mode)) switchMode("explore"); } return n; }); setMyPassports(readPassports()); setResult(null); setGroupPicks(null); };
+  // Header tabs: enter the mode (never toggle it off); if already in it,
+  // just glide back to its picker.
+  const scrollToPicker = (id) => {
+    const el = document.querySelector(`[data-testid="${id}"]`);
+    if (el) window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - 16), behavior: "smooth" });
+  };
+  const tabCrawls = () => (crawlMode ? scrollToPicker("crawl-type-picker") : toggleCrawl());
+  const tabPassports = () => (passportMode ? scrollToPicker("passport-picker") : togglePassport());
   const modesCard = (
     <MoreWaysToPlay
       groupMode={groupMode} crawlMode={crawlMode} passportMode={passportMode}
-      onToggleGroup={() => { setGroupMode((v) => { const n = !v; if (n) { setCrawlMode(false); setPassportMode(false); } return n; }); setResult(null); setGroupPicks(null); }}
-      onToggleCrawl={() => { setCrawlMode((v) => { const n = !v; if (n) { setGroupMode(false); setPassportMode(false); } return n; }); if (!crawlMode) applyCrawlType(CRAWL_TYPES[0]); setResult(null); setGroupPicks(null); }}
-      onTogglePassport={() => { setPassportMode((v) => { const n = !v; if (n) { setGroupMode(false); setCrawlMode(false); setAllMode(false); if (!PASSPORT_CATEGORIES.includes(mode)) switchMode("explore"); } return n; }); setMyPassports(readPassports()); setResult(null); setGroupPicks(null); }}
+      onToggleGroup={toggleGroup}
+      onToggleCrawl={toggleCrawl}
+      onTogglePassport={togglePassport}
     />
   );
 
@@ -1063,6 +1075,14 @@ export default function Home() {
       <RealmLayers theme={theme} seasonCfg={seasonCfg} ambCfg={ambCfg} heistEpoch={heistEpoch} />
       {/* BINGO blackout: all 25 squares stamped — golden full-screen ritual */}
       <BlackoutRitual open={blackout} onClose={() => setBlackout(false)} />
+      {/* Quick-access tabs above the header: Crawls / Passports / Trophies / Bingo */}
+      <HomeTabs
+        light={light}
+        crawlMode={crawlMode}
+        passportMode={passportMode}
+        onCrawls={tabCrawls}
+        onPassports={tabPassports}
+      />
       {/* Header */}
       <HomeHeader
         light={light}

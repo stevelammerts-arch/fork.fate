@@ -5,6 +5,10 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 // data (Google Places) intentionally stays in its original language.
 export const ES = {
   // Header / nav
+  "Crawls": "Rutas",
+  "Passports": "Pasaportes",
+  "Trophies": "Trofeos",
+  "Bingo": "Bingo",
   "Theme": "Tema",
   "Reaper (Original)": "Segador (Original)",
   "Coffee Shop": "Cafetería",
