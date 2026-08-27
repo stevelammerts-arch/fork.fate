@@ -1072,15 +1072,16 @@ export default function Home() {
   };
   const activeTab = passportMode ? "passports" : crawlMode ? "crawls" : groupMode ? "group" : "solo";
   const PICKER_IDS = { group: "group-picker", crawls: "crawl-type-picker", passports: "passport-picker" };
-  // First visit to a mode tab: mini flip-book guide, then land on its panel.
+  // First visit to a mode tab THIS LOAD: mini flip-book guide, then its panel.
+  // Tracked in memory (not localStorage) so every fresh app load shows the
+  // step boxes again, per user request.
+  const seenModeGuides = useRef(new Set());
   const [modeGuide, setModeGuide] = useState(null);
   const openModeGuide = (tab) => {
-    try {
-      if (localStorage.getItem(`ff_modeguide_${tab}`) !== "1") setModeGuide(tab);
-    } catch (e) { /* storage unavailable */ }
+    if (!seenModeGuides.current.has(tab)) setModeGuide(tab);
   };
   const closeModeGuide = () => {
-    try { localStorage.setItem(`ff_modeguide_${modeGuide}`, "1"); } catch (e) { /* ignore */ }
+    seenModeGuides.current.add(modeGuide);
     setModeGuide(null);
   };
   const selectTab = (tab) => {

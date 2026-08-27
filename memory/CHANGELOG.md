@@ -1693,3 +1693,6 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Passport deals now run runCrawlShuffle (deck overlay, ticker, winner = stop 1) before the reveal window opens; the fresh passport data is passed as `initial` to PassportDialog so there is no blank loading beat.
 - PubCrawlDialog "New crawl" accepts onReshuffle from Home: hides dialog, runs the shuffle, reopens with the new ordered route. doSearch's crawl branch also got the shuffle.
 - runShuffle voice cue now skips any theme with a SHUFFLE_LOOPS bed (was a hardcoded list missing fall/winter/spring/summer — the "behold your fate" voice talked over the Fall bed, reported on production group mode).
+
+## 2026-02 (fork) — Mode guides reset per app load (FF_BUILD 582)
+- ff_modeguide_* localStorage persistence removed; guide "seen" state now lives in an in-memory ref (seenModeGuides) in Home.jsx. Every app load shows each tab's 4-page flip-book on first open; within a session it shows only once per tab. Old localStorage keys are simply ignored.

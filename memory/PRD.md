@@ -2919,3 +2919,8 @@ inside playHeistSound).
   reveal windows; passport dialog opens pre-loaded (initial prop). Voice cue
   suppressed in all realms with their own shuffle bed. Verified via automation
   in Fall realm (winner continuity to stop 1 in both flows).
+
+## 2026-02 fork part 118: Mode guides reset per load (FF_BUILD 582)
+- Group/Crawl/Passport step-box flip-books now reset on every app load
+  (in-memory ref instead of localStorage). Verified all 5 behaviors via
+  automation.
