@@ -1641,3 +1641,15 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Known LOW items (accepted): passports tab badge computed at mount only;
   RewardsDialog lacks role=dialog/Escape handler.
 - FF_BUILD bumped to 2026.06-573.
+
+## 2026-02 (fork) — Mode flip books + tab titles
+- New guided/ModeGuide.jsx: 3-page flip book per mode window (same chrome as
+  solo guided: page-turn audio, progress bar, pageVariants flip, realm-aware
+  buildGuidedTheme). Pages: Groups (crew/table/deal), Crawls (pick/route/
+  deal), Passports (quest/grounds/stamp). Shows on FIRST visit to each tab
+  (ff_modeguide_{tab} localStorage), skip or Begin lands on the panel.
+  Wired via openModeGuide/closeModeGuide in Home selectTab.
+- Tab titles finalized per user: Solo Fates / Groups / Crawls / Passports
+  (removed "Fate" from groups; ES translations updated).
+- Verified headless: crawls pages Pick->Chart->Deal, once-only revisit,
+  group/passport guides + skip. FF_BUILD -> 2026.06-574.

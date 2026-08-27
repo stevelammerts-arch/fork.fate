@@ -11,8 +11,8 @@ export const HomeTabs = ({ light, active, onSelect }) => {
   const { t } = useLang();
   const [passports] = useState(() => readPassports().length);
   const TABS = [
-    { id: "solo", icon: Dices, label: "Solo Fate" },
-    { id: "group", icon: Users, label: "Group Fates" },
+    { id: "solo", icon: Dices, label: "Solo Fates" },
+    { id: "group", icon: Users, label: "Groups" },
     { id: "crawls", icon: Beer, label: "Crawls" },
     { id: "passports", icon: Stamp, label: "Passports", badge: passports },
   ];

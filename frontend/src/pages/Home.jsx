@@ -11,6 +11,7 @@ import { useFavorites } from "../hooks/useFavorites";
 import { useShake, requestMotionPermission } from "../hooks/useShake";
 import { useShareTarget } from "../hooks/useShareTarget";
 import GuidedFlow from "../components/GuidedFlow";
+import ModeGuide from "../components/guided/ModeGuide";
 import ThemeWelcomeDialog from "../components/ThemeWelcomeDialog";
 import ParchmentIntro from "../components/ParchmentIntro";
 import { HomeHeader } from "../components/home/HomeHeader";
@@ -1043,6 +1044,17 @@ export default function Home() {
   };
   const activeTab = passportMode ? "passports" : crawlMode ? "crawls" : groupMode ? "group" : "solo";
   const PICKER_IDS = { group: "group-picker", crawls: "crawl-type-picker", passports: "passport-picker" };
+  // First visit to a mode tab: mini flip-book guide, then land on its panel.
+  const [modeGuide, setModeGuide] = useState(null);
+  const openModeGuide = (tab) => {
+    try {
+      if (localStorage.getItem(`ff_modeguide_${tab}`) !== "1") setModeGuide(tab);
+    } catch (e) { /* storage unavailable */ }
+  };
+  const closeModeGuide = () => {
+    try { localStorage.setItem(`ff_modeguide_${modeGuide}`, "1"); } catch (e) { /* ignore */ }
+    setModeGuide(null);
+  };
   const selectTab = (tab) => {
     if (tab === activeTab) {
       if (tab === "solo") window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1050,9 +1062,9 @@ export default function Home() {
       return;
     }
     if (tab === "solo") { setGroupMode(false); setCrawlMode(false); setPassportMode(false); setResult(null); setGroupPicks(null); }
-    else if (tab === "group") toggleGroup();
-    else if (tab === "crawls") toggleCrawl();
-    else togglePassport();
+    else if (tab === "group") { toggleGroup(); openModeGuide(tab); }
+    else if (tab === "crawls") { toggleCrawl(); openModeGuide(tab); }
+    else { togglePassport(); openModeGuide(tab); }
   };
   const modesCard = (
     <MoreWaysToPlay />
@@ -1073,6 +1085,9 @@ export default function Home() {
             accent={auraAccent}
           />
         )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {modeGuide && <ModeGuide mode={modeGuide} theme={theme} onDone={closeModeGuide} />}
       </AnimatePresence>
       <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={crawlEndpoints.origin || coords} destination={crawlEndpoints.destination} crawlLabel={crawlLabelForType(crawlType)} initialStops={crawlStops} />
 
