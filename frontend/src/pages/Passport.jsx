@@ -358,7 +358,7 @@ export default function Passport() {
 
   if (error) {
     return (
-      <div className="grid min-h-screen place-items-center bg-[#0B0B0B] px-6 text-center text-white">
+      <div className="grid min-h-screen place-items-center bg-[#F7F8F9] px-6 text-center text-[#0E0E0E]">
         <div className="flex flex-col items-center gap-4" data-testid="passport-error">
           <Stamp className="h-10 w-10 text-[#E01E26]" />
           <p className="font-serif text-2xl">{error}</p>
@@ -372,7 +372,7 @@ export default function Passport() {
 
   if (!data) {
     return (
-      <div className="grid min-h-screen place-items-center bg-[#0B0B0B] text-[#A0A0A0]" data-testid="passport-loading">
+      <div className="grid min-h-screen place-items-center bg-[#F7F8F9] text-[#6B7075]" data-testid="passport-loading">
         <div className="flex flex-col items-center gap-3">
           <Stamp className="h-8 w-8 animate-pulse text-[#E01E26]" />
           <p className="font-serif text-xl">Opening your passport…</p>
@@ -405,7 +405,7 @@ export default function Passport() {
           ]}
         />
 
-        <div className="rounded-3xl border border-[#E2E4E7] bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border border-[#E2E4E7] bg-white/70 p-6 shadow-xl shadow-black/5 backdrop-blur-md">
           {/* Gold-foil crest, like the one embossed on the cover. */}
           <div className="mb-4 flex flex-col items-center">
             <img
@@ -434,7 +434,7 @@ export default function Passport() {
 
         <Step n={1} title="Your ID page" hint="Your photo and name are printed on the award you share." done={idDone} />
 
-        <div className="mt-3 rounded-3xl border border-[#E2E4E7] bg-white p-5" data-testid="passport-id-page">
+        <div className="mt-3 rounded-3xl border border-[#E2E4E7] bg-white/70 p-5 shadow-xl shadow-black/5 backdrop-blur-md" data-testid="passport-id-page">
           <p className="font-sans text-sm text-[#6B7075]">
             Add your photo and name — they are printed on the passport award you share.
           </p>
@@ -498,7 +498,7 @@ export default function Passport() {
               <div
                 key={s.id || i}
                 data-testid={`passport-stop-${i}`}
-                className={`rounded-2xl border p-4 transition-colors ${on ? "border-[#2E7D32]/40 bg-[#F1F8F2]" : "border-[#E2E4E7] bg-white"}`}
+                className={`rounded-2xl border p-4 transition-colors ${on ? "border-[#2E7D32]/40 bg-[#F1F8F2]" : "border-[#E2E4E7] bg-white/70 backdrop-blur-md"}`}
               >
                 <div className="flex items-start gap-3">
                   <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-serif text-sm font-bold ${on ? "bg-[#2E7D32] text-white" : "bg-[#EDEEF0] text-[#6B7075]"}`}>
@@ -653,7 +653,7 @@ export default function Passport() {
             </div>
           </div>
         ) : (
-          <div className="mt-3 rounded-3xl border border-dashed border-[#D5D8DC] bg-white p-5 text-center" data-testid="passport-award-locked">
+          <div className="mt-3 rounded-3xl border border-dashed border-[#D5D8DC] bg-white/70 p-5 text-center backdrop-blur-md" data-testid="passport-award-locked">
             <Trophy className="mx-auto h-7 w-7 text-[#C9CDD3]" />
             <p className="mt-2 font-sans text-sm text-[#6B7075]">
               {data.total - data.stamped} more {data.total - data.stamped === 1 ? "stop" : "stops"} and your stamped award unlocks.

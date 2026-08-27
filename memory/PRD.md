@@ -2896,3 +2896,10 @@ inside playHeistSound).
 - GroupVote no longer overflows the reveal window on mobile (min-w-0 + flex-wrap
   metadata); crawl dialog is full-screen on mobile so stops aren't tucked into a
   short internal scroll. Verified via 390px screenshots with live Omaha deals.
+
+## 2026-02 fork part 114: Light crawl/passport reveals + light maps (FF_BUILD 578)
+- Crawl dialog restyled to the solo/groups light frosted window; all maps moved
+  to OpenStreetMap standard tiles (user: "No dark look on maps. Hard to read";
+  CARTO light_all is key-gated/watermarked, dark_all removed everywhere incl.
+  Conquest). Passport page got frosted windows + light loading/error screens.
+  Verified via live taco-crawl deal + passport create/delete at 390px.

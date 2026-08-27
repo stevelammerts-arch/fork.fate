@@ -373,12 +373,12 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
   return (
     <>
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-        <DialogContent className="flex h-dvh max-h-dvh w-screen max-w-full flex-col overflow-hidden rounded-none border-0 border-[#2A2A2A] bg-[#101010] p-4 text-white sm:h-auto sm:max-h-[92dvh] sm:w-full sm:max-w-lg sm:rounded-lg sm:border sm:p-6" data-testid="pub-crawl-dialog" data-ff-dialog>
+        <DialogContent className="flex h-dvh max-h-dvh w-screen max-w-full flex-col overflow-hidden rounded-none border-0 border-[#E2E4E7] bg-white/95 p-4 text-[#0E0E0E] backdrop-blur-xl sm:h-auto sm:max-h-[92dvh] sm:w-full sm:max-w-lg sm:rounded-lg sm:border sm:p-6" data-testid="pub-crawl-dialog" data-ff-dialog>
           <DialogHeader className="shrink-0 pr-8">
             <DialogTitle className="flex items-center gap-2 font-serif text-2xl">
               <Beer className="h-6 w-6 text-[#E01E26]" /> {shared ? `${t("Group")} ${label}` : `${t("Your")} ${label}`}
             </DialogTitle>
-            <DialogDescription className="text-sm text-[#A0A0A0]">
+            <DialogDescription className="text-sm text-[#6B7075]">
               {stops.length} {stops.length !== 1 ? t("stops") : t("stop")} {t("in a followable route — hit them in order, check each off, and claim your badge.")}
             </DialogDescription>
           </DialogHeader>
@@ -387,17 +387,17 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
           {/* Progress — always visible on both pages */}
           {stops.length > 0 && (
             <div className="mt-2 shrink-0" data-testid="crawl-progress">
-              <div className="mb-1 flex items-center justify-between text-xs font-bold text-[#A0A0A0]">
+              <div className="mb-1 flex items-center justify-between text-xs font-bold text-[#6B7075]">
                 <span>{visitedCount} / {stops.length} {t("conquered")}</span>
                 <button
                   onClick={() => setAutoGps((v) => !v)}
                   data-testid="crawl-autogps-toggle"
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold transition-colors ${autoGps ? "border-[#4ADE80] bg-[#4ADE80]/15 text-[#4ADE80]" : "border-[#3A3A3A] text-white hover:bg-white/10"}`}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold transition-colors ${autoGps ? "border-[#2E7D32] bg-[#2E7D32]/10 text-[#2E7D32]" : "border-[#E2E4E7] text-[#0E0E0E] hover:bg-[#EDEEF0]"}`}
                 >
                   <LocateFixed className="h-3.5 w-3.5" /> {autoGps ? t("Auto check-in ON") : t("Auto check-in")}
                 </button>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-[#2A2A2A]">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-[#EDEEF0]">
                 <div className="h-full rounded-full bg-[#E01E26] transition-all duration-500" style={{ width: `${stops.length ? (visitedCount / stops.length) * 100 : 0}%` }} />
               </div>
             </div>
@@ -405,18 +405,18 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
 
           {/* Stops / Map page switch */}
           {stops.length > 0 && (
-            <div className="mt-3 flex shrink-0 gap-1 rounded-full border border-[#2A2A2A] bg-[#1A1A1A] p-1" data-testid="crawl-view-tabs">
+            <div className="mt-3 flex shrink-0 gap-1 rounded-full border border-[#E2E4E7] bg-[#EDEEF0] p-1" data-testid="crawl-view-tabs">
               <button
                 onClick={() => setView("stops")}
                 data-testid="crawl-tab-stops"
-                className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${view === "stops" ? "bg-[#E01E26] text-white" : "text-[#A0A0A0] hover:bg-white/5"}`}
+                className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${view === "stops" ? "bg-[#E01E26] text-white" : "text-[#6B7075] hover:bg-white/60"}`}
               >
                 <ListOrdered className="h-3.5 w-3.5" /> {t("Stops")}
               </button>
               <button
                 onClick={() => setView("map")}
                 data-testid="crawl-tab-map"
-                className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${view === "map" ? "bg-[#E01E26] text-white" : "text-[#A0A0A0] hover:bg-white/5"}`}
+                className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${view === "map" ? "bg-[#E01E26] text-white" : "text-[#6B7075] hover:bg-white/60"}`}
               >
                 <MapIcon className="h-3.5 w-3.5" /> {t("Map")}
               </button>
@@ -426,7 +426,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
           {view === "map" && stops.length > 0 ? (
             <div className="mt-3 min-h-0 flex-1" data-testid="crawl-map-view">
               <CrawlMap stops={stops} origin={origin} destination={destination} visited={visited} livePos={livePos} crew={crewPos} flares={flares} height="max(260px, 44dvh)" />
-              <p className="mt-2 text-center text-[11px] font-semibold text-[#8A8A8A]">
+              <p className="mt-2 text-center text-[11px] font-semibold text-[#6B7075]">
                 {crewPos.length > 0
                   ? `${crewPos.length} ${crewPos.length === 1 ? t("crew pin live — blue dots are your people.") : t("crew pins live — blue dots are your people.")}`
                   : t("Numbered pins follow your route — green means conquered.")}
@@ -436,7 +436,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
                   onClick={popFlare}
                   disabled={!livePos || flareBusy}
                   data-testid="crawl-flare-button"
-                  className="mx-auto mt-2 flex items-center gap-1.5 rounded-full border border-[#FF7A1A]/60 bg-[#FF7A1A]/15 px-4 py-2 text-xs font-bold text-[#FFB25E] transition-colors hover:bg-[#FF7A1A]/30 disabled:opacity-40"
+                  className="mx-auto mt-2 flex items-center gap-1.5 rounded-full border border-[#FF7A1A]/60 bg-[#FF7A1A]/10 px-4 py-2 text-xs font-bold text-[#B25012] transition-colors hover:bg-[#FF7A1A]/20 disabled:opacity-40"
                 >
                   <Flame className="h-4 w-4" /> {livePos ? t("Flare on me — show the crew where I am") : t("Turn on location to pop a flare")}
                 </button>
@@ -446,8 +446,8 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
           <>
           <div ref={bodyRef} onScroll={updateCue} className="ff-crawl-body -mr-2 flex-1 space-y-0 overflow-y-auto pr-2">
           {stops.length > 0 && (
-            <p className="mt-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#8A8A8A]">
-              <Check className="h-3.5 w-3.5 text-[#4ADE80]" />
+            <p className="mt-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#6B7075]">
+              <Check className="h-3.5 w-3.5 text-[#2E7D32]" />
               {t("Arrived? Tap the numbered circle on a stop to check it off.")}
             </p>
           )}
@@ -459,40 +459,40 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
               const leg = next ? haversine(s, next) : Infinity;
               return (
                 <div key={`${s.id}-${i}`}>
-                  <div className={`flex items-center gap-3 rounded-xl border p-3 transition-colors ${done ? "border-[#4ADE80]/40 bg-[#4ADE80]/5" : "border-[#2A2A2A] bg-[#1A1A1A]"}`} data-testid={`crawl-stop-${i}`}>
+                  <div className={`flex items-center gap-3 rounded-xl border p-3 transition-colors ${done ? "border-[#2E7D32]/40 bg-[#F1F8F2]" : "border-[#E2E4E7] bg-white"}`} data-testid={`crawl-stop-${i}`}>
                     <button
                       onClick={() => toggleVisited(s.id)}
                       data-testid={`crawl-checkoff-${i}`}
                       aria-label={done ? t("Mark not visited") : t("Mark visited")}
-                      className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-bold transition-colors ${done ? "bg-[#4ADE80] text-black" : `bg-[#E01E26] text-white hover:bg-[#FF2E38]${i === nextIdx ? " ring-4 ring-[#E01E26]/30" : ""}`}`}
+                      className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-bold transition-colors ${done ? "bg-[#2E7D32] text-white" : `bg-[#E01E26] text-white hover:bg-[#FF2E38]${i === nextIdx ? " ring-4 ring-[#E01E26]/30" : ""}`}`}
                     >
                       {done ? <Check className="h-5 w-5" /> : i + 1}
                     </button>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <p className={`truncate font-serif text-lg ${done ? "text-[#8A8A8A] line-through" : "text-white"}`}>{s.name}</p>
+                        <p className={`truncate font-serif text-lg ${done ? "text-[#9AA0A6] line-through" : "text-[#0E0E0E]"}`}>{s.name}</p>
                         {i === nextIdx && !done && (
                           <span className="shrink-0 rounded-full bg-[#E01E26]/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#FF6B71]" data-testid={`crawl-next-chip-${i}`}>
                             {visitedCount === 0 ? t("Start here") : t("Next")}
                           </span>
                         )}
                       </div>
-                      <p className="flex items-center gap-2 truncate text-xs text-[#A0A0A0]">
+                      <p className="flex items-center gap-2 truncate text-xs text-[#6B7075]">
                         {s.rating ? <span className="inline-flex items-center gap-1"><Star className="h-3 w-3 fill-[#E01E26] text-[#E01E26]" />{s.rating}</span> : null}
                         {s.cuisine ? <span>· {s.cuisine}</span> : null}
                         {s.distance != null ? <span className="inline-flex items-center gap-1">· <MapPin className="h-3 w-3" />{s.distance} mi</span> : null}
-                        {typeof s.open_now === "boolean" ? <span className={s.open_now ? "text-[#4ADE80]" : "text-[#8A8A8A]"}>· {s.open_now ? t("Open") : t("Closed")}</span> : null}
+                        {typeof s.open_now === "boolean" ? <span className={s.open_now ? "text-[#2E7D32]" : "text-[#9AA0A6]"}>· {s.open_now ? t("Open") : t("Closed")}</span> : null}
                       </p>
                     </div>
                     {safeHttp(s.google_url) && (
                       <a href={safeHttp(s.google_url)} target="_blank" rel="noopener noreferrer" data-testid={`crawl-directions-${i}`}
-                        className="inline-flex items-center gap-1 rounded-full border border-[#3A3A3A] px-3 py-1.5 text-xs font-bold text-white hover:bg-white/10">
+                        className="inline-flex items-center gap-1 rounded-full border border-[#E2E4E7] bg-white px-3 py-1.5 text-xs font-bold text-[#0E0E0E] hover:bg-[#EDEEF0]">
                         <ExternalLink className="h-3.5 w-3.5" /> {t("Map")}
                       </a>
                     )}
                     {!shared && (
                       <button onClick={() => setDropped((d) => ({ ...d, [s.id]: true }))} data-testid={`crawl-drop-${i}`}
-                        className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#8A8A8A] hover:bg-white/10 hover:text-[#E01E26]" aria-label={t("Remove stop")}>
+                        className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#9AA0A6] hover:bg-[#EDEEF0] hover:text-[#E01E26]" aria-label={t("Remove stop")}>
                         <X className="h-4 w-4" />
                       </button>
                     )}
@@ -503,7 +503,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
                       target="_blank"
                       rel="noopener noreferrer"
                       data-testid={`crawl-leg-${i}`}
-                      className="my-1 ml-4 flex items-center gap-2 pl-0.5 text-[11px] font-semibold text-[#8A8A8A] transition-colors hover:text-[#E01E26]"
+                      className="my-1 ml-4 flex items-center gap-2 pl-0.5 text-[11px] font-semibold text-[#6B7075] transition-colors hover:text-[#E01E26]"
                     >
                       <Navigation className="h-3.5 w-3.5" />
                       {t("Walk to next")}{leg !== Infinity ? ` · ${leg.toFixed(1)} mi` : ""}
@@ -513,26 +513,26 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
               );
             })}
             {stops.length === 0 && (
-              <p className="rounded-xl border border-dashed border-[#3A3A3A] p-6 text-center text-sm text-[#A0A0A0]">
+              <p className="rounded-xl border border-dashed border-[#D5D8DC] p-6 text-center text-sm text-[#6B7075]">
                 {t("No stops selected — shuffle a fresh crawl below.")}
               </p>
             )}
           </div>
 
-          <label className="mt-3 flex items-center gap-2 rounded-xl border border-[#2A2A2A] bg-[#1A1A1A] px-3 py-2.5">
-            <Users className="h-4 w-4 shrink-0 text-[#8A8A8A]" />
+          <label className="mt-3 flex items-center gap-2 rounded-xl border border-[#E2E4E7] bg-white px-3 py-2.5">
+            <Users className="h-4 w-4 shrink-0 text-[#9AA0A6]" />
             <input
               value={crew}
               onChange={(e) => setCrew(e.target.value.slice(0, 60))}
               placeholder={t("Who's with you? (e.g. Sam, Alex)")}
               data-testid="crawl-crew-input"
-              className="w-full bg-transparent text-sm text-white placeholder-[#6B7075] outline-none"
+              className="w-full bg-transparent text-sm text-[#0E0E0E] placeholder-[#9AA0A6] outline-none"
             />
           </label>
           </div>
           {moreBelow && (
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-[#101010] via-[#101010]/70 to-transparent pb-1.5 pt-10" data-testid="crawl-scroll-cue">
-              <span className="flex animate-bounce items-center gap-1 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold text-white backdrop-blur">
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-white via-white/70 to-transparent pb-1.5 pt-10" data-testid="crawl-scroll-cue">
+              <span className="flex animate-bounce items-center gap-1 rounded-full bg-[#0E0E0E]/70 px-3 py-1 text-[11px] font-bold text-white backdrop-blur">
                 <ChevronDown className="h-3.5 w-3.5" /> {t("Your stops")}
               </span>
             </div>
@@ -544,7 +544,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
           <div className="mt-3 flex shrink-0 items-center gap-2">
             {!shared && (
               <button onClick={reshuffle} data-testid="crawl-reshuffle-button"
-                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-[#3A3A3A] px-3 py-2 text-xs font-bold text-white hover:bg-white/10 sm:px-5 sm:py-3 sm:text-sm">
+                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-[#E2E4E7] bg-white px-3 py-2 text-xs font-bold text-[#0E0E0E] hover:bg-[#EDEEF0] sm:px-5 sm:py-3 sm:text-sm">
                 <Shuffle className="h-4 w-4" /> {t("New crawl")}
               </button>
             )}
@@ -555,7 +555,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
           </div>
 
           <button onClick={openBadge} disabled={!allDone} data-testid="crawl-complete-button"
-            className={`mt-1.5 inline-flex w-full items-center justify-center gap-2 rounded-full border px-5 py-2 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40 sm:py-3 sm:text-sm ${allDone ? "border-[#4ADE80] bg-[#4ADE80] text-black hover:bg-[#3ecb70]" : "border-[#3A3A3A] text-[#8A8A8A]"}`}>
+            className={`mt-1.5 inline-flex w-full items-center justify-center gap-2 rounded-full border px-5 py-2 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40 sm:py-3 sm:text-sm ${allDone ? "border-[#2E7D32] bg-[#2E7D32] text-white hover:bg-[#25642A]" : "border-[#E2E4E7] text-[#9AA0A6]"}`}>
             <Trophy className="h-4 w-4" /> {allDone ? t("Crawl conquered — claim your badge") : `${t("Check off all stops to unlock")} (${visitedCount}/${stops.length})`}
           </button>
         </DialogContent>

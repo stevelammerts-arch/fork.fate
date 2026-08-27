@@ -6,7 +6,7 @@ import "leaflet/dist/leaflet.css";
 const numberIcon = (n, done) =>
   L.divIcon({
     className: "",
-    html: `<div style="width:26px;height:26px;border-radius:9999px;display:flex;align-items:center;justify-content:center;font:700 13px/1 Georgia,serif;color:${done ? "#0B0B0B" : "#fff"};background:${done ? "#4ADE80" : "#E01E26"};border:2px solid #101010;box-shadow:0 1px 4px rgba(0,0,0,.6)">${n}</div>`,
+    html: `<div style="width:26px;height:26px;border-radius:9999px;display:flex;align-items:center;justify-content:center;font:700 13px/1 Georgia,serif;color:#fff;background:${done ? "#2E7D32" : "#E01E26"};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)">${n}</div>`,
     iconSize: [26, 26],
     iconAnchor: [13, 13],
     popupAnchor: [0, -13],
@@ -101,15 +101,15 @@ export default function CrawlMap({ stops = [], origin = null, destination = null
   if (pts.length < 1 || !bounds) return null;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-[#2A2A2A]" data-testid="crawl-map">
+    <div className="overflow-hidden rounded-xl border border-[#E2E4E7]" data-testid="crawl-map">
       <MapContainer
         bounds={bounds}
         scrollWheelZoom={false}
-        style={{ height, width: "100%", background: "#0B0B0B" }}
+        style={{ height, width: "100%", background: "#EDEAE3" }}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {origin && origin.lat != null && (
           <Marker position={[Number(origin.lat), Number(origin.lng)]} icon={startIcon}>

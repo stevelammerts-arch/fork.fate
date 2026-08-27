@@ -48,8 +48,8 @@ export default function Conquest() {
         <div className="mt-4 overflow-hidden rounded-2xl border border-white/10" style={{ height: "60vh" }} data-testid="conquest-map">
           <MapContainer center={center} zoom={pinned.length ? 11 : 4} style={{ height: "100%", width: "100%" }} scrollWheelZoom>
             <TileLayer
-              attribution='&copy; OpenStreetMap &copy; CARTO'
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              attribution='&copy; OpenStreetMap contributors'
+              url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {pinned.map((p, i) => (
               <Marker key={`${p.id}-${i}`} position={[Number(p.lat), Number(p.lng)]} icon={pinIcon(pinned.length - i)}>

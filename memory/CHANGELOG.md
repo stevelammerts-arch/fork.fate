@@ -1675,3 +1675,8 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 ## 2026-02 (fork) — Reveal window fixes (FF_BUILD 577)
 - GroupVote: pick cards overflowed the reveal window's right edge on mobile (grid column min-content wider than container). Fixed with min-w-0 on the list + cards and flex-wrap on the metadata row. Content now centered inside the window.
 - PubCrawlDialog: now full-screen on mobile (h-dvh, w-screen, rounded-none, p-4) so the stops list gets maximum height like the solo reveal; desktop keeps centered sm:max-w-lg card at 92dvh.
+
+## 2026-02 (fork) — Light "opaque window" crawl & passport reveals (FF_BUILD 578)
+- PubCrawlDialog fully restyled from dark (#101010) to the solo/groups light window look: bg-white/95 + blur, white stop cards with #E2E4E7 borders, dark text, #2E7D32 green for conquered states, red accents kept. Coffee-realm data-ff-dialog CSS overrides remain compatible.
+- Maps switched from CARTO dark_all to OpenStreetMap standard tiles (CARTO light_all was watermarked "API KEY REQUIRED"). Applies to CrawlMap (crawl dialog + shared crawls) and the Conquest map. Stop pins now white-bordered, conquered pins #2E7D32.
+- Passport page: frosted white/70 backdrop-blur windows, light loading/error screens (were black).
