@@ -3,6 +3,8 @@
 // flicker. Tapping any firefly startles the whole swarm — they dart outward
 // in random directions, dim, then slowly drift home and resume.
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import { claimFireflyScatter, EARN } from "../../lib/points";
 
 const COUNT = 7;
 
@@ -34,6 +36,10 @@ export function Fireflies() {
   const scatter = () => {
     if (scattered) return;
     try { navigator.vibrate && navigator.vibrate(12); } catch { /* ignore */ }
+    // tiny once-a-night bonus for startling the swarm
+    if (claimFireflyScatter() !== null) {
+      toast.success(`+${EARN.firefly} Fate Points`, { description: "You scattered the fireflies", duration: 5000 });
+    }
     setScatterSeed(Date.now());
     setTimeout(() => setScatterSeed((s) => (s ? -s : 0)), 1400); // negative = homing
   };

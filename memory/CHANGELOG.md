@@ -1616,3 +1616,11 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   0.6s fade (transition: visibility 0s linear 0.6s). Verified computed
   visibility=hidden and clean scene.
 - FF_BUILD bumped to 2026.06-570.
+
+## 2026-02 (fork) — Firefly scatter reward
+- points.js: EARN.firefly = 5 + claimFireflyScatter() (once per local day,
+  ff_firefly_day key, logs "Scattered the fireflies", fires ff:points).
+- Fireflies.jsx scatter(): claims the bonus and toasts "+5 Fate Points /
+  You scattered the fireflies" on first scatter of the night.
+- Verified headless: 100 -> 105 + toast on first scatter, no double award
+  same day. FF_BUILD bumped to 2026.06-571.

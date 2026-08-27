@@ -8,7 +8,7 @@ const COUPONS = "ff_points_coupons";
 const DAY = "ff_points_day"; // last daily claim, local YYYY-MM-DD
 const STREAK = "ff_points_streak"; // consecutive-day login count
 
-export const EARN = { daily: 10, streakBonus: 5, streakCap: 50, ritual: 15, heist: 25, checkin: 50 };
+export const EARN = { daily: 10, streakBonus: 5, streakCap: 50, ritual: 15, heist: 25, checkin: 50, firefly: 5 };
 
 // Launch catalog: DEMO sponsors — swapped for real partners later.
 export const SPONSOR_OFFERS = [
@@ -98,6 +98,17 @@ export function claimCheckin(placeKey, name) {
 
 export function checkedInToday(placeKey) {
   return readJson("ff_checkins", {})[placeKey] === localDay(new Date());
+}
+
+/** Tiny bonus the first time the fireflies get scattered each night.
+ * Returns the new total, or null when already claimed today. */
+export function claimFireflyScatter() {
+  const today = localDay(new Date());
+  try {
+    if (localStorage.getItem("ff_firefly_day") === today) return null;
+    localStorage.setItem("ff_firefly_day", today);
+  } catch (e) { return null; }
+  return awardPoints(EARN.firefly, "Scattered the fireflies");
 }
 
 const CODE_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // no ambiguous 0/O/1/I/L
