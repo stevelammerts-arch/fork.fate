@@ -1,0 +1,30 @@
+{
+  "summary": "Frontend-only test of the new browser-style header tabs (Solo/Group/Crawls/Passports), TrophiesPill dropdown, decluttered MoreWaysToPlay card, plus core solo-spin and dark-realm regressions on https://web-fate-launch.preview.emergentagent.com. 12/13 requested checks pass. One real overlay defect found: the header Trophies dropdown is painted over (and its bottom links made unclickable) by the sponsor marquee / social share bar because the sticky header's z-30 stacking context confines the menu's z-50.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "TrophiesPill dropdown (home-trophies-menu)", "issue": "Menu items below the header bottom edge are covered by SponsorMarquee (z-40) and app-social-share. At 390px, document.elementFromPoint over home-menu-wall returns marquee-sponsor-* and over home-menu-journal returns app-social-share; a normal Playwright click on home-menu-wall TIMES OUT (element not actionable). Same overlap visible on desktop 1920 (Champions row is crossed by the sponsors strip). Root cause: <header className='sticky top-0 z-30'> creates a stacking context, so the dropdown's z-50 cannot rise above sibling <div className='relative z-40'> that wraps SponsorMarquee. Fix: raise header to z-50 (or portal the dropdown to body).", "selector": "[data-testid=\"home-menu-wall\"], [data-testid=\"home-menu-journal\"]", "priority": "HIGH"},
+      {"component": "HomeTabs passport badge", "issue": "Passport count is captured once via useState initializer (readPassports().length) with no ff:passports/storage listener, so the home-tab-passports-badge goes stale after a passport is claimed in-session until reload. Not blocking (badge rendered correctly '1' from preseeded ff_passports).", "selector": "[data-testid=\"home-tab-passports-badge\"]", "priority": "LOW"},
+      {"component": "RewardsDialog", "issue": "Custom overlay has no role=\"dialog\" and no Escape-to-close handler; keyboard users / a11y tooling cannot detect or dismiss it. rewards-close button works.", "selector": "[data-testid=\"rewards-dialog\"]", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Home header (390px and 1920px)", "issues": ["Trophies dropdown visually sliced by the SPONSORS marquee strip - looks broken even before the click blocking"]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/browser_iter73/trophies_desktop.jpeg", "/app/test_reports/browser_iter73/mobile_dropdown.jpeg", "/app/test_reports/browser_iter73/spin_reveal.jpeg", "/app/test_reports/browser_iter73/dark_tabs.jpeg"],
+  "action_items": ["Raise the sticky Home header z-index above the SponsorMarquee wrapper (or render home-trophies-menu in a portal) so home-menu-wall and home-menu-journal are clickable", "Optional: subscribe HomeTabs to passport changes so the tab badge updates live", "Optional: add role='dialog' + Escape handler to RewardsDialog"],
+  "critical_code_review_comments": [
+    "Home.jsx selectTab delegates to toggleGroup/toggleCrawl/togglePassport which are functional-setState toggles; behaviour is correct today only because selectTab short-circuits when tab===activeTab. A direct setter map (setMode(tab)) would be less fragile.",
+    "toggleCrawl reads the stale `crawlMode` closure (`if (!crawlMode) applyCrawlType(...)`) rather than the value inside the updater - works now but is a latent race.",
+    "Home.jsx is 1333 lines - exceeds the 700-line guideline; the tab/mode orchestration is a good extraction candidate (useHomeTabs hook)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested", "frontend": "92% (12/13 checks pass; 1 HIGH overlay defect)"},
+  "seed_data_creation": "localStorage preseed only: ff_guide_seen, ff_theme_chosen, ff_theme(light|dark), ff_theme_hint_seen, ff_points_day, ff_passports=[{code:'AB12CD34'}], ff_muted=1",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "none needed - public flows",
+  "context_for_next_testing_agent": "VERIFIED PASS: home-tabs renders 4 tabs at top of sticky header; solo aria-selected=true initially; group/crawls/passports tabs each mount exactly one picker (group-picker/crawl-type-picker/passport-picker) with the others unmounted, and auto-scroll fires (scrollY 788/1217/788); returning to solo unmounts all pickers and restores zip-input + spin-roulette-button; old group-mode-toggle/crawl-mode-toggle/passport-mode-toggle/trophy-room-btn all count=0; modes-card shows fate-points-btn + fate-points-balance + Save Progress; home-tab-passports-badge shows '1' with preseeded ff_passports; header-trophies-pill opens home-trophies-menu with all 5 links and home-menu-bingo navigates to /bingo; rewards dialog (data-testid rewards-dialog, NOT role=dialog) opens with 4 rewards-redeem-* options; solo spin with zip 10001 revealed theme-flourish in ~7.5s ('Closed right now' variant, still success); dark realm tabs switch fine, 8 reaper elements intact, zero console errors in both realms. Test tips: preseed via add_init_script AND page.evaluate then goto; guided-skip overlay must be dismissed; use JS element.click() for tab clicks; the rewards dialog does NOT close on Escape - click rewards-close or the next test will be blocked.",
+  "rca_of_the_issue": "Trophies dropdown blocking: HomeHeader's <header> has `sticky top-0 z-30`, establishing a stacking context. TrophiesPill's menu uses `absolute ... z-50`, which is therefore only 50 *within* the header's z-30 layer. Home.jsx renders SponsorMarquee inside `<div className='relative z-40'>` as a sibling of the header, so the marquee (and further down app-social-share) paints above the entire header layer, covering the lower dropdown rows. Reproduce: 390px viewport, preseed localStorage, click header-trophies-pill, then page.click('[data-testid=\"home-menu-wall\"]') -> actionability timeout; document.elementFromPoint at that centre returns marquee-sponsor-test-chain-sponsor-1."
+}

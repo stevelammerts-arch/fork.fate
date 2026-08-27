@@ -6,6 +6,8 @@ import { useLang } from "../../i18n/i18n";
 import NearbyHelp from "../NearbyHelp";
 import ReigningChampBadge from "../ReigningChampBadge";
 import FavoritesDrawer from "../FavoritesDrawer";
+import { HomeTabs } from "./HomeTabs";
+import { TrophiesPill } from "./TrophiesPill";
 import InstallAppButton from "../InstallAppButton";
 import BecomeSponsorDialog from "../BecomeSponsorDialog";
 
@@ -73,10 +75,12 @@ export function HomeHeader({
   onGuided, zip, coords,
   favorites, removeFavorite, dealFromFavorites, groupMode,
   sponsorOpen, setSponsorOpen,
+  activeTab, onSelectTab,
 }) {
-  const { t, lang, setLang } = useLang();
+  const { t } = useLang();
   return (
-    <header className={`sticky top-0 z-30 border-b ${light ? "border-[#E4E4E7] bg-white/85 backdrop-blur-xl shadow-sm" : "border-[#E2E4E7] bg-[#0E0E0E]"}`}>
+    <header className={`sticky top-0 z-50 border-b ${light ? "border-[#E4E4E7] bg-white/85 backdrop-blur-xl shadow-sm" : "border-[#E2E4E7] bg-[#0E0E0E]"}`}>
+      <HomeTabs light={light} active={activeTab} onSelect={onSelectTab} />
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between md:gap-3 md:px-12 md:py-6">
         <div className="flex items-center gap-2 md:gap-3">
           <div className="relative shrink-0">
@@ -117,20 +121,8 @@ export function HomeHeader({
           </span>
         </div>
         <div className="flex flex-wrap items-center justify-start gap-2 md:justify-end md:gap-3">
-          <div data-testid="language-toggle" className={`inline-flex items-center rounded-full border p-0.5 ${ghost}`}>
-            {["en", "es"].map((l) => (
-              <button
-                key={l}
-                type="button"
-                onClick={() => setLang(l)}
-                data-testid={`lang-${l}`}
-                aria-label={l === "es" ? "Español" : "English"}
-                className={`rounded-full px-2.5 py-1 text-xs font-bold transition-colors sm:text-sm ${lang === l ? "bg-[#E01E26] text-white" : "opacity-70 hover:opacity-100"}`}
-              >
-                {l.toUpperCase()}
-              </button>
-            ))}
-          </div>
+          <TrophiesPill light={light} ghost={ghost} />
+          {/* EN/ES toggle removed — store builds handle translation */}
           <div className="relative">
             <button
               type="button"

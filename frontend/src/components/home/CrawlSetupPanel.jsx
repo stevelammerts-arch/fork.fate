@@ -16,18 +16,6 @@ export function CrawlSetupPanel({ crawlType, onPickType, light, setup }) {
   } = setup;
   return (
     <div className="mt-2 w-full basis-full rounded-2xl border border-[#E01E26]/30 bg-[#FDF6F6]/60 p-4 backdrop-blur-md" data-testid="crawl-type-picker">
-      <ol className="mb-4 space-y-1.5">
-        {[
-          t("Pick the kind of crawl you want."),
-          t("Set your start (and an optional end point) plus how far to search."),
-          t("Deal the crawl — we'll order the stops into a walkable route."),
-        ].map((s, i) => (
-          <li key={i} className="flex gap-2.5 font-sans text-sm text-[#3A3F45]">
-            <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#E01E26] text-[11px] font-bold text-white">{i + 1}</span>
-            <span>{s}</span>
-          </li>
-        ))}
-      </ol>
       <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-[#6B7075]">{t("Pick your crawl")}</p>
       <div className="flex flex-wrap gap-2">
         {CRAWL_TYPES.map((ct) => (

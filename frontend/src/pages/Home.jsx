@@ -14,7 +14,6 @@ import GuidedFlow from "../components/GuidedFlow";
 import ThemeWelcomeDialog from "../components/ThemeWelcomeDialog";
 import ParchmentIntro from "../components/ParchmentIntro";
 import { HomeHeader } from "../components/home/HomeHeader";
-import { HomeTabs } from "../components/home/HomeTabs";
 import { HomeInfoSections } from "../components/home/HomeInfoSections";
 import { HomeFooter } from "../components/home/HomeFooter";
 import PubCrawlDialog from "../components/PubCrawlDialog";
@@ -1036,21 +1035,27 @@ export default function Home() {
   const toggleGroup = () => { setGroupMode((v) => { const n = !v; if (n) { setCrawlMode(false); setPassportMode(false); } return n; }); setResult(null); setGroupPicks(null); };
   const toggleCrawl = () => { setCrawlMode((v) => { const n = !v; if (n) { setGroupMode(false); setPassportMode(false); } return n; }); if (!crawlMode) applyCrawlType(CRAWL_TYPES[0]); setResult(null); setGroupPicks(null); };
   const togglePassport = () => { setPassportMode((v) => { const n = !v; if (n) { setGroupMode(false); setCrawlMode(false); setAllMode(false); if (!PASSPORT_CATEGORIES.includes(mode)) switchMode("explore"); } return n; }); setMyPassports(readPassports()); setResult(null); setGroupPicks(null); };
-  // Header tabs: enter the mode (never toggle it off); if already in it,
-  // just glide back to its picker.
+  // Header tabs (browser-style): each mode is its own "window". Selecting a
+  // tab switches modes exclusively; re-selecting glides back to its picker.
   const scrollToPicker = (id) => {
     const el = document.querySelector(`[data-testid="${id}"]`);
     if (el) window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - 16), behavior: "smooth" });
   };
-  const tabCrawls = () => (crawlMode ? scrollToPicker("crawl-type-picker") : toggleCrawl());
-  const tabPassports = () => (passportMode ? scrollToPicker("passport-picker") : togglePassport());
+  const activeTab = passportMode ? "passports" : crawlMode ? "crawls" : groupMode ? "group" : "solo";
+  const PICKER_IDS = { group: "group-picker", crawls: "crawl-type-picker", passports: "passport-picker" };
+  const selectTab = (tab) => {
+    if (tab === activeTab) {
+      if (tab === "solo") window.scrollTo({ top: 0, behavior: "smooth" });
+      else scrollToPicker(PICKER_IDS[tab]);
+      return;
+    }
+    if (tab === "solo") { setGroupMode(false); setCrawlMode(false); setPassportMode(false); setResult(null); setGroupPicks(null); }
+    else if (tab === "group") toggleGroup();
+    else if (tab === "crawls") toggleCrawl();
+    else togglePassport();
+  };
   const modesCard = (
-    <MoreWaysToPlay
-      groupMode={groupMode} crawlMode={crawlMode} passportMode={passportMode}
-      onToggleGroup={toggleGroup}
-      onToggleCrawl={toggleCrawl}
-      onTogglePassport={togglePassport}
-    />
+    <MoreWaysToPlay />
   );
 
   return (
@@ -1075,15 +1080,7 @@ export default function Home() {
       <RealmLayers theme={theme} seasonCfg={seasonCfg} ambCfg={ambCfg} heistEpoch={heistEpoch} />
       {/* BINGO blackout: all 25 squares stamped — golden full-screen ritual */}
       <BlackoutRitual open={blackout} onClose={() => setBlackout(false)} />
-      {/* Quick-access tabs above the header: Crawls / Passports / Trophies / Bingo */}
-      <HomeTabs
-        light={light}
-        crawlMode={crawlMode}
-        passportMode={passportMode}
-        onCrawls={tabCrawls}
-        onPassports={tabPassports}
-      />
-      {/* Header */}
+      {/* Header (browser-style mode tabs live inside it) */}
       <HomeHeader
         light={light}
         ghost={ghost}
@@ -1101,6 +1098,8 @@ export default function Home() {
         groupMode={groupMode}
         sponsorOpen={sponsorOpen}
         setSponsorOpen={setSponsorOpen}
+        activeTab={activeTab}
+        onSelectTab={selectTab}
       />
 
       {/* Floating sound + scenery-eye toggles (every realm) */}
@@ -1129,8 +1128,6 @@ export default function Home() {
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
           {/* left: search + filters + spin */}
           <div className="min-w-0 space-y-7">
-            {/* Group/Crawl/Passport leads the column — its standard place. */}
-            {modesCard}
             {/* ZIP + radius live inside the Passport/Group setup panels for those modes. */}
             {/* A TABLE FOR ONE: the solo-fate flow lives inside one translucent
                 window, numbered step by step. Hidden while Group / Crawl /
@@ -1277,6 +1274,9 @@ export default function Home() {
                 }}
               />
             )}
+
+            {/* Stash (points + backups) sits BELOW every guided tour */}
+            {modesCard}
 
             <StatsRibbon fatesDealt={fatesDealt} crawlsCompleted={crawlsCompleted} streak={streak} light={light} ambCfg={ambCfg} />
           </div>

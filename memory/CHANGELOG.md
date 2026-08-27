@@ -1624,3 +1624,20 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   You scattered the fireflies" on first scatter of the night.
 - Verified headless: 100 -> 105 + toast on first scatter, no double award
   same day. FF_BUILD bumped to 2026.06-571.
+
+## 2026-02 (fork) — Browser tabs restructure + declutter round
+- Browser-style tabs (design A) inside sticky header: Solo Fate / Group
+  Fates / Crawls / Passports as exclusive "windows" (HomeTabs.jsx rewritten,
+  rendered in HomeHeader; activeTab/selectTab in Home.jsx). Old Group/Crawl/
+  Passport toggles + Trophy Room accordion REMOVED from MoreWaysToPlay
+  (now "Your stash": Fate Points + SaveProgress only). Trophies = header
+  pill w/ dropdown (TrophiesPill.jsx: rituals/bingo/champions/wall/journal).
+- Testing agent iteration_73: 12/13 pass; HIGH bug fixed — header z-30
+  stacking context trapped the dropdown under SponsorMarquee z-40 -> header
+  now z-50; verified menu paints over the marquee and clicks land.
+- User declutter round: EN/ES language toggle removed from header (store
+  translation); stash card moved BELOW each guided tour in every tab;
+  redundant numbered instructions <ol> removed from CrawlSetupPanel.
+- Known LOW items (accepted): passports tab badge computed at mount only;
+  RewardsDialog lacks role=dialog/Escape handler.
+- FF_BUILD bumped to 2026.06-573.
