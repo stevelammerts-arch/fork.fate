@@ -18,6 +18,7 @@ import { HomeHeader } from "../components/home/HomeHeader";
 import { HomeInfoSections } from "../components/home/HomeInfoSections";
 import { HomeFooter } from "../components/home/HomeFooter";
 import PubCrawlDialog from "../components/PubCrawlDialog";
+import PassportDialog from "../components/PassportDialog";
 import RevealStage from "../components/home/RevealStage";
 import { PassportPicker } from "../components/home/PassportPicker";
 import { GhostEscort, SteamRise } from "../components/home/ThemeFlourish";
@@ -54,7 +55,7 @@ import { claimDaily, awardPoints, EARN } from "../lib/points";
 import BlackoutRitual from "../components/BlackoutRitual";
 import { recordFate } from "../lib/journal";
 import { markCuisine } from "../lib/bingo";
-import { readPassports } from "../lib/passports";
+import { readPassports, rememberPassport } from "../lib/passports";
 import { SEASONS, AMBIANCE } from "../components/ThemeScenes";
 import { ShuffleOverlay } from "../components/home/ShuffleOverlay";
 import { RevealFlash } from "../components/home/RevealFlash";
@@ -144,6 +145,8 @@ export default function Home() {
   const [passportMode, setPassportMode] = useState(false);
   const [passportSize, setPassportSize] = useState(5);
   const [myPassports, setMyPassports] = useState(() => readPassports());
+  // Freshly dealt passport shown in the crawl-style reveal window (code string).
+  const [passportReveal, setPassportReveal] = useState(null);
   // The chip list is long; collapse it once fate has spoken so the reveal card
   // isn't buried under filters.
   // Every dropdown starts CLOSED on a fresh visit — the cuisine list only
@@ -741,7 +744,11 @@ export default function Home() {
             })),
           });
           trackEvent("passport_created", { category: categoryArg, stops: size });
-          navigate(`/p/${p.code}`);
+          // Reveal in the same light window as crawls — the /p/CODE page stays
+          // for revisits, selfies, the ID page and the award.
+          rememberPassport({ code: p.code, label: "", mode: categoryArg, total: size });
+          setMyPassports(readPassports());
+          setPassportReveal(p.code);
         } catch (err) {
           toast.error(err.response?.data?.detail || "Couldn't create that passport");
         }
@@ -1161,6 +1168,7 @@ export default function Home() {
         )}
       </AnimatePresence>
       <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={crawlEndpoints.origin || coords} destination={crawlEndpoints.destination} crawlLabel={crawlLabelForType(crawlType)} initialStops={crawlStops} />
+      <PassportDialog open={!!passportReveal} code={passportReveal} onClose={() => setPassportReveal(null)} />
 
       {/* Realm scenery stack: café / seasonal / ambiance / reaper + page heists */}
       <RealmLayers theme={theme} seasonCfg={seasonCfg} ambCfg={ambCfg} heistEpoch={heistEpoch} />

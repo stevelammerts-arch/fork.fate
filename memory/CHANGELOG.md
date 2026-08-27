@@ -1680,3 +1680,8 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - PubCrawlDialog fully restyled from dark (#101010) to the solo/groups light window look: bg-white/95 + blur, white stop cards with #E2E4E7 borders, dark text, #2E7D32 green for conquered states, red accents kept. Coffee-realm data-ff-dialog CSS overrides remain compatible.
 - Maps switched from CARTO dark_all to OpenStreetMap standard tiles (CARTO light_all was watermarked "API KEY REQUIRED"). Applies to CrawlMap (crawl dialog + shared crawls) and the Conquest map. Stop pins now white-bordered, conquered pins #2E7D32.
 - Passport page: frosted white/70 backdrop-blur windows, light loading/error screens (were black).
+
+## 2026-02 (fork) — Passport reveal window like crawls (FF_BUILD 579)
+- New PassportDialog: dealing a passport now opens a light crawl-style window over the home page (no navigation) — progress bar, stops with GPS/manual stamping + undo, Stops/Map tabs (OSM light map, green stamped pins), Share, and a "Full passport" link.
+- /p/CODE page unchanged for revisits, selfies, ID page and award claiming; deal flow calls rememberPassport + refreshes the "Your passports" chips.
+- Home.jsx: passport deal no longer navigates; sets passportReveal code instead.

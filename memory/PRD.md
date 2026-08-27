@@ -2903,3 +2903,9 @@ inside playHeistSound).
   CARTO light_all is key-gated/watermarked, dark_all removed everywhere incl.
   Conquest). Passport page got frosted windows + light loading/error screens.
   Verified via live taco-crawl deal + passport create/delete at 390px.
+
+## 2026-02 fork part 115: Passport reveal window (FF_BUILD 579)
+- Passports now reveal like crawls: light opaque dialog over home with stamping
+  (GPS/manual/undo), map tab and share. /p/CODE stays for revisits + award.
+  Verified live: deal, manual stamp (1/5, 20%, green card), undo state, map tab,
+  URL stays on home. Test passport deleted after.
