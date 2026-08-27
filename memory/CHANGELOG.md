@@ -1653,3 +1653,14 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   (removed "Fate" from groups; ES translations updated).
 - Verified headless: crawls pages Pick->Chart->Deal, once-only revisit,
   group/passport guides + skip. FF_BUILD -> 2026.06-574.
+
+## 2026-02 (fork) — Functional mode flip books + Guided button per tab
+- ModeGuide final page now HOSTS the live setup panel (children): Home
+  extracts passportPanel/groupPanel/crawlPanel consts (used in the column
+  AND passed into ModeGuide). Panel page scrolls (max-h 74vh), auto-closes
+  when the player fires a deal/spin CTA, plus a Close guide button.
+- Header relaunch-guided-button is tab-aware: solo -> solo GuidedFlow,
+  other tabs -> that window's flip book (onGuided in Home line ~1107).
+- Tab titles: Solo Fates / Groups / Crawls / Passports.
+- Verified headless: crawl panel inside book, auto-guide suppressed when
+  pre-seen, Guided button per-tab behavior. FF_BUILD -> 2026.06-575.

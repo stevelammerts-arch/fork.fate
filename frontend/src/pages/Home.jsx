@@ -1070,6 +1070,71 @@ export default function Home() {
     <MoreWaysToPlay />
   );
 
+  // Mode panels (used in the column AND hosted live inside ModeGuide's final page)
+  const passportPanel = (
+    <PassportPicker
+      modeTabs={MODE_TABS}
+      passportCategories={PASSPORT_CATEGORIES}
+      mode={mode}
+      onPickCategory={(key) => { setAllMode(false); switchMode(key); }}
+      modeLabel={modeLabel}
+      cuisineLabel={cuisineLabel}
+      cuisineList={cuisineList}
+      cuisineGroups={activeCuisineGroups}
+      selectedCuisines={selectedCuisines}
+      onToggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
+      passportSize={passportSize}
+      setPassportSize={setPassportSize}
+      myPassports={myPassports}
+      setup={{
+        zip, setZip, coords, setCoords,
+        onUseLocation: useMyLocation, geoLoading,
+        radius, setRadius, radiusMax,
+        busy: spinning || loading,
+        destination, setDestination,
+        cta: loading ? t("Finding spots…") : t("Deal My Passport"),
+        onCta: spin,
+      }}
+    />
+  );
+  const groupPanel = (
+    <GroupPicker
+      modeTabs={MODE_TABS}
+      mode={mode}
+      onPickCategory={(key) => { setAllMode(false); switchMode(key); }}
+      modeLabel={modeLabel}
+      cuisineLabel={cuisineLabel}
+      cuisineList={cuisineList}
+      cuisineGroups={activeCuisineGroups}
+      selectedCuisines={selectedCuisines}
+      onToggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
+      setup={{
+        zip, setZip, coords, setCoords,
+        onUseLocation: useMyLocation, geoLoading,
+        radius, setRadius, radiusMax,
+        busy: spinning || loading,
+        cta: loading ? t("Finding spots…") : spinning ? t("Shuffling…") : (light ? t("Pick 3 Spots") : t("Deal 3 Fates!")),
+        onCta: spin,
+      }}
+    />
+  );
+  const crawlPanel = (
+    <CrawlSetupPanel
+      crawlType={crawlType}
+      onPickType={applyCrawlType}
+      light={light}
+      setup={{
+        zip, setZip, coords, setCoords,
+        onUseLocation: useMyLocation, geoLoading,
+        zipB, setZipB, coordsB, setCoordsB,
+        onUseLocationB: useMyLocationB, geoLoadingB,
+        radius, setRadius, radiusMax,
+        spinning, loading, onDeal: dealCrawl,
+      }}
+    />
+  );
+  const guidePanels = { passports: passportPanel, group: groupPanel, crawls: crawlPanel };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-white" data-ff-scope="app">
       {showGuide && <ParchmentIntro onDone={guideDone} />}
@@ -1087,7 +1152,11 @@ export default function Home() {
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {modeGuide && <ModeGuide mode={modeGuide} theme={theme} onDone={closeModeGuide} />}
+        {modeGuide && (
+          <ModeGuide mode={modeGuide} theme={theme} onDone={closeModeGuide}>
+            {guidePanels[modeGuide]}
+          </ModeGuide>
+        )}
       </AnimatePresence>
       <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={crawlEndpoints.origin || coords} destination={crawlEndpoints.destination} crawlLabel={crawlLabelForType(crawlType)} initialStops={crawlStops} />
 
@@ -1104,7 +1173,7 @@ export default function Home() {
         dismissThemeHint={dismissThemeHint}
         onOpenThemePicker={() => { dismissThemeHint(); setShowThemeWelcome(true); }}
         hintColor={ambCfg ? ambCfg.accent : seasonCfg ? seasonCfg.hint : light ? "#4F6F47" : "#E01E26"}
-        onGuided={() => setShowGuided(true)}
+        onGuided={() => (activeTab === "solo" ? setShowGuided(true) : setModeGuide(activeTab))}
         zip={zip}
         coords={coords}
         favorites={favorites}
@@ -1225,70 +1294,11 @@ export default function Home() {
 
             {/* MODE PANELS below the solo window */}
 
-            {passportMode && (
-              <PassportPicker
-                modeTabs={MODE_TABS}
-                passportCategories={PASSPORT_CATEGORIES}
-                mode={mode}
-                onPickCategory={(key) => { setAllMode(false); switchMode(key); }}
-                modeLabel={modeLabel}
-                cuisineLabel={cuisineLabel}
-                cuisineList={cuisineList}
-                cuisineGroups={activeCuisineGroups}
-                selectedCuisines={selectedCuisines}
-                onToggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
-                passportSize={passportSize}
-                setPassportSize={setPassportSize}
-                myPassports={myPassports}
-                setup={{
-                  zip, setZip, coords, setCoords,
-                  onUseLocation: useMyLocation, geoLoading,
-                  radius, setRadius, radiusMax,
-                  busy: spinning || loading,
-                  destination, setDestination,
-                  cta: loading ? t("Finding spots…") : t("Deal My Passport"),
-                  onCta: spin,
-                }}
-              />
-            )}
+            {passportMode && passportPanel}
 
-            {groupMode && (
-              <GroupPicker
-                modeTabs={MODE_TABS}
-                mode={mode}
-                onPickCategory={(key) => { setAllMode(false); switchMode(key); }}
-                modeLabel={modeLabel}
-                cuisineLabel={cuisineLabel}
-                cuisineList={cuisineList}
-                cuisineGroups={activeCuisineGroups}
-                selectedCuisines={selectedCuisines}
-                onToggleCuisine={(c) => toggle(setSelectedCuisines, selectedCuisines, c)}
-                setup={{
-                  zip, setZip, coords, setCoords,
-                  onUseLocation: useMyLocation, geoLoading,
-                  radius, setRadius, radiusMax,
-                  busy: spinning || loading,
-                  cta: loading ? t("Finding spots…") : spinning ? t("Shuffling…") : (light ? t("Pick 3 Spots") : t("Deal 3 Fates!")),
-                  onCta: spin,
-                }}
-              />
-            )}
+            {groupMode && groupPanel}
 
-            {crawlMode && (
-              <CrawlSetupPanel
-                crawlType={crawlType}
-                onPickType={applyCrawlType}
-                light={light}
-                setup={{
-                  zip, setZip, coords, setCoords,
-                  onUseLocation: useMyLocation, geoLoading,
-                  zipB, setZipB, coordsB, setCoordsB,
-                  onUseLocationB: useMyLocationB, geoLoadingB,
-                  radius, setRadius, radiusMax,
-                  spinning, loading, onDeal: dealCrawl,
-                }}
-              />
-            )}
+            {crawlMode && crawlPanel}
 
             {/* Stash (points + backups) sits BELOW every guided tour */}
             {modesCard}

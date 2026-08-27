@@ -25,12 +25,12 @@ const PAGES = {
   ],
 };
 
-export default function ModeGuide({ mode, theme, onDone }) {
+export default function ModeGuide({ mode, theme, onDone, children }) {
   const { t } = useLang();
   const gt = buildGuidedTheme(theme);
   const pages = PAGES[mode] || [];
   const [step, setStep] = useState(0);
-  const total = pages.length;
+  const total = pages.length + (children ? 1 : 0); // final page hosts the live setup panel
 
   const playTurn = (vol = 0.5) => {
     try {
@@ -43,7 +43,16 @@ export default function ModeGuide({ mode, theme, onDone }) {
   const next = () => { playTurn(); step < total - 1 ? setStep(step + 1) : onDone(); };
   const back = () => { playTurn(0.35); setStep((s) => Math.max(s - 1, 0)); };
 
-  const { icon: Icon, title, body } = pages[step];
+  const onPanelPage = children && step === total - 1;
+  const { icon: Icon, title, body } = onPanelPage ? pages[pages.length - 1] : pages[step];
+  // when the player fires the panel's own deal/spin CTA, glide the book away
+  const autoClose = (e) => {
+    const btn = e.target.closest("button");
+    const tid = (btn && btn.getAttribute("data-testid")) || "";
+    if (/deal|spin|cta/i.test(tid) || (btn && /deal|pick 3|shuffling|passport/i.test(btn.innerText || ""))) {
+      setTimeout(onDone, 500);
+    }
+  };
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -82,8 +91,21 @@ export default function ModeGuide({ mode, theme, onDone }) {
               exit="exit"
               transition={{ duration: 0.45, ease: "easeInOut" }}
               style={{ transformOrigin: "left center" }}
-              className={`relative overflow-hidden rounded-2xl border p-7 shadow-2xl backdrop-blur-3xl ${gt.surface}`}
+              className={`relative overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-3xl ${onPanelPage ? "max-h-[74vh] overflow-y-auto p-4" : "p-7"} ${gt.surface}`}
             >
+              {onPanelPage ? (
+                <div onClickCapture={autoClose}>
+                  <p className="mb-2 font-sans text-[11px] font-bold uppercase tracking-[0.28em]" style={{ color: gt.accent }}>
+                    {t("Your turn")}
+                  </p>
+                  {children}
+                  <button type="button" onClick={onDone} data-testid="mode-guide-done"
+                    className={`mt-4 w-full rounded-full border px-6 py-2.5 font-sans text-xs font-bold transition-colors hover:border-[var(--ff-accent)] ${gt.skipIdle}`}>
+                    {t("Close guide")}
+                  </button>
+                </div>
+              ) : (
+              <>
               <p className="font-sans text-[11px] font-bold uppercase tracking-[0.28em]" style={{ color: gt.accent }}>
                 {t("Step")} {step + 1}
               </p>
@@ -101,6 +123,8 @@ export default function ModeGuide({ mode, theme, onDone }) {
               >
                 {step === total - 1 ? t("Begin") : t("Next")} <ArrowRight className="h-4 w-4" />
               </button>
+              </>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
