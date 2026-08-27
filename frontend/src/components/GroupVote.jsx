@@ -35,7 +35,7 @@ export default function GroupVote({ picks, onReSpin, onWinner }) {
         {t("Fate dealt three. Tap to vote, then lock it in.")}
       </p>
 
-      <div className="mt-1 space-y-3">
+      <div className="mt-1 min-w-0 space-y-3">
         {picks.map((p, i) => {
           const leading = locked && leaders.includes(i);
           return (
@@ -43,7 +43,7 @@ export default function GroupVote({ picks, onReSpin, onWinner }) {
               key={p.id}
               data-testid={`group-pick-${i}`}
               animate={leading ? { scale: 1.02 } : { scale: 1 }}
-              className={`flex items-center gap-3 rounded-2xl border p-2 transition-colors ${
+              className={`flex min-w-0 items-center gap-3 rounded-2xl border p-2 transition-colors ${
                 leading ? "border-[#E01E26] bg-[#FCF4F4]" : "border-[#E2E4E7] bg-white"
               }`}
             >
@@ -57,7 +57,7 @@ export default function GroupVote({ picks, onReSpin, onWinner }) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate font-serif text-lg font-medium leading-tight text-[#0E0E0E]">{p.name}</p>
-                <p className="mt-0.5 flex items-center gap-2 font-sans text-xs text-[#6B7075]">
+                <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 font-sans text-xs text-[#6B7075]">
                   <span>{p.cuisine} · {p.price}</span>
                   <span className="flex items-center gap-1">
                     <Star className="h-3 w-3 fill-[#E01E26] text-[#E01E26]" />

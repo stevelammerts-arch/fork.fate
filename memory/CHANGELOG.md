@@ -1671,3 +1671,7 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Removed now-unused StepList from ModeSetup and the numbered step lists from Group/Passport panels (guide covers onboarding).
 - First tab open still auto-launches the guide (ff_modeguide_* localStorage); header Guided button re-triggers it.
 - FF_BUILD bumped to 2026.06-576.
+
+## 2026-02 (fork) — Reveal window fixes (FF_BUILD 577)
+- GroupVote: pick cards overflowed the reveal window's right edge on mobile (grid column min-content wider than container). Fixed with min-w-0 on the list + cards and flex-wrap on the metadata row. Content now centered inside the window.
+- PubCrawlDialog: now full-screen on mobile (h-dvh, w-screen, rounded-none, p-4) so the stops list gets maximum height like the solo reveal; desktop keeps centered sm:max-w-lg card at 92dvh.

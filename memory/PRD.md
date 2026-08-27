@@ -2891,3 +2891,8 @@ inside playHeistSound).
   render explanation header + renderPanel(slice) per page. StepList removed
   (unused). Verified all 3 modes x 4 pages via mobile screenshots incl. live
   selections carrying through and localStorage gating.
+
+## 2026-02 fork part 113: Reveal window fixes (FF_BUILD 577)
+- GroupVote no longer overflows the reveal window on mobile (min-w-0 + flex-wrap
+  metadata); crawl dialog is full-screen on mobile so stops aren't tucked into a
+  short internal scroll. Verified via 390px screenshots with live Omaha deals.
