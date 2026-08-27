@@ -1571,3 +1571,13 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Verified: tab switching light+dark, dark-realm hit-testing above the
   reaper sprite, trophies menu nav mid-toast, spin flow regression.
 - FF_BUILD bumped to 2026.06-566.
+
+## 2026-02 (fork) — Fall leaves "stuck at top" fix
+- Root cause: FALLING_SPRITES used POSITIVE animation delays (0-8s); during
+  the delay each leaf sat un-animated at top:0 opacity-.8 ("stuck"), then
+  blinked to opacity 0 when its cycle began ("disappearing"). Reproduced:
+  8/12 leaves frozen at y=0 on load.
+- Fix (SeasonScene.jsx): negative delays -(frac*dur) start every leaf
+  mid-fall on mount (same trick the spring petals already used). Verified
+  0/12 stuck at t=2.5s and t=8s. Also applies to winter snow (shared config).
+- FF_BUILD bumped to 2026.06-567.

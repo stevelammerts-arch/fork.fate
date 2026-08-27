@@ -14,12 +14,18 @@ const SUN_GLINTS = Array.from({ length: 9 }).map((_, i) => ({
   dx: (i % 2 ? -1 : 1) * (2 + i * 1.5),
 }));
 
-const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => ({
-  left: `${(i * 8 + 4) % 94}%`,
-  size: 22 + (i % 3) * 12,
-  dur: 9 + (i % 5) * 2.2,
-  delay: (i % 6) * 1.6,
-}));
+const FALLING_SPRITES = Array.from({ length: 12 }).map((_, i) => {
+  const dur = 9 + (i % 5) * 2.2;
+  // Negative delays start every leaf mid-fall on mount — a positive delay
+  // parks the un-animated leaf at the top of the screen (visibly "stuck")
+  // until its cycle begins, then it blinks out as the fade-in starts.
+  return {
+    left: `${(i * 8 + 4) % 94}%`,
+    size: 22 + (i % 3) * 12,
+    dur,
+    delay: -(((i * 0.83) % 1) * dur),
+  };
+});
 
 // Spring feather-petals: each pairs a slow linear fall with its own C-arc
 // swing rhythm. A third of them zig-zag tighter (narrow, quick arcs); the
