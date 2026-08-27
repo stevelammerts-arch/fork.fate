@@ -1685,3 +1685,6 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - New PassportDialog: dealing a passport now opens a light crawl-style window over the home page (no navigation) — progress bar, stops with GPS/manual stamping + undo, Stops/Map tabs (OSM light map, green stamped pins), Share, and a "Full passport" link.
 - /p/CODE page unchanged for revisits, selfies, ID page and award claiming; deal flow calls rememberPassport + refreshes the "Your passports" chips.
 - Home.jsx: passport deal no longer navigates; sets passportReveal code instead.
+
+## 2026-02 (fork) — Crawls tab redundancy fix (FF_BUILD 580)
+- Solo setup sections (LocationRadiusPanel, ModeTabsGrid, CuisineSection + open-now) were still visible in crawl mode; hide conditions used `passportMode || groupMode` only. Now all use `!soloFlow` so any mode tab hides them. Verified crawls shows only its own panel; solo intact.

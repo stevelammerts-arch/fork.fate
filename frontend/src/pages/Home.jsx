@@ -1239,10 +1239,10 @@ export default function Home() {
                 </div>
               )}
               <div className={soloFlow ? "space-y-6" : "contents"}>
-            <div className={passportMode || groupMode ? "hidden" : ""}>
+            <div className={soloFlow ? "" : "hidden"}>
             {soloFlow && <StepLabel n={1}>{t("Where are you?")}</StepLabel>}
             <LocationRadiusPanel
-              hidden={passportMode || groupMode}
+              hidden={!soloFlow}
               zip={zip} setZip={soloSetZip} setCoords={soloSetCoords} coords={coords}
               onEnter={spin} useMyLocation={useMyLocation} geoLoading={geoLoading}
               loading={loading} spinning={spinning}
@@ -1253,10 +1253,10 @@ export default function Home() {
 
             {/* All 8 tabs stay visible inside one box (4x2 grid). The old horizontal
                 scroller hid Explore/Stay off-screen at phone widths. */}
-            <div className={passportMode || groupMode ? "hidden" : ""}>
+            <div className={soloFlow ? "" : "hidden"}>
             {soloFlow && <StepLabel n={2}>{t("What calls to you?")}</StepLabel>}
             <ModeTabsGrid
-              hidden={passportMode || groupMode}
+              hidden={!soloFlow}
               tabs={MODE_TABS} mode={mode} allMode={allMode}
               onTab={(key) => { if (mode === key && !allMode) { setAllMode(true); setResult(null); setGroupPicks(null); } else { setAllMode(false); switchMode(key); } scrollToStep(3); }}
             />
@@ -1264,10 +1264,10 @@ export default function Home() {
 
             {/* In Passport/Group setup the chips live inside that panel, so the main
                 list is hidden — no scrolling up and back down again. */}
-            <div className={passportMode || groupMode ? "hidden" : ""}>
+            <div className={soloFlow ? "" : "hidden"}>
             {soloFlow && <StepLabel n={3}>{t("Narrow it (optional)")}</StepLabel>}
             <CuisineSection
-              hidden={passportMode || groupMode}
+              hidden={!soloFlow}
               allMode={allMode} cuisineLabel={cuisineLabel} selectedCuisines={selectedCuisines}
               filtersOpen={filtersOpen} setFiltersOpen={setFiltersOpen}
               cuisineList={cuisineList} cuisineGroups={activeCuisineGroups}

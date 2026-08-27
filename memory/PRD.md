@@ -2909,3 +2909,7 @@ inside playHeistSound).
   (GPS/manual/undo), map tab and share. /p/CODE stays for revisits + award.
   Verified live: deal, manual stamp (1/5, 20%, green card), undo state, map tab,
   URL stays on home. Test passport deleted after.
+
+## 2026-02 fork part 116: Crawls tab redundancy fix (FF_BUILD 580)
+- Solo ZIP/radius/category/cuisine/open-now sections now hidden in crawl mode
+  (hide conditions switched to !soloFlow). Verified via screenshots.
