@@ -8,7 +8,8 @@ const MAX = 100;
 export function readDuelRecord() {
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) || "[]");
-    return Array.isArray(raw) ? raw : [];
+    // Keep plain objects only — legacy/corrupt rows must never crash pages.
+    return Array.isArray(raw) ? raw.filter((x) => x && typeof x === "object" && !Array.isArray(x)) : [];
   } catch (e) {
     return [];
   }

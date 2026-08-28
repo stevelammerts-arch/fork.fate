@@ -2943,3 +2943,8 @@ inside playHeistSound).
 ## 2026-02 fork part 122: Shake hint (FF_BUILD 586)
 - Post-deal "shake to reshuffle" nudge pill (touch devices only), verified
   appear + auto-hide via automation.
+
+## 2026-02 fork part 123: Journal crash fix (FF_BUILD 587)
+- Root cause of production blank trophy page (Galaxy S25): corrupt legacy
+  ff_journal/ff_duel_record rows crashing Journal render. Readers sanitized;
+  fuzz-verified all trophy pages. Needs redeploy to reach production.

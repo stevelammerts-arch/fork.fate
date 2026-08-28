@@ -9,7 +9,9 @@ const MAX = 250;
 export function readJournal() {
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) || "[]");
-    return Array.isArray(raw) ? raw : [];
+    // Legacy builds could leave null/garbage rows — keep plain objects only,
+    // a single bad row must never blank the Journal page.
+    return Array.isArray(raw) ? raw.filter((x) => x && typeof x === "object" && !Array.isArray(x)) : [];
   } catch (e) {
     return [];
   }

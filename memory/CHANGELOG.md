@@ -1715,3 +1715,8 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 
 ## 2026-02 (fork) — Shake hint nudge (FF_BUILD 586)
 - New ShakeHint (components/home/ShakeHint.jsx): small "Shake your phone to reshuffle" pill under the reveal window after each solo deal; appears at +1.2s, wiggling Vibrate icon (ffShakeHint keyframes in index.css), fades at +6.5s. Shown only on motion-capable touch devices; suppressed during rare surprise fates.
+
+## 2026-02 (fork) — Trophy page crash root-caused + fixed (FF_BUILD 587)
+- Fuzz-tested all 5 trophy pages with hostile legacy localStorage; reproduced the S25 blank screen: a null/non-object row in ff_journal (or ff_duel_record) crashed Journal.jsx at e.id/e.verdict/duel.code.
+- readJournal/readDuelRecord now filter to plain objects only — a single bad row can never blank the Journal again. All 5 pages verified crash-free under the same fuzz.
+- Production users still see blank until redeploy (old build lacks ErrorBoundary + this fix); FF_BUILD 587 forces cache refresh on deploy.
