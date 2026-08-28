@@ -8,15 +8,17 @@ import { useEffect, useRef } from "react";
  * gesture — call `requestMotionPermission()` from a click handler (e.g. the
  * Deal button) once; it no-ops everywhere else.
  */
-const THRESHOLD = 14;      // m/s^2 delta considered a "jolt"
+const THRESHOLD = 11;      // m/s^2 delta considered a "jolt" (forgiving for iOS 60Hz sampling)
 const JOLT_WINDOW = 900;   // two jolts within this window = a shake
 const COOLDOWN = 3000;
 
-export function requestMotionPermission() {
+export function requestMotionPermission(onResult) {
   try {
     if (typeof DeviceMotionEvent !== "undefined" &&
         typeof DeviceMotionEvent.requestPermission === "function") {
-      DeviceMotionEvent.requestPermission().catch(() => {});
+      DeviceMotionEvent.requestPermission()
+        .then((r) => { if (onResult) onResult(r); })
+        .catch(() => {});
     }
   } catch (e) { /* non-iOS or blocked — shake just won't fire */ }
 }
@@ -31,7 +33,8 @@ export function useShake(onShake, enabled = true) {
     let lastJolt = 0;
     let lastFire = 0;
     const handler = (e) => {
-      const a = e.accelerationIncludingGravity;
+      // Some iOS states expose only `acceleration` — fall back so shake still works.
+      const a = e.accelerationIncludingGravity || e.acceleration;
       if (!a || a.x === null) return;
       if (last.x !== null) {
         const delta = Math.abs(a.x - last.x) + Math.abs(a.y - last.y) + Math.abs(a.z - last.z);

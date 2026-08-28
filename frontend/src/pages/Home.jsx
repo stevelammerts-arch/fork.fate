@@ -791,7 +791,19 @@ export default function Home() {
     }
   };
 
-  const spin = () => { requestMotionPermission(); doSearch(selectedCuisines, [], mode); };
+  const spin = () => {
+    // iOS shows the Motion prompt only ONCE ever — if it was denied, tell the
+    // player why shake-to-shuffle is dead and how to bring it back.
+    requestMotionPermission((r) => {
+      try {
+        if (r === "denied" && !sessionStorage.getItem("ff_motion_denied")) {
+          sessionStorage.setItem("ff_motion_denied", "1");
+          toast.info(t("Shake-to-shuffle is off — enable Motion & Orientation access in Settings > Safari to use it."));
+        }
+      } catch (e) { /* storage unavailable */ }
+    });
+    doSearch(selectedCuisines, [], mode);
+  };
 
   // Shake the phone to shuffle (once filters/location are in place). The hook
   // no-ops on devices without motion sensors; iOS permission is requested from

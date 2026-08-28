@@ -2934,3 +2934,8 @@ inside playHeistSound).
 ## 2026-02 fork part 120: Post-realm mode chooser (FF_BUILD 584)
 - "Where to first?" window after realm selection routes to Solo/Groups/Crawls/
   Passports in the chosen realm. Verified all paths via automation.
+
+## 2026-02 fork part 121: Shake iOS hardening (FF_BUILD 585)
+- Shake verified realm-independent via synthetic motion events (Tiki fires
+  fine). Lowered threshold, added acceleration fallback + denied-permission
+  toast. iPhone fix requires user to re-allow Motion access if previously denied.

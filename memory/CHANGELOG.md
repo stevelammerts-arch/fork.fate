@@ -1707,3 +1707,8 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 
 ## 2026-02 (fork) — Post-realm "Where to first?" chooser (FF_BUILD 584)
 - New ModeChooserDialog (components/home/ModeChooserDialog.jsx): after any realm selection, a dark-chrome window (matching the realm picker) asks Solo/Groups/Crawls/Passports. Pick routes via selectTab; solo keeps the pending guided ritual, other tabs suppress it and open their own flip-book. Solo guided render suppressed while chooser open.
+
+## 2026-02 (fork) — Shake-to-shuffle iOS hardening (FF_BUILD 585)
+- Proved via synthetic devicemotion events that shake works in Tiki (and all realms) — no realm-specific code. iPhone failures are iOS Motion-permission related (Apple prompts ONCE ever).
+- useShake: threshold 14 -> 11 (friendlier to iOS 60Hz sampling), falls back to e.acceleration when accelerationIncludingGravity is absent.
+- requestMotionPermission now reports the result; spin() shows a one-time toast when permission is "denied" telling players to re-enable Motion & Orientation access.
