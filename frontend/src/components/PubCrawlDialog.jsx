@@ -373,7 +373,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
   return (
     <>
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-        <DialogContent className="flex h-dvh max-h-dvh w-screen max-w-full flex-col overflow-hidden rounded-none border-0 border-[#E2E4E7] bg-white/95 p-4 text-[#0E0E0E] backdrop-blur-xl sm:h-auto sm:max-h-[92dvh] sm:w-full sm:max-w-lg sm:rounded-lg sm:border sm:p-6" data-testid="pub-crawl-dialog" data-ff-dialog>
+        <DialogContent className="ff-dialog-full flex w-screen max-w-full flex-col overflow-hidden rounded-none border-0 border-[#E2E4E7] bg-white/95 p-4 text-[#0E0E0E] backdrop-blur-xl sm:w-full sm:max-w-lg sm:rounded-lg sm:border sm:p-6" data-testid="pub-crawl-dialog" data-ff-dialog>
           <DialogHeader className="shrink-0 pr-8">
             <DialogTitle className="flex items-center gap-2 font-serif text-2xl">
               <Beer className="h-6 w-6 text-[#E01E26]" /> {shared ? `${t("Group")} ${label}` : `${t("Your")} ${label}`}
@@ -425,7 +425,7 @@ export default function PubCrawlDialog({ open, onClose, results, mode, origin, d
 
           {view === "map" && stops.length > 0 ? (
             <div className="mt-3 min-h-0 flex-1" data-testid="crawl-map-view">
-              <CrawlMap stops={stops} origin={origin} destination={destination} visited={visited} livePos={livePos} crew={crewPos} flares={flares} height="max(260px, 44dvh)" />
+              <CrawlMap stops={stops} origin={origin} destination={destination} visited={visited} livePos={livePos} crew={crewPos} flares={flares} height="max(260px, 44vh)" />
               <p className="mt-2 text-center text-[11px] font-semibold text-[#6B7075]">
                 {crewPos.length > 0
                   ? `${crewPos.length} ${crewPos.length === 1 ? t("crew pin live — blue dots are your people.") : t("crew pins live — blue dots are your people.")}`

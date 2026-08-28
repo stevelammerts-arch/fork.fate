@@ -915,6 +915,7 @@ export default function Home() {
 
   const dealCrawl = async () => {
     if (spinning || loading) return;
+    requestMotionPermission();
     const hasAnyA = coords?.lat != null || /^\d{5}$/.test((zip || "").trim());
     const hasAnyB = coordsB?.lat != null || /^\d{5}$/.test((zipB || "").trim());
     if (!hasAnyA && !hasAnyB) { toast.error("Add a location (ZIP or use your location) to start"); return; }

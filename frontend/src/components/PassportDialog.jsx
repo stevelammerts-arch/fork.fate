@@ -122,7 +122,7 @@ export default function PassportDialog({ open, code, initial = null, onClose }) 
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="flex h-dvh max-h-dvh w-screen max-w-full flex-col overflow-hidden rounded-none border-0 border-[#E2E4E7] bg-white/95 p-4 text-[#0E0E0E] backdrop-blur-xl sm:h-auto sm:max-h-[92dvh] sm:w-full sm:max-w-lg sm:rounded-lg sm:border sm:p-6" data-testid="passport-dialog" data-ff-dialog>
+      <DialogContent className="ff-dialog-full flex w-screen max-w-full flex-col overflow-hidden rounded-none border-0 border-[#E2E4E7] bg-white/95 p-4 text-[#0E0E0E] backdrop-blur-xl sm:w-full sm:max-w-lg sm:rounded-lg sm:border sm:p-6" data-testid="passport-dialog" data-ff-dialog>
         <DialogHeader className="shrink-0 pr-8">
           <DialogTitle className="flex items-center gap-2 font-serif text-2xl">
             <Stamp className="h-6 w-6 text-[#2E7D32]" /> {data ? (data.label || MODE_LABELS[data.mode] || t("Fate Passport")) : t("Fate Passport")}
@@ -173,7 +173,7 @@ export default function PassportDialog({ open, code, initial = null, onClose }) 
 
           {view === "map" && mappable ? (
             <div className="mt-3 min-h-0 flex-1" data-testid="passport-map-view">
-              <CrawlMap stops={data.stops} visited={visitedMap} height="max(260px, 44dvh)" />
+              <CrawlMap stops={data.stops} visited={visitedMap} height="max(260px, 44vh)" />
               <p className="mt-2 text-center text-[11px] font-semibold text-[#6B7075]">
                 {t("Numbered pins follow your quest — green means stamped.")}
               </p>

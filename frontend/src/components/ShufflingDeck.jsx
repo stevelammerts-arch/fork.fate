@@ -89,13 +89,11 @@ function CardBack({ light, seasonItem, theme, golden }) {
   if (theme === "tiki") {
     const accent = "#F0A24E";
     return (
-      <div className="absolute inset-0 grid place-items-center bg-[#141210]" data-testid="card-back">
+      <div className="absolute inset-0 grid place-items-center overflow-hidden bg-[#141210]" data-testid="card-back">
         <div className="absolute inset-2 rounded-xl border" style={{ borderColor: `${accent}88` }} />
         <div className="absolute inset-[10px] rounded-lg border" style={{ borderColor: `${accent}33` }} />
         <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 50% 45%, rgba(240,162,78,0.18), rgba(0,0,0,0) 62%)" }} />
-        <div className="flex flex-col items-center gap-2">
-          <img src="/tiki-guy-card.png" alt="" className="h-3/4 w-auto max-w-[78%] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.65)]" />
-        </div>
+        <img src="/tiki-guy-card.png" alt="" className="h-3/4 w-auto max-w-[78%] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.65)]" />
       </div>
     );
   }

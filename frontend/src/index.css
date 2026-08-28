@@ -3218,3 +3218,17 @@ body.ff-badge-open .ff-theme-scene * {
   58% { opacity: 0.2; }
   74% { opacity: 0.75; }
 }
+
+/* ── Full-height reveal dialogs (crawl / passport) with vh fallback:
+   older iOS (<15.4) and Android Chrome (<108) don't know dvh units, which
+   left the window with no height. ── */
+.ff-dialog-full { height: 100vh; max-height: 100vh; }
+@supports (height: 100dvh) {
+  .ff-dialog-full { height: 100dvh; max-height: 100dvh; }
+}
+@media (min-width: 640px) {
+  .ff-dialog-full { height: auto; max-height: 92vh; }
+  @supports (height: 100dvh) {
+    .ff-dialog-full { max-height: 92dvh; }
+  }
+}

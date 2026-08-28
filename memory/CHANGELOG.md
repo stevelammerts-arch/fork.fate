@@ -1696,3 +1696,11 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 
 ## 2026-02 (fork) — Mode guides reset per app load (FF_BUILD 582)
 - ff_modeguide_* localStorage persistence removed; guide "seen" state now lives in an in-memory ref (seenModeGuides) in Home.jsx. Every app load shows each tab's 4-page flip-book on first open; within a session it shows only once per tab. Old localStorage keys are simply ignored.
+
+## 2026-02 (fork) — Production crash hardening + Tiki/shake fixes (FF_BUILD 583)
+- Root ErrorBoundary (components/ErrorBoundary.jsx, wired in index.js): render crashes now show a "Fate hit a snag" reload screen (clears PWA caches) instead of a blank page — targets the Android blank trophy page report.
+- index.html: one-time auto-recovery for chunk/script load failures (clears caches + reloads) — targets stale-cache blank screens after deploys.
+- dvh units replaced: .ff-dialog-full CSS class (vh fallback + @supports dvh + sm override) on both reveal dialogs; map heights 44dvh -> 44vh. Old iOS (<15.4) / Android Chrome (<108) got no dialog height from h-dvh — likely the iPhone "instruction window failed" report.
+- Tiki shuffle card back: removed flex wrapper that broke the img h-3/4 percentage height (image rendered natural-size, off-center/overflowing); added overflow-hidden. Verified centered.
+- dealCrawl now calls requestMotionPermission() (iOS shake permission was only requested on solo/group/passport deals).
+- Shake-to-reshuffle realm reports: no realm-specific code exists in useShake/Home; awaiting user details (device, realm, steps).

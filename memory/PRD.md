@@ -2924,3 +2924,9 @@ inside playHeistSound).
 - Group/Crawl/Passport step-box flip-books now reset on every app load
   (in-memory ref instead of localStorage). Verified all 5 behaviors via
   automation.
+
+## 2026-02 fork part 119: Crash hardening, Tiki cards, shake (FF_BUILD 583)
+- ErrorBoundary + chunk-failure auto-reload + dvh->vh fallbacks for old phones;
+  Tiki shuffle card image centered (flex wrapper broke % height); motion
+  permission requested on crawl deals too. Shake realm-specificity could not be
+  reproduced in code — user to provide device/realm details.
