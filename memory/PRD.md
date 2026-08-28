@@ -2948,3 +2948,8 @@ inside playHeistSound).
 - Root cause of production blank trophy page (Galaxy S25): corrupt legacy
   ff_journal/ff_duel_record rows crashing Journal render. Readers sanitized;
   fuzz-verified all trophy pages. Needs redeploy to reach production.
+
+## 2026-02 fork part 124: Play upload key rotation prep (FF_BUILD 588)
+- New upload keystore + PEM generated (/app/play_signing, gitignored); expected
+  old key identified (alias FORKFATE) but password lost + leaked -> official
+  upload key reset is the path. assetlinks.json updated with new SHA-256.

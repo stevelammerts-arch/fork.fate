@@ -1720,3 +1720,9 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Fuzz-tested all 5 trophy pages with hostile legacy localStorage; reproduced the S25 blank screen: a null/non-object row in ff_journal (or ff_duel_record) crashed Journal.jsx at e.id/e.verdict/duel.code.
 - readJournal/readDuelRecord now filter to plain objects only — a single bad row can never blank the Journal again. All 5 pages verified crash-free under the same fuzz.
 - Production users still see blank until redeploy (old build lacks ErrorBoundary + this fix); FF_BUILD 587 forces cache refresh on deploy.
+
+## 2026-02 (fork) — Play upload key reset prep (FF_BUILD 588)
+- Play rejected new AAB: expects upload key SHA1 49:2E:B4:... (= forkfate-upload.keystore, alias FORKFATE, password lost from pod + key was publicly LEAKED per earlier audit -> must be rotated anyway).
+- Generated NEW upload key at /app/play_signing/ (gitignored): forkfate-upload-2026.keystore (PKCS12, alias "upload", pw in KEY-INFO.txt), upload_certificate.pem, SHA-256 0B:D0:69:D6:...:EA:86. Base64 + PEM handed to user in chat for local safekeeping.
+- assetlinks.json: added the new upload cert SHA-256 (5 fingerprints now).
+- User actions: (1) Play Console -> Setup -> App integrity -> App signing -> Request upload key reset with the PEM; (2) after Google confirms, rebuild AAB on PWABuilder with "Use mine" + new keystore, versionCode 4, target SDK 36; (3) redeploy web app for the assetlinks update.
