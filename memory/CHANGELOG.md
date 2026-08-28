@@ -1704,3 +1704,6 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Tiki shuffle card back: removed flex wrapper that broke the img h-3/4 percentage height (image rendered natural-size, off-center/overflowing); added overflow-hidden. Verified centered.
 - dealCrawl now calls requestMotionPermission() (iOS shake permission was only requested on solo/group/passport deals).
 - Shake-to-reshuffle realm reports: no realm-specific code exists in useShake/Home; awaiting user details (device, realm, steps).
+
+## 2026-02 (fork) — Post-realm "Where to first?" chooser (FF_BUILD 584)
+- New ModeChooserDialog (components/home/ModeChooserDialog.jsx): after any realm selection, a dark-chrome window (matching the realm picker) asks Solo/Groups/Crawls/Passports. Pick routes via selectTab; solo keeps the pending guided ritual, other tabs suppress it and open their own flip-book. Solo guided render suppressed while chooser open.

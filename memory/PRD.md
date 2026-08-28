@@ -2930,3 +2930,7 @@ inside playHeistSound).
   Tiki shuffle card image centered (flex wrapper broke % height); motion
   permission requested on crawl deals too. Shake realm-specificity could not be
   reproduced in code — user to provide device/realm details.
+
+## 2026-02 fork part 120: Post-realm mode chooser (FF_BUILD 584)
+- "Where to first?" window after realm selection routes to Solo/Groups/Crawls/
+  Passports in the chosen realm. Verified all paths via automation.

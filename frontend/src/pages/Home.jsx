@@ -19,6 +19,7 @@ import { HomeInfoSections } from "../components/home/HomeInfoSections";
 import { HomeFooter } from "../components/home/HomeFooter";
 import PubCrawlDialog from "../components/PubCrawlDialog";
 import PassportDialog from "../components/PassportDialog";
+import ModeChooserDialog from "../components/home/ModeChooserDialog";
 import RevealStage from "../components/home/RevealStage";
 import { PassportPicker } from "../components/home/PassportPicker";
 import { GhostEscort, SteamRise } from "../components/home/ThemeFlourish";
@@ -100,10 +101,13 @@ export default function Home() {
   });
   const sealThemeChoice = () => {
     setShowThemeWelcome(false);
+    // Realm sealed — ask which table fate deals at first (Solo/Groups/Crawls/Passports).
+    setShowModeChooser(true);
     try { localStorage.setItem("ff_theme_chosen", "1"); } catch (e) { /* ignore */ }
     trackEvent("theme_welcome_done", { theme });
     dismissThemeHint();
   };
+  const [showModeChooser, setShowModeChooser] = useState(false);
   // PARCHMENT FIELD GUIDE: shown once before the realm chooser on a brand-new
   // device; reopenable via the footer's "How to play" (ff:open-guide event).
   const [showGuide, setShowGuide] = useState(() => {
@@ -1096,6 +1100,13 @@ export default function Home() {
     else if (tab === "crawls") { toggleCrawl(); openModeGuide(tab); }
     else { togglePassport(); openModeGuide(tab); }
   };
+  // From the post-realm "Where to first?" window: land on the chosen tab.
+  // Solo keeps the pending guided ritual; other tabs skip it and open their own guide.
+  const pickFirstMode = (tab) => {
+    setShowModeChooser(false);
+    if (tab !== "solo") setShowGuided(false);
+    selectTab(tab);
+  };
   const modesCard = (
     <MoreWaysToPlay />
   );
@@ -1173,8 +1184,9 @@ export default function Home() {
     <div className="relative min-h-screen overflow-hidden bg-white" data-ff-scope="app">
       {showGuide && <ParchmentIntro onDone={guideDone} />}
       {!showGuide && showThemeWelcome && <ThemeWelcomeDialog onDone={sealThemeChoice} />}
+      {!showGuide && !showThemeWelcome && showModeChooser && <ModeChooserDialog onPick={pickFirstMode} />}
       <AnimatePresence>
-        {showGuided && (
+        {showGuided && !showModeChooser && (
           <GuidedFlow
             cuisineMap={{ food: FOOD_CUISINES, drinks: DRINK_CUISINES, bars: BAR_CUISINES, desserts: DESSERT_CUISINES, shops: SHOP_CUISINES, fuel: FUEL_CUISINES, explore: EXPLORE_CUISINES, stay: STAY_CUISINES }}
             groupMap={{ food: FOOD_GROUPS, bars: BAR_GROUPS, explore: EXPLORE_GROUPS, fuel: FUEL_GROUPS }}
