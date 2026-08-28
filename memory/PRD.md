@@ -2939,3 +2939,7 @@ inside playHeistSound).
 - Shake verified realm-independent via synthetic motion events (Tiki fires
   fine). Lowered threshold, added acceleration fallback + denied-permission
   toast. iPhone fix requires user to re-allow Motion access if previously denied.
+
+## 2026-02 fork part 122: Shake hint (FF_BUILD 586)
+- Post-deal "shake to reshuffle" nudge pill (touch devices only), verified
+  appear + auto-hide via automation.

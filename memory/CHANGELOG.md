@@ -1712,3 +1712,6 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Proved via synthetic devicemotion events that shake works in Tiki (and all realms) — no realm-specific code. iPhone failures are iOS Motion-permission related (Apple prompts ONCE ever).
 - useShake: threshold 14 -> 11 (friendlier to iOS 60Hz sampling), falls back to e.acceleration when accelerationIncludingGravity is absent.
 - requestMotionPermission now reports the result; spin() shows a one-time toast when permission is "denied" telling players to re-enable Motion & Orientation access.
+
+## 2026-02 (fork) — Shake hint nudge (FF_BUILD 586)
+- New ShakeHint (components/home/ShakeHint.jsx): small "Shake your phone to reshuffle" pill under the reveal window after each solo deal; appears at +1.2s, wiggling Vibrate icon (ffShakeHint keyframes in index.css), fades at +6.5s. Shown only on motion-capable touch devices; suppressed during rare surprise fates.

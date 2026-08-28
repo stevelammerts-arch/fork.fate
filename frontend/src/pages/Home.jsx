@@ -20,6 +20,7 @@ import { HomeFooter } from "../components/home/HomeFooter";
 import PubCrawlDialog from "../components/PubCrawlDialog";
 import PassportDialog from "../components/PassportDialog";
 import ModeChooserDialog from "../components/home/ModeChooserDialog";
+import { ShakeHint } from "../components/home/ShakeHint";
 import RevealStage from "../components/home/RevealStage";
 import { PassportPicker } from "../components/home/PassportPicker";
 import { GhostEscort, SteamRise } from "../components/home/ThemeFlourish";
@@ -1391,6 +1392,7 @@ export default function Home() {
             <div ref={resultRef} className="relative z-10 min-h-[420px] rounded-3xl border border-[#E2E4E7] bg-white/70 p-4 shadow-xl shadow-black/5 backdrop-blur-md">
               {theme === "dark" && result && !surpriseReveal && <GhostEscort key={`esc-${result.id}`} />}
               <RevealStage spinning={spinning} flash={flash} deck={results} result={result} groupPicks={groupPicks} mode={mode} light={light} theme={theme} onReset={() => { setResult(null); setGroupPicks(null); setLocked(false); setSurpriseReveal(null); setRerollsLeft(3); }} onReSpin={reSpin} onReport={reportClosed} onPick={(c) => landFate(c, { group: true })} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} onDare={doubleOrNothing} dareAvailable={results.length > 1} locked={locked} rerollsLeft={rerollsLeft} onSwipeReroll={swipeReroll} surprise={surpriseReveal} onSurpriseDone={surpriseDone} onDuel={startDuel} />
+              <ShakeHint trigger={result && !surpriseReveal ? result.id : null} />
             </div>
           </div>
         </div>

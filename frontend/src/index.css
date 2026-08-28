@@ -3232,3 +3232,12 @@ body.ff-badge-open .ff-theme-scene * {
     .ff-dialog-full { max-height: 92dvh; }
   }
 }
+
+/* Shake-to-reshuffle hint: little phone-wiggle on the icon */
+@keyframes ffShakeHint {
+  0%, 55%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(-14deg); }
+  20% { transform: rotate(12deg); }
+  30% { transform: rotate(-9deg); }
+  42% { transform: rotate(6deg); }
+}
