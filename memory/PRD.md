@@ -3067,3 +3067,7 @@ inside playHeistSound).
   -> React error #299 -> ErrorBoundary ("Fate hit a snag") on tapping Trophies.
   Reproduced directly on fork-fate.com, fixed, verified on preview (menu opens,
   Hidden Bonuses navigates). USER MUST REDEPLOY.
+
+## 2026-02 fork part 144: Trophy toast repositioned (FF_BUILD 615)
+- Secret-trophy toast delayed 1.2s + position top-center so bottom-dwelling
+  eggs (ball, gecko, squirrel, bunnies) stay visible during their reaction.

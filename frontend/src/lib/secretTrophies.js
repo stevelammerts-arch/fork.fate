@@ -54,10 +54,15 @@ export function foundSecret(id) {
   }
   awardPoints(SECRET_POINTS, `Secret found: ${s.title}`);
   const n = Object.keys(found).length;
-  toast.success(`Secret trophy: “${s.title}”`, {
-    description: `+${SECRET_POINTS} Fate Points — ${n}/${SECRETS.length} hidden bonuses discovered`,
-    duration: 6000,
-  });
+  // Let the tap reaction play out unobstructed first, then announce at the
+  // TOP of the screen — the bottom is where most eggs live (ball, gecko…).
+  setTimeout(() => {
+    toast.success(`Secret trophy: “${s.title}”`, {
+      description: `+${SECRET_POINTS} Fate Points — ${n}/${SECRETS.length} hidden bonuses discovered`,
+      duration: 6000,
+      position: "top-center",
+    });
+  }, 1200);
   try { window.dispatchEvent(new CustomEvent("ff:secret-found", { detail: { id, n } })); } catch { /* ignore */ }
   return true;
 }
