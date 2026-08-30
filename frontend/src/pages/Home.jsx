@@ -95,11 +95,10 @@ export default function Home() {
     const t = setTimeout(() => dismissThemeHint(), 6000);
     return () => clearTimeout(t);
   }, [themeHint]);
-  // First-run "Choose your realm" window — appears before the guided ritual's
-  // first step; sealed once so returning visitors go straight in.
-  const [showThemeWelcome, setShowThemeWelcome] = useState(() => {
-    try { return localStorage.getItem("ff_theme_chosen") !== "1"; } catch (e) { return false; }
-  });
+  // "Choose your realm" window — opens on EVERY app load (after the parchment
+  // intro on brand-new devices) so players can pick a fresh realm, then the
+  // "Where to first?" window routes them to Solo/Groups/Crawls/Passports.
+  const [showThemeWelcome, setShowThemeWelcome] = useState(true);
   const sealThemeChoice = () => {
     setShowThemeWelcome(false);
     // Realm sealed — ask which table fate deals at first (Solo/Groups/Crawls/Passports).

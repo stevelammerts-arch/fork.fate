@@ -2953,3 +2953,7 @@ inside playHeistSound).
 - New upload keystore + PEM generated (/app/play_signing, gitignored); expected
   old key identified (alias FORKFATE) but password lost + leaked -> official
   upload key reset is the path. assetlinks.json updated with new SHA-256.
+
+## 2026-02 fork part 125: Realm chooser every load (FF_BUILD 589)
+- App now opens on the realm page every time; then the mode chooser routes to
+  Solo/Groups/Crawls/Passports. Verified with returning-user flags via automation.

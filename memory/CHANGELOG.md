@@ -1726,3 +1726,6 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Generated NEW upload key at /app/play_signing/ (gitignored): forkfate-upload-2026.keystore (PKCS12, alias "upload", pw in KEY-INFO.txt), upload_certificate.pem, SHA-256 0B:D0:69:D6:...:EA:86. Base64 + PEM handed to user in chat for local safekeeping.
 - assetlinks.json: added the new upload cert SHA-256 (5 fingerprints now).
 - User actions: (1) Play Console -> Setup -> App integrity -> App signing -> Request upload key reset with the PEM; (2) after Google confirms, rebuild AAB on PWABuilder with "Use mine" + new keystore, versionCode 4, target SDK 36; (3) redeploy web app for the assetlinks update.
+
+## 2026-02 (fork) — Realm chooser on every load (FF_BUILD 589)
+- showThemeWelcome now defaults to true on every load (was gated by ff_theme_chosen). Flow each open: parchment intro (first-run only) -> realm chooser -> "Where to first?" mode chooser -> chosen tab + its guide. ff_theme_chosen still written (harmless).
