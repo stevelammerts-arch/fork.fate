@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { SummerBallHeist, SummerCrabHeist, SummerGullHeist, SummerPoopHeist, SnowmanHeist, CardinalTipHeist, OwlHeist, SpringPetalHeist, WinterStashHeist } from "./seasonHeists";
 import { Fireflies } from "./Fireflies";
+import { tapSound } from "../../lib/tapFx";
 
 // Golden-hour sun path: individual shimmering glints down the water instead
 // of a solid streak — narrow near the horizon, wider and fainter near shore.
@@ -338,7 +339,28 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
       {cfg.falling && cfg.petalFeather && PETALS.map((p, i) => (
         // feather-fall petals: outer span = steady linear descent, inner
         // span = side-to-side C-arc swing, img = edge-on flutter
-        <span key={`petal-${i}`} className="absolute top-0" data-testid={i === 0 ? "spring-petal" : undefined} style={{ left: p.left, animation: `ffPetalFall ${p.fall}s linear ${p.delay}s infinite` }}>
+        <span
+          key={`petal-${i}`}
+          className="pointer-events-auto absolute top-0 cursor-pointer"
+          data-testid={i === 0 ? "spring-petal" : undefined}
+          style={{ left: p.left, animation: `ffPetalFall ${p.fall}s linear ${p.delay}s infinite` }}
+          onPointerDown={(e) => {
+            // gust: the touched petal whooshes away on a wind burst
+            const now = Date.now();
+            if (!window.__ffGustAt || now - window.__ffGustAt > 1200) {
+              window.__ffGustAt = now;
+              tapSound("/petal-gust.mp3", 0.7);
+            }
+            const inner = e.currentTarget.firstElementChild;
+            if (!inner || inner.dataset.busy) return;
+            inner.dataset.busy = "1";
+            inner.style.animation = "ffPetalGust 1.3s ease-out both";
+            setTimeout(() => {
+              inner.style.animation = `ffPetalSwing ${p.swing}s linear ${p.swingDelay}s infinite`;
+              delete inner.dataset.busy;
+            }, 1350);
+          }}
+        >
           <span className="inline-block" style={{ "--sx": p.sx, "--sy": p.sy, animation: `ffPetalSwing ${p.swing}s linear ${p.swingDelay}s infinite` }}>
             <img src={p.src} alt="" style={{ width: p.size, height: p.size, animation: `ffPetalRock ${2.8 + (i % 3)}s ease-in-out infinite` }} />
           </span>

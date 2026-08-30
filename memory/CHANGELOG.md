@@ -1746,3 +1746,8 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Touch reactions: tiki geckos (chirp mp3 + chase, both floor & bar), reaper bats (ffBatPanic scatter + frantic flap), steam consoles (beep sequence), winter snowman arm (dispatches ff:snowman-heist -> head-falls-off gag), summer beach ball (ffBallBoing squash-bounce), fall squirrel (dispatches ff:squirrel-chatter), fairy heist unicorn (tap -> unicorn-neigh/snort mp3s), dragon claw hotspot (coin-clink mp3 + ffClawPress shadow + ffCoinPop sparkles, loungeBox art-space mapped at 445,435 210x180).
 - GOLD_GLITTER now spans the whole hoard (top 58-94%, 26 sparks; was bottom-only 74-94%).
 - New assets: unicorn-neigh.mp3, unicorn-snort.mp3, coin-clink.mp3, gecko-chirp.mp3.
+
+## 2026-02 (fork) — Cyber neon + spring petal touch reactions (FF_BUILD 595)
+- Cyber neon sign: tap -> neon-fizzle.mp3 + ffNeonShort/HaloShort (1.6s dark) then ffNeonRevive flicker-back; guarded against the crash-heist states + busy latch.
+- Spring petals: tap -> petal-gust.mp3 (1.2s global throttle) + ffPetalGust fling (new keyframes), petal restored to its swing after.
+- New assets: neon-fizzle.mp3, petal-gust.mp3. Verified via screenshots (sign visibly dark mid-fizzle, relit after), zero page errors.

@@ -2969,3 +2969,6 @@ inside playHeistSound).
 ## 2026-02 fork part 128: Realm touch reactions (FF_BUILD 594)
 - Firefly-style tap interactions across 8 realms + swipeable toasts + full-pile
   hoard glitter. Smoke-tested tiki/fantasy/reaper/steam, zero page errors.
+
+## 2026-02 fork part 129: Neon fizzle + petal gust taps (FF_BUILD 595)
+- Two more realm touch reactions, screenshot-verified.

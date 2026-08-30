@@ -3280,3 +3280,10 @@ body.ff-badge-open .ff-theme-scene * {
   20% { opacity: 1; }
   100% { opacity: 0; transform: translate(12px, -28px) scale(1.05); }
 }
+
+/* Petal tap: a wind burst flings the petal aside, spinning as it goes */
+@keyframes ffPetalGust {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  60% { transform: translate(72px, -34px) rotate(160deg); opacity: 0.9; }
+  100% { transform: translate(150px, -12px) rotate(320deg); opacity: 0; }
+}

@@ -392,7 +392,27 @@ function CyberNeonSign({ neon }) {
   }, []); // witnessRef is a stable ref
   const out = crash === 2; // tubes shorting out
   return (
-    <div className="absolute left-1/2 z-[1] w-[62vw] max-w-xs -translate-x-1/2" style={{ top: signTop ?? "26%" }} data-testid="cyber-neon">
+    <div
+      className="pointer-events-auto absolute left-1/2 z-[1] w-[62vw] max-w-xs -translate-x-1/2 cursor-pointer"
+      style={{ top: signTop ?? "26%" }}
+      data-testid="cyber-neon"
+      onPointerDown={(e) => {
+        // tap: the sign shorts out with an electric fizzle, then flickers back on
+        const host = e.currentTarget;
+        if (host.dataset.busy || out || crash === 3) return;
+        host.dataset.busy = "1";
+        tapSound("/neon-fizzle.mp3", 0.75);
+        const halo = host.children[0];
+        const img = host.querySelector("img");
+        if (halo) halo.style.animation = "ffNeonHaloShort 1.6s linear forwards";
+        if (img) img.style.animation = "ffNeonShort 1.6s linear forwards";
+        setTimeout(() => {
+          if (halo) halo.style.animation = "ffNeonFlash 3.4s ease-in-out infinite";
+          if (img) img.style.animation = "ffNeonRevive 1.2s steps(6,end) both, ffNeonFloat 6s ease-in-out infinite";
+          setTimeout(() => { delete host.dataset.busy; }, 1250);
+        }, 1650);
+      }}
+    >
       <div className="absolute left-1/2 top-1/2 h-[135%] w-[135%] -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ background: "radial-gradient(circle, rgba(199,125,255,0.42), rgba(34,224,224,0.18) 46%, transparent 70%)", filter: "blur(26px)", animation: out ? "ffNeonHaloShort 3.9s linear forwards" : "ffNeonFlash 3.4s ease-in-out infinite" }} />
       <img src={neon} alt="" className="relative w-full object-contain" data-testid="cyber-neon-sign" style={{ animation: out ? "ffNeonShort 3.9s linear forwards" : crash === 3 ? "ffNeonRevive 1.2s steps(6,end) both, ffNeonFloat 6s ease-in-out infinite" : "ffNeonFloat 6s ease-in-out infinite" }} />
       {/* the doomed car: sputters up from the streets below, crunches into the sign's underside, tumbles */}
