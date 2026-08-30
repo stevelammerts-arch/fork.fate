@@ -2957,3 +2957,7 @@ inside playHeistSound).
 ## 2026-02 fork part 125: Realm chooser every load (FF_BUILD 589)
 - App now opens on the realm page every time; then the mode chooser routes to
   Solo/Groups/Crawls/Passports. Verified with returning-user flags via automation.
+
+## 2026-02 fork part 126: Aquarium/zoo search accuracy (backend)
+- Explore chips Aquariums/Zoos/Safaris/Petting Zoos now use rephrased queries +
+  attraction-type gating; pet/fish stores filtered out. Live-verified via API.

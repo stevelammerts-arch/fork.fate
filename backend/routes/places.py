@@ -174,7 +174,10 @@ def _build_text_query(category: str, cuisines: list) -> str:
     # "state park") and bolting a noun on the end pushes Google toward businesses
     # ABOUT the activity (outfitters, gear shops) instead of the place itself.
     if category == "explore":
-        return (joined or WEATHER_DEFAULT_QUERIES["outdoor"]).strip()
+        # Some chips are ambiguous retail words ("aquariums" -> fish stores), so
+        # rephrase them toward the attraction; _matches_cuisine gates the rest.
+        rephrased = " ".join(_EXPLORE_QUERY_OVERRIDES.get(c.lower(), c) for c in cuisines)
+        return (rephrased or WEATHER_DEFAULT_QUERIES["outdoor"]).strip()
     # "stay" = somewhere to sleep. Lodging is its own tab rather than an `explore`
     # cuisine because it needs different copy and has no delivery/price semantics.
     if category == "stay":
@@ -235,16 +238,29 @@ _CUISINE_TYPE_HINTS = {
 
 _MAX_CUISINE_QUERIES = 4
 
+# Animal-attraction chips read like pet retail to Google's text search — say what
+# we actually mean so fish stores / pet shops don't crowd out the real thing.
+_EXPLORE_QUERY_OVERRIDES = {
+    "aquariums": "public aquarium",
+    "zoos": "zoo wildlife park",
+    "petting zoos": "petting zoo farm",
+    "safaris": "safari wildlife park",
+}
+
 # Sightseeing chips are English words that businesses also use in their names
 # ("The Lighthouse Restaurant", "Lighthouse Care and Counseling"), so for these the
 # place's Google primaryType must ALSO look like an attraction.
 _SIGHTSEEING_CHIPS = {
     "lighthouses", "national monuments", "landmarks", "observation decks", "roadside attractions",
     "historic sites", "scenic overlooks", "waterfalls",
+    # animal attractions: text search loves pet/fish stores for these words, so the
+    # place's Google type must be a real attraction (aquarium/zoo/park/...)
+    "aquariums", "zoos", "safaris", "petting zoos",
 }
 _ATTRACTION_TYPE_FRAGMENTS = (
     "tourist", "attraction", "landmark", "historical", "monument", "observation",
     "park", "museum", "cultural", "point_of_interest", "beach", "natural",
+    "aquarium", "zoo", "wildlife", "farm",
 )
 
 

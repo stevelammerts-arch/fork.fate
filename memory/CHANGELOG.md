@@ -1729,3 +1729,9 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 
 ## 2026-02 (fork) — Realm chooser on every load (FF_BUILD 589)
 - showThemeWelcome now defaults to true on every load (was gated by ff_theme_chosen). Flow each open: parchment intro (first-run only) -> realm chooser -> "Where to first?" mode chooser -> chosen tab + its guide. ff_theme_chosen still written (harmless).
+
+## 2026-02 (fork) — Animal-attraction search accuracy (backend only)
+- "Aquariums" chip was pulling fish/pet stores (same risk for Zoos/Safaris/Petting Zoos). Two-layer fix in routes/places.py:
+  1) _EXPLORE_QUERY_OVERRIDES rephrases the textQuery ("public aquarium", "zoo wildlife park", ...);
+  2) chips added to _SIGHTSEEING_CHIPS with new _ATTRACTION_TYPE_FRAGMENTS (aquarium/zoo/wildlife/farm) so results must have an attraction primaryType — pet_store types are rejected.
+- Verified live (Omaha): Aquariums -> only the real Scott Aquarium; Zoos -> Henry Doorly exhibits; hiking/food searches unaffected.
