@@ -23,6 +23,32 @@ export function requestMotionPermission(onResult) {
   } catch (e) { /* non-iOS or blocked — shake just won't fire */ }
 }
 
+/** iOS only shows the Motion prompt from inside a real user gesture, and the
+ * deal-button path can lose gesture context behind animations. This installs
+ * a document-level capture listener so the very FIRST tap anywhere (realm
+ * pick, guide page, anything) triggers the permission prompt. Keeps retrying
+ * on later taps until iOS reports granted/denied. No-ops off-iOS. */
+let motionPerm = null;
+export function installMotionPermissionTap() {
+  try {
+    if (typeof DeviceMotionEvent === "undefined" ||
+        typeof DeviceMotionEvent.requestPermission !== "function") return () => {};
+    const h = () => {
+      if (motionPerm === "granted" || motionPerm === "denied") return;
+      DeviceMotionEvent.requestPermission()
+        .then((r) => {
+          motionPerm = r;
+          if (r === "granted") document.removeEventListener("click", h, true);
+        })
+        .catch(() => {});
+    };
+    document.addEventListener("click", h, true);
+    return () => document.removeEventListener("click", h, true);
+  } catch (e) {
+    return () => {};
+  }
+}
+
 export function useShake(onShake, enabled = true) {
   const cbRef = useRef(onShake);
   cbRef.current = onShake;

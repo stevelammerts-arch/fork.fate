@@ -984,7 +984,7 @@ export function UnicornChargeHeist() {
   // sits so the tip lands square on the medallion's heart at impact.
   const x = phase === 0 ? window.innerWidth + 80 : phase === 3 ? -(UW + 140) : cx - UW * 0.015;
   const trans = phase === 1 ? "transform 1.05s cubic-bezier(0.3,0,0.7,1)"
-    : phase === 3 ? "transform 1.05s cubic-bezier(0.55,0,0.85,0.5)" : "none";
+    : phase === 3 ? "transform 1.7s cubic-bezier(0.55,0,0.85,0.5)" : "none";
   return (
     <div className="pointer-events-none fixed inset-0 z-[50] select-none overflow-hidden" data-testid="unicorn-heist">
       {/* the punted medallion, spinning away off the left edge */}
@@ -1010,6 +1010,8 @@ export function UnicornChargeHeist() {
         data-testid="unicorn-heist-runner"
         onPointerDown={() => tapSound(Math.random() < 0.5 ? "/unicorn-neigh.mp3" : "/unicorn-snort.mp3", 0.9)}
       >
+        {/* generous halo so "touching the gallop" is humanly possible mid-charge */}
+        <span className="absolute -inset-12" aria-hidden="true" />
         <div style={{ width: UW, height: UH, animation: phase === 1 || phase === 3 ? "ffTikiStrut 0.32s linear infinite" : undefined }}>
           <img
             src="/fairy-unicorn.png"

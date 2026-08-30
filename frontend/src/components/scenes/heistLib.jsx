@@ -11,7 +11,7 @@ import { awardPoints, EARN } from "../../lib/points";
  * view (mobile, mid-list), smoothly pull the page back to the top first so
  * they never miss the show, then hand back the medallion element to measure.
  * Returns a cancel function for unmount-mid-scroll safety. */
-export function summonToLogo(done) {
+export function summonToLogo(done, force = false) {
   // Never interrupt the show: if fate is mid-shuffle or mid-reveal (Home
   // keeps window.__ffFateBusy up to date), bow out — every heist treats a
   // null medallion as "try again in ~30s".
@@ -19,10 +19,15 @@ export function summonToLogo(done) {
   // One heist at a time, with a breather: realms run several heists on
   // independent timers, so without a global cool-down the strikes cluster
   // back-to-back. A bounced heist simply retries in ~30s.
-  if (Date.now() < (window.__ffHeistCooldownUntil || 0)) { done(null); return () => {}; }
-  // Heists are a rare treat: ONE per realm visit. Home clears this latch
-  // whenever the player enters a different realm (or reloads the app).
-  if (window.__ffHeistPlayedThisVisit) { done(null); return () => {}; }
+  // An intentional player tap (force) always earns the gag — it skips the
+  // cooldown and the once-per-visit latch, but still reserves them after so
+  // the background timers never chain replays off a forced strike.
+  if (!force) {
+    if (Date.now() < (window.__ffHeistCooldownUntil || 0)) { done(null); return () => {}; }
+    // Heists are a rare treat: ONE per realm visit. Home clears this latch
+    // whenever the player enters a different realm (or reloads the app).
+    if (window.__ffHeistPlayedThisVisit) { done(null); return () => {}; }
+  }
   const img = document.querySelector('img[alt="Fork·Fate logo"]');
   const med = img && img.parentElement;
   const r = med && med.getBoundingClientRect();

@@ -405,8 +405,7 @@ export function SnowmanHeist() {
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
         timers.push(setTimeout(() => setPhase(1), 30));    // shuffles in, all smiles
-        const howl = (vol) => playHeistSound("/snow-gust.mp3", vol);
-        timers.push(setTimeout(() => { setGust(true); howl(0.75); }, 2300)); // the wind picks up...
+        const howl = (vol) => playHeistSound("/snow-gust.mp3", vol);        timers.push(setTimeout(() => { setGust(true); howl(0.75); }, 2300)); // the wind picks up...
         timers.push(setTimeout(() => setPhase(2), 2700));   // ...and POP, off comes the head
         timers.push(setTimeout(() => {                      // BONK — it takes the logo's perch
           setPhase(3); setKnock(true);
@@ -427,7 +426,7 @@ export function SnowmanHeist() {
           witnessRef.current(true);
           schedule(150000 + Math.random() * 150000); // blows back in 2.5-5 min
         }, 9100));
-      });
+      }, force); // player taps force the gag straight through the latch
     };
     schedule(25000 + Math.random() * 20000);
     const force = () => start(true);

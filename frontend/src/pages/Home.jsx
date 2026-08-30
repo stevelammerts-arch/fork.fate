@@ -8,7 +8,8 @@ import BecomeSponsorDialog from "../components/BecomeSponsorDialog";
 import SponsorMarquee from "../components/SponsorMarquee";
 import SocialShare from "../components/SocialShare";
 import { useFavorites } from "../hooks/useFavorites";
-import { useShake, requestMotionPermission } from "../hooks/useShake";
+import { useShake, requestMotionPermission, installMotionPermissionTap } from "../hooks/useShake";
+import { installEggTapThrough } from "../lib/tapFx";
 import { useShareTarget } from "../hooks/useShareTarget";
 import GuidedFlow from "../components/GuidedFlow";
 import ModeGuide from "../components/guided/ModeGuide";
@@ -253,6 +254,14 @@ export default function Home() {
   useEffect(() => {
     window.__ffHeistPlayedThisVisit = false;
   }, [theme]);
+  // iOS only fires motion events after an in-gesture permission grant, and
+  // the floating content layers swallow easter-egg taps aimed at the realm
+  // scenery below — both get wired at the document level, once.
+  useEffect(() => {
+    const offPerm = installMotionPermissionTap();
+    const offEggs = installEggTapThrough();
+    return () => { offPerm(); offEggs(); };
+  }, []);
   const [blackout, setBlackout] = useState(false); // BINGO blackout celebration
   useEffect(() => {
     const busy = !!(spinning || loading || surpriseReveal || showGuided || mysticalReveal || blackout);

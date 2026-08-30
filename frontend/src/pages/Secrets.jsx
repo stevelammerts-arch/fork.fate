@@ -16,6 +16,7 @@ const EGGS = [
   { hint: "Catch a falling bloom and the wind itself answers.", realm: "Spring" },
   { hint: "Touch the gallop — if you can keep up with it.", realm: "Fairy Gully" },
   { hint: "Press the hoard-keeper's grip and hear the treasure complain.", realm: "Dragon's Hoard" },
+  { hint: "Dare a tap on the hoard-keeper's crown — the whole cavern answers.", realm: "Dragon's Hoard" },
   { hint: "Even the sky's brightest sign has a loose wire.", realm: "Cyberscape" },
 ];
 

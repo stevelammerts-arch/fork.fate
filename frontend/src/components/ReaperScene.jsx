@@ -69,6 +69,7 @@ export function ReaperScene() {
           <div
             key={`bat-${i}`}
             className="ff-bat-fly pointer-events-auto cursor-pointer"
+            data-egg="1"
             onPointerDown={(e) => {
               const w = e.currentTarget;
               const img = w.querySelector("img");

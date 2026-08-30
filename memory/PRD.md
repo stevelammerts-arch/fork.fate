@@ -2978,3 +2978,13 @@ inside playHeistSound).
 
 ## 2026-02 fork part 131: Hidden Bonuses page + both claws (FF_BUILD 597)
 - /secrets riddle page in Trophy menu; dual dragon-claw hotspots. Verified.
+
+## 2026-02 fork part 132: Egg tap pass-through + shake perm + dragon roar (FF_BUILD 598)
+- Global [data-egg] tap delegation (tapFx.installEggTapThrough): taps on inert
+  content above z-0 scenes now reach scene hotspots. Snowman/bench/ball verified.
+- Snowman heist repeat fix: forced taps use summonToLogo(done, force) instead of
+  clearing the once-per-visit latch; hotspots now onClick (no scroll misfires).
+- iOS shake: motion permission requested on FIRST tap anywhere (capture click).
+- Dragon head roar hotspot (700,285 250x150 art px) + eye flares + cavern rumble.
+- Unicorn: -inset-12 tap halo + slower exit gallop (1.7s). Beach ball bounces
+  higher (ambient -62px, boing -112px double-rebound, 1.3s).

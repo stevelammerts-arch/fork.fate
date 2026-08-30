@@ -239,17 +239,12 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
               className="pointer-events-auto absolute z-[4] cursor-pointer"
               style={{ left: "5%", top: "48%", width: "17%", height: "34%", touchAction: "manipulation" }}
               data-testid="winter-snowman-hotspot"
-              onPointerDown={() => {
-                // an intentional tap always earns the gag — bypass the
-                // one-heist-per-visit latch and the global cooldown
-                window.__ffHeistPlayedThisVisit = false;
-                window.__ffHeistCooldownUntil = 0;
-                window.dispatchEvent(new Event("ff:snowman-heist"));
-              }}
+              data-egg="1"
+              onClick={() => window.dispatchEvent(new Event("ff:snowman-heist"))}
             />
           )}
           {cfg.snowmanArm && (
-            <div className="pointer-events-auto absolute w-[6%] cursor-pointer" onPointerDown={() => { window.__ffHeistPlayedThisVisit = false; window.__ffHeistCooldownUntil = 0; window.dispatchEvent(new Event("ff:snowman-heist")); }} style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%" }} data-testid="winter-snowman-arm">
+            <div className="pointer-events-auto absolute w-[6%] cursor-pointer" data-egg="1" onClick={() => window.dispatchEvent(new Event("ff:snowman-heist"))} style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%" }} data-testid="winter-snowman-arm">
               <img src={cfg.snowmanArm} alt="" className="w-full" />
             </div>
           )}
@@ -301,7 +296,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
       )}
       {cfg.groundPumpkins && <img src="/fall-pumpkins-mid.png" alt="" className="absolute bottom-0 left-1/2 z-[3] w-[35vw] max-w-none -translate-x-1/2 object-contain opacity-[0.72] sm:w-[21vw]" style={{ animation: "ffGlow 3.4s ease-in-out infinite" }} />}
       {cfg.squirrel && (
-        <div className="pointer-events-auto absolute bottom-[1.5%] left-[20%] z-[4] cursor-pointer" onPointerDown={() => window.dispatchEvent(new Event("ff:squirrel-chatter"))} style={{ animation: "ffSquirrelDart 14s linear infinite" }} data-testid="fall-squirrel">
+        <div className="pointer-events-auto absolute bottom-[1.5%] left-[20%] z-[4] cursor-pointer" data-egg="1" onPointerDown={() => window.dispatchEvent(new Event("ff:squirrel-chatter"))} style={{ animation: "ffSquirrelDart 14s linear infinite" }} data-testid="fall-squirrel">
           <img src="/fall-acorn.png" alt="" className="absolute -right-2 bottom-0 w-4 opacity-0" style={{ animation: "ffAcornShow 14s linear infinite" }} data-testid="fall-acorn" />
           <div className="relative h-[30px] w-14 sm:h-[34px] sm:w-16" style={{ animation: "ffSquirrelGait 14s linear infinite", transformOrigin: "60% 100%" }}>
             {/* real gallop frames: extended stride, gathered bound (rear legs in),
@@ -329,11 +324,12 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
           className="pointer-events-auto absolute bottom-[4%] left-0 z-[3] cursor-pointer"
           style={{ animation: `ffBallTravel 13s linear infinite${flair.ballReverse}` }}
           data-testid="summer-beachball"
+          data-egg="1"
           onPointerDown={(e) => {
             const el = e.currentTarget.firstElementChild;
             if (!el) return;
-            el.style.animation = "ffBallBoing 0.9s cubic-bezier(0.3, 0, 0.4, 1)";
-            setTimeout(() => { el.style.animation = "ffBallBounce 1.6s infinite"; }, 950);
+            el.style.animation = "ffBallBoing 1.3s cubic-bezier(0.3, 0, 0.4, 1)";
+            setTimeout(() => { el.style.animation = "ffBallBounce 1.6s infinite"; }, 1350);
           }}
         >
           <div style={{ animation: "ffBallBounce 1.6s infinite" }}>
@@ -357,6 +353,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
           key={`petal-${i}`}
           className="pointer-events-auto absolute top-0 cursor-pointer"
           data-testid={i === 0 ? "spring-petal" : undefined}
+          data-egg="1"
           style={{ left: p.left, animation: `ffPetalFall ${p.fall}s linear ${p.delay}s infinite` }}
           onPointerDown={(e) => {
             // gust: the touched petal whooshes away on a wind burst

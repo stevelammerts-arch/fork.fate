@@ -1760,3 +1760,11 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 ## 2026-02 (fork) — Hidden Bonuses page + second claw (FF_BUILD 597)
 - New /secrets page (pages/Secrets.jsx) in the Trophy menu: 11 cryptic riddle cards for the easter eggs with peek-to-reveal realm chips. Route added in App.js; MENU entry in TrophiesPill.
 - Dragon hoard: claw-squeeze effect now on BOTH claws (hotspots l @445,435 and r @690,445 in art space). Verified: 2 hotspots, both fire, zero errors.
+
+## 2026-02 (fork) — Egg tap pass-through, shake permission, dragon roar (FF_BUILD 598)
+- ROOT CAUSE of "can't tap snowman/bench/eggs": content sections (relative z-10/z-40) sit above the fixed z-0 scenes and swallow taps. Fix: document-level click delegate (lib/tapFx.js installEggTapThrough) re-routes taps on inert elements to any [data-egg] hotspot under the point; defers to buttons/links/dialogs/toasts/fixed overlays z>=60. All scene egg hotspots marked data-egg (geckos, neon, claws+head, steam props, bats, squirrel, ball, petals, snowman).
+- ROOT CAUSE of snowman heist repeating: hotspots cleared __ffHeistPlayedThisVisit/__ffHeistCooldownUntil on every onPointerDown (fires on scroll-touches), letting the 2.5-5min scheduler chain replays. Fix: summonToLogo(done, force) skips checks only for the forced call and still reserves; hotspots use onClick and no longer clear flags. Verified: tap plays, deliberate retap replays, latch stays set.
+- iOS shake: installMotionPermissionTap() (hooks/useShake.js) requests DeviceMotionEvent permission inside the first real tap (document capture click), retries until granted/denied. Wired with installEggTapThrough in Home mount effect. NEEDS USER DEVICE CONFIRMATION.
+- Dragon head roar: dragon-head-hotspot in AmbianceScene fantasy block plays /dragon-roar.mp3 + ffRoarFlare eye glows + ffRoarRumble on cave art. Secrets page hint added (12 eggs now).
+- Unicorn runner: -inset-12 invisible halo + exit gallop 1.05s->1.7s so "touch the gallop" is feasible.
+- Summer ball: ffBallBounce -44->-62px, ffBallBoing 0.9s->1.3s with -112px peak + second -48px rebound.
