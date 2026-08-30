@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { foundSecret } from "../lib/secretTrophies";
 
 const REAPER_BATS = [
   { left: "12%", top: "26%", size: 30, dur: 9, delay: 0, flap: 0.32 },
@@ -71,6 +72,7 @@ export function ReaperScene() {
             className="ff-bat-fly pointer-events-auto cursor-pointer"
             data-egg="1"
             onPointerDown={(e) => {
+              foundSecret("bats");
               const w = e.currentTarget;
               const img = w.querySelector("img");
               w.style.animation = "ffBatPanic 1.1s ease-in-out";

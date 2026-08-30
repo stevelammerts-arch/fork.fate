@@ -5,6 +5,7 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { claimFireflyScatter, EARN } from "../../lib/points";
+import { foundSecret } from "../../lib/secretTrophies";
 
 const COUNT = 7;
 
@@ -36,6 +37,7 @@ export function Fireflies() {
   const scatter = () => {
     if (scattered) return;
     try { navigator.vibrate && navigator.vibrate(12); } catch { /* ignore */ }
+    foundSecret("fireflies");
     // tiny once-a-night bonus for startling the swarm
     if (claimFireflyScatter() !== null) {
       toast.success(`+${EARN.firefly} Fate Points`, { description: "You scattered the fireflies", duration: 5000 });

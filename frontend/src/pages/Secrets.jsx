@@ -1,28 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Eye, EyeOff, Sparkles } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Sparkles, Trophy } from "lucide-react";
 import { useLang } from "../i18n/i18n";
+import { SECRETS, SECRET_POINTS, readSecretsFound } from "../lib/secretTrophies";
 
-// Cryptic hints only — the fun is in the hunt. Realm names stay hidden
-// until the player chooses to peek.
-const EGGS = [
-  { hint: "Tiny lanterns drift after dusk. Catch one and fate tips you daily.", realm: "Fall Forest" },
-  { hint: "Something bushy-tailed scolds intruders, then takes the high road.", realm: "Fall Forest" },
-  { hint: "A small sunbather chirps when startled — twice over, if you find them both.", realm: "Tiki Lounge" },
-  { hint: "The night's shadows scatter if you reach for them.", realm: "Reaper's Domain" },
-  { hint: "The workshop's side panels still answer in beeps.", realm: "Steampunk" },
-  { hint: "Give the waving fellow a tap — he'll lose his head over it.", realm: "Winter" },
-  { hint: "Some toys on the sand just want one more bounce.", realm: "Summer" },
-  { hint: "Catch a falling bloom and the wind itself answers.", realm: "Spring" },
-  { hint: "Touch the gallop — if you can keep up with it.", realm: "Fairy Gully" },
-  { hint: "Press the hoard-keeper's grip and hear the treasure complain.", realm: "Dragon's Hoard" },
-  { hint: "Dare a tap on the hoard-keeper's crown — the whole cavern answers.", realm: "Dragon's Hoard" },
-  { hint: "Even the sky's brightest sign has a loose wire.", realm: "Cyberscape" },
-];
-
+// Cryptic hints only — the fun is in the hunt. Realm names stay hidden until
+// the player chooses to peek. Discovered eggs turn into named gold trophies.
 export default function Secrets() {
   const { t } = useLang();
   const [shown, setShown] = useState({});
+  const [found, setFound] = useState(() => readSecretsFound());
+  useEffect(() => {
+    const sync = () => setFound(readSecretsFound());
+    window.addEventListener("ff:secret-found", sync);
+    return () => window.removeEventListener("ff:secret-found", sync);
+  }, []);
+  const foundCount = SECRETS.filter((e) => found[e.id]).length;
   return (
     <div className="min-h-screen bg-[#F7F8F9] px-4 pb-16 pt-6 text-[#0E0E0E]">
       <div className="mx-auto max-w-lg">
@@ -36,22 +29,41 @@ export default function Secrets() {
           <p className="mt-2 font-sans text-sm text-[#6B7075]">
             {t("The realms are alive — and some things react when touched. Here are whispers of what's been witnessed. Where each one hides is yours to discover… or peek, if you must.")}
           </p>
+          <div className="mt-3 flex items-center gap-2" data-testid="secrets-progress">
+            <Trophy className="h-4 w-4 text-[#C9A227]" />
+            <span className="font-sans text-sm font-bold">
+              {foundCount}/{SECRETS.length} {t("discovered")}
+            </span>
+            <span className="font-sans text-xs text-[#9AA0A6]">· +{SECRET_POINTS} {t("Fate Points each")}</span>
+          </div>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#EDEEF0]">
+            <div className="h-full rounded-full bg-gradient-to-r from-[#C9A227] to-[#E8C547] transition-[width] duration-700" style={{ width: `${(foundCount / SECRETS.length) * 100}%` }} />
+          </div>
         </div>
         <div className="mt-3 space-y-2">
-          {EGGS.map((e, i) => (
-            <div key={i} className="rounded-2xl border border-[#E2E4E7] bg-white/70 p-4 backdrop-blur-md" data-testid={`secret-${i}`}>
-              <p className="font-serif text-base italic text-[#0E0E0E]">“{t(e.hint)}”</p>
-              <button
-                type="button"
-                data-testid={`secret-reveal-${i}`}
-                onClick={() => setShown((s) => ({ ...s, [i]: !s[i] }))}
-                className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#E2E4E7] bg-white px-3 py-1 text-xs font-bold text-[#6B7075] hover:bg-[#EDEEF0]"
-              >
-                {shown[i] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                {shown[i] ? e.realm : t("Peek at the realm")}
-              </button>
-            </div>
-          ))}
+          {SECRETS.map((e, i) => {
+            const isFound = !!found[e.id];
+            return (
+              <div key={e.id} className={`rounded-2xl border p-4 backdrop-blur-md ${isFound ? "border-[#E8C547]/70 bg-[#FFFDF2]/90" : "border-[#E2E4E7] bg-white/70"}`} data-testid={`secret-${i}`}>
+                {isFound && (
+                  <div className="mb-1.5 inline-flex items-center gap-1.5 rounded-full bg-[#C9A227]/15 px-2.5 py-0.5" data-testid={`secret-trophy-${e.id}`}>
+                    <Trophy className="h-3.5 w-3.5 text-[#C9A227]" />
+                    <span className="font-sans text-xs font-bold text-[#8A6F17]">{t(e.title)}</span>
+                  </div>
+                )}
+                <p className="font-serif text-base italic text-[#0E0E0E]">“{t(e.hint)}”</p>
+                <button
+                  type="button"
+                  data-testid={`secret-reveal-${i}`}
+                  onClick={() => setShown((s) => ({ ...s, [i]: !s[i] }))}
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[#E2E4E7] bg-white px-3 py-1 text-xs font-bold text-[#6B7075] hover:bg-[#EDEEF0]"
+                >
+                  {shown[i] || isFound ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                  {shown[i] || isFound ? e.realm : t("Peek at the realm")}
+                </button>
+              </div>
+            );
+          })}
         </div>
         <p className="mt-4 text-center font-sans text-xs text-[#9AA0A6]">
           {t("More secrets are scattered than are listed here. Keep touching things.")}

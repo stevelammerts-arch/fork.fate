@@ -3260,6 +3260,13 @@ body.ff-badge-open .ff-theme-scene * {
   100% { transform: translateY(0) scale(1); }
 }
 
+/* Tap-scattered gulls: each darts off on its own vector and fades */
+@keyframes ffGullScatterUp {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0.9; }
+  55% { opacity: 0.9; }
+  100% { transform: translate(var(--sx, -30vw), var(--sy, -28vh)) rotate(-14deg); opacity: 0; }
+}
+
 /* Dragon head roar: eyes flare hot while the whole cavern art trembles */
 @keyframes ffRoarFlare {
   0% { opacity: 0; transform: scale(0.6); }

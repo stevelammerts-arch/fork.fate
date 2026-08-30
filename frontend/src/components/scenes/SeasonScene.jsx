@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { SummerBallHeist, SummerCrabHeist, SummerGullHeist, SummerPoopHeist, SnowmanHeist, CardinalTipHeist, OwlHeist, SpringPetalHeist, WinterStashHeist } from "./seasonHeists";
 import { Fireflies } from "./Fireflies";
 import { tapSound } from "../../lib/tapFx";
+import { foundSecret } from "../../lib/secretTrophies";
 
 // Golden-hour sun path: individual shimmering glints down the water instead
 // of a solid streak — narrow near the horizon, wider and fainter near shore.
@@ -145,6 +146,17 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
     sailDelay: -(Math.random() * 100),
     ballReverse: Math.random() < 0.5 ? " reverse" : "",
   }));
+  // Tap ANY seagull and the whole squadron squawks and wheels away, drifting
+  // back into their cruise a few seconds later.
+  const [gullScatter, setGullScatter] = useState(0);
+  const scatterGulls = () => {
+    if (Date.now() < (window.__ffGullScatterAt || 0)) return;
+    window.__ffGullScatterAt = Date.now() + 4200;
+    foundSecret("gulls");
+    tapSound("/gull-mine.mp3", 0.7);
+    setGullScatter(Date.now());
+    setTimeout(() => setGullScatter(0), 3600);
+  };
   // The little ground squirrel chatters now and then (soft, respects mute).
   // `ff:squirrel-chatter` forces one for testing.
   useEffect(() => {
@@ -237,14 +249,14 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
           {cfg.snowmanArm && (
             <div
               className="pointer-events-auto absolute z-[4] cursor-pointer"
-              style={{ left: "5%", top: "48%", width: "17%", height: "34%", touchAction: "manipulation" }}
+              style={{ left: "13%", top: "54%", width: "17%", height: "40%", touchAction: "manipulation" }}
               data-testid="winter-snowman-hotspot"
               data-egg="1"
-              onClick={() => window.dispatchEvent(new Event("ff:snowman-heist"))}
+              onClick={() => { foundSecret("snowman"); window.dispatchEvent(new Event("ff:snowman-heist")); }}
             />
           )}
           {cfg.snowmanArm && (
-            <div className="pointer-events-auto absolute w-[6%] cursor-pointer" data-egg="1" onClick={() => window.dispatchEvent(new Event("ff:snowman-heist"))} style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%" }} data-testid="winter-snowman-arm">
+            <div className="pointer-events-auto absolute w-[6%] cursor-pointer" data-egg="1" onClick={() => { foundSecret("snowman"); window.dispatchEvent(new Event("ff:snowman-heist")); }} style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%" }} data-testid="winter-snowman-arm">
               <img src={cfg.snowmanArm} alt="" className="w-full" />
             </div>
           )}
@@ -296,7 +308,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
       )}
       {cfg.groundPumpkins && <img src="/fall-pumpkins-mid.png" alt="" className="absolute bottom-0 left-1/2 z-[3] w-[35vw] max-w-none -translate-x-1/2 object-contain opacity-[0.72] sm:w-[21vw]" style={{ animation: "ffGlow 3.4s ease-in-out infinite" }} />}
       {cfg.squirrel && (
-        <div className="pointer-events-auto absolute bottom-[1.5%] left-[20%] z-[4] cursor-pointer" data-egg="1" onPointerDown={() => window.dispatchEvent(new Event("ff:squirrel-chatter"))} style={{ animation: "ffSquirrelDart 14s linear infinite" }} data-testid="fall-squirrel">
+        <div className="pointer-events-auto absolute bottom-[1.5%] left-[20%] z-[4] cursor-pointer" data-egg="1" onPointerDown={() => { foundSecret("squirrel"); window.dispatchEvent(new Event("ff:squirrel-chatter")); }} style={{ animation: "ffSquirrelDart 14s linear infinite" }} data-testid="fall-squirrel">
           <img src="/fall-acorn.png" alt="" className="absolute -right-2 bottom-0 w-4 opacity-0" style={{ animation: "ffAcornShow 14s linear infinite" }} data-testid="fall-acorn" />
           <div className="relative h-[30px] w-14 sm:h-[34px] sm:w-16" style={{ animation: "ffSquirrelGait 14s linear infinite", transformOrigin: "60% 100%" }}>
             {/* real gallop frames: extended stride, gathered bound (rear legs in),
@@ -328,6 +340,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
           onPointerDown={(e) => {
             const el = e.currentTarget.firstElementChild;
             if (!el) return;
+            foundSecret("beachball");
             el.style.animation = "ffBallBoing 1.3s cubic-bezier(0.3, 0, 0.4, 1)";
             setTimeout(() => { el.style.animation = "ffBallBounce 1.6s infinite"; }, 1350);
           }}
@@ -357,6 +370,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
           style={{ left: p.left, animation: `ffPetalFall ${p.fall}s linear ${p.delay}s infinite` }}
           onPointerDown={(e) => {
             // gust: the touched petal whooshes away on a wind burst
+            foundSecret("petal-gust");
             const now = Date.now();
             if (!window.__ffGustAt || now - window.__ffGustAt > 1200) {
               window.__ffGustAt = now;
@@ -381,7 +395,9 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
         <span key={`gust-${i}`} className="ff-gust-snow" style={{ top: f.top, width: f.size, height: f.size, "--op": f.op, "--dip": `${f.dip}vh`, animationDuration: `${f.dur}s`, animationDelay: `${f.delay}s` }} />
       ))}
       {cfg.birds && FLYING_BIRDS.map((b, i) => (
-        <div key={`bird-${i}`} className="absolute left-0 z-[2]" style={{ top: b.top, animation: `ffGullCruise ${b.dur}s linear ${b.delay}s infinite`, willChange: "transform", backfaceVisibility: "hidden" }}>
+        <div key={`bird-${i}`} className="pointer-events-auto absolute left-0 z-[2] cursor-pointer" data-egg="1" data-testid={i === 0 ? "summer-gull" : undefined} onPointerDown={scatterGulls} style={{ top: b.top, animation: `ffGullCruise ${b.dur}s linear ${b.delay}s infinite`, willChange: "transform", backfaceVisibility: "hidden" }}>
+          {/* scatter layer: darts off on its own vector, then eases back in */}
+          <div style={{ transition: "opacity 1.1s ease-out", animation: gullScatter ? `ffGullScatterUp 1.5s cubic-bezier(0.2,0.6,0.3,1) ${(i % 4) * 0.07}s forwards` : "none", "--sx": `${(i % 2 ? -1 : 1) * (26 + ((i * 13) % 34))}vw`, "--sy": `-${24 + ((i * 17) % 26)}vh` }}>
           {/* rises on the wingbeats, sinks into the glide, banking gently */}
           <div style={{ animation: `ffGullBob ${b.cycle}s ease-in-out ${b.flapDelay}s infinite` }}>
             {/* two photoreal frames toggling = a real wingbeat: three quick
@@ -391,6 +407,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
               <img src="/summer-gull-fly-1.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ animation: `ffWingGlideA ${b.cycle}s steps(1,end) ${b.flapDelay}s infinite` }} />
               <img src="/summer-gull-fly-2.png" alt="" className="absolute inset-0 h-full w-full object-contain" style={{ animation: `ffWingGlideB ${b.cycle}s steps(1,end) ${b.flapDelay}s infinite` }} />
             </div>
+          </div>
           </div>
         </div>
       ))}

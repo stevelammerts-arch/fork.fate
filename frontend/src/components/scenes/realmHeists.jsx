@@ -3,6 +3,7 @@
 // unicorn charge. Each strikes the header medallion via the shared heist lib.
 import { useState, useEffect } from "react";
 import { tapSound } from "../../lib/tapFx";
+import { foundSecret } from "../../lib/secretTrophies";
 import { LogoHeist, summonToLogo, startleTitle, useHeistWitness, preloadHeistAudio, playHeistSound } from "./heistLib";
 
 /** Rare easter egg: the stealth saucer sneaks in and ABDUCTS the header logo.
@@ -977,6 +978,22 @@ export function UnicornChargeHeist() {
       if (img && img.parentElement) img.parentElement.style.visibility = "";
     };
   }, []); // witnessRef is a stable ref
+  // While the gallop is on, ANY tap along its flight path counts as "touching
+  // the gallop" — the sprite crosses the screen in ~1s, a direct hit is luck.
+  // Document-level listener: nothing gets blocked, taps just earn the neigh.
+  useEffect(() => {
+    if (!run) return;
+    const uw = run.w * 3.0, uh = uw * (177 / 360);
+    const onTap = (e) => {
+      if (e.clientY < run.cy - uh * 0.55 || e.clientY > run.cy + uh * 0.85) return;
+      if (Date.now() < (window.__ffUniNeighAt || 0)) return; // 1 neigh per 700ms
+      window.__ffUniNeighAt = Date.now() + 700;
+      foundSecret("unicorn");
+      tapSound(Math.random() < 0.5 ? "/unicorn-neigh.mp3" : "/unicorn-snort.mp3", 0.9);
+    };
+    document.addEventListener("pointerdown", onTap, true);
+    return () => document.removeEventListener("pointerdown", onTap, true);
+  }, [run]);
   if (!run) return null;
   const { cx, cy, w } = run;
   const UW = w * 3.0, UH = UW * (177 / 360);
@@ -1003,15 +1020,13 @@ export function UnicornChargeHeist() {
           })}
         </div>
       </>)}
-      {/* the unicorn at full gallop */}
+      {/* the unicorn at full gallop (tap sound handled by the flight-path
+          listener above so the runner never blocks UI beneath it) */}
       <div
-        className="pointer-events-auto absolute left-0 top-0 cursor-pointer"
-        style={{ transform: `translate(${x}px, ${cy - UH * 0.3}px)`, transition: trans, touchAction: "none" }}
+        className="pointer-events-none absolute left-0 top-0"
+        style={{ transform: `translate(${x}px, ${cy - UH * 0.3}px)`, transition: trans }}
         data-testid="unicorn-heist-runner"
-        onPointerDown={() => tapSound(Math.random() < 0.5 ? "/unicorn-neigh.mp3" : "/unicorn-snort.mp3", 0.9)}
       >
-        {/* generous halo so "touching the gallop" is humanly possible mid-charge */}
-        <span className="absolute -inset-12" aria-hidden="true" />
         <div style={{ width: UW, height: UH, animation: phase === 1 || phase === 3 ? "ffTikiStrut 0.32s linear infinite" : undefined }}>
           <img
             src="/fairy-unicorn.png"

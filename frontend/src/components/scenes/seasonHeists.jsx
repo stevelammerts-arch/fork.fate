@@ -399,10 +399,14 @@ export function SnowmanHeist() {
     const schedule = (ms) => { clearTimeout(pending); pending = setTimeout(() => start(false), ms); };
     const start = (force) => {
       if (running) return;
+      // Grace period after any showing: stray taps landing on the snowman's
+      // zone (via the egg pass-through) must not chain the gag back-to-back.
+      if (force && Date.now() < (window.__ffSnowmanGraceUntil || 0)) return;
       running = true;
       cancelSummon = summonToLogo((med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
+        window.__ffSnowmanGraceUntil = Date.now() + 45000; // 9s show + ~36s quiet
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
         timers.push(setTimeout(() => setPhase(1), 30));    // shuffles in, all smiles
         const howl = (vol) => playHeistSound("/snow-gust.mp3", vol);        timers.push(setTimeout(() => { setGust(true); howl(0.75); }, 2300)); // the wind picks up...

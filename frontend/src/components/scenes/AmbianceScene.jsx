@@ -7,6 +7,7 @@ import { useHeistWitness, preloadHeistAudio, playHeistSound } from "./heistLib";
 import { activeSeason, recordSeasonalSeen } from "../../lib/seasons";
 import { CompanionPatrol } from "./companion";
 import { consoleBeeps, tapSound } from "../../lib/tapFx";
+import { foundSecret } from "../../lib/secretTrophies";
 import { SaucerAbduction, DragonHeist, TikiSpearHeist, SteamSpringHeist, SteamGearsHeist, SteamPeekHeist, UnicornChargeHeist, HotPursuitHeist } from "./realmHeists";
 
 // Fantasy "Dragon's Hoard": glittering gold sparkles across the treasure pile
@@ -302,7 +303,7 @@ function TikiFloorGecko() {
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); window.removeEventListener("ff:gecko-chase", force); };
   }, []);
   return (
-    <div className="pointer-events-auto absolute z-[3] cursor-pointer" data-egg="1" onPointerDown={() => { tapSound("/gecko-chirp.mp3", 0.8); window.dispatchEvent(new Event("ff:gecko-chase")); }} style={{ left: "6%", bottom: "2vh", width: "clamp(54px, 6vw, 78px)" }} data-testid="tiki-gecko-floor">
+    <div className="pointer-events-auto absolute z-[3] cursor-pointer" data-egg="1" onPointerDown={() => { foundSecret("gecko"); tapSound("/gecko-chirp.mp3", 0.8); window.dispatchEvent(new Event("ff:gecko-chase")); }} style={{ left: "6%", bottom: "2vh", width: "clamp(54px, 6vw, 78px)" }} data-testid="tiki-gecko-floor">
       {chase && (
         <div className="absolute left-0" style={{ top: -6, animation: `ffTikiFly ${GECKO_CHASE_MS}ms linear forwards` }} data-testid="tiki-fly">
           <span className="block rounded-full" style={{ width: 7, height: 5, background: "radial-gradient(circle at 35% 35%, #4A3A26, #171008 70%)", boxShadow: "0 -2px 2px rgba(240,230,200,0.35)", animation: "ffFlyJitter 0.14s linear infinite alternate" }} />
@@ -402,6 +403,7 @@ function CyberNeonSign({ neon }) {
         const host = e.currentTarget;
         if (host.dataset.busy || out || crash === 3) return;
         host.dataset.busy = "1";
+        foundSecret("neon-sign");
         tapSound("/neon-fizzle.mp3", 0.75);
         const halo = host.children[0];
         const img = host.querySelector("img");
@@ -796,6 +798,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
               const host = e.currentTarget;
               if (host.dataset.busy) return;
               host.dataset.busy = "1";
+              foundSecret("dragon-claw");
               tapSound("/coin-clink.mp3", 0.85);
               const fx = document.createElement("div");
               fx.style.cssText = "position:absolute;inset:0;pointer-events:none";
@@ -821,6 +824,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
               const host = e.currentTarget;
               if (host.dataset.busy) return;
               host.dataset.busy = "1";
+              foundSecret("dragon-roar");
               tapSound("/dragon-roar.mp3", 0.9);
               const bg = document.querySelector('[data-testid="fantasy-hoard-bg"]');
               if (bg) {
@@ -1001,7 +1005,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             corner (painted at ~canvas 480) and the far leg is shorter — at
             full range he crowded/slid off both counter ends on phones. */}
         {loungeBox && (
-          <div className="pointer-events-auto absolute z-[3] cursor-pointer" data-egg="1" onPointerDown={() => tapSound("/gecko-chirp.mp3", 0.8)} style={{ left: loungeBox.offX + (mobile ? 570 : 520) * (loungeBox.dw / 1264), top: loungeBox.offY + (mobile ? 526 : 533) * (loungeBox.dw / 1264), width: 46 * (loungeBox.dw / 1264), "--s": `${loungeBox.dw / 1264}px`, "--gx": mobile ? 180 : 300, "--gy": mobile ? -27 : -45, animation: "ffGeckoBar 16s linear infinite" }} data-testid="tiki-gecko">
+          <div className="pointer-events-auto absolute z-[3] cursor-pointer" data-egg="1" onPointerDown={() => { foundSecret("gecko"); tapSound("/gecko-chirp.mp3", 0.8); }} style={{ left: loungeBox.offX + (mobile ? 570 : 520) * (loungeBox.dw / 1264), top: loungeBox.offY + (mobile ? 526 : 533) * (loungeBox.dw / 1264), width: 46 * (loungeBox.dw / 1264), "--s": `${loungeBox.dw / 1264}px`, "--gx": mobile ? 180 : 300, "--gy": mobile ? -27 : -45, animation: "ffGeckoBar 16s linear infinite" }} data-testid="tiki-gecko">
             <img src="/tiki-gecko.png" alt="" className="w-full" style={{ animation: "ffGeckoGait 16s linear infinite", transformOrigin: "50% 100%" }} />
           </div>
         )}
@@ -1233,7 +1237,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
         { src: "/steam-alchemy-bench.png?v=501", ar: "966 / 765", cls: "ff-lsp-bench left-auto right-[2vw] bottom-[1.5vh] h-[14vh] sm:right-auto sm:left-[calc(50%+3vh)] sm:bottom-[3vh] sm:h-[22.5vh]", tid: "steam-alchemy-bench",
           lamps: [{ x: 56.1, y: 38.2, c: "#FFB03A", d: 1.6, dl: 0 }, { x: 61.7, y: 39, c: "#FFB03A", d: 2.3, dl: 0.5 }, { x: 73.5, y: 41.6, c: "#FF5540", d: 1.9, dl: 1.1 }] },
       ].map((p) => (
-        <div key={p.tid} className={`absolute z-[3] ${p.tid === "steam-robot-rack" ? "hidden sm:block" : "block"} ${p.cls}${p.tid !== "steam-robot-rack" ? " pointer-events-auto cursor-pointer" : ""}`} data-egg={p.tid !== "steam-robot-rack" ? "1" : undefined} onPointerDown={p.tid !== "steam-robot-rack" ? consoleBeeps : undefined} style={{ aspectRatio: p.ar }} data-testid={p.tid}>
+        <div key={p.tid} className={`absolute z-[3] ${p.tid === "steam-robot-rack" ? "hidden sm:block" : "block"} ${p.cls}${p.tid !== "steam-robot-rack" ? " pointer-events-auto cursor-pointer" : ""}`} data-egg={p.tid !== "steam-robot-rack" ? "1" : undefined} onPointerDown={p.tid !== "steam-robot-rack" ? () => { foundSecret("steam-console"); consoleBeeps(); } : undefined} style={{ aspectRatio: p.ar }} data-testid={p.tid}>
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.5vh", width: "90%", height: "2.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.65), rgba(0,0,0,0) 68%)" }} />
           <img src={p.src} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 5px 8px rgba(0,0,0,0.5)) brightness(0.94)" }} />
           {/* WORKSHOP EVENTS: while a golem event plays, the strapped robot
