@@ -3241,3 +3241,42 @@ body.ff-badge-open .ff-theme-scene * {
   30% { transform: rotate(-9deg); }
   42% { transform: rotate(6deg); }
 }
+
+/* Toasts are swipe-away-able in any direction — text selection would cancel
+   sonner's drag tracking, so disable it inside toasts. */
+[data-sonner-toast] {
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+/* Beach ball tap: one big boing with a squash landing */
+@keyframes ffBallBoing {
+  0% { transform: translateY(0) scale(1); }
+  18% { transform: translateY(2px) scale(1.15, 0.8); }
+  50% { transform: translateY(-64px) scale(0.95, 1.06); }
+  82% { transform: translateY(2px) scale(1.12, 0.84); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* Bat tap: startled zigzag scatter, then settle back to the hover */
+@keyframes ffBatPanic {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(26px, -40px) rotate(10deg); }
+  50% { transform: translate(-30px, -66px) rotate(-12deg); }
+  75% { transform: translate(18px, -30px) rotate(8deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* Dragon claw squeeze: pressure shadow blooms + gold sparkles pop */
+@keyframes ffClawPress {
+  0% { opacity: 0; transform: scale(0.7); }
+  30% { opacity: 1; transform: scale(1.08); }
+  60% { opacity: 0.85; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.9); }
+}
+@keyframes ffCoinPop {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.6); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translate(12px, -28px) scale(1.05); }
+}

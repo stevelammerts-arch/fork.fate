@@ -234,7 +234,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
             <span key={`smoke-${i}`} className="ff-chimney-smoke" style={{ left: cfg.chimney.left, top: cfg.chimney.top, width: s.size, height: s.size, marginTop: -s.size, "--drift": `${s.drift}px`, animationDuration: `${s.dur}s`, animationDelay: `${s.delay}s` }} />
           ))}
           {cfg.snowmanArm && (
-            <div className="absolute w-[6%]" style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%" }} data-testid="winter-snowman-arm">
+            <div className="pointer-events-auto absolute w-[6%] cursor-pointer" onPointerDown={() => window.dispatchEvent(new Event("ff:snowman-heist"))} style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%" }} data-testid="winter-snowman-arm">
               <img src={cfg.snowmanArm} alt="" className="w-full" />
             </div>
           )}
@@ -286,7 +286,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
       )}
       {cfg.groundPumpkins && <img src="/fall-pumpkins-mid.png" alt="" className="absolute bottom-0 left-1/2 z-[3] w-[35vw] max-w-none -translate-x-1/2 object-contain opacity-[0.72] sm:w-[21vw]" style={{ animation: "ffGlow 3.4s ease-in-out infinite" }} />}
       {cfg.squirrel && (
-        <div className="absolute bottom-[1.5%] left-[20%] z-[4]" style={{ animation: "ffSquirrelDart 14s linear infinite" }} data-testid="fall-squirrel">
+        <div className="pointer-events-auto absolute bottom-[1.5%] left-[20%] z-[4] cursor-pointer" onPointerDown={() => window.dispatchEvent(new Event("ff:squirrel-chatter"))} style={{ animation: "ffSquirrelDart 14s linear infinite" }} data-testid="fall-squirrel">
           <img src="/fall-acorn.png" alt="" className="absolute -right-2 bottom-0 w-4 opacity-0" style={{ animation: "ffAcornShow 14s linear infinite" }} data-testid="fall-acorn" />
           <div className="relative h-[30px] w-14 sm:h-[34px] sm:w-16" style={{ animation: "ffSquirrelGait 14s linear infinite", transformOrigin: "60% 100%" }}>
             {/* real gallop frames: extended stride, gathered bound (rear legs in),
@@ -310,7 +310,17 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
           <img src={cfg.crabs} alt="" className="w-9 opacity-90 sm:w-10" />
         </div>
         {/* breeze-blown beach ball bouncing across the sand */}
-        <div className="absolute bottom-[4%] left-0 z-[3]" style={{ animation: `ffBallTravel 13s linear infinite${flair.ballReverse}` }} data-testid="summer-beachball">
+        <div
+          className="pointer-events-auto absolute bottom-[4%] left-0 z-[3] cursor-pointer"
+          style={{ animation: `ffBallTravel 13s linear infinite${flair.ballReverse}` }}
+          data-testid="summer-beachball"
+          onPointerDown={(e) => {
+            const el = e.currentTarget.firstElementChild;
+            if (!el) return;
+            el.style.animation = "ffBallBoing 0.9s cubic-bezier(0.3, 0, 0.4, 1)";
+            setTimeout(() => { el.style.animation = "ffBallBounce 1.6s infinite"; }, 950);
+          }}
+        >
           <div style={{ animation: "ffBallBounce 1.6s infinite" }}>
             <img src="/summer-ball.png" alt="" className="w-10 opacity-90 sm:w-12" style={{ animation: `ffBallSpin 2.2s linear infinite${flair.ballReverse}` }} />
           </div>

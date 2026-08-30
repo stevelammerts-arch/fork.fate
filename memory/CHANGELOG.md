@@ -1739,3 +1739,10 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 ## 2026-02 (fork) — Crawl pills + heist frequency (FF_BUILD 590-591)
 - CrawlSetupPanel: "Suggest a crawl" pill (roulette through CRAWL_TYPES, lands + toast) and "Create your own" pill (inline input -> custom type {key:"custom", mode:"explore", cuisine:label}); Home stores customCrawl for the dialog title. Verified live: Bookstores Crawl dealt real bookstores.
 - Heists now ONE per realm visit: window.__ffHeistPlayedThisVisit latch set by heistLib summonToLogo reserve() + AmbianceScene cyber-wreck go(); checked in both gates; Home clears it on [theme] change. Global 90-120s cooldown retained beneath.
+
+## 2026-02 (fork) — Realm touch reactions + toast swipes (FF_BUILD 592-594)
+- Toasts swipe-away in any direction (Toaster swipeDirections + user-select:none on [data-sonner-toast]; sonner cancels drags during text selection). Verified via drag automation.
+- New lib/tapFx.js: tapSound() + consoleBeeps() (WebAudio).
+- Touch reactions: tiki geckos (chirp mp3 + chase, both floor & bar), reaper bats (ffBatPanic scatter + frantic flap), steam consoles (beep sequence), winter snowman arm (dispatches ff:snowman-heist -> head-falls-off gag), summer beach ball (ffBallBoing squash-bounce), fall squirrel (dispatches ff:squirrel-chatter), fairy heist unicorn (tap -> unicorn-neigh/snort mp3s), dragon claw hotspot (coin-clink mp3 + ffClawPress shadow + ffCoinPop sparkles, loungeBox art-space mapped at 445,435 210x180).
+- GOLD_GLITTER now spans the whole hoard (top 58-94%, 26 sparks; was bottom-only 74-94%).
+- New assets: unicorn-neigh.mp3, unicorn-snort.mp3, coin-clink.mp3, gecko-chirp.mp3.

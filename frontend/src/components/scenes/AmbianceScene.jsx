@@ -6,13 +6,15 @@ import { toast } from "sonner";
 import { useHeistWitness, preloadHeistAudio, playHeistSound } from "./heistLib";
 import { activeSeason, recordSeasonalSeen } from "../../lib/seasons";
 import { CompanionPatrol } from "./companion";
+import { consoleBeeps, tapSound } from "../../lib/tapFx";
 import { SaucerAbduction, DragonHeist, TikiSpearHeist, SteamSpringHeist, SteamGearsHeist, SteamPeekHeist, UnicornChargeHeist, HotPursuitHeist } from "./realmHeists";
 
 // Fantasy "Dragon's Hoard": glittering gold sparkles across the treasure pile
 // + slow water droplets falling from the cave ceiling with a ripple on landing.
-const GOLD_GLITTER = Array.from({ length: 16 }).map((_, i) => ({
+const GOLD_GLITTER = Array.from({ length: 26 }).map((_, i) => ({
   left: `${8 + (i * 6.1 + (i % 4) * 3.2) % 84}%`,
-  top: `${74 + ((i * 13) % 20)}%`,
+  // twinkle across the WHOLE hoard (pile crest ~58% down to the coin skirts)
+  top: `${58 + ((i * 13) % 36)}%`,
   size: 3 + (i % 3) * 2,
   dur: 1.6 + ((i * 7) % 5) * 0.4,
   delay: ((i * 11) % 13) * 0.3,
@@ -300,7 +302,7 @@ function TikiFloorGecko() {
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); window.removeEventListener("ff:gecko-chase", force); };
   }, []);
   return (
-    <div className="absolute z-[3]" style={{ left: "6%", bottom: "2vh", width: "clamp(54px, 6vw, 78px)" }} data-testid="tiki-gecko-floor">
+    <div className="pointer-events-auto absolute z-[3] cursor-pointer" onPointerDown={() => { tapSound("/gecko-chirp.mp3", 0.8); window.dispatchEvent(new Event("ff:gecko-chase")); }} style={{ left: "6%", bottom: "2vh", width: "clamp(54px, 6vw, 78px)" }} data-testid="tiki-gecko-floor">
       {chase && (
         <div className="absolute left-0" style={{ top: -6, animation: `ffTikiFly ${GECKO_CHASE_MS}ms linear forwards` }} data-testid="tiki-fly">
           <span className="block rounded-full" style={{ width: 7, height: 5, background: "radial-gradient(circle at 35% 35%, #4A3A26, #171008 70%)", boxShadow: "0 -2px 2px rgba(240,230,200,0.35)", animation: "ffFlyJitter 0.14s linear infinite alternate" }} />
@@ -757,6 +759,30 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             />
           );
         })}
+        {/* Tap the dragon's claw: it squeezes deeper into the hoard — coins
+            clink, sparkles pop, and a pressure shadow blooms under the talons. */}
+        {loungeBox && (() => { const k = loungeBox.dw / 1264; return (
+          <div
+            className="pointer-events-auto absolute z-[3] cursor-pointer"
+            data-testid="dragon-claw-hotspot"
+            style={{ left: loungeBox.offX + 445 * k, top: loungeBox.offY + 435 * k, width: 210 * k, height: 180 * k }}
+            onPointerDown={(e) => {
+              const host = e.currentTarget;
+              if (host.dataset.busy) return;
+              host.dataset.busy = "1";
+              tapSound("/coin-clink.mp3", 0.85);
+              const fx = document.createElement("div");
+              fx.style.cssText = "position:absolute;inset:0;pointer-events:none";
+              fx.innerHTML =
+                '<div style="position:absolute;left:8%;top:48%;width:84%;height:52%;border-radius:50%;background:radial-gradient(ellipse, rgba(25,12,4,0.6), rgba(25,12,4,0) 70%);animation:ffClawPress 1.4s ease-in-out both"></div>' +
+                Array.from({ length: 8 }).map((_, i) =>
+                  `<span style="position:absolute;left:${14 + i * 9}%;top:${56 + (i % 3) * 10}%;width:5px;height:5px;border-radius:9999px;background:radial-gradient(circle,#FFF6D5,rgba(255,214,110,0.7) 45%,rgba(255,214,110,0) 75%);animation:ffCoinPop 0.9s ease-out ${i * 0.06}s both"></span>`
+                ).join("");
+              host.appendChild(fx);
+              setTimeout(() => { fx.remove(); delete host.dataset.busy; }, 1500);
+            }}
+          />
+        ); })()}
         {GOLD_GLITTER.map((g, i) => (
           <span key={`glit-${i}`} className="pointer-events-none absolute z-[2] rounded-full" style={{ left: g.left, top: g.top, width: g.size, height: g.size, background: "radial-gradient(circle, #FFF6D5, rgba(255,220,130,0.6) 42%, rgba(255,220,130,0) 74%)", animation: `ffGoldTwinkle ${g.dur}s ease-in-out ${g.delay}s infinite` }} />
         ))}
@@ -920,7 +946,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             corner (painted at ~canvas 480) and the far leg is shorter — at
             full range he crowded/slid off both counter ends on phones. */}
         {loungeBox && (
-          <div className="absolute z-[3]" style={{ left: loungeBox.offX + (mobile ? 570 : 520) * (loungeBox.dw / 1264), top: loungeBox.offY + (mobile ? 526 : 533) * (loungeBox.dw / 1264), width: 46 * (loungeBox.dw / 1264), "--s": `${loungeBox.dw / 1264}px`, "--gx": mobile ? 180 : 300, "--gy": mobile ? -27 : -45, animation: "ffGeckoBar 16s linear infinite" }} data-testid="tiki-gecko">
+          <div className="pointer-events-auto absolute z-[3] cursor-pointer" onPointerDown={() => tapSound("/gecko-chirp.mp3", 0.8)} style={{ left: loungeBox.offX + (mobile ? 570 : 520) * (loungeBox.dw / 1264), top: loungeBox.offY + (mobile ? 526 : 533) * (loungeBox.dw / 1264), width: 46 * (loungeBox.dw / 1264), "--s": `${loungeBox.dw / 1264}px`, "--gx": mobile ? 180 : 300, "--gy": mobile ? -27 : -45, animation: "ffGeckoBar 16s linear infinite" }} data-testid="tiki-gecko">
             <img src="/tiki-gecko.png" alt="" className="w-full" style={{ animation: "ffGeckoGait 16s linear infinite", transformOrigin: "50% 100%" }} />
           </div>
         )}
@@ -1152,7 +1178,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
         { src: "/steam-alchemy-bench.png?v=501", ar: "966 / 765", cls: "ff-lsp-bench left-[calc(50%+3vh)] bottom-[3vh] h-[22.5vh]", tid: "steam-alchemy-bench",
           lamps: [{ x: 56.1, y: 38.2, c: "#FFB03A", d: 1.6, dl: 0 }, { x: 61.7, y: 39, c: "#FFB03A", d: 2.3, dl: 0.5 }, { x: 73.5, y: 41.6, c: "#FF5540", d: 1.9, dl: 1.1 }] },
       ].map((p) => (
-        <div key={p.tid} className={`absolute z-[3] hidden sm:block ${p.cls}`} style={{ aspectRatio: p.ar }} data-testid={p.tid}>
+        <div key={p.tid} className={`absolute z-[3] hidden sm:block ${p.cls}${p.tid !== "steam-robot-rack" ? " pointer-events-auto cursor-pointer" : ""}`} onPointerDown={p.tid !== "steam-robot-rack" ? consoleBeeps : undefined} style={{ aspectRatio: p.ar }} data-testid={p.tid}>
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.5vh", width: "90%", height: "2.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.65), rgba(0,0,0,0) 68%)" }} />
           <img src={p.src} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 5px 8px rgba(0,0,0,0.5)) brightness(0.94)" }} />
           {/* WORKSHOP EVENTS: while a golem event plays, the strapped robot

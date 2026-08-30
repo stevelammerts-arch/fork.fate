@@ -2,6 +2,7 @@
 // soul snatch, tiki spear, steam spring/gears, coffee spill, reaper plate,
 // unicorn charge. Each strikes the header medallion via the shared heist lib.
 import { useState, useEffect } from "react";
+import { tapSound } from "../../lib/tapFx";
 import { LogoHeist, summonToLogo, startleTitle, useHeistWitness, preloadHeistAudio, playHeistSound } from "./heistLib";
 
 /** Rare easter egg: the stealth saucer sneaks in and ABDUCTS the header logo.
@@ -1005,7 +1006,13 @@ export function UnicornChargeHeist() {
       {/* the unicorn at full gallop */}
       <div className="absolute left-0 top-0" style={{ transform: `translate(${x}px, ${cy - UH * 0.3}px)`, transition: trans }} data-testid="unicorn-heist-runner">
         <div style={{ width: UW, height: UH, animation: phase === 1 || phase === 3 ? "ffTikiStrut 0.32s linear infinite" : undefined }}>
-          <img src="/fairy-unicorn.png" alt="" className="h-full w-full object-contain" style={{ filter: "drop-shadow(0 6px 14px rgba(20,40,30,0.45)) drop-shadow(0 0 10px rgba(94,224,168,0.35))" }} />
+          <img
+            src="/fairy-unicorn.png"
+            alt=""
+            className="pointer-events-auto h-full w-full cursor-pointer object-contain"
+            onPointerDown={() => tapSound(Math.random() < 0.5 ? "/unicorn-neigh.mp3" : "/unicorn-snort.mp3", 0.9)}
+            style={{ filter: "drop-shadow(0 6px 14px rgba(20,40,30,0.45)) drop-shadow(0 0 10px rgba(94,224,168,0.35))" }}
+          />
         </div>
       </div>
     </div>

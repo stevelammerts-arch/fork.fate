@@ -63,7 +63,7 @@ function App() {
         </Routes>
       </BrowserRouter>
       {/* bottom placement keeps toasts clear of the home quick-tabs strip */}
-      <Toaster position="bottom-center" richColors offset={20} mobileOffset={20} />
+      <Toaster position="bottom-center" richColors offset={20} mobileOffset={20} swipeDirections={["left", "right", "top", "bottom"]} />
       <InstallHelper />
       </LangProvider>
     </div>

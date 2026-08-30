@@ -2965,3 +2965,7 @@ inside playHeistSound).
 ## 2026-02 fork part 127: Crawl suggest/custom pills + one-heist-per-visit (FF_BUILD 591)
 - Suggest-a-crawl roulette + create-your-own custom crawls (explore raw query).
 - Heists latch once per realm visit, re-armed on realm change/reload.
+
+## 2026-02 fork part 128: Realm touch reactions (FF_BUILD 594)
+- Firefly-style tap interactions across 8 realms + swipeable toasts + full-pile
+  hoard glitter. Smoke-tested tiki/fantasy/reaper/steam, zero page errors.

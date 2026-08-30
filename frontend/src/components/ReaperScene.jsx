@@ -66,7 +66,23 @@ export function ReaperScene() {
         <div className="ff-smoke ff-smoke-2" />
         <div className="ff-smoke ff-smoke-3" />
         {REAPER_BATS.map((b, i) => (
-          <div key={`bat-${i}`} className="ff-bat-fly" style={{ left: b.left, top: b.top, animationDuration: `${b.dur}s`, animationDelay: `${b.delay}s` }}>
+          <div
+            key={`bat-${i}`}
+            className="ff-bat-fly pointer-events-auto cursor-pointer"
+            onPointerDown={(e) => {
+              const w = e.currentTarget;
+              const img = w.querySelector("img");
+              w.style.animation = "ffBatPanic 1.1s ease-in-out";
+              if (img) img.style.animationDuration = "0.09s";
+              setTimeout(() => {
+                w.style.animation = "";
+                w.style.animationDuration = `${b.dur}s`;
+                w.style.animationDelay = `${b.delay}s`;
+                if (img) img.style.animationDuration = `${b.flap}s`;
+              }, 1150);
+            }}
+            style={{ left: b.left, top: b.top, animationDuration: `${b.dur}s`, animationDelay: `${b.delay}s` }}
+          >
             <img src="/reaper-bat.png" alt="" className="ff-bat" style={{ width: b.size, animationDuration: `${b.flap}s` }} />
           </div>
         ))}
