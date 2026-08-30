@@ -620,12 +620,14 @@ async def sponsor_subscription_status(subscription_id: str):
 async def reconcile_sponsors():
     """Re-check active PayPal-backed sponsors and auto-pause any that lapsed/cancelled.
     Comped/manual sponsors (no subscription_id) are left untouched.
-    Also purges abandoned pending-payment rows to keep the DB clean."""
+    Also soft-retires abandoned pending-payment rows to keep the DB clean
+    (never hard-deletes — a delayed payment can still be reconciled by hand)."""
     stale_cutoff = (datetime.now(timezone.utc) - timedelta(days=2)).isoformat()
-    purge = await db.sponsors.delete_many({
-        "active": False, "sub_status": "pending_payment", "created_at": {"$lt": stale_cutoff},
-    })
-    purged = purge.deleted_count
+    purge = await db.sponsors.update_many(
+        {"active": False, "sub_status": "pending_payment", "created_at": {"$lt": stale_cutoff}},
+        {"$set": {"sub_status": "abandoned"}},
+    )
+    purged = purge.modified_count
     if not paypal_configured():
         return {"checked": 0, "paused": 0, "purged": purged, "skipped": "paypal_not_configured"}
     active = await db.sponsors.find(
