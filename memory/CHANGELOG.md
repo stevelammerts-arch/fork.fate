@@ -1768,3 +1768,9 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Dragon head roar: dragon-head-hotspot in AmbianceScene fantasy block plays /dragon-roar.mp3 + ffRoarFlare eye glows + ffRoarRumble on cave art. Secrets page hint added (12 eggs now).
 - Unicorn runner: -inset-12 invisible halo + exit gallop 1.05s->1.7s so "touch the gallop" is feasible.
 - Summer ball: ffBallBounce -44->-62px, ffBallBoing 0.9s->1.3s with -112px peak + second -48px rebound.
+
+## 2026-02 (fork) — Secret trophies, snowman head-fall, Santa jet, unicorn fix (FF_BUILD 600)
+- lib/secretTrophies.js: SECRETS registry (14 ids), foundSecret(id) = localStorage ff_secrets_found + awardPoints(20) + sonner toast + ff:secret-found event. Hooked into every egg handler (geckos, neon, claws, dragon head, steam consoles, bats, squirrel, beachball, petals, snowman, santa, gulls, unicorn, fireflies). Secrets.jsx shows progress bar + gold trophy badges (found cards auto-reveal realm).
+- Cottage snowman tap = his own head pops off (SeasonScene state headFall: base img swaps to /winter-decor-headless.png, /winter-snowman-head.png falls via ffSnowHeadFall keyframes, thud at 620ms, restore at 4.2s, __ffSnowHeadBusy guard). PIL-split art with alpha-threshold cleanup of checkerboard artifacts. ff:snowman-heist no longer dispatched by taps (ambient heist unchanged).
+- Santa sleigh: tap freezes cruise transform, inner img runs ffSantaJet 1.5s (whoosh /christmas-whoosh.mp3), rejoins route after 9s.
+- Fairy standing unicorn: hotspot over art rect (280,390)-(425,570) of fairy-gully.png (GULLY_NAT 896x1200), plays neigh/snort + ffUniTapA/B one-shot crossfade of shake patches. Verified: audio played, trophy awarded.

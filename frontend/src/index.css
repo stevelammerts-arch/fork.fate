@@ -3267,6 +3267,34 @@ body.ff-badge-open .ff-theme-scene * {
   100% { transform: translate(var(--sx, -30vw), var(--sy, -28vh)) rotate(-14deg); opacity: 0; }
 }
 
+/* Cottage snowman: head pops off, rolls left, thuds into the snow, settles */
+@keyframes ffSnowHeadFall {
+  0% { transform: translate(0, 0) rotate(0deg); animation-timing-function: cubic-bezier(0.45, 0, 1, 0.5); }
+  48% { transform: translate(-9%, 118%) rotate(-46deg); animation-timing-function: cubic-bezier(0, 0.5, 0.55, 1); }
+  64% { transform: translate(-13%, 100%) rotate(-56deg); animation-timing-function: cubic-bezier(0.5, 0, 1, 0.55); }
+  80% { transform: translate(-16%, 120%) rotate(-64deg); }
+  90% { transform: translate(-17%, 117%) rotate(-66deg); }
+  100% { transform: translate(-18%, 120%) rotate(-67deg); }
+}
+@keyframes ffSnowHeadAway { from { opacity: 0.32; } to { opacity: 0; } }
+
+/* Spooked Santa: bolts off the top corner in a hurry, sleigh bells and all */
+@keyframes ffSantaJet {
+  0% { transform: translate(0, 0) rotate(-2deg); opacity: 0.7; }
+  18% { transform: translate(5vw, -1.5vh) rotate(-9deg); opacity: 0.85; }
+  100% { transform: translate(135vw, -42vh) rotate(-13deg) scale(0.92); opacity: 0; }
+}
+
+/* Startled unicorn: the two shake patches ping-pong quickly for one beat */
+@keyframes ffUniTapA {
+  0%, 24%, 50%, 74% { opacity: 1; }
+  25%, 49%, 75%, 100% { opacity: 0; }
+}
+@keyframes ffUniTapB {
+  0%, 24%, 50%, 74% { opacity: 0; }
+  25%, 49%, 75%, 100% { opacity: 1; }
+}
+
 /* Dragon head roar: eyes flare hot while the whole cavern art trembles */
 @keyframes ffRoarFlare {
   0% { opacity: 0; transform: scale(0.6); }

@@ -2994,3 +2994,15 @@ inside playHeistSound).
   secrets) — false positive; seed_data.py pyflakes-clean; index keys are on
   static decorative arrays; hook-dep omissions remain INTENTIONAL (loop guard);
   Home.jsx/AmbianceScene refactor still forbidden (production regression risk).
+
+## 2026-02 fork part 134: Secret trophies + winter/fairy gag rework (FF_BUILD 600)
+- Secret trophy system (lib/secretTrophies.js): 14 eggs award one-time named
+  trophies (+20 pts) with toast + Secrets page progress bar & gold badges.
+- Cottage snowman now loses HIS OWN head (pre-split art: winter-decor-headless
+  + winter-snowman-head sprites, thud via golem-thud.wav); heist no longer
+  triggered by tap. Miss-clicks verified inert.
+- Santa sleigh jets off on tap with user's christmas-whoosh.mp3 (Sleigh Spooker).
+- Standing gully unicorn (baked in fairy-gully.png) got a tap hotspot at art
+  rect (280,390,145x180): whinny/snort + fast shake-patch crossfade. Root
+  cause of "no unicorn sound": audio was only on the rare gallop heist runner.
+- Gull scatter egg + trophy; unicorn gallop band listener also kept.

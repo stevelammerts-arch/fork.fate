@@ -157,6 +157,23 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
     setGullScatter(Date.now());
     setTimeout(() => setGullScatter(0), 3600);
   };
+  // Tap the cottage snowman: HIS head pops off, thuds into the snow beside
+  // him, and pops back on a beat later (art pre-split into a headless decor
+  // frame + a loose head sprite so the base painting never double-heads).
+  const [headFall, setHeadFall] = useState(false);
+  const snowmanHeadGag = () => {
+    if (window.__ffSnowHeadBusy) return;
+    window.__ffSnowHeadBusy = true;
+    foundSecret("snowman");
+    setHeadFall(true);
+    setTimeout(() => tapSound("/golem-thud.wav", 0.55), 620); // impact
+    setTimeout(() => setHeadFall(false), 4200);
+    setTimeout(() => { window.__ffSnowHeadBusy = false; }, 4400);
+  };
+  useEffect(() => {
+    if (theme !== "winter") return;
+    ["/winter-decor-headless.png", "/winter-snowman-head.png"].forEach((s) => { const i = new Image(); i.src = s; });
+  }, [theme]);
   // The little ground squirrel chatters now and then (soft, respects mute).
   // `ff:squirrel-chatter` forces one for testing.
   useEffect(() => {
@@ -227,7 +244,32 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
       </>)}
       {cfg.sun && <img src={cfg.sun} alt="" className="absolute right-[24%] top-[5%] w-20 opacity-40" style={{ animation: "ffGlow 5s ease-in-out infinite" }} />}
       {cfg.santa && (
-        <div className="absolute left-0 top-0 z-[4] sm:z-[1]" style={{ animation: "ffSantaFly 26s ease-in-out infinite" }} data-testid="winter-santa">
+        <div
+          className="pointer-events-auto absolute left-0 top-0 z-[4] cursor-pointer sm:z-[1]"
+          data-egg="1"
+          style={{ animation: "ffSantaFly 26s ease-in-out infinite" }}
+          data-testid="winter-santa"
+          onPointerDown={(e) => {
+            // spooked: freeze the cruise where he is, jet off with a whoosh,
+            // then quietly rejoin his usual route a little later
+            const wrap = e.currentTarget;
+            if (wrap.dataset.busy) return;
+            wrap.dataset.busy = "1";
+            foundSecret("santa");
+            tapSound("/christmas-whoosh.mp3", 0.8);
+            const frozen = getComputedStyle(wrap).transform;
+            wrap.style.animation = "none";
+            wrap.style.transform = frozen === "none" ? "" : frozen;
+            const img = wrap.querySelector("img");
+            if (img) img.style.animation = "ffSantaJet 1.5s cubic-bezier(0.5,0,0.85,0.4) forwards";
+            setTimeout(() => {
+              wrap.style.animation = "ffSantaFly 26s ease-in-out infinite";
+              wrap.style.transform = "";
+              if (img) img.style.animation = "ffSantaBob 2.6s ease-in-out infinite";
+              delete wrap.dataset.busy;
+            }, 9000);
+          }}
+        >
           <img src={cfg.santa} alt="" className="w-28 opacity-70 drop-shadow-[0_3px_10px_rgba(120,150,180,0.3)] sm:w-40" style={{ animation: "ffSantaBob 2.6s ease-in-out infinite", filter: "blur(0.5px)" }} />
         </div>
       )}
@@ -242,7 +284,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
       )}
       {cfg.decorRight && (cfg.chimney ? (
         <div className={`absolute bottom-0 ${cfg.decorRightPos || "right-[3%]"} ${cfg.decorRightBig ? "w-[92vw] max-w-none sm:w-[48vw]" : "w-[36vw] max-w-md sm:w-[24vw]"}`} style={{ aspectRatio: "1264 / 848" }} data-testid="winter-cabin">
-          <img src={cfg.decorRight} alt="" className="absolute inset-0 h-full w-full object-contain opacity-[0.32]" />
+          <img src={headFall ? "/winter-decor-headless.png" : cfg.decorRight} alt="" className="absolute inset-0 h-full w-full object-contain opacity-[0.32]" />
           {CHIMNEY_SMOKE.map((s, i) => (
             <span key={`smoke-${i}`} className="ff-chimney-smoke" style={{ left: cfg.chimney.left, top: cfg.chimney.top, width: s.size, height: s.size, marginTop: -s.size, "--drift": `${s.drift}px`, animationDuration: `${s.dur}s`, animationDelay: `${s.delay}s` }} />
           ))}
@@ -252,11 +294,14 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
               style={{ left: "13%", top: "54%", width: "17%", height: "40%", touchAction: "manipulation" }}
               data-testid="winter-snowman-hotspot"
               data-egg="1"
-              onClick={() => { foundSecret("snowman"); window.dispatchEvent(new Event("ff:snowman-heist")); }}
+              onClick={snowmanHeadGag}
             />
           )}
+          {cfg.snowmanArm && headFall && (
+            <img src="/winter-snowman-head.png" alt="" className="absolute z-[3] opacity-[0.32]" style={{ left: "13.61%", top: "53.07%", width: "13.77%", animation: "ffSnowHeadFall 1.35s both, ffSnowHeadAway 0.5s ease-out 3.55s both" }} data-testid="winter-snowman-head" />
+          )}
           {cfg.snowmanArm && (
-            <div className="pointer-events-auto absolute w-[6%] cursor-pointer" data-egg="1" onClick={() => { foundSecret("snowman"); window.dispatchEvent(new Event("ff:snowman-heist")); }} style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%" }} data-testid="winter-snowman-arm">
+            <div className="pointer-events-auto absolute w-[6%] cursor-pointer" data-egg="1" onClick={snowmanHeadGag} style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%" }} data-testid="winter-snowman-arm">
               <img src={cfg.snowmanArm} alt="" className="w-full" />
             </div>
           )}

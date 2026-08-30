@@ -926,6 +926,35 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             }}
           />
         ))}
+        {/* Tap the grazing unicorn: a startled whinny/snort + a quick head
+            shake (fast one-shot crossfade of the two shake patches). */}
+        {coverBox && (
+          <div
+            className="pointer-events-auto absolute z-[3] cursor-pointer"
+            data-egg="1"
+            data-testid="fairy-unicorn-hotspot"
+            style={{
+              left: coverBox.offX + (280 / GULLY_NAT.w) * coverBox.dw,
+              top: coverBox.offY + (390 / GULLY_NAT.h) * coverBox.dh,
+              width: (145 / GULLY_NAT.w) * coverBox.dw,
+              height: (180 / GULLY_NAT.h) * coverBox.dh,
+            }}
+            onPointerDown={() => {
+              if (Date.now() < (window.__ffUniTapAt || 0)) return;
+              window.__ffUniTapAt = Date.now() + 1400;
+              foundSecret("unicorn");
+              tapSound(Math.random() < 0.5 ? "/unicorn-neigh.mp3" : "/unicorn-snort.mp3", 0.9);
+              const a = document.querySelector('[data-testid="fairy-uni-shake"]');
+              const b = document.querySelector('[data-testid="fairy-uni-shake-r"]');
+              if (a && b) {
+                const prevA = a.style.animation, prevB = b.style.animation;
+                a.style.animation = "ffUniTapA 1.2s steps(1,end)";
+                b.style.animation = "ffUniTapB 1.2s steps(1,end)";
+                setTimeout(() => { a.style.animation = prevA; b.style.animation = prevB; }, 1260);
+              }
+            }}
+          />
+        )}
       </>)}
       {cfg.skyline && <img src={cfg.skyline} alt="" className="absolute bottom-0 left-0 w-full object-cover opacity-70" style={{ maxHeight: "52vh" }} />}
       {cfg.rain && <div className="absolute inset-0 ff-rain" />}
