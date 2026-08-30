@@ -298,7 +298,7 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
             />
           )}
           {cfg.snowmanArm && headFall && (
-            <img src="/winter-snowman-head.png" alt="" className="absolute z-[3] opacity-[0.32]" style={{ left: "13.61%", top: "53.07%", width: "13.77%", animation: "ffSnowHeadFall 1.35s both, ffSnowHeadAway 0.5s ease-out 3.55s both" }} data-testid="winter-snowman-head" />
+            <img src="/winter-snowman-head.png" alt="" className="absolute z-[3] opacity-[0.55]" style={{ left: "13.61%", top: "53.07%", width: "13.77%", animation: "ffSnowHeadFall 1.35s both, ffSnowHeadAway 0.5s ease-out 3.55s both" }} data-testid="winter-snowman-head" />
           )}
           {cfg.snowmanArm && (
             <div className="pointer-events-auto absolute w-[6%] cursor-pointer" data-egg="1" onClick={snowmanHeadGag} style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%" }} data-testid="winter-snowman-arm">

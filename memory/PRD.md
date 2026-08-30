@@ -3006,3 +3006,7 @@ inside playHeistSound).
   rect (280,390,145x180): whinny/snort + fast shake-patch crossfade. Root
   cause of "no unicorn sound": audio was only on the rare gallop heist runner.
 - Gull scatter egg + trophy; unicorn gallop band listener also kept.
+
+## 2026-02 fork part 135: Snowman head polish (FF_BUILD 602)
+- Head falls IN FRONT of body (forward trajectory + slight scale-up), lands at
+  base. Opacity tuned 0.32 -> 1.0 -> 0.55 per user (less translucent, not solid).

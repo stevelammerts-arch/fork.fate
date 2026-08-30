@@ -3267,16 +3267,17 @@ body.ff-badge-open .ff-theme-scene * {
   100% { transform: translate(var(--sx, -30vw), var(--sy, -28vh)) rotate(-14deg); opacity: 0; }
 }
 
-/* Cottage snowman: head pops off, rolls left, thuds into the snow, settles */
+/* Cottage snowman: SOLID head pops off, tips toward the viewer and lands in
+   FRONT of his body at the base (slight scale-up sells the foreground drop) */
 @keyframes ffSnowHeadFall {
-  0% { transform: translate(0, 0) rotate(0deg); animation-timing-function: cubic-bezier(0.45, 0, 1, 0.5); }
-  48% { transform: translate(-9%, 118%) rotate(-46deg); animation-timing-function: cubic-bezier(0, 0.5, 0.55, 1); }
-  64% { transform: translate(-13%, 100%) rotate(-56deg); animation-timing-function: cubic-bezier(0.5, 0, 1, 0.55); }
-  80% { transform: translate(-16%, 120%) rotate(-64deg); }
-  90% { transform: translate(-17%, 117%) rotate(-66deg); }
-  100% { transform: translate(-18%, 120%) rotate(-67deg); }
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); animation-timing-function: cubic-bezier(0.45, 0, 1, 0.5); }
+  48% { transform: translate(4%, 128%) rotate(24deg) scale(1.05); animation-timing-function: cubic-bezier(0, 0.5, 0.55, 1); }
+  64% { transform: translate(6%, 110%) rotate(30deg) scale(1.05); animation-timing-function: cubic-bezier(0.5, 0, 1, 0.55); }
+  80% { transform: translate(8%, 130%) rotate(34deg) scale(1.06); }
+  90% { transform: translate(8.5%, 128%) rotate(35deg) scale(1.06); }
+  100% { transform: translate(9%, 130%) rotate(36deg) scale(1.06); }
 }
-@keyframes ffSnowHeadAway { from { opacity: 0.32; } to { opacity: 0; } }
+@keyframes ffSnowHeadAway { from { opacity: 0.55; } to { opacity: 0; } }
 
 /* Spooked Santa: bolts off the top corner in a hurry, sleigh bells and all */
 @keyframes ffSantaJet {
