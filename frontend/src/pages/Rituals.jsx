@@ -15,6 +15,7 @@ const ICONS = {
   code: KeyRound, crank: Cog, shaker: CupSoda, volcano: Mountain, tarot: Moon,
   coffin: Skull, seance: Flame, ouija: Ghost, eye: Eye, chest: Gem,
   leaves: Leaf, bloom: Flower2, melon: Citrus, globe: Snowflake, latte: Coffee,
+  lantern: Flame,
   blackout: Stamp,
 };
 
@@ -225,6 +226,11 @@ export default function Rituals() {
                   </span>
                   <div className="flex flex-col items-end gap-1">
                     <RarityTag k={r.key} kind="ritual" t={t} />
+                    {r.limited && (
+                      <span className="rounded-full px-2 py-0.5 font-sans text-[10px] font-bold" style={{ background: "#FF8C1A22", color: "#FF8C1A" }} data-testid={`ritual-limited-${r.key}`}>
+                        {t("October only")}
+                      </span>
+                    )}
                     {got && (
                       <span className="rounded-full px-2 py-0.5 font-sans text-[10px] font-bold" style={{ background: `${r.accent}22`, color: r.accent }} data-testid={`ritual-count-${r.key}`}>
                         ×{info.count}
@@ -239,7 +245,7 @@ export default function Rituals() {
                   {t(r.realm)}
                 </p>
                 <p className={`mt-1.5 font-sans text-xs leading-snug ${got ? "text-white/60" : "text-white/25 italic"}`}>
-                  {got ? t(r.desc) : t("Keep dealing — this fate hasn't shown itself yet.")}
+                  {got ? t(r.desc) : r.limited ? t("A limited ritual — it only appears while its season haunts the realms.") : t("Keep dealing — this fate hasn't shown itself yet.")}
                 </p>
               </motion.div>
             );

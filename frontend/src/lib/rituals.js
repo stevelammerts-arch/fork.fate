@@ -24,6 +24,7 @@ export const RITUALS = [
   { key: "melon", name: "Watermelon Smash", realm: "Summer", theme: "summer", accent: "#E23B4A", desc: "Three good whacks and the melon splits in a juicy spray of seeds." },
   { key: "globe", name: "Snow Globe", realm: "Winter", theme: "winter", accent: "#8FC6FF", desc: "Shake the globe into a blizzard — the fate settles with the snow." },
   { key: "latte", name: "Latte Stir", realm: "Café", theme: "light", accent: "#C08A4E", desc: "The crest is drawn in the cream — stir it away and your fate is served." },
+  { key: "lantern", name: "Jack-o'-Lantern", realm: "All realms", theme: null, accent: "#FF8C1A", limited: "Halloween Takeover — October only", desc: "Light the carved pumpkin's three flames until its grin blazes and reveals your fate. Only carvable while the Halloween Takeover haunts October — then it's dark for a year." },
   { key: "blackout", name: "Blackout", realm: "Cuisine Bingo", theme: null, accent: "#E6B23A", desc: "Every last square of the 5x5 bingo card stamped — the rarest feat in the collection. Fate bows to you." },
 ];
 

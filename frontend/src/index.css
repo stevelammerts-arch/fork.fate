@@ -3286,6 +3286,13 @@ body.ff-badge-open .ff-theme-scene * {
   100% { transform: translate(135vw, -42vh) rotate(-13deg) scale(0.92); opacity: 0; }
 }
 
+/* Jack-o'-Lantern (Halloween exclusive ritual): candle flames gutter inside */
+@keyframes ffLanternFlicker {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.82; transform: scale(0.985); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
 /* Tapped robot: rocks on its feet like it might topple, settling with a decay */
 @keyframes ffGolemTip {
   0% { transform: rotate(0deg); }

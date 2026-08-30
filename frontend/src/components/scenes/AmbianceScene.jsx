@@ -1674,6 +1674,20 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             <div style={{ width: `${5 + (i % 3) * 2}vh`, height: `${2.4 + (i % 3)}vh`, borderRadius: "9999px", background: "radial-gradient(ellipse, rgba(230,225,255,0.75), rgba(185,165,227,0.25) 60%, transparent 80%)", filter: "blur(4px)", animation: `ffSeasonBob ${2.6 + (i % 2)}s ease-in-out infinite` }} />
           </div>
         ))}
+        {season.effect === "steins" && [0, 1, 2, 3, 4, 5].map((i) => (
+          <div key={`st-${i}`} className="absolute left-0" style={{ top: `${10 + (i * 12) % 52}%`, animation: `ffSeasonDrift ${8 + (i % 3) * 1.8}s linear ${i * 0.9}s forwards`, opacity: 0 }}>
+            <svg width={28 + (i % 3) * 10} height={28 + (i % 3) * 10} viewBox="0 0 32 32" style={{ filter: `drop-shadow(0 0 6px ${season.accent})`, animation: `ffSeasonBob ${2.2 + (i % 3) * 0.5}s ease-in-out infinite` }}>
+              <path d="M7 10 h14 v16 a2 2 0 0 1 -2 2 H9 a2 2 0 0 1 -2 -2 Z" fill="#F0B429" opacity="0.92" />
+              <path d="M21 13 h2.6 a3.4 3.4 0 0 1 3.4 3.4 v3.2 a3.4 3.4 0 0 1 -3.4 3.4 H21 v-2.6 h2.4 a1 1 0 0 0 1 -1 v-2.8 a1 1 0 0 0 -1 -1 H21 Z" fill="#D99B1F" opacity="0.92" />
+              <ellipse cx="14" cy="9.4" rx="8.2" ry="3.2" fill="#FFF7E0" />
+              <circle cx="9.6" cy="7.6" r="2.4" fill="#FFF7E0" />
+              <circle cx="14.8" cy="6.6" r="2.8" fill="#FFF7E0" />
+              <circle cx="19.4" cy="7.8" r="2.2" fill="#FFF7E0" />
+              <rect x="9.4" y="13" width="2" height="11" rx="1" fill="#FFE9B0" opacity="0.65" />
+              <rect x="13.2" y="13" width="2" height="11" rx="1" fill="#FFE9B0" opacity="0.45" />
+            </svg>
+          </div>
+        ))}
         {season.effect === "aurora" && (
           <div className="absolute inset-x-0" style={{ top: "6%", height: "22%", background: "linear-gradient(100deg, transparent 0%, rgba(80,230,180,0.28) 22%, rgba(120,180,255,0.34) 48%, rgba(190,130,255,0.26) 74%, transparent 100%)", filter: "blur(14px)", animation: "ffSeasonAurora 11s ease-in-out forwards" }} />
         )}

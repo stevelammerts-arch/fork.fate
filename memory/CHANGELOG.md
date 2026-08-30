@@ -1789,3 +1789,10 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - summonToLogo(kind, done, force) per-kind once-per-visit latch (__ffHeistKindsPlayed, reset in Home on theme change); 20 call sites patched with kind strings; cyberscape wreck converted. Steampunk furnace first strike 12-26s, golem wake 20-38s.
 - AmbianceScene robotShudder(host) shared handler on steam-golem-left/right + steam-robot-rack (data-egg, ffGolemTip 1.5s, golem-gears 0.45).
 - CYBER_CARS wrappers now tappable (data-egg, first has testid cyber-car): img runs ffCarDodge 1.1s + wing-whoosh (800ms throttle).
+
+## 2026-02 (fork) — Halloween Takeover + Stein Season (FF_BUILD 613)
+- seasons.js: haunting => "Halloween Takeover" 10-01..10-31; new "steins" 09-01..09-30 (fateKey stein, The First Pour).
+- JackOLantern.jsx: CSS-carved pumpkin (3 ridged lobes, clip-path face), 3 taps light flames (golem-furnace-crackle per tap, golem-fire-blast on blaze, flame_alt_N.png inner sprite, ffLanternFlicker), ember motes, onDone after 2.2s. Wired in RevealStage (surprise === "lantern", RARE_COVERS + import).
+- rareFate.rarePoolFor pushes "lantern" into every pool when activeSeason().id === "haunting". rituals.js lantern entry w/ limited field; Rituals.jsx ICONS.lantern = Flame + "October only" badge + limited locked-desc.
+- AmbianceScene seasonal drift: effect "steins" renders 6 drifting SVG steins (ffSeasonDrift/ffSeasonBob). NOTE: seasonal drift renders only in ambiance realms (pre-existing).
+- Test hooks: ff_season_test, ff_rare_force, ff_deal_taps/ff_rare_at.

@@ -24,6 +24,7 @@ import { DishDare } from "./DishDare";
 import { VolcanoReveal } from "./VolcanoReveal";
 import { TarotDraw } from "./TarotDraw";
 import { CoffinKnock } from "./CoffinKnock";
+import { JackOLantern } from "./JackOLantern";
 import { SeanceCandles } from "./SeanceCandles";
 import { OuijaBoard } from "./OuijaBoard";
 import { DragonEye } from "./DragonEye";
@@ -50,7 +51,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   // plays (steam, snow, petals, leaves, fireflies, sparkles, fire wall) —
   // re-fires per revealed place, and after a rare ritual unveils.
   // (Hooks live above the early returns to keep hook order stable.)
-  const RARE_COVERS = ["scratch", "8ball", "wheel", "wand", "hack", "code", "crank", "shaker", "volcano", "tarot", "coffin", "seance", "ouija", "eye", "chest", "leaves", "bloom", "melon", "globe", "latte"];
+  const RARE_COVERS = ["scratch", "8ball", "wheel", "wand", "hack", "code", "crank", "shaker", "volcano", "tarot", "coffin", "seance", "ouija", "eye", "chest", "leaves", "bloom", "melon", "globe", "latte", "lantern"];
   const isCovered = RARE_COVERS.includes(surprise);
   // HEARTBEAT DRUMROLL: the first tap on a covered fate card starts the
   // accelerating heartbeat (sound + slight haptics), racing until the
@@ -267,6 +268,9 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
           )}
           {surprise === "coffin" && (
             <CoffinKnock onDone={onSurpriseDone} />
+          )}
+          {surprise === "lantern" && (
+            <JackOLantern onDone={onSurpriseDone} />
           )}
           {surprise === "seance" && (
             <SeanceCandles onDone={onSurpriseDone} />

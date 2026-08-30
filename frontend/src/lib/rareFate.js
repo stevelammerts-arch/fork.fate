@@ -1,4 +1,5 @@
 // Rare-fate cadence + per-theme ritual pools (extracted from Home.jsx).
+import { activeSeason } from "./seasons";
 
 /** Every 10th deal tap is a rare fate (localStorage-tracked; falls back to a
  * 1-in-10 roll when storage is unavailable). */
@@ -26,7 +27,7 @@ export function shouldRareFate() {
  * eye, treasure chest, leaf pile, cherry bloom, melon smash, snow globe,
  * latte stir). */
 export function rarePoolFor(theme) {
-  return theme === "fairy" ? ["scratch", "8ball", "wheel", "wand"]
+  const pool = theme === "fairy" ? ["scratch", "8ball", "wheel", "wand"]
     : theme === "cyber" ? ["scratch", "8ball", "wheel", "hack", "code"]
     : theme === "steam" ? ["scratch", "8ball", "wheel", "crank"]
     : theme === "tiki" ? ["scratch", "8ball", "wheel", "shaker", "volcano"]
@@ -38,4 +39,8 @@ export function rarePoolFor(theme) {
     : theme === "winter" ? ["scratch", "8ball", "wheel", "globe"]
     : theme === "light" ? ["scratch", "8ball", "wheel", "latte"]
     : ["scratch", "8ball", "wheel"];
+  // HALLOWEEN TAKEOVER: while October haunts the realms, the exclusive
+  // Jack-o'-Lantern joins EVERY realm's pool — gone again come November.
+  if (activeSeason()?.id === "haunting") pool.push("lantern");
+  return pool;
 }

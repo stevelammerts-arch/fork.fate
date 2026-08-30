@@ -3049,3 +3049,15 @@ inside playHeistSound).
   tap (ffGolemTip, golem-gears rattle) = "Tin Toppler".
 - Cyber cars dodge pokes (ffCarDodge swerve + wing-whoosh) = "Traffic Hazard".
 - SECRETS registry now 20 total. All verified live (animations + audio + trophies).
+
+## 2026-02 fork part 142: Halloween Takeover + Stein Season (FF_BUILD 613)
+- "haunting" season expanded: Halloween Takeover, 10-01 -> 10-31 (was 10-18 ->
+  11-02), wisps effect + Passing Souls fate kept.
+- EXCLUSIVE ritual: Jack-o'-Lantern (components/home/JackOLantern.jsx) — tap 3
+  flames alight, pumpkin blazes, fate revealed. Joins EVERY realm's rare pool
+  only while the event is live (rareFate.rarePoolFor + activeSeason gate).
+  RITUALS entry with limited flag; Rituals page shows "October only" badge +
+  Flame icon; collection tracking automatic (verified count 1 after reveal).
+- NEW September event: Stein Season (09-01 -> 09-30, effect "steins") — SVG
+  foamy steins drift through ambiance realms; fate "The First Pour".
+- E2E verified via ff_season_test/ff_rare_force: toast, ritual, collection, drift.
