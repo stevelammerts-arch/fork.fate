@@ -332,6 +332,84 @@ export async function buildCollectionShareImage(stats) {
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
 
+/** Hidden Bonuses hunt card: gold stars for found secrets, shadows for the
+ * rest — hints stay secret, only trophy TITLES of found ones are revealed. */
+export async function buildSecretsShareImage(secrets, found) {
+  const S = 1080;
+  const H = 1350; // 4:5 portrait — room for the full trophy shelf
+  const canvas = document.createElement("canvas");
+  canvas.width = S; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = BG; ctx.fillRect(0, 0, S, H);
+  ctx.fillStyle = RED; ctx.fillRect(0, 0, S, 10);
+
+  const n = secrets.filter((s) => found[s.id]).length;
+  ctx.textAlign = "center";
+  ctx.fillStyle = GOLD_LIGHT;
+  ctx.font = "700 62px Georgia, serif";
+  ctx.fillText("HIDDEN BONUSES", S / 2, 112);
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  ctx.font = "700 26px Arial, sans-serif";
+  ctx.fillText("THE REALMS REACT WHEN TOUCHED — I FOUND THESE", S / 2, 162);
+
+  // progress bar
+  const bw = S - 240;
+  roundRect(ctx, 120, 196, bw, 26, 13);
+  ctx.fillStyle = "rgba(255,255,255,0.08)"; ctx.fill();
+  if (n > 0) {
+    roundRect(ctx, 120, 196, Math.max(26, bw * (n / secrets.length)), 26, 13);
+    ctx.fillStyle = GOLD; ctx.fill();
+  }
+  ctx.fillStyle = GOLD_LIGHT;
+  ctx.font = "700 40px Georgia, serif";
+  ctx.fillText(`${n} of ${secrets.length} discovered`, S / 2, 292);
+
+  // trophy shelf: 3 columns of chips
+  const cols = 3, gapX = 24, gapY = 20;
+  const cw = (S - 120 - gapX * (cols - 1)) / cols, ch = 138;
+  const top = 340;
+  secrets.forEach((s, i) => {
+    const col = i % cols, row = Math.floor(i / cols);
+    const x = 60 + col * (cw + gapX);
+    const y = top + row * (ch + gapY);
+    const isFound = !!found[s.id];
+    roundRect(ctx, x, y, cw, ch, 18);
+    ctx.fillStyle = isFound ? "rgba(230,178,58,0.12)" : "rgba(255,255,255,0.04)";
+    ctx.fill();
+    ctx.strokeStyle = isFound ? GOLD : "rgba(255,255,255,0.12)";
+    ctx.lineWidth = isFound ? 3 : 2;
+    ctx.stroke();
+    const cx = x + cw / 2;
+    ctx.fillStyle = isFound ? GOLD : "rgba(255,255,255,0.18)";
+    ctx.font = "700 44px Georgia, serif";
+    ctx.fillText(isFound ? "★" : "?", cx, y + 58);
+    ctx.font = "700 21px Arial, sans-serif";
+    if (isFound) {
+      ctx.fillStyle = GOLD_LIGHT;
+      const nm = s.title.length > 22 ? `${s.title.slice(0, 21)}…` : s.title;
+      ctx.fillText(nm, cx, y + 96);
+      ctx.fillStyle = "rgba(255,255,255,0.45)";
+      ctx.font = "600 17px Arial, sans-serif";
+      ctx.fillText(s.realm, cx, y + 122);
+    } else {
+      ctx.fillStyle = "rgba(255,255,255,0.3)";
+      ctx.fillText("Still hidden…", cx, y + 96);
+      ctx.fillStyle = "rgba(255,255,255,0.2)";
+      ctx.font = "600 17px Arial, sans-serif";
+      ctx.fillText(s.realm, cx, y + 122);
+    }
+  });
+
+  ctx.fillStyle = "rgba(255,255,255,0.5)";
+  ctx.font = "italic 600 30px Georgia, serif";
+  ctx.fillText("Think you can find them all? Keep touching things.", S / 2, H - 92);
+  ctx.fillStyle = GOLD;
+  ctx.font = "700 24px Georgia, serif";
+  ctx.fillText("fork-fate.com", S / 2, H - 40);
+
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+}
+
 /** Native share when possible, silent download otherwise.
  * Returns "shared" | "downloaded" | null (user cancelled). */
 export async function shareImage(blob, filename, text) {

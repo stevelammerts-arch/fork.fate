@@ -135,7 +135,7 @@ export function ReaperScene() {
             if (Date.now() < (window.__ffReaperFaceAt || 0)) return;
             window.__ffReaperFaceAt = Date.now() + 7000;
             foundSecret("reaper-laugh");
-            tapSound("/reaper-laugh-real.mp3?v=607", 0.9); // the promo-video laugh
+            tapSound("/reaper-laugh-real.mp3?v=608", 0.9); // the promo-video laugh
           }}
         />
         <div

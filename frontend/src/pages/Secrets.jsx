@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Eye, EyeOff, Sparkles, Trophy } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Share2, Sparkles, Trophy } from "lucide-react";
+import { toast } from "sonner";
 import { useLang } from "../i18n/i18n";
 import { SECRETS, SECRET_POINTS, readSecretsFound } from "../lib/secretTrophies";
+import { buildSecretsShareImage, shareImage } from "../lib/shareCards";
 
 // Cryptic hints only — the fun is in the hunt. Realm names stay hidden until
 // the player chooses to peek. Discovered eggs turn into named gold trophies.
@@ -10,6 +12,19 @@ export default function Secrets() {
   const { t } = useLang();
   const [shown, setShown] = useState({});
   const [found, setFound] = useState(() => readSecretsFound());
+  const [sharing, setSharing] = useState(false);
+  const shareHunt = async () => {
+    if (sharing) return;
+    setSharing(true);
+    try {
+      const blob = await buildSecretsShareImage(SECRETS, found);
+      const out = await shareImage(blob, "forkfate-secrets.png", t("The realms react when touched — think you can find them all? Hunt on Fork·Fate:"));
+      if (out === "downloaded") toast.success(t("Hunt card saved!"));
+    } catch {
+      toast.error(t("Couldn't build the share image"));
+    }
+    setSharing(false);
+  };
   useEffect(() => {
     const sync = () => setFound(readSecretsFound());
     window.addEventListener("ff:secret-found", sync);
@@ -39,6 +54,15 @@ export default function Secrets() {
           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#EDEEF0]">
             <div className="h-full rounded-full bg-gradient-to-r from-[#C9A227] to-[#E8C547] transition-[width] duration-700" style={{ width: `${(foundCount / SECRETS.length) * 100}%` }} />
           </div>
+          <button
+            type="button"
+            onClick={shareHunt}
+            disabled={sharing}
+            data-testid="secrets-share-button"
+            className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#E01E26] px-5 py-2.5 font-sans text-sm font-bold text-white transition-colors hover:bg-[#C01920] disabled:opacity-60"
+          >
+            <Share2 className="h-4 w-4" /> {sharing ? t("Building card…") : t("Share the hunt")}
+          </button>
         </div>
         <div className="mt-3 space-y-2">
           {SECRETS.map((e, i) => {

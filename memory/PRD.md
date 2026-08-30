@@ -3022,3 +3022,7 @@ inside playHeistSound).
   the window light; scatter in all directions.
 - Reaper laugh re-cut: 72.9s + 5.6s with 0.9s fade — end clank removed,
   laugh verified complete. URL cache-busted (?v=606).
+
+## 2026-02 fork part 138: Laugh final cut (FF_BUILD 608)
+- reaper-laugh-real.mp3 = 72.9s + 3.25s (single laugh only; clank at ~3.95s
+  and the second laugh both excluded). URL ?v=608.
