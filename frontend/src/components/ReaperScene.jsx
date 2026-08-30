@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { foundSecret } from "../lib/secretTrophies";
+import { tapSound } from "../lib/tapFx";
 
 const REAPER_BATS = [
   { left: "12%", top: "26%", size: 30, dur: 9, delay: 0, flap: 0.32 },
@@ -124,10 +125,34 @@ export function ReaperScene() {
             scale: { duration: 1.6, ease: "easeOut" },
           }}
         />
+        {/* Tap his FACE: the promo-video laugh. Tap his PLATE: it sizzles. */}
+        <div
+          className="pointer-events-auto absolute z-10 cursor-pointer"
+          data-egg="1"
+          data-testid="reaper-face-hotspot"
+          style={{ left: "41%", top: "5%", width: "22%", height: "12%" }}
+          onPointerDown={() => {
+            if (Date.now() < (window.__ffReaperFaceAt || 0)) return;
+            window.__ffReaperFaceAt = Date.now() + 7000;
+            foundSecret("reaper-laugh");
+            tapSound("/reaper-laugh-real.mp3?v=607", 0.9); // the promo-video laugh
+          }}
+        />
+        <div
+          className="pointer-events-auto absolute z-10 cursor-pointer"
+          data-egg="1"
+          data-testid="reaper-plate-hotspot"
+          style={{ left: "32%", top: "29%", width: "32%", height: "17%" }}
+          onPointerDown={() => {
+            if (Date.now() < (window.__ffReaperPlateAt || 0)) return;
+            window.__ffReaperPlateAt = Date.now() + 2600;
+            foundSecret("reaper-sizzle");
+            tapSound("/pan-sizzle.mp3", 0.85);
+          }}
+        />
         <motion.div
           aria-hidden="true"
-          data-testid="reaper-lantern"
-          className="absolute z-10 h-16 w-16 rounded-full"
+          data-testid="reaper-lantern"          className="absolute z-10 h-16 w-16 rounded-full"
           style={{
             left: "89.3%",
             top: "27.5%",

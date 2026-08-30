@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { foundSecret } from "../lib/secretTrophies";
+import { tapSound } from "../lib/tapFx";
 
 const rnd = (i, salt) => {
   const x = Math.sin(i * 131.3 + salt * 269.5) * 43758.5453;
@@ -38,6 +40,86 @@ export function CafeDustMotes() {
           />
         );
       })}
+    </div>
+  );
+}
+
+/** Dust bunnies for the café: tiny fluff motes floating in the morning sun
+ * through the window (firefly size + count). Tapping any one startles the
+ * WHOLE drift — they bolt away with a soft rustle, then float back home. */
+const BUNNIES = Array.from({ length: 7 }).map((_, i) => ({
+  left: 8 + ((i * 13.9) % 80), // %
+  top: 14 + ((i * 9.1) % 54), // % — adrift in the window light
+  size: 5 + (i % 3) * 2,
+  durX: 11 + ((i * 2.1) % 7),
+  durY: 9 + ((i * 1.7) % 5),
+  delayX: -((i * 3.3) % 9),
+  delayY: -((i * 2.9) % 6),
+  spin: 12 + (i % 4) * 4,
+}));
+
+export function DustBunnies() {
+  const [seed, setSeed] = useState(0);
+  // fresh random bolt vectors each scatter (dart away through the air)
+  const offsets = useMemo(
+    () =>
+      BUNNIES.map(() => {
+        const ang = Math.random() * Math.PI * 2;
+        const dist = 16 + Math.random() * 18; // vmin
+        return { x: Math.cos(ang) * dist, y: Math.sin(ang) * dist };
+      }),
+    [seed]
+  );
+  const scattered = seed > 0 && Date.now() - seed < 1400;
+  const homing = seed < 0;
+  const scatter = () => {
+    if (scattered) return;
+    try { navigator.vibrate && navigator.vibrate(10); } catch { /* ignore */ }
+    foundSecret("dust-bunnies");
+    tapSound("/leaf-rustle.mp3", 0.3);
+    setSeed(Date.now());
+    setTimeout(() => setSeed((s) => (s ? -s : 0)), 1400); // negative = homing
+  };
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[55] select-none overflow-hidden" data-testid="dust-bunnies-layer">
+      {BUNNIES.map((b, i) => (
+        <div
+          key={i}
+          className="absolute"
+          style={{
+            left: `${b.left}%`,
+            top: `${b.top}%`,
+            transform: scattered ? `translate(${offsets[i].x}vmin, ${offsets[i].y}vmin)` : "translate(0,0)",
+            transition: scattered ? "transform 0.9s cubic-bezier(0.2,0.8,0.3,1)" : homing ? "transform 3.4s ease-in-out" : "none",
+            opacity: scattered ? 0.3 : 1,
+          }}
+        >
+          <div style={{ animation: `ffFlyX ${b.durX}s ease-in-out ${b.delayX}s infinite alternate` }}>
+            <div style={{ animation: `ffFlyY ${b.durY}s ease-in-out ${b.delayY}s infinite alternate` }}>
+              <button
+                type="button"
+                aria-label="dust bunny"
+                data-egg="1"
+                data-testid={i === 0 ? "dust-bunny" : undefined}
+                onPointerDown={scatter}
+                className="pointer-events-auto -m-4 block cursor-pointer border-0 bg-transparent p-4"
+              >
+                <span
+                  className="block rounded-full"
+                  style={{
+                    width: b.size,
+                    height: b.size * 0.85,
+                    background: "radial-gradient(circle at 42% 40%, rgba(214,196,168,0.85), rgba(178,162,140,0.5) 52%, rgba(178,162,140,0) 78%)",
+                    boxShadow: `${b.size * 0.4}px ${b.size * 0.12}px ${b.size * 0.6}px rgba(200,182,152,0.5), ${-b.size * 0.3}px ${b.size * 0.2}px ${b.size * 0.5}px rgba(200,182,152,0.4)`,
+                    filter: "blur(0.6px)",
+                    animation: `ffBunnyTumble ${b.spin}s linear infinite`,
+                  }}
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

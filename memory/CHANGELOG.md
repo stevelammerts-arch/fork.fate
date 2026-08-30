@@ -1774,3 +1774,8 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Cottage snowman tap = his own head pops off (SeasonScene state headFall: base img swaps to /winter-decor-headless.png, /winter-snowman-head.png falls via ffSnowHeadFall keyframes, thud at 620ms, restore at 4.2s, __ffSnowHeadBusy guard). PIL-split art with alpha-threshold cleanup of checkerboard artifacts. ff:snowman-heist no longer dispatched by taps (ambient heist unchanged).
 - Santa sleigh: tap freezes cruise transform, inner img runs ffSantaJet 1.5s (whoosh /christmas-whoosh.mp3), rejoins route after 9s.
 - Fairy standing unicorn: hotspot over art rect (280,390)-(425,570) of fairy-gully.png (GULLY_NAT 896x1200), plays neigh/snort + ffUniTapA/B one-shot crossfade of shake patches. Verified: audio played, trophy awarded.
+
+## 2026-02 (fork) — Reaper face/plate taps, café dust bunnies (FF_BUILD 603-604)
+- ReaperScene.jsx: reaper-face-hotspot (41%,5%,22%x12% of reaper.png box) plays /reaper-laugh-real.mp3 (extracted via ffmpeg from promo/forkfate-promo.mp4 @72.9s+6.4s — the deep outro laugh; original reaper-laugh.mp3 was the WRONG one per user). reaper-plate-hotspot (32%,29%,32%x17%) plays /pan-sizzle.mp3 (user upload trimmed 1.0s+2.4s with fades). Both data-egg + trophies (Death's Comedian, Midnight Chef).
+- CafeDustMotes.jsx: new DustBunnies export — 6 blurred grey puffs hugging the floor (top 76-93%), ffFlyX/Y drift + ffBunnyTumble spin, tap scatters all (bolt up-and-away, home in 3.4s), leaf-rustle @0.3, Dust Wrangler trophy. Mounted in RealmLayers for theme "light".
+- All verified via playwright audio instrumentation: reaper-laugh-real.mp3 + pan-sizzle.mp3 + leaf-rustle.mp3 played, trophies recorded (17 total).

@@ -3010,3 +3010,15 @@ inside playHeistSound).
 ## 2026-02 fork part 135: Snowman head polish (FF_BUILD 602)
 - Head falls IN FRONT of body (forward trajectory + slight scale-up), lands at
   base. Opacity tuned 0.32 -> 1.0 -> 0.55 per user (less translucent, not solid).
+
+## 2026-02 fork part 136: Reaper taps + cafe dust bunnies (FF_BUILD 603-604)
+- Reaper face tap -> realistic laugh EXTRACTED from promo video outro (73-79s,
+  /reaper-laugh-real.mp3); plate tap -> trimmed user sizzle (/pan-sizzle.mp3).
+- Coffee Shop: DustBunnies scatter layer (firefly-style, 6 fuzzy floor puffs,
+  leaf-rustle sound). 17 secret trophies total now.
+
+## 2026-02 fork part 137: Dust bunny + laugh polish (FF_BUILD 605-606)
+- Dust bunnies resized to firefly scale (7 motes, 5-9px) floating mid-air in
+  the window light; scatter in all directions.
+- Reaper laugh re-cut: 72.9s + 5.6s with 0.9s fade — end clank removed,
+  laugh verified complete. URL cache-busted (?v=606).

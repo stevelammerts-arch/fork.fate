@@ -3286,6 +3286,9 @@ body.ff-badge-open .ff-theme-scene * {
   100% { transform: translate(135vw, -42vh) rotate(-13deg) scale(0.92); opacity: 0; }
 }
 
+/* Café dust bunnies: lazy end-over-end tumble along the baseboards */
+@keyframes ffBunnyTumble { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
 /* Startled unicorn: the two shake patches ping-pong quickly for one beat */
 @keyframes ffUniTapA {
   0%, 24%, 50%, 74% { opacity: 1; }

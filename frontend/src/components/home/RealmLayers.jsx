@@ -3,7 +3,7 @@
 import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene, ReaperHeist, GhostSnatchHeist, ReaperPlateHeist, CoffeeSpillHeist, CompanionPatrol } from "../ThemeScenes";
 import { RealmEntrySting } from "../scenes/RealmEntrySting";
 import { ReaperScene } from "../ReaperScene";
-import { CafeDustMotes, CafeCounterCup } from "../CafeDustMotes";
+import { CafeDustMotes, CafeCounterCup, DustBunnies } from "../CafeDustMotes";
 
 export const RealmLayers = ({ theme, seasonCfg, ambCfg, heistEpoch }) => (
   <>
@@ -17,6 +17,7 @@ export const RealmLayers = ({ theme, seasonCfg, ambCfg, heistEpoch }) => (
     )}
     {/* Coffee Shop ambience: dust motes drifting in warm café light */}
     {theme === "light" && <CafeDustMotes />}
+    {theme === "light" && <DustBunnies />}
     {/* ...and a steaming cup of coffee resting in the scene */}
     {theme === "light" && <CafeCounterCup />}
     {/* Seasonal themes: tree + decor + falling sprites */}
