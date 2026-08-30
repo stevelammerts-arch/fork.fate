@@ -3061,3 +3061,9 @@ inside playHeistSound).
 - NEW September event: Stein Season (09-01 -> 09-30, effect "steins") — SVG
   foamy steins drift through ambiance realms; fate "The First Pour".
 - E2E verified via ff_season_test/ff_rare_force: toast, ritual, collection, drift.
+
+## 2026-02 fork part 143: PROD CRASH FIX — Trophies pill (FF_BUILD 614)
+- TrophiesPill.jsx createPortal was missing its container arg (document.body)
+  -> React error #299 -> ErrorBoundary ("Fate hit a snag") on tapping Trophies.
+  Reproduced directly on fork-fate.com, fixed, verified on preview (menu opens,
+  Hidden Bonuses navigates). USER MUST REDEPLOY.

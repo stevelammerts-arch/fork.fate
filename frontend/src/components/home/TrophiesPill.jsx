@@ -71,7 +71,8 @@ export const TrophiesPill = ({ light, ghost }) => {
               <Icon className="h-3.5 w-3.5 text-[#E01E26]" /> {t(label)}
             </Link>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
