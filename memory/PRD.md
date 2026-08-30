@@ -3071,3 +3071,11 @@ inside playHeistSound).
 ## 2026-02 fork part 144: Trophy toast repositioned (FF_BUILD 615)
 - Secret-trophy toast delayed 1.2s + position top-center so bottom-dwelling
   eggs (ball, gecko, squirrel, bunnies) stay visible during their reaction.
+
+## 2026-02 fork part 145: Back-nav + hoard glitter (FF_BUILD 616)
+- Realm picker AND parchment intro now gate on window.__ffRealmChosenThisLoad
+  (set in sealThemeChoice): fresh loads still force realm pick, but returning
+  from Secrets/Rituals/Journal keeps you in the current realm. Verified.
+- GOLD_GLITTER moved to ART coordinates (ax 80-1180, ay 645-820) rendered via
+  loungeBox mapping — sparkles stay on the gold pile, never on nose/claws/air
+  regardless of crop. Verified: all 26 below claw line.

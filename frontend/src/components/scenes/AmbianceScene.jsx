@@ -12,10 +12,12 @@ import { SaucerAbduction, DragonHeist, TikiSpearHeist, SteamSpringHeist, SteamGe
 
 // Fantasy "Dragon's Hoard": glittering gold sparkles across the treasure pile
 // + slow water droplets falling from the cave ceiling with a ripple on landing.
+// Glitter lives in ART coordinates (1264x848 hoard painting) so the twinkles
+// stay ON the gold pile no matter how the art is cropped — never in the air
+// or on the dragon's nose/claws (claws rest ~y445-625; pile is below).
 const GOLD_GLITTER = Array.from({ length: 26 }).map((_, i) => ({
-  left: `${8 + (i * 6.1 + (i % 4) * 3.2) % 84}%`,
-  // twinkle across the WHOLE hoard (pile crest ~58% down to the coin skirts)
-  top: `${58 + ((i * 13) % 36)}%`,
+  ax: 80 + ((i * 89 + (i % 4) * 47) % 1100),
+  ay: 645 + ((i * 61) % 175),
   size: 3 + (i % 3) * 2,
   dur: 1.6 + ((i * 7) % 5) * 0.4,
   delay: ((i * 11) % 13) * 0.3,
@@ -854,9 +856,9 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             }}
           />
         ); })()}
-        {GOLD_GLITTER.map((g, i) => (
-          <span key={`glit-${i}`} className="pointer-events-none absolute z-[2] rounded-full" style={{ left: g.left, top: g.top, width: g.size, height: g.size, background: "radial-gradient(circle, #FFF6D5, rgba(255,220,130,0.6) 42%, rgba(255,220,130,0) 74%)", animation: `ffGoldTwinkle ${g.dur}s ease-in-out ${g.delay}s infinite` }} />
-        ))}
+        {loungeBox && GOLD_GLITTER.map((g, i) => { const k = loungeBox.dw / 1264; return (
+          <span key={`glit-${i}`} className="pointer-events-none absolute z-[2] rounded-full" style={{ left: loungeBox.offX + g.ax * k, top: loungeBox.offY + g.ay * k, width: g.size, height: g.size, background: "radial-gradient(circle, #FFF6D5, rgba(255,220,130,0.6) 42%, rgba(255,220,130,0) 74%)", animation: `ffGoldTwinkle ${g.dur}s ease-in-out ${g.delay}s infinite` }} />
+        ); })}
         {CAVE_DRIPS.map((d, i) => (
           <React.Fragment key={`drip-${i}`}>
             <span className="pointer-events-none absolute z-[3]" style={{ left: d.left, top: 0, width: 3, height: 12, borderRadius: "0 0 3px 3px", background: "linear-gradient(180deg, rgba(40,60,72,0.04), rgba(58,88,104,0.72))", animation: `ffDripFall ${d.dur}s cubic-bezier(0.55,0,0.95,0.5) ${d.delay}s infinite` }} />

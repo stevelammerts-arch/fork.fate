@@ -99,12 +99,15 @@ export default function Home() {
   // "Choose your realm" window — opens on EVERY app load (after the parchment
   // intro on brand-new devices) so players can pick a fresh realm, then the
   // "Where to first?" window routes them to Solo/Groups/Crawls/Passports.
-  const [showThemeWelcome, setShowThemeWelcome] = useState(true);
+  // Realm picker shows once per app LOAD (window flag resets on reload) —
+  // returning from Trophies/Secrets/Journal etc. must NOT re-show it.
+  const [showThemeWelcome, setShowThemeWelcome] = useState(() => !window.__ffRealmChosenThisLoad);
   const sealThemeChoice = () => {
     setShowThemeWelcome(false);
     // Realm sealed — ask which table fate deals at first (Solo/Groups/Crawls/Passports).
     setShowModeChooser(true);
     try { localStorage.setItem("ff_theme_chosen", "1"); } catch (e) { /* ignore */ }
+    window.__ffRealmChosenThisLoad = true;
     trackEvent("theme_welcome_done", { theme });
     dismissThemeHint();
   };
@@ -112,6 +115,9 @@ export default function Home() {
   // PARCHMENT FIELD GUIDE: shown once before the realm chooser on a brand-new
   // device; reopenable via the footer's "How to play" (ff:open-guide event).
   const [showGuide, setShowGuide] = useState(() => {
+    // In-app returns (Secrets/Journal/Rituals -> Home) are NOT fresh loads —
+    // never re-show the parchment once a realm was sealed this load.
+    if (window.__ffRealmChosenThisLoad) return false;
     try { return localStorage.getItem("ff_guide_seen") !== "1"; } catch (e) { return false; }
   });
   // The FIRST parchment close always leads into the realm chooser — even on
