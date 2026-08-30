@@ -12,6 +12,7 @@ const MENU = [
   { to: "/leaderboard", tid: "home-menu-champions", icon: Trophy, label: "Champions" },
   { to: "/wall", tid: "home-menu-wall", icon: Globe2, label: "Passport Wall" },
   { to: "/journal", tid: "home-menu-journal", icon: BookOpen, label: "Fate Journal" },
+  { to: "/secrets", tid: "home-menu-secrets", icon: Sparkles, label: "Hidden Bonuses" },
 ];
 
 export const TrophiesPill = ({ light, ghost }) => {

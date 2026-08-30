@@ -1004,13 +1004,17 @@ export function UnicornChargeHeist() {
         </div>
       </>)}
       {/* the unicorn at full gallop */}
-      <div className="absolute left-0 top-0" style={{ transform: `translate(${x}px, ${cy - UH * 0.3}px)`, transition: trans }} data-testid="unicorn-heist-runner">
+      <div
+        className="pointer-events-auto absolute left-0 top-0 cursor-pointer"
+        style={{ transform: `translate(${x}px, ${cy - UH * 0.3}px)`, transition: trans, touchAction: "none" }}
+        data-testid="unicorn-heist-runner"
+        onPointerDown={() => tapSound(Math.random() < 0.5 ? "/unicorn-neigh.mp3" : "/unicorn-snort.mp3", 0.9)}
+      >
         <div style={{ width: UW, height: UH, animation: phase === 1 || phase === 3 ? "ffTikiStrut 0.32s linear infinite" : undefined }}>
           <img
             src="/fairy-unicorn.png"
             alt=""
-            className="pointer-events-auto h-full w-full cursor-pointer object-contain"
-            onPointerDown={() => tapSound(Math.random() < 0.5 ? "/unicorn-neigh.mp3" : "/unicorn-snort.mp3", 0.9)}
+            className="h-full w-full object-contain"
             style={{ filter: "drop-shadow(0 6px 14px rgba(20,40,30,0.45)) drop-shadow(0 0 10px rgba(94,224,168,0.35))" }}
           />
         </div>

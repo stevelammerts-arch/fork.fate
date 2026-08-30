@@ -779,13 +779,17 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
             />
           );
         })}
-        {/* Tap the dragon's claw: it squeezes deeper into the hoard — coins
-            clink, sparkles pop, and a pressure shadow blooms under the talons. */}
-        {loungeBox && (() => { const k = loungeBox.dw / 1264; return (
+        {/* Tap either of the dragon's claws: they squeeze deeper into the
+            hoard — coins clink, sparkles pop, a pressure shadow blooms. */}
+        {loungeBox && (() => { const k = loungeBox.dw / 1264; return [
+          { id: "l", x: 445, y: 435, w: 210, h: 180 },
+          { id: "r", x: 690, y: 445, w: 210, h: 180 },
+        ].map((c) => (
           <div
+            key={c.id}
             className="pointer-events-auto absolute z-[3] cursor-pointer"
-            data-testid="dragon-claw-hotspot"
-            style={{ left: loungeBox.offX + 445 * k, top: loungeBox.offY + 435 * k, width: 210 * k, height: 180 * k }}
+            data-testid={`dragon-claw-hotspot-${c.id}`}
+            style={{ left: loungeBox.offX + c.x * k, top: loungeBox.offY + c.y * k, width: c.w * k, height: c.h * k }}
             onPointerDown={(e) => {
               const host = e.currentTarget;
               if (host.dataset.busy) return;
@@ -802,7 +806,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
               setTimeout(() => { fx.remove(); delete host.dataset.busy; }, 1500);
             }}
           />
-        ); })()}
+        )); })()}
         {GOLD_GLITTER.map((g, i) => (
           <span key={`glit-${i}`} className="pointer-events-none absolute z-[2] rounded-full" style={{ left: g.left, top: g.top, width: g.size, height: g.size, background: "radial-gradient(circle, #FFF6D5, rgba(255,220,130,0.6) 42%, rgba(255,220,130,0) 74%)", animation: `ffGoldTwinkle ${g.dur}s ease-in-out ${g.delay}s infinite` }} />
         ))}
@@ -1182,7 +1186,7 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
       )}
       {/* WORKSHOP PROPS: valve pedestal (L), robot on assembly rack (M), alchemy bench (R) */}
       {cfg.golemLeft && [
-        { src: "/steam-valve-pedestal.png?v=501", ar: "433 / 735", cls: "ff-lsp-pump left-[calc(50%-70vh)] bottom-[3vh] h-[25vh]", tid: "steam-valve-pedestal",
+        { src: "/steam-valve-pedestal.png?v=501", ar: "433 / 735", cls: "ff-lsp-pump left-[2vw] bottom-[1.5vh] h-[16vh] sm:left-[calc(50%-70vh)] sm:bottom-[3vh] sm:h-[25vh]", tid: "steam-valve-pedestal",
           lamps: [
             // front-face fixtures: mounted ON the two oval hatch housings
             { x: 27.5, y: 43.9, c: "#FFB03A", d: 1.7, dl: 0.1 }, { x: 27.5, y: 59.9, c: "#7CE08A", d: 2.2, dl: 0.7 },
@@ -1195,10 +1199,10 @@ export function AmbianceScene({ theme, cfg, heistEpoch = 0 }) {
           alert: "/steam-robot-rack-alert.png?v=501",
           alertEyes: [{ x: 33.3, y: 15.4 }, { x: 39.7, y: 15.4 }],
           sparks: { x: 65, y: 39 } },
-        { src: "/steam-alchemy-bench.png?v=501", ar: "966 / 765", cls: "ff-lsp-bench left-[calc(50%+3vh)] bottom-[3vh] h-[22.5vh]", tid: "steam-alchemy-bench",
+        { src: "/steam-alchemy-bench.png?v=501", ar: "966 / 765", cls: "ff-lsp-bench left-auto right-[2vw] bottom-[1.5vh] h-[14vh] sm:right-auto sm:left-[calc(50%+3vh)] sm:bottom-[3vh] sm:h-[22.5vh]", tid: "steam-alchemy-bench",
           lamps: [{ x: 56.1, y: 38.2, c: "#FFB03A", d: 1.6, dl: 0 }, { x: 61.7, y: 39, c: "#FFB03A", d: 2.3, dl: 0.5 }, { x: 73.5, y: 41.6, c: "#FF5540", d: 1.9, dl: 1.1 }] },
       ].map((p) => (
-        <div key={p.tid} className={`absolute z-[3] hidden sm:block ${p.cls}${p.tid !== "steam-robot-rack" ? " pointer-events-auto cursor-pointer" : ""}`} onPointerDown={p.tid !== "steam-robot-rack" ? consoleBeeps : undefined} style={{ aspectRatio: p.ar }} data-testid={p.tid}>
+        <div key={p.tid} className={`absolute z-[3] ${p.tid === "steam-robot-rack" ? "hidden sm:block" : "block"} ${p.cls}${p.tid !== "steam-robot-rack" ? " pointer-events-auto cursor-pointer" : ""}`} onPointerDown={p.tid !== "steam-robot-rack" ? consoleBeeps : undefined} style={{ aspectRatio: p.ar }} data-testid={p.tid}>
           <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: "-0.5vh", width: "90%", height: "2.6vh", background: "radial-gradient(ellipse, rgba(0,0,0,0.65), rgba(0,0,0,0) 68%)" }} />
           <img src={p.src} alt="" className="absolute inset-0 h-full w-full object-contain" style={{ filter: "drop-shadow(0 5px 8px rgba(0,0,0,0.5)) brightness(0.94)" }} />
           {/* WORKSHOP EVENTS: while a golem event plays, the strapped robot

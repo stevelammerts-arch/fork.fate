@@ -235,7 +235,21 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
             <span key={`smoke-${i}`} className="ff-chimney-smoke" style={{ left: cfg.chimney.left, top: cfg.chimney.top, width: s.size, height: s.size, marginTop: -s.size, "--drift": `${s.drift}px`, animationDuration: `${s.dur}s`, animationDelay: `${s.delay}s` }} />
           ))}
           {cfg.snowmanArm && (
-            <div className="pointer-events-auto absolute w-[6%] cursor-pointer" onPointerDown={() => window.dispatchEvent(new Event("ff:snowman-heist"))} style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%" }} data-testid="winter-snowman-arm">
+            <div
+              className="pointer-events-auto absolute z-[4] cursor-pointer"
+              style={{ left: "5%", top: "48%", width: "17%", height: "34%", touchAction: "manipulation" }}
+              data-testid="winter-snowman-hotspot"
+              onPointerDown={() => {
+                // an intentional tap always earns the gag — bypass the
+                // one-heist-per-visit latch and the global cooldown
+                window.__ffHeistPlayedThisVisit = false;
+                window.__ffHeistCooldownUntil = 0;
+                window.dispatchEvent(new Event("ff:snowman-heist"));
+              }}
+            />
+          )}
+          {cfg.snowmanArm && (
+            <div className="pointer-events-auto absolute w-[6%] cursor-pointer" onPointerDown={() => { window.__ffHeistPlayedThisVisit = false; window.__ffHeistCooldownUntil = 0; window.dispatchEvent(new Event("ff:snowman-heist")); }} style={{ left: "11.5%", top: "61.5%", animation: "ffSnowmanWave 34s linear infinite", transformOrigin: "92% 92%" }} data-testid="winter-snowman-arm">
               <img src={cfg.snowmanArm} alt="" className="w-full" />
             </div>
           )}

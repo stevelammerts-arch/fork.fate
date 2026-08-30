@@ -1751,3 +1751,12 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Cyber neon sign: tap -> neon-fizzle.mp3 + ffNeonShort/HaloShort (1.6s dark) then ffNeonRevive flicker-back; guarded against the crash-heist states + busy latch.
 - Spring petals: tap -> petal-gust.mp3 (1.2s global throttle) + ffPetalGust fling (new keyframes), petal restored to its swing after.
 - New assets: neon-fizzle.mp3, petal-gust.mp3. Verified via screenshots (sign visibly dark mid-fizzle, relit after), zero page errors.
+
+## 2026-02 (fork) — Mobile touch fixes (FF_BUILD 596)
+- Steam consoles (valve pedestal + alchemy bench) now visible on mobile with mobile-specific positions (bottom corners, smaller); robot rack stays sm+ only.
+- Winter snowman: big invisible hotspot (5%,48%,17%x34%) + arm both dispatch ff:snowman-heist and BYPASS the one-heist-per-visit latch/cooldown (intentional tap always plays). Verified on 390px: head-fall heist ran.
+- Unicorn tap: handler moved from img to the whole runner div (bigger hit area, touchAction none, single handler to avoid double audio).
+
+## 2026-02 (fork) — Hidden Bonuses page + second claw (FF_BUILD 597)
+- New /secrets page (pages/Secrets.jsx) in the Trophy menu: 11 cryptic riddle cards for the easter eggs with peek-to-reveal realm chips. Route added in App.js; MENU entry in TrophiesPill.
+- Dragon hoard: claw-squeeze effect now on BOTH claws (hotspots l @445,435 and r @690,445 in art space). Verified: 2 hotspots, both fire, zero errors.

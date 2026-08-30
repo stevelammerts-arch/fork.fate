@@ -2972,3 +2972,9 @@ inside playHeistSound).
 
 ## 2026-02 fork part 129: Neon fizzle + petal gust taps (FF_BUILD 595)
 - Two more realm touch reactions, screenshot-verified.
+
+## 2026-02 fork part 130: Mobile touch fixes (FF_BUILD 596)
+- Steam consoles on mobile, snowman hotspot + latch bypass, unicorn hit area.
+
+## 2026-02 fork part 131: Hidden Bonuses page + both claws (FF_BUILD 597)
+- /secrets riddle page in Trophy menu; dual dragon-claw hotspots. Verified.
