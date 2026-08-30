@@ -465,8 +465,28 @@ export function SeasonScene({ theme, cfg, heistEpoch = 0 }) {
           const src = cfg.items[i % cfg.items.length];
           const s = src.includes("petal") ? l.size * 0.58 : l.size; // lone petals fall smaller than whole blossoms
           return (
-            <img key={`leaf-${l.left}-${l.dur}-${i}`} src={src} alt="" className="absolute top-0 opacity-80"
-              style={{ left: l.left, width: s, height: s, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }} />
+            <span
+              key={`leaf-${l.left}-${l.dur}-${i}`}
+              className="pointer-events-auto absolute top-0 cursor-pointer"
+              data-testid={i === 0 ? "fall-leaf" : undefined}
+              style={{ left: l.left, animation: `ffLeafFall ${l.dur}s linear ${l.delay}s infinite` }}
+              onPointerDown={(e) => {
+                // gust: the touched leaf whooshes away on a rustling wind burst
+                foundSecret("leaf-gust");
+                const now = Date.now();
+                if (!window.__ffGustAt || now - window.__ffGustAt > 1200) {
+                  window.__ffGustAt = now;
+                  tapSound("/leaf-rustle.mp3", 0.7);
+                }
+                const img = e.currentTarget.firstElementChild;
+                if (!img || img.dataset.busy) return;
+                img.dataset.busy = "1";
+                img.style.animation = "ffPetalGust 1.3s ease-out both";
+                setTimeout(() => { img.style.animation = ""; delete img.dataset.busy; }, 1350);
+              }}
+            >
+              <img src={src} alt="" className="opacity-80" style={{ width: s, height: s }} />
+            </span>
           );
         })}
       </div>

@@ -3026,3 +3026,26 @@ inside playHeistSound).
 ## 2026-02 fork part 138: Laugh final cut (FF_BUILD 608)
 - reaper-laugh-real.mp3 = 72.9s + 3.25s (single laugh only; clank at ~3.95s
   and the second laugh both excluded). URL ?v=608.
+
+## 2026-02 fork part 139: Trophy sharing + leaf gust (FF_BUILD 609-610)
+- Duel Rematch: already existed (Run it back / Demand a rematch) — confirmed.
+- Trophy Sharing: buildSecretsShareImage in shareCards.js (1080x1350 card,
+  gold stars for found, ? for hidden) + "Share the hunt" button on Secrets page
+  (Web Share / download fallback). Verified: blob generated, download fired.
+- 18th secret: Fall leaves get petal-gust tap effect (leaf-rustle sound,
+  ffPetalGust flyaway) = "Leaf Chaser". SECRETS total now 18.
+
+## 2026-02 fork part 140: Per-kind heists + faster steampunk golems (FF_BUILD 611)
+- summonToLogo(kind, done, force): once-per-visit latch is now PER HEIST KIND
+  (window.__ffHeistKindsPlayed registry, reset by Home on realm change) — every
+  heist in a realm can strike once per visit, spaced by the 90-120s cooldown.
+  All 20 call sites patched with kinds; cyberscape wreck converted too.
+- Steampunk: furnace blast first strike 35-65s -> 12-26s; golem awakening
+  45-85s -> 20-38s (middle rack robot powers up in response, so it shows
+  sooner as well). Verified live: furnace fired within ~20s.
+
+## 2026-02 fork part 141: Even 20 secrets (FF_BUILD 612)
+- Golem shudder: both steam golems + rack robot rock like they might topple on
+  tap (ffGolemTip, golem-gears rattle) = "Tin Toppler".
+- Cyber cars dodge pokes (ffCarDodge swerve + wing-whoosh) = "Traffic Hazard".
+- SECRETS registry now 20 total. All verified live (animations + audio + trophies).

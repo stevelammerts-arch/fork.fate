@@ -11,11 +11,12 @@ import { awardPoints, EARN } from "../../lib/points";
  * view (mobile, mid-list), smoothly pull the page back to the top first so
  * they never miss the show, then hand back the medallion element to measure.
  * Returns a cancel function for unmount-mid-scroll safety. */
-export function summonToLogo(done, force = false) {
+export function summonToLogo(kind, done, force = false) {
   // Never interrupt the show: if fate is mid-shuffle or mid-reveal (Home
   // keeps window.__ffFateBusy up to date), bow out — every heist treats a
   // null medallion as "try again in ~30s".
   if (window.__ffFateBusy) { done(null); return () => {}; }
+  const played = (window.__ffHeistKindsPlayed = window.__ffHeistKindsPlayed || {});
   // One heist at a time, with a breather: realms run several heists on
   // independent timers, so without a global cool-down the strikes cluster
   // back-to-back. A bounced heist simply retries in ~30s.
@@ -24,9 +25,10 @@ export function summonToLogo(done, force = false) {
   // the background timers never chain replays off a forced strike.
   if (!force) {
     if (Date.now() < (window.__ffHeistCooldownUntil || 0)) { done(null); return () => {}; }
-    // Heists are a rare treat: ONE per realm visit. Home clears this latch
-    // whenever the player enters a different realm (or reloads the app).
-    if (window.__ffHeistPlayedThisVisit) { done(null); return () => {}; }
+    // EACH heist kind is a rare treat: once per realm visit (different kinds
+    // may each strike once, spaced by the global cooldown). Home clears this
+    // registry whenever the player enters a different realm (or reloads).
+    if (played[kind]) { done(null); return () => {}; }
   }
   const img = document.querySelector('img[alt="Fork·Fate logo"]');
   const med = img && img.parentElement;
@@ -34,7 +36,7 @@ export function summonToLogo(done, force = false) {
   if (!r || !r.width) { done(null); return () => {}; }
   const reserve = () => {
     window.__ffHeistCooldownUntil = Date.now() + 90000 + Math.random() * 30000;
-    window.__ffHeistPlayedThisVisit = true;
+    played[kind] = true;
   };
   if (r.top >= 0 && r.bottom <= window.innerHeight) { reserve(); done(med); return () => {}; }
   // HOLD THE STAGE while we scroll up (~2.75s max): without this a golem
@@ -158,7 +160,7 @@ export function LogoHeist({ sprite, aspect, gripX, gripY, widthMult, cloneSrc, s
       if (running) return;
       running = true;
       // Scroll the user back up to the header first — the show is up there.
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo(heistKey, (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });

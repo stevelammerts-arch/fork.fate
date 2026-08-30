@@ -1779,3 +1779,13 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - ReaperScene.jsx: reaper-face-hotspot (41%,5%,22%x12% of reaper.png box) plays /reaper-laugh-real.mp3 (extracted via ffmpeg from promo/forkfate-promo.mp4 @72.9s+6.4s — the deep outro laugh; original reaper-laugh.mp3 was the WRONG one per user). reaper-plate-hotspot (32%,29%,32%x17%) plays /pan-sizzle.mp3 (user upload trimmed 1.0s+2.4s with fades). Both data-egg + trophies (Death's Comedian, Midnight Chef).
 - CafeDustMotes.jsx: new DustBunnies export — 6 blurred grey puffs hugging the floor (top 76-93%), ffFlyX/Y drift + ffBunnyTumble spin, tap scatters all (bolt up-and-away, home in 3.4s), leaf-rustle @0.3, Dust Wrangler trophy. Mounted in RealmLayers for theme "light".
 - All verified via playwright audio instrumentation: reaper-laugh-real.mp3 + pan-sizzle.mp3 + leaf-rustle.mp3 played, trophies recorded (17 total).
+
+## 2026-02 (fork) — Trophy sharing, leaf gust, 18 secrets (FF_BUILD 609-610)
+- shareCards.js: buildSecretsShareImage(secrets, found) — portrait card with progress bar + 3-col trophy chip grid. Secrets.jsx "Share the hunt" button (data-testid secrets-share-button).
+- SeasonScene falling-foreground leaves (z-60, fall realm): each leaf wrapped in tappable span (data-testid fall-leaf on first), onPointerDown = foundSecret("leaf-gust") + leaf-rustle.mp3 (1.2s gust throttle via __ffGustAt shared with petals) + ffPetalGust on the img, restore after 1.35s. No data-egg needed (layer already above content).
+- Duel rematch confirmed pre-existing in Duel.jsx (rematch() + duel-rematch-button).
+
+## 2026-02 (fork) — Golem shudder + car dodge, 20 secrets (FF_BUILD 611-612)
+- summonToLogo(kind, done, force) per-kind once-per-visit latch (__ffHeistKindsPlayed, reset in Home on theme change); 20 call sites patched with kind strings; cyberscape wreck converted. Steampunk furnace first strike 12-26s, golem wake 20-38s.
+- AmbianceScene robotShudder(host) shared handler on steam-golem-left/right + steam-robot-rack (data-egg, ffGolemTip 1.5s, golem-gears 0.45).
+- CYBER_CARS wrappers now tappable (data-egg, first has testid cyber-car): img runs ffCarDodge 1.1s + wing-whoosh (800ms throttle).

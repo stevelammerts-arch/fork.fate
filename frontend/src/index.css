@@ -3286,6 +3286,25 @@ body.ff-badge-open .ff-theme-scene * {
   100% { transform: translate(135vw, -42vh) rotate(-13deg) scale(0.92); opacity: 0; }
 }
 
+/* Tapped robot: rocks on its feet like it might topple, settling with a decay */
+@keyframes ffGolemTip {
+  0% { transform: rotate(0deg); }
+  14% { transform: rotate(-4.5deg); }
+  30% { transform: rotate(3.6deg); }
+  46% { transform: rotate(-2.6deg); }
+  62% { transform: rotate(1.8deg); }
+  78% { transform: rotate(-0.9deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Poked skyline traffic: swerves up and away, wobbles, settles back on route */
+@keyframes ffCarDodge {
+  0% { transform: translateY(0) rotate(0deg); }
+  22% { transform: translateY(-34px) rotate(-7deg); }
+  55% { transform: translateY(-25px) rotate(4deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
 /* Café dust bunnies: lazy end-over-end tumble along the baseboards */
 @keyframes ffBunnyTumble { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 

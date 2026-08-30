@@ -10,12 +10,14 @@ export const SECRET_POINTS = 20;
 export const SECRETS = [
   { id: "fireflies", title: "Lantern Snatcher", hint: "Tiny lanterns drift after dusk. Catch one and fate tips you daily.", realm: "Fall Forest" },
   { id: "squirrel", title: "Bushy-Tail Whisperer", hint: "Something bushy-tailed scolds intruders, then takes the high road.", realm: "Fall Forest" },
+  { id: "leaf-gust", title: "Leaf Chaser", hint: "Autumn's drifters flee on a gust when fingertips get too close.", realm: "Fall Forest" },
   { id: "gecko", title: "Gecko Startler", hint: "A small sunbather chirps when startled — twice over, if you find them both.", realm: "Tiki Lounge" },
   { id: "bats", title: "Shadow Scatterer", hint: "The night's shadows scatter if you reach for them.", realm: "Reaper's Domain" },
   { id: "reaper-laugh", title: "Death's Comedian", hint: "Look Death square in the face — he finds that hilarious.", realm: "Reaper's Domain" },
   { id: "reaper-sizzle", title: "Midnight Chef", hint: "His last supper still sizzles if you disturb the plate.", realm: "Reaper's Domain" },
   { id: "dust-bunnies", title: "Dust Wrangler", hint: "Tiny fluffs drift in the morning window light. Reach out and they bolt.", realm: "Coffee Shop" },
   { id: "steam-console", title: "Panel Tinkerer", hint: "The workshop's side panels still answer in beeps.", realm: "Steampunk" },
+  { id: "golem-shudder", title: "Tin Toppler", hint: "The workshop's iron giants aren't as steady as they look.", realm: "Steampunk" },
   { id: "snowman", title: "Head Turner", hint: "Give the waving fellow a tap — he'll lose his head over it.", realm: "Winter" },
   { id: "santa", title: "Sleigh Spooker", hint: "Poke the midnight courier and watch him bolt for the stars.", realm: "Winter" },
   { id: "beachball", title: "Extra Bounce", hint: "Some toys on the sand just want one more bounce.", realm: "Summer" },
@@ -25,6 +27,7 @@ export const SECRETS = [
   { id: "dragon-claw", title: "Treasure Presser", hint: "Press the hoard-keeper's grip and hear the treasure complain.", realm: "Dragon's Hoard" },
   { id: "dragon-roar", title: "Cavern Waker", hint: "Dare a tap on the hoard-keeper's crown — the whole cavern answers.", realm: "Dragon's Hoard" },
   { id: "neon-sign", title: "Loose Wire", hint: "Even the sky's brightest sign has a loose wire.", realm: "Cyberscape" },
+  { id: "car-dodge", title: "Traffic Hazard", hint: "Skyline traffic swerves for no one — except your finger.", realm: "Cyberscape" },
 ];
 
 export function readSecretsFound() {

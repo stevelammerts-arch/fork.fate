@@ -250,9 +250,11 @@ export default function Home() {
   // turns busy, heistEpoch bumps — remounting every heist layer so any strike
   // already mid-run aborts instantly (its unmount cleanup restores the logo).
   const [heistEpoch, setHeistEpoch] = useState(0);
-  // Heists strike ONCE per realm visit — entering a (new) realm re-arms them.
+  // Heists strike ONCE per kind per realm visit — entering a (new) realm
+  // re-arms them all.
   useEffect(() => {
     window.__ffHeistPlayedThisVisit = false;
+    window.__ffHeistKindsPlayed = {};
   }, [theme]);
   // iOS only fires motion events after an in-gesture permission grant, and
   // the floating content layers swallow easter-egg taps aimed at the realm

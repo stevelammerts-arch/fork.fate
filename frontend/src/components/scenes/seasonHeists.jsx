@@ -24,7 +24,7 @@ export function SummerBallHeist() {
     const start = (force) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("ball", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({
@@ -125,7 +125,7 @@ export function SummerGullHeist() {
     const start = (force) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("gulls", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
@@ -315,7 +315,7 @@ export function SummerCrabHeist() {
     const start = (force) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("crab", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
@@ -403,7 +403,7 @@ export function SnowmanHeist() {
       // zone (via the egg pass-through) must not chain the gag back-to-back.
       if (force && Date.now() < (window.__ffSnowmanGraceUntil || 0)) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("snowman", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         window.__ffSnowmanGraceUntil = Date.now() + 45000; // 9s show + ~36s quiet
@@ -539,7 +539,7 @@ export function OwlHeist() {
     const start = (force) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("owl", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         const medImg = med.querySelector("img");
@@ -647,7 +647,7 @@ export function SpringPetalHeist() {
     const start = (force) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("petals", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
@@ -732,7 +732,7 @@ export function CardinalTipHeist() {
     const start = (force) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("cardinal", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
@@ -841,7 +841,7 @@ export function WinterStashHeist() {
     const start = (force) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("stash", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });

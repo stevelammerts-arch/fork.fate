@@ -26,7 +26,7 @@ export function SaucerAbduction({ saucer, onActive }) {
       if (running) return;
       running = true;
       // Scroll the user back up to the header first — the show is up there.
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("saucer", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         const cx = r.x + r.width / 2, cy = r.y + r.height / 2;
@@ -165,7 +165,7 @@ export function GhostSnatchHeist() {
     const start = (force) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("snatch", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
@@ -251,7 +251,7 @@ export function TikiSpearHeist() {
     const start = (force) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("spear", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         const w = r.width;
@@ -348,7 +348,7 @@ export function SteamSpringHeist() {
     const start = (force) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("spring", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
@@ -433,7 +433,7 @@ export function SteamPeekHeist() {
       // JUMP-SCARE variant (~1 in 3): mid-glance he SNAPS to center, locks
       // eyes with the viewer — lenses flaring — then ducks away in a blink.
       const scare = forceScare !== undefined ? !!forceScare : Math.random() < 0.35;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("peek", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
@@ -583,7 +583,7 @@ export function SteamGearsHeist() {
     const start = (force) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("gears", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
@@ -706,7 +706,7 @@ export function CoffeeSpillHeist() {
     const start = (force) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("coffee", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
@@ -847,7 +847,7 @@ export function ReaperPlateHeist() {
     const start = (force) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("plate", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
@@ -942,7 +942,7 @@ export function UnicornChargeHeist() {
     const start = (force) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("unicorn", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         setRun({ cx: r.x + r.width / 2, cy: r.y + r.height / 2, w: r.width });
@@ -1067,7 +1067,7 @@ export function HotPursuitHeist() {
     const start = (force, forcedVariant) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo("pursuit", (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) schedule(30000); return; }
         const v = forcedVariant || (Math.random() < 0.35 ? "tow" : "fall");

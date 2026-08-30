@@ -261,7 +261,7 @@ export function CompanionPatrol({ s1, s2, glow, dustCol = ["#FFF9D9", "#FFD36B"]
     const heist = (force) => {
       if (running) return;
       running = true;
-      cancelSummon = summonToLogo((med) => {
+      cancelSummon = summonToLogo(heistKind, (med) => {
         const r = med && med.getBoundingClientRect();
         if (!r || !r.width) { running = false; if (!force) scheduleHeist(30000); return; }
         overrideEl = med;
