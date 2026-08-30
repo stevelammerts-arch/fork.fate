@@ -2988,3 +2988,9 @@ inside playHeistSound).
 - Dragon head roar hotspot (700,285 250x150 art px) + eye flares + cavern rumble.
 - Unicorn: -inset-12 tap halo + slower exit gallop (1.7s). Beach ball bounces
   higher (ambient -62px, boing -112px double-rebound, 1.3s).
+
+## 2026-02 fork part 133: Code review triage — NO changes applied (user choice A)
+- External code-quality report triaged: localStorage items are game saves (no
+  secrets) — false positive; seed_data.py pyflakes-clean; index keys are on
+  static decorative arrays; hook-dep omissions remain INTENTIONAL (loop guard);
+  Home.jsx/AmbianceScene refactor still forbidden (production regression risk).
