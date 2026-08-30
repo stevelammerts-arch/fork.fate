@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
-import { Dices, LocateFixed } from "lucide-react";
+import { Dices, LocateFixed, Sparkles, Pencil } from "lucide-react";
+import { toast } from "sonner";
+import { useRef, useState } from "react";
 import { Slider } from "../ui/slider";
 import { useLang } from "../../i18n/i18n";
 import { CRAWL_TYPES, SPIN_TAP } from "../../pages/homeConstants";
@@ -17,6 +19,37 @@ export function CrawlSetupPanel({ crawlType, onPickType, light, setup, slice }) 
     radius, setRadius, radiusMax, spinning, loading, onDeal,
   } = setup;
 
+  const suggesting = useRef(false);
+  const [customOpen, setCustomOpen] = useState(false);
+  const [customText, setCustomText] = useState("");
+  // "Create your own": any idea becomes a crawl — searched as a raw explore
+  // query so "Karaoke", "Sushi" or "Bookstores" all work.
+  const submitCustom = () => {
+    const label = customText.trim();
+    if (!label) return;
+    onPickType({ key: "custom", label, mode: "explore", cuisine: label, crawl: `${label} Crawl` });
+    setCustomOpen(false);
+    toast.success(`${label} Crawl ${t("is on the table — deal it!")}`);
+  };
+  // "Suggest a crawl": fate roulettes through the type pills and lands on one.
+  const suggestCrawl = () => {
+    if (suggesting.current || spinning || loading) return;
+    suggesting.current = true;
+    const spins = 9 + Math.floor(Math.random() * CRAWL_TYPES.length);
+    const start = Math.floor(Math.random() * CRAWL_TYPES.length);
+    const step = (n) => {
+      const ct = CRAWL_TYPES[(start + n) % CRAWL_TYPES.length];
+      onPickType(ct);
+      if (n < spins) {
+        setTimeout(() => step(n + 1), 55 + n * 16);
+      } else {
+        suggesting.current = false;
+        toast.success(`${t("Fate suggests")}: ${ct.label}`);
+      }
+    };
+    step(0);
+  };
+
   const typePills = (
     <div className="flex flex-wrap gap-2">
       {CRAWL_TYPES.map((ct) => (
@@ -30,6 +63,38 @@ export function CrawlSetupPanel({ crawlType, onPickType, light, setup, slice }) 
           {ct.label}
         </button>
       ))}
+      <button
+        type="button"
+        data-testid="crawl-suggest-pill"
+        onClick={suggestCrawl}
+        className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-[#E01E26]/60 bg-[#E01E26]/5 px-4 py-2 text-sm font-bold text-[#E01E26] transition-colors hover:bg-[#E01E26]/15"
+      >
+        <Sparkles className="h-3.5 w-3.5" /> {t("Suggest a crawl")}
+      </button>
+      {customOpen ? (
+        <span className="inline-flex items-center gap-1 rounded-full border border-[#E01E26]/60 bg-white py-1 pl-3 pr-1">
+          <input
+            autoFocus
+            value={customText}
+            onChange={(e) => setCustomText(e.target.value.slice(0, 30))}
+            onKeyDown={(e) => { if (e.key === "Enter") submitCustom(); if (e.key === "Escape") setCustomOpen(false); }}
+            placeholder={t("e.g. Karaoke, Sushi…")}
+            data-testid="crawl-custom-input"
+            className="w-36 bg-transparent text-sm font-bold text-[#0E0E0E] outline-none placeholder-[#9AA0A6]"
+          />
+          <button type="button" onClick={submitCustom} data-testid="crawl-custom-go"
+            className="rounded-full bg-[#E01E26] px-3 py-1 text-xs font-bold text-white hover:bg-[#B3141A]">{t("Go")}</button>
+        </span>
+      ) : (
+        <button
+          type="button"
+          data-testid="crawl-custom-pill"
+          onClick={() => setCustomOpen(true)}
+          className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-bold transition-colors ${crawlType === "custom" ? "border-[#E01E26] bg-[#E01E26] text-white" : "border-dashed border-[#6B7075]/60 bg-white text-[#6B7075] hover:bg-[#EDEEF0]"}`}
+        >
+          <Pencil className="h-3.5 w-3.5" /> {crawlType === "custom" && customText.trim() ? customText.trim() : t("Create your own")}
+        </button>
+      )}
     </div>
   );
 

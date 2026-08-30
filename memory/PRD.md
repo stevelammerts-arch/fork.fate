@@ -2961,3 +2961,7 @@ inside playHeistSound).
 ## 2026-02 fork part 126: Aquarium/zoo search accuracy (backend)
 - Explore chips Aquariums/Zoos/Safaris/Petting Zoos now use rephrased queries +
   attraction-type gating; pet/fish stores filtered out. Live-verified via API.
+
+## 2026-02 fork part 127: Crawl suggest/custom pills + one-heist-per-visit (FF_BUILD 591)
+- Suggest-a-crawl roulette + create-your-own custom crawls (explore raw query).
+- Heists latch once per realm visit, re-armed on realm change/reload.

@@ -1735,3 +1735,7 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
   1) _EXPLORE_QUERY_OVERRIDES rephrases the textQuery ("public aquarium", "zoo wildlife park", ...);
   2) chips added to _SIGHTSEEING_CHIPS with new _ATTRACTION_TYPE_FRAGMENTS (aquarium/zoo/wildlife/farm) so results must have an attraction primaryType — pet_store types are rejected.
 - Verified live (Omaha): Aquariums -> only the real Scott Aquarium; Zoos -> Henry Doorly exhibits; hiking/food searches unaffected.
+
+## 2026-02 (fork) — Crawl pills + heist frequency (FF_BUILD 590-591)
+- CrawlSetupPanel: "Suggest a crawl" pill (roulette through CRAWL_TYPES, lands + toast) and "Create your own" pill (inline input -> custom type {key:"custom", mode:"explore", cuisine:label}); Home stores customCrawl for the dialog title. Verified live: Bookstores Crawl dealt real bookstores.
+- Heists now ONE per realm visit: window.__ffHeistPlayedThisVisit latch set by heistLib summonToLogo reserve() + AmbianceScene cyber-wreck go(); checked in both gates; Home clears it on [theme] change. Global 90-120s cooldown retained beneath.

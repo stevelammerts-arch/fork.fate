@@ -20,11 +20,17 @@ export function summonToLogo(done) {
   // independent timers, so without a global cool-down the strikes cluster
   // back-to-back. A bounced heist simply retries in ~30s.
   if (Date.now() < (window.__ffHeistCooldownUntil || 0)) { done(null); return () => {}; }
+  // Heists are a rare treat: ONE per realm visit. Home clears this latch
+  // whenever the player enters a different realm (or reloads the app).
+  if (window.__ffHeistPlayedThisVisit) { done(null); return () => {}; }
   const img = document.querySelector('img[alt="Fork·Fate logo"]');
   const med = img && img.parentElement;
   const r = med && med.getBoundingClientRect();
   if (!r || !r.width) { done(null); return () => {}; }
-  const reserve = () => { window.__ffHeistCooldownUntil = Date.now() + 90000 + Math.random() * 30000; };
+  const reserve = () => {
+    window.__ffHeistCooldownUntil = Date.now() + 90000 + Math.random() * 30000;
+    window.__ffHeistPlayedThisVisit = true;
+  };
   if (r.top >= 0 && r.bottom <= window.innerHeight) { reserve(); done(med); return () => {}; }
   // HOLD THE STAGE while we scroll up (~2.75s max): without this a golem
   // show (awakening step / furnace blast) could start mid-scroll and end up

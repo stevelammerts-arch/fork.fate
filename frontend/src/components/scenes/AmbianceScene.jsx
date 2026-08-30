@@ -354,6 +354,7 @@ function CyberNeonSign({ neon }) {
     // the skyline for good viewing (same courtesy as the medallion heists).
     const go = () => {
       window.__ffHeistCooldownUntil = Date.now() + 90000 + Math.random() * 30000; // claim the heist slot
+      window.__ffHeistPlayedThisVisit = true;                 // one heist per realm visit
       setCrash(1);                                          // careens out of traffic
       timers.push(setTimeout(() => {                        // CRUNCH
         setCrash(2);
@@ -372,6 +373,7 @@ function CyberNeonSign({ neon }) {
       running = true;
       if (window.__ffFateBusy) { bail(); return; }          // never talk over fate
       if (Date.now() < (window.__ffHeistCooldownUntil || 0)) { bail(); return; } // one heist at a time
+      if (window.__ffHeistPlayedThisVisit) { bail(); return; } // one heist per realm visit
       if (window.scrollY <= 40) { go(); return; }
       window.scrollTo({ top: 0, behavior: "smooth" });
       const t0 = Date.now();

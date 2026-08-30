@@ -249,6 +249,10 @@ export default function Home() {
   // turns busy, heistEpoch bumps — remounting every heist layer so any strike
   // already mid-run aborts instantly (its unmount cleanup restores the logo).
   const [heistEpoch, setHeistEpoch] = useState(0);
+  // Heists strike ONCE per realm visit — entering a (new) realm re-arms them.
+  useEffect(() => {
+    window.__ffHeistPlayedThisVisit = false;
+  }, [theme]);
   const [blackout, setBlackout] = useState(false); // BINGO blackout celebration
   useEffect(() => {
     const busy = !!(spinning || loading || surpriseReveal || showGuided || mysticalReveal || blackout);
@@ -332,9 +336,12 @@ export default function Home() {
     if (t.mode !== mode) switchMode(t.mode);
     setSelectedCuisines([t.cuisine]);
     setCrawlType(t.key);
+    if (t.key === "custom") setCustomCrawl(t);
     setResult(null);
     setGroupPicks(null);
   };
+  // "Create your own" crawl — holds the custom label for the reveal window.
+  const [customCrawl, setCustomCrawl] = useState(null);
 
   const activeCuisineGroups = mode === "explore" ? EXPLORE_GROUPS : mode === "food" ? FOOD_GROUPS : mode === "bars" ? BAR_GROUPS : mode === "fuel" ? FUEL_GROUPS : null;
   const cuisineList = mode === "food" ? FOOD_CUISINES : mode === "drinks" ? DRINK_CUISINES : mode === "bars" ? BAR_CUISINES : mode === "desserts" ? DESSERT_CUISINES : mode === "shops" ? SHOP_CUISINES : mode === "explore" ? EXPLORE_CUISINES : mode === "stay" ? STAY_CUISINES : FUEL_CUISINES;
@@ -1214,7 +1221,7 @@ export default function Home() {
           <ModeGuide mode={modeGuide} theme={theme} onDone={closeModeGuide} renderPanel={guidePanels[modeGuide]} />
         )}
       </AnimatePresence>
-      <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={crawlEndpoints.origin || coords} destination={crawlEndpoints.destination} crawlLabel={crawlLabelForType(crawlType)} initialStops={crawlStops} onReshuffle={reshuffleCrawl} />
+      <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={crawlEndpoints.origin || coords} destination={crawlEndpoints.destination} crawlLabel={crawlType === "custom" && customCrawl ? customCrawl.crawl : crawlLabelForType(crawlType)} initialStops={crawlStops} onReshuffle={reshuffleCrawl} />
       <PassportDialog open={!!passportReveal} code={passportReveal?.code} initial={passportReveal?.initial} onClose={() => setPassportReveal(null)} />
 
       {/* Realm scenery stack: café / seasonal / ambiance / reaper + page heists */}
