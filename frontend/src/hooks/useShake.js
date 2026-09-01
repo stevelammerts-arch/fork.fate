@@ -12,12 +12,32 @@ const THRESHOLD = 11;      // m/s^2 delta considered a "jolt" (forgiving for iOS
 const JOLT_WINDOW = 900;   // two jolts within this window = a shake
 const COOLDOWN = 3000;
 
+/** Latest known iOS motion-permission state: "granted" | "denied" | null
+ * (null = never resolved / non-iOS). Kept in sync by every request path and
+ * broadcast via the "ff:motion-perm" window event so UI (ShakeHint) can react. */
+let motionPerm = null;
+const setMotionPerm = (r) => {
+  motionPerm = r;
+  try { window.dispatchEvent(new CustomEvent("ff:motion-perm", { detail: r })); } catch (e) { /* ignore */ }
+};
+export const getMotionPermission = () => motionPerm;
+
+/** True on iOS-style devices where motion needs an explicit in-gesture grant
+ * that hasn't happened yet — the ShakeHint turns into an "enable" button. */
+export function needsMotionPermission() {
+  try {
+    return typeof DeviceMotionEvent !== "undefined" &&
+      typeof DeviceMotionEvent.requestPermission === "function" &&
+      motionPerm !== "granted";
+  } catch (e) { return false; }
+}
+
 export function requestMotionPermission(onResult) {
   try {
     if (typeof DeviceMotionEvent !== "undefined" &&
         typeof DeviceMotionEvent.requestPermission === "function") {
       DeviceMotionEvent.requestPermission()
-        .then((r) => { if (onResult) onResult(r); })
+        .then((r) => { setMotionPerm(r); if (onResult) onResult(r); })
         .catch(() => {});
     }
   } catch (e) { /* non-iOS or blocked — shake just won't fire */ }
@@ -28,7 +48,6 @@ export function requestMotionPermission(onResult) {
  * a document-level capture listener so the very FIRST tap anywhere (realm
  * pick, guide page, anything) triggers the permission prompt. Keeps retrying
  * on later taps until iOS reports granted/denied. No-ops off-iOS. */
-let motionPerm = null;
 export function installMotionPermissionTap() {
   try {
     if (typeof DeviceMotionEvent === "undefined" ||
@@ -37,7 +56,7 @@ export function installMotionPermissionTap() {
       if (motionPerm === "granted" || motionPerm === "denied") return;
       DeviceMotionEvent.requestPermission()
         .then((r) => {
-          motionPerm = r;
+          setMotionPerm(r);
           if (r === "granted") document.removeEventListener("click", h, true);
         })
         .catch(() => {});

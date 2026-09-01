@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
-import { Medal, ChevronDown, Trophy, Globe2, Sparkles, BookOpen, LayoutGrid } from "lucide-react";
+import { Medal, ChevronDown, Trophy, Globe2, Sparkles, BookOpen, LayoutGrid, CalendarRange } from "lucide-react";
 import { useLang } from "../../i18n/i18n";
 
 const MENU = [
@@ -13,6 +13,7 @@ const MENU = [
   { to: "/wall", tid: "home-menu-wall", icon: Globe2, label: "Passport Wall" },
   { to: "/journal", tid: "home-menu-journal", icon: BookOpen, label: "Fate Journal" },
   { to: "/secrets", tid: "home-menu-secrets", icon: Sparkles, label: "Hidden Bonuses" },
+  { to: "/recap", tid: "home-menu-recap", icon: CalendarRange, label: "Fate Recap" },
 ];
 
 export const TrophiesPill = ({ light, ghost }) => {

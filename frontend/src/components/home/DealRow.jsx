@@ -16,7 +16,7 @@ export const DealRow = ({ spin, spinning, loading, passportMode, groupMode, ligh
     <div className="flex flex-wrap items-center gap-4">
       {/* the heartbeat lives on a wrapper so framer's hover/tap transforms
           on the button itself stay untouched */}
-      <span className="inline-block" style={{ animation: racing ? `ffHeartbeat ${period}ms ease-in-out infinite` : "none" }} data-testid={racing ? "deal-heartbeat-race" : undefined}>
+      <span className="inline-block" style={{ animation: racing && period > 0 ? `ffHeartbeat ${period}ms ease-in-out infinite` : "none" }} data-testid={racing ? "deal-heartbeat-race" : undefined}>
         <motion.button
           data-testid="spin-roulette-button"
           onClick={() => {

@@ -8,7 +8,7 @@ const COUPONS = "ff_points_coupons";
 const DAY = "ff_points_day"; // last daily claim, local YYYY-MM-DD
 const STREAK = "ff_points_streak"; // consecutive-day login count
 
-export const EARN = { daily: 10, streakBonus: 5, streakCap: 50, ritual: 15, heist: 25, checkin: 50, firefly: 5 };
+export const EARN = { daily: 10, streakBonus: 5, streakCap: 50, ritual: 15, heist: 25, checkin: 50, firefly: 5, checkinWeek: 25, checkinWeekCap: 100 };
 
 // Launch catalog: DEMO sponsors — swapped for real partners later.
 export const SPONSOR_OFFERS = [
@@ -73,7 +73,21 @@ export function claimDaily(now = new Date()) {
     localStorage.setItem(STREAK, String(streak));
   } catch (e) { /* ignore */ }
   const total = writeBalance(readPoints() + awarded, awarded, `Daily login (day ${streak})`);
+  try {
+    // remember the personal best for the Recap page
+    const best = parseInt(localStorage.getItem("ff_points_streak_best") || "0", 10) || 0;
+    if (streak > best) localStorage.setItem("ff_points_streak_best", String(streak));
+  } catch (e) { /* ignore */ }
   return { awarded, streak, total };
+}
+
+/** Longest consecutive-day login streak ever hit on this device. */
+export function readBestStreak() {
+  try {
+    const best = parseInt(localStorage.getItem("ff_points_streak_best") || "0", 10) || 0;
+    const cur = parseInt(localStorage.getItem(STREAK) || "0", 10) || 0;
+    return Math.max(best, cur);
+  } catch (e) { return 0; }
 }
 
 /** Active-first coupon list; expired ones sink to the bottom. */
@@ -85,15 +99,52 @@ export function readCoupons() {
     .sort((a, b) => (a.expired === b.expired ? new Date(b.at) - new Date(a.at) : a.expired ? 1 : -1));
 }
 
-/** GPS-verified restaurant check-in: once per place per day. Returns the new
- * total, or null when already claimed today. */
+/** Monday-anchored week key (local time) — "2026-02-09" for the whole week. */
+const weekKey = (d) => {
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return localDay(monday);
+};
+
+/** Current consecutive-weeks-with-a-check-in count ({ week, streak }). */
+export function readCheckinWeekStreak() {
+  const s = readJson("ff_checkin_weeks", null);
+  if (!s || !s.week) return { week: null, streak: 0 };
+  const now = new Date();
+  const thisWeek = weekKey(now);
+  const lastWeek = weekKey(new Date(now.getTime() - 7 * 86400000));
+  // streak survives only if the latest check-in week is current or adjacent
+  return s.week === thisWeek || s.week === lastWeek ? s : { week: null, streak: 0 };
+}
+
+/** GPS-verified restaurant check-in: once per place per day. Checking in
+ * SEVERAL WEEKS IN A ROW earns a growing weekly bonus (+25/extra week, capped
+ * at +100), awarded on the first check-in of each new streak week.
+ * Returns { total, weekStreak, weekBonus } — or null when already claimed. */
 export function claimCheckin(placeKey, name) {
-  const today = localDay(new Date());
+  const now = new Date();
+  const today = localDay(now);
   const map = readJson("ff_checkins", {});
   if (map[placeKey] === today) return null;
   map[placeKey] = today;
   try { localStorage.setItem("ff_checkins", JSON.stringify(map)); } catch (e) { return null; }
-  return awardPoints(EARN.checkin, `Checked in: ${name}`);
+
+  // weekly streak: first check-in of a NEW week extends (or restarts) it
+  const thisWeek = weekKey(now);
+  const lastWeek = weekKey(new Date(now.getTime() - 7 * 86400000));
+  const prev = readJson("ff_checkin_weeks", { week: null, streak: 0 });
+  let weekStreak = prev.streak || 0;
+  let weekBonus = 0;
+  if (prev.week !== thisWeek) {
+    weekStreak = prev.week === lastWeek ? weekStreak + 1 : 1;
+    try { localStorage.setItem("ff_checkin_weeks", JSON.stringify({ week: thisWeek, streak: weekStreak })); } catch (e) { /* ignore */ }
+    if (weekStreak >= 2) {
+      weekBonus = Math.min((weekStreak - 1) * EARN.checkinWeek, EARN.checkinWeekCap);
+      awardPoints(weekBonus, `Check-in week streak x${weekStreak}`);
+    }
+  }
+  const total = awardPoints(EARN.checkin, `Checked in: ${name}`);
+  return { total, weekStreak, weekBonus };
 }
 
 export function checkedInToday(placeKey) {

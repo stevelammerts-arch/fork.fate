@@ -78,3 +78,8 @@
 - P2: Seasonal push notification when a new season opens
 - P2: Component cleanup pass (Home.jsx ~1100 lines, AmbianceScene.jsx now ~1450)
 - P3: More seasons (Spring Bloom, New Year) + seasonal Collection share card row
+
+## Update 2026-02 (fork, session N)
+- DONE: iPhone shake enable pill, flatline gag, Fate Recap (/recap year+month), check-in weekly streak bonuses.
+- DONE: .aab rebuilt targetSdk 36 / versionCode 4, signed with 2026 upload key (public/forkfate-v4-api36.aab). User uploads to Play Console on/after Sept 3 (upload key reset activation).
+- Remaining backlog: more month takeovers (quiet months); seasonal push notification; PayPal webhook setup; IARC rating ID.

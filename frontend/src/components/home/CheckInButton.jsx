@@ -37,10 +37,18 @@ export const CheckInButton = ({ card }) => {
           toast(t("Not quite there yet"), { description: `${t("You're")} ${away} ${t("away — check in when you arrive.")}` });
           return;
         }
-        const total = claimCheckin(key, card.name);
-        if (total == null) { setDone(true); return; }
+        const res = claimCheckin(key, card.name);
+        if (res == null) { setDone(true); return; }
         setDone(true);
         toast.success(`+${EARN.checkin} ${t("Fate Points")}`, { description: `${t("Checked in at")} ${card.name}`, duration: 6000 });
+        if (res.weekBonus > 0) {
+          setTimeout(() => {
+            toast.success(`${t("Week streak")} x${res.weekStreak} — +${res.weekBonus} ${t("bonus Fate Points!")}`, {
+              description: t("You've checked in at fated spots several weeks in a row. Keep the run alive!"),
+              duration: 8000,
+            });
+          }, 900);
+        }
       },
       () => { setBusy(false); toast.error(t("Couldn't access your location — allow it and try again.")); },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }

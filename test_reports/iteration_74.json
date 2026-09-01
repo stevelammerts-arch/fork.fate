@@ -1,0 +1,31 @@
+{
+  "summary": "Frontend-only testing of the 4 new features (Fate Recap page, check-in weekly streak surfacing, TrophiesPill recap entry, heartbeat/ShakeHint regression). Recap data crunching, slide set, navigation and scope toggle all verified correct with empty and seeded localStorage (24 journal entries, checkins, ff_checkin_weeks, best streak 9). Week-streak survival/expiry logic verified. Home page, /secrets, /journal load with zero console/page errors. ONE HIGH bug found: the finale slide's 'Share my recap' and 'Deal a fate' controls are completely unclickable (tap-zone overlays intercept pointer events) on mobile AND desktop.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "pages/Recap.jsx (finale slide)", "issue": "Share my recap and Deal a fate are un-clickable. The slide container at line 205 has 'relative z-0', which creates a stacking context, so the inner 'relative z-20' button wrapper (line 236) can never rise above the tap-zone buttons (z-10, lines 202-203). document.elementFromPoint at the buttons' centers returns recap-tap-prev (mobile) / recap-tap-next (desktop); Playwright normal clicks time out at 390x844 and 1920x1080. Only force=True works. Fix: drop z-0 from the content wrapper (or give the tap zones a lower z / pointer-events-none on the finale slide).", "selector": "[data-testid=\"recap-share-button\"], [data-testid=\"recap-deal-again\"]", "priority": "HIGH"},
+      {"component": "pages/Recap.jsx", "issue": "'TAP TO CONTINUE' hint still shows on the finale slide even though there is nothing further to advance to (tap-next is clamped). Minor polish.", "selector": "[data-testid=\"recap-page\"]", "priority": "LOW"},
+      {"component": "pages/Recap.jsx shareRecap()", "issue": "When navigator.share is absent AND clipboard.writeText is rejected (permission denied / non-user-gesture), the catch block is silent — user gets no feedback at all. Observed 0 toasts in headless Chrome. Suggest a fallback error toast.", "selector": "[data-testid=\"recap-share-button\"]", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_74.json"],
+  "action_items": [
+    "Fix z-index/stacking on Recap finale: remove 'z-0' from the slide content container (Recap.jsx line 205) so recap-share-button and recap-deal-again become clickable (verify with a normal, non-force Playwright click).",
+    "Optional: hide 'Tap to continue' on the finale slide and add a fallback toast when share/clipboard both fail."
+  ],
+  "critical_code_review_comments": [
+    "Recap.jsx: full-bleed tap-zone buttons (z-10) overlaying interactive finale content inside a z-0 stacking context is the root cause of the dead buttons; prefer pointer-events-none on tap zones when slide.finale is true.",
+    "Recap.jsx useMemo for stats intentionally omits `now` from deps with an eslint-disable — acceptable, but stats will not refresh across a midnight/month boundary while the page stays open.",
+    "lib/points.js claimCheckin: weekly bonus is awarded before the base check-in award, so the returned `total` correctly includes both; logic verified. readCheckinWeekStreak correctly expires a streak whose latest week is neither the current nor previous Monday."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (frontend-only request)", "frontend": "92% (11/12 checks passed; finale CTA clickability failed)"},
+  "seed_data_creation": "localStorage seeded via page.evaluate on the app origin: ff_journal (24 synthetic entries, mixed cuisines Tacos/Pizza/Sushi, themes dark/tiki, dares, verdicts, dates in current month + March 2026), ff_points_streak_best=9, ff_checkins={a:2026-04-11,b:today}, ff_checkin_weeks={week:<current Monday>,streak:3} and a stale-week variant. All cleared between runs.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "None required (no auth in app)",
+  "context_for_next_testing_agent": "Home page gating order on a fresh origin: parchment-intro ('Enter the realms') -> theme-welcome realm chooser (click first realm button) -> mode-chooser-solo -> guided-flow ('Skip intro'). Only then is header-trophies-pill clickable. Verified year-scope slide order with seeded data: intro, total(24/15 unique), cuisine(Tacos 15x), verdict(79%, 24 judged), dares(4), realm(Reaper's Domain 18), streaks(9 day best + 2 GPS check-ins [+ '3 week check-in run going' when ff_checkin_weeks week == current Monday]), finale. Month toggle resets to slide 1 and recomputes (8 fates for September 2026). Zero console errors across recap/home/secrets/journal.",
+  "rca_of_the_issue": "Recap.jsx line 205 wraps the AnimatePresence slide content in `relative z-0`, forming a stacking context whose descendants are capped at z-index 0 relative to siblings; the absolute tap-zone buttons (z-10, lines 202-203) therefore paint above the finale's `relative z-20` CTA row, intercepting all pointer events. Reproduce: open /recap, tap to finale, run document.elementFromPoint on the Share button center -> returns recap-tap-prev/next; Playwright normal click times out. Mitigation: remove z-0 (or set the content wrapper to z-20+ as a sibling of the tap zones) / disable pointer events on tap zones for the finale slide."
+}

@@ -58,7 +58,8 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
   // ritual unveils the pick.
   const [cardTapped, setCardTapped] = useState(false);
   useEffect(() => { if (!isCovered) setCardTapped(false); }, [isCovered]);
-  const hbPeriod = useHeartbeat(isCovered && cardTapped);
+  // flatline gag armed: rarely the racing heart dies for a beat pre-reveal
+  const hbPeriod = useHeartbeat(isCovered && cardTapped, { flatline: true });
   const resultId = result ? result.id : null;
   const [steaming, setSteaming] = useState(false);
   useEffect(() => {
@@ -167,7 +168,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
               setCardTapped(true);
             }
           }}
-          style={{ animation: covered && cardTapped ? `ffHeartbeat ${hbPeriod}ms ease-in-out infinite` : "none" }}
+          style={{ animation: covered && cardTapped && hbPeriod > 0 ? `ffHeartbeat ${hbPeriod}ms ease-in-out infinite` : "none" }}
         >
         <motion.div
           className={`relative overflow-hidden rounded-2xl transition-[height] duration-300 ${covered ? "h-[26rem]" : "h-64"}`}
