@@ -1796,3 +1796,8 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - rareFate.rarePoolFor pushes "lantern" into every pool when activeSeason().id === "haunting". rituals.js lantern entry w/ limited field; Rituals.jsx ICONS.lantern = Flame + "October only" badge + limited locked-desc.
 - AmbianceScene seasonal drift: effect "steins" renders 6 drifting SVG steins (ffSeasonDrift/ffSeasonBob). NOTE: seasonal drift renders only in ambiance realms (pre-existing).
 - Test hooks: ff_season_test, ff_rare_force, ff_deal_taps/ff_rare_at.
+
+## 2026-02 (fork session)
+- Published cleanly re-signed Android App Bundle: /app/frontend/public/forkfate-v3-clean-2026.aab (old META-INF signatures stripped, single signature from forkfate-upload-2026.keystore, SHA-256 verified to match upload_certificate.pem: 0B:D0:69:D6...EA:86). Byte-for-byte download verified via preview URL.
+- Pending user action: upload the .aab to Google Play Console.
+- Still open (P1): iPhone shake-to-shuffle motion permission fix (user deferred).
