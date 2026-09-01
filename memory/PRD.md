@@ -3079,3 +3079,14 @@ inside playHeistSound).
 - GOLD_GLITTER moved to ART coordinates (ax 80-1180, ay 645-820) rendered via
   loungeBox mapping — sparkles stay on the gold pile, never on nose/claws/air
   regardless of crop. Verified: all 26 below claw line.
+
+## 2026-02 fork part 146: Play package v3 + assetlinks (FF_BUILD 617)
+- Built forkfate-v3 .aab: re-signed forkfate-v2-unsigned.aab with the NEW 2026
+  upload key (jarsigner, SHA-1 76:C5:FA:...). jar verified. Served temporarily
+  at /forkfate-v3-2026.aab on preview — DELETE before/after user downloads so
+  it never ships to prod.
+- assetlinks.json: added Google App Signing cert SHA-256 (0A:AA:AD:D1:...) as
+  first entry (was missing — TWA address-bar risk). Needs web redeploy.
+- Key facts: console "App signing key" = 0A:AA:AD:D1 (Google's, never changes);
+  OLD upload key = F6:40:9F / 21:D0:AB; NEW upload key = 76:C5:FA / 0B:D0:69.
+  Upload of v3 only works once console "Upload key certificate" = 76:C5:FA.
