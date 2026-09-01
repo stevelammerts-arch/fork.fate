@@ -1801,3 +1801,4 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Published cleanly re-signed Android App Bundle: /app/frontend/public/forkfate-v3-clean-2026.aab (old META-INF signatures stripped, single signature from forkfate-upload-2026.keystore, SHA-256 verified to match upload_certificate.pem: 0B:D0:69:D6...EA:86). Byte-for-byte download verified via preview URL.
 - Pending user action: upload the .aab to Google Play Console.
 - Still open (P1): iPhone shake-to-shuffle motion permission fix (user deferred).
+- Patched AAB manifest protobuf in-place: targetSdkVersion 35->36 (Android 16 requirement), versionCode 2->4; re-signed with 2026 upload key; published as /app/frontend/public/forkfate-v4-api36.aab (verified: manifest values, signer 76:C5:FA, byte-identical download). v3 file removed. Upload still requires Play Console upload-key reset to 76:C5:FA first.
