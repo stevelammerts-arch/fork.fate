@@ -1809,3 +1809,8 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Fate Recap (/recap): Wrapped-style tap-through story (pages/Recap.jsx + lib/recap.js buildRecap): fates dealt, top cuisine, chose-well %, dares, home realm, duel record, best login streak + check-ins + week run, secrets found; This Year/This Month toggle; share on finale. Menu entry home-menu-recap in TrophiesPill. Testing agent found finale CTAs unclickable (z-0 stacking ctx under tap zones) — fixed via pointer-events-none content wrapper + pointer-events-auto CTA row; verified with normal clicks.
 - Check-in weekly streaks: points.js claimCheckin now returns {total, weekStreak, weekBonus}; Monday-anchored ff_checkin_weeks, +25/extra consecutive week (cap +100) awarded on first check-in of each streak week; CheckInButton toasts the bonus. claimDaily tracks ff_points_streak_best (readBestStreak for recap).
 - Testing: iteration_74.json (92% pass, one HIGH z-index bug fixed + self-verified, LOW polish items done).
+
+## 2026-02 (fork) — Edge-to-edge safe areas (FF_BUILD 619)
+- Play Console showed advisory "Edge-to-edge may not display for all users" (targetSdk 35+ forces transparent system bars on Android 15+). Upload of v4 aab was ACCEPTED (key reset active).
+- Web-side fix: viewport-fit=cover in index.html; body padding env(safe-area-inset-*) in index.css (fixed full-bleed realm scenes intentionally still paint under bars); Recap.jsx fixed-layer top chrome + bottom hint got their own inset padding.
+- Verified mobile viewport render, zero page errors. Needs production deploy to take effect in the TWA.

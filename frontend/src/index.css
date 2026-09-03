@@ -10,6 +10,14 @@ body {
     -moz-osx-font-smoothing: grayscale;
     background-color: #FFFFFF;
     color: #0E0E0E;
+    /* Android 15+ / targetSdk 35+ draws edge-to-edge (transparent system
+       bars): keep in-flow content clear of the status bar and gesture nav.
+       Fixed full-bleed realm scenes intentionally ignore this and still
+       paint under the bars — that's the good-looking part of edge-to-edge. */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
 }
 
 ::selection {

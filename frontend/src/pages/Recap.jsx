@@ -174,8 +174,9 @@ export default function Recap() {
 
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: BGS[clampedIdx % BGS.length], transition: "background 0.6s ease" }} data-testid="recap-page">
-      {/* top chrome: back, scope toggle, progress */}
-      <div className="relative z-20 px-4 pt-5">
+      {/* top chrome: back, scope toggle, progress (cleared of the status bar
+          on edge-to-edge Android 15+ / notched iPhones) */}
+      <div className="relative z-20 px-4" style={{ paddingTop: "calc(1.25rem + env(safe-area-inset-top))" }}>
         <div className="mx-auto flex max-w-lg items-center justify-between">
           <Link to="/" data-testid="recap-back" className="inline-flex items-center gap-1.5 font-sans text-sm font-bold text-white/70 transition-colors hover:text-white">
             <ArrowLeft className="h-4 w-4" /> {t("Back")}
@@ -255,7 +256,7 @@ export default function Recap() {
       </div>
 
       {!slide.finale && (
-        <p className="pointer-events-none absolute bottom-5 left-1/2 z-0 -translate-x-1/2 font-sans text-[11px] font-bold uppercase tracking-[0.25em] text-white/35">
+        <p className="pointer-events-none absolute left-1/2 z-0 -translate-x-1/2 font-sans text-[11px] font-bold uppercase tracking-[0.25em] text-white/35" style={{ bottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}>
           {t("Tap to continue")}
         </p>
       )}
