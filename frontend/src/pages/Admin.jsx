@@ -5,7 +5,6 @@ import { startRegistration, startAuthentication } from "@simplewebauthn/browser"
 import { LogOut, Fingerprint } from "lucide-react";
 import { AdminLogin } from "../components/admin/AdminLogin";
 import { StatsPanel } from "../components/admin/StatsPanel";
-import { BetaTesters } from "../components/admin/BetaTesters";
 import { MerchInterest } from "../components/admin/MerchInterest";
 import { SubmissionsQueue } from "../components/admin/SubmissionsQueue";
 import { SponsorForm } from "../components/admin/SponsorForm";
@@ -44,37 +43,17 @@ export default function Admin() {
   const [weekly, setWeekly] = useState(null);
   const [cost, setCost] = useState(null);
   const [submissions, setSubmissions] = useState([]);
-  const [betaTesters, setBetaTesters] = useState([]);
   const [merch, setMerch] = useState({ signups: [], count: 0, by_design: {} });
   const [feedback, setFeedback] = useState([]);
   const [geo, setGeo] = useState(null);
   const [geoDays, setGeoDays] = useState(30);
   const [geoLoading, setGeoLoading] = useState(false);
-  const [optInLink, setOptInLink] = useState(() => {
-    try { return localStorage.getItem("ff_optin_link") || "https://play.google.com/apps/testing/com.fork_fate.twa"; }
-    catch (e) { return "https://play.google.com/apps/testing/com.fork_fate.twa"; }
-  });
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [passkeyAvail, setPasskeyAvail] = useState(false);
   const [passkeyRegistered, setPasskeyRegistered] = useState(false);
   const [passkeyBusy, setPasskeyBusy] = useState(false);
   const [emailing, setEmailing] = useState(false);
-
-  const emailAllTesters = () => {
-    if (betaTesters.length === 0) return;
-    const bcc = betaTesters.map((x) => x.email).join(",");
-    const subject = "You're invited to test Fork·Fate on Android 🎲";
-    const body =
-      "Hi! Thanks for signing up to test Fork·Fate on Android.\n\n" +
-      "To join (takes ~1 min):\n" +
-      "1) Open this link on your Android phone: " + optInLink + "\n" +
-      "2) Tap \"Become a tester,\" then install Fork·Fate from Google Play\n" +
-      "3) Please keep it installed for ~2 weeks — that's what unlocks our public launch!\n\n" +
-      "Shuffle the deck and let fate pick your next spot. Thanks so much for the help! 🙏\n\n— Fork·Fate";
-    window.location.href =
-      `mailto:?bcc=${encodeURIComponent(bcc)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  };
 
   const logout = useCallback(async () => {
     try { await axios.post(`${API}/admin/logout`, {}, WC); } catch (e) { /* ignore */ }
@@ -126,25 +105,6 @@ export default function Admin() {
     try {
       const { data } = await axios.get(`${API}/admin/submissions`, WC);
       setSubmissions(data);
-    } catch (e) {
-      if (e.response?.status === 401) logout();
-    }
-  }, [logout]);
-
-  const deleteBeta = async (email) => {
-    try {
-      await axios.delete(`${API}/admin/beta-testers`, { params: { email }, ...WC });
-      setBetaTesters((prev) => prev.filter((x) => x.email !== email));
-      toast.success("Tester removed");
-    } catch (e) {
-      toast.error("Could not remove tester");
-    }
-  };
-
-  const loadBeta = useCallback(async () => {
-    try {
-      const { data } = await axios.get(`${API}/admin/beta-testers`, WC);
-      setBetaTesters(data.testers || []);
     } catch (e) {
       if (e.response?.status === 401) logout();
     }
@@ -203,8 +163,8 @@ export default function Admin() {
   }, []);
 
   useEffect(() => {
-    if (authed) { loadSponsors(); loadSubmissions(); loadStats(); loadWeekly(); loadCost(); loadBeta(); loadMerch(); loadFeedback(); }
-  }, [authed, loadSponsors, loadSubmissions, loadStats, loadWeekly, loadCost, loadBeta, loadMerch, loadFeedback]);
+    if (authed) { loadSponsors(); loadSubmissions(); loadStats(); loadWeekly(); loadCost(); loadMerch(); loadFeedback(); }
+  }, [authed, loadSponsors, loadSubmissions, loadStats, loadWeekly, loadCost, loadMerch, loadFeedback]);
 
   // Show the passkey button on the login screen only when one is registered.
   useEffect(() => {
@@ -419,13 +379,6 @@ export default function Admin() {
 
       <main className="mx-auto grid max-w-5xl gap-8 px-6 pt-8 md:grid-cols-[360px_1fr]">
         <StatsPanel stats={stats} cost={cost} weekly={weekly} emailing={emailing} sendSummaryEmail={sendSummaryEmail} />
-        <BetaTesters
-          betaTesters={betaTesters}
-          optInLink={optInLink}
-          setOptInLink={setOptInLink}
-          emailAllTesters={emailAllTesters}
-          deleteBeta={deleteBeta}
-        />
         <SubmissionsQueue submissions={submissions} approveSubmission={approveSubmission} rejectSubmission={rejectSubmission} />
         <GeoPanel geo={geo} geoDays={geoDays} setGeoDays={setGeoDays} loading={geoLoading} />
         <FeedbackList feedback={feedback} deleteFeedback={deleteFeedback} />

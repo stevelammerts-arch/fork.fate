@@ -1814,3 +1814,8 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Play Console showed advisory "Edge-to-edge may not display for all users" (targetSdk 35+ forces transparent system bars on Android 15+). Upload of v4 aab was ACCEPTED (key reset active).
 - Web-side fix: viewport-fit=cover in index.html; body padding env(safe-area-inset-*) in index.css (fixed full-bleed realm scenes intentionally still paint under bars); Recap.jsx fixed-layer top chrome + bottom hint got their own inset padding.
 - Verified mobile viewport render, zero page errors. Needs production deploy to take effect in the TWA.
+
+## 2026-02 (fork) — Removed Google Play tester section (FF_BUILD 620)
+- Deleted admin BetaTesters section: component BetaTesters.jsx, all Admin.jsx state/handlers (betaTesters, optInLink, emailAllTesters, deleteBeta, loadBeta), backend routes POST /api/beta-testers + GET/DELETE /api/admin/beta-testers, and BetaSignup model. db.beta_testers collection data left untouched in Mongo (harmless).
+- Security tests (test_iter8_auth_hardening.py) used DELETE /admin/beta-testers as CSRF probe -> swapped to DELETE /admin/feedback/nonexistent-csrf-probe (same semantics); 8/8 CSRF+Bearer tests pass.
+- Verified: endpoints 404, admin page renders clean with zero tester references, login + all other panels intact.

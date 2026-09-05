@@ -10,7 +10,7 @@ from core import (db, rate_limit, require_admin, create_admin_token, client_ip,
                   set_admin_cookie, clear_admin_cookie,
                   ADMIN_PASSWORD, SPONSOR_PRICE, SPONSOR_PRICE_ANNUAL, FALLBACK_IMG,
                   GOOGLE_SEARCH_DAILY_CAP, GOOGLE_SEARCH_ALERT_PCT, send_email)
-from models import AdminLogin, SponsorCreate, SponsorUpdate, SponsorClick, Restaurant, BetaSignup, FeedbackCreate
+from models import AdminLogin, SponsorCreate, SponsorUpdate, SponsorClick, Restaurant, FeedbackCreate
 from routes.sponsors import reconcile_sponsors, send_coupon_recaps
 
 router = APIRouter()
@@ -44,35 +44,6 @@ async def admin_logout(response: Response):
 @router.get("/admin/verify", dependencies=[Depends(require_admin)])
 async def admin_verify():
     return {"ok": True}
-
-
-@router.post("/beta-testers", dependencies=[Depends(rate_limit(20))])
-async def add_beta_tester(payload: BetaSignup, request: Request):
-    """Public: collect a Gmail address for the Android closed-test tester list."""
-    email = payload.email.strip().lower()
-    await db.beta_testers.update_one(
-        {"email": email},
-        {"$setOnInsert": {
-            "email": email,
-            "name": (payload.name or "").strip(),
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "ip": client_ip(request),
-        }},
-        upsert=True,
-    )
-    return {"ok": True, "count": await db.beta_testers.count_documents({})}
-
-
-@router.get("/admin/beta-testers", dependencies=[Depends(require_admin)])
-async def list_beta_testers():
-    docs = await db.beta_testers.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
-    return {"testers": docs, "count": len(docs)}
-
-
-@router.delete("/admin/beta-testers", dependencies=[Depends(require_admin)])
-async def delete_beta_tester(email: str):
-    r = await db.beta_testers.delete_one({"email": email.strip().lower()})
-    return {"ok": r.deleted_count > 0, "count": await db.beta_testers.count_documents({})}
 
 
 @router.post("/feedback", dependencies=[Depends(rate_limit(10))])

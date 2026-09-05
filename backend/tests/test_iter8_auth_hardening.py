@@ -56,21 +56,18 @@ class TestCSRFMatrix:
         assert r.status_code == 200
 
     def test_b_unsafe_no_header_blocked(self, admin_session):
-        r = admin_session.delete(f"{EXT}/api/admin/beta-testers",
-                                 params={"email": "nobody@example.com"})
+        r = admin_session.delete(f"{EXT}/api/admin/feedback/nonexistent-csrf-probe")
         assert r.status_code == 403
         assert "CSRF" in r.json().get("detail", "")
 
     def test_c_unsafe_wrong_header_blocked(self, admin_session):
-        r = admin_session.delete(f"{EXT}/api/admin/beta-testers",
-                                 params={"email": "nobody@example.com"},
+        r = admin_session.delete(f"{EXT}/api/admin/feedback/nonexistent-csrf-probe",
                                  headers={"X-CSRF-Token": "wrong-value"})
         assert r.status_code == 403
 
     def test_d_correct_header_passes(self, admin_session):
         csrf = admin_session.cookies.get("ff_csrf")
-        r = admin_session.delete(f"{EXT}/api/admin/beta-testers",
-                                 params={"email": "nobody@example.com"},
+        r = admin_session.delete(f"{EXT}/api/admin/feedback/nonexistent-csrf-probe",
                                  headers={"X-CSRF-Token": csrf})
         assert r.status_code == 200
 
@@ -78,8 +75,7 @@ class TestCSRFMatrix:
         # Send correct CSRF header but strip cookies entirely: should be 401
         # (no auth at all since no ff_admin).
         csrf = admin_session.cookies.get("ff_csrf")
-        r = requests.delete(f"{BASE}/api/admin/beta-testers",
-                            params={"email": "nobody@example.com"},
+        r = requests.delete(f"{BASE}/api/admin/feedback/nonexistent-csrf-probe",
                             headers={"X-CSRF-Token": csrf})
         assert r.status_code == 401
 
@@ -93,8 +89,7 @@ class TestCSRFMatrix:
         csrf2 = s2.cookies.get("ff_csrf")
         cookies = {"ff_admin": admin_session.cookies.get("ff_admin"),
                    "ff_csrf": csrf2}
-        r = requests.delete(f"{BASE}/api/admin/beta-testers",
-                            params={"email": "nobody@example.com"},
+        r = requests.delete(f"{BASE}/api/admin/feedback/nonexistent-csrf-probe",
                             cookies=cookies,
                             headers={"X-CSRF-Token": csrf2})
         # Double-submit does not bind CSRF to session — expected to pass.
@@ -111,8 +106,7 @@ class TestBearerPrecedence:
         assert r.status_code == 200
         token = s.cookies.get("ff_admin")
         # Bearer with no cookies, no CSRF header - should succeed on unsafe method
-        r = requests.delete(f"{BASE}/api/admin/beta-testers",
-                            params={"email": "nobody@example.com"},
+        r = requests.delete(f"{BASE}/api/admin/feedback/nonexistent-csrf-probe",
                             headers={"Authorization": f"Bearer {token}"})
         assert r.status_code == 200
 

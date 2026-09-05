@@ -394,19 +394,6 @@ class FeedbackCreate(BaseModel):
     page: Optional[str] = Field(default="", max_length=300)
 
 
-class BetaSignup(BaseModel):
-    email: str = Field(max_length=200)
-    name: Optional[str] = Field(default="", max_length=120)
-
-    @field_validator("email")
-    @classmethod
-    def _valid_beta_email(cls, v):
-        v = (v or "").strip()
-        if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", v):
-            raise ValueError("Please enter a valid email address")
-        return v
-
-
 class MerchNotify(BaseModel):
     email: str = Field(max_length=200)
     product_key: str = Field(default="", max_length=80)
