@@ -1833,3 +1833,7 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Testing agent (iteration_75, 100% pass) flagged: seasonal drift lived inside AmbianceScene, so takeovers only showed in cyber/steam/tiki/fantasy/fairy — never in dark/light/fall/winter/spring/summer despite "All realms" copy.
 - Fix: extracted useSeasonalDrift + overlay JSX verbatim into components/scenes/SeasonalDriftLayer.jsx; mounted unconditionally at top of RealmLayers; removed from AmbianceScene (also dropped its now-unused toast/activeSeason/useMemo imports). Single mount = no double-render in ambience realms.
 - Verified via screenshot: skybloom fireworks drift renders in the DARK realm (5 svg bursts) with the season-live toast.
+
+## 2026-02 (fork) — Code review report audit (no changes)
+- External code-quality report audited. Verified false positives: 0 undefined Python vars (pyflakes+ruff+mypy clean), seed_data random is documented non-crypto deterministic fake data, all security tokens use secrets module, 0 console.log (only debug-level in catch blocks), index-keys are all static animation arrays.
+- Declined per prior user decisions + safety: Home.jsx/AmbianceScene splits (user rejected refactor previously), hook-dep additions (intentional mount-once timer effects; adding deps would loop), localStorage migration (intentional PWA offline progression; auth already HttpOnly+CSRF), Python complexity/type-hint sweeps (churn on live app).
