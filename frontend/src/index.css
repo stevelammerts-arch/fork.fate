@@ -1507,6 +1507,32 @@ body {
   80%{ opacity: 1; transform: translateY(1vh); }
   100%{ opacity: 0; transform: translateY(2.5vh); }
 }
+@keyframes ffSeasonRise{
+  0%{ transform: translateY(8vh); opacity: 0; }
+  10%{ opacity: 1; }
+  85%{ opacity: 1; }
+  100%{ transform: translateY(-112vh); opacity: 0; }
+}
+@keyframes ffSeasonFall{
+  0%{ transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+  8%{ opacity: 1; }
+  88%{ opacity: 1; }
+  100%{ transform: translateY(112vh) rotate(280deg); opacity: 0; }
+}
+@keyframes ffSeasonBurst{
+  0%{ transform: scale(0.12); opacity: 0; }
+  12%{ opacity: 1; }
+  55%{ opacity: 0.85; }
+  100%{ transform: scale(1.65); opacity: 0; }
+}
+@keyframes ffSeasonFlap{
+  0%,100%{ transform: scaleX(1); }
+  50%{ transform: scaleX(0.4); }
+}
+@keyframes ffSeasonSpinSlow{
+  from{ transform: rotate(0deg); }
+  to{ transform: rotate(360deg); }
+}
 /* LANDSCAPE SPREAD: on short landscape screens (phones held sideways) the
    vh-based offsets shrink and the workshop huddles center — push the outer
    props back toward the golems */

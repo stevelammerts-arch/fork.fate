@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { foundSecret } from "../lib/secretTrophies";
 import { tapSound } from "../lib/tapFx";
+import { haptic } from "../lib/pwa";
 
 const rnd = (i, salt) => {
   const x = Math.sin(i * 131.3 + salt * 269.5) * 43758.5453;
@@ -74,7 +75,7 @@ export function DustBunnies() {
   const homing = seed < 0;
   const scatter = () => {
     if (scattered) return;
-    try { navigator.vibrate && navigator.vibrate(10); } catch { /* ignore */ }
+    try { haptic(10); } catch { /* ignore */ }
     foundSecret("dust-bunnies");
     tapSound("/leaf-rustle.mp3", 0.3);
     setSeed(Date.now());

@@ -1828,3 +1828,8 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Full guide at /app/ios-app/APP_STORE_GUIDE.md: Mac/Xcode path + no-Mac Codemagic path, App Store Connect setup, paste-ready listing copy, privacy label answers, review notes, Guideline 4.2 mitigation.
 - NOTE: final .ipa build/upload requires macOS (Xcode) or Codemagic — cannot be done in this pod.
 - Follow-up idea: web-side Capacitor haptics bridge (navigator.vibrate is dead on iOS; window.Capacitor Haptics would give the heartbeat real thumps in the iOS app + strengthens 4.2 defense).
+
+## 2026-02 (fork) — Takeover drift for ALL realms (FF_BUILD 622)
+- Testing agent (iteration_75, 100% pass) flagged: seasonal drift lived inside AmbianceScene, so takeovers only showed in cyber/steam/tiki/fantasy/fairy — never in dark/light/fall/winter/spring/summer despite "All realms" copy.
+- Fix: extracted useSeasonalDrift + overlay JSX verbatim into components/scenes/SeasonalDriftLayer.jsx; mounted unconditionally at top of RealmLayers; removed from AmbianceScene (also dropped its now-unused toast/activeSeason/useMemo imports). Single mount = no double-render in ambience realms.
+- Verified via screenshot: skybloom fireworks drift renders in the DARK realm (5 svg bursts) with the season-live toast.

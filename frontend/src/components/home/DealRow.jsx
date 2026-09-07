@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Dices } from "lucide-react";
 import { useHeartbeat } from "../../hooks/useHeartbeat";
 import { SPIN_TAP } from "../../pages/homeConstants";
+import { haptic } from "../../lib/pwa";
 import { useLang } from "../../i18n/i18n";
 
 export const DealRow = ({ spin, spinning, loading, passportMode, groupMode, light, resultsCount, weather }) => {
@@ -22,7 +23,7 @@ export const DealRow = ({ spin, spinning, loading, passportMode, groupMode, ligh
           onClick={() => {
             // fire one strong buzz INSIDE the tap itself — Android always
             // honors vibration from a direct touch handler
-            try { if (navigator.vibrate) navigator.vibrate(90); } catch { /* no haptics */ }
+            try { haptic(90); } catch { /* no haptics */ }
             spin();
           }}
           disabled={spinning || loading}

@@ -3,6 +3,7 @@
 // ~10% every beat down to a racing floor (~140 bpm) — the drumroll before
 // fate shows its hand. One shared <audio> app-wide.
 import { useEffect, useState } from "react";
+import { haptic } from "../lib/pwa";
 
 const START_MS = 840;
 const FLOOR_MS = 430;
@@ -57,7 +58,7 @@ export function useHeartbeat(active, { flatline = false } = {}) {
     let flatlined = false;
     const beat = () => {
       // strong lub-dub — short pulses are imperceptible on many phone motors
-      try { if (navigator.vibrate) navigator.vibrate(p > 620 ? [85, Math.round(p * 0.22), 60] : [70, 70, 55]); } catch { /* no haptics */ }
+      try { haptic(p > 620 ? [85, Math.round(p * 0.22), 60] : [70, 70, 55]); } catch { /* no haptics */ }
       const wasRacing = p <= FLOOR_MS;
       p = Math.max(FLOOR_MS, p * 0.9);        // every beat lands a little sooner
       // THE GAG: the moment the heart maxes out, it rarely just... stops.
@@ -68,11 +69,11 @@ export function useHeartbeat(active, { flatline = false } = {}) {
         a.pause();
         setPeriod(0);
         if (!muted()) playFlatTone(FLATLINE_MS);
-        try { if (navigator.vibrate) navigator.vibrate(0); } catch { /* ignore */ }
+        try { haptic(0); } catch { /* ignore */ }
         t = setTimeout(() => {
           flat = false;
           // the jolt back — defibrillator thump
-          try { if (navigator.vibrate) navigator.vibrate([140, 70, 110]); } catch { /* ignore */ }
+          try { haptic([140, 70, 110]); } catch { /* ignore */ }
           setPeriod(p);
           tryPlay();
           t = setTimeout(beat, p);

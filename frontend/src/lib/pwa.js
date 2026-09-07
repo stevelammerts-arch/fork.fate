@@ -39,10 +39,27 @@ export async function nativeShare({ title, text, url }) {
   }
 }
 
-// Subtle haptic buzz — free polish on Android + iOS wrapper builds via the
-// Vibration API. Harmless no-op in browsers that don't support it.
+// Haptic buzz that works EVERYWHERE: Android/desktop use the Vibration API;
+// the iOS Capacitor shell (where navigator.vibrate doesn't exist) replays the
+// pattern as native Taptic impacts via the injected Capacitor bridge.
 export function haptic(pattern = 15) {
   try {
+    const H = window.Capacitor?.Plugins?.Haptics;
+    if (H) {
+      const segs = Array.isArray(pattern) ? pattern : [pattern];
+      if (segs.length === 1 && segs[0] === 0) return; // vibrate(0) = cancel; nothing queued natively
+      let at = 0;
+      segs.forEach((ms, i) => {
+        if (i % 2 === 0 && ms > 0) {
+          // longer web buzzes read as harder native thumps
+          const style = ms >= 100 ? "HEAVY" : ms >= 55 ? "MEDIUM" : "LIGHT";
+          if (at === 0) H.impact({ style }).catch(() => {});
+          else setTimeout(() => H.impact({ style }).catch(() => {}), at);
+        }
+        at += ms;
+      });
+      return;
+    }
     if (typeof navigator.vibrate === "function") navigator.vibrate(pattern);
   } catch (e) {
     /* no-op */

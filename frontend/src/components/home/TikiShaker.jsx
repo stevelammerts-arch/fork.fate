@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useLang } from "../../i18n/i18n";
+import { haptic } from "../../lib/pwa";
 
 const SHAKES_NEEDED = 6;
 
@@ -58,7 +59,7 @@ export function TikiShaker({ onDone }) {
 
   const shake = () => {
     if (pouring) return;
-    try { navigator.vibrate?.(35); } catch (e) { /* no haptics */ }
+    try { haptic(35); } catch (e) { /* no haptics */ }
     if (!rattleRef.current) rattleRef.current = makeRattler();
     rattleRef.current();
     setWobbleKey((k) => k + 1);

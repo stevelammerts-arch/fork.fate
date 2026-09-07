@@ -2,11 +2,14 @@
 // reaper backgrounds plus each realm's page-level heists and companions.
 import { SEASONS, AMBIANCE, SeasonScene, AmbianceScene, ReaperHeist, GhostSnatchHeist, ReaperPlateHeist, CoffeeSpillHeist, CompanionPatrol } from "../ThemeScenes";
 import { RealmEntrySting } from "../scenes/RealmEntrySting";
+import { SeasonalDriftLayer } from "../scenes/SeasonalDriftLayer";
 import { ReaperScene } from "../ReaperScene";
 import { CafeDustMotes, CafeCounterCup, DustBunnies } from "../CafeDustMotes";
 
 export const RealmLayers = ({ theme, seasonCfg, ambCfg, heistEpoch }) => (
   <>
+    {/* Live seasonal takeover drift — every realm, no exceptions */}
+    <SeasonalDriftLayer />
     {/* Light-mode: faded bright café / restaurant interior background */}
     {theme === "light" && (
       <div

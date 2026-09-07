@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Dices, UtensilsCrossed, ThumbsUp, Swords, Castle, Flame, MapPin, Sparkles, Share2, Trophy } from "lucide-react";
 import { useLang } from "../i18n/i18n";
 import { buildRecap } from "../lib/recap";
+import { buildRecapShareImage, shareImage } from "../lib/shareCards";
 
 // FATE RECAP — a "Wrapped"-style, tap-through story of the player's year (or
 // month) in fates: totals, flavors, verdicts, realms, duels and streaks.
@@ -157,18 +158,22 @@ export default function Recap() {
   const next = () => setIdx((i) => Math.min(i + 1, slides.length - 1));
   const prev = () => setIdx((i) => Math.max(i - 1, 0));
 
+  const [sharing, setSharing] = useState(false);
   const shareRecap = async () => {
-    const bits = [`My ${stats.label} on Fork·Fate: ${stats.total} fates dealt`];
-    if (stats.topCuisine) bits.push(`fated flavor: ${stats.topCuisine.key}`);
-    if (stats.wellPct != null) bits.push(`${stats.wellPct}% chose-well rate`);
-    if (stats.bestStreak > 1) bits.push(`${stats.bestStreak}-day streak`);
-    const text = `${bits.join(" · ")}. Shuffle your own fate!`;
+    if (sharing) return;
+    setSharing(true);
     try {
-      if (navigator.share) await navigator.share({ title: "Fork·Fate Recap", text, url: window.location.origin });
-      else { await navigator.clipboard.writeText(`${text} ${window.location.origin}`); toast.success(t("Recap copied — share it anywhere!")); }
+      // a proper Wrapped-style image card — not just text
+      const blob = await buildRecapShareImage(stats);
+      const bits = [`My ${stats.label} on Fork·Fate: ${stats.total} fates dealt`];
+      if (stats.topCuisine) bits.push(`fated flavor: ${stats.topCuisine.key}`);
+      if (stats.wellPct != null) bits.push(`${stats.wellPct}% chose-well rate`);
+      const res = await shareImage(blob, `forkfate-recap-${stats.label.replace(/\s+/g, "-").toLowerCase()}.png`, `${bits.join(" · ")}. Shuffle your own fate at fork-fate.com!`);
+      if (res === "downloaded") toast.success(t("Recap card saved — post it anywhere!"));
     } catch (e) {
-      // share sheet dismissed is fine; real failures deserve a word
-      if (e && e.name !== "AbortError") toast.error(t("Couldn't share — grab a screenshot instead!"));
+      toast.error(t("Couldn't build the card — grab a screenshot instead!"));
+    } finally {
+      setSharing(false);
     }
   };
 
@@ -240,8 +245,8 @@ export default function Recap() {
                   ))}
                 </div>
                 <div className="pointer-events-auto flex gap-2.5">
-                  <button type="button" onClick={shareRecap} data-testid="recap-share-button" className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 font-sans text-sm font-bold text-[#0E0E0E] transition-transform hover:-translate-y-0.5">
-                    <Share2 className="h-4 w-4" /> {t("Share my recap")}
+                  <button type="button" onClick={shareRecap} disabled={sharing} data-testid="recap-share-button" className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 font-sans text-sm font-bold text-[#0E0E0E] transition-transform hover:-translate-y-0.5 disabled:opacity-60">
+                    <Share2 className="h-4 w-4" /> {sharing ? t("Building card…") : t("Share my recap")}
                   </button>
                   <Link to="/" data-testid="recap-deal-again" className="inline-flex items-center gap-2 rounded-full border border-white/30 px-5 py-2.5 font-sans text-sm font-bold text-white transition-colors hover:bg-white/10">
                     <Dices className="h-4 w-4" /> {t("Deal a fate")}

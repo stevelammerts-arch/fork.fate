@@ -410,6 +410,78 @@ export async function buildSecretsShareImage(secrets, found) {
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
 
+/** FATE RECAP brag card: the Wrapped-style year (or month) in one image —
+ * headline number, stat shelf, top flavor and streak line. */
+export async function buildRecapShareImage(stats) {
+  const S = 1080;
+  const H = 1350; // 4:5 portrait — story-friendly
+  const canvas = document.createElement("canvas");
+  canvas.width = S; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  // deep red-to-black wash so the recap card reads different from the others
+  const grad = ctx.createLinearGradient(0, 0, S * 0.4, H);
+  grad.addColorStop(0, "#1A1A1D");
+  grad.addColorStop(0.55, "#2B0A0E");
+  grad.addColorStop(1, "#4A0E14");
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, S, H);
+  ctx.fillStyle = RED; ctx.fillRect(0, 0, S, 10);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  ctx.font = "700 28px Arial, sans-serif";
+  ctx.fillText("FATE RECAP", S / 2, 96);
+  ctx.fillStyle = GOLD_LIGHT;
+  ctx.font = "700 66px Georgia, serif";
+  ctx.fillText(`MY ${String(stats.label).toUpperCase()} IN FATES`, S / 2, 172);
+
+  // the headline: fates dealt, enormous
+  ctx.fillStyle = RED;
+  ctx.font = "700 240px Georgia, serif";
+  ctx.fillText(String(stats.total), S / 2, 430);
+  ctx.fillStyle = "rgba(255,255,255,0.7)";
+  ctx.font = "700 34px Arial, sans-serif";
+  ctx.fillText(stats.total === 1 ? "FATE DEALT" : "FATES DEALT", S / 2, 488);
+
+  const rows = [];
+  if (stats.topCuisine) rows.push([stats.topCuisine.key, "FATED FLAVOR"]);
+  if (stats.wellPct != null) rows.push([`${stats.wellPct}%`, "TOLD FATE IT CHOSE WELL"]);
+  if (stats.dares > 0) rows.push([String(stats.dares), "DOUBLE-OR-NOTHING DARES"]);
+  if (stats.topRealm) rows.push([stats.topRealm.label, "HOME REALM"]);
+  if (stats.bestStreak > 1) rows.push([`${stats.bestStreak} days`, "BEST STREAK"]);
+  if (stats.secretsFound > 0) rows.push([`${stats.secretsFound}/${stats.secretsTotal}`, "SECRETS FOUND"]);
+  while (rows.length < 3) rows.push(["—", rows.length === 0 ? "FATED FLAVOR" : rows.length === 1 ? "TOLD FATE IT CHOSE WELL" : "BEST STREAK"]);
+
+  const top = 610, rowH = 122;
+  rows.slice(0, 5).forEach(([val, label], i) => {
+    const y = top + i * rowH;
+    roundRect(ctx, 90, y - 68, S - 180, 100, 18);
+    ctx.fillStyle = "rgba(0,0,0,0.28)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(230,178,58,0.28)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.textAlign = "left";
+    ctx.fillStyle = GOLD;
+    ctx.font = "700 46px Georgia, serif";
+    const v = String(val).length > 16 ? `${String(val).slice(0, 15)}…` : String(val);
+    ctx.fillText(v, 126, y + 4);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "rgba(255,255,255,0.65)";
+    ctx.font = "700 26px Arial, sans-serif";
+    ctx.fillText(label, S - 126, y);
+    ctx.textAlign = "center";
+  });
+
+  ctx.fillStyle = "rgba(255,255,255,0.5)";
+  ctx.font = "italic 600 30px Georgia, serif";
+  ctx.fillText("Fate isn't done with me yet.", S / 2, H - 92);
+  ctx.fillStyle = GOLD;
+  ctx.font = "700 24px Georgia, serif";
+  ctx.fillText("fork-fate.com", S / 2, H - 40);
+
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+}
+
 /** Native share when possible, silent download otherwise.
  * Returns "shared" | "downloaded" | null (user cancelled). */
 export async function shareImage(blob, filename, text) {

@@ -6,6 +6,7 @@ import { Dices, Store, Heart, Star, MapPin, ShoppingBag, Fuel, UtensilsCrossed, 
 import GroupVote from "../GroupVote";
 import BecomeSponsorDialog from "../BecomeSponsorDialog";
 import { OrderDropdown } from "../OrderDropdown";
+import { haptic } from "../../lib/pwa";
 import { FateActionsDropdown } from "../FateActionsDropdown";
 import { CouponReveal } from "./CouponReveal";
 import { CheckInButton } from "./CheckInButton";
@@ -164,7 +165,7 @@ export default function RevealStage({ spinning, flash, deck, result, groupPicks,
           className="overflow-hidden rounded-2xl"
           onPointerDownCapture={() => {
             if (covered) {
-              try { if (navigator.vibrate) navigator.vibrate(90); } catch { /* no haptics */ }
+              try { haptic(90); } catch { /* no haptics */ }
               setCardTapped(true);
             }
           }}

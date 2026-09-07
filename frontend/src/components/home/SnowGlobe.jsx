@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useLang } from "../../i18n/i18n";
+import { haptic } from "../../lib/pwa";
 
 const SHAKES_NEEDED = 5;
 const SNOWFLAKES = 26;
@@ -53,7 +54,7 @@ export function SnowGlobe({ onDone }) {
 
   const shake = () => {
     if (settling) return;
-    try { navigator.vibrate?.(35); } catch (e) { /* no haptics */ }
+    try { haptic(35); } catch (e) { /* no haptics */ }
     if (!jingleRef.current) jingleRef.current = makeJingler();
     jingleRef.current();
     setWobbleKey((k) => k + 1);
