@@ -1,0 +1,27 @@
+{
+  "appId": "com.forkfate.app",
+  "appName": "Fork-Fate",
+  "webDir": "www",
+  "server": {
+    "url": "https://fork-fate.com",
+    "allowNavigation": ["fork-fate.com", "*.fork-fate.com"]
+  },
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#0E0E0E",
+    "scrollEnabled": true,
+    "limitsNavigationsToAppBoundDomains": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#0E0E0E",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "overlaysWebView": true
+    }
+  }
+}

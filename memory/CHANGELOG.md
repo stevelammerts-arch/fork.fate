@@ -1819,3 +1819,12 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Deleted admin BetaTesters section: component BetaTesters.jsx, all Admin.jsx state/handlers (betaTesters, optInLink, emailAllTesters, deleteBeta, loadBeta), backend routes POST /api/beta-testers + GET/DELETE /api/admin/beta-testers, and BetaSignup model. db.beta_testers collection data left untouched in Mongo (harmless).
 - Security tests (test_iter8_auth_hardening.py) used DELETE /admin/beta-testers as CSRF probe -> swapped to DELETE /admin/feedback/nonexistent-csrf-probe (same semantics); 8/8 CSRF+Bearer tests pass.
 - Verified: endpoints 404, admin page renders clean with zero tester references, login + all other panels intact.
+
+## 2026-02 (fork) — Apple App Store groundwork
+- User is enrolled in Apple Developer Program (Team ID 29LSDGAHDH, Individual).
+- Scaffolded Capacitor 7 iOS shell at /app/ios-app: appId com.forkfate.app, server.url https://fork-fate.com (remote-load model = web deploys reach iOS instantly), plugins Haptics/Share/StatusBar/SplashScreen.
+- Assets installed: 1024 app icon (alpha flattened from ff-logo-1024.png), 2732 splash x3 (logo-splash-master centered on #0E0E0E).
+- Info.plist: NSLocationWhenInUseUsageDescription (critical for nearby search), NSMotionUsageDescription (shake), ITSAppUsesNonExemptEncryption=false.
+- Full guide at /app/ios-app/APP_STORE_GUIDE.md: Mac/Xcode path + no-Mac Codemagic path, App Store Connect setup, paste-ready listing copy, privacy label answers, review notes, Guideline 4.2 mitigation.
+- NOTE: final .ipa build/upload requires macOS (Xcode) or Codemagic — cannot be done in this pod.
+- Follow-up idea: web-side Capacitor haptics bridge (navigator.vibrate is dead on iOS; window.Capacitor Haptics would give the heartbeat real thumps in the iOS app + strengthens 4.2 defense).
