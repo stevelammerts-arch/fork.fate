@@ -1837,3 +1837,9 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 ## 2026-02 (fork) — Code review report audit (no changes)
 - External code-quality report audited. Verified false positives: 0 undefined Python vars (pyflakes+ruff+mypy clean), seed_data random is documented non-crypto deterministic fake data, all security tokens use secrets module, 0 console.log (only debug-level in catch blocks), index-keys are all static animation arrays.
 - Declined per prior user decisions + safety: Home.jsx/AmbianceScene splits (user rejected refactor previously), hook-dep additions (intentional mount-once timer effects; adding deps would loop), localStorage migration (intentional PWA offline progression; auth already HttpOnly+CSRF), Python complexity/type-hint sweeps (churn on live app).
+
+## 2026-02 (fork) — Rack robot shudder fix (FF_BUILD 623)
+- Bug: steampunk middle rack robot jumped right + back when tapped (mobile landscape). Root cause: container centered via Tailwind -translate-x-1/2, but ffGolemTip keyframes animated transform: rotate() which OVERRODE the base translate for the animation duration (half-width teleport).
+- Fix 1: ffGolemTip now animates the standalone `rotate` property (composes with base transform). Only usage is robotShudder — golems unaffected.
+- Fix 2: loose mounted arm (sibling sprite steam-arm-mounted) now rocks along during the shudder with pivot 50%/154% (≈robot feet), skipped if the arm-drop heist is animating; transformOrigin restored after.
+- Verified numerically in 844x390 landscape: center drift 0.0px after settle (was ~114px), arm animates + clears.

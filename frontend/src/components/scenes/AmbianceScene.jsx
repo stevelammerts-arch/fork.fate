@@ -443,15 +443,30 @@ function CyberNeonSign({ neon }) {
 
 
 /** Tapped robots SHUDDER like they might tip over: a decaying rock around the
- * feet plus a grinding-gears rattle. Shared by both golems + the rack robot. */
+ * feet plus a grinding-gears rattle. Shared by both golems + the rack robot.
+ * The rack robot's loose mounted arm is a sibling sprite (so the arm-drop
+ * heist can animate it alone) — it rocks along here or it looks bolted to air. */
 const robotShudder = (host) => {
   if (host.dataset.busy) return;
   host.dataset.busy = "1";
   foundSecret("golem-shudder");
   tapSound("/golem-gears.mp3", 0.45);
-  host.style.transformOrigin = "50% 100%";
-  host.style.animation = "ffGolemTip 1.5s cubic-bezier(0.36,0.07,0.19,0.97)";
-  setTimeout(() => { host.style.animation = ""; delete host.dataset.busy; }, 1560);
+  const parts = [[host, "50% 100%"]];
+  if (host.getAttribute("data-testid") === "steam-robot-rack") {
+    const arm = document.querySelector('[data-testid="steam-arm-mounted"]');
+    // skip if the arm-drop heist is mid-animation (weld shudder / detach)
+    if (arm && !arm.style.animation) parts.push([arm, "50% 154%"]); // pivot ≈ the robot's feet, far below the arm's box
+  }
+  const restores = parts.map(([el, origin]) => {
+    const prev = el.style.transformOrigin;
+    el.style.transformOrigin = origin;
+    el.style.animation = "ffGolemTip 1.5s cubic-bezier(0.36,0.07,0.19,0.97)";
+    return [el, prev];
+  });
+  setTimeout(() => {
+    restores.forEach(([el, prev]) => { el.style.animation = ""; if (el !== host) el.style.transformOrigin = prev; });
+    delete host.dataset.busy;
+  }, 1560);
 };
 
 /** Soft woodstove crackle looping near the left golem's smoldering belly grate.

@@ -3328,14 +3328,17 @@ body.ff-badge-open .ff-theme-scene * {
 }
 
 /* Tapped robot: rocks on its feet like it might topple, settling with a decay */
+/* Standalone `rotate` (not transform:) so the rock COMPOSES with any base
+   transform — the rack robot is centered via translateX(-50%), and animating
+   transform: would override it, teleporting him sideways for the ride. */
 @keyframes ffGolemTip {
-  0% { transform: rotate(0deg); }
-  14% { transform: rotate(-4.5deg); }
-  30% { transform: rotate(3.6deg); }
-  46% { transform: rotate(-2.6deg); }
-  62% { transform: rotate(1.8deg); }
-  78% { transform: rotate(-0.9deg); }
-  100% { transform: rotate(0deg); }
+  0% { rotate: 0deg; }
+  14% { rotate: -4.5deg; }
+  30% { rotate: 3.6deg; }
+  46% { rotate: -2.6deg; }
+  62% { rotate: 1.8deg; }
+  78% { rotate: -0.9deg; }
+  100% { rotate: 0deg; }
 }
 
 /* Poked skyline traffic: swerves up and away, wobbles, settles back on route */
