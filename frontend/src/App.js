@@ -12,6 +12,7 @@ import Rituals from "./pages/Rituals";
 import Journal from "./pages/Journal";
 import Secrets from "./pages/Secrets";
 import Recap from "./pages/Recap";
+import Credits from "./pages/Credits";
 import Conquest from "./pages/Conquest";
 import Duel from "./pages/Duel";
 import Bingo from "./pages/Bingo";
@@ -51,6 +52,7 @@ function App() {
           <Route path="/journal" element={<Journal />} />
           <Route path="/secrets" element={<Secrets />} />
           <Route path="/recap" element={<Recap />} />
+          <Route path="/credits" element={<Credits />} />
           <Route path="/conquest" element={<Conquest />} />
           <Route path="/d/:code" element={<Duel />} />
           <Route path="/bingo" element={<Bingo />} />
