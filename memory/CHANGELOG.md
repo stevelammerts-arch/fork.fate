@@ -1843,3 +1843,8 @@ ROADMAP idea (user): future categories beyond food/drinks/bars/desserts -> antiq
 - Fix 1: ffGolemTip now animates the standalone `rotate` property (composes with base transform). Only usage is robotShudder — golems unaffected.
 - Fix 2: loose mounted arm (sibling sprite steam-arm-mounted) now rocks along during the shudder with pivot 50%/154% (≈robot feet), skipped if the arm-drop heist is animating; transformOrigin restored after.
 - Verified numerically in 844x390 landscape: center drift 0.0px after settle (was ~114px), arm animates + clears.
+
+## 2026-02 (fork) — Need Help pill: emergency categories (FF_BUILD 626)
+- Backend ESSENTIALS_QUERIES (routes/places.py): added police ("police station") + fire ("fire station"). Verified live via curl: 3 results each near 68137.
+- NearbyHelp.jsx: new Police (Siren icon) + Fire Station (Flame) tiles; pinned red "Emergency Services — tap to call 911" strip (testid emergency-911-strip) above the grid; trigger tooltip updated; removed unused Fuel import. Pharmacy already existed.
+- E2E verified via screenshot: sheet opens, 911 strip + new tiles render, police search returns 3 rows with Call/Directions.

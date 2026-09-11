@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import axios from "axios";
 import {
-  Heart, Stethoscope, Cross, Truck, Fuel, Pill, MapPin, Phone, ExternalLink, LifeBuoy, AlertTriangle, HandHeart, LocateFixed, Shield,
+  Heart, Stethoscope, Cross, Truck, Pill, MapPin, Phone, ExternalLink, LifeBuoy, AlertTriangle, HandHeart, LocateFixed, Shield, Siren, Flame,
 } from "lucide-react";
 import {
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription,
@@ -20,6 +20,8 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const CATEGORIES = [
   { id: "er",          label: "ER",          hint: "Emergency room / hospital", Icon: Cross,      accent: "#E01E26" },
   { id: "urgent_care", label: "Urgent Care", hint: "Walk-in clinic",            Icon: Stethoscope,accent: "#E01E26" },
+  { id: "police",      label: "Police",      hint: "Nearest stations",          Icon: Siren,      accent: "#1E3A6F" },
+  { id: "fire",        label: "Fire Station", hint: "Nearest stations",         Icon: Flame,      accent: "#C2410C" },
   { id: "va",          label: "VA Health",   hint: "VA hospital & clinics",     Icon: Shield,     accent: "#1E3A6F" },
   { id: "dentist",     label: "Dentist",     hint: "24-hr / emergency",         Icon: Heart,      accent: "#B26A12" },
   { id: "vet",         label: "Vet",         hint: "Animal hospital",           Icon: Truck,      accent: "#B26A12" },
@@ -131,7 +133,7 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
         <button
           type="button"
           data-testid="nearby-help-trigger"
-          title="Need help? — ER, urgent care, dentist, vet, pharmacy, food bank"
+          title="Need help? — 911, ER, urgent care, police, fire, dentist, vet, pharmacy, food bank"
           aria-label="Need help"
           className={`inline-flex items-center gap-1.5 rounded-full border bg-transparent px-3 py-1.5 text-xs font-bold transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${
             light ? "border-[#E4E4E7] text-[#0E0E0E] hover:bg-[#F7F7F8]" : "border-white/20 text-white hover:bg-white/10"
@@ -220,8 +222,31 @@ export default function NearbyHelp({ light = false, zip = "", lat = null, lng = 
             ))}
           </div>
 
+          {/* EMERGENCY SERVICES: 911 pinned first — venue lists below are for
+              non-life-threatening needs; a true emergency is one tap away. */}
           {!selected && (
-            <div className="mt-5 grid grid-cols-2 gap-3" data-testid="nearby-help-grid">
+            <a
+              href="tel:911"
+              data-testid="emergency-911-strip"
+              className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-[#E01E26] px-4 py-3.5 text-white transition-transform hover:-translate-y-0.5"
+            >
+              <span className="flex items-center gap-3">
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-white/15">
+                  <Siren className="h-5 w-5" />
+                </span>
+                <span className="flex flex-col">
+                  <span className="font-serif text-lg leading-tight">Emergency Services</span>
+                  <span className="font-sans text-xs text-white/85">Life-threatening? Tap to call 911 now</span>
+                </span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-2 font-sans text-xs font-bold text-[#E01E26]">
+                <Phone className="h-3.5 w-3.5" /> 911
+              </span>
+            </a>
+          )}
+
+          {!selected && (
+            <div className="mt-4 grid grid-cols-2 gap-3" data-testid="nearby-help-grid">
               {CATEGORIES.map(({ id, label, hint, Icon, accent }) => (
                 <button
                   key={id}

@@ -497,6 +497,8 @@ async def geocode_zip(zip: str):
 ESSENTIALS_QUERIES = {
     "er": "emergency room hospital",
     "urgent_care": "urgent care walk-in clinic",
+    "police": "police station",
+    "fire": "fire station",
     "dentist": "24 hour dentist emergency dental",
     "vet": "veterinarian emergency animal hospital",
     "pharmacy": "24 hour pharmacy",
@@ -559,7 +561,7 @@ async def places_essentials(lat: float | None = None, lng: float | None = None,
 
     Query params:
       - lat/lng OR zip (5-digit US) — one is required
-      - categories: comma-separated subset of er|urgent_care|dentist|vet|pharmacy|food_bank|gas
+      - categories: comma-separated subset of er|urgent_care|police|fire|dentist|vet|pharmacy|food_bank|gas|va
                     (empty = all)
       - radius_mi: search radius in miles (default 25, clamped 1-100)
     """
