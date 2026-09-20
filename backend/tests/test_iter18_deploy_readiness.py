@@ -166,4 +166,5 @@ def test_assetlinks_json(sess):
     target = data[0].get("target", {})
     assert target.get("package_name") == "com.fork_fate.twa", f"Wrong package: {target}"
     fps = target.get("sha256_cert_fingerprints") or []
-    assert len(fps) == 4, f"Expected 4 sha256 fingerprints, got {len(fps)}"
+    # 6 = original 4 + the two fingerprints of the 2026 upload key (iter 74).
+    assert len(fps) == 6, f"Expected 6 sha256 fingerprints, got {len(fps)}"

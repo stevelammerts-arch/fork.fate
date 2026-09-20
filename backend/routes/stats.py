@@ -143,6 +143,28 @@ def _hash_ip(ip: str) -> str:
     return hashlib.sha256(f"ffgeo:{ip}".encode()).hexdigest()[:32]
 
 
+_lb_purge_done = False
+
+
+async def _purge_lb_ip_records(request: Request):
+    """One-time cleanup of the 'everyone is in Kansas City' bug: client_ip() used to
+    resolve to the Google LB's own public IP (rightmost X-Forwarded-For entry), so all
+    visitors were recorded under one hash geolocated to the LB's data center. That LB
+    IP is still the rightmost XFF entry on every proxied request, so we can compute
+    the exact bogus hash and delete only those records — real visitors are untouched."""
+    global _lb_purge_done
+    if _lb_purge_done:
+        return
+    _lb_purge_done = True
+    xff = request.headers.get("x-forwarded-for", "")
+    entries = [p.strip() for p in xff.split(",") if p.strip()]
+    if not entries:
+        return
+    bogus = _hash_ip(entries[-1])
+    await db.pageviews.delete_many({"ip_hash": bogus})
+    await db.geo_cache.delete_many({"ip_hash": bogus})
+
+
 def _is_private_ip(ip: str) -> bool:
     try:
         return ipaddress.ip_address(ip).is_private or ipaddress.ip_address(ip).is_loopback
@@ -187,6 +209,7 @@ async def _geo_for_ip(ip: str, request: Request) -> dict:
 @router.post("/stats/pageview", dependencies=[Depends(rate_limit(60))])
 async def record_pageview(request: Request):
     await _ensure_pageview_indexes()
+    await _purge_lb_ip_records(request)
     ip = client_ip(request)
     ip_hash = _hash_ip(ip)
     now = datetime.now(timezone.utc)

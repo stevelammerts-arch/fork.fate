@@ -3090,3 +3090,25 @@ inside playHeistSound).
 - Key facts: console "App signing key" = 0A:AA:AD:D1 (Google's, never changes);
   OLD upload key = F6:40:9F / 21:D0:AB; NEW upload key = 76:C5:FA / 0B:D0:69.
   Upload of v3 only works once console "Upload key certificate" = 76:C5:FA.
+
+## 2026-02 fork part 147: GEO BUG FIX — "everyone is in Kansas City" (backend)
+- Root cause (confirmed via header echo through real ingress): pod receives no
+  CF-Connecting-IP; X-Forwarded-For = "<client>,<cloudflare-edge>,<google-lb-ip>".
+  client_ip()'s right-to-left XFF walk stopped at the Google LB's own public IP
+  (35.186.245.91, public => "not infra"), geolocating ALL visitors to the LB's
+  data center (Kansas City) and collapsing them into one rate-limit bucket.
+- Fix in /app/backend/core.py:
+  * _CDN_HOP_CIDRS: Cloudflare published IPv4/IPv6 ranges + Google GFE ranges.
+  * client_ip(): drops the RIGHTMOST XFF entry (LB always appends its own IP
+    last per GCLB contract), then walks right-to-left skipping infra + CDN hops.
+- One-time purge in /app/backend/routes/stats.py (_purge_lb_ip_records): on
+  first pageview per process, deletes pageviews/geo_cache rows whose ip_hash
+  matches the current LB IP (rightmost XFF entry) — removes bogus KC records on
+  PROD after redeploy without touching real Kansas City visitors.
+- Regression tests: /app/backend/tests/test_iter76_geo_lb_ip.py (6 tests).
+  NOTE: TEST-NET IPs (203.0.113.x etc.) count as is_private in Python 3.11+.
+- Updated stale tests: assetlinks fingerprints 4->6 (2026 upload key), .aab in
+  /public now allowed (deliberate, iter 74).
+- Verified e2e: pageview via preview URL records real client geo (Council
+  Bluffs = pod egress). Full suite: 456 passed (1 known parallel flake in
+  global login backstop, passes in isolation). USER MUST REDEPLOY for prod.

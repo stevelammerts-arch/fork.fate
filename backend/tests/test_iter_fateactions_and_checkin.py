@@ -219,7 +219,9 @@ class TestBuildAndSecurity:
     def test_no_keystore_or_aab_in_public(self):
         import glob
         assert glob.glob("/app/frontend/public/*.keystore") == []
-        assert glob.glob("/app/frontend/public/*.aab") == []
+        # NB: a signed .aab IS deliberately published in /public (iter 74) so the
+        # owner can download it for Play Console upload — it contains no secrets.
+        # Only the keystore must never appear here.
 
     def test_keystore_public_url_not_leaking_binary(self, s):
         r = s.get(f"{BASE_URL}/forkfate-upload.keystore")

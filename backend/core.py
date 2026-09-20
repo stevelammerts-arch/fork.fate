@@ -345,6 +345,28 @@ def _is_infra_hop(ip) -> bool:
     return ip.is_private or ip.is_loopback
 
 
+# Public CDN / cloud-LB hops that legitimately appear in X-Forwarded-For between the
+# real client and us: Cloudflare's published ranges (www.cloudflare.com/ips) and
+# Google Cloud front-end / LB proxy source ranges. These belong to infrastructure,
+# never to a real visitor, so the right-to-left XFF walk must step over them.
+_CDN_HOP_CIDRS = [ipaddress.ip_network(_c) for _c in (
+    # Cloudflare IPv4
+    "173.245.48.0/20", "103.21.244.0/22", "103.22.200.0/22", "103.31.4.0/22",
+    "141.101.64.0/18", "108.162.192.0/18", "190.93.240.0/20", "188.114.96.0/20",
+    "197.234.240.0/22", "198.41.128.0/17", "162.158.0.0/15", "104.16.0.0/13",
+    "104.24.0.0/14", "172.64.0.0/13", "131.0.72.0/22",
+    # Cloudflare IPv6
+    "2400:cb00::/32", "2606:4700::/32", "2803:f800::/32", "2405:b500::/32",
+    "2405:8100::/32", "2a06:98c0::/29", "2c0f:f248::/32",
+    # Google Cloud load-balancer / GFE proxy sources
+    "130.211.0.0/22", "35.191.0.0/16",
+)]
+
+
+def _is_cdn_hop(ip) -> bool:
+    return any(ip in net for net in _CDN_HOP_CIDRS)
+
+
 def peer_is_trusted_proxy(request: Request) -> bool:
     """Whether the direct TCP peer is a trusted proxy hop, so we may believe its
     forwarded headers (CF-Connecting-IP, X-Forwarded-Host). When TRUST_PROXY_CIDRS is
@@ -604,12 +626,20 @@ def client_ip(request: Request) -> str:
                 return v.strip()
         xff = request.headers.get("x-forwarded-for")
         if xff:
-            for candidate in reversed([p.strip() for p in xff.split(",") if p.strip()]):
+            entries = [p.strip() for p in xff.split(",") if p.strip()]
+            # Google Cloud's external LB appends "<immediate-client>,<lb-ip>" — the
+            # RIGHTMOST entry is the load balancer's OWN public address, never a
+            # client. This was the "everyone is in Kansas City" bug: the walk used
+            # to stop on the LB's public IP (public ⇒ not an infra hop under the
+            # private-range heuristic), geolocating every visitor to the LB's data
+            # center and collapsing them all into one rate-limit bucket.
+            entries = entries[:-1]
+            for candidate in reversed(entries):
                 try:
                     ip = ipaddress.ip_address(candidate)
                 except ValueError:
                     continue
-                if _is_infra_hop(ip):
+                if _is_infra_hop(ip) or _is_cdn_hop(ip):
                     continue  # one of our own hops — keep walking left
                 return candidate
     return request.client.host if request.client else "unknown"
