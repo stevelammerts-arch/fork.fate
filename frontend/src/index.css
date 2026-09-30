@@ -3408,3 +3408,14 @@ body.ff-badge-open .ff-theme-scene * {
   60% { transform: translate(72px, -34px) rotate(160deg); opacity: 0.9; }
   100% { transform: translate(150px, -12px) rotate(320deg); opacity: 0; }
 }
+
+/* Shuffle-time scenery freeze: while the shuffle popup covers the screen every
+   realm/season/ambiance keyframe pauses in place (components stay mounted, so
+   audio cycles and heist timers are untouched). iPhones were dropping shuffle
+   frames because dozens of background sprites kept compositing behind the
+   overlay. Resumes exactly where it paused when the deck lands. */
+.ff-scenes-paused *,
+.ff-scenes-paused *::before,
+.ff-scenes-paused *::after {
+  animation-play-state: paused !important;
+}

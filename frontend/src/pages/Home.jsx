@@ -272,11 +272,14 @@ export default function Home() {
   }, []);
   const [blackout, setBlackout] = useState(false); // BINGO blackout celebration
   useEffect(() => {
-    const busy = !!(spinning || loading || surpriseReveal || showGuided || mysticalReveal || blackout);
+    // A visible result / group picks counts as busy too: heists were striking
+    // (and scroll-jacking to the top) while the player was still reading their
+    // revealed fate. The stage stays theirs until the card is dismissed.
+    const busy = !!(spinning || loading || surpriseReveal || showGuided || mysticalReveal || blackout || result || groupPicks);
     const was = window.__ffFateBusy;
     window.__ffFateBusy = busy;
     if (busy && !was) setHeistEpoch((n) => n + 1);
-  }, [spinning, loading, surpriseReveal, showGuided, mysticalReveal, blackout]);
+  }, [spinning, loading, surpriseReveal, showGuided, mysticalReveal, blackout, result, groupPicks]);
 
   const finishGuided = () => {
     setShowGuided(false);
@@ -1241,8 +1244,13 @@ export default function Home() {
       <PubCrawlDialog open={showCrawl} onClose={() => setShowCrawl(false)} results={results} mode={mode} origin={crawlEndpoints.origin || coords} destination={crawlEndpoints.destination} crawlLabel={crawlType === "custom" && customCrawl ? customCrawl.crawl : crawlLabelForType(crawlType)} initialStops={crawlStops} onReshuffle={reshuffleCrawl} />
       <PassportDialog open={!!passportReveal} code={passportReveal?.code} initial={passportReveal?.initial} onClose={() => setPassportReveal(null)} />
 
-      {/* Realm scenery stack: café / seasonal / ambiance / reaper + page heists */}
-      <RealmLayers theme={theme} seasonCfg={seasonCfg} ambCfg={ambCfg} heistEpoch={heistEpoch} />
+      {/* Realm scenery stack: café / seasonal / ambiance / reaper + page heists.
+          While the shuffle popup covers the screen, every scene keyframe pauses
+          (ff-scenes-paused, index.css) — on iPhones the dozens of background
+          animations kept compositing behind the overlay and lagged the riffle. */}
+      <div style={{ display: "contents" }} className={spinning ? "ff-scenes-paused" : undefined}>
+        <RealmLayers theme={theme} seasonCfg={seasonCfg} ambCfg={ambCfg} heistEpoch={heistEpoch} />
+      </div>
       {/* BINGO blackout: all 25 squares stamped — golden full-screen ritual */}
       <BlackoutRitual open={blackout} onClose={() => setBlackout(false)} />
       {/* Header (browser-style mode tabs live inside it) */}

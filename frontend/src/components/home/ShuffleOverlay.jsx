@@ -17,7 +17,7 @@ export function ShuffleOverlay({ open, light, flash, flashHit, cards, theme, sea
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
-          className={`fixed inset-0 z-[60] flex items-center justify-center px-6 backdrop-blur-sm ${light ? "bg-white/70" : "bg-black/50"}`}
+          className={`fixed inset-0 z-[60] flex items-center justify-center px-6 ${light ? "bg-white/85" : "bg-black/70"}`}
           data-testid="shuffle-popup"
           style={{ pointerEvents: flashHit ? "none" : "auto" }}
         >
