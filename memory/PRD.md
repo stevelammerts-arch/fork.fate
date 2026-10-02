@@ -3112,3 +3112,33 @@ inside playHeistSound).
 - Verified e2e: pageview via preview URL records real client geo (Council
   Bluffs = pod egress). Full suite: 456 passed (1 known parallel flake in
   global login backstop, passes in isolation). USER MUST REDEPLOY for prod.
+
+## 2026-02 fork part 148: iPhone shuffle lag + heist-interrupts-reveal + KC geo round 2 (FF_BUILD 627)
+- SHUFFLE LAG (iPhone): ShuffleOverlay.jsx dropped full-screen backdrop-blur-sm
+  (opacity-compensated bg-black/70 / bg-white/85); Home.jsx wraps RealmLayers in a
+  display:contents div adding .ff-scenes-paused while spinning (index.css:
+  animation-play-state paused on all descendants). NO unmounts — audio cycles safe.
+- HEIST INTERRUPTS REVEAL: Home.jsx busy calc now includes `result` and `groupPicks`
+  (heists bow out + no scroll-to-top while the fate card is on screen); fixed
+  UnicornChargeHeist missing key={heistEpoch} in AmbianceScene.jsx:1566.
+  Tested by testing agent: iteration_76.json — 6/6 PASS, idle heists still strike.
+- KANSAS CITY GEO ROUND 2: deployer RCA proved part-147 fix WAS deployed yet prod
+  still wrote 100% KC rows (8 distinct hashes). TRUE mechanism (reproduced locally):
+  (a) prod XFF contains Google edge hops outside the narrow GFE ranges;
+  (b) uvicorn proxy-headers middleware can REWRITE request.client.host to an
+  upstream hop (observed: peer became the LB's public IP) making peer_is_trusted_proxy
+  reject the headers entirely. Fixes in core.py:
+  * _CDN_HOP_CIDRS expanded with Google-owned netblocks (34/9, 34.128/10, 35.184/13…,
+    IPv6 2600:1900::/28 etc).
+  * peer_is_trusted_proxy also trusts peers inside _CDN_HOP_CIDRS (TCP src unspoofable).
+  * new is_infra_ip() helper; stats._geo_for_ip NEVER geolocates infra IPs → worst
+    case "Unknown", Kansas City impossible.
+  * stats.py: _reset_bogus_geo_once wipes pageviews+geo_cache ONCE (Mongo marker
+    doc 'geo_reset_v2' — idempotent across restarts); old per-process purge removed.
+  * Diagnostics kept: 'pageview geo:' log line + db.geo_diag (3-day TTL) +
+    GET /api/admin/geo-diag (admin) to calibrate against prod if ever needed.
+- Tests: test_iter76_geo_lb_ip.py extended (8 tests: prod chain, extra Google hops,
+  GCP-client-as-infra). Full suite 458 passed.
+- NOTE: Python 3.11+ counts TEST-NET ranges (203.0.113.x) as is_private.
+- YouTube promo video dispute: USER WON — Pixabay music OK, video task CLOSED.
+- USER MUST REDEPLOY to ship all three fixes to fork-fate.com.

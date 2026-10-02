@@ -360,6 +360,25 @@ _CDN_HOP_CIDRS = [ipaddress.ip_network(_c) for _c in (
     "2405:8100::/32", "2a06:98c0::/29", "2c0f:f248::/32",
     # Google Cloud load-balancer / GFE proxy sources
     "130.211.0.0/22", "35.191.0.0/16",
+    # Google-owned netblocks (cloud LBs, edge PoPs, GFEs). Production's proxy
+    # chain inserts Google edge hops whose addresses are NOT in the two ranges
+    # above (observed: every prod visitor resolving to a Google IP geolocated
+    # to Kansas City). Any Google address in X-Forwarded-For is one of our
+    # infrastructure hops, never a real visitor worth geolocating — a "client"
+    # inside these ranges is a GCP-hosted bot anyway. Coarse published blocks:
+    "8.34.208.0/20", "8.35.192.0/20", "23.236.48.0/20", "23.251.128.0/19",
+    "34.0.0.0/9", "34.128.0.0/10",
+    "35.184.0.0/13", "35.192.0.0/14", "35.196.0.0/15", "35.198.0.0/16",
+    "35.199.0.0/17", "35.199.128.0/18", "35.200.0.0/13", "35.208.0.0/12",
+    "35.224.0.0/12", "35.240.0.0/13",
+    "64.233.160.0/19", "66.102.0.0/20", "66.249.64.0/19", "74.125.0.0/16",
+    "104.154.0.0/15", "104.196.0.0/14", "107.167.160.0/19", "107.178.192.0/18",
+    "108.59.80.0/20", "108.170.192.0/18", "108.177.0.0/17", "130.211.0.0/16",
+    "146.148.0.0/17", "162.216.148.0/22", "162.222.176.0/21", "172.217.0.0/16",
+    "173.194.0.0/16", "192.158.28.0/22", "199.36.154.0/23", "199.192.112.0/22",
+    "209.85.128.0/17", "216.58.192.0/19", "216.239.32.0/19",
+    "2600:1900::/28", "2607:f8b0::/32", "2404:6800::/32", "2800:3f0::/32",
+    "2a00:1450::/32", "2c0f:fb50::/32",
 )]
 
 
@@ -367,13 +386,28 @@ def _is_cdn_hop(ip) -> bool:
     return any(ip in net for net in _CDN_HOP_CIDRS)
 
 
+def is_infra_ip(ip_str: str) -> bool:
+    """Public helper: is this address our own infrastructure (private/loopback or a
+    Cloudflare/Google hop)? Geo code must NEVER geolocate these — they resolve to a
+    data-center city (the 'everyone is in Kansas City' bug), not a visitor."""
+    try:
+        ip = ipaddress.ip_address(ip_str)
+    except ValueError:
+        return True
+    return ip.is_private or ip.is_loopback or _is_cdn_hop(ip)
+
+
 def peer_is_trusted_proxy(request: Request) -> bool:
     """Whether the direct TCP peer is a trusted proxy hop, so we may believe its
     forwarded headers (CF-Connecting-IP, X-Forwarded-Host). When TRUST_PROXY_CIDRS is
     configured we require the peer to be inside one of those ranges. Otherwise we fall
-    back to the legacy heuristic: trust only private/loopback peers — a public peer
-    means the request reached us directly off-CDN, where client-supplied headers are
-    forgeable and must be ignored."""
+    back to the legacy heuristic: trust private/loopback peers, PLUS peers inside our
+    own CDN/cloud-LB ranges (_CDN_HOP_CIDRS) — uvicorn's proxy-headers middleware can
+    rewrite request.client.host to an upstream hop taken from X-Forwarded-For, which
+    made the 'peer' the Google LB's public IP in production. TCP source addresses
+    can't be spoofed, so a peer inside Cloudflare/Google ranges really is our chain.
+    Any other public peer means the request reached us directly off-CDN, where
+    client-supplied headers are forgeable and must be ignored."""
     if TRUST_PROXY_MODE == "always":
         return True
     if TRUST_PROXY_MODE == "never":
@@ -385,7 +419,7 @@ def peer_is_trusted_proxy(request: Request) -> bool:
         ip = ipaddress.ip_address(peer)
     except ValueError:
         return False
-    return _is_infra_hop(ip)
+    return _is_infra_hop(ip) or _is_cdn_hop(ip)
 
 
 def _request_origin(request: Request) -> str:

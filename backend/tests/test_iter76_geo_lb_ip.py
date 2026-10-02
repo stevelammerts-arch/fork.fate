@@ -24,7 +24,17 @@ def _req(xff=None, peer="127.0.0.1", extra=None):
 class TestLbIpSkipped:
     def test_prod_chain_client_cf_lb(self):
         # Real prod shape: client, Cloudflare edge, Google LB.
-        assert client_ip(_req("104.198.214.223,172.70.131.150,35.186.245.91")) == "104.198.214.223"
+        assert client_ip(_req("98.97.10.5,172.70.131.150,35.186.245.91")) == "98.97.10.5"
+
+    def test_prod_chain_with_extra_google_edge_hops(self):
+        # Prod inserts Google edge hops NOT in the narrow GFE ranges (the second
+        # Kansas-City regression): every Google-owned address must be stepped over.
+        assert client_ip(_req("98.97.10.5,172.70.131.150,34.160.10.9,35.202.4.7,35.186.245.91")) == "98.97.10.5"
+
+    def test_gcp_hosted_client_treated_as_infra(self):
+        # A "visitor" from inside Google Cloud is one of our hops or a bot —
+        # never geolocate it; fall back to the TCP peer.
+        assert client_ip(_req("104.198.214.223,35.186.245.91")) == "127.0.0.1"
 
     def test_direct_chain_client_lb(self):
         # Custom domain pointed straight at the LB (no Cloudflare).

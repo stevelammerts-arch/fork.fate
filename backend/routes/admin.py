@@ -112,6 +112,19 @@ async def geo_stats(days: int = 30):
     }
 
 
+@router.get("/admin/geo-diag", dependencies=[Depends(require_admin)])
+async def geo_diag(limit: int = 25):
+    """Diagnostic view of the last N pageview beacons: raw proxy-header chain,
+    the IP the parser chose, and the geo it resolved to. Used to calibrate the
+    X-Forwarded-For hop-stripping against production's real proxy chain."""
+    limit = max(1, min(limit, 100))
+    rows = await db.geo_diag.find({}, {"_id": 0, "expire_at": 0}).sort("ts", -1).to_list(limit)
+    for r in rows:
+        if isinstance(r.get("ts"), datetime):
+            r["ts"] = r["ts"].isoformat()
+    return {"samples": rows}
+
+
 @router.delete("/admin/feedback/{fid}", dependencies=[Depends(require_admin)])
 async def delete_feedback(fid: str):
     r = await db.feedback.delete_one({"id": fid})

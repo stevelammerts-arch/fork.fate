@@ -1,0 +1,32 @@
+{
+  "summary": "Frontend-only regression for the two just-shipped fixes (iPhone shuffle-lag perf + logo-heist interrupting reveals). Ran the full shuffle flow on desktop 1920x800 against the preview URL. All 6 requested checks passed with zero console errors.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "1_shuffle_flow_e2e": "PASS — parchment intro dismissed via 'Enter the realms', theme-welcome-option-dark picked, mode-chooser-solo picked, guided-skip clicked, zip-input '66101', spin-roulette-button clicked, [data-testid='shuffle-popup'] appeared and result card landed (Taraskaharas Mexican Restaurant, KCK).",
+    "2_paused_and_no_backdrop": "PASS — during shuffle: document.querySelector('.ff-scenes-paused') non-null AND getComputedStyle(popup).backdropFilter === 'none' (webkitBackdropFilter null). After result: '.ff-scenes-paused' is gone.",
+    "3_busy_blocks_heist": "PASS — window.__ffFateBusy === true while result on screen. Dispatched window.dispatchEvent(new Event('ff:heist')); over 5s the header logo parent style.visibility remained '' (never became 'hidden') and scrollY delta was 0 (no scroll-to-top yank).",
+    "4_clear_result_frees_busy": "PASS — clicking [data-testid='home-tab-group'] cleared the solo result and window.__ffFateBusy became false.",
+    "5_idle_heist_still_strikes": "PASS — after fresh reload + intro/theme/mode bootstrap (no fate dealt), busyIdle=false. Dispatching ff:heist within 8s produced BOTH a heist sprite (element with 'eist'/'Reaper'/'Ghost' class) AND logo parent visibility='hidden' at some point (dark realm ReaperHeist confirmed).",
+    "6_smoke": "PASS — 0 console errors during full flow. /rituals loaded (innerText 8404 chars) and navigation back to / rendered home (innerText 4057 chars)."
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ModeChooserDialog + theme-welcome + guided-flow gate the shuffle on a fresh browser context — three sequential modals before ZIP input. Consider consolidating for return users or ensure gating tests handle all three (documented for next testing agent).",
+    "shuffle-popup DIAG confirms bg-black/70 + bg-white/85 opacity swap in ShuffleOverlay.jsx works with no backdrop-filter applied on any browser; safe for iPhone perf.",
+    "heistLib.summonToLogo correctly bails when __ffFateBusy is true — the busy calc in Home.jsx (~line 275) now includes result and groupPicks, confirmed via runtime probe."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "skipped (per request)", "frontend": "100% (6/6 checks)"},
+  "test_credentials": "Not required for these flows.",
+  "seed_data_creation": "None.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Fresh browser context gates on the preview URL require this bootstrap sequence before reaching the shuffle: (a) click get_by_role('button', name='Enter the realms') to dismiss parchment intro, (b) click [data-testid='theme-welcome-option-dark'] (or any theme), (c) click [data-testid='mode-chooser-solo'] on the 'Where to first?' dialog, (d) click [data-testid='guided-skip'] to skip the guided-flow interest step. Then [data-testid='zip-input'] + [data-testid='spin-roulette-button'] + [data-testid='shuffle-popup'] work as expected. window.__ffFateBusy is a reliable runtime probe for busy state. window.dispatchEvent(new Event('ff:heist')) manually triggers a heist attempt. Use ZIP 66101 (works) or 10001 as fallback.",
+  "rca of the issue": "N/A — this iteration was verification of already-shipped fixes; both fixes verified working."
+}

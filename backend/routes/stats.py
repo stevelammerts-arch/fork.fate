@@ -1,7 +1,7 @@
 """Community stat counters: fates dealt, crawls completed, reveal reactions,
 plus the anonymous visitor-geography pageview beacon."""
 import hashlib
-import ipaddress
+import logging
 from datetime import datetime, timezone, timedelta
 
 import httpx
@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field, field_validator
 from pymongo import ReturnDocument
 from pymongo.errors import DuplicateKeyError
 
-from core import db, rate_limit, client_ip
+from core import db, rate_limit, client_ip, is_infra_ip
 
 router = APIRouter()
 
@@ -136,6 +136,7 @@ async def _ensure_pageview_indexes():
     await db.pageviews.create_index("ts")
     await db.geo_cache.create_index("expire_at", expireAfterSeconds=0)
     await db.geo_cache.create_index("ip_hash", unique=True)
+    await db.geo_diag.create_index("expire_at", expireAfterSeconds=0)
     _pageview_indexes_ready = True
 
 
@@ -143,33 +144,29 @@ def _hash_ip(ip: str) -> str:
     return hashlib.sha256(f"ffgeo:{ip}".encode()).hexdigest()[:32]
 
 
-_lb_purge_done = False
+_geo_reset_done = False
 
 
-async def _purge_lb_ip_records(request: Request):
-    """One-time cleanup of the 'everyone is in Kansas City' bug: client_ip() used to
-    resolve to the Google LB's own public IP (rightmost X-Forwarded-For entry), so all
-    visitors were recorded under one hash geolocated to the LB's data center. That LB
-    IP is still the rightmost XFF entry on every proxied request, so we can compute
-    the exact bogus hash and delete only those records — real visitors are untouched."""
-    global _lb_purge_done
-    if _lb_purge_done:
+async def _reset_bogus_geo_once():
+    """One-time wipe of the 'everyone is in Kansas City' data: prod diagnosis showed
+    100% of pageviews (149 rows, 8 distinct ip_hashes) were infra IPs geolocated to
+    the LB's region — the entire panel history is garbage. Wipe it once (Mongo marker
+    doc makes this idempotent across restarts/workers) and let the fixed client_ip()
+    rebuild it from real visitors."""
+    global _geo_reset_done
+    if _geo_reset_done:
         return
-    _lb_purge_done = True
-    xff = request.headers.get("x-forwarded-for", "")
-    entries = [p.strip() for p in xff.split(",") if p.strip()]
-    if not entries:
+    _geo_reset_done = True
+    marker = await db.stats.find_one({"key": "geo_reset_v2"}, {"_id": 1})
+    if marker:
         return
-    bogus = _hash_ip(entries[-1])
-    await db.pageviews.delete_many({"ip_hash": bogus})
-    await db.geo_cache.delete_many({"ip_hash": bogus})
-
-
-def _is_private_ip(ip: str) -> bool:
-    try:
-        return ipaddress.ip_address(ip).is_private or ipaddress.ip_address(ip).is_loopback
-    except ValueError:
-        return True
+    await db.pageviews.delete_many({})
+    await db.geo_cache.delete_many({})
+    await db.stats.update_one(
+        {"key": "geo_reset_v2"},
+        {"$set": {"done_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
 
 
 async def _geo_for_ip(ip: str, request: Request) -> dict:
@@ -179,7 +176,9 @@ async def _geo_for_ip(ip: str, request: Request) -> dict:
         "region": "",
         "city": "",
     }
-    if _is_private_ip(ip):
+    # Never geolocate our own infrastructure (private ranges OR Cloudflare/Google
+    # hops): those resolve to a data-center city — the 'Kansas City' bug.
+    if is_infra_ip(ip):
         return fallback
     ip_hash = _hash_ip(ip)
     cached = await db.geo_cache.find_one({"ip_hash": ip_hash}, {"_id": 0})
@@ -209,8 +208,14 @@ async def _geo_for_ip(ip: str, request: Request) -> dict:
 @router.post("/stats/pageview", dependencies=[Depends(rate_limit(60))])
 async def record_pageview(request: Request):
     await _ensure_pageview_indexes()
-    await _purge_lb_ip_records(request)
+    await _reset_bogus_geo_once()
     ip = client_ip(request)
+    # TEMP DIAGNOSTIC (safe to keep): prod's proxy-header shape was unverified —
+    # log + persist the raw chain so a production log/DB read can calibrate the
+    # hop-stripping if visitors ever collapse onto one location again.
+    xff = request.headers.get("x-forwarded-for", "")
+    logging.info(f"pageview geo: xff=[{xff}] cf={request.headers.get('cf-connecting-ip', '-')} "
+                 f"peer={request.client.host if request.client else '-'} chosen={ip}")
     ip_hash = _hash_ip(ip)
     now = datetime.now(timezone.utc)
     recent = await db.pageviews.find_one(
@@ -220,6 +225,15 @@ async def record_pageview(request: Request):
     if recent:
         return {"counted": False}
     geo = await _geo_for_ip(ip, request)
+    await db.geo_diag.insert_one({
+        "xff": xff,
+        "cf": request.headers.get("cf-connecting-ip", ""),
+        "peer": request.client.host if request.client else "",
+        "chosen": ip,
+        "geo": geo,
+        "ts": now,
+        "expire_at": now + timedelta(days=3),
+    })
     await db.pageviews.insert_one({
         "ip_hash": ip_hash,
         "country": geo["country"],
