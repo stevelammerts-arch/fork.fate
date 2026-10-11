@@ -101,9 +101,26 @@ async def geo_stats(days: int = 30):
         {"$sort": {"count": -1}},
         {"$limit": 20},
     ]).to_list(20)
+    # Daily trend line: unique-ish views per UTC day over the selected window
+    # (capped at 90 points so the chart stays readable), zero-filled so quiet
+    # days render as dips instead of gaps.
+    trend_days = min(days or 90, 90)
+    today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    trend_start = today - timedelta(days=trend_days - 1)
+    daily = await db.pageviews.aggregate([
+        {"$match": {"ts": {"$gte": trend_start}}},
+        {"$group": {"_id": {"$dateToString": {"format": "%Y-%m-%d", "date": "$ts"}}, "views": {"$sum": 1}}},
+    ]).to_list(trend_days + 1)
+    by_day = {d["_id"]: d["views"] for d in daily}
+    trend = []
+    for i in range(trend_days):
+        day = trend_start + timedelta(days=i)
+        key = day.strftime("%Y-%m-%d")
+        trend.append({"date": key, "label": day.strftime("%b %d"), "views": by_day.get(key, 0)})
     return {
         "days": days,
         "total": total,
+        "trend": trend,
         "countries": [{"name": c["_id"] or "Unknown", "count": c["count"]} for c in countries],
         "cities": [
             {"name": c["_id"]["city"], "region": c["_id"].get("region", ""), "country": c["_id"]["country"], "count": c["count"]}

@@ -1,5 +1,6 @@
 import React from "react";
 import { Globe2, MapPin, RefreshCcw } from "lucide-react";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
 const RANGES = [
   { days: 7, label: "7d" },
@@ -23,6 +24,40 @@ function BarRow({ name, sub, count, max, testid }) {
         <div className="mt-1 h-1.5 rounded-full bg-[#F0F1F3]">
           <div className="h-1.5 rounded-full bg-[#E01E26]" style={{ width: `${pct}%` }} />
         </div>
+      </div>
+    </div>
+  );
+}
+
+function TrendChart({ trend }) {
+  if (!trend || trend.length < 2) return null;
+  const peak = Math.max(...trend.map((d) => d.views));
+  return (
+    <div className="mt-4 rounded-2xl border border-[#E2E4E7] bg-white p-4" data-testid="visitor-trend-chart">
+      <div className="flex items-baseline justify-between">
+        <p className="text-xs font-bold uppercase tracking-wider text-[#6B7075]">Daily visitors</p>
+        <p className="text-xs text-[#9AA0A6]">peak {peak} · last {trend.length} days</p>
+      </div>
+      <div className="mt-2 h-40">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={trend} margin={{ top: 4, right: 4, left: -22, bottom: 0 }}>
+            <defs>
+              <linearGradient id="ffTrendFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#E01E26" stopOpacity={0.28} />
+                <stop offset="100%" stopColor="#E01E26" stopOpacity={0.02} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#F0F1F3" vertical={false} />
+            <XAxis dataKey="label" tick={{ fontSize: 10, fill: "#9AA0A6" }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={28} />
+            <YAxis tick={{ fontSize: 10, fill: "#9AA0A6" }} tickLine={false} axisLine={false} allowDecimals={false} width={46} />
+            <Tooltip
+              contentStyle={{ borderRadius: 12, border: "1px solid #E2E4E7", fontSize: 12, fontFamily: "inherit" }}
+              labelStyle={{ fontWeight: 700, color: "#0E0E0E" }}
+              formatter={(v) => [`${v} view${v === 1 ? "" : "s"}`, null]}
+            />
+            <Area type="monotone" dataKey="views" stroke="#E01E26" strokeWidth={2} fill="url(#ffTrendFill)" dot={false} activeDot={{ r: 4, fill: "#E01E26" }} />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
@@ -61,6 +96,8 @@ export function GeoPanel({ geo, geoDays, setGeoDays, loading }) {
       <p className="mt-1 text-xs text-[#9AA0A6]">
         Counted in-app (one view per visitor per 6h, IPs hashed — never stored). Collecting from FF_BUILD 409 onward; GA4 keeps the full history.
       </p>
+      {/* 30-day (range-following) trend line — spot the spikes after each marketing push */}
+      <TrendChart trend={geo?.trend} />
       {geo && geo.total === 0 ? (
         <p className="mt-4 rounded-lg border border-dashed border-[#D6D8DB] p-4 text-sm text-[#6B7075]" data-testid="geo-empty">
           No views recorded in this window yet — the beacon starts counting as visitors open the app.

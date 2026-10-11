@@ -3419,3 +3419,27 @@ body.ff-badge-open .ff-theme-scene * {
 .ff-scenes-paused *::after {
   animation-play-state: paused !important;
 }
+
+/* Collection teaser: unwitnessed heist silhouettes breathe faintly so the
+   shape reads as "something lives here" without giving the trophy away. */
+@keyframes ffSilhouettePulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+/* Floating toggle pills (sound + scenery eye), bottom-right.
+   touch-action:manipulation kills the 300ms double-tap-zoom delay that can
+   swallow quick taps on iOS. */
+.ff-float-pill {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+/* iOS Safari only (-webkit-touch-callout is iOS-exclusive): lift both pills
+   clear of the bottom toolbar's tap dead zone — when the toolbar is minimized,
+   the first tap in the bottom ~30-40px of the viewport re-expands the toolbar
+   and NEVER reaches the page, which made the scenery eye feel broken on
+   iPhones. Also respects the home-indicator safe area in standalone/PWA mode. */
+@supports (-webkit-touch-callout: none) {
+  .ff-float-pill-lower { bottom: calc(1.25rem + 2.25rem + env(safe-area-inset-bottom, 0px)); }
+  .ff-float-pill-upper { bottom: calc(4.75rem + 2.25rem + env(safe-area-inset-bottom, 0px)); }
+}

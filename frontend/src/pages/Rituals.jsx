@@ -350,7 +350,7 @@ export default function Rituals() {
                       >
                         {got
                           ? <Icon className="h-5 w-5" style={{ color: h.accent, filter: `drop-shadow(0 0 4px ${h.accent})` }} data-testid={`trophy-icon-${h.key}`} />
-                          : <Lock className="h-3.5 w-3.5 text-white/20" />}
+                          : <Icon className="h-5 w-5" style={{ color: "rgba(255,255,255,0.13)", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.9))" }} data-testid={`trophy-silhouette-${h.key}`} />}
                       </motion.div>
                       {/* the pedestal it sits on */}
                       <div className="mt-1 h-1.5 w-8 rounded-[2px]" style={{ background: got ? `linear-gradient(180deg, ${h.accent}77, ${h.accent}1a)` : "linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03))" }} />
@@ -426,7 +426,9 @@ export default function Rituals() {
                 )}
                 <div className="flex items-start justify-between">
                   <span className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: got ? `${h.accent}22` : "rgba(255,255,255,0.05)" }}>
-                    {got ? <Icon className="h-5 w-5" style={{ color: h.accent }} /> : <Lock className="h-4 w-4 text-white/30" />}
+                    {got
+                      ? <Icon className="h-5 w-5" style={{ color: h.accent }} />
+                      : <Icon className="h-5 w-5" style={{ color: "rgba(255,255,255,0.14)", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.9))", animation: "ffSilhouettePulse 3.4s ease-in-out infinite" }} data-testid={`heist-silhouette-${h.key}`} />}
                   </span>
                   <div className="flex flex-col items-end gap-1">
                     <RarityTag k={h.key} kind="heist" t={t} />
@@ -444,7 +446,7 @@ export default function Rituals() {
                   {t(h.realm)}
                 </p>
                 <p className={`mt-1.5 font-sans text-xs leading-snug ${got ? "text-white/60" : "text-white/25 italic"}`}>
-                  {got ? t(h.desc) : t("Linger in a realm — its thief strikes when you least expect it.")}
+                  {got ? t(h.desc) : t("Not yet witnessed — linger in a realm and watch its shadow move.")}
                 </p>
               </motion.div>
             );
