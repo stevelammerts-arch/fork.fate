@@ -3142,3 +3142,34 @@ inside playHeistSound).
 - NOTE: Python 3.11+ counts TEST-NET ranges (203.0.113.x) as is_private.
 - YouTube promo video dispute: USER WON — Pixabay music OK, video task CLOSED.
 - USER MUST REDEPLOY to ship all three fixes to fork-fate.com.
+
+## 2026-02 fork part 149: Play orientation fix + trend chart + silhouettes + iOS eye button
+- ANDROID .AAB v5 (/app/frontend/public/forkfate-v5-api36.aab): removed the TWA
+  meta-data android.support.customtabs.trusted.SCREEN_ORIENTATION (the portrait
+  lock behind Google Play's large-screen orientation advisory — the Android
+  manifest itself had NO screenOrientation attr; the lock lived in TWA meta-data
+  referencing @string/orientation). versionCode 4 -> 5. Re-signed with the 2026
+  upload key /app/play_signing/forkfate-upload-2026.keystore (SHA-1 76:C5:FA,
+  pass in /app/play_signing/KEY-INFO or file there; alias 'upload'), jar
+  verified. Tooling: /app/tmp/aab_v5/{manifest_tool.py,patch_manifest.py} —
+  aapt2 proto XmlAttribute schema is {ns=1,name=2,value=3,source=4,
+  resource_id=5,compiled_item=6}, Primitive int_decimal=6. v4 removed from public.
+- ADMIN VISITOR TREND: GET /api/admin/geo-stats now returns 'trend' (daily
+  zero-filled views, follows 7/30/90 range, cap 90). GeoPanel.jsx TrendChart
+  (recharts AreaChart, data-testid=visitor-trend-chart). Tested PASS (iter 77).
+- HEIST SILHOUETTE TEASERS (Rituals.jsx): unwitnessed heists show their own icon
+  as a faint pulsing silhouette (ffSilhouettePulse) on shelf + gallery cards,
+  hint 'Not yet witnessed...'. Added 9 missing HEIST_ICONS keys (gulls, splat,
+  fireflies, coinrain, watcher, chase, armdrop, cheesethief, peek). Verified:
+  0 locks, 35/35 silhouettes.
+- iOS EYE BUTTON FIX (FloatingToggles.jsx + index.css): user reported the
+  scenery eye dead on iPhones (Safari website). Fixes: (a) removed
+  backdrop-blur from the pills (WebKit hit-testing bugs with backdrop-filter on
+  fixed elements), solid bgs instead; (b) touch-action manipulation; (c) iOS-only
+  (@supports -webkit-touch-callout) lift of both pills by 2.25rem +
+  safe-area-inset-bottom — bottom ~30-40px of iPhone Safari viewport is a tap
+  dead zone (first tap re-expands the minimized toolbar). Desktop positions
+  unchanged (regression PASS iter 77). USER MUST VERIFY ON IPHONE AFTER DEPLOY.
+- Playwright direct use: launch with executable_path
+  /pw-browsers/chromium_headless_shell-1208/chrome-linux/headless_shell.
+- Reports: iteration_77.json (3/4 pass; 4th fixed + re-verified via DOM counts).

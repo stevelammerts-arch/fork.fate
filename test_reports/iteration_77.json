@@ -1,0 +1,27 @@
+{
+  "summary": "Frontend-only desktop (1920x1080) verification of iteration 77 features: rituals heist silhouettes, admin visitor trend chart, eye/sound pill toggles (iOS fix desktop regression check), and smoke shuffle. 3 of 4 features pass. The trophy shelf silhouettes contain 9 generic Lock icons because 9 heist keys are missing from HEIST_ICONS mapping in /app/frontend/src/pages/Rituals.jsx — this violates the stated requirement 'NO generic lock icons inside the shelf'.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Rituals.jsx (HEIST_ICONS)", "issue": "9 heist keys fall back to generic <Lock/> icon inside the trophy shelf because they are missing from HEIST_ICONS map. Missing keys: gulls, splat, fireflies, coinrain, watcher, chase, armdrop, cheesethief, peek. Requirement says shelf must show silhouetted heist-shaped icons only, no generic locks. Confirmed via DOM query inside [data-testid='heist-trophy-shelf']: svg[class*='Lock'] count = 9 of 35.", "selector": "[data-testid='heist-trophy-shelf'] svg.lucide-lock", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/screenshots/iter77_rituals_shelf.png", "/app/test_reports/screenshots/iter77_rituals_cards.png", "/app/test_reports/screenshots/iter77_admin_chart.png", "/app/test_reports/screenshots/iter77_pills_final.png", "/app/test_reports/screenshots/iter77_after_spin.png"],
+  "action_items": [
+    "Add HEIST_ICONS mappings for the 9 missing keys (gulls, splat, fireflies, coinrain, watcher, chase, armdrop, cheesethief, peek) in /app/frontend/src/pages/Rituals.jsx so the shelf renders unique heist silhouettes instead of generic Lock icons. Suggested lucide icons: gulls→Bird, splat→Droplets/Droplet, fireflies→Sparkles, coinrain→CloudRain or Coins, watcher→Eye, chase→Siren or CarFront, armdrop→Hand, cheesethief→Mouse or Cookie, peek→EyeOff."
+  ],
+  "critical_code_review_comments": [
+    "HEIST_ICONS in Rituals.jsx (line 22) is maintained manually and silently falls back to <Lock/> when a key is missing — contrary to the silhouette design intent. Either (a) complete the mapping, or (b) co-locate the icon component with each heist entry in /app/frontend/src/lib/rituals.js so adding a heist cannot drift from icons.",
+    "Home page gates the eye/sound pills behind three sequential modals (parchment intro, Where to first?, 4-step onboarding). Toggles are physically present but clicks are blocked by overlays until all modals are dismissed. On desktop the pills correctly sit at (1856, 1016) and (1856, 960) — no visual overlap once modals are dismissed."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "75% (3/4 features fully pass)"},
+  "test_credentials": "Admin password: ForkFate!Admin2026 (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "none",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iteration 77: Rituals silhouettes PARTIAL — shelf renders 35 silhouettes with hint text and pulse animation, but 9 are generic Lock due to missing HEIST_ICONS entries. Admin trend chart PASS — SVG + 20 X-axis labels + 'Daily visitors' header + 7d/30d/90d range buttons work. Eye toggle PASS — ff-scenery-hide class correctly toggles on [data-testid='scenery-wrap'] (false → true → false). Sound icon swap PASS (innerHTML changes). Smoke shuffle PASS with ZIP 66101 — spin-result-card renders ('Frutopia KCK'), no console errors. Desktop pill positions unchanged: eye at (1856,1016), sound at (1856,960). To test eye/pills you MUST dismiss three modals in order: 'Enter the realms' → first [data-testid^='theme-welcome-option-'] → 'Solo Fates' → 'Skip intro'.",
+  "rca_of_the_issue": "In /app/frontend/src/pages/Rituals.jsx line 336 and 413, `const Icon = HEIST_ICONS[h.key] || Lock;` — the Lock fallback renders whenever HEIST_ICONS (line 22-29) lacks a key. The HEISTS list in /app/frontend/src/lib/rituals.js has 36 entries while HEIST_ICONS has 25, so 11 keys resolve to Lock (seen 9 in the current filtered shelf render). Fix: extend HEIST_ICONS to cover every HEISTS[].key, or make Icon required on each HEISTS entry."
+}

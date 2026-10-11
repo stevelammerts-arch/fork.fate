@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, Gem, Leaf, Flower2, Citrus, Coffee, Snowflake, Rocket, Grab, Bone, Stamp, ChevronRight, Volleyball, Shell, Waves, Bird, CarFront, Watch, Target, Crown, Feather, Rainbow, Utensils, Bot, Anvil, Wrench, Siren, Truck, Nut, Medal, Share2, CalendarClock, Heart } from "lucide-react";
+import { ArrowLeft, Lock, Layers, CircleDot, Disc3, Wand2, Terminal, KeyRound, Cog, CupSoda, Mountain, Moon, Skull, Flame, Ghost, Eye, EyeOff, Gem, Leaf, Flower2, Citrus, Coffee, Snowflake, Rocket, Grab, Bone, Stamp, ChevronRight, Volleyball, Shell, Waves, Bird, CarFront, Watch, Target, Crown, Feather, Rainbow, Utensils, Bot, Anvil, Wrench, Siren, Truck, Nut, Medal, Share2, CalendarClock, Heart, Droplets, Sparkles, Coins, Hand, Rat } from "lucide-react";
 import { RITUALS, readRitualsSeen, HEISTS, readHeistsSeen, RARITY, rarityOf } from "../lib/rituals";
 import { SEASONS, activeSeason, readSeasonalSeen } from "../lib/seasons";
 import { buildCollectionShareImage, shareImage } from "../lib/shareCards";
@@ -26,6 +26,8 @@ const HEIST_ICONS = {
   coffee: Coffee, plate: Utensils, unicorn: Rainbow, cardinal: Feather,
   pursuit: Siren, tow: Truck, stash: Nut,
   awakening: Bot, furnace: Anvil, workshop: Wrench,
+  gulls: Bird, splat: Droplets, fireflies: Sparkles, coinrain: Coins,
+  watcher: Eye, chase: Siren, armdrop: Hand, cheesethief: Rat, peek: EyeOff,
 };
 
 /** Small colored pill naming how hard a fate is to witness. */
