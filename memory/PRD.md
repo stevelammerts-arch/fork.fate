@@ -3192,6 +3192,19 @@ inside playHeistSound).
 - Verified live via Playwright: herald text, scroll to 0, wheel blocked during
   lock, full release after show. Herald z-index 95 (above share strip).
 
+## 2026-06 fork part 152: Herald chime + witness-toast Replay
+- HERALD CHIME: witnessStage.js playChime(kind) — soft realm-themed sfx with
+  each herald (soul-wail reaper, coin-clink hoard, pixie-chime fairy,
+  beam-riser cyber, steam-gears steam, tiki-drums, wing-whoosh summer,
+  snow-gust winter, leaf-rustle fall, spring-wind, barista-bell café;
+  default pixie-chime). Honors ff_muted; all clips pre-checked ≤5.6s.
+- REPLAY: heistLib.jsx REPLAY_EVENTS (witness key -> heist force event, 26
+  heists incl. wreck/furnace/awakening/armdrop/cheesethief) + replayHeist(key)
+  (clears cooldown + once-per-visit latch, dispatches event, bows to
+  __ffFateBusy). Witness toast now: action=Replay, cancel=Collection (8s);
+  non-replayable kinds keep Collection-only. ES: "Replay"->"Repetir".
+- Verified live: grave heist -> toast with both buttons -> Replay re-strikes.
+
 ## 2026-06 fork part 150: Google Play promo video v5 — COMPLETE
 - New portrait promo assembled: /app/frontend/public/promo/forkfate-promo.mp4
   (1080x1920, ~88.4s, 22MB). Verified via ffprobe post-fork.

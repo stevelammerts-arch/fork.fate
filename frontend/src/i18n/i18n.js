@@ -499,6 +499,7 @@ export const ES = {
   "30-day streak! A month of fates — legendary.": "¡Racha de 30 días! Un mes de destinos: legendario.",
   "A grace day saved your streak — fate is merciful.": "Un día de gracia salvó tu racha: el destino es misericordioso.",
   "Heist witnessed!": "¡Atraco presenciado!",
+  "Replay": "Repetir",
   "Realm Heists": "Atracos de los Reinos",
   "Sometimes the realm itself steals the house medallion. Keep your eyes on the logo.": "A veces el propio reino roba el medallón de la casa. No pierdas de vista el logo.",
   "Linger in a realm — its thief strikes when you least expect it.": "Quédate en un reino: su ladrón ataca cuando menos lo esperas.",

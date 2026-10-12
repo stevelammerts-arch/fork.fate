@@ -34,6 +34,45 @@ const MID = {
 
 export const HERALD_MS = 2000; // anticipation beat before the scroll begins
 
+// Soft realm-themed chime that plays with the herald so heads turn mid-read.
+const CHIME = {
+  default: ["/pixie-chime.mp3", 0.4],
+  grave: ["/soul-wail-short.mp3", 0.3],
+  snatch: ["/soul-wail-short.mp3", 0.3],
+  plate: ["/soul-wail-short.mp3", 0.3],
+  dragon: ["/coin-clink.mp3", 0.5],
+  breath: ["/coin-clink.mp3", 0.5],
+  poof: ["/pixie-chime.mp3", 0.5],
+  unicorn: ["/pixie-chime.mp3", 0.5],
+  saucer: ["/beam-riser.mp3", 0.45],
+  wreck: ["/beam-riser.mp3", 0.45],
+  pursuit: ["/beam-riser.mp3", 0.45],
+  gears: ["/steam-gears-run.mp3", 0.4],
+  spring: ["/steam-gears-run.mp3", 0.4],
+  peek: ["/steam-gears-run.mp3", 0.4],
+  spear: ["/tiki-drums-short.mp3", 0.4],
+  crash: ["/tiki-drums-short.mp3", 0.4],
+  ball: ["/wing-whoosh.mp3", 0.55],
+  crab: ["/wing-whoosh.mp3", 0.55],
+  gulls: ["/wing-whoosh.mp3", 0.55],
+  snowman: ["/snow-gust.mp3", 0.45],
+  cardinal: ["/snow-gust.mp3", 0.45],
+  owl: ["/leaf-rustle.mp3", 0.5],
+  stash: ["/leaf-rustle.mp3", 0.5],
+  petals: ["/spring-wind.mp3", 0.4],
+  coffee: ["/barista-bell.mp3", 0.4],
+};
+
+function playChime(kind) {
+  try {
+    if (localStorage.getItem("ff_muted") === "1") return;
+    const [src, vol] = CHIME[kind] || CHIME.default;
+    const a = new Audio(src);
+    a.volume = vol;
+    a.play().catch(() => {});
+  } catch { /* audio unavailable */ }
+}
+
 const lang = () => {
   try { return localStorage.getItem("ff_lang") === "es" ? "es" : "en"; } catch { return "en"; }
 };
@@ -53,6 +92,7 @@ export function showHerald(kind) {
   el.innerHTML = `<span class="ff-herald-eye">${EYE_SVG}</span><span>${es ? "¡Cuidado!" : "Beware!"} ${mid} — <b>${es ? "¡MIRA ARRIBA!" : "LOOK UP!"}</b></span>`;
   document.body.appendChild(el);
   heraldEl = el;
+  playChime(kind);
   heraldTimer = setTimeout(hideHerald, 4600); // rides through the scroll, then fades
 }
 

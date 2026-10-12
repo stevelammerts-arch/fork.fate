@@ -70,6 +70,32 @@ export function summonToLogo(kind, done, force = false) {
 
 
 /** First-time heist sightings earn a toast pointing at the Collection. */
+
+// Witness key -> the heist's own force event: lets the toast replay a show
+// the user only caught the tail of. Kinds without an event get no Replay.
+export const REPLAY_EVENTS = {
+  dragon: "ff:heist", grave: "ff:heist",
+  ball: "ff:ball-heist", gulls: "ff:gull-heist", splat: "ff:poop-heist",
+  crab: "ff:crab-heist", snowman: "ff:snowman-heist", owl: "ff:owl-heist",
+  petals: "ff:petal-heist", cardinal: "ff:cardinal-heist", stash: "ff:stash-heist",
+  saucer: "ff:abduct", snatch: "ff:ghost-heist", spear: "ff:spear-heist",
+  spring: "ff:spring-heist", peek: "ff:peek-heist", gears: "ff:gears-heist",
+  coffee: "ff:coffee-heist", plate: "ff:plate-heist", unicorn: "ff:unicorn-heist",
+  pursuit: "ff:pursuit-heist", wreck: "ff:neon-crash",
+  furnace: "ff:furnace-blast", awakening: "ff:golem-wake",
+  armdrop: "ff:arm-drop", cheesethief: "ff:trap-snap",
+};
+
+export function replayHeist(key) {
+  const ev = REPLAY_EVENTS[key];
+  if (!ev || window.__ffFateBusy) return false;
+  // Clear the one-per-visit latch + cooldown so the encore actually plays.
+  window.__ffHeistCooldownUntil = 0;
+  if (window.__ffHeistKindsPlayed) delete window.__ffHeistKindsPlayed[key];
+  window.dispatchEvent(new Event(ev));
+  return true;
+}
+
 export function useHeistWitness(key) {
   const { t } = useLang();
   const navigate = useNavigate();
@@ -80,10 +106,14 @@ export function useHeistWitness(key) {
     awardPoints(EARN.heist, `Heist: ${key}`);
     if (!first || !announce) return first;
     const heist = HEISTS.find((h) => h.key === key);
+    const replayable = !!REPLAY_EVENTS[key];
     toast(t("Heist witnessed!"), {
       description: `${heist ? t(heist.name) : ""} · +${EARN.heist} pts`,
-      action: { label: t("Collection"), onClick: () => navigate("/rituals") },
-      duration: 6000,
+      action: replayable
+        ? { label: t("Replay"), onClick: () => replayHeist(key) }
+        : { label: t("Collection"), onClick: () => navigate("/rituals") },
+      cancel: replayable ? { label: t("Collection"), onClick: () => navigate("/rituals") } : undefined,
+      duration: 8000,
     });
     // SEAL TOAST: if that was the realm's FINAL fate, the golden seal ignites
     if (heist) {
