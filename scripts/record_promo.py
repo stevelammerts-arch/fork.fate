@@ -18,7 +18,9 @@ localStorage.setItem('ff_guide_seen','1');
 localStorage.setItem('ff_theme_chosen','1');
 localStorage.setItem('ff_theme_hint_seen','1');
 localStorage.setItem('ff_points_day', new Date().toISOString().slice(0,10));
-localStorage.setItem('ff_season_announced', 'beachballs-' + new Date().getFullYear());
+localStorage.setItem('ff_season_announced', 'haunting-' + new Date().getFullYear());
+localStorage.setItem('ff_recap_prompted', new Date().toISOString().slice(0,7));
+window.__ffRealmChosenThisLoad = true;
 """
 
 
@@ -35,7 +37,7 @@ async def make_ctx(browser, name, init=None):
 
 
 async def seg_parchment(browser):
-    ctx, page = await make_ctx(browser, "1_parchment", "localStorage.setItem('ff_points_day', new Date().toISOString().slice(0,10)); localStorage.setItem('ff_season_announced', 'beachballs-' + new Date().getFullYear());")
+    ctx, page = await make_ctx(browser, "1_parchment", "localStorage.setItem('ff_points_day', new Date().toISOString().slice(0,10)); localStorage.setItem('ff_season_announced', 'haunting-' + new Date().getFullYear());")
     await page.goto(URL, wait_until="domcontentloaded")
     await page.wait_for_selector('[data-testid="parchment-intro"]', timeout=15000)
     await page.wait_for_timeout(4500)  # let viewers read the parchment
@@ -44,6 +46,13 @@ async def seg_parchment(browser):
     # HOLD on the realm chooser so all 11 realm tiles get their moment
     await page.wait_for_timeout(4600)
     await page.click('[data-testid="theme-welcome-option-dark"]', force=True)
+    await page.wait_for_timeout(1200)
+    # NEW: realm seal now opens the "Where to first?" mode chooser — pick Solo
+    # so the reaper beauty shot is unobstructed.
+    try:
+        await page.click('[data-testid="mode-chooser-solo"]', force=True, timeout=4000)
+    except Exception:
+        pass
     await page.wait_for_timeout(6000)  # reaper ambiance beauty shot
     await ctx.close()
     print("seg 1 done")
@@ -197,7 +206,7 @@ async def main():
     shutil.rmtree(OUT, ignore_errors=True)
     os.makedirs(OUT, exist_ok=True)
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        browser = await p.chromium.launch(headless=True, executable_path="/pw-browsers/chromium_headless_shell-1208/chrome-linux/headless_shell")
         await seg_parchment(browser)
         await seg_deal(browser)
         await seg_points(browser)

@@ -1,0 +1,50 @@
+{
+  "summary": "Frontend-only testing of iteration 78 (ForkFate) covering three new features: Heist Hunt Hints (realm-specific unwitnessed card hints), Trend Marker CRUD in admin GeoPanel, and Recap deep-link + month-rollover share toast. All four scenarios PASS end-to-end with no console errors.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "1_hunt_hints": {
+      "status": "PASS",
+      "details": "35 unwitnessed heist cards rendered on /rituals; 9 unique realm-specific hints seen (Cyberscape, Dragon's Hoard, Reaper, Fairy Gully, Summer, Steampunk, Tiki Lounge, Winter, Fall). Zero blank hints. Verbatim strings matched spec (e.g. 'Patrol the neon grid — Cyberscape shadows get bold when you idle.', 'Visit while the Summer takeover is on — beach business is never finished.')."
+    },
+    "2_trend_markers": {
+      "status": "PASS",
+      "details": "Logged into /admin with password from test_credentials.md. [data-testid='trend-marker-manager'] visible. Add button disabled when inputs empty, enabled after filling date (today-3 = 2026-10-09) and label 'Promo post'. After click, chip 'Promo post2026-10-09' appeared and SVG text 'Promo post' rendered inside [data-testid='visitor-trend-chart'] alongside dashed ReferenceLine. Delete via [data-testid^='trend-marker-delete-'] removed both chip and chart label. CSRF-protected calls succeeded via admin UI."
+    },
+    "3_recap_deep_link": {
+      "status": "PASS",
+      "details": "Direct nav to /recap?period=2026-09&share=1 lands on data-testid='recap-slide-finale' immediately. [data-testid='recap-share-button'] visible with class ff-share-pulse. Finale eyebrow reads 'THAT WAS YOUR SEPTEMBER 2026' (CSS uppercase of stats.label 'September 2026'). Clicking [data-testid='recap-scope-year'] clears periodOverride and label switches to 'Your 2026 in fates'."
+    },
+    "4_rollover_toast": {
+      "status": "PASS",
+      "details": "Seeded ff_journal with a previous-month entry using the actual storage shape from /app/frontend/src/lib/journal.js (key: 'ff_journal', fields include 'date' not 'ts'). Cleared ff_recap_prompted and ff_intro_seen=1. Toast appeared within ~5s on Home: 'Your September 2026 recap is ready! See your month in fates and share the card with one tap. View & share'. Clicking the action button navigated to /recap?period=2026-09&share=1, landing on finale slide which reflects the seeded entry (1 fate, Pizza top flavor, 100% chose well)."
+    },
+    "5_smoke_console": {
+      "status": "PASS",
+      "details": "No console errors on /, /rituals, /admin (after login), /recap. One benign recharts warning when chart container is hidden briefly during login transition; not a regression."
+    }
+  },
+  "test_report_links": [
+    "/app/test_reports/iter78_marker.jpeg",
+    "/app/test_reports/iter78_recap.jpeg",
+    "/app/test_reports/iter78_marker_added.jpeg"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Recap.jsx: ff-share-pulse class is correctly gated on autoShare only (line 259). Good — regular Share button on finale is non-pulsing.",
+    "GeoPanel.jsx MarkerManager delete uses correct X-CSRF-Token via module-scoped axios interceptor (WC config). No raw fetch used.",
+    "Home.jsx recap toast effect correctly keys ff_recap_prompted by YYYY-MM to fire exactly once per month; only within first 14 days of current month (server date on preview container satisfies this)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100% (5/5 flows)"},
+  "test_credentials": "Admin: ForkFate!Admin2026 (loaded from /app/memory/test_credentials.md)",
+  "seed_data_creation": "localStorage ff_journal seeded with one previous-month entry {id:'t1', name:'Testaurant', cuisine:'Pizza', date:<prev month ISO>, verdict:'up'} per journal.js schema.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All three new features in iteration 78 verified end-to-end via Playwright on preview URL. Admin CSRF interceptor works through the UI. Toast fires ~5s after Home mount when ff_journal has a prev-month entry and ff_recap_prompted is cleared. Rituals heist gallery renders 35 unwitnessed cards with 9 unique realm hints.",
+  "rca of the issue": "N/A — no bugs found."
+}

@@ -3173,3 +3173,12 @@ inside playHeistSound).
 - Playwright direct use: launch with executable_path
   /pw-browsers/chromium_headless_shell-1208/chrome-linux/headless_shell.
 - Reports: iteration_77.json (3/4 pass; 4th fixed + re-verified via DOM counts).
+
+## 2026-06 fork part 150: Google Play promo video v5 — COMPLETE
+- New portrait promo assembled: /app/frontend/public/promo/forkfate-promo.mp4
+  (1080x1920, ~88.4s, 22MB). Verified via ffprobe post-fork.
+- Fresh tutorial music generated via Fal.ai Lyria2 (Emergent Universal Key).
+- Playwright recorder /app/scripts/record_promo.py updated for new UI flows
+  (silhouette shelf, trend chart); assembly via /app/scripts/assemble_promo_v5.sh.
+- Sponsorship clips consolidated into a single section per user request.
+- Task CLOSED — user to download/review the video at /promo/forkfate-promo.mp4.
