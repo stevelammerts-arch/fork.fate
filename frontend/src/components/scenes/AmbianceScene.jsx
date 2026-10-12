@@ -3,6 +3,7 @@
 // realm's companions and heists.
 import React, { useState, useEffect, useRef } from "react";
 import { useHeistWitness, preloadHeistAudio, playHeistSound } from "./heistLib";
+import { showHerald, hideHerald, engageSpotlight, releaseSpotlight, HERALD_MS } from "./witnessStage";
 import { CompanionPatrol } from "./companion";
 import { consoleBeeps, tapSound } from "../../lib/tapFx";
 import { foundSecret } from "../../lib/secretTrophies";
@@ -371,6 +372,7 @@ function CyberNeonSign({ neon }) {
         schedule(180000 + Math.random() * 180000);          // next wreck in 3-6 min
       }, 7600));
     };
+    let heraldT = null;
     const start = () => {
       if (running) return;
       running = true;
@@ -378,18 +380,25 @@ function CyberNeonSign({ neon }) {
       if (Date.now() < (window.__ffHeistCooldownUntil || 0)) { bail(); return; } // one heist at a time
       if (window.__ffHeistKindsPlayed?.wreck) { bail(); return; } // once per realm visit
       if (window.scrollY <= 40) { go(); return; }
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      const t0 = Date.now();
-      poll = setInterval(() => {
-        if (window.scrollY <= 2 || Date.now() - t0 > 2500) {
-          clearInterval(poll);
-          timers.push(setTimeout(() => (window.__ffFateBusy ? bail() : go()), 250)); // settle beat
-        }
-      }, 90);
+      // Herald first — a bare auto-scroll reads as a glitch (see heistLib).
+      window.__ffHeistCooldownUntil = Math.max(window.__ffHeistCooldownUntil || 0, Date.now() + 9500);
+      showHerald("wreck");
+      heraldT = setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        const t0 = Date.now();
+        poll = setInterval(() => {
+          if (window.scrollY <= 2 || Date.now() - t0 > 2500) {
+            clearInterval(poll);
+            timers.push(setTimeout(() => {
+              if (window.__ffFateBusy) { hideHerald(); bail(); } else { engageSpotlight(); go(); }
+            }, 250)); // settle beat
+          }
+        }, 90);
+      }, HERALD_MS);
     };
     schedule(30000 + Math.random() * 30000);
     window.addEventListener("ff:neon-crash", start);
-    return () => { clearTimeout(pending); clearInterval(poll); timers.forEach(clearTimeout); window.removeEventListener("ff:neon-crash", start); };
+    return () => { clearTimeout(pending); clearTimeout(heraldT); clearInterval(poll); timers.forEach(clearTimeout); hideHerald(); releaseSpotlight(); window.removeEventListener("ff:neon-crash", start); };
   }, []); // witnessRef is a stable ref
   const out = crash === 2; // tubes shorting out
   return (

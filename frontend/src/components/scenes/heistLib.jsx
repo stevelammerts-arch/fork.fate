@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useLang } from "../../i18n/i18n";
 import { HEISTS, recordHeistSeen, readHeistsSeen } from "../../lib/rituals";
 import { awardPoints, EARN } from "../../lib/points";
+import { showHerald, hideHerald, engageSpotlight, releaseSpotlight, HERALD_MS } from "./witnessStage";
 
 /** Every heist strikes the header logo. If the user has scrolled it out of
  * view (mobile, mid-list), smoothly pull the page back to the top first so
@@ -39,25 +40,32 @@ export function summonToLogo(kind, done, force = false) {
     played[kind] = true;
   };
   if (r.top >= 0 && r.bottom <= window.innerHeight) { reserve(); done(med); return () => {}; }
-  // HOLD THE STAGE while we scroll up (~2.75s max): without this a golem
-  // show (awakening step / furnace blast) could start mid-scroll and end up
-  // overlapping the medallion heist. A short provisional hold keeps them
-  // parked; it expires on its own if we bail below.
-  window.__ffHeistCooldownUntil = Math.max(window.__ffHeistCooldownUntil || 0, Date.now() + 6000);
-  window.scrollTo({ top: 0, behavior: "smooth" });
-  const t0 = Date.now();
-  let settle;
-  const poll = setInterval(() => {
-    if (window.scrollY <= 2 || Date.now() - t0 > 2500) {
-      clearInterval(poll);
-      // Re-check right before striking: fate may have turned busy mid-scroll.
-      settle = setTimeout(() => {
-        if (window.__ffFateBusy) { done(null); return; }
-        reserve(); done(med);
-      }, 250); // settle beat before measuring
-    }
-  }, 90);
-  return () => { clearInterval(poll); clearTimeout(settle); };
+  // HOLD THE STAGE while the herald plays + we scroll up (~4.75s max): without
+  // this a golem show (awakening step / furnace blast) could start mid-scroll
+  // and end up overlapping the medallion heist. A short provisional hold keeps
+  // them parked; it expires on its own if we bail below.
+  window.__ffHeistCooldownUntil = Math.max(window.__ffHeistCooldownUntil || 0, Date.now() + 9500);
+  // WITNESS PROTOCOL: users read a sudden auto-scroll as a glitch and scroll
+  // right back, missing the show. Announce it first (themed herald, ~2s), THEN
+  // pull them up; the spotlight (vignette + scroll lock) engages at strike and
+  // releases when the heist records its witness.
+  showHerald(kind);
+  let poll, settle;
+  const heraldT = setTimeout(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    const t0 = Date.now();
+    poll = setInterval(() => {
+      if (window.scrollY <= 2 || Date.now() - t0 > 2500) {
+        clearInterval(poll);
+        // Re-check right before striking: fate may have turned busy mid-scroll.
+        settle = setTimeout(() => {
+          if (window.__ffFateBusy) { hideHerald(); done(null); return; }
+          reserve(); engageSpotlight(); done(med);
+        }, 250); // settle beat before measuring
+      }
+    }, 90);
+  }, HERALD_MS);
+  return () => { clearTimeout(heraldT); clearInterval(poll); clearTimeout(settle); hideHerald(); releaseSpotlight(); };
 }
 
 
@@ -67,6 +75,7 @@ export function useHeistWitness(key) {
   const navigate = useNavigate();
   const ref = useRef(null);
   ref.current = (announce) => {
+    releaseSpotlight(); // show's over: unlock scrolling, lift the vignette
     const first = recordHeistSeen(key);
     awardPoints(EARN.heist, `Heist: ${key}`);
     if (!first || !announce) return first;

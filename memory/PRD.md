@@ -3174,6 +3174,24 @@ inside playHeistSound).
   /pw-browsers/chromium_headless_shell-1208/chrome-linux/headless_shell.
 - Reports: iteration_77.json (3/4 pass; 4th fixed + re-verified via DOM counts).
 
+## 2026-06 fork part 151: Witness Protocol — herald + spotlight for heists
+- PROBLEM: heists auto-scroll users to the top with no warning; users read it
+  as a glitch, scroll back down and miss the show.
+- NEW /app/frontend/src/components/scenes/witnessStage.js (DOM-level, no React):
+  showHerald(kind) themed banner "Beware! {line} — LOOK UP!" (en/es via ff_lang,
+  ~24 themed lines keyed by summon kind, default fallback, auto-fades 4.6s),
+  engageSpotlight() = bottom vignette (z-40, below heist z-50) + scroll lock
+  (html.ff-witness-lock overflow hidden + non-passive wheel/touchmove block +
+  key block, 15s safety auto-release), releaseSpotlight().
+- heistLib.jsx summonToLogo: when a scroll is needed → herald 2s (HERALD_MS)
+  → smooth scroll → settle → engageSpotlight + strike. Provisional cooldown
+  hold 6s→9.5s. Cancel fn also hides herald/releases lock. useHeistWitness
+  ref now calls releaseSpotlight() first — the central end-of-show hook.
+- AmbianceScene.jsx neon wreck start(): same herald→scroll→spotlight flow.
+- At-top strikes unchanged (no herald/lock — user is already watching).
+- Verified live via Playwright: herald text, scroll to 0, wheel blocked during
+  lock, full release after show. Herald z-index 95 (above share strip).
+
 ## 2026-06 fork part 150: Google Play promo video v5 — COMPLETE
 - New portrait promo assembled: /app/frontend/public/promo/forkfate-promo.mp4
   (1080x1920, ~88.4s, 22MB). Verified via ffprobe post-fork.
