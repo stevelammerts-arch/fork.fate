@@ -380,7 +380,7 @@ export default function Admin() {
       <main className="mx-auto grid max-w-5xl gap-8 px-6 pt-8 md:grid-cols-[360px_1fr]">
         <StatsPanel stats={stats} cost={cost} weekly={weekly} emailing={emailing} sendSummaryEmail={sendSummaryEmail} />
         <SubmissionsQueue submissions={submissions} approveSubmission={approveSubmission} rejectSubmission={rejectSubmission} />
-        <GeoPanel geo={geo} geoDays={geoDays} setGeoDays={setGeoDays} loading={geoLoading} />
+        <GeoPanel geo={geo} geoDays={geoDays} setGeoDays={setGeoDays} loading={geoLoading} onRefresh={() => loadGeo(geoDays)} />
         <FeedbackList feedback={feedback} deleteFeedback={deleteFeedback} />
         <MerchInterest data={merch} />
         <SponsorForm form={form} set={set} saving={saving} addSponsor={addSponsor} />

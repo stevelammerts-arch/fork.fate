@@ -10,6 +10,7 @@ import SocialShare from "../components/SocialShare";
 import { useFavorites } from "../hooks/useFavorites";
 import { useShake, requestMotionPermission, installMotionPermissionTap } from "../hooks/useShake";
 import { installEggTapThrough } from "../lib/tapFx";
+import { buildRecap } from "../lib/recap";
 import { useShareTarget } from "../hooks/useShareTarget";
 import GuidedFlow from "../components/GuidedFlow";
 import ModeGuide from "../components/guided/ModeGuide";
@@ -389,6 +390,30 @@ export default function Home() {
     }, 6000);
     return () => clearTimeout(tm);
   }, []); // once per load; t is stable enough for a fire-and-forget toast
+
+  // MONTH-ROLLOVER RECAP NUDGE: in the first two weeks of a new month, offer a
+  // one-tap share of LAST month's recap — only if that month actually had fates,
+  // and only once per month (ff_recap_prompted).
+  useEffect(() => {
+    try {
+      const nowD = new Date();
+      if (nowD.getDate() > 14) return undefined;
+      const prev = new Date(nowD.getFullYear(), nowD.getMonth() - 1, 1);
+      const pkey = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, "0")}`;
+      if (localStorage.getItem("ff_recap_prompted") === pkey) return undefined;
+      const rc = buildRecap({ year: prev.getFullYear(), month: prev.getMonth() });
+      if (!rc.total) return undefined;
+      const tm = setTimeout(() => {
+        try { localStorage.setItem("ff_recap_prompted", pkey); } catch (e) { /* ignore */ }
+        toast(`${t("Your")} ${rc.label} ${t("recap is ready!")}`, {
+          description: t("See your month in fates and share the card with one tap."),
+          duration: 14000,
+          action: { label: t("View & share"), onClick: () => navigate(`/recap?period=${pkey}&share=1`) },
+        });
+      }, 9000);
+      return () => clearTimeout(tm);
+    } catch (e) { return undefined; }
+  }, []); // once per load — fire-and-forget nudge
 
   // SAVE-PROGRESS NUDGE: once a player has earned several trophies and never
   // backed up, gently point them at the Save Progress card — one time only.

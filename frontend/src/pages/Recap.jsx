@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { ArrowLeft, Dices, UtensilsCrossed, ThumbsUp, Swords, Castle, Flame, MapPin, Sparkles, Share2, Trophy } from "lucide-react";
@@ -33,11 +33,22 @@ const Caption = ({ children }) => (
 export default function Recap() {
   const { t } = useLang();
   const now = new Date();
+  // Deep link support: /recap?period=YYYY-MM lands on that month (used by the
+  // month-rollover share nudge), &share=1 jumps to the finale with the share
+  // button pulsing — one tap to post last month's card.
+  const [params] = useSearchParams();
+  const periodParam = params.get("period");
+  const autoShare = params.get("share") === "1";
+  const [periodOverride, setPeriodOverride] = useState(() =>
+    periodParam && /^\d{4}-\d{2}$/.test(periodParam)
+      ? { year: Number(periodParam.slice(0, 4)), month: Number(periodParam.slice(5)) - 1 }
+      : null
+  );
   const [scope, setScope] = useState("year"); // "year" | "month"
-  const [idx, setIdx] = useState(0);
+  const [idx, setIdx] = useState(autoShare ? 99 : 0); // 99 clamps to the finale slide
   const stats = useMemo(
-    () => buildRecap({ year: now.getFullYear(), month: scope === "month" ? now.getMonth() : null }),
-    [scope] // eslint-disable-line react-hooks/exhaustive-deps
+    () => buildRecap(periodOverride || { year: now.getFullYear(), month: scope === "month" ? now.getMonth() : null }),
+    [scope, periodOverride] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const slides = useMemo(() => {
@@ -192,8 +203,8 @@ export default function Recap() {
                 key={k}
                 type="button"
                 data-testid={`recap-scope-${k}`}
-                onClick={() => { setScope(k); setIdx(0); }}
-                className={`rounded-full px-3.5 py-1 font-sans text-xs font-bold transition-colors ${scope === k ? "bg-white text-[#0E0E0E]" : "text-white/70"}`}
+                onClick={() => { setPeriodOverride(null); setScope(k); setIdx(0); }}
+                className={`rounded-full px-3.5 py-1 font-sans text-xs font-bold transition-colors ${!periodOverride && scope === k ? "bg-white text-[#0E0E0E]" : "text-white/70"}`}
               >
                 {k === "year" ? t("This Year") : t("This Month")}
               </button>
@@ -245,7 +256,7 @@ export default function Recap() {
                   ))}
                 </div>
                 <div className="pointer-events-auto flex gap-2.5">
-                  <button type="button" onClick={shareRecap} disabled={sharing} data-testid="recap-share-button" className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 font-sans text-sm font-bold text-[#0E0E0E] transition-transform hover:-translate-y-0.5 disabled:opacity-60">
+                  <button type="button" onClick={shareRecap} disabled={sharing} data-testid="recap-share-button" className={`inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 font-sans text-sm font-bold text-[#0E0E0E] transition-transform hover:-translate-y-0.5 disabled:opacity-60 ${autoShare ? "ff-share-pulse" : ""}`}>
                     <Share2 className="h-4 w-4" /> {sharing ? t("Building card…") : t("Share my recap")}
                   </button>
                   <Link to="/" data-testid="recap-deal-again" className="inline-flex items-center gap-2 rounded-full border border-white/30 px-5 py-2.5 font-sans text-sm font-bold text-white transition-colors hover:bg-white/10">

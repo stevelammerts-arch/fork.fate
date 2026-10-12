@@ -1,9 +1,11 @@
 """Admin portal: auth, sponsor CRUD/stats, submissions moderation, reconcile."""
 import uuid
 import hmac
+import re
 from typing import List
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, HTTPException, Depends, Request, Response
+from pydantic import BaseModel
 
 from core import (db, rate_limit, require_admin, create_admin_token, client_ip,
                   check_login_lockout, record_login_failure, clear_login_failures,
@@ -117,16 +119,51 @@ async def geo_stats(days: int = 30):
         day = trend_start + timedelta(days=i)
         key = day.strftime("%Y-%m-%d")
         trend.append({"date": key, "label": day.strftime("%b %d"), "views": by_day.get(key, 0)})
+    markers = await db.trend_markers.find({}, {"_id": 0}).sort("date", 1).to_list(200)
     return {
         "days": days,
         "total": total,
         "trend": trend,
+        "markers": markers,
         "countries": [{"name": c["_id"] or "Unknown", "count": c["count"]} for c in countries],
         "cities": [
             {"name": c["_id"]["city"], "region": c["_id"].get("region", ""), "country": c["_id"]["country"], "count": c["count"]}
             for c in cities
         ],
     }
+
+
+class TrendMarkerIn(BaseModel):
+    date: str
+    label: str
+
+
+@router.post("/admin/trend-markers", dependencies=[Depends(require_admin)])
+async def add_trend_marker(body: TrendMarkerIn):
+    """Pin a dated event (Play launch, promo post, ad run) onto the visitor
+    trend chart so traffic spikes can be tied back to what caused them."""
+    date = body.date.strip()
+    label = body.label.strip()
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+        raise HTTPException(status_code=422, detail="date must be YYYY-MM-DD")
+    if not 1 <= len(label) <= 40:
+        raise HTTPException(status_code=422, detail="label must be 1-40 characters")
+    doc = {
+        "id": str(uuid.uuid4()),
+        "date": date,
+        "label": label,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.trend_markers.insert_one({**doc})
+    return doc
+
+
+@router.delete("/admin/trend-markers/{mid}", dependencies=[Depends(require_admin)])
+async def delete_trend_marker(mid: str):
+    res = await db.trend_markers.delete_one({"id": mid})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="marker not found")
+    return {"ok": True}
 
 
 @router.get("/admin/geo-diag", dependencies=[Depends(require_admin)])

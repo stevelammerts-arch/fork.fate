@@ -3443,3 +3443,11 @@ body.ff-badge-open .ff-theme-scene * {
   .ff-float-pill-lower { bottom: calc(1.25rem + 2.25rem + env(safe-area-inset-bottom, 0px)); }
   .ff-float-pill-upper { bottom: calc(4.75rem + 2.25rem + env(safe-area-inset-bottom, 0px)); }
 }
+
+/* Recap auto-share: when the month-rollover nudge deep-links in (?share=1),
+   the share button breathes so the one tap left is unmissable. */
+@keyframes ffSharePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.55); transform: scale(1); }
+  50% { box-shadow: 0 0 0 12px rgba(255,255,255,0); transform: scale(1.04); }
+}
+.ff-share-pulse { animation: ffSharePulse 1.6s ease-in-out infinite; }

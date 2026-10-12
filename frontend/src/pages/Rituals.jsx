@@ -30,6 +30,23 @@ const HEIST_ICONS = {
   watcher: Eye, chase: Siren, armdrop: Hand, cheesethief: Rat, peek: EyeOff,
 };
 
+// Hunt clues for unwitnessed heists: tell collectors WHERE to stalk without
+// spoiling the gag itself. Keyed by the heist's home realm.
+const HUNT_HINTS = {
+  "All realms": "It can strike anywhere — linger on the home page with the medallion in sight.",
+  "Cyberscape": "Patrol the neon grid — Cyberscape shadows get bold when you idle.",
+  "Dragon's Hoard": "Stand watch over the hoard — gold attracts more than dragons.",
+  "Reaper": "Keep vigil in the Reaper's dark. Something always stirs.",
+  "Fairy Gully": "Wait quietly in Fairy Gully — the little folk move when you don't.",
+  "Summer": "Visit while the Summer takeover is on — beach business is never finished.",
+  "Steampunk": "Loiter in the Steampunk workshop and listen for the gears.",
+  "Tiki Lounge": "Kick back in the Tiki Lounge — the island never truly sleeps.",
+  "Winter": "Brave the Winter realm — fresh tracks appear in the snow.",
+  "Fall": "Haunt the Fall woods — the leaves hide busy paws.",
+  "Spring": "Stroll the Spring realm when the petals drift.",
+  "Café": "Sip a while in the Coffee Shop — the staff see everything.",
+};
+
 /** Small colored pill naming how hard a fate is to witness. */
 const RarityTag = ({ k, kind, t }) => {
   const r = RARITY[rarityOf(k, kind)];
@@ -448,7 +465,7 @@ export default function Rituals() {
                   {t(h.realm)}
                 </p>
                 <p className={`mt-1.5 font-sans text-xs leading-snug ${got ? "text-white/60" : "text-white/25 italic"}`}>
-                  {got ? t(h.desc) : t("Not yet witnessed — linger in a realm and watch its shadow move.")}
+                  {got ? t(h.desc) : t(HUNT_HINTS[h.realm] || "Not yet witnessed — linger in a realm and watch its shadow move.")}
                 </p>
               </motion.div>
             );
